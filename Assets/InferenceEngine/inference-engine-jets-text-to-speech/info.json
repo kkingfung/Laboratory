@@ -1,0 +1,14 @@
+{
+    "code": [
+        "RunJets.cs"
+    ],
+    "models": [
+        "models/jets-text-to-speech.onnx"
+    ],
+    "data": [
+        "data/phoneme_dict.txt"
+    ],
+    "version": [
+        "2.2.0"
+    ]
+}
