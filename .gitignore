@@ -107,5 +107,4 @@ InitTestScene*.unity*
 # Other
 empty.meta
 /.vsconfig
-Assets/InferenceEngine/inference-engine-phi-1_5/models
 Assets/InferenceEngine/inference-engine-jets-text-to-speech/models
