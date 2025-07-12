@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 051f5d3ab27227e41966d39eedb6f66a, type: 3}
+  m_Name: Day Preset
+  m_EditorClassIdentifier: 
+  m_displayName: Day
+  m_directionalLightPrefab: {fileID: 2264114199240522312, guid: 90846856d0410c943b88f6815cf84895, type: 3}
+  m_globalPostProcessingPrefab: {fileID: 776189271342231371, guid: 383751fe96e8d4344b9fdc8cd9d248f8, type: 3}
+  m_gppVolumeProfile: {fileID: 11400000, guid: d96d49029e3294ed18c5f25a54317d16, type: 2}
+  m_environment: {fileID: 11400000, guid: f6d0cab40f8301c428cec97a8a59d8b7, type: 2}

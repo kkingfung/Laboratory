@@ -17,7 +17,7 @@ MonoBehaviour:
   m_category: 0
   m_status: 2
   m_installedSizeMB: 374.9724
-  m_packageSizeMB: 411.53864
+  m_packageSizeMB: 374.7199
   m_unityPackage: {fileID: 102900000, guid: be28de31706cfbc439fb7c1325bd060c, type: 3}
   m_installFolder: Stamps
   m_packageInfo: Contains Stamp Images for the Gaia Stamper and the Gaia World Designer.
@@ -29,5 +29,5 @@ MonoBehaviour:
   m_containsGaiaLayers: 0
   m_containsRPMaterials: 0
   m_defaultAction: 4
-  m_currentAction: 3
+  m_currentAction: 0
   m_installOrder: 20

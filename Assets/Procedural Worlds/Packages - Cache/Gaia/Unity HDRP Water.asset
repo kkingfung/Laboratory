@@ -17,7 +17,7 @@ MonoBehaviour:
   m_category: 2
   m_status: 2
   m_installedSizeMB: 0.03165722
-  m_packageSizeMB: 0.006857872
+  m_packageSizeMB: 0.007101059
   m_unityPackage: {fileID: 102900000, guid: a3e9f299d1203dd478bbc7786c31ed58, type: 3}
   m_installFolder: Unity HDRP Water
   m_packageInfo: Uses the Unity HDRP water system to create an ocean at the sea level
@@ -27,5 +27,5 @@ MonoBehaviour:
   m_containsGaiaLayers: 0
   m_containsRPMaterials: 0
   m_defaultAction: 4
-  m_currentAction: 3
+  m_currentAction: 0
   m_installOrder: 30

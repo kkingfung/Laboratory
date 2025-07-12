@@ -1,0 +1,97 @@
+Gaia is being sold and licensed to the end user under the Unity asset store license: https://unity3d.com/legal/as_terms.
+
+Portions of this asset were created under usage of additional resources provided by Unity and other sources. This file lists all the content obtained from 3rd party sources and the license under which those files were included in this application. 
+
+The files found in the following folders are governed by additional licenses:
+(Depending on Gaia version / the modules you have installed, some of these folders might not be present in your project)
+
+__________________________________________________________________________________________________________________
+3rd Party art asset content
+------------------------------------------------------------------------------------------------------------------
+Folders:
+Assets\Procedural Worlds\Packages - Install\Asset Samples\3D Forge
+Assets\Procedural Worlds\Packages - Install\Asset Samples\Nature Manufacture
+Assets\Procedural Worlds\Packages - Install\Asset Samples - Synty Studios
+------------------------------------------------------------------------------------------------------------------
+These folders contain art assets from other asset store publishers that have been provided by their authors with 
+friendly permission for you to use with Gaia. These authors retain full intellectual property rights and ownership 
+in their products and Procedural Worlds does not assert any rights over these works. 
+
+Please visit the asset store pages of those awesome creators to find more of their work:
+
+3DForge : 
+https://assetstore.unity.com/publishers/2970
+
+NatureManufacture :
+https://assetstore.unity.com/publishers/6887
+
+Synty Studios:
+https://assetstore.unity.com/publishers/5217
+__________________________________________________________________________________________________________________
+
+
+__________________________________________________________________________________________________________________
+Mesh Simplifier
+------------------------------------------------------------------------------------------------------------------
+Folders:
+Procedural Worlds\Packages - Install\Gaia\Scripts\Core\Mesh Simplifier
+Procedural Worlds\Packages - Install\Gaia\Scripts\Editor\Mesh Simplifier
+------------------------------------------------------------------------------------------------------------------
+Derived from the project "Unity Mesh Simplifier", obtainable from: https://github.com/Whinarn/UnityMeshSimplifier
+License: MIT License, see Procedural Worlds\Gaia\Scripts\Mesh Simplifier\license.txt
+Please see also: Procedural Worlds\Packages - Install\Gaia\Scripts\Core\Mesh Simplifier
+Third Party Notices.txt
+__________________________________________________________________________________________________________________
+
+
+__________________________________________________________________________________________________________________
+Unity Standard Shaders
+------------------------------------------------------------------------------------------------------------------
+Folder: 
+Procedural Worlds\Packages - Install\Gaia\Shaders\Unity\Standard Shaders
+------------------------------------------------------------------------------------------------------------------
+Derived from the Unity Standard Shaders package obtainable from: https://unity3d.com/get-unity/download/archive
+License: see Procedural Worlds\Packages - Install\Gaia\Shaders\Unity\Standard Shaders\license.txt
+__________________________________________________________________________________________________________________
+
+
+__________________________________________________________________________________________________________________
+Unity Terrain Tools Package
+------------------------------------------------------------------------------------------------------------------
+Folders: 
+Procedural Worlds\Packages - Install\Gaia\Shaders\Unity\Terrain Tools
+Procedural Worlds\Packages - Install\Gaia\Scripts\Core\Unity\Terrain Tools
+Procedural Worlds\Packages - Install\Gaia\Gaia Pro\Scripts\Core\Unity\Terrain Tools
+Procedural Worlds\Packages - Install\Gaia\Gaia Pro\Shaders\Unity\Terrain Tools
+------------------------------------------------------------------------------------------------------------------
+Derived from the Unity Terrain Tools Package
+License: Unity Companion License - https://unity3d.com/legal/licenses/Unity_Companion_License
+A full "offline" copy of this license can be found in each of these folders as well.
+__________________________________________________________________________________________________________________
+
+
+__________________________________________________________________________________________________________________
+Blur Shader Function
+------------------------------------------------------------------------------------------------------------------
+Folder:
+Procedural Worlds\Packages - Install\Gaia\Gaia Pro\Shaders\Terrain Operations
+------------------------------------------------------------------------------------------------------------------
+Derived from the project "Blur Shaders", 
+obtainable from: https://github.com/GameMakerDiscord/blur-shaders/tree/master
+License: MIT License, found by the relevant code portion in:
+Procedural Worlds\Packages - Install\Gaia\Gaia Pro\Shaders\Terrain Operations\FilterCurvatureMask.shader
+__________________________________________________________________________________________________________________
+
+
+__________________________________________________________________________________________________________________
+Unity URP Water System
+------------------------------------------------------------------------------------------------------------------
+Folder:
+Procedural Worlds\Packages - Install\Unity URP Water
+------------------------------------------------------------------------------------------------------------------
+Derived from the "URP 3D Sample" project, 
+provided by Unity under: https://unity.com/demos/urp-3d-sample
+License: Unity Companion license: https://unity.com/legal/licenses/unity-companion-license
+A full "offline" copy of this license can be found in this folder as well.
+__________________________________________________________________________________________________________________
+
