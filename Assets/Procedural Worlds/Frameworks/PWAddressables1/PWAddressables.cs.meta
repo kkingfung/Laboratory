@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 7d945e00e2986ab4692c0689edaacf49
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 264629
+  packageName: Gaia for Unity 6
+  packageVersion: 4.1.2
+  assetPath: Assets/Procedural Worlds/Frameworks/PWAddressables1/PWAddressables.cs
+  uploadId: 762039

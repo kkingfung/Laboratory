@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: bad110d548f152946bb96d2c1312ed06
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 264629
+  packageName: Gaia for Unity 6
+  packageVersion: 4.1.2
+  assetPath: Assets/Procedural Worlds/Frameworks/Setup1/Scripts/SetupUtils.cs
+  uploadId: 762039
