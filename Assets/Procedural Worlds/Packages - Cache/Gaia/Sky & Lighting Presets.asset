@@ -16,16 +16,16 @@ MonoBehaviour:
   m_displayName: Sky & Lighting Presets
   m_category: 2
   m_status: 2
-  m_installedSizeMB: 257.7383
-  m_packageSizeMB: 188.5828
+  m_installedSizeMB: 257.76678
+  m_packageSizeMB: 134.68518
   m_unityPackage: {fileID: 102900000, guid: a1d651ef0455f0849a6d9c4c7faeddff, type: 3}
   m_installFolder: Sky & Lighting Presets
   m_packageInfo: Allows you to add different sky and lighting presets (e.g. Daytime
     or Night time lighting) to your scene via the runtime tab in the Gaia Manager.
-  m_updateAvailable: 0
+  m_updateAvailable: 1
   m_containsGaiaBiomes: 0
   m_containsGaiaLayers: 0
   m_containsRPMaterials: 0
   m_defaultAction: 4
-  m_currentAction: 0
+  m_currentAction: 4
   m_installOrder: 30

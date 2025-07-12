@@ -16,6 +16,19 @@ MonoBehaviour:
   hdPluginSubTargetMaterialVersions:
     m_Keys: []
     m_Values: 
+--- !u!114 &-1447547968187789193
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Editor::UnityEditor.Rendering.Universal.AssetVersion
+  version: 10
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -24,14 +37,17 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: PW_Detail_Lawn Sample
-  m_Shader: {fileID: 4800000, guid: 72462e7bb7591b4418a705a37fe544ac, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 00efb9683d88ef54f91cfd4c0e362b1b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - SHADOWS_SHADOWMASK
+  - _MAIN_LIGHT_SHADOWS
+  - _MAIN_LIGHT_SHADOWS_2
+  - _MAIN_LIGHT_SHADOWS_CASCADE
   - _PW_SF_WIND_ON
   m_InvalidKeywords:
   - _ALPHATEST_OFF
-  - _ALPHATEST_ON
   - _DISABLE_SSR_TRANSPARENT
   - _DOUBLESIDED_ON
   - _NORMALMAP
@@ -205,6 +221,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - SHADOWS_SHADOWMASK: 1
     - Vector1_95d7235b4e28472c8b43574046d10a99: 0
     - Vector1_9c7904cfd7af46e08c29b4f95ba39f69: 0
     - Vector1_ce706a119d0243d392695fd9e5512c99: 1
@@ -248,6 +265,7 @@ Material:
     - _DisplacementLockObjectScale: 1
     - _DisplacementLockTilingScale: 1
     - _DisplacementMode: 0
+    - _Distortion: 10
     - _DistortionBlendMode: 0
     - _DistortionBlurBlendMode: 0
     - _DistortionBlurDstBlend: 1
@@ -290,6 +308,9 @@ Material:
     - _IridescenceMask: 1
     - _IridescenceThickness: 1
     - _LinkDetailsWithBase: 1
+    - _MAIN_LIGHT_SHADOWS: 1
+    - _MAIN_LIGHT_SHADOWS_2: 1
+    - _MAIN_LIGHT_SHADOWS_CASCADE: 1
     - _MaterialID: 1
     - _Metallic: 0
     - _MetallicRemapMax: 1
@@ -342,12 +363,16 @@ Material:
     - _PW_TerrainSizeZ: 2048
     - _PW_WorldMapUVScale: 1
     - _Parallax: 0.02
+    - _Power: 10
+    - _QueueControl: 0
+    - _QueueOffset: 0
     - _RayTracing: 0
     - _ReceivesSSR: 1
     - _ReceivesSSRTransparent: 0
     - _RefractionModel: 0
     - _RenderQueueType: 1
     - _RequireSplitLighting: 0
+    - _Scale: 10
     - _Smoothness: 0.5
     - _SmoothnessRemapMax: 1
     - _SmoothnessRemapMin: 0
@@ -400,8 +425,7 @@ Material:
     - _Color: {r: 0.8018868, g: 0.7882903, b: 0.73001957, a: 1}
     - _ColorA: {r: 1, g: 0.033018887, b: 0.033018887, a: 1}
     - _ColorB: {r: 0.46226418, g: 0.032707367, b: 0.032707367, a: 1}
-    - _DiffusionProfileAsset: {r: -9.2396434e+33, g: 2.6337685e-36, b: 2.14897e-38,
-        a: 6.8169325e-31}
+    - _DiffusionProfileAsset: {r: -9.2396434e+33, g: 2.6337685e-36, b: 2.14897e-38, a: 6.8169325e-31}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
@@ -418,6 +442,7 @@ Material:
     - _PW_WorldMapColorCover0: {r: 1, g: 1, b: 1, a: 1}
     - _PW_WorldMapColorCover1: {r: 1, g: 1, b: 1, a: 1}
     - _PW_WorldMapColorObject: {r: 1, g: 1, b: 1, a: 1}
+    - _SSSColor: {r: 1, g: 1, b: 1, a: 0}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
     - _ThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
     - _TransmittanceColor: {r: 1, g: 1, b: 1, a: 1}
@@ -425,6 +450,7 @@ Material:
     - _UVMappingMask: {r: 1, g: 0, b: 0, a: 0}
     - _UVMappingMaskEmissive: {r: 1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &1435470645039833199
 MonoBehaviour:
   m_ObjectHideFlags: 11

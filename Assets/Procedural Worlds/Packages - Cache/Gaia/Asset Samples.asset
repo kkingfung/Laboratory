@@ -16,16 +16,16 @@ MonoBehaviour:
   m_displayName: Asset Samples
   m_category: 1
   m_status: 2
-  m_installedSizeMB: 560.56696
-  m_packageSizeMB: 487.56677
+  m_installedSizeMB: 560.6417
+  m_packageSizeMB: 487.186
   m_unityPackage: {fileID: 102900000, guid: d21773d5009fa0c4b9f67f6b863c5502, type: 3}
   m_installFolder: Asset Samples
   m_packageInfo: Contains asset samples from Gaia Pro and other 3rd party publishers
     to get you started with your first environments with Gaia.
-  m_updateAvailable: 0
+  m_updateAvailable: 1
   m_containsGaiaBiomes: 1
   m_containsGaiaLayers: 1
   m_containsRPMaterials: 1
   m_defaultAction: 4
-  m_currentAction: 0
+  m_currentAction: 4
   m_installOrder: 20

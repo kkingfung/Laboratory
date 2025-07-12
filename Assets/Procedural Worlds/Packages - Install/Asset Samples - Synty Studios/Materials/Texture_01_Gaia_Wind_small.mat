@@ -8,10 +8,14 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Texture_01_Gaia_Wind_small
-  m_Shader: {fileID: 4800000, guid: 72462e7bb7591b4418a705a37fe544ac, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: 00efb9683d88ef54f91cfd4c0e362b1b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
+  - SHADOWS_SHADOWMASK
+  - _MAIN_LIGHT_SHADOWS
+  - _MAIN_LIGHT_SHADOWS_2
+  - _MAIN_LIGHT_SHADOWS_CASCADE
   - _PW_SF_WIND_ON
   m_InvalidKeywords:
   - _ALPHATEST_OFF
@@ -90,6 +94,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - SHADOWS_SHADOWMASK: 1
     - _ALPHATEST: 0
     - _AOPower: 1
     - _AOPowerExp: 1
@@ -109,11 +114,15 @@ Material:
     - _Cutoff: 0.5
     - _DepthOffsetEnable: 0
     - _DiffusionProfile: 2.2732565
+    - _Distortion: 10
     - _DoubleSidedGIMode: 0
     - _DstBlend: 0
     - _EnableBlendModePreserveSpecularLighting: 0
     - _EnableFogOnTransparent: 1
     - _Glossiness: 0.2
+    - _MAIN_LIGHT_SHADOWS: 1
+    - _MAIN_LIGHT_SHADOWS_2: 1
+    - _MAIN_LIGHT_SHADOWS_CASCADE: 1
     - _Metallic: 0
     - _MipBias: 0
     - _NormalStrength: 1
@@ -160,7 +169,8 @@ Material:
     - _PW_WindToggle: 0
     - _PW_WorldMapToggle: 0
     - _PW_WorldMapUVScale: 1
-    - _QueueControl: -1
+    - _Power: 10
+    - _QueueControl: 0
     - _QueueOffset: 0
     - _RayTracing: 1
     - _ReceivesSSR: 1
@@ -168,6 +178,8 @@ Material:
     - _RefractionModel: 0
     - _RenderQueueType: 1
     - _RequireSplitLighting: 0
+    - _Scale: 10
+    - _Smoothness: 0
     - _SrcBlend: 1
     - _StencilRef: 0
     - _StencilRefDepth: 8
@@ -210,7 +222,9 @@ Material:
     - _PW_WorldMapColorCover0: {r: 1, g: 1, b: 1, a: 1}
     - _PW_WorldMapColorCover1: {r: 1, g: 1, b: 1, a: 1}
     - _PW_WorldMapColorObject: {r: 1, g: 1, b: 1, a: 1}
+    - _SSSColor: {r: 1, g: 1, b: 1, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
 --- !u!114 &698376249703311982
 MonoBehaviour:
   m_ObjectHideFlags: 11
@@ -223,7 +237,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 7
+  version: 10
 --- !u!114 &4555689163071644105
 MonoBehaviour:
   m_ObjectHideFlags: 11

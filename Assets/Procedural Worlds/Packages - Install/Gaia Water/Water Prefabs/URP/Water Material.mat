@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 7
+  version: 10
 --- !u!114 &-2485475424145363075
 MonoBehaviour:
   m_ObjectHideFlags: 11
@@ -37,17 +37,17 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Water Material
-  m_Shader: {fileID: 4800000, guid: bcb8ab61b454e43759e4aed562a63ef0, type: 3}
+  m_Shader: {fileID: -6465566751694194690, guid: d80e0e6749cdf9a40ada1c79016b3a8b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords:
-  - _PW_SF_SSS_ON
+  m_ValidKeywords: []
   m_InvalidKeywords:
   - _DISABLE_DECALS
   - _DISABLE_SSR
   - _DISABLE_SSR_TRANSPARENT
   - _DOUBLESIDED_ON
   - _ENABLE_FOG_ON_TRANSPARENT
+  - _PW_SF_SSS_ON
   - _PW_SF_WAVE_PEAK_ON
   - _PW_SSS_OFF
   - _SURFACE_TYPE_TRANSPARENT
@@ -61,6 +61,7 @@ Material:
   - TransparentDepthPostpass
   - TransparentBackface
   - RayTracingPrepass
+  - MOTIONVECTORS
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
@@ -277,3 +278,4 @@ Material:
     - _UnderWaterColor: {r: 0.23371306, g: 0.36069658, b: 0.49056602, a: 1}
     - _WaveDirection: {r: 1, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

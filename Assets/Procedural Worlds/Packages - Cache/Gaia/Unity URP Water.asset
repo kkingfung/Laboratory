@@ -16,16 +16,16 @@ MonoBehaviour:
   m_displayName: Unity URP Water
   m_category: 2
   m_status: 2
-  m_installedSizeMB: 29.480165
-  m_packageSizeMB: 14.821328
+  m_installedSizeMB: 29.480076
+  m_packageSizeMB: 15.17
   m_unityPackage: {fileID: 102900000, guid: d19ea5e4d3ff93d4a85217f32021b3be, type: 3}
   m_installFolder: Unity URP Water
   m_packageInfo: A simple water surface for URP derived from the Unity URP Sample
     project
-  m_updateAvailable: 0
+  m_updateAvailable: 1
   m_containsGaiaBiomes: 0
   m_containsGaiaLayers: 0
   m_containsRPMaterials: 1
   m_defaultAction: 4
-  m_currentAction: 0
+  m_currentAction: 4
   m_installOrder: 31
