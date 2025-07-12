@@ -1,8 +1,11 @@
 {
   "dependencies": {
+    "com.unity.2d.enhancers": "1.0.0",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.ads": "4.4.2",
+    "com.unity.ai.assistant": "1.0.0-pre.8",
+    "com.unity.ai.generators": "1.0.0-pre.15",
     "com.unity.ai.inference": "2.2.1",
     "com.unity.ai.navigation": "2.0.8",
     "com.unity.analytics": "3.8.1",
