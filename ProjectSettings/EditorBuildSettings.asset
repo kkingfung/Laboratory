@@ -4,7 +4,10 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/TestGaia.unity
+    guid: 47c5ded649d311b44876df8fde428856
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: cca51d94fbf18d843b45f01a7285fa7d, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 85cf6c3a2894b724c8a5131a3325db0e, type: 3}

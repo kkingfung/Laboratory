@@ -19,4 +19,4 @@ MonoBehaviour:
   m_addWind: 1
   m_addScreenshotter: 1
   m_addLoadingScreen: 1
-  m_windType: 0
+  m_windType: 1

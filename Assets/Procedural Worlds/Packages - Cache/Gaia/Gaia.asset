@@ -16,7 +16,7 @@ MonoBehaviour:
   m_displayName: Gaia
   m_category: 0
   m_status: 2
-  m_installedSizeMB: 17.591854
+  m_installedSizeMB: 17.591713
   m_packageSizeMB: 5.0168276
   m_unityPackage: {fileID: 102900000, guid: 5e9feae869ae38b4b87d7756baf3c61f, type: 3}
   m_installFolder: Gaia
