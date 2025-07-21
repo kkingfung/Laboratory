@@ -287,7 +287,7 @@ QualitySettings:
     globalTextureMipmapLimit: 0
     textureMipmapLimitSettings: []
     anisotropicTextures: 2
-    antiAliasing: 2
+    antiAliasing: 0
     softParticles: 1
     softVegetation: 1
     realtimeReflectionProbes: 1
@@ -313,7 +313,7 @@ QualitySettings:
     asyncUploadBufferSize: 16
     asyncUploadPersistentBuffer: 1
     resolutionScalingFixedDPIFactor: 1
-    customRenderPipeline: {fileID: 11400000, guid: 0e1e5cbbc761f4e4d8a0f980b6b60e4c, type: 2}
+    customRenderPipeline: {fileID: 11400000, guid: 628444e1efb3e8e498e6bbd9b27365d6, type: 2}
     terrainQualityOverrides: 0
     terrainPixelError: 1
     terrainDetailDensityScale: 1
@@ -325,4 +325,5 @@ QualitySettings:
     terrainMaxTrees: 50
     excludedTargetPlatforms: []
   m_TextureMipmapLimitGroupNames: []
-  m_PerPlatformDefaultQuality: {}
+  m_PerPlatformDefaultQuality:
+    Standalone: 0
