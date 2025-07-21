@@ -56,21 +56,12 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.unity.ads": {
-      "version": "4.4.2",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.ugui": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.ai.assistant": {
-      "version": "1.0.0-pre.8",
+      "version": "1.0.0-pre.10",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.ai.toolkit": "1.0.0-pre.12",
+        "com.unity.ai.toolkit": "1.0.0-pre.16",
         "com.unity.serialization": "3.1.1",
         "com.unity.nuget.newtonsoft-json": "3.2.1",
         "com.unity.modules.unitywebrequest": "1.0.0"
@@ -78,11 +69,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ai.generators": {
-      "version": "1.0.0-pre.15",
+      "version": "1.0.0-pre.16",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.ai.toolkit": "1.0.0-pre.15",
+        "com.unity.ai.toolkit": "1.0.0-pre.16",
         "com.unity.mathematics": "1.3.2",
         "com.unity.nuget.newtonsoft-json": "3.2.1"
       },
@@ -109,7 +100,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ai.toolkit": {
-      "version": "1.0.0-pre.15",
+      "version": "1.0.0-pre.16",
       "depth": 1,
       "source": "registry",
       "dependencies": {
@@ -366,19 +357,6 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-    "com.unity.purchasing": {
-      "version": "4.12.2",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.ugui": "1.0.0",
-        "com.unity.services.core": "1.12.5",
-        "com.unity.modules.androidjni": "1.0.0",
-        "com.unity.modules.jsonserialize": "1.0.0",
-        "com.unity.modules.unitywebrequest": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.render-pipelines.core": {
       "version": "17.2.0",
       "depth": 1,
@@ -474,7 +452,7 @@
     },
     "com.unity.services.core": {
       "version": "1.14.0",
-      "depth": 1,
+      "depth": 2,
       "source": "registry",
       "dependencies": {
         "com.unity.modules.androidjni": "1.0.0",
@@ -570,7 +548,7 @@
     },
     "com.unity.test-framework": {
       "version": "1.5.1",
-      "depth": 0,
+      "depth": 1,
       "source": "builtin",
       "dependencies": {
         "com.unity.ext.nunit": "2.0.3",
@@ -628,16 +606,6 @@
         "com.unity.shadergraph": "17.2.0",
         "com.unity.render-pipelines.core": "17.2.0"
       }
-    },
-    "com.unity.xr.legacyinputhelpers": {
-      "version": "2.1.12",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.modules.vr": "1.0.0",
-        "com.unity.modules.xr": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
