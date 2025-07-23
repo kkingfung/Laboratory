@@ -2,8 +2,6 @@
 
 This document categorizes all weapon cards in **Tyrant**, the RNG-based strategy card game. Weapons are grouped based on **shape** and **material**, making visual recognition and strategic planning more intuitive for players. Each weapon type may be exclusive to a race or shared across multiple races.
 
-> 📌 Learn more about Tyrant: [Game Proposal](./GAME_PROPOSAL.md)
-
 ---
 
 ## 📐 Group 1: Blades & Edged Weapons
