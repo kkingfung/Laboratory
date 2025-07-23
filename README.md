@@ -37,7 +37,7 @@ Winning requires synergy, adaptability, and mastery of timing.
 ### Match Flow:
 
 1. **Status Resolve**: Apply/remove effects
-2. **Card Decision**: Play 1 Servant (optional)
+2. **Card Decision**: Play 1 or more than 1 Servant (optional)
 3. **Effect Resolution**: Activate Servant effects
 4. **Weapon Draw**: Player attacks with random weapon
 5. **Health Check**: Game ends if HP reaches 0
@@ -103,7 +103,7 @@ Once per match, draw 2 Weapon Cards, pick 1. Adds high-risk decision making.
 
 > Each race has its own **leader**, **lore**, **5 unique servants**, and **exclusive weapons**
 
-More: [See full race data](docs/RaceLore.md)
+More: [See full race data](Docs/RaceLore.md)
 
 ---
 
@@ -134,10 +134,11 @@ More: [See full race data](docs/RaceLore.md)
 
 ## 📍 Related Docs
 
-- [Race Lore](docs/RaceLore.md)
-- [Servant Stories](docs/ServantList.md)
-- [Weapon Catalog](docs/WeaponCatalog.md)
-- [UI Specification](docs/UI_Spec.md)
+- [Race Lore](Docs/RaceLore.md)
+- [Servant Stories](Docs/ServantList.md)
+- [Weapon Catalog](Docs/WeaponCatalog.md)
+- [Weapon Grouping Table](Docs/WeaponGroupingTable.md)
+- [UI Specification](Docs/UiSpec.md)
 
 ## ✨ Credits & License
 
