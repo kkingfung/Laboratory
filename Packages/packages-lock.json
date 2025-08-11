@@ -7,13 +7,6 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-    "com.cysharp.messagepipe.vcontainer": {
-      "version": "https://github.com/Cysharp/MessagePipe.git?path=src/MessagePipe.Unity/Assets/Plugins/MessagePipe.VContainer#1.7.4",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "5c8794f95c388bec6f79aa2014438b20d948951e"
-    },
     "com.unity.2d.common": {
       "version": "11.0.1",
       "depth": 1,
