@@ -51,6 +51,12 @@ namespace Infrastructure
             {
                 await LoadInitialScene();
             }
+
+            _gameStateManager.OnStateChangedForNetwork += (newState) =>
+            {
+                var bytes = RPCSerializer.SerializeGameState(newState);
+                _networkClient.Send(bytes); // Your send method
+            };
         }
 
         #endregion
