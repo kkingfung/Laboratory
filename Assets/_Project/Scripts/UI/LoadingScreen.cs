@@ -4,6 +4,8 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+#nullable enable
+
 namespace Infrastructure.UI
 {
     /// <summary>

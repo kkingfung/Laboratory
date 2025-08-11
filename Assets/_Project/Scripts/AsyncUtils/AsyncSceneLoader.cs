@@ -6,6 +6,8 @@ using MessagingPipe;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+#nullable enable
+
 namespace Infrastructure
 {
     /// <summary>

@@ -4,6 +4,8 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
+#nullable enable
+
 namespace Infrastructure.UI
 {
     /// <summary>

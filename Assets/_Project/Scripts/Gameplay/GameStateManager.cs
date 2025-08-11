@@ -3,6 +3,8 @@ using MessagingPipe;
 using UniRx;
 using UnityEngine;
 
+#nullable enable
+
 namespace Infrastructure
 {
     public class GameStateManager : IDisposable

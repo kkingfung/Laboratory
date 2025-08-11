@@ -3,6 +3,8 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 
+#nullable enable
+
 namespace Infrastructure
 {
     /// <summary>
