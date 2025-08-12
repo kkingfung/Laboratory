@@ -5,12 +5,12 @@ namespace Presentation
 {
     public class _View : MonoBehaviour, IDisposable
     {
-        protected ViewModelBase? ViewModel { get; private set; }
+        protected _ViewModel? ViewModel { get; private set; }
 
         /// <summary>
         /// Set the ViewModel for this view and bind UI events.
         /// </summary>
-        public virtual void SetViewModel(ViewModelBase viewModel)
+        public virtual void SetViewModel(_ViewModel viewModel)
         {
             ViewModel = viewModel;
             Bind();
@@ -20,7 +20,10 @@ namespace Presentation
         /// Bind View UI elements to ViewModel observables or commands.
         /// Override in derived classes.
         /// </summary>
-        protected abstract void Bind();
+        protected virtual void Bind()
+        { 
+            // Cleanup if needed
+        }
 
         public virtual void Dispose()
         {

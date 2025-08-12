@@ -1,5 +1,5 @@
 using System;
-using MessagingPipe;
+using MessagePipe;
 using UniRx;
 
 namespace Infrastructure
@@ -37,7 +37,7 @@ namespace Infrastructure
         /// <summary>
         /// Subscribe to event of type T with UniRx Reactive Extensions.
         /// </summary>
-        public IObservable<T> Observe<T>()
+        public System.IObservable<T> Observe<T>()
         {
             // MessagingPipe's IMessageBroker doesn't directly provide IObservable,
             // but we can create an observable wrapper.
@@ -55,7 +55,7 @@ namespace Infrastructure
 
         #region Private Observable Wrapper
 
-        private class MessagingPipeObservable<T> : IObservable<T>
+        private class MessagingPipeObservable<T> : System.IObservable<T>
         {
             private readonly IMessageBroker _broker;
 
@@ -64,7 +64,7 @@ namespace Infrastructure
                 _broker = broker;
             }
 
-            public IDisposable Subscribe(IObserver<T> observer)
+            public IDisposable Subscribe(System.IObserver<T> observer)
             {
                 return _broker.Subscribe(observer.OnNext);
             }

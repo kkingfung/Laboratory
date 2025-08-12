@@ -1,4 +1,5 @@
-using MessagingPipe;
+using MessagePipe;
+using UniRx;
 
 namespace Infrastructure.UI.ViewModels
 {

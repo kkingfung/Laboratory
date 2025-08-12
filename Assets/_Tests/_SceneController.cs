@@ -7,8 +7,8 @@ namespace Presentation
     /// </summary>
     public class _SceneController : MonoBehaviour
     {
-        [SerializeField] private ViewBase _view = null!;
-        private ViewModelBase _viewModel = null!;
+        [SerializeField] private _View _view = null!;
+        private _ViewModel _viewModel = null!;
 
         private void Awake()
         {

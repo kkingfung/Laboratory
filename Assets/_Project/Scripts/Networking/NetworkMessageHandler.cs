@@ -4,9 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Infrastructure;
-using MessagingPipe;
+using MessagePipe;
 using Unity.Entities;
 using UnityEngine;
+using UniRx;
 
 namespace Infrastructure
 {

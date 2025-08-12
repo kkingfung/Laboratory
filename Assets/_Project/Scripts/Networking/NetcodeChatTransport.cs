@@ -11,10 +11,19 @@ public class NetcodeChatTransport : NetworkBehaviour, INetworkChatTransport
     /// </summary>
     public void SendChatMessage(string sender, string message)
     {
-        if (string.IsNullOrEmpty(message)) return;
+        if (string.IsNullOrEmpty(message))
+            return;
 
-        // Call ServerRpc to send message to server
-        SendChatMessageServerRpc(sender, message);
+        if (IsServer)
+        {
+            // If this is the server, broadcast directly without RPC
+            BroadcastChatMessageClientRpc(sender, message);
+        }
+        else
+        {
+            // Otherwise, send to server via ServerRpc
+            SendChatMessageServerRpc(sender, message);
+        }
     }
 
     /// <summary>
@@ -37,8 +46,11 @@ public class NetcodeChatTransport : NetworkBehaviour, INetworkChatTransport
     }
 
     /// <summary>
-    /// Called by ECS system to dequeue received chat messages.
+    /// Called by ECS system or UI to dequeue received chat messages.
     /// </summary>
+    /// <param name="sender">Output sender name</param>
+    /// <param name="message">Output message content</param>
+    /// <returns>True if a message was dequeued, otherwise false</returns>
     public bool TryReceiveChatMessage(out string sender, out string message)
     {
         if (_incomingMessages.TryDequeue(out var result))

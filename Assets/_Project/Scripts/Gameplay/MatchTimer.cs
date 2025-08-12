@@ -1,5 +1,5 @@
 using System;
-using MessagingPipe;
+using MessagePipe;
 using UniRx;
 using UnityEngine;
 

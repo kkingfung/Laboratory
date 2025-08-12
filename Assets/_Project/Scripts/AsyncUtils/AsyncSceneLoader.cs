@@ -2,9 +2,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using MessagingPipe;
+using MessagePipe;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UniRx;
 
 #nullable enable
 
@@ -69,7 +70,7 @@ namespace Infrastructure
         /// </summary>
         public void EnqueueLoad(string sceneName,
                                 LoadSceneMode loadMode = LoadSceneMode.Single,
-                                IProgress<float>? progress = null,
+                                System.IProgress<float>? progress = null,
                                 CancellationToken cancellationToken = default)
         {
             _queue.Enqueue(() => LoadSceneInternal(sceneName, loadMode, progress, cancellationToken));
@@ -80,7 +81,7 @@ namespace Infrastructure
         /// Enqueue a scene unload request.
         /// </summary>
         public void EnqueueUnload(string sceneName,
-                                  IProgress<float>? progress = null,
+                                  System.IProgress<float>? progress = null,
                                   CancellationToken cancellationToken = default)
         {
             _queue.Enqueue(() => UnloadSceneInternal(sceneName, progress, cancellationToken));
@@ -135,7 +136,7 @@ namespace Infrastructure
 
         private async UniTask LoadSceneInternal(string sceneName,
                                                 LoadSceneMode loadMode,
-                                                IProgress<float>? progress,
+                                                System.IProgress<float>? progress,
                                                 CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(sceneName))
@@ -167,7 +168,7 @@ namespace Infrastructure
         }
 
         private async UniTask UnloadSceneInternal(string sceneName,
-                                                  IProgress<float>? progress,
+                                                  System.IProgress<float>? progress,
                                                   CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(sceneName))

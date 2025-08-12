@@ -3,7 +3,8 @@ using Unity.Entities;
 using Unity.Physics.Systems;
 using Cysharp.Threading.Tasks;
 using R3;
-using MessagingPipe;
+using MessagePipe;
+using UniRx;
 
 namespace Infrastructure
 {

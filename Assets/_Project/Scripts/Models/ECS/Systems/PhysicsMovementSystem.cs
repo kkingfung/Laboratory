@@ -1,36 +1,28 @@
 using Unity.Entities;
 using Unity.Physics;
-using Unity.Physics.Extensions;
 using Unity.Physics.Systems;
 using Unity.Transforms;
 using Unity.Mathematics;
 
-namespace Models.ECS.Systems
+[UpdateInGroup(typeof(SimulationSystemGroup))]
+[UpdateBefore(typeof(PhysicsSimulationGroup))]
+public partial struct PhysicsMovementSystem : ISystem
 {
-    [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(BuildPhysicsWorld))]
-    [UpdateBefore(typeof(StepPhysicsWorld))]
-    public partial class PhysicsMovementSystem : SystemBase
+    public void OnUpdate(ref SystemState state)
     {
-        // Movement speed in units per second
-        private const float MoveSpeed = 5f;
+        // Get the singleton PhysicsWorldSingleton for physics queries
+        var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
 
-        protected override void OnUpdate()
-        {
-            float deltaTime = SystemAPI.Time.DeltaTime;
+        float deltaTime = SystemAPI.Time.DeltaTime;
 
-            Entities
-                .WithAll<PlayerInputComponent>()
-                .ForEach((ref PhysicsVelocity physicsVelocity, in PlayerInputComponent input) =>
-                {
-                    // Calculate desired velocity on XZ plane from input
-                    float3 desiredVelocity = new float3(input.MoveDirection.x, 0, input.MoveDirection.y) * MoveSpeed;
+        Entities
+            .WithAll<PlayerTag>() // Adjust tag/component filter as needed
+            .ForEach((ref Translation translation, in PhysicsVelocity velocity) =>
+            {
+                // Simple example: move entity by velocity integrated over deltaTime
+                translation.Value += velocity.Linear * deltaTime;
 
-                    // Apply desired linear velocity, keep existing vertical velocity (gravity/jump)
-                    physicsVelocity.Linear.x = desiredVelocity.x;
-                    physicsVelocity.Linear.z = desiredVelocity.z;
-
-                }).ScheduleParallel();
-        }
+                // TODO: Add your custom physics or DOTS movement logic here
+            }).Schedule();
     }
 }

@@ -1,7 +1,8 @@
 using Unity.Entities;
 using Infrastructure.UI;
-using MessagingPipe;
+using MessagePipe;
 using UnityEngine;
+using UniRx;
 
 namespace Models.ECS.Systems
 {
