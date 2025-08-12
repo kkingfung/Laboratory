@@ -4,25 +4,28 @@ using Unity.Physics.Systems;
 using Unity.Transforms;
 using Unity.Mathematics;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateBefore(typeof(PhysicsSimulationGroup))]
-public partial struct PhysicsMovementSystem : ISystem
+namespace Models.ECS.Systems
 {
-    public void OnUpdate(ref SystemState state)
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [UpdateBefore(typeof(PhysicsSimulationGroup))]
+    public partial struct PhysicsMovementSystem : ISystem
     {
-        // Get the singleton PhysicsWorldSingleton for physics queries
-        var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
+        public void OnUpdate(ref SystemState state)
+        {
+            // Get the singleton PhysicsWorldSingleton for physics queries
+            var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
 
-        float deltaTime = SystemAPI.Time.DeltaTime;
+            float deltaTime = SystemAPI.Time.DeltaTime;
 
-        Entities
-            .WithAll<PlayerTag>() // Adjust tag/component filter as needed
-            .ForEach((ref Translation translation, in PhysicsVelocity velocity) =>
-            {
-                // Simple example: move entity by velocity integrated over deltaTime
-                translation.Value += velocity.Linear * deltaTime;
+            Entities
+                .WithAll<PlayerTag>() // Adjust tag/component filter as needed
+                .ForEach((ref Translation translation, in PhysicsVelocity velocity) =>
+                {
+                    // Simple example: move entity by velocity integrated over deltaTime
+                    translation.Value += velocity.Linear * deltaTime;
 
-                // TODO: Add your custom physics or DOTS movement logic here
-            }).Schedule();
+                    // TODO: Add your custom physics or DOTS movement logic here
+                }).Schedule();
+        }
     }
 }
