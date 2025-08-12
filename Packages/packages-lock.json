@@ -7,6 +7,17 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.gamelovers.mcp-unity": {
+      "version": "https://github.com/CoderGamester/mcp-unity.git",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1",
+        "com.unity.editorcoroutines": "1.0.0",
+        "com.unity.test-framework": "1.3.3"
+      },
+      "hash": "2dda46359ecc9002e492a74c1c3e54fc9942967b"
+    },
     "com.unity.2d.common": {
       "version": "11.0.1",
       "depth": 1,
@@ -146,12 +157,12 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.charactercontroller": {
-      "version": "1.3.11",
+      "version": "1.3.12",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.physics": "1.3.2",
-        "com.unity.entities": "1.3.2",
+        "com.unity.physics": "1.3.14",
+        "com.unity.entities": "1.3.14",
         "com.unity.modules.physics": "1.0.0",
         "com.unity.modules.uielements": "1.0.0"
       },
