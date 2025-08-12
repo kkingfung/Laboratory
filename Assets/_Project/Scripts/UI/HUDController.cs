@@ -1,91 +1,160 @@
 using System;
 using UniRx;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Infrastructure.UI
 {
     /// <summary>
-    /// Controller class that binds HUD UI elements to ViewModel data and handles UI interactions.
-    /// Designed to be used with MVVM pattern.
+    /// Central controller managing the HUD UI elements reactively.
+    /// Integrates multiple UI components using MVVM pattern.
     /// </summary>
-    public class HUDController : IDisposable
+    public class HUDController : MonoBehaviour, IDisposable
     {
-        // Example ViewModel interfaces or classes you would inject or assign
-        private readonly IPlayerStatusViewModel _playerStatusVM;
-        private readonly IAbilityViewModel _abilityVM;
-        private readonly IScoreViewModel _scoreVM;
+        [Header("UI Elements")]
+        [SerializeField] private UnityEngine.UI.Text healthText = null!;
+        [SerializeField] private UnityEngine.UI.Text scoreText = null!;
+        [SerializeField] private UnityEngine.UI.Button[] abilityButtons = null!;
 
-        private readonly CompositeDisposable _disposables = new();
+        [SerializeField] private MiniMapUI miniMapUI = null!;
+        [SerializeField] private DamageIndicatorUI damageIndicatorUI = null!;
+        [SerializeField] private CrosshairUI crosshairUI = null!;
+        [SerializeField] private AbilityBarUI abilityBarUI = null!;
+        [SerializeField] private ScoreboardUI scoreboardUI = null!;
 
-        // References to actual UI elements (assign via inspector or dynamically)
-        private readonly UnityEngine.UI.Text _healthText;
-        private readonly UnityEngine.UI.Text _scoreText;
-        private readonly UnityEngine.UI.Button[] _abilityButtons;
+        private CompositeDisposable disposables = new();
 
-        public HUDController(
-            IPlayerStatusViewModel playerStatusVM,
-            IAbilityViewModel abilityVM,
-            IScoreViewModel scoreVM,
-            UnityEngine.UI.Text healthText,
-            UnityEngine.UI.Text scoreText,
-            UnityEngine.UI.Button[] abilityButtons)
+        // ViewModel references to bind to (assign these from a DI container or setup method)
+        private IPlayerStatusViewModel playerStatusVM = null!;
+        private IAbilityViewModel abilityVM = null!;
+        private IScoreViewModel scoreVM = null!;
+        private IMatchmakingViewModel matchmakingVM = null!; // hypothetical
+        private IGameStateViewModel gameStateVM = null!; // hypothetical
+
+        #region Initialization & Binding
+
+        /// <summary>
+        /// Call this to inject ViewModels after creation.
+        /// </summary>
+        public void Initialize(
+            IPlayerStatusViewModel playerStatus,
+            IAbilityViewModel ability,
+            IScoreViewModel score,
+            IMatchmakingViewModel matchmaking,
+            IGameStateViewModel gameState)
         {
-            _playerStatusVM = playerStatusVM;
-            _abilityVM = abilityVM;
-            _scoreVM = scoreVM;
-
-            _healthText = healthText;
-            _scoreText = scoreText;
-            _abilityButtons = abilityButtons;
+            playerStatusVM = playerStatus;
+            abilityVM = ability;
+            scoreVM = score;
+            matchmakingVM = matchmaking;
+            gameStateVM = gameState;
 
             Bind();
         }
 
         private void Bind()
         {
-            // Bind player health text reactively
-            _playerStatusVM.Health
-                .Subscribe(health => _healthText.text = $"Health: {health}")
-                .AddTo(_disposables);
+            disposables.Clear();
 
-            // Bind score text reactively
-            _scoreVM.Score
-                .Subscribe(score => _scoreText.text = $"Score: {score}")
-                .AddTo(_disposables);
+            // Player health
+            playerStatusVM.Health
+                .Subscribe(h => healthText.text = $"Health: {h}")
+                .AddTo(disposables);
 
-            // Bind ability buttons cooldown and click handlers
-            for (int i = 0; i < _abilityButtons.Length; i++)
+            // Score display
+            scoreVM.Score
+                .Subscribe(s => scoreText.text = $"Score: {s}")
+                .AddTo(disposables);
+
+            // Ability buttons and cooldowns
+            for (int i = 0; i < abilityButtons.Length; i++)
             {
-                int index = i; // capture for closure
-                var button = _abilityButtons[index];
+                int index = i;
+                var btn = abilityButtons[i];
 
-                // Example: subscribe to cooldown time and disable button if cooldown active
-                _abilityVM.GetCooldownRemaining(index)
+                // Bind cooldown visual on abilityBarUI
+                abilityVM.GetCooldownRemaining(index)
                     .Subscribe(cd =>
                     {
-                        button.interactable = cd <= 0f;
-                        // Optionally update UI visuals like cooldown overlays
+                        btn.interactable = cd <= 0f;
+                        abilityBarUI.UpdateCooldown(index, cd);
                     })
-                    .AddTo(_disposables);
+                    .AddTo(disposables);
 
-                // Add click listener to trigger ability activation
-                button.onClick.AddListener(() =>
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(() =>
                 {
-                    _abilityVM.ActivateAbility(index);
+                    abilityVM.ActivateAbility(index);
+                    crosshairUI.ExpandCrosshair(); // crosshair feedback on ability use
                 });
             }
+
+            // Example: subscribe to damage events (requires playerStatusVM to expose them)
+            playerStatusVM.DamageTaken
+                .Subscribe(dmgSourcePos =>
+                {
+                    damageIndicatorUI.ShowDamageIndicator(dmgSourcePos, playerStatusVM.PlayerTransform);
+                })
+                .AddTo(disposables);
+
+            // Example: Update minimap player reference (if player transform changes)
+            playerStatusVM.PlayerTransformObservable
+                .Subscribe(t =>
+                {
+                    miniMapUI.SetPlayerTransform(t);
+                })
+                .AddTo(disposables);
+
+            // Scoreboard updates (assuming matchmakingVM provides player list)
+            matchmakingVM.PlayerList
+                .Subscribe(players =>
+                {
+                    scoreboardUI.UpdateScoreboard(players);
+                })
+                .AddTo(disposables);
+
+            // Handle game state changes (example: hide/show HUD in menus)
+            gameStateVM.IsInGame
+                .Subscribe(isInGame =>
+                {
+                    gameObject.SetActive(isInGame);
+                })
+                .AddTo(disposables);
+        }
+
+        #endregion
+
+        #region Damage & Hit Feedback
+
+        /// <summary>
+        /// Call externally to show crosshair hit feedback.
+        /// </summary>
+        public void ShowCrosshairHitFeedback()
+        {
+            crosshairUI.ShowHitFeedback();
+        }
+
+        #endregion
+
+        private void OnDestroy()
+        {
+            Dispose();
         }
 
         public void Dispose()
         {
-            _disposables.Dispose();
+            disposables.Dispose();
         }
     }
 
-    // Example interfaces for ViewModels, adjust as per your actual ViewModel implementations
+    #region ViewModel Interfaces (examples, expand to fit your game)
+
     public interface IPlayerStatusViewModel
     {
         IReadOnlyReactiveProperty<int> Health { get; }
+        IObservable<Vector3> DamageTaken { get; } // position of damage source
+        IObservable<Transform> PlayerTransformObservable { get; }
+        Transform PlayerTransform { get; }
     }
 
     public interface IAbilityViewModel
@@ -98,4 +167,27 @@ namespace Infrastructure.UI
     {
         IReadOnlyReactiveProperty<int> Score { get; }
     }
+
+    public interface IMatchmakingViewModel
+    {
+        IReadOnlyReactiveProperty<System.Collections.Generic.List<PlayerData>> PlayerList { get; }
+    }
+
+    public interface IGameStateViewModel
+    {
+        IReadOnlyReactiveProperty<bool> IsInGame { get; }
+    }
+
+    #endregion
+
+    #region Example PlayerData Class (replace with your data source)
+
+    public class PlayerData
+    {
+        public string playerId = "";
+        public string playerName = "";
+        public int score = 0;
+    }
+
+    #endregion
 }

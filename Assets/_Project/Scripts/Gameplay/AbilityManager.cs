@@ -1,117 +1,78 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using MessagePipe;
-using UniRx;
+using UnityEngine;
 
-namespace Infrastructure
+namespace Game.Abilities
 {
-    /// <summary>
-    /// Manages player abilities including cooldown timers and activation.
-    /// Publishes ability events and exposes cooldown states reactively.
-    /// </summary>
-    public class AbilityManager : IDisposable
+    public class AbilityManager : MonoBehaviour
     {
-        private readonly IMessageBroker _messageBroker;
+        [SerializeField] private List<AbilityData> abilities;
 
-        // Internal ability data
-        private readonly Dictionary<string, CooldownTimer> _abilityCooldowns = new();
+        private IPublisher<AbilityStateChangedEvent> _statePublisher;
+        private IPublisher<AbilityActivatedEvent> _activatedPublisher;
+        private float[] _cooldownTimers;
 
-        // Exposes ability cooldown remaining time reactively per ability key
-        private readonly Dictionary<string, ReactiveProperty<float>> _cooldownRemaining = new();
-
-        /// <summary>
-        /// Represents an ability activation event.
-        /// </summary>
-        public readonly struct AbilityActivatedEvent
+        [Serializable]
+        public class AbilityData
         {
-            public string AbilityKey { get; }
+            public string Name;
+            public float Cooldown;
+        }
 
-            public AbilityActivatedEvent(string abilityKey)
+        [Inject]
+        public void Construct(
+            IPublisher<AbilityStateChangedEvent> statePublisher,
+            IPublisher<AbilityActivatedEvent> activatedPublisher)
+        {
+            _statePublisher = statePublisher;
+            _activatedPublisher = activatedPublisher;
+        }
+
+        private void Awake()
+        {
+            _cooldownTimers = new float[abilities.Count];
+        }
+
+        private void Update()
+        {
+            for (int i = 0; i < _cooldownTimers.Length; i++)
             {
-                AbilityKey = abilityKey;
+                if (_cooldownTimers[i] > 0f)
+                {
+                    _cooldownTimers[i] -= Time.deltaTime;
+                    PublishAbilityState(i);
+                }
             }
         }
 
-        public AbilityManager(IMessageBroker messageBroker)
+        public void ActivateAbility(int index)
         {
-            _messageBroker = messageBroker ?? throw new ArgumentNullException(nameof(messageBroker));
-        }
+            if (index < 0 || index >= abilities.Count) return;
 
-        /// <summary>
-        /// Registers an ability with a cooldown duration in seconds.
-        /// </summary>
-        public void RegisterAbility(string abilityKey, float cooldownDuration)
-        {
-            if (string.IsNullOrEmpty(abilityKey))
-                throw new ArgumentException("abilityKey cannot be null or empty", nameof(abilityKey));
-
-            if (_abilityCooldowns.ContainsKey(abilityKey))
-                throw new InvalidOperationException($"Ability '{abilityKey}' is already registered.");
-
-            _abilityCooldowns[abilityKey] = new CooldownTimer(cooldownDuration);
-            _cooldownRemaining[abilityKey] = new ReactiveProperty<float>(0f);
-        }
-
-        /// <summary>
-        /// Tries to activate an ability. Returns false if on cooldown.
-        /// </summary>
-        public bool TryActivateAbility(string abilityKey)
-        {
-            if (!_abilityCooldowns.TryGetValue(abilityKey, out var cooldown))
-                throw new InvalidOperationException($"Ability '{abilityKey}' is not registered.");
-
-            if (cooldown.IsActive)
-                return false;
-
-            cooldown.Start();
-            _messageBroker.Publish(new AbilityActivatedEvent(abilityKey));
-            return true;
-        }
-
-        /// <summary>
-        /// Update all cooldown timers. Call every frame or tick.
-        /// </summary>
-        public void Tick(float deltaTime)
-        {
-            foreach (var kvp in _abilityCooldowns)
+            if (_cooldownTimers[index] <= 0f)
             {
-                var abilityKey = kvp.Key;
-                var cooldown = kvp.Value;
+                _cooldownTimers[index] = abilities[index].Cooldown;
+                _activatedPublisher.Publish(new AbilityActivatedEvent(index));
+                PublishAbilityState(index);
 
-                cooldown.Tick(deltaTime);
-                _cooldownRemaining[abilityKey].Value = cooldown.Remaining;
+                // Simulate ability execution async (optional)
+                UseAbility(index).Forget();
             }
         }
 
-        /// <summary>
-        /// Returns a reactive property of the cooldown remaining time for an ability.
-        /// </summary>
-        public IReadOnlyReactiveProperty<float> GetCooldownRemaining(string abilityKey)
+        private async UniTaskVoid UseAbility(int index)
         {
-            if (!_cooldownRemaining.TryGetValue(abilityKey, out var reactive))
-                throw new InvalidOperationException($"Ability '{abilityKey}' is not registered.");
-
-            return reactive;
+            Debug.Log($"Using ability: {abilities[index].Name}");
+            await UniTask.Delay(500); // Example: wait for cast animation
         }
 
-        /// <summary>
-        /// Resets cooldown for the given ability.
-        /// </summary>
-        public void ResetCooldown(string abilityKey)
+        private void PublishAbilityState(int index)
         {
-            if (!_abilityCooldowns.TryGetValue(abilityKey, out var cooldown))
-                throw new InvalidOperationException($"Ability '{abilityKey}' is not registered.");
-
-            cooldown.Reset();
-            _cooldownRemaining[abilityKey].Value = 0f;
-        }
-
-        public void Dispose()
-        {
-            foreach (var kvp in _cooldownRemaining)
-            {
-                kvp.Value.Dispose();
-            }
+            bool onCooldown = _cooldownTimers[index] > 0f;
+            float cdRemaining = Mathf.Max(_cooldownTimers[index], 0f);
+            _statePublisher.Publish(new AbilityStateChangedEvent(index, onCooldown, cdRemaining));
         }
     }
 }
