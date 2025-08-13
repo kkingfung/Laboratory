@@ -5,27 +5,44 @@ using Unity.Mathematics;
 using Unity.Collections;
 using UnityEngine;
 
-// Health component - replicated via NetworkVariable
-public struct HealthComponent : IComponentData
+namespace Laboratory.Models.ECS.Components
 {
-    public int MaxHealth;
-    public int CurrentHealth;
-}
+    #region Components
 
-// Damage request component - when added, triggers damage application
-public struct DamageRequest : IComponentData
-{
-    public int Amount;
-    public DamageType Type;
-    public float3 SourcePosition;
-    public Entity SourceEntity;
-}
+    /// <summary>
+    /// Health component - replicated via NetworkVariable.
+    /// </summary>
+    public struct HealthComponent : IComponentData
+    {
+        public int MaxHealth;
+        public int CurrentHealth;
+    }
 
-// DamageType enum matching previous definition
-public enum DamageType
-{
-    Normal,
-    Critical,
-    Fire,
-    Ice
+    /// <summary>
+    /// Damage request component - when added, triggers damage application.
+    /// </summary>
+    public struct DamageRequest : IComponentData
+    {
+        public int Amount;
+        public DamageType Type;
+        public float3 SourcePosition;
+        public Entity SourceEntity;
+    }
+
+    #endregion
+
+    #region Enums
+
+    /// <summary>
+    /// DamageType enum matching previous definition.
+    /// </summary>
+    public enum DamageType
+    {
+        Normal,
+        Critical,
+        Fire,
+        Ice
+    }
+
+    #endregion
 }

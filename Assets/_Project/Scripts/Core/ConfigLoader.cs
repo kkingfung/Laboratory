@@ -1,12 +1,11 @@
 using System;
 using System.IO;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 #nullable enable
 
-namespace Infrastructure
+namespace Laboratory.Core
 {
     /// <summary>
     /// Loads configuration data asynchronously from JSON files or ScriptableObjects.
@@ -17,11 +16,11 @@ namespace Infrastructure
         #region Public Methods
 
         /// <summary>
-        /// Load a config JSON file from StreamingAssets folder asynchronously.
+        /// Loads a config JSON file from StreamingAssets folder asynchronously.
         /// </summary>
         /// <typeparam name="T">Type of config data model.</typeparam>
         /// <param name="relativePath">Path relative to StreamingAssets, e.g. "Configs/gameConfig.json"</param>
-        /// <returns>Deserialized config object of type T.</returns>
+        /// <returns>Deserialized config object of type T, or null if failed.</returns>
         public async UniTask<T?> LoadJsonConfigAsync<T>(string relativePath) where T : class
         {
             string fullPath = Path.Combine(Application.streamingAssetsPath, relativePath);
@@ -59,7 +58,7 @@ namespace Infrastructure
         }
 
         /// <summary>
-        /// Load a ScriptableObject config asset asynchronously from Resources folder.
+        /// Loads a ScriptableObject config asset asynchronously from Resources folder.
         /// </summary>
         /// <typeparam name="T">ScriptableObject type</typeparam>
         /// <param name="resourcePath">Path under Resources, e.g. "Configs/GameConfig"</param>
@@ -79,6 +78,18 @@ namespace Infrastructure
                 return null;
             }
         }
+
+        #endregion
+
+        #region Private Methods
+
+        // No private methods currently.
+
+        #endregion
+
+        #region Inner Classes, Enums
+
+        // No inner classes or enums currently.
 
         #endregion
     }

@@ -1,6 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
-
+// FIXME: tidyup after 8/29
 namespace Game.Combat
 {
     /// <summary>

@@ -1,26 +1,41 @@
 using Unity.Entities;
+using UnityEngine;
 
-namespace Models.ECS.Components
+namespace Laboratory.Models.ECS.Components
 {
+    #region Components
+
     /// <summary>
-    /// Holds runtime player state: health, stamina, status, etc.
+    /// Stores player state data for ECS systems.
     /// </summary>
     public struct PlayerStateComponent : IComponentData
     {
-        /// <summary>Current health points.</summary>
-        public int CurrentHP;
-
-        /// <summary>Maximum health points.</summary>
-        public int MaxHP;
-
-        /// <summary>Current stamina or energy points.</summary>
-        public float Stamina;
-
-        /// <summary>Maximum stamina or energy.</summary>
-        public float MaxStamina;
-
         /// <summary>Is the player currently alive?</summary>
         public bool IsAlive;
+
+        /// <summary>Is the player currently stunned?</summary>
+        public bool IsStunned;
+
+        /// <summary>Is the player currently invulnerable?</summary>
+        public bool IsInvulnerable;
+
+        /// <summary>Current team index (if applicable).</summary>
+        public int TeamIndex;
+
+        /// <summary>Current score.</summary>
+        public int Score;
+
+        /// <summary>Player's current health points.</summary>
+        public int CurrentHP;
+
+        /// <summary>Player's maximum health points.</summary>
+        public int MaxHP;
+
+        /// <summary>Player's current stamina or energy points.</summary>
+        public float Stamina;
+
+        /// <summary>Player's maximum stamina or energy.</summary>
+        public float MaxStamina;
 
         /// <summary>Current status flags bitmask (e.g. stunned, poisoned).</summary>
         public uint StatusFlags;
@@ -36,4 +51,6 @@ namespace Models.ECS.Components
             StatusFlags = 0;
         }
     }
+
+    #endregion
 }

@@ -1,112 +1,106 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Audio;
 
-public class AudioManager : MonoBehaviour
+namespace Laboratory.Gameplay.Audio
 {
-    public static AudioManager Instance { get; private set; } = null!;
-
-    [Header("Audio Sources")]
-    [SerializeField] private AudioSource musicSource = null!;
-    [SerializeField] private AudioSource sfxSource = null!;
-
-    [Header("Audio Mixer")]
-    [SerializeField] private AudioMixer audioMixer = null!;
-
-    [Header("UI Clips")]
-    [SerializeField] private List<AudioClip> uiClips = new();
-
-    public enum UISound
+    /// <summary>
+    /// Manages playback of game audio clips and music.
+    /// </summary>
+    public class AudioManager : MonoBehaviour
     {
-        ButtonClick,
-        ButtonHover,
-        Confirmation,
-        Error,
-    }
+        #region Fields
 
-    private Dictionary<UISound, AudioClip> uiClipMap = new();
+        [Header("Audio Sources")]
+        [SerializeField] private AudioSource musicSource;
+        [SerializeField] private AudioSource sfxSource;
 
-    private const string MixerParamMaster = "MasterVolume";
-    private const string MixerParamMusic = "MusicVolume";
-    private const string MixerParamSFX = "SFXVolume";
+        [Header("Audio Clips")]
+        [SerializeField] private List<AudioClip> musicClips;
+        [SerializeField] private List<AudioClip> sfxClips;
 
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
+        private Dictionary<string, AudioClip> _musicClipDict;
+        private Dictionary<string, AudioClip> _sfxClipDict;
+
+        #endregion
+
+        #region Unity Override Methods
+
+        private void Awake()
         {
-            Destroy(gameObject);
-            return;
+            InitializeClipDictionaries();
         }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
 
-        for (int i = 0; i < Mathf.Min(uiClips.Count, Enum.GetValues(typeof(UISound)).Length); i++)
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Plays a music track by name.
+        /// </summary>
+        public void PlayMusic(string clipName, bool loop = true)
         {
-            uiClipMap[(UISound)i] = uiClips[i];
+            if (_musicClipDict.TryGetValue(clipName, out var clip))
+            {
+                musicSource.clip = clip;
+                musicSource.loop = loop;
+                musicSource.Play();
+            }
+            else
+            {
+                Debug.LogWarning($"AudioManager: Music clip '{clipName}' not found.");
+            }
         }
-    }
 
-    #region UI Sound Playback
-
-    public void PlayUISound(UISound sound)
-    {
-        if (uiClipMap.TryGetValue(sound, out var clip))
+        /// <summary>
+        /// Plays a sound effect by name.
+        /// </summary>
+        public void PlaySFX(string clipName)
         {
-            sfxSource.PlayOneShot(clip);
+            if (_sfxClipDict.TryGetValue(clipName, out var clip))
+            {
+                sfxSource.PlayOneShot(clip);
+            }
+            else
+            {
+                Debug.LogWarning($"AudioManager: SFX clip '{clipName}' not found.");
+            }
         }
-        else
+
+        /// <summary>
+        /// Stops the currently playing music.
+        /// </summary>
+        public void StopMusic()
         {
-            Debug.LogWarning($"UI Sound {sound} not found!");
+            musicSource.Stop();
         }
+
+        #endregion
+
+        #region Private Methods
+
+        private void InitializeClipDictionaries()
+        {
+            _musicClipDict = new Dictionary<string, AudioClip>();
+            foreach (var clip in musicClips)
+            {
+                if (clip != null && !_musicClipDict.ContainsKey(clip.name))
+                    _musicClipDict.Add(clip.name, clip);
+            }
+
+            _sfxClipDict = new Dictionary<string, AudioClip>();
+            foreach (var clip in sfxClips)
+            {
+                if (clip != null && !_sfxClipDict.ContainsKey(clip.name))
+                    _sfxClipDict.Add(clip.name, clip);
+            }
+        }
+
+        #endregion
+
+        #region Inner Classes, Enums
+
+        // No inner classes or enums currently.
+
+        #endregion
     }
-
-    #endregion
-
-    #region Volume Controls (0 to 1 range)
-
-    public void SetMasterVolume(float volume)
-    {
-        audioMixer.SetFloat(MixerParamMaster, LinearToDecibel(volume));
-    }
-
-    public void SetMusicVolume(float volume)
-    {
-        audioMixer.SetFloat(MixerParamMusic, LinearToDecibel(volume));
-    }
-
-    public void SetSFXVolume(float volume)
-    {
-        audioMixer.SetFloat(MixerParamSFX, LinearToDecibel(volume));
-    }
-
-    public float GetMasterVolume()
-    {
-        audioMixer.GetFloat(MixerParamMaster, out float value);
-        return DecibelToLinear(value);
-    }
-
-    public float GetMusicVolume()
-    {
-        audioMixer.GetFloat(MixerParamMusic, out float value);
-        return DecibelToLinear(value);
-    }
-
-    public float GetSFXVolume()
-    {
-        audioMixer.GetFloat(MixerParamSFX, out float value);
-        return DecibelToLinear(value);
-    }
-
-    private float LinearToDecibel(float linear)
-    {
-        return linear <= 0f ? -80f : 20f * Mathf.Log10(linear);
-    }
-
-    private float DecibelToLinear(float db)
-    {
-        return Mathf.Pow(10f, db / 20f);
-    }
-
-    #endregion
 }

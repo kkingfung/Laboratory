@@ -8,7 +8,7 @@ using TMPro;
 using Unity.Netcode;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
-
+// FIXME: tidyup after 8/29
 namespace Game.UI
 {
     public class ScoreboardUI : MonoBehaviour, IDisposable

@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Infrastructure;
 using UnityEngine;
-
+// FIXME: tidyup after 8/29
 namespace Models.ECS.Systems
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]

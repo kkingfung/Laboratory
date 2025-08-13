@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 
-namespace Infrastructure
+namespace Laboratory.Core
 {
     /// <summary>
-    /// Simple Service Locator for managing singletons and services.
-    /// Use Register<T>(instance) and Resolve<T>() to access services.
+    /// Simple service locator for dependency management.
     /// </summary>
     public class ServiceLocator
     {
@@ -15,57 +14,47 @@ namespace Infrastructure
 
         #endregion
 
-        #region Register / Resolve
+        #region Public Methods
 
         /// <summary>
-        /// Register a service instance of type T.
+        /// Registers a service instance for the specified type.
         /// </summary>
-        public void Register<T>(T service)
+        public void Register<T>(T instance)
         {
-            var type = typeof(T);
-            if (_services.ContainsKey(type))
+            _services[typeof(T)] = instance;
+        }
+
+        /// <summary>
+        /// Gets a registered service instance by type.
+        /// </summary>
+        public T Get<T>()
+        {
+            if (_services.TryGetValue(typeof(T), out var service))
             {
-                throw new InvalidOperationException($"Service of type {type} is already registered.");
+                return (T)service;
             }
-            _services[type] = service ?? throw new ArgumentNullException(nameof(service));
+            throw new InvalidOperationException($"Service of type {typeof(T)} not registered.");
         }
 
         /// <summary>
-        /// Resolve a service instance of type T.
-        /// Throws if not registered.
+        /// Checks if a service of the specified type is registered.
         /// </summary>
-        public T Resolve<T>()
+        public bool IsRegistered<T>()
         {
-            var type = typeof(T);
-            if (!_services.TryGetValue(type, out var service))
-            {
-                throw new InvalidOperationException($"Service of type {type} is not registered.");
-            }
-            return (T)service;
+            return _services.ContainsKey(typeof(T));
         }
 
-        /// <summary>
-        /// Try to resolve a service, returns true if found.
-        /// </summary>
-        public bool TryResolve<T>(out T service)
-        {
-            var type = typeof(T);
-            if (_services.TryGetValue(type, out var obj))
-            {
-                service = (T)obj;
-                return true;
-            }
-            service = default!;
-            return false;
-        }
+        #endregion
 
-        /// <summary>
-        /// Clear all registered services.
-        /// </summary>
-        public void Clear()
-        {
-            _services.Clear();
-        }
+        #region Private Methods
+
+        // No private methods currently.
+
+        #endregion
+
+        #region Inner Classes, Enums
+
+        // No inner classes or enums currently.
 
         #endregion
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
-
+// FIXME: tidyup after 8/29
 public class DamageIndicatorUI : MonoBehaviour
 {
     [Header("References")]

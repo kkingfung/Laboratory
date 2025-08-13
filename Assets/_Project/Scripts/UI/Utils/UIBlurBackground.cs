@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-
+// FIXME: tidyup after 8/29
 [RequireComponent(typeof(CanvasGroup))]
 public class UIBlurBackground : MonoBehaviour
 {

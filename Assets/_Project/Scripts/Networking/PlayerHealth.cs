@@ -2,7 +2,7 @@
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
-
+// FIXME: tidyup after 8/29
 [RequireComponent(typeof(NetworkObject))]
 public class PlayerHealth : NetworkBehaviour
 {

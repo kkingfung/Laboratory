@@ -1,21 +1,38 @@
 using Unity.Entities;
 using UnityEngine;
 
-// Marks entity as dead, and records time of death
-public struct DeadTag : IComponentData { }
-
-public struct DeathTime : IComponentData
+namespace Laboratory.Models.ECS.Components
 {
-    public float TimeOfDeath;
-}
+    #region Components
 
-public struct RespawnTimer : IComponentData
-{
-    public float TimeRemaining;
-}
+    /// <summary>
+    /// Marks entity as dead.
+    /// </summary>
+    public struct DeadTag : IComponentData { }
 
-// Link to Animator or animation trigger
-public struct DeathAnimationTrigger : IComponentData
-{
-    public bool Triggered;
+    /// <summary>
+    /// Stores the time of death for an entity.
+    /// </summary>
+    public struct DeathTime : IComponentData
+    {
+        public float TimeOfDeath;
+    }
+
+    /// <summary>
+    /// Tracks respawn timer for an entity.
+    /// </summary>
+    public struct RespawnTimer : IComponentData
+    {
+        public float TimeRemaining;
+    }
+
+    /// <summary>
+    /// Triggers death animation for an entity.
+    /// </summary>
+    public struct DeathAnimationTrigger : IComponentData
+    {
+        public bool Triggered;
+    }
+
+    #endregion
 }

@@ -3,66 +3,91 @@ using UnityEngine;
 using UnityEditor.U2D;
 using UnityEngine.U2D;
 
-public class SpriteAtlasEditorTool : EditorWindow
+namespace Laboratory.Editor.Tools
 {
-    private SpriteAtlas spriteAtlas;
-    private Object spriteToAdd;
-
-    [MenuItem("Tools/Sprite Atlas Editor Tool")]
-    private static void OpenWindow()
+    /// <summary>
+    /// Editor window for managing Sprite Atlases.
+    /// </summary>
+    public class SpriteAtlasEditorTool : EditorWindow
     {
-        GetWindow<SpriteAtlasEditorTool>("Sprite Atlas Editor Tool");
-    }
+        #region Fields
 
-    private void OnGUI()
-    {
-        GUILayout.Label("Sprite Atlas Editor Tool", EditorStyles.boldLabel);
+        private SpriteAtlas _spriteAtlas;
+        private Object _spriteToAdd;
 
-        spriteAtlas = (SpriteAtlas)EditorGUILayout.ObjectField("Sprite Atlas", spriteAtlas, typeof(SpriteAtlas), false);
-        spriteToAdd = EditorGUILayout.ObjectField("Sprite to Add", spriteToAdd, typeof(Sprite), false);
+        #endregion
 
-        if (GUILayout.Button("Add Sprite to Atlas"))
+        #region Unity Override Methods
+
+        [MenuItem("Tools/Sprite Atlas Editor Tool")]
+        private static void OpenWindow()
         {
-            if (spriteAtlas == null)
-            {
-                Debug.LogError("Please assign a Sprite Atlas.");
-                return;
-            }
-
-            if (spriteToAdd == null || !(spriteToAdd is Sprite))
-            {
-                Debug.LogError("Please assign a valid Sprite.");
-                return;
-            }
-
-            AddSpriteToAtlas(spriteAtlas, spriteToAdd as Sprite);
-        }
-    }
-
-    private void AddSpriteToAtlas(SpriteAtlas atlas, Sprite sprite)
-    {
-        string spritePath = AssetDatabase.GetAssetPath(sprite);
-        if (string.IsNullOrEmpty(spritePath))
-        {
-            Debug.LogError("Could not find the asset path for the selected sprite.");
-            return;
+            GetWindow<SpriteAtlasEditorTool>("Sprite Atlas Editor Tool");
         }
 
-        Object[] objectsInAtlas = atlas.GetPackables();
-
-        // Check if the sprite is already in the atlas
-        foreach (Object obj in objectsInAtlas)
+        private void OnGUI()
         {
-            if (obj == sprite)
+            GUILayout.Label("Sprite Atlas Editor Tool", EditorStyles.boldLabel);
+
+            _spriteAtlas = (SpriteAtlas)EditorGUILayout.ObjectField("Sprite Atlas", _spriteAtlas, typeof(SpriteAtlas), false);
+            _spriteToAdd = EditorGUILayout.ObjectField("Sprite to Add", _spriteToAdd, typeof(Sprite), false);
+
+            if (GUILayout.Button("Add Sprite to Atlas"))
             {
-                Debug.LogWarning("Sprite is already in the atlas.");
-                return;
+                if (_spriteAtlas == null)
+                {
+                    Debug.LogError("Please assign a Sprite Atlas.");
+                    return;
+                }
+
+                if (_spriteToAdd == null || !(_spriteToAdd is Sprite))
+                {
+                    Debug.LogError("Please assign a valid Sprite.");
+                    return;
+                }
+
+                AddSpriteToAtlas(_spriteAtlas, _spriteToAdd as Sprite);
             }
         }
 
-        // Add the sprite to the atlas
-        atlas.Add(new Object[] { AssetDatabase.LoadMainAssetAtPath(spritePath) });
-        AssetDatabase.SaveAssets();
-        Debug.Log("Sprite added to the atlas successfully.");
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Adds a sprite to the specified atlas if not already present.
+        /// </summary>
+        private void AddSpriteToAtlas(SpriteAtlas atlas, Sprite sprite)
+        {
+            string spritePath = AssetDatabase.GetAssetPath(sprite);
+            if (string.IsNullOrEmpty(spritePath))
+            {
+                Debug.LogError("Could not find the asset path for the selected sprite.");
+                return;
+            }
+
+            Object[] objectsInAtlas = atlas.GetPackables();
+
+            foreach (Object obj in objectsInAtlas)
+            {
+                if (obj == sprite)
+                {
+                    Debug.LogWarning("Sprite is already in the atlas.");
+                    return;
+                }
+            }
+
+            atlas.Add(new Object[] { AssetDatabase.LoadMainAssetAtPath(spritePath) });
+            AssetDatabase.SaveAssets();
+            Debug.Log("Sprite added to the atlas successfully.");
+        }
+
+        #endregion
+
+        #region Inner Classes, Enums
+
+        // No inner classes or enums currently.
+
+        #endregion
     }
 }

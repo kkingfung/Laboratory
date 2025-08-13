@@ -1,5 +1,5 @@
 using UnityEngine;
-
+// FIXME: tidyup after 8/29
 namespace Game.Combat
 {
     public class DamageEventSystem : MonoBehaviour

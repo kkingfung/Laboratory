@@ -6,118 +6,187 @@ using R3;
 using MessagePipe;
 using UniRx;
 
-namespace Infrastructure
+namespace Laboratory.Core.Bootstrap
 {
+    /// <summary>
+    /// Main game bootstrap responsible for initializing core systems, services, and DOTS world.
+    /// This is the entry point for the entire game architecture.
+    /// </summary>
     public class GameBootstrap : MonoBehaviour
     {
+        #region Constants
+
+        private const string DefaultInitialSceneName = "LobbyScene";
+        private const int DefaultNetworkPort = 7777;
+        private const string DefaultNetworkAddress = "127.0.0.1";
+
+        #endregion
+
         #region Fields
 
         [Header("Startup Scene Settings")]
-        [SerializeField] private string initialSceneName = "LobbyScene";
+        [SerializeField] private string initialSceneName = DefaultInitialSceneName;
         [SerializeField] private bool loadInitialSceneOnStart = true;
 
         private World _defaultWorld;
         private ServiceLocator _services;
         private IMessageBroker _messageBroker;
         private NetworkClient _networkClient;
+        private GameStateManager _gameStateManager;
 
         #endregion
 
-        #region Unity Lifecycle
+        #region Properties
 
+        /// <summary>
+        /// Gets the service locator instance.
+        /// </summary>
+        public ServiceLocator Services => _services;
+
+        #endregion
+
+        #region Unity Override Methods
+
+        /// <summary>
+        /// Initialize all core systems and bootstrap the game.
+        /// </summary>
         private async void Awake()
         {
             DontDestroyOnLoad(gameObject);
 
-            // 1. Create DOTS World
             CreateDotsWorld();
-
-            // 2. Setup Service Locator
-            _services = new ServiceLocator();
-            _messageBroker = new MessageBroker();
-            _services.Register<IMessageBroker>(_messageBroker);
-
-            // 3. Setup Network Client
-            _networkClient = new NetworkClient();
-            _services.Register<NetworkClient>(_networkClient);
-
-            // 4. Setup ViewModels
+            InitializeServiceLocator();
+            InitializeNetworkClient();
             RegisterViewModels();
-
-            // 5. Initialize async systems
             await InitializeAsync();
 
-            // 6. Load Initial Scene
             if (loadInitialSceneOnStart)
             {
                 await LoadInitialScene();
             }
 
-            _gameStateManager.OnStateChangedForNetwork += (newState) =>
-            {
-                var bytes = RPCSerializer.SerializeGameState(newState);
-                _networkClient.Send(bytes); // Your send method
-            };
+            SubscribeToGameStateEvents();
         }
 
         #endregion
 
-        #region DOTS Setup
+        #region Public Methods
 
+        /// <summary>
+        /// Gets the service locator instance (legacy accessor).
+        /// </summary>
+        public ServiceLocator GetServiceLocator() => _services;
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Creates and configures the DOTS world with physics systems.
+        /// </summary>
         private void CreateDotsWorld()
         {
             _defaultWorld = World.DefaultGameObjectInjectionWorld ?? new World("Default World");
 
-            // Unity Physics default setup
             var systemGroup = _defaultWorld.GetOrCreateSystemManaged<SimulationSystemGroup>();
             _defaultWorld.GetOrCreateSystemManaged<BuildPhysicsWorld>();
             _defaultWorld.GetOrCreateSystemManaged<StepPhysicsWorld>();
             _defaultWorld.GetOrCreateSystemManaged<EndFramePhysicsSystem>();
 
-            // Register default world
             World.DefaultGameObjectInjectionWorld = _defaultWorld;
         }
 
-        #endregion
+        /// <summary>
+        /// Initializes the service locator and core services.
+        /// </summary>
+        private void InitializeServiceLocator()
+        {
+            _services = new ServiceLocator();
+            _messageBroker = new MessageBroker();
+            _services.Register<IMessageBroker>(_messageBroker);
+        }
 
-        #region MVVM Setup
+        /// <summary>
+        /// Initializes the network client and registers it with services.
+        /// </summary>
+        private void InitializeNetworkClient()
+        {
+            _networkClient = new NetworkClient(_messageBroker);
+            _services.Register<NetworkClient>(_networkClient);
+        }
 
+        /// <summary>
+        /// Registers ViewModels for MVVM pattern.
+        /// </summary>
         private void RegisterViewModels()
         {
-            // Example MVVM setup
             _services.Register<GameStateViewModel>(new GameStateViewModel(_messageBroker));
             _services.Register<PlayerViewModel>(new PlayerViewModel(_messageBroker));
             _services.Register<ChatViewModel>(new ChatViewModel(_messageBroker));
         }
 
-        #endregion
-
-        #region Initialization
-
+        /// <summary>
+        /// Performs async initialization of services and connections.
+        /// </summary>
         private async UniTask InitializeAsync()
         {
             Debug.Log("GameBootstrap: Initializing services...");
 
-            // Connect to server
-            await _networkClient.ConnectAsync("127.0.0.1", 7777);
+            try
+            {
+                await _networkClient.ConnectAsync(DefaultNetworkAddress, DefaultNetworkPort);
 
-            // Preload assets
-            var assetPreloader = new AssetPreloader();
-            _services.Register<AssetPreloader>(assetPreloader);
-            await assetPreloader.PreloadCoreAssets();
+                var assetPreloader = new AssetPreloader();
+                _services.Register<AssetPreloader>(assetPreloader);
+                await assetPreloader.PreloadCoreAssets();
 
-            Debug.Log("GameBootstrap: Initialization complete.");
+                Debug.Log("GameBootstrap: Initialization complete.");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"GameBootstrap: Initialization failed - {ex.Message}");
+                throw;
+            }
         }
 
-        #endregion
-
-        #region Scene Management
-
+        /// <summary>
+        /// Loads the initial scene asynchronously.
+        /// </summary>
         private async UniTask LoadInitialScene()
         {
             Debug.Log($"Loading initial scene: {initialSceneName}");
             await UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(initialSceneName);
         }
+
+        #endregion
+
+        #region Event Handlers
+
+        /// <summary>
+        /// Subscribes to game state change events for network synchronization.
+        /// </summary>
+        private void SubscribeToGameStateEvents()
+        {
+            if (_gameStateManager != null)
+            {
+                _gameStateManager.OnStateChangedForNetwork += HandleGameStateChanged;
+            }
+        }
+
+        /// <summary>
+        /// Handles game state changes and synchronizes over network.
+        /// </summary>
+        private void HandleGameStateChanged(GameState newState)
+        {
+            var bytes = RPCSerializer.SerializeGameState(newState);
+            _ = _networkClient.SendAsync(bytes);
+        }
+
+        #endregion
+
+        #region Inner Classes, Enums
+
+        // Add inner classes, enums, or structs here if needed in future.
 
         #endregion
     }

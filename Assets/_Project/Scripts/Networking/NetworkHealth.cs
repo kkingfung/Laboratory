@@ -1,6 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
-
+// FIXME: tidyup after 8/29
 public class NetworkHealth : NetworkBehaviour
 {
     public NetworkVariable<int> CurrentHealth = new NetworkVariable<int>();

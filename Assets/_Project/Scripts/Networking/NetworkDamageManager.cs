@@ -1,7 +1,7 @@
 // NetworkDamageManager.cs
 using Unity.Netcode;
 using UnityEngine;
-
+// FIXME: tidyup after 8/29
 public class NetworkDamageManager : NetworkBehaviour
 {
     // Called by clients to request damaging a player (or self). Server validates and applies.

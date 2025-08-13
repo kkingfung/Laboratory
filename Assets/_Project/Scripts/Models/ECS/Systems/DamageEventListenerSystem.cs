@@ -1,6 +1,6 @@
 using Unity.Entities;
 using UnityEngine;
-
+// FIXME: tidyup after 8/29
 [UpdateInGroup(typeof(PresentationSystemGroup))]
 public partial class DamageEventListenerSystem : SystemBase
 {

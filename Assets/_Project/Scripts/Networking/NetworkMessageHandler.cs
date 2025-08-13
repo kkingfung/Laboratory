@@ -8,7 +8,7 @@ using MessagePipe;
 using Unity.Entities;
 using UnityEngine;
 using UniRx;
-
+// FIXME: tidyup after 8/29
 namespace Infrastructure
 {
     /// <summary>

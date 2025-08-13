@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using Unity.Collections;
 using UnityEngine;
-
+// FIXME: tidyup after 8/29
 public class NetworkPlayerData : NetworkBehaviour
 {
     public NetworkVariable<FixedString32Bytes> PlayerName = new NetworkVariable<FixedString32Bytes>(default, NetworkVariableReadPermission.Everyone);

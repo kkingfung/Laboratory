@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using Infrastructure;
-
+// FIXME: tidyup after 8/29
 namespace Models.ECS.Systems
 {
     [UpdateInGroup(typeof(SimulationSystemGroup))]

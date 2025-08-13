@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using UnityEngine.UI;
-
+// FIXME: tidyup after 8/29
 public class MiniMapUI : MonoBehaviour
 {
     [Header("References")]

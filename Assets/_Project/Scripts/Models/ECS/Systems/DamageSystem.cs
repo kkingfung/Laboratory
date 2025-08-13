@@ -2,7 +2,7 @@ using Unity.Entities;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Transforms;
-
+// FIXME: tidyup after 8/29
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public partial class DamageSystem : SystemBase
 {

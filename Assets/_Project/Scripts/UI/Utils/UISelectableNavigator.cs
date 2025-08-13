@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
+// FIXME: tidyup after 8/29
 public class UISelectableNavigator : MonoBehaviour
 {
     [Tooltip("List of Selectable UI elements in navigation order.")]

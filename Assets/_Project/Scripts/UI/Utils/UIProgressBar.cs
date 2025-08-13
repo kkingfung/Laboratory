@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-
+// FIXME: tidyup after 8/29
 [RequireComponent(typeof(Image))]
 public class UIProgressBar : MonoBehaviour
 {

@@ -1,4 +1,9 @@
-namespace Game.Inventory
+namespace Laboratory.Gameplay.Inventory
 {
-    public record ItemSelectedEvent(ItemData Item);
+    #region Event Records
+
+    /// <summary>
+    /// Event triggered when an item is selected in the inventory.
+    /// </summary>
+    public record ItemSelectedEvent(ItemData SelectedItem);
 }

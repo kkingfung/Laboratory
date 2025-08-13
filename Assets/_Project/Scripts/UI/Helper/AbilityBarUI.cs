@@ -3,7 +3,7 @@ using MessagePipe;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
+// FIXME: tidyup after 8/29
 namespace Game.Abilities
 {
     public class AbilityBarUI : MonoBehaviour, IDisposable

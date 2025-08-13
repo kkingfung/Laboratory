@@ -1,106 +1,82 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using MessagePipe;
-using System.Collections.Generic;
 
-namespace Game.Inventory
+namespace Laboratory.Gameplay.Inventory
 {
+    /// <summary>
+    /// Displays item details in a popup UI.
+    /// </summary>
     public class ItemDetailsPopup : MonoBehaviour
     {
+        #region Fields
+
         [Header("UI References")]
-        [SerializeField] private GameObject popupRoot;
-        [SerializeField] private Image iconImage;
-        [SerializeField] private TextMeshProUGUI nameText;
+        [SerializeField] private TextMeshProUGUI itemNameText;
         [SerializeField] private TextMeshProUGUI descriptionText;
+        [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI rarityText;
         [SerializeField] private TextMeshProUGUI valueText;
-
-        [Header("Stats UI")]
         [SerializeField] private Transform statsContainer;
-        [SerializeField] private GameObject statLinePrefab; // prefab with icon + 2 TMP_Text
+        [SerializeField] private GameObject statEntryPrefab;
 
-        [Header("Rarity Colors")]
-        [SerializeField] private Color commonColor = Color.gray;
-        [SerializeField] private Color uncommonColor = Color.green;
-        [SerializeField] private Color rareColor = Color.blue;
-        [SerializeField] private Color epicColor = new Color(0.64f, 0f, 0.92f); // purple
-        [SerializeField] private Color legendaryColor = new Color(1f, 0.5f, 0f); // orange
+        #endregion
 
-        private List<GameObject> _spawnedStatLines = new();
+        #region Unity Override Methods
 
-        private ISubscriber<ItemSelectedEvent> _itemSelectedSubscriber;
-        private IDisposable _itemSelectedSub;
-
-        [Inject]
-        public void Construct(ISubscriber<ItemSelectedEvent> itemSelectedSubscriber)
+        private void Awake()
         {
-            _itemSelectedSubscriber = itemSelectedSubscriber;
+            Hide();
         }
 
-        private void OnEnable()
-        {
-            popupRoot.SetActive(false);
-            _itemSelectedSub = _itemSelectedSubscriber.Subscribe(OnItemSelected);
-        }
+        #endregion
 
-        private void OnDisable()
-        {
-            _itemSelectedSub?.Dispose();
-        }
+        #region Public Methods
 
-        private void OnItemSelected(ItemSelectedEvent e)
+        /// <summary>
+        /// Shows the popup with the given item data.
+        /// </summary>
+        public void Show(ItemData item)
         {
-            ClearStatLines();
+            if (item == null) return;
 
-            if (e.Item == null)
+            itemNameText.text = item.ItemName;
+            descriptionText.text = item.Description;
+            iconImage.sprite = item.Icon;
+            rarityText.text = GetRarityText(item.Rarity);
+            valueText.text = item.Value.ToString();
+
+            foreach (Transform child in statsContainer)
+                Destroy(child.gameObject);
+
+            foreach (var stat in item.Stats)
             {
-                popupRoot.SetActive(false);
-                return;
+                var entry = Instantiate(statEntryPrefab, statsContainer);
+                var statNameText = entry.transform.Find("StatName")?.GetComponent<TextMeshProUGUI>();
+                var statValueText = entry.transform.Find("StatValue")?.GetComponent<TextMeshProUGUI>();
+                var statIconImage = entry.transform.Find("StatIcon")?.GetComponent<Image>();
+
+                if (statNameText != null) statNameText.text = stat.StatName;
+                if (statValueText != null) statValueText.text = stat.StatValue;
+                if (statIconImage != null) statIconImage.sprite = stat.StatIcon;
             }
 
-            iconImage.sprite = e.Item.Icon;
-            nameText.text = e.Item.ItemName;
-            rarityText.text = GetRarityName(e.Item.Rarity);
-            rarityText.color = GetRarityColor(e.Item.Rarity);
-            descriptionText.text = e.Item.Description;
-            valueText.text = $"{e.Item.Value} gold";
-
-            foreach (var stat in e.Item.Stats)
-            {
-                var line = Instantiate(statLinePrefab, statsContainer);
-
-                var iconImage = line.transform.Find("StatIcon")?.GetComponent<Image>();
-                var texts = line.GetComponentsInChildren<TextMeshProUGUI>();
-
-                if (iconImage != null)
-                {
-                    iconImage.sprite = stat.StatIcon;
-                    iconImage.gameObject.SetActive(stat.StatIcon != null);
-                }
-
-                if (texts.Length >= 2)
-                {
-                    texts[0].text = stat.StatName;
-                    texts[1].text = stat.StatValue;
-                }
-
-                _spawnedStatLines.Add(line);
-            }
-
-            popupRoot.SetActive(true);
+            gameObject.SetActive(true);
         }
 
-        private void ClearStatLines()
+        /// <summary>
+        /// Hides the popup.
+        /// </summary>
+        public void Hide()
         {
-            foreach (var line in _spawnedStatLines)
-            {
-                Destroy(line);
-            }
-            _spawnedStatLines.Clear();
+            gameObject.SetActive(false);
         }
 
-        private string GetRarityName(int rarity)
+        #endregion
+
+        #region Private Methods
+
+        private string GetRarityText(int rarity)
         {
             return rarity switch
             {
@@ -113,17 +89,12 @@ namespace Game.Inventory
             };
         }
 
-        private Color GetRarityColor(int rarity)
-        {
-            return rarity switch
-            {
-                0 => commonColor,
-                1 => uncommonColor,
-                2 => rareColor,
-                3 => epicColor,
-                4 => legendaryColor,
-                _ => Color.white
-            };
-        }
+        #endregion
+
+        #region Inner Classes, Enums
+
+        // No inner classes or enums currently.
+
+        #endregion
     }
 }

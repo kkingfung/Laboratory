@@ -1,17 +1,26 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-public struct DamageTakenEvent
+namespace Laboratory.Models.ECS.Components
 {
-    public Entity TargetEntity;
-    public int DamageAmount;
-    public DamageType DamageType;
-    public float3 SourcePosition;
-    public bool IsDead;
-}
+    /// <summary>
+    /// Represents a damage event for an entity.
+    /// </summary>
+    public struct DamageTakenEvent
+    {
+        public Entity TargetEntity;
+        public int DamageAmount;
+        public DamageType DamageType;
+        public float3 SourcePosition;
+        public bool IsDead;
+    }
 
-[InternalBufferCapacity(8)]
-public struct DamageTakenEventBufferElement : IBufferElementData
-{
-    public DamageTakenEvent Value;
+    /// <summary>
+    /// Buffer element for storing damage events in DOTS.
+    /// </summary>
+    [InternalBufferCapacity(8)]
+    public struct DamageTakenEventBufferElement : IBufferElementData
+    {
+        public DamageTakenEvent Value;
+    }
 }

@@ -1,6 +1,6 @@
 using System.Collections;
 using UnityEngine;
-
+// FIXME: tidyup after 8/29
 [RequireComponent(typeof(RectTransform))]
 public class UIShakeEffect : MonoBehaviour
 {

@@ -2,23 +2,91 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RespawnManager : MonoBehaviour
+namespace Laboratory.Gameplay.Respawn
 {
-    public static RespawnManager Instance { get; private set; }
-
-    [SerializeField] private List<Transform> respawnPoints = new List<Transform>();
-
-    private void Awake()
+    /// <summary>
+    /// Manages player respawn logic and spawn points.
+    /// </summary>
+    public class RespawnManager : MonoBehaviour
     {
-        if (Instance != null && Instance != this) Destroy(gameObject);
-        else Instance = this;
-    }
+        #region Fields
 
-    public Vector3 GetRespawnPosition(ulong clientId)
-    {
-        // Basic strategy: round-robin or random spawn. Use clientId to vary.
-        if (respawnPoints == null || respawnPoints.Count == 0) return Vector3.zero;
-        int idx = (int)(clientId % (ulong)respawnPoints.Count);
-        return respawnPoints[idx].position;
+        [Header("Respawn Settings")]
+        [SerializeField] private float respawnDelay = 3f;
+        [SerializeField] private Transform[] spawnPoints;
+
+        private readonly Dictionary<int, float> _respawnTimers = new();
+
+        #endregion
+
+        #region Unity Override Methods
+
+        private void Update()
+        {
+            UpdateRespawnTimers();
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Initiates respawn for a player by ID.
+        /// </summary>
+        public void StartRespawn(int playerId)
+        {
+            if (!_respawnTimers.ContainsKey(playerId))
+            {
+                _respawnTimers[playerId] = respawnDelay;
+            }
+        }
+
+        /// <summary>
+        /// Gets a random spawn point transform.
+        /// </summary>
+        public Transform GetRandomSpawnPoint()
+        {
+            if (spawnPoints == null || spawnPoints.Length == 0)
+                return null;
+
+            int index = Random.Range(0, spawnPoints.Length);
+            return spawnPoints[index];
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void UpdateRespawnTimers()
+        {
+            var finished = new List<int>();
+            foreach (var kvp in _respawnTimers)
+            {
+                _respawnTimers[kvp.Key] -= Time.deltaTime;
+                if (_respawnTimers[kvp.Key] <= 0f)
+                {
+                    finished.Add(kvp.Key);
+                }
+            }
+
+            foreach (var playerId in finished)
+            {
+                RespawnPlayer(playerId);
+                _respawnTimers.Remove(playerId);
+            }
+        }
+
+        private void RespawnPlayer(int playerId)
+        {
+            // Implement respawn logic here (e.g., instantiate player, set position)
+            Transform spawnPoint = GetRandomSpawnPoint();
+            // Example: PlayerManager.Instance.RespawnPlayerAt(playerId, spawnPoint.position);
+        }
+
+        #endregion
+
+        #region Inner Classes, Enums
+
+        // No inner classes or enums
     }
 }

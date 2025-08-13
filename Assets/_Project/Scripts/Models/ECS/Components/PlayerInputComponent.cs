@@ -1,11 +1,13 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using UnityEngine;
 
-namespace Models.ECS.Components
+namespace Laboratory.Models.ECS.Components
 {
+    #region Components
+
     /// <summary>
-    /// Stores current player input states.
-    /// Use systems to read/update this component every frame.
+    /// Stores player input data for ECS systems.
     /// </summary>
     public struct PlayerInputComponent : IComponentData
     {
@@ -34,4 +36,6 @@ namespace Models.ECS.Components
             AdditionalFlags = 0;
         }
     }
+
+    #endregion
 }

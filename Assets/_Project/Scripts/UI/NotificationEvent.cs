@@ -1,3 +1,4 @@
+// FIXME: tidyup after 8/29
 namespace Infrastructure.Events
 {
     public readonly struct NotificationEvent

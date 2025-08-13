@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using Unity.Netcode;
 using UnityEngine;
-
+// FIXME: tidyup after 8/29
 public class NetcodeChatTransport : NetworkBehaviour, INetworkChatTransport
 {
     private readonly ConcurrentQueue<(string sender, string message)> _incomingMessages = new();

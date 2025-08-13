@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Netcode;
 using UnityEngine;
-
+// FIXME: tidyup after 8/29
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 public partial class DeathSystem : SystemBase
 {

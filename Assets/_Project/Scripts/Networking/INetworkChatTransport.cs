@@ -1,3 +1,4 @@
+// FIXME: tidyup after 8/29
 public interface INetworkChatTransport
 {
     void SendChatMessage(string sender, string message);

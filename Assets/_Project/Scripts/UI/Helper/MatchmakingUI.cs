@@ -2,7 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
+// FIXME: tidyup after 8/29
 public class MatchmakingUI : MonoBehaviour
 {
     [Header("UI References")]

@@ -1,36 +1,65 @@
+using UnityEngine;
 using Unity.Entities;
 using System;
 
-public class DamageEventBusBridge : MonoBehaviour
+namespace Laboratory.Models.ECS.Components
 {
-    public static event Action<DamageTakenEvent> OnDamageTaken;
-
-    private Entity _busEntity;
-    private EntityManager _entityManager;
-
-    private void Start()
+    /// <summary>
+    /// Bridges DOTS damage events to MonoBehaviour event system.
+    /// </summary>
+    public class DamageEventBusBridge : MonoBehaviour
     {
-        _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        _busEntity = DamageEventBus.Create(_entityManager);
-    }
+        #region Fields
 
-    private void Update()
-    {
-        if (!_entityManager.Exists(_busEntity)) return;
+        public static event Action<DamageTakenEvent>? OnDamageTaken;
 
-        var buffer = _entityManager.GetBuffer<DamageTakenEventBufferElement>(_busEntity);
+        private Entity _busEntity;
+        private EntityManager _entityManager;
 
-        if (buffer.Length == 0) return;
+        #endregion
 
-        var events = buffer.ToNativeArray(Unity.Collections.Allocator.Temp);
+        #region Unity Override Methods
 
-        foreach (var evt in events)
+        private void Start()
         {
-            OnDamageTaken?.Invoke(evt.Value);
+            _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            _busEntity = DamageEventBus.Create(_entityManager);
         }
 
-        buffer.Clear();
+        private void Update()
+        {
+            if (!_entityManager.Exists(_busEntity)) return;
 
-        events.Dispose();
+            var buffer = _entityManager.GetBuffer<DamageTakenEventBufferElement>(_busEntity);
+            if (buffer.Length == 0) return;
+
+            var events = buffer.ToNativeArray(Unity.Collections.Allocator.Temp);
+            foreach (var evt in events)
+            {
+                OnDamageTaken?.Invoke(evt.Value);
+            }
+            buffer.Clear();
+            events.Dispose();
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        // No public methods currently.
+
+        #endregion
+
+        #region Private Methods
+
+        // No private methods currently.
+
+        #endregion
+
+        #region Inner Classes, Enums
+
+        // No inner classes or enums currently.
+
+        #endregion
     }
 }

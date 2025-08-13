@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-
+// FIXME: tidyup after 8/29
 [RequireComponent(typeof(Graphic))]
 [DisallowMultipleComponent]
 public class UIGradient : BaseMeshEffect

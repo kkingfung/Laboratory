@@ -1,93 +1,85 @@
 using System;
 using System.Collections.Generic;
 
-#nullable enable
-
-namespace Infrastructure
+namespace Laboratory.Core
 {
     /// <summary>
-    /// Generic game state machine supporting enter/exit actions and guarded transitions.
+    /// Manages game states and transitions between them.
     /// </summary>
-    public class GameStateMachine<TState> where TState : Enum
+    public class GameStateMachine
     {
-        private TState _currentState;
+        #region Fields
 
-        private readonly Dictionary<TState, Action> _onEnter = new();
-        private readonly Dictionary<TState, Action> _onExit = new();
+        private readonly Dictionary<string, IGameState> _states = new();
+        private IGameState? _currentState;
 
-        private readonly Dictionary<TState, List<Transition>> _transitions = new();
+        #endregion
 
-        public TState CurrentState => _currentState;
+        #region Properties
 
-        public GameStateMachine(TState initialState)
+        /// <summary>
+        /// Gets the current active game state.
+        /// </summary>
+        public IGameState? CurrentState => _currentState;
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Registers a new game state.
+        /// </summary>
+        public void RegisterState(string key, IGameState state)
         {
-            _currentState = initialState;
-        }
-
-        public void AddTransition(TState from, TState to, Func<bool>? condition = null)
-        {
-            if (!_transitions.TryGetValue(from, out var list))
-            {
-                list = new List<Transition>();
-                _transitions[from] = list;
-            }
-            list.Add(new Transition(to, condition ?? (() => true)));
-        }
-
-        public void SetOnEnter(TState state, Action onEnter)
-        {
-            _onEnter[state] = onEnter;
-        }
-
-        public void SetOnExit(TState state, Action onExit)
-        {
-            _onExit[state] = onExit;
+            if (!_states.ContainsKey(key))
+                _states.Add(key, state);
         }
 
         /// <summary>
-        /// Attempts to transition to a new state if conditions pass.
+        /// Changes the current state to the specified key.
         /// </summary>
-        public bool TryTransition(TState newState)
+        public void ChangeState(string key)
         {
-            if (_currentState.Equals(newState))
-                return false;
-
-            if (!_transitions.TryGetValue(_currentState, out var possibleTransitions))
-                return false;
-
-            foreach (var transition in possibleTransitions)
+            if (_states.TryGetValue(key, out var newState))
             {
-                if (transition.To.Equals(newState) && transition.Condition())
-                {
-                    ChangeState(newState);
-                    return true;
-                }
+                _currentState?.OnExit();
+                _currentState = newState;
+                _currentState.OnEnter();
             }
-
-            return false;
-        }
-
-        private void ChangeState(TState newState)
-        {
-            if (_onExit.TryGetValue(_currentState, out var exitAction))
-                exitAction();
-
-            _currentState = newState;
-
-            if (_onEnter.TryGetValue(newState, out var enterAction))
-                enterAction();
-        }
-
-        private class Transition
-        {
-            public TState To { get; }
-            public Func<bool> Condition { get; }
-
-            public Transition(TState to, Func<bool> condition)
+            else
             {
-                To = to;
-                Condition = condition;
+                throw new ArgumentException($"GameState '{key}' not found.");
             }
         }
+
+        /// <summary>
+        /// Updates the current state.
+        /// </summary>
+        public void Update()
+        {
+            _currentState?.OnUpdate();
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        // No private methods currently.
+
+        #endregion
+
+        #region Inner Classes, Enums
+
+        /// <summary>
+        /// Interface for game state implementations.
+        /// </summary>
+        public interface IGameState
+        {
+            void OnEnter();
+            void OnUpdate();
+            void OnExit();
+        }
+
+        #endregion
     }
 }

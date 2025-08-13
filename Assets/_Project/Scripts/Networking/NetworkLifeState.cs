@@ -1,5 +1,5 @@
 using Unity.Netcode;
-
+// FIXME: tidyup after 8/29
 public enum LifeState : byte
 {
     Alive,

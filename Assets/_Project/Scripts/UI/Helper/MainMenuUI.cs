@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
+// FIXME: tidyup after 8/29
 public class MainMenuUI : MonoBehaviour
 {
     [Header("UI References")]

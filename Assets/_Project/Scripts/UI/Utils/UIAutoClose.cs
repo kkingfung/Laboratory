@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
+// FIXME: tidyup after 8/29
 public class UIAutoClose : MonoBehaviour, IPointerClickHandler
 {
     [Tooltip("The RectTransform area to consider 'inside' the popup.")]

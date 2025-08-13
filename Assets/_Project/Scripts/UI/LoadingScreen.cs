@@ -3,8 +3,7 @@ using System.Threading.Tasks;
 using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
-#nullable enable
+// FIXME: tidyup after 8/29nable
 
 namespace Infrastructure.UI
 {

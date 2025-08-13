@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
-
+// FIXME: tidyup after 8/29
 [RequireComponent(typeof(Button))]
 public class ButtonDebouncer : MonoBehaviour
 {

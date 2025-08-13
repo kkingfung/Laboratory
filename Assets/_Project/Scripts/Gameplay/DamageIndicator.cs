@@ -3,43 +3,84 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+using TMPro;
 
-public class DamageIndicator : MonoBehaviour
+namespace Laboratory.Gameplay.UI
 {
-    [SerializeField] private Image icon = null!;
-    [SerializeField] private float life = 1.2f;
-    [SerializeField] private float fade = 0.5f;
-    [SerializeField] private float radius = 100f;
-
-    private RectTransform _rt;
-    private CanvasGroup _cg;
-
-    private void Awake()
+    /// <summary>
+    /// Displays a floating damage indicator at a given position.
+    /// </summary>
+    public class DamageIndicator : MonoBehaviour
     {
-        _rt = GetComponent<RectTransform>();
-        _cg = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
-    }
+        #region Fields
 
-    public async void Setup(Vector3 hitDirection, Action onFinished)
-    {
-        // Calculate screen-space position and rotation relative to forward (camera)
-        float angle = Mathf.Atan2(hitDirection.x, hitDirection.z) * Mathf.Rad2Deg;
-        _rt.localRotation = Quaternion.Euler(0, 0, -angle);
-        _rt.anchoredPosition = new Vector2(Mathf.Sin(angle * Mathf.Deg2Rad), Mathf.Cos(angle * Mathf.Deg2Rad)) * radius;
+        [SerializeField] private TextMeshProUGUI damageText;
+        [SerializeField] private float floatSpeed = 1.5f;
+        [SerializeField] private float fadeDuration = 0.75f;
 
-        _cg.alpha = 1f;
-        float elapsed = 0f;
+        private Color _originalColor;
+        private float _timer;
 
-        // Wait life seconds then fade
-        await UniTask.Delay(Mathf.RoundToInt(life * 1000));
-        elapsed = 0f;
-        while (elapsed < fade)
+        #endregion
+
+        #region Unity Override Methods
+
+        private void Awake()
         {
-            await UniTask.Yield();
-            elapsed += Time.unscaledDeltaTime;
-            _cg.alpha = Mathf.Lerp(1f, 0f, elapsed / fade);
+            if (damageText != null)
+                _originalColor = damageText.color;
         }
 
-        onFinished?.Invoke();
+        private void OnEnable()
+        {
+            _timer = 0f;
+            if (damageText != null)
+                damageText.color = _originalColor;
+        }
+
+        private void Update()
+        {
+            transform.position += Vector3.up * floatSpeed * Time.deltaTime;
+            _timer += Time.deltaTime;
+
+            if (damageText != null)
+            {
+                float alpha = Mathf.Lerp(_originalColor.a, 0f, _timer / fadeDuration);
+                damageText.color = new Color(_originalColor.r, _originalColor.g, _originalColor.b, alpha);
+            }
+
+            if (_timer >= fadeDuration)
+            {
+                gameObject.SetActive(false);
+            }
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Sets the damage value to display.
+        /// </summary>
+        public void ShowDamage(int amount)
+        {
+            if (damageText != null)
+                damageText.text = amount.ToString();
+            gameObject.SetActive(true);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        // No private methods currently.
+
+        #endregion
+
+        #region Inner Classes, Enums
+
+        // No inner classes or enums currently.
+
+        #endregion
     }
 }
