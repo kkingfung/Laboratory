@@ -88,5 +88,7 @@ namespace Laboratory.Gameplay.Respawn
         #region Inner Classes, Enums
 
         // No inner classes or enums
+
+        #endregion
     }
 }

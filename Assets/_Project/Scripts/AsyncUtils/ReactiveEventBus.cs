@@ -1,8 +1,8 @@
 using System;
 using MessagePipe;
 using UniRx;
-// FIXME: tidyup after 8/29
-namespace Infrastructure
+
+namespace Laboratory.Infrastructure.AsyncUtils
 {
     /// <summary>
     /// Reactive Event Bus based on MessagingPipe and UniRx.
@@ -10,12 +10,22 @@ namespace Infrastructure
     /// </summary>
     public class ReactiveEventBus : IDisposable
     {
+        #region Fields
+
         private readonly IMessageBroker _messageBroker;
+
+        #endregion
+
+        #region Constructor
 
         public ReactiveEventBus(IMessageBroker messageBroker)
         {
             _messageBroker = messageBroker ?? throw new ArgumentNullException(nameof(messageBroker));
         }
+
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         /// Publish an event message.
@@ -53,7 +63,15 @@ namespace Infrastructure
             // If you extend this with more disposables, clean here
         }
 
-        #region Private Observable Wrapper
+        #endregion
+
+        #region Private Methods
+
+        // No private methods currently.
+
+        #endregion
+
+        #region Inner Classes, Enums
 
         private class MessagingPipeObservable<T> : System.IObservable<T>
         {

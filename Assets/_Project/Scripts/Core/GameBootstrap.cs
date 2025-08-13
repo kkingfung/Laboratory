@@ -5,6 +5,8 @@ using Cysharp.Threading.Tasks;
 using R3;
 using MessagePipe;
 using UniRx;
+using Laboratory.Infrastructure.AsyncUtils;
+using Laboratory.Networking;
 
 namespace Laboratory.Core.Bootstrap
 {
@@ -120,9 +122,10 @@ namespace Laboratory.Core.Bootstrap
         /// </summary>
         private void RegisterViewModels()
         {
-            _services.Register<GameStateViewModel>(new GameStateViewModel(_messageBroker));
-            _services.Register<PlayerViewModel>(new PlayerViewModel(_messageBroker));
-            _services.Register<ChatViewModel>(new ChatViewModel(_messageBroker));
+            // TODO: Implement ViewModels when they are created
+            // _services.Register<GameStateViewModel>(new GameStateViewModel(_messageBroker));
+            // _services.Register<PlayerViewModel>(new PlayerViewModel(_messageBroker));
+            // _services.Register<ChatViewModel>(new ChatViewModel(_messageBroker));
         }
 
         /// <summary>

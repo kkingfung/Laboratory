@@ -153,7 +153,6 @@ public class LobbyUI : MonoBehaviour
             playerItems[playerEntry.ClientId] = item;
         }
     }
-}
 
     /// <summary>
     /// Call to update Start Game button visibility (host only).

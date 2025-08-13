@@ -11,4 +11,6 @@ namespace Laboratory.Gameplay.Abilities
     /// Event triggered when an ability is activated.
     /// </summary>
     public record AbilityActivatedEvent(int AbilityIndex);
+
+    #endregion
 }

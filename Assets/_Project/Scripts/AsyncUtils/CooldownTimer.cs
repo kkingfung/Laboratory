@@ -1,6 +1,6 @@
 using System;
-// FIXME: tidyup after 8/29
-namespace Infrastructure
+
+namespace Laboratory.Infrastructure.AsyncUtils
 {
     /// <summary>
     /// Simple cooldown timer utility.
@@ -8,6 +8,8 @@ namespace Infrastructure
     /// </summary>
     public class CooldownTimer
     {
+        #region Properties
+
         /// <summary>Cooldown duration in seconds.</summary>
         public float Duration { get; private set; }
 
@@ -16,6 +18,10 @@ namespace Infrastructure
 
         /// <summary>True if cooldown is currently active.</summary>
         public bool IsActive => Remaining > 0f;
+
+        #endregion
+
+        #region Constructor
 
         /// <summary>
         /// Initializes the cooldown timer with a duration.
@@ -27,6 +33,10 @@ namespace Infrastructure
             Duration = duration;
             Remaining = 0f;
         }
+
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         /// Starts or restarts the cooldown timer.
@@ -68,5 +78,19 @@ namespace Infrastructure
         {
             Remaining = 0f;
         }
+
+        #endregion
+
+        #region Private Methods
+
+        // No private methods currently.
+
+        #endregion
+
+        #region Inner Classes, Enums
+
+        // No inner classes or enums currently.
+
+        #endregion
     }
 }

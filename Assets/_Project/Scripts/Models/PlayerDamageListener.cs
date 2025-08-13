@@ -1,3 +1,5 @@
+using UnityEngine;
+
 // FIXME: tidyup after 8/29
 public class PlayerDamageListener : MonoBehaviour
 {

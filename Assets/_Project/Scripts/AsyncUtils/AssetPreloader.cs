@@ -6,8 +6,8 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 #nullable enable
-// FIXME: tidyup after 8/29
-namespace Infrastructure
+
+namespace Laboratory.Infrastructure.AsyncUtils
 {
     /// <summary>
     /// Async asset preloader that loads and caches assets by key.

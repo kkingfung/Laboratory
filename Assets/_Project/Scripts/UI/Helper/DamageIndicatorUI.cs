@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
+using Laboratory.Gameplay.UI;
 // FIXME: tidyup after 8/29
 public class DamageIndicatorUI : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private RectTransform indicatorsParent = null!;
     [SerializeField] private DamageIndicator indicatorPrefab = null!;
-   [ SerializeField] private AudioSource audioSource = null!; // Optional, for sounds
+    [SerializeField] private AudioSource audioSource = null!; // Optional, for sounds
     [SerializeField] private AudioClip damageSound = null!;
     [SerializeField] private AudioClip criticalDamageSound = null!;
 
@@ -39,14 +40,14 @@ public class DamageIndicatorUI : MonoBehaviour
         MessageBus.OnDamage -= OnDamageEvent;
     }
 
-        private void OnDamageEvent(DamageEvent damageEvent)
-        {
-            if (damageEvent.TargetId != NetworkManager.Singleton.LocalClientId) return;
+    private void OnDamageEvent(DamageEvent damageEvent)
+    {
+        if (damageEvent.TargetId != NetworkManager.Singleton.LocalClientId) return;
 
-            var indicator = _pool.Count > 0 ? _pool.Dequeue() : Instantiate(indicatorPrefab, _container);
-            indicator.Setup(damageEvent.HitDirection);
-            indicator.OnFinished += () => _pool.Enqueue(indicator);
-        }
+        var indicator = _pool.Count > 0 ? _pool.Dequeue() : Instantiate(indicatorPrefab, _container);
+        indicator.Setup(damageEvent.HitDirection);
+        indicator.OnFinished += () => _pool.Enqueue(indicator);
+    }
 
     /// <summary>
     /// Spawns a damage indicator with optional damage amount, damage type, and sound/vibration effects.
@@ -169,34 +170,33 @@ public class DamageIndicatorUI : MonoBehaviour
         indicatorPool.Enqueue(indicator);
     }
 
-        public void StartLife(float lifeDuration, float fadeDuration)
+    public void StartLife(float lifeDuration, float fadeDuration)
+    {
+        lifeTime = lifeDuration;
+        fadeTime = fadeDuration;
+        timer = 0f;
+        fadingOut = false;
+        CanvasGroup.alpha = 1f;
+    }
+
+    public void UpdateIndicator(float delta)
+    {
+        timer += delta;
+
+        if (!fadingOut && timer >= lifeTime)
         {
-            lifeTime = lifeDuration;
-            fadeTime = fadeDuration;
+            fadingOut = true;
             timer = 0f;
-            fadingOut = false;
-            CanvasGroup.alpha = 1f;
         }
 
-        public void UpdateIndicator(float delta)
+        if (fadingOut)
         {
-            timer += delta;
-
-            if (!fadingOut && timer >= lifeTime)
-            {
-                fadingOut = true;
-                timer = 0f;
-            }
-
-            if (fadingOut)
-            {
-                float alpha = Mathf.Lerp(1f, 0f, timer / fadeTime);
-                CanvasGroup.alpha = alpha;
-            }
+            float alpha = Mathf.Lerp(1f, 0f, timer / fadeTime);
+            CanvasGroup.alpha = alpha;
         }
     }
 
-      private void Update()
+    private void Update()
     {
         float delta = Time.unscaledDeltaTime;
         for (int i = activeIndicators.Count - 1; i >= 0; i--)

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Laboratory.Gameplay.Audio;
 // FIXME: tidyup after 8/29
 [RequireComponent(typeof(Button))]
 [RequireComponent(typeof(AudioSource))]

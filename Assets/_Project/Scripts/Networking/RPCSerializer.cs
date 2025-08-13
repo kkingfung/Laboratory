@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Text;
 using UnityEngine;
+using Laboratory.Core;
+
 // FIXME: tidyup after 8/29
 #nullable enable
 

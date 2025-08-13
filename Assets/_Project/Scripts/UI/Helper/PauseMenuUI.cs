@@ -17,7 +17,7 @@ public class PauseMenuUI : MonoBehaviour
     public event Action<bool>? OnPauseStateChanged;
 
     private float lastNavigateTime = 0f;
-    private float navigateDelay = 0.2f
+    private float navigateDelay = 0.2f;
 
     private void Awake()
     {

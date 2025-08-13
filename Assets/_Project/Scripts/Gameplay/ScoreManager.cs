@@ -4,27 +4,40 @@ using UniRx;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace Infrastructure
+namespace Laboratory.Gameplay.Scoring
 {
     /// <summary>
     /// Manages player or team scores, provides reactive updates and score change events.
     /// </summary>
     public class ScoreManager : MonoBehaviour, IDisposable
     {
-        private readonly IMessageBroker _messageBroker;
+        #region Fields
 
+        private readonly IMessageBroker _messageBroker;
         private readonly ReactiveProperty<int> _score = new(0);
         private readonly Dictionary<int, int> _playerScores = new();
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// Reactive read-only score property.
         /// </summary>
         public IReadOnlyReactiveProperty<int> Score => _score;
 
+        #endregion
+
+        #region Constructor
+
         public ScoreManager(IMessageBroker messageBroker)
         {
             _messageBroker = messageBroker ?? throw new ArgumentNullException(nameof(messageBroker));
         }
+
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         /// Adds points to the score.
@@ -48,21 +61,6 @@ namespace Infrastructure
             int previous = _score.Value;
             _score.Value = 0;
             _messageBroker.Publish(new ScoreChangedEvent(previous, 0));
-        }
-
-        /// <summary>
-        /// Event published when score changes.
-        /// </summary>
-        public readonly struct ScoreChangedEvent
-        {
-            public int PreviousScore { get; }
-            public int CurrentScore { get; }
-
-            public ScoreChangedEvent(int previousScore, int currentScore)
-            {
-                PreviousScore = previousScore;
-                CurrentScore = currentScore;
-            }
         }
 
         /// <summary>
@@ -96,5 +94,32 @@ namespace Infrastructure
         {
             _score?.Dispose();
         }
+
+        #endregion
+
+        #region Private Methods
+
+        // No private methods currently.
+
+        #endregion
+
+        #region Inner Classes, Enums
+
+        /// <summary>
+        /// Event published when score changes.
+        /// </summary>
+        public readonly struct ScoreChangedEvent
+        {
+            public int PreviousScore { get; }
+            public int CurrentScore { get; }
+
+            public ScoreChangedEvent(int previousScore, int currentScore)
+            {
+                PreviousScore = previousScore;
+                CurrentScore = currentScore;
+            }
+        }
+
+        #endregion
     }
 }
