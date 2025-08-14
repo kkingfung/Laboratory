@@ -18,12 +18,6 @@ namespace Laboratory.Gameplay.Lobby
 
         public static LobbyManager Instance { get; private set; } = null!;
 
-        public class PlayerData : NetworkBehaviour
-        {
-            public NetworkVariable<bool> IsReady = new NetworkVariable<bool>(false);
-            public string PlayerName = "Unknown";
-        }
-
         private readonly Dictionary<ulong, PlayerData> connectedPlayers = new();
 
         #endregion
@@ -137,6 +131,16 @@ namespace Laboratory.Gameplay.Lobby
         private void UpdateLobbyClients()
         {
             // Update NetworkVariables or send ClientRPCs to update lobby UI on clients
+        }
+
+        #endregion
+
+        #region Inner Classes, Enums
+    
+        public class PlayerData : NetworkBehaviour
+        {
+            public NetworkVariable<bool> IsReady = new NetworkVariable<bool>(false);
+            public string PlayerName = "Unknown";
         }
 
         #endregion

@@ -89,21 +89,17 @@ namespace Laboratory.Gameplay.Inventory
         #endregion
     }
 
+    #region Inner Classes, Enums
+
     /// <summary>
     /// UI component for a single stat entry.
     /// </summary>
     [System.Serializable]
     public class StatEntryUI : MonoBehaviour
     {
-        #region Fields
-
         [SerializeField] private TextMeshProUGUI statNameText;
         [SerializeField] private TextMeshProUGUI statValueText;
         [SerializeField] private Image statIconImage;
-
-        #endregion
-
-        #region Public Methods
 
         public void SetData(ItemStat stat)
         {
@@ -111,7 +107,7 @@ namespace Laboratory.Gameplay.Inventory
             statValueText.text = stat.StatValue;
             statIconImage.sprite = stat.StatIcon;
         }
-
-        #endregion
     }
+    
+    #endregion
 }

@@ -333,7 +333,7 @@ namespace Laboratory.UI
     
     #endregion
     
-    #region Data Classes
+    #region Inner Classes, Enums
     
     /// <summary>
     /// Data structure representing player information in the match.
