@@ -4,28 +4,65 @@ using MessagePipe;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
-// FIXME: tidyup after 8/29
-namespace Infrastructure.UI
+
+namespace Laboratory.UI
 {
     /// <summary>
-    /// Chat UI controller to display messages and send user input.
-    /// Listens for incoming chat messages and sends outgoing messages via MessagingPipe.
+    /// Chat UI controller that manages chat message display and user input.
+    /// Handles bidirectional chat communication through MessagePipe event system.
+    /// Maintains chat history with configurable message limits and provides keyboard shortcuts.
     /// </summary>
     public class ChatUI : IDisposable
     {
+        #region Fields
+        
+        /// <summary>
+        /// Message broker for handling chat events
+        /// </summary>
         private readonly IMessageBroker _messageBroker;
-
-        // UI references (assign via inspector or constructor)
+        
+        /// <summary>
+        /// UI text component for displaying chat messages
+        /// </summary>
         private readonly Text _chatDisplayText;
+        
+        /// <summary>
+        /// Input field for user message input
+        /// </summary>
         private readonly InputField _chatInputField;
+        
+        /// <summary>
+        /// Button for sending chat messages
+        /// </summary>
         private readonly Button _sendButton;
-
-        // Keeps chat history (optional)
+        
+        /// <summary>
+        /// Queue to maintain chat message history
+        /// </summary>
         private readonly Queue<string> _chatMessages = new();
-
-        // Max number of messages to keep
+        
+        /// <summary>
+        /// Maximum number of messages to keep in history
+        /// </summary>
         private readonly int _maxMessages = 50;
-
+        
+        /// <summary>
+        /// Disposable container for reactive subscriptions
+        /// </summary>
+        private readonly CompositeDisposable _disposables = new();
+        
+        #endregion
+        
+        #region Constructor
+        
+        /// <summary>
+        /// Initializes a new instance of the ChatUI class.
+        /// </summary>
+        /// <param name="messageBroker">Message broker for event handling</param>
+        /// <param name="chatDisplayText">Text component for displaying messages</param>
+        /// <param name="chatInputField">Input field for user input</param>
+        /// <param name="sendButton">Button for sending messages</param>
+        /// <exception cref="ArgumentNullException">Thrown when any parameter is null</exception>
         public ChatUI(IMessageBroker messageBroker, Text chatDisplayText, InputField chatInputField, Button sendButton)
         {
             _messageBroker = messageBroker ?? throw new ArgumentNullException(nameof(messageBroker));
@@ -33,20 +70,53 @@ namespace Infrastructure.UI
             _chatInputField = chatInputField ?? throw new ArgumentNullException(nameof(chatInputField));
             _sendButton = sendButton ?? throw new ArgumentNullException(nameof(sendButton));
 
-            Bind();
+            Initialize();
         }
-
-        private void Bind()
+        
+        #endregion
+        
+        #region Public Methods
+        
+        /// <summary>
+        /// Releases all resources used by the ChatUI instance.
+        /// </summary>
+        public void Dispose()
         {
-            // Subscribe to incoming chat messages
+            _disposables?.Dispose();
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        /// <summary>
+        /// Initializes UI bindings and event subscriptions.
+        /// </summary>
+        private void Initialize()
+        {
+            BindMessageEvents();
+            BindUIEvents();
+        }
+        
+        /// <summary>
+        /// Sets up message broker event subscriptions.
+        /// </summary>
+        private void BindMessageEvents()
+        {
             _messageBroker.Receive<ChatMessageEvent>()
                 .Subscribe(OnChatMessageReceived)
                 .AddTo(_disposables);
-
+        }
+        
+        /// <summary>
+        /// Sets up UI element event handlers.
+        /// </summary>
+        private void BindUIEvents()
+        {
             // Send message on button click
             _sendButton.onClick.AddListener(SendChatMessage);
 
-            // Optional: send message on Enter key in input field
+            // Send message on Enter key press
             _chatInputField.onEndEdit.AddListener(text =>
             {
                 if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
@@ -55,55 +125,100 @@ namespace Infrastructure.UI
                 }
             });
         }
-
+        
+        /// <summary>
+        /// Handles incoming chat message events.
+        /// </summary>
+        /// <param name="chatMessage">The received chat message event</param>
         private void OnChatMessageReceived(ChatMessageEvent chatMessage)
         {
             AddMessage($"{chatMessage.Sender}: {chatMessage.Message}");
         }
-
+        
+        /// <summary>
+        /// Adds a message to the chat history and updates the display.
+        /// </summary>
+        /// <param name="message">The message to add</param>
         private void AddMessage(string message)
         {
+            // Remove oldest message if at capacity
             if (_chatMessages.Count >= _maxMessages)
             {
                 _chatMessages.Dequeue();
             }
 
             _chatMessages.Enqueue(message);
-
+            UpdateChatDisplay();
+        }
+        
+        /// <summary>
+        /// Updates the chat display with current message history.
+        /// </summary>
+        private void UpdateChatDisplay()
+        {
             _chatDisplayText.text = string.Join("\n", _chatMessages);
         }
-
+        
+        /// <summary>
+        /// Sends the current input as a chat message.
+        /// </summary>
         private void SendChatMessage()
         {
             var message = _chatInputField.text.Trim();
             if (string.IsNullOrEmpty(message)) return;
 
-            var sender = "You"; // Or get from player info
+            var sender = "You"; // TODO: Get from player info system
 
             // Publish outgoing chat message event
             _messageBroker.Publish(new ChatMessageEvent(sender, message));
 
+            ClearInput();
+        }
+        
+        /// <summary>
+        /// Clears the input field and refocuses it.
+        /// </summary>
+        private void ClearInput()
+        {
             _chatInputField.text = string.Empty;
             _chatInputField.ActivateInputField();
         }
-
-        private readonly CompositeDisposable _disposables = new();
-
-        public void Dispose()
-        {
-            _disposables.Dispose();
-        }
+        
+        #endregion
     }
-
+    
+    /// <summary>
+    /// Event structure for chat messages containing sender and message content.
+    /// </summary>
     public readonly struct ChatMessageEvent
     {
+        #region Properties
+        
+        /// <summary>
+        /// Gets the name of the message sender.
+        /// </summary>
         public string Sender { get; }
+        
+        /// <summary>
+        /// Gets the message content.
+        /// </summary>
         public string Message { get; }
-
+        
+        #endregion
+        
+        #region Constructor
+        
+        /// <summary>
+        /// Initializes a new ChatMessageEvent.
+        /// </summary>
+        /// <param name="sender">The name of the message sender</param>
+        /// <param name="message">The message content</param>
         public ChatMessageEvent(string sender, string message)
         {
             Sender = sender;
             Message = message;
         }
+        
+        #endregion
     }
 }
