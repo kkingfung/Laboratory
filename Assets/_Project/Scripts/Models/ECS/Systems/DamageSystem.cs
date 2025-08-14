@@ -1,45 +1,113 @@
 using Unity.Entities;
-using UnityEngine;
 using Unity.Netcode;
 using Unity.Transforms;
-// FIXME: tidyup after 8/29
-[UpdateInGroup(typeof(SimulationSystemGroup))]
-public partial class DamageSystem : SystemBase
+using UnityEngine;
+
+namespace Laboratory.Models.ECS.Systems
 {
-    protected override void OnUpdate()
+    /// <summary>
+    /// Processes damage requests and applies them to entity health components.
+    /// Handles network synchronization and cleanup of processed damage requests.
+    /// </summary>
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
+    public partial class DamageSystem : SystemBase
     {
-        var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+        #region Fields
 
-        // Capture reference to GameObject lookup (assuming linked)
-        var networkHealthLookup = GetComponentLookup<NetworkHealth>(true);
+        /// <summary>
+        /// Lookup for network health components (read-only)
+        /// </summary>
+        private ComponentLookup<NetworkHealth> _networkHealthLookup;
 
-        Entities
-            .WithAll<DamageRequest, HealthComponent>()
-            .ForEach((Entity entity, int entityInQueryIndex, ref HealthComponent health, in DamageRequest damageRequest) =>
-            {
-                // Apply damage
-                health.CurrentHealth -= damageRequest.Amount;
-                if (health.CurrentHealth < 0) health.CurrentHealth = 0;
+        #endregion
 
-                // Sync health via NetworkHealth MonoBehaviour if exists
-                if (entityManager.HasComponent<NetworkObject>(entity))
+        #region Unity Override Methods
+
+        /// <summary>
+        /// Initializes component lookups for efficient access.
+        /// </summary>
+        protected override void OnCreate()
+        {
+            base.OnCreate();
+            _networkHealthLookup = GetComponentLookup<NetworkHealth>(true);
+        }
+
+        /// <summary>
+        /// Processes all pending damage requests and applies them to health components.
+        /// </summary>
+        protected override void OnUpdate()
+        {
+            var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            _networkHealthLookup.Update(this);
+
+            Entities
+                .WithAll<DamageRequest, HealthComponent>()
+                .ForEach((Entity entity, ref HealthComponent health, in DamageRequest damageRequest) =>
                 {
-                    var networkObject = entityManager.GetComponentObject<NetworkObject>(entity);
-                    var go = networkObject.gameObject;
-                    var networkHealth = go.GetComponent<NetworkHealth>();
-                    if (networkHealth != null && networkHealth.IsServer)
-                    {
-                        networkHealth.ApplyDamage(damageRequest.Amount);
-                    }
-                }
+                    ProcessDamageRequest(entity, ref health, in damageRequest, entityManager);
+                }).WithoutBurst().Run();
+        }
 
-                // TODO: Trigger damage taken events for UI, VFX, sounds here (e.g., via event system)
+        #endregion
 
-                // If dead, handle death logic here or via another system
+        #region Private Methods
 
-                // Remove damage request component to mark processed
-                EntityManager.RemoveComponent<DamageRequest>(entity);
+        /// <summary>
+        /// Processes a single damage request and updates the entity's health.
+        /// </summary>
+        /// <param name="entity">The entity receiving damage</param>
+        /// <param name="health">The health component to modify</param>
+        /// <param name="damageRequest">The damage request to process</param>
+        /// <param name="entityManager">Entity manager for component operations</param>
+        private void ProcessDamageRequest(Entity entity, ref HealthComponent health, in DamageRequest damageRequest, EntityManager entityManager)
+        {
+            ApplyDamageToHealth(ref health, damageRequest.Amount);
+            SyncNetworkHealth(entity, damageRequest.Amount, entityManager);
+            CleanupDamageRequest(entity);
+        }
 
-            }).WithoutBurst().Run();
+        /// <summary>
+        /// Applies damage to the health component.
+        /// </summary>
+        /// <param name="health">The health component to modify</param>
+        /// <param name="damageAmount">Amount of damage to apply</param>
+        private void ApplyDamageToHealth(ref HealthComponent health, float damageAmount)
+        {
+            health.CurrentHealth -= damageAmount;
+            if (health.CurrentHealth < 0) 
+                health.CurrentHealth = 0;
+        }
+
+        /// <summary>
+        /// Synchronizes health changes with the network health component if present.
+        /// </summary>
+        /// <param name="entity">The entity to sync</param>
+        /// <param name="damageAmount">Amount of damage applied</param>
+        /// <param name="entityManager">Entity manager for component access</param>
+        private void SyncNetworkHealth(Entity entity, float damageAmount, EntityManager entityManager)
+        {
+            if (!entityManager.HasComponent<NetworkObject>(entity))
+                return;
+
+            var networkObject = entityManager.GetComponentObject<NetworkObject>(entity);
+            var gameObject = networkObject.gameObject;
+            var networkHealth = gameObject.GetComponent<NetworkHealth>();
+
+            if (networkHealth != null && networkHealth.IsServer)
+            {
+                networkHealth.ApplyDamage(damageAmount);
+            }
+        }
+
+        /// <summary>
+        /// Removes the processed damage request component from the entity.
+        /// </summary>
+        /// <param name="entity">The entity to clean up</param>
+        private void CleanupDamageRequest(Entity entity)
+        {
+            EntityManager.RemoveComponent<DamageRequest>(entity);
+        }
+
+        #endregion
     }
 }

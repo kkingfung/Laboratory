@@ -226,7 +226,20 @@ namespace Laboratory.Gameplay.Lobby
 
         #region Inner Classes, Enums
 
-        // No inner classes or enums currently.
+        /// <summary>
+        /// Represents the current state of the matchmaking process.
+        /// </summary>
+        public enum MatchmakingState
+        {
+            /// <summary>Not actively matchmaking.</summary>
+            Idle,
+            /// <summary>Currently searching for a match.</summary>
+            Searching,
+            /// <summary>Match found, preparing to start.</summary>
+            MatchFound,
+            /// <summary>Matchmaking failed due to an error.</summary>
+            Failed
+        }
 
         #endregion
 

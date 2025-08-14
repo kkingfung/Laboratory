@@ -2,11 +2,8 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Physics.Systems;
 using Cysharp.Threading.Tasks;
-using R3;
 using MessagePipe;
-using UniRx;
 using Laboratory.Infrastructure.AsyncUtils;
-using Laboratory.Networking;
 
 namespace Laboratory.Core.Bootstrap
 {
@@ -113,8 +110,9 @@ namespace Laboratory.Core.Bootstrap
         /// </summary>
         private void InitializeNetworkClient()
         {
-            _networkClient = new NetworkClient(_messageBroker);
-            _services.Register<NetworkClient>(_networkClient);
+            // TODO: Implement NetworkClient when it's created
+            // _networkClient = new NetworkClient(_messageBroker);
+            // _services.Register<NetworkClient>(_networkClient);
         }
 
         /// <summary>
@@ -137,7 +135,8 @@ namespace Laboratory.Core.Bootstrap
 
             try
             {
-                await _networkClient.ConnectAsync(DefaultNetworkAddress, DefaultNetworkPort);
+                // TODO: Implement NetworkClient connection when it's created
+                // await _networkClient.ConnectAsync(DefaultNetworkAddress, DefaultNetworkPort);
 
                 var assetPreloader = new AssetPreloader();
                 _services.Register<AssetPreloader>(assetPreloader);
@@ -170,10 +169,11 @@ namespace Laboratory.Core.Bootstrap
         /// </summary>
         private void SubscribeToGameStateEvents()
         {
-            if (_gameStateManager != null)
-            {
-                _gameStateManager.OnStateChangedForNetwork += HandleGameStateChanged;
-            }
+            // TODO: Implement event subscription when GameStateManager and NetworkClient are ready
+            // if (_gameStateManager != null)
+            // {
+            //     _gameStateManager.OnStateChangedForNetwork += HandleGameStateChanged;
+            // }
         }
 
         /// <summary>
@@ -181,8 +181,9 @@ namespace Laboratory.Core.Bootstrap
         /// </summary>
         private void HandleGameStateChanged(GameState newState)
         {
-            var bytes = RPCSerializer.SerializeGameState(newState);
-            _ = _networkClient.SendAsync(bytes);
+            // TODO: Implement state synchronization when GameState and RPCSerializer are ready
+            // var bytes = RPCSerializer.SerializeGameState(newState);
+            // _ = _networkClient.SendAsync(bytes);
         }
 
         #endregion

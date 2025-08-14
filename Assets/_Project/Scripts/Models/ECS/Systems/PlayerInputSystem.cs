@@ -1,62 +1,480 @@
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Models.ECS.Components;
-// FIXME: tidyup after 8/29
-namespace Models.ECS.Systems
+using Laboratory.Core;
+using Laboratory.Infrastructure.AsyncUtils;
+using Laboratory.ECS.Components;
+
+namespace Laboratory.ECS.Systems
 {
+    /// <summary>
+    /// MonoBehaviour system responsible for capturing player input using Unity's Input System
+    /// and translating it to ECS components for processing by other systems. This system bridges
+    /// the gap between Unity's input handling and the ECS architecture.
+    /// </summary>
     public class PlayerInputSystem : MonoBehaviour
     {
-        private EntityManager _entityManager;
-        private Entity _playerEntity;
+        #region Fields
+        
+        /// <summary>
+        /// Entity manager for accessing and modifying ECS entities and components
+        /// </summary>
+        private EntityManager _entityManager = null!;
+        
+        /// <summary>
+        /// The player entity that this input system controls
+        /// </summary>
+        private Entity _playerEntity = Entity.Null;
+        
+        /// <summary>
+        /// Input System controls for handling player input actions
+        /// </summary>
+        private PlayerControls _controls = null!;
+        
+        /// <summary>
+        /// Flag indicating whether the system is properly initialized
+        /// </summary>
+        private bool _isInitialized = false;
+        
+        /// <summary>
+        /// Cache for the last valid input to prevent unnecessary component updates
+        /// </summary>
+        private PlayerInputComponent _lastInput;
+        
+        /// <summary>
+        /// Sensitivity multiplier for look input (mouse/controller)
+        /// </summary>
+        [SerializeField]
+        private float _lookSensitivity = 1.0f;
+        
+        /// <summary>
+        /// Deadzone threshold for controller input to prevent drift
+        /// </summary>
+        [SerializeField]
+        private float _inputDeadzone = 0.1f;
+        
+        #endregion
 
-        // Input System actions
-        private PlayerControls _controls;
+        #region Unity Override Methods
 
+        /// <summary>
+        /// Called when the MonoBehaviour is created. Initializes the ECS entity manager
+        /// and sets up input controls.
+        /// </summary>
         private void Awake()
         {
-            _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-
-            // TODO: Assign _playerEntity here or get via your own entity lookup
-            // e.g. query by player tag or set manually
-
-            _controls = new PlayerControls();
+            InitializeEntityManager();
+            InitializeInputControls();
         }
 
+        /// <summary>
+        /// Called when the GameObject starts. Finds and assigns the player entity
+        /// for input processing.
+        /// </summary>
+        private void Start()
+        {
+            InitializePlayerEntity();
+        }
+
+        /// <summary>
+        /// Called when the component is enabled. Enables input controls and
+        /// starts processing input events.
+        /// </summary>
         private void OnEnable()
         {
-            _controls.Enable();
+            EnableInputControls();
         }
 
+        /// <summary>
+        /// Called when the component is disabled. Disables input controls and
+        /// stops processing input events.
+        /// </summary>
         private void OnDisable()
         {
-            _controls.Disable();
+            DisableInputControls();
         }
 
+        /// <summary>
+        /// Called every frame. Processes input and updates the player entity's
+        /// input component with current input state.
+        /// </summary>
         private void Update()
         {
-            if (_playerEntity == Entity.Null || !_entityManager.HasComponent<PlayerInputComponent>(_playerEntity))
+            if (!_isInitialized)
+            {
                 return;
+            }
 
+            ProcessPlayerInput();
+        }
+
+        /// <summary>
+        /// Called when the MonoBehaviour is destroyed. Cleans up input controls
+        /// and releases resources.
+        /// </summary>
+        private void OnDestroy()
+        {
+            CleanupResources();
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Initializes the ECS entity manager from the default world
+        /// </summary>
+        private void InitializeEntityManager()
+        {
+            try
+            {
+                _entityManager = World.DefaultGameObjectInjectionWorld?.EntityManager;
+                
+                if (_entityManager == null)
+                {
+                    throw new InvalidOperationException("Default ECS World or EntityManager is null");
+                }
+                
+                Debug.Log("PlayerInputSystem entity manager initialized");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to initialize EntityManager: {ex.Message}");
+                _isInitialized = false;
+            }
+        }
+
+        /// <summary>
+        /// Initializes the Input System controls for player input
+        /// </summary>
+        private void InitializeInputControls()
+        {
+            try
+            {
+                _controls = new PlayerControls();
+                Debug.Log("PlayerInputSystem input controls initialized");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to initialize input controls: {ex.Message}");
+                _isInitialized = false;
+            }
+        }
+
+        /// <summary>
+        /// Finds and assigns the player entity for input processing
+        /// </summary>
+        private void InitializePlayerEntity()
+        {
+            try
+            {
+                // TODO: Implement proper player entity lookup based on your game's architecture
+                // This could involve querying entities with specific components or tags
+                _playerEntity = FindPlayerEntity();
+                
+                if (_playerEntity == Entity.Null)
+                {
+                    Debug.LogWarning("Player entity not found. Input will not be processed until entity is assigned.");
+                    _isInitialized = false;
+                    return;
+                }
+                
+                ValidatePlayerEntityComponents();
+                _isInitialized = true;
+                Debug.Log("PlayerInputSystem fully initialized with player entity");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to initialize player entity: {ex.Message}");
+                _isInitialized = false;
+            }
+        }
+
+        /// <summary>
+        /// Finds the player entity in the ECS world (placeholder implementation)
+        /// </summary>
+        /// <returns>The player entity, or Entity.Null if not found</returns>
+        private Entity FindPlayerEntity()
+        {
+            // TODO: Implement proper entity lookup logic
+            // Example approaches:
+            // 1. Query entities with PlayerTag component
+            // 2. Use a singleton component to store player entity reference
+            // 3. Search by specific component combination (PlayerInputComponent + PlayerStateComponent)
+            
+            // Placeholder implementation - replace with actual lookup logic
+            using var query = _entityManager.CreateEntityQuery(typeof(PlayerInputComponent));
+            var entities = query.ToEntityArray(Unity.Collections.Allocator.Temp);
+            
+            if (entities.Length > 0)
+            {
+                return entities[0]; // Return first player entity found
+            }
+            
+            return Entity.Null;
+        }
+
+        /// <summary>
+        /// Validates that the player entity has required components for input processing
+        /// </summary>
+        private void ValidatePlayerEntityComponents()
+        {
+            if (!_entityManager.HasComponent<PlayerInputComponent>(_playerEntity))
+            {
+                throw new InvalidOperationException("Player entity missing PlayerInputComponent");
+            }
+            
+            // Add additional component validation as needed
+            Debug.Log("Player entity components validated successfully");
+        }
+
+        /// <summary>
+        /// Enables input controls and starts listening for input events
+        /// </summary>
+        private void EnableInputControls()
+        {
+            try
+            {
+                if (_controls != null)
+                {
+                    _controls.Enable();
+                    Debug.Log("Input controls enabled");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to enable input controls: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Disables input controls and stops listening for input events
+        /// </summary>
+        private void DisableInputControls()
+        {
+            try
+            {
+                if (_controls != null)
+                {
+                    _controls.Disable();
+                    Debug.Log("Input controls disabled");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to disable input controls: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Processes current input state and updates the player entity's input component
+        /// </summary>
+        private void ProcessPlayerInput()
+        {
+            try
+            {
+                if (_playerEntity == Entity.Null || !IsPlayerEntityValid())
+                {
+                    return;
+                }
+
+                var inputComponent = GatherInputData();
+                
+                // Only update component if input has changed to reduce ECS churn
+                if (!InputComponentEquals(inputComponent, _lastInput))
+                {
+                    UpdatePlayerInputComponent(inputComponent);
+                    _lastInput = inputComponent;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error processing player input: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Validates that the player entity still exists and has required components
+        /// </summary>
+        /// <returns>True if the player entity is valid for input processing</returns>
+        private bool IsPlayerEntityValid()
+        {
+            return _entityManager.Exists(_playerEntity) && 
+                   _entityManager.HasComponent<PlayerInputComponent>(_playerEntity);
+        }
+
+        /// <summary>
+        /// Gathers all current input data and creates a PlayerInputComponent
+        /// </summary>
+        /// <returns>PlayerInputComponent with current input state</returns>
+        private PlayerInputComponent GatherInputData()
+        {
             var input = new PlayerInputComponent();
 
-            // Read movement vector (assuming 2D Vector2 control)
-            Vector2 move = _controls.Gameplay.Move.ReadValue<Vector2>();
-            input.MoveDirection = new float2(move.x, move.y);
+            // Read movement input
+            Vector2 rawMovement = _controls.Gameplay.Move.ReadValue<Vector2>();
+            input.MoveDirection = ApplyDeadzone(new float2(rawMovement.x, rawMovement.y));
 
-            // Read look direction (e.g. mouse delta or right stick)
-            Vector2 look = _controls.Gameplay.Look.ReadValue<Vector2>();
-            input.LookDirection = new float3(look.x, look.y, 0);
+            // Read look input with sensitivity
+            Vector2 rawLook = _controls.Gameplay.Look.ReadValue<Vector2>();
+            var lookInput = new float2(rawLook.x, rawLook.y) * _lookSensitivity;
+            input.LookDirection = new float3(lookInput.x, lookInput.y, 0);
 
-            // Read attack button (pressed this frame)
+            // Read discrete action inputs
             input.AttackPressed = _controls.Gameplay.Attack.WasPressedThisFrame();
-
-            // Read jump button
             input.JumpPressed = _controls.Gameplay.Jump.IsPressed();
+            
+            // Add additional input actions as needed
+            input.SprintPressed = _controls.Gameplay.Sprint?.IsPressed() ?? false;
+            input.CrouchPressed = _controls.Gameplay.Crouch?.IsPressed() ?? false;
 
-            // Update ECS component
-            _entityManager.SetComponentData(_playerEntity, input);
+            return input;
         }
+
+        /// <summary>
+        /// Applies deadzone filtering to input vector to prevent controller drift
+        /// </summary>
+        /// <param name="input">The raw input vector</param>
+        /// <returns>Filtered input vector with deadzone applied</returns>
+        private float2 ApplyDeadzone(float2 input)
+        {
+            float magnitude = math.length(input);
+            
+            if (magnitude < _inputDeadzone)
+            {
+                return float2.zero;
+            }
+            
+            // Normalize and scale to remove deadzone
+            float normalizedMagnitude = (magnitude - _inputDeadzone) / (1.0f - _inputDeadzone);
+            return math.normalize(input) * normalizedMagnitude;
+        }
+
+        /// <summary>
+        /// Compares two PlayerInputComponent instances for equality
+        /// </summary>
+        /// <param name="a">First input component</param>
+        /// <param name="b">Second input component</param>
+        /// <returns>True if components are equal</returns>
+        private bool InputComponentEquals(PlayerInputComponent a, PlayerInputComponent b)
+        {
+            return math.all(a.MoveDirection == b.MoveDirection) &&
+                   math.all(a.LookDirection == b.LookDirection) &&
+                   a.AttackPressed == b.AttackPressed &&
+                   a.JumpPressed == b.JumpPressed &&
+                   a.SprintPressed == b.SprintPressed &&
+                   a.CrouchPressed == b.CrouchPressed;
+        }
+
+        /// <summary>
+        /// Updates the player entity's input component with new input data
+        /// </summary>
+        /// <param name="inputComponent">The new input component data</param>
+        private void UpdatePlayerInputComponent(PlayerInputComponent inputComponent)
+        {
+            try
+            {
+                _entityManager.SetComponentData(_playerEntity, inputComponent);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to update player input component: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Cleans up input controls and releases resources
+        /// </summary>
+        private void CleanupResources()
+        {
+            try
+            {
+                _controls?.Disable();
+                _controls?.Dispose();
+                _controls = null!;
+                
+                _playerEntity = Entity.Null;
+                _isInitialized = false;
+                
+                Debug.Log("PlayerInputSystem resources cleaned up");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error during PlayerInputSystem cleanup: {ex.Message}");
+            }
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Manually assigns the player entity for input processing
+        /// </summary>
+        /// <param name="playerEntity">The player entity to control</param>
+        public void SetPlayerEntity(Entity playerEntity)
+        {
+            try
+            {
+                if (playerEntity == Entity.Null)
+                {
+                    Debug.LogWarning("Attempting to set null player entity");
+                    return;
+                }
+
+                _playerEntity = playerEntity;
+                ValidatePlayerEntityComponents();
+                _isInitialized = true;
+                
+                Debug.Log($"Player entity set manually: {playerEntity}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to set player entity: {ex.Message}");
+                _isInitialized = false;
+            }
+        }
+
+        /// <summary>
+        /// Gets the current player entity being controlled
+        /// </summary>
+        /// <returns>The player entity, or Entity.Null if not set</returns>
+        public Entity GetPlayerEntity()
+        {
+            return _playerEntity;
+        }
+
+        /// <summary>
+        /// Checks if the input system is properly initialized and ready for use
+        /// </summary>
+        /// <returns>True if the system is initialized and functional</returns>
+        public bool IsInitialized()
+        {
+            return _isInitialized && _playerEntity != Entity.Null && _controls != null;
+        }
+
+        /// <summary>
+        /// Updates input sensitivity for look controls
+        /// </summary>
+        /// <param name="sensitivity">New sensitivity value</param>
+        public void SetLookSensitivity(float sensitivity)
+        {
+            _lookSensitivity = math.max(0.1f, sensitivity); // Ensure minimum sensitivity
+            Debug.Log($"Look sensitivity updated to: {_lookSensitivity}");
+        }
+
+        /// <summary>
+        /// Updates input deadzone threshold
+        /// </summary>
+        /// <param name="deadzone">New deadzone value (0.0 to 0.9)</param>
+        public void SetInputDeadzone(float deadzone)
+        {
+            _inputDeadzone = math.clamp(deadzone, 0f, 0.9f);
+            Debug.Log($"Input deadzone updated to: {_inputDeadzone}");
+        }
+
+        #endregion
     }
 }

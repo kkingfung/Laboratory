@@ -1,57 +1,262 @@
 using System;
-using Unity.Entities;
-using Infrastructure;
-using Infrastructure.UI;
-using UniRx;
 using System.Threading.Tasks;
+using Unity.Entities;
+using UniRx;
 using UnityEngine;
-// FIXME: tidyup after 8/29
-namespace Models.ECS.Systems
+using Laboratory.Core;
+using Laboratory.Infrastructure.AsyncUtils;
+using Laboratory.Infrastructure.UI;
+
+namespace Laboratory.ECS.Systems
 {
+    /// <summary>
+    /// System responsible for managing loading screen operations and scene transitions.
+    /// This system listens to game state changes and handles asynchronous loading operations
+    /// when the game enters the loading state.
+    /// </summary>
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class LoadingScreenSystem : SystemBase
     {
+        #region Fields
+        
+        /// <summary>
+        /// Reference to the game state manager for monitoring and controlling game states
+        /// </summary>
         private GameStateManager _gameStateManager = null!;
+        
+        /// <summary>
+        /// Reference to the loading screen UI component for displaying loading progress
+        /// </summary>
         private LoadingScreen _loadingScreen = null!;
+        
+        /// <summary>
+        /// Flag indicating whether a loading operation is currently in progress
+        /// </summary>
         private bool _isLoading = false;
+        
+        /// <summary>
+        /// Subscription to game state change events
+        /// </summary>
         private IDisposable? _stateSubscription;
+        
+        #endregion
 
+        #region Unity Override Methods
+
+        /// <summary>
+        /// Called when the system is created. Initializes dependencies and subscribes
+        /// to game state changes for loading operations.
+        /// </summary>
         protected override void OnCreate()
         {
             base.OnCreate();
-
-            _gameStateManager = Infrastructure.ServiceLocator.Instance.Resolve<GameStateManager>();
-            _loadingScreen = Infrastructure.ServiceLocator.Instance.Resolve<LoadingScreen>();
-
-            _stateSubscription = _gameStateManager.CurrentState
-                .Where(state => state == GameStateManager.GameState.Loading)
-                .Subscribe(async _ => await StartLoadingAsync());
+            InitializeDependencies();
+            SubscribeToLoadingStates();
         }
 
-        private async Task StartLoadingAsync()
-        {
-            if (_isLoading) return;
-
-            _isLoading = true;
-
-            // Example: load the "GameScene"
-            await _loadingScreen.LoadSceneAsync("GameScene");
-
-            // After loading, switch to Playing state
-            _gameStateManager.SetState(GameStateManager.GameState.Playing);
-
-            _isLoading = false;
-        }
-
-        protected override void OnDestroy()
-        {
-            base.OnDestroy();
-            _stateSubscription?.Dispose();
-        }
-
+        /// <summary>
+        /// Called every frame. This system doesn't require update logic as it
+        /// reacts to events through subscriptions.
+        /// </summary>
         protected override void OnUpdate()
         {
             // No update logic needed; reacts via subscription
         }
+
+        /// <summary>
+        /// Called when the system is destroyed. Cleans up subscriptions and resources.
+        /// </summary>
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            CleanupSubscriptions();
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Initializes all required dependencies from the service locator
+        /// </summary>
+        private void InitializeDependencies()
+        {
+            try
+            {
+                _gameStateManager = Infrastructure.ServiceLocator.Instance.Resolve<GameStateManager>();
+                _loadingScreen = Infrastructure.ServiceLocator.Instance.Resolve<LoadingScreen>();
+                
+                if (_gameStateManager == null)
+                {
+                    throw new InvalidOperationException("GameStateManager could not be resolved");
+                }
+                
+                if (_loadingScreen == null)
+                {
+                    throw new InvalidOperationException("LoadingScreen could not be resolved");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to initialize LoadingScreenSystem dependencies: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Subscribes to game state changes, specifically listening for loading state transitions
+        /// </summary>
+        private void SubscribeToLoadingStates()
+        {
+            try
+            {
+                if (_gameStateManager?.CurrentState != null)
+                {
+                    _stateSubscription = _gameStateManager.CurrentState
+                        .Where(state => state == GameStateManager.GameState.Loading)
+                        .Subscribe(async _ => await HandleLoadingStateAsync());
+                }
+                else
+                {
+                    Debug.LogError("GameStateManager or CurrentState is null, cannot subscribe to loading states");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to subscribe to loading states: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Handles the loading state by initiating the asynchronous loading process
+        /// </summary>
+        private async Task HandleLoadingStateAsync()
+        {
+            try
+            {
+                await StartLoadingAsync();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error during loading state handling: {ex.Message}");
+                await HandleLoadingError();
+            }
+        }
+
+        /// <summary>
+        /// Initiates the asynchronous loading process for scene transitions
+        /// </summary>
+        /// <returns>A task representing the asynchronous loading operation</returns>
+        private async Task StartLoadingAsync()
+        {
+            if (_isLoading)
+            {
+                Debug.LogWarning("Loading operation already in progress, skipping duplicate request");
+                return;
+            }
+
+            try
+            {
+                _isLoading = true;
+                Debug.Log("Starting loading operation");
+
+                // Perform the scene loading operation
+                await LoadGameSceneAsync();
+
+                // Transition to playing state after successful loading
+                TransitionToPlayingState();
+                
+                Debug.Log("Loading operation completed successfully");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Loading operation failed: {ex.Message}");
+                await HandleLoadingError();
+            }
+            finally
+            {
+                _isLoading = false;
+            }
+        }
+
+        /// <summary>
+        /// Loads the main game scene asynchronously
+        /// </summary>
+        /// <returns>A task representing the scene loading operation</returns>
+        private async Task LoadGameSceneAsync()
+        {
+            const string gameSceneName = "GameScene";
+            
+            try
+            {
+                await _loadingScreen.LoadSceneAsync(gameSceneName);
+                Debug.Log($"Successfully loaded scene: {gameSceneName}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to load scene '{gameSceneName}': {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Transitions the game state to playing after successful loading
+        /// </summary>
+        private void TransitionToPlayingState()
+        {
+            try
+            {
+                _gameStateManager.SetState(GameStateManager.GameState.Playing);
+                Debug.Log("Transitioned to Playing state");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to transition to Playing state: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Handles loading errors by transitioning to an appropriate error state
+        /// </summary>
+        /// <returns>A task representing the error handling operation</returns>
+        private async Task HandleLoadingError()
+        {
+            try
+            {
+                // Give a brief delay to ensure any ongoing operations complete
+                await Task.Delay(100);
+                
+                // Transition to main menu or error state
+                _gameStateManager.SetState(GameStateManager.GameState.MainMenu);
+                Debug.Log("Transitioned to MainMenu state due to loading error");
+                
+                // Optionally show error message to user through loading screen
+                // await _loadingScreen.ShowErrorMessageAsync("Loading failed. Returning to main menu.");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error during loading error handling: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Cleans up all subscriptions and disposable resources
+        /// </summary>
+        private void CleanupSubscriptions()
+        {
+            try
+            {
+                _stateSubscription?.Dispose();
+                _stateSubscription = null;
+                Debug.Log("LoadingScreenSystem subscriptions cleaned up");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error during subscription cleanup: {ex.Message}");
+            }
+        }
+
+        #endregion
     }
 }
