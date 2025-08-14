@@ -1,0 +1,21 @@
+{
+  "name": "Unity 3D Action Game Copilot Ruleset",
+  "enforcement": "active",
+  "conditions": {
+    "include": ["refs/heads/main", "refs/heads/develop", "refs/heads/feature/*"],
+    "exclude": []
+  },
+  "rules": [
+    {
+      "type": "pull_request",
+      "parameters": {
+        "required_approving_review_count": 1,
+        "required_linear_history": true,
+        "dismiss_stale_reviews_on_push": true,
+        "require_code_owner_reviews": true,
+        "require_pull_request_review": true,
+        "request_copilot_review": true
+      }
+    }
+  ]
+}
