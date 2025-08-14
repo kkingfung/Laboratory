@@ -5,32 +5,45 @@ using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
 using UniRx;
-// FIXME: tidyup after 8/29
+
 #nullable enable
 
-namespace Infrastructure
+namespace Laboratory.Infrastructure.AsyncUtils
 {
     /// <summary>
-    /// Simple async TCP Network Client using UniTask and MessagingPipe for events.
+    /// Asynchronous TCP network client using UniTask for high-performance networking.
+    /// Provides event-driven communication with message broker integration.
     /// </summary>
     public class NetworkClient : IDisposable
     {
         #region Fields
 
+        /// <summary>Underlying TCP client connection.</summary>
         private TcpClient? _tcpClient;
+        
+        /// <summary>Network stream for data transmission.</summary>
         private NetworkStream? _networkStream;
+        
+        /// <summary>Cancellation token source for operation cancellation.</summary>
         private CancellationTokenSource? _cts;
 
+        /// <summary>Message broker for publishing network events.</summary>
         private readonly IMessageBroker _messageBroker;
 
+        /// <summary>Current connection state.</summary>
         private bool _isConnected = false;
 
         #endregion
 
         #region Events
 
+        /// <summary>Raised when successfully connected to server.</summary>
         public event Action? Connected;
+        
+        /// <summary>Raised when disconnected from server.</summary>
         public event Action? Disconnected;
+        
+        /// <summary>Raised when data is received from server.</summary>
         public event Action<byte[]>? DataReceived;
 
         #endregion
@@ -38,8 +51,9 @@ namespace Infrastructure
         #region Constructor
 
         /// <summary>
-        /// Requires an IMessageBroker for event publishing.
+        /// Initializes a new NetworkClient with optional message broker.
         /// </summary>
+        /// <param name="messageBroker">Message broker for event publishing. Creates default if null.</param>
         public NetworkClient(IMessageBroker? messageBroker = null)
         {
             _messageBroker = messageBroker ?? new MessageBroker();
@@ -50,8 +64,13 @@ namespace Infrastructure
         #region Public Methods
 
         /// <summary>
-        /// Connect to server asynchronously.
+        /// Establishes connection to server asynchronously.
         /// </summary>
+        /// <param name="host">Server host address.</param>
+        /// <param name="port">Server port number.</param>
+        /// <param name="cancellationToken">Cancellation token for operation.</param>
+        /// <returns>Task representing the connection operation.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when already connected.</exception>
         public async UniTask ConnectAsync(string host, int port, CancellationToken cancellationToken = default)
         {
             if (_isConnected) return;
@@ -79,7 +98,7 @@ namespace Infrastructure
         }
 
         /// <summary>
-        /// Disconnect gracefully.
+        /// Gracefully disconnects from server.
         /// </summary>
         public void Disconnect()
         {
@@ -96,8 +115,12 @@ namespace Infrastructure
         }
 
         /// <summary>
-        /// Send data asynchronously.
+        /// Sends data to server asynchronously.
         /// </summary>
+        /// <param name="data">Data bytes to send.</param>
+        /// <param name="cancellationToken">Cancellation token for operation.</param>
+        /// <returns>Task representing the send operation.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when not connected to server.</exception>
         public async UniTask SendAsync(byte[] data, CancellationToken cancellationToken = default)
         {
             if (!_isConnected || _networkStream == null)
@@ -113,6 +136,11 @@ namespace Infrastructure
 
         #region Private Methods
 
+        /// <summary>
+        /// Continuously receives data from server in background loop.
+        /// </summary>
+        /// <param name="token">Cancellation token for loop termination.</param>
+        /// <returns>UniTaskVoid representing the receive loop.</returns>
         private async UniTaskVoid ReceiveLoopAsync(CancellationToken token)
         {
             var buffer = new byte[4096];
@@ -148,10 +176,14 @@ namespace Infrastructure
 
         #endregion
 
-        #region IDisposable Support
+        #region IDisposable Implementation
 
+        /// <summary>Tracks disposal state to prevent double disposal.</summary>
         private bool _disposed = false;
 
+        /// <summary>
+        /// Disposes all resources and disconnects from server.
+        /// </summary>
         public void Dispose()
         {
             if (_disposed) return;
@@ -167,14 +199,20 @@ namespace Infrastructure
         #endregion
     }
 
-    #region MessagingPipe Messages
+    #region Message Broker Events
 
+    /// <summary>Event published when network connection is established.</summary>
     public record NetworkConnectedMessage();
 
+    /// <summary>Event published when network connection is lost.</summary>
     public record NetworkDisconnectedMessage();
 
+    /// <summary>Event published when data is received from server.</summary>
+    /// <param name="Data">The received data bytes.</param>
     public record NetworkDataReceivedMessage(byte[] Data);
 
+    /// <summary>Event published when a network error occurs.</summary>
+    /// <param name="Exception">The exception that occurred.</param>
     public record NetworkErrorMessage(Exception Exception);
 
     #endregion

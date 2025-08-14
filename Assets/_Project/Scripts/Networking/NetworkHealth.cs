@@ -2,10 +2,11 @@ using Unity.Mathematics;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace Laboratory.Networking
+namespace Laboratory.Infrastructure.Networking
 {
     /// <summary>
-    /// Manages player health over the network with synchronized state.
+    /// Network-synchronized health system with server authority.
+    /// Manages player health state, damage application, and healing across all clients.
     /// </summary>
     public class NetworkHealth : NetworkBehaviour
     {
@@ -14,16 +15,20 @@ namespace Laboratory.Networking
         [Header("Health Configuration")]
         [SerializeField] private int maxHealth = 100;
 
-        public NetworkVariable<int> CurrentHealth = new NetworkVariable<int>(default, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        /// <summary>Current health value synchronized across all clients.</summary>
+        public NetworkVariable<int> CurrentHealth = new NetworkVariable<int>(
+            default, 
+            NetworkVariableReadPermission.Everyone, 
+            NetworkVariableWritePermission.Server);
 
         #endregion
 
         #region Properties
 
-        /// <summary>Maximum health value.</summary>
+        /// <summary>Maximum health value for this entity.</summary>
         public int MaxHealth => maxHealth;
 
-        /// <summary>Whether this player is currently alive.</summary>
+        /// <summary>Whether this entity is currently alive (health > 0).</summary>
         public bool IsAlive => CurrentHealth.Value > 0;
 
         /// <summary>Health as a normalized percentage (0.0 to 1.0).</summary>
@@ -33,6 +38,9 @@ namespace Laboratory.Networking
 
         #region Unity Override Methods
 
+        /// <summary>
+        /// Initialize network health when spawned on network.
+        /// </summary>
         public override void OnNetworkSpawn()
         {
             if (IsServer)
@@ -42,6 +50,9 @@ namespace Laboratory.Networking
             CurrentHealth.OnValueChanged += OnHealthChanged;
         }
 
+        /// <summary>
+        /// Cleanup network health when despawned from network.
+        /// </summary>
         public override void OnNetworkDespawn()
         {
             CurrentHealth.OnValueChanged -= OnHealthChanged;
@@ -52,9 +63,9 @@ namespace Laboratory.Networking
         #region Public Methods
 
         /// <summary>
-        /// Applies damage to this health component. Server only.
+        /// Applies damage to this health component. Server authority only.
         /// </summary>
-        /// <param name="amount">Amount of damage to apply.</param>
+        /// <param name="amount">Amount of damage to apply (must be positive).</param>
         public void ApplyDamage(int amount)
         {
             if (!IsServer || amount <= 0) return;
@@ -68,9 +79,9 @@ namespace Laboratory.Networking
         }
 
         /// <summary>
-        /// Heals this health component. Server only.
+        /// Heals this health component. Server authority only.
         /// </summary>
-        /// <param name="amount">Amount of health to restore.</param>
+        /// <param name="amount">Amount of health to restore (must be positive).</param>
         public void Heal(int amount)
         {
             if (!IsServer || amount <= 0) return;
@@ -79,7 +90,7 @@ namespace Laboratory.Networking
         }
 
         /// <summary>
-        /// Resets health to maximum. Server only.
+        /// Resets health to maximum value. Server authority only.
         /// </summary>
         public void ResetToMaxHealth()
         {
@@ -93,6 +104,7 @@ namespace Laboratory.Networking
 
         /// <summary>
         /// Called whenever health value changes on any client.
+        /// Used for UI updates and local feedback.
         /// </summary>
         /// <param name="oldValue">Previous health value.</param>
         /// <param name="newValue">New health value.</param>
@@ -100,24 +112,22 @@ namespace Laboratory.Networking
         {
             Debug.Log($"[{gameObject.name}] Health changed from {oldValue} to {newValue}");
             
-            // Broadcast health change event for UI updates
-            // MessageBus could be used here for decoupled communication
+            // TODO: Integrate with message bus for decoupled health change notifications
+            // MessageBus.Publish(new HealthChangedEvent(OwnerClientId, oldValue, newValue));
         }
 
         /// <summary>
-        /// Handles player death logic.
+        /// Handles entity death logic when health reaches zero.
         /// </summary>
         private void OnPlayerDeath()
         {
-            Debug.Log($"[{gameObject.name}] Player has died");
-            // Additional death logic can be implemented here
+            Debug.Log($"[{gameObject.name}] Entity has died");
+            
+            // TODO: Implement additional death logic
+            // - Disable components
+            // - Trigger death animations
+            // - Notify game systems via message bus
         }
-
-        #endregion
-
-        #region Inner Classes, Enums
-
-        // No inner classes or enums currently.
 
         #endregion
     }

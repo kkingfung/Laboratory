@@ -1,42 +1,75 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Events;
-// FIXME: tidyup after 8/29
-[RequireComponent(typeof(Button))]
-public class ButtonDebouncer : MonoBehaviour
+using UnityEngine.UI;
+
+namespace Laboratory.UI.Utils
 {
-    [Tooltip("Minimum time in seconds between consecutive button clicks.")]
-    [SerializeField] private float debounceTime = 0.5f;
-
-    [Tooltip("Optional UnityEvent invoked when a click is ignored due to debounce.")]
-    public UnityEvent? onDebouncedClick;
-
-    private Button _button;
-    private float _lastClickTime = -Mathf.Infinity;
-
-    private void Awake()
+    /// <summary>
+    /// Prevents rapid consecutive button clicks by implementing a debounce mechanism.
+    /// Automatically attaches to Button components and adds a minimum delay between valid clicks.
+    /// </summary>
+    [RequireComponent(typeof(Button))]
+    public class ButtonDebouncer : MonoBehaviour
     {
-        _button = GetComponent<Button>();
-        _button.onClick.AddListener(OnButtonClicked);
-    }
+        #region Fields
 
-    private void OnDestroy()
-    {
-        _button.onClick.RemoveListener(OnButtonClicked);
-    }
+        [Header("Debounce Configuration")]
+        [Tooltip("Minimum time in seconds between consecutive button clicks.")]
+        [SerializeField] private float debounceTime = 0.5f;
 
-    private void OnButtonClicked()
-    {
-        if (Time.unscaledTime - _lastClickTime < debounceTime)
+        [Tooltip("Optional UnityEvent invoked when a click is ignored due to debounce.")]
+        public UnityEvent onDebouncedClick;
+
+        private Button _button;
+        private float _lastClickTime = -Mathf.Infinity;
+
+        #endregion
+
+        #region Unity Override Methods
+
+        /// <summary>
+        /// Initialize the button reference and add click listener.
+        /// </summary>
+        private void Awake()
         {
-            // Ignore click - debounced
-            onDebouncedClick?.Invoke();
-            return;
+            _button = GetComponent<Button>();
+            _button.onClick.AddListener(OnButtonClicked);
         }
 
-        _lastClickTime = Time.unscaledTime;
-        // Let the button proceed with normal click events
-        // Note: If you want to intercept before other listeners,
-        // consider adding this script earlier or controlling invocation order.
+        /// <summary>
+        /// Clean up event listeners to prevent memory leaks.
+        /// </summary>
+        private void OnDestroy()
+        {
+            if (_button != null)
+            {
+                _button.onClick.RemoveListener(OnButtonClicked);
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Handles button click events with debounce logic.
+        /// Ignores clicks that occur within the debounce time window.
+        /// </summary>
+        private void OnButtonClicked()
+        {
+            if (Time.unscaledTime - _lastClickTime < debounceTime)
+            {
+                // Ignore click - debounced
+                onDebouncedClick?.Invoke();
+                return;
+            }
+
+            _lastClickTime = Time.unscaledTime;
+            // Let the button proceed with normal click events
+            // Note: If you want to intercept before other listeners,
+            // consider adding this script earlier or controlling invocation order.
+        }
+
+        #endregion
     }
 }

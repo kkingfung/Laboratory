@@ -1,20 +1,20 @@
 using System.Collections.Concurrent;
 using Unity.Entities;
-// FIXME: tidyup after 8/29
-namespace Infrastructure
+
+namespace Laboratory.Infrastructure.Networking
 {
     /// <summary>
-    /// Manages mapping between network entity IDs and ECS entities.
-    /// Used to synchronize network updates with ECS entities.
+    /// Manages bidirectional mapping between network entity IDs and ECS entities.
+    /// Provides thread-safe operations for synchronizing network updates with ECS world.
     /// </summary>
     public class NetworkEntityMapper
     {
         #region Fields
 
-        // Thread-safe dictionary mapping network entity IDs to ECS Entities
+        /// <summary>Thread-safe mapping from network entity IDs to ECS entities.</summary>
         private readonly ConcurrentDictionary<int, Entity> _networkToEntity = new();
 
-        // Optional reverse lookup (ECS entity to network ID)
+        /// <summary>Thread-safe reverse mapping from ECS entities to network IDs.</summary>
         private readonly ConcurrentDictionary<Entity, int> _entityToNetwork = new();
 
         #endregion
@@ -22,7 +22,7 @@ namespace Infrastructure
         #region Public Methods
 
         /// <summary>
-        /// Register mapping from network ID to ECS entity.
+        /// Registers a bidirectional mapping between network ID and ECS entity.
         /// </summary>
         /// <param name="networkId">Network-assigned entity ID.</param>
         /// <param name="entity">ECS Entity instance.</param>
@@ -33,53 +33,71 @@ namespace Infrastructure
         }
 
         /// <summary>
-        /// Remove mapping by network ID.
+        /// Removes mapping by network ID and clears reverse mapping.
         /// </summary>
-        /// <param name="networkId"></param>
-        public void RemoveByNetworkId(int networkId)
+        /// <param name="networkId">Network ID to remove.</param>
+        /// <returns>True if mapping was found and removed; otherwise, false.</returns>
+        public bool RemoveByNetworkId(int networkId)
         {
             if (_networkToEntity.TryRemove(networkId, out var entity))
             {
                 _entityToNetwork.TryRemove(entity, out _);
+                return true;
             }
+            return false;
         }
 
         /// <summary>
-        /// Remove mapping by ECS entity.
+        /// Removes mapping by ECS entity and clears reverse mapping.
         /// </summary>
-        /// <param name="entity"></param>
-        public void RemoveByEntity(Entity entity)
+        /// <param name="entity">ECS entity to remove.</param>
+        /// <returns>True if mapping was found and removed; otherwise, false.</returns>
+        public bool RemoveByEntity(Entity entity)
         {
             if (_entityToNetwork.TryRemove(entity, out var networkId))
             {
                 _networkToEntity.TryRemove(networkId, out _);
+                return true;
             }
+            return false;
         }
 
         /// <summary>
-        /// Try get ECS entity from network ID.
+        /// Attempts to retrieve ECS entity from network ID.
         /// </summary>
+        /// <param name="networkId">Network ID to look up.</param>
+        /// <param name="entity">Output ECS entity if found.</param>
+        /// <returns>True if entity was found; otherwise, false.</returns>
         public bool TryGetEntity(int networkId, out Entity entity)
         {
             return _networkToEntity.TryGetValue(networkId, out entity);
         }
 
         /// <summary>
-        /// Try get network ID from ECS entity.
+        /// Attempts to retrieve network ID from ECS entity.
         /// </summary>
+        /// <param name="entity">ECS entity to look up.</param>
+        /// <param name="networkId">Output network ID if found.</param>
+        /// <returns>True if network ID was found; otherwise, false.</returns>
         public bool TryGetNetworkId(Entity entity, out int networkId)
         {
             return _entityToNetwork.TryGetValue(entity, out networkId);
         }
 
         /// <summary>
-        /// Clear all mappings.
+        /// Clears all mappings from both dictionaries.
         /// </summary>
         public void Clear()
         {
             _networkToEntity.Clear();
             _entityToNetwork.Clear();
         }
+
+        /// <summary>
+        /// Gets the current number of mapped entities.
+        /// </summary>
+        /// <returns>Count of currently mapped entities.</returns>
+        public int Count => _networkToEntity.Count;
 
         #endregion
     }
