@@ -1,0 +1,52 @@
+name: Unity CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  unity-ci:
+    name: Unity Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout your repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Setup Unity
+      - name: Setup Unity
+        uses: game-ci/unity-actions/setup@v2
+        with:
+          unityVersion: 6000.2.0b7  # Change to your Unity version
+          activateLicense: true       # If you have a license, can activate automatically
+          
+      # 3. Run Edit Mode tests
+      - name: Run Edit Mode Tests
+        uses: game-ci/unity-actions/test@v2
+        with:
+          testMode: editmode
+          resultsPath: TestResults/EditMode
+
+      # 4. Run Play Mode tests
+      - name: Run Play Mode Tests
+        uses: game-ci/unity-actions/test@v2
+        with:
+          testMode: playmode
+          resultsPath: TestResults/PlayMode
+
+      # 5. Build Windows Standalone
+      - name: Build Windows
+        uses: game-ci/unity-actions/build@v2
+        with:
+          targetPlatform: StandaloneWindows64
+          buildName: SlapForge.exe
+          buildPath: Builds/Windows
+
+      # 6. Upload build artifact
+      - name: Upload Windows Build
+        uses: actions/upload-artifact@v3
+        with:
+          name: WindowsBuild
+          path: Builds/Windows
