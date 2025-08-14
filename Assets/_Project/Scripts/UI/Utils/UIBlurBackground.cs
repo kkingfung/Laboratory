@@ -16,13 +16,13 @@ public class UIBlurBackground : MonoBehaviour
     [Tooltip("Duration of fade-in/out in seconds.")]
     [SerializeField] private float fadeDuration = 0.3f;
 
-    private CanvasGroup canvasGroup;
+    private CanvasGroup _canvasGroup;
 
-    private Coroutine fadeCoroutine;
+    private Coroutine _fadeCoroutine;
 
     private void Awake()
     {
-        canvasGroup = GetComponent<CanvasGroup>();
+        _canvasGroup = GetComponent<CanvasGroup>();
 
         if (blurImage == null)
         {
@@ -34,9 +34,9 @@ public class UIBlurBackground : MonoBehaviour
             blurImage.gameObject.SetActive(false);
         }
 
-        canvasGroup.alpha = 0f;
-        canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false;
+        _canvasGroup.alpha = 0f;
+        _canvasGroup.interactable = false;
+        _canvasGroup.blocksRaycasts = false;
     }
 
     /// <summary>
@@ -49,13 +49,13 @@ public class UIBlurBackground : MonoBehaviour
 
         blurImage.gameObject.SetActive(true);
 
-        if (fadeCoroutine != null)
-            StopCoroutine(fadeCoroutine);
+        if (_fadeCoroutine != null)
+            StopCoroutine(_fadeCoroutine);
 
-        fadeCoroutine = StartCoroutine(FadeCanvasGroup(1f, fadeDuration));
+        _fadeCoroutine = StartCoroutine(FadeCanvasGroup(1f, fadeDuration));
 
-        canvasGroup.interactable = true;
-        canvasGroup.blocksRaycasts = true;
+        _canvasGroup.interactable = true;
+        _canvasGroup.blocksRaycasts = true;
     }
 
     /// <summary>
@@ -66,28 +66,28 @@ public class UIBlurBackground : MonoBehaviour
         if (blurImage == null)
             return;
 
-        if (fadeCoroutine != null)
-            StopCoroutine(fadeCoroutine);
+        if (_fadeCoroutine != null)
+            StopCoroutine(_fadeCoroutine);
 
-        fadeCoroutine = StartCoroutine(FadeOutAndDisable(fadeDuration));
+        _fadeCoroutine = StartCoroutine(FadeOutAndDisable(fadeDuration));
 
-        canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false;
+        _canvasGroup.interactable = false;
+        _canvasGroup.blocksRaycasts = false;
     }
 
     private IEnumerator FadeCanvasGroup(float targetAlpha, float duration)
     {
-        float startAlpha = canvasGroup.alpha;
+        float startAlpha = _canvasGroup.alpha;
         float elapsed = 0f;
 
         while (elapsed < duration)
         {
             elapsed += Time.unscaledDeltaTime;
-            canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
+            _canvasGroup.alpha = Mathf.Lerp(startAlpha, targetAlpha, elapsed / duration);
             yield return null;
         }
 
-        canvasGroup.alpha = targetAlpha;
+        _canvasGroup.alpha = targetAlpha;
     }
 
     private IEnumerator FadeOutAndDisable(float duration)

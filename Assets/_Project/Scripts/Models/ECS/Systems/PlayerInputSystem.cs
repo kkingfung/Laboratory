@@ -18,6 +18,18 @@ namespace Laboratory.ECS.Systems
     {
         #region Fields
         
+         /// <summary>
+        /// Sensitivity multiplier for look input (mouse/controller)
+        /// </summary>
+        [SerializeField]
+        private float _lookSensitivity = 1.0f;
+        
+        /// <summary>
+        /// Deadzone threshold for controller input to prevent drift
+        /// </summary>
+        [SerializeField]
+        private float _inputDeadzone = 0.1f;
+        
         /// <summary>
         /// Entity manager for accessing and modifying ECS entities and components
         /// </summary>
@@ -42,18 +54,6 @@ namespace Laboratory.ECS.Systems
         /// Cache for the last valid input to prevent unnecessary component updates
         /// </summary>
         private PlayerInputComponent _lastInput;
-        
-        /// <summary>
-        /// Sensitivity multiplier for look input (mouse/controller)
-        /// </summary>
-        [SerializeField]
-        private float _lookSensitivity = 1.0f;
-        
-        /// <summary>
-        /// Deadzone threshold for controller input to prevent drift
-        /// </summary>
-        [SerializeField]
-        private float _inputDeadzone = 0.1f;
         
         #endregion
 

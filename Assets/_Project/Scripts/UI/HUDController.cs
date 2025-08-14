@@ -25,14 +25,14 @@ namespace Infrastructure.UI
         [SerializeField] private AbilityBarUI abilityBarUI = null!;
         [SerializeField] private ScoreboardUI scoreboardUI = null!;
 
-        private CompositeDisposable disposables = new();
+        private CompositeDisposable _disposables = new();
 
         // ViewModel references to bind to (assign these from a DI container or setup method)
-        private IPlayerStatusViewModel playerStatusVM = null!;
-        private IAbilityViewModel abilityVM = null!;
-        private IScoreViewModel scoreVM = null!;
-        private IMatchmakingViewModel matchmakingVM = null!; // hypothetical
-        private IGameStateViewModel gameStateVM = null!; // hypothetical
+        private IPlayerStatusViewModel _playerStatusVM = null!;
+        private IAbilityViewModel _abilityVM = null!;
+        private IScoreViewModel _scoreVM = null!;
+        private IMatchmakingViewModel _matchmakingVM = null!;
+        private IGameStateViewModel _gameStateVM = null!;
 
         #region Initialization & Binding
 
@@ -46,28 +46,28 @@ namespace Infrastructure.UI
             IMatchmakingViewModel matchmaking,
             IGameStateViewModel gameState)
         {
-            playerStatusVM = playerStatus;
-            abilityVM = ability;
-            scoreVM = score;
-            matchmakingVM = matchmaking;
-            gameStateVM = gameState;
+            _playerStatusVM = playerStatus;
+            _abilityVM = ability;
+            _scoreVM = score;
+            _matchmakingVM = matchmaking;
+            _gameStateVM = gameState;
 
             Bind();
         }
 
         private void Bind()
         {
-            disposables.Clear();
+            _disposables.Clear();
 
             // Player health
-            playerStatusVM.Health
+            _playerStatusVM.Health
                 .Subscribe(h => healthText.text = $"Health: {h}")
-                .AddTo(disposables);
+                .AddTo(_disposables);
 
             // Score display
-            scoreVM.Score
+            _scoreVM.Score
                 .Subscribe(s => scoreText.text = $"Score: {s}")
-                .AddTo(disposables);
+                .AddTo(_disposables);
 
             // Ability buttons and cooldowns
             for (int i = 0; i < abilityButtons.Length; i++)
@@ -76,53 +76,53 @@ namespace Infrastructure.UI
                 var btn = abilityButtons[i];
 
                 // Bind cooldown visual on abilityBarUI
-                abilityVM.GetCooldownRemaining(index)
+                _abilityVM.GetCooldownRemaining(index)
                     .Subscribe(cd =>
                     {
                         btn.interactable = cd <= 0f;
                         abilityBarUI.UpdateCooldown(index, cd);
                     })
-                    .AddTo(disposables);
+                    .AddTo(_disposables);
 
                 btn.onClick.RemoveAllListeners();
                 btn.onClick.AddListener(() =>
                 {
-                    abilityVM.ActivateAbility(index);
+                    _abilityVM.ActivateAbility(index);
                     crosshairUI.ExpandCrosshair(); // crosshair feedback on ability use
                 });
             }
 
             // Example: subscribe to damage events (requires playerStatusVM to expose them)
-            playerStatusVM.DamageTaken
+            _playerStatusVM.DamageTaken
                 .Subscribe(dmgSourcePos =>
                 {
-                    damageIndicatorUI.ShowDamageIndicator(dmgSourcePos, playerStatusVM.PlayerTransform);
+                    damageIndicatorUI.ShowDamageIndicator(dmgSourcePos, _playerStatusVM.PlayerTransform);
                 })
-                .AddTo(disposables);
+                .AddTo(_disposables);
 
             // Example: Update minimap player reference (if player transform changes)
-            playerStatusVM.PlayerTransformObservable
+            _playerStatusVM.PlayerTransformObservable
                 .Subscribe(t =>
                 {
                     miniMapUI.SetPlayerTransform(t);
                 })
-                .AddTo(disposables);
+                .AddTo(_disposables);
 
             // Scoreboard updates (assuming matchmakingVM provides player list)
-            matchmakingVM.PlayerList
+            _matchmakingVM.PlayerList
                 .Subscribe(players =>
                 {
                     scoreboardUI.UpdateScoreboard(players);
                 })
-                .AddTo(disposables);
+                .AddTo(_disposables);
 
             // Handle game state changes (example: hide/show HUD in menus)
-            gameStateVM.IsInGame
+            _gameStateVM.IsInGame
                 .Subscribe(isInGame =>
                 {
                     gameObject.SetActive(isInGame);
                 })
-                .AddTo(disposables);
+                .AddTo(_disposables);
         }
 
         #endregion
@@ -146,7 +146,7 @@ namespace Infrastructure.UI
 
         public void Dispose()
         {
-            disposables.Dispose();
+            _disposables.Dispose();
         }
     }
 

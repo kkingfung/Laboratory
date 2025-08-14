@@ -12,7 +12,7 @@ namespace Laboratory.Models
         #region Fields
 
         [SerializeField] private DamageIndicatorUI damageIndicatorUI = null!;
-        private NetworkHealth networkHealth = null!;
+        private NetworkHealth _networkHealth = null!;
 
         #endregion
 
@@ -20,8 +20,8 @@ namespace Laboratory.Models
 
         private void Awake()
         {
-            networkHealth = GetComponent<NetworkHealth>();
-            if (networkHealth == null)
+            _networkHealth = GetComponent<NetworkHealth>();
+            if (_networkHealth == null)
             {
                 Debug.LogError($"NetworkHealth component not found on {gameObject.name}");
             }
@@ -29,14 +29,14 @@ namespace Laboratory.Models
 
         private void OnEnable()
         {
-            if (networkHealth != null)
-                networkHealth.CurrentHealth.OnValueChanged += OnHealthChanged;
+            if (_networkHealth != null)
+                _networkHealth.CurrentHealth.OnValueChanged += OnHealthChanged;
         }
 
         private void OnDisable()
         {
-            if (networkHealth != null)
-                networkHealth.CurrentHealth.OnValueChanged -= OnHealthChanged;
+            if (_networkHealth != null)
+                _networkHealth.CurrentHealth.OnValueChanged -= OnHealthChanged;
         }
 
         #endregion
@@ -61,12 +61,6 @@ namespace Laboratory.Models
                     vibrate: true);
             }
         }
-
-        #endregion
-
-        #region Inner Classes, Enums
-
-        // No inner classes or enums currently.
 
         #endregion
     }

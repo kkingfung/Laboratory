@@ -18,9 +18,9 @@ public class UIButtonHold : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
     /// <summary>Called if hold is canceled before completion.</summary>
     public event Action? HoldCanceled;
 
-    private bool isPointerDown = false;
-    private float pointerDownTime;
-    private bool holdTriggered = false;
+    private bool _isPointerDown = false;
+    private float _pointerDownTime;
+    private bool _holdTriggered = false;
 
     [SerializeField] private InputActionReference holdActionRef = null!;
     
@@ -49,11 +49,11 @@ public class UIButtonHold : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
     private void Update()
     {
-        if (isPointerDown && !holdTriggered)
+        if (_isPointerDown && !_holdTriggered)
         {
-            if (Time.unscaledTime - pointerDownTime >= holdDuration)
+            if (Time.unscaledTime - _pointerDownTime >= holdDuration)
             {
-                holdTriggered = true;
+                _holdTriggered = true;
                 HoldCompleted?.Invoke();
             }
         }
@@ -61,27 +61,27 @@ public class UIButtonHold : MonoBehaviour, IPointerDownHandler, IPointerUpHandle
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        isPointerDown = true;
-        pointerDownTime = Time.unscaledTime;
-        holdTriggered = false;
+        _isPointerDown = true;
+        _pointerDownTime = Time.unscaledTime;
+        _holdTriggered = false;
         HoldStarted?.Invoke();
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (isPointerDown && !holdTriggered)
+        if (_isPointerDown && !_holdTriggered)
         {
             HoldCanceled?.Invoke();
         }
-        isPointerDown = false;
+        _isPointerDown = false;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (isPointerDown && !holdTriggered)
+        if (_isPointerDown && !_holdTriggered)
         {
             HoldCanceled?.Invoke();
         }
-        isPointerDown = false;
+        _isPointerDown = false;
     }
 }

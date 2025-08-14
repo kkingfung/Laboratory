@@ -18,7 +18,7 @@ public class EndGameResultsUI : MonoBehaviour
     [Header("Fade Settings")]
     [SerializeField] private float fadeDuration = 0.5f;
 
-    private Action? onCloseCallback;
+    private Action? _onCloseCallback;
 
     private void Awake()
     {
@@ -39,7 +39,7 @@ public class EndGameResultsUI : MonoBehaviour
     /// <param name="onClose">Optional callback when results UI closes.</param>
     public void Show(string title, int score, int kills, int deaths, string timeSurvived, Action? onClose = null)
     {
-        onCloseCallback = onClose;
+        _onCloseCallback = onClose;
 
         titleText.text = title;
         scoreText.text = $"Score: {score}";
@@ -60,7 +60,7 @@ public class EndGameResultsUI : MonoBehaviour
     {
         yield return FadeCanvasGroup(canvasGroup, 1f, 0f, fadeDuration);
         SetVisible(false);
-        onCloseCallback?.Invoke();
+        _onCloseCallback?.Invoke();
     }
 
     private void SetVisible(bool visible)

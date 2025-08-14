@@ -56,10 +56,7 @@ namespace Laboratory.Models.ECS.Systems
             var networkObject = EntityManager.GetComponentObject<NetworkObject>(entity);
             var animator = networkObject.gameObject.GetComponent<Animator>();
 
-            if (animator != null)
-            {
-                animator.SetTrigger("Die");
-            }
+            animator?.SetTrigger("Die");
         }
 
         /// <summary>

@@ -13,7 +13,7 @@ namespace Laboratory.Models.ECS.Systems
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class PlayerStateSystem : SystemBase
     {
-        #region Fields
+        #region Constants
 
         /// <summary>
         /// Rate at which stamina regenerates per second when not being consumed.

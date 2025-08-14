@@ -3,7 +3,7 @@ using UniRx;
 
 namespace Presentation
 {
-    public class _ViewModel : IDisposable
+    public class TemplateViewModel : IDisposable
     {
         protected readonly CompositeDisposable Disposables = new();
 

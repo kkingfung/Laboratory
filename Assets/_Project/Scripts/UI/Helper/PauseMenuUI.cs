@@ -14,10 +14,10 @@ public class PauseMenuUI : MonoBehaviour
 
     public static bool IsPaused { get; private set; } = false;
 
-    public event Action<bool>? OnPauseStateChanged;
+    public event Action<bool>? _OnPauseStateChanged;
 
-    private float lastNavigateTime = 0f;
-    private float navigateDelay = 0.2f;
+    private float _lastNavigateTime = 0f;
+    private float _navigateDelay = 0.2f;
 
     private void Awake()
     {
@@ -49,7 +49,7 @@ public class PauseMenuUI : MonoBehaviour
         pauseMenuPanel.SetActive(true);
         IsPaused = true;
 
-        OnPauseStateChanged?.Invoke(true);
+        _OnPauseStateChanged?.Invoke(true);
 
         // Optionally disable player input here
     }
@@ -62,7 +62,7 @@ public class PauseMenuUI : MonoBehaviour
         pauseMenuPanel.SetActive(false);
         IsPaused = false;
 
-        OnPauseStateChanged?.Invoke(false);
+        _OnPauseStateChanged?.Invoke(false);
 
         // Optionally re-enable player input here
     }
@@ -84,21 +84,21 @@ public class PauseMenuUI : MonoBehaviour
 
         if (Gamepad.current.aButton.wasPressedThisFrame)
         {
-            menuButtons[currentButtonIndex].onClick.Invoke();
+            menuButtons[_currentButtonIndex].onClick.Invoke();
         }
     }
 
      private void MoveSelection(int direction)
     {
-        if (Time.unscaledTime - lastNavigateTime < navigateDelay) return;
+        if (Time.unscaledTime - _lastNavigateTime < _navigateDelay) return;
 
-        lastNavigateTime = Time.unscaledTime;
+        _lastNavigateTime = Time.unscaledTime;
 
-        currentButtonIndex += direction;
-        if (currentButtonIndex < 0) currentButtonIndex = menuButtons.Length - 1;
-        else if (currentButtonIndex >= menuButtons.Length) currentButtonIndex = 0;
+        _currentButtonIndex += direction;
+        if (_currentButtonIndex < 0) _currentButtonIndex = menuButtons.Length - 1;
+        else if (_currentButtonIndex >= menuButtons.Length) _currentButtonIndex = 0;
 
-        SelectButton(currentButtonIndex);
+        SelectButton(_currentButtonIndex);
     }
 
     private void SelectButton(int index)
@@ -110,7 +110,7 @@ public class PauseMenuUI : MonoBehaviour
         }
     }
 
-    private int currentButtonIndex = 0;
+    private int _currentButtonIndex = 0;
     private void OpenSettings()
     {
         // TODO: Open settings menu UI panel

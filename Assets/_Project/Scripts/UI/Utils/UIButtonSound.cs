@@ -15,15 +15,15 @@ public class UIButtonSound : MonoBehaviour, IPointerEnterHandler, IPointerDownHa
     [Range(0f, 1f)] public float volume = 1f;
     [Range(0.5f, 2f)] public float pitch = 1f;
 
-    private AudioSource? audioSource;
-    private Button? button;
+    private AudioSource? _audioSource;
+    private Button? _button;
 
     private void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
-        button = GetComponent<Button>();
+        _audioSource = GetComponent<AudioSource>();
+        _button = GetComponent<Button>();
 
-        button?.onClick.AddListener(PlayClickSound);
+        _button?.onClick.AddListener(PlayClickSound);
     }
 
     public void OnPointerEnter(PointerEventData eventData)
@@ -43,15 +43,15 @@ public class UIButtonSound : MonoBehaviour, IPointerEnterHandler, IPointerDownHa
 
     private void PlaySound(AudioClip? clip)
     {
-        if (clip == null || audioSource == null) return;
+        if (clip == null || _audioSource == null) return;
 
-        audioSource.pitch = pitch;
-        audioSource.volume = volume;
-        audioSource.PlayOneShot(clip);
+        _audioSource.pitch = pitch;
+        _audioSource.volume = volume;
+        _audioSource.PlayOneShot(clip);
     }
 
     private void OnDestroy()
     {
-        button?.onClick.RemoveListener(PlayClickSound);
+        _button?.onClick.RemoveListener(PlayClickSound);
     }
 }

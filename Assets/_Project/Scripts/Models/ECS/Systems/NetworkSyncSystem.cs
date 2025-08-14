@@ -17,8 +17,22 @@ namespace Laboratory.ECS.Systems
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class NetworkSyncSystem : SystemBase
     {
-        #region Fields
+        #region Constants
+
+        /// <summary>
+        /// Interval between network state synchronization updates (in seconds)
+        /// </summary>
+        private const float NetworkSendInterval = 1f / 20f; // 20Hz update rate
         
+        /// <summary>
+        /// Maximum number of entities to process per frame to maintain performance
+        /// </summary>
+        private const int MaxEntitiesPerFrame = 100;
+        
+        #endregion
+
+        #region Fields
+
         /// <summary>
         /// Network client interface for sending and receiving network messages
         /// </summary>
@@ -33,16 +47,6 @@ namespace Laboratory.ECS.Systems
         /// Counter for tracking network message send frequency
         /// </summary>
         private float _networkSendTimer = 0f;
-        
-        /// <summary>
-        /// Interval between network state synchronization updates (in seconds)
-        /// </summary>
-        private const float NetworkSendInterval = 1f / 20f; // 20Hz update rate
-        
-        /// <summary>
-        /// Maximum number of entities to process per frame to maintain performance
-        /// </summary>
-        private const int MaxEntitiesPerFrame = 100;
         
         #endregion
 

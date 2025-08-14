@@ -13,14 +13,14 @@ public class UIShakeEffect : MonoBehaviour
     [Tooltip("If true, shake decays over time.")]
     [SerializeField] private bool decay = true;
 
-    private RectTransform rectTransform;
-    private Vector3 originalPosition;
-    private Coroutine shakeCoroutine;
+    private RectTransform _rectTransform;
+    private Vector3 _originalPosition;
+    private Coroutine _shakeCoroutine;
 
     private void Awake()
     {
-        rectTransform = GetComponent<RectTransform>();
-        originalPosition = rectTransform.anchoredPosition;
+        _rectTransform = GetComponent<RectTransform>();
+        _originalPosition = _rectTransform.anchoredPosition;
     }
 
     /// <summary>
@@ -30,16 +30,16 @@ public class UIShakeEffect : MonoBehaviour
     /// <param name="customDuration">Optional custom duration override.</param>
     public void Shake(float? customMagnitude = null, float? customDuration = null)
     {
-        if (shakeCoroutine != null)
+        if (_shakeCoroutine != null)
         {
-            StopCoroutine(shakeCoroutine);
-            rectTransform.anchoredPosition = originalPosition;
+            StopCoroutine(_shakeCoroutine);
+            _rectTransform.anchoredPosition = _originalPosition;
         }
 
         float shakeMagnitude = customMagnitude ?? magnitude;
         float shakeDuration = customDuration ?? duration;
 
-        shakeCoroutine = StartCoroutine(DoShake(shakeMagnitude, shakeDuration));
+        _shakeCoroutine = StartCoroutine(DoShake(shakeMagnitude, shakeDuration));
     }
 
     private IEnumerator DoShake(float shakeMagnitude, float shakeDuration)
@@ -55,12 +55,12 @@ public class UIShakeEffect : MonoBehaviour
             float x = (Random.value * 2f - 1f) * shakeMagnitude * damper;
             float y = (Random.value * 2f - 1f) * shakeMagnitude * damper;
 
-            rectTransform.anchoredPosition = originalPosition + new Vector3(x, y, 0);
+            _rectTransform.anchoredPosition = _originalPosition + new Vector3(x, y, 0);
 
             yield return null;
         }
 
-        rectTransform.anchoredPosition = originalPosition;
-        shakeCoroutine = null;
+        _rectTransform.anchoredPosition = _originalPosition;
+        _shakeCoroutine = null;
     }
 }

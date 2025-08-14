@@ -96,11 +96,5 @@ namespace Laboratory.Gameplay.Audio
         }
 
         #endregion
-
-        #region Inner Classes, Enums
-
-        // No inner classes or enums currently.
-
-        #endregion
     }
 }

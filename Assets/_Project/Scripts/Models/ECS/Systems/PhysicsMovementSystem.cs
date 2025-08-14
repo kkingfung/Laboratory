@@ -18,7 +18,7 @@ namespace Laboratory.ECS.Systems
     [UpdateBefore(typeof(PhysicsSimulationGroup))]
     public partial struct PhysicsMovementSystem : ISystem
     {
-        #region Fields
+        #region Constants
         
         /// <summary>
         /// Maximum allowed velocity magnitude to prevent physics instability

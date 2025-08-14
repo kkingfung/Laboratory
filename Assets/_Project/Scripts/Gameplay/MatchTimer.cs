@@ -97,11 +97,5 @@ namespace Laboratory.Gameplay.Lobby
         }
 
         #endregion
-
-        #region Inner Classes, Enums
-
-        // No inner classes or enums
-
-        #endregion
     }
 }

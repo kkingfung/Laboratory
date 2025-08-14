@@ -9,17 +9,17 @@ public class UIController : MonoBehaviour
     [SerializeField] private bool useFade = true;
     [SerializeField] private float fadeDuration = 0.3f;
 
-    protected CanvasGroup canvasGroup;
-    private Coroutine fadeCoroutine;
+    protected CanvasGroup _canvasGroup;
+    private Coroutine _fadeCoroutine;
 
     public bool IsOpen { get; private set; } = false;
 
     protected virtual void Awake()
     {
-        canvasGroup = GetComponent<CanvasGroup>();
-        canvasGroup.alpha = 0f;
-        canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false;
+        _canvasGroup = GetComponent<CanvasGroup>();
+        _canvasGroup.alpha = 0f;
+        _canvasGroup.interactable = false;
+        _canvasGroup.blocksRaycasts = false;
         gameObject.SetActive(false);
     }
 
@@ -32,11 +32,11 @@ public class UIController : MonoBehaviour
 
         gameObject.SetActive(true);
 
-        if (fadeCoroutine != null)
-            StopCoroutine(fadeCoroutine);
+        if (_fadeCoroutine != null)
+            StopCoroutine(_fadeCoroutine);
 
         if (useFade)
-            fadeCoroutine = StartCoroutine(FadeIn());
+            _fadeCoroutine = StartCoroutine(FadeIn());
         else
             SetVisible(true);
     }
@@ -48,11 +48,11 @@ public class UIController : MonoBehaviour
     {
         if (!IsOpen) return;
 
-        if (fadeCoroutine != null)
-            StopCoroutine(fadeCoroutine);
+        if (_fadeCoroutine != null)
+            StopCoroutine(_fadeCoroutine);
 
         if (useFade)
-            fadeCoroutine = StartCoroutine(FadeOut());
+            _fadeCoroutine = StartCoroutine(FadeOut());
         else
             SetVisible(false);
     }
@@ -62,17 +62,17 @@ public class UIController : MonoBehaviour
         IsOpen = true;
         float elapsed = 0f;
 
-        canvasGroup.interactable = true;
-        canvasGroup.blocksRaycasts = true;
+        _canvasGroup.interactable = true;
+        _canvasGroup.blocksRaycasts = true;
 
         while (elapsed < fadeDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            canvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
+            _canvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
             yield return null;
         }
 
-        canvasGroup.alpha = 1f;
+        _canvasGroup.alpha = 1f;
     }
 
     protected virtual IEnumerator FadeOut()
@@ -80,26 +80,26 @@ public class UIController : MonoBehaviour
         IsOpen = false;
         float elapsed = 0f;
 
-        canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false;
+        _canvasGroup.interactable = false;
+        _canvasGroup.blocksRaycasts = false;
 
         while (elapsed < fadeDuration)
         {
             elapsed += Time.unscaledDeltaTime;
-            canvasGroup.alpha = 1f - Mathf.Clamp01(elapsed / fadeDuration);
+            _canvasGroup.alpha = 1f - Mathf.Clamp01(elapsed / fadeDuration);
             yield return null;
         }
 
-        canvasGroup.alpha = 0f;
+        _canvasGroup.alpha = 0f;
         gameObject.SetActive(false);
     }
 
     protected virtual void SetVisible(bool visible)
     {
         IsOpen = visible;
-        canvasGroup.alpha = visible ? 1f : 0f;
-        canvasGroup.interactable = visible;
-        canvasGroup.blocksRaycasts = visible;
+        _canvasGroup.alpha = visible ? 1f : 0f;
+        _canvasGroup.interactable = visible;
+        _canvasGroup.blocksRaycasts = visible;
         gameObject.SetActive(visible);
     }
 }

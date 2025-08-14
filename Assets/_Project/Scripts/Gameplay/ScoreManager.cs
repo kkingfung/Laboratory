@@ -97,12 +97,6 @@ namespace Laboratory.Gameplay.Scoring
 
         #endregion
 
-        #region Private Methods
-
-        // No private methods currently.
-
-        #endregion
-
         #region Inner Classes, Enums
 
         /// <summary>

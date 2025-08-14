@@ -5,7 +5,7 @@ namespace Presentation
     /// <summary>
     /// Controls scene lifecycle, initializes View and ViewModel.
     /// </summary>
-    public class _SceneController : MonoBehaviour
+    public class TemplateSceneController : MonoBehaviour
     {
         [SerializeField] private _View _view = null!;
         private _ViewModel _viewModel = null!;

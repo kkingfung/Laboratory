@@ -62,12 +62,6 @@ namespace Laboratory.Core
 
         #endregion
 
-        #region Private Methods
-
-        // No private methods currently.
-
-        #endregion
-
         #region Inner Classes, Enums
 
         /// <summary>

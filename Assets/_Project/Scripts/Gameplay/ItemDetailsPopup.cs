@@ -90,11 +90,5 @@ namespace Laboratory.Gameplay.Inventory
         }
 
         #endregion
-
-        #region Inner Classes, Enums
-
-        // No inner classes or enums currently.
-
-        #endregion
     }
 }

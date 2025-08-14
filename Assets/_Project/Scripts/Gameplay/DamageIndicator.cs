@@ -70,17 +70,5 @@ namespace Laboratory.Gameplay.UI
         }
 
         #endregion
-
-        #region Private Methods
-
-        // No private methods currently.
-
-        #endregion
-
-        #region Inner Classes, Enums
-
-        // No inner classes or enums currently.
-
-        #endregion
     }
 }

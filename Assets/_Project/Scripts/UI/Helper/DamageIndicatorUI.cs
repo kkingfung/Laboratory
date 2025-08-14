@@ -21,14 +21,14 @@ public class DamageIndicatorUI : MonoBehaviour
 
     [SerializeField] private UIShakeEffect shakeEffect = null!;
 
-    private readonly Queue<DamageIndicator> indicatorPool = new();
-    private readonly List<DamageIndicator> activeIndicators = new();
-    private Camera mainCamera = null!;
+    private readonly Queue<DamageIndicator> _indicatorPool = new();
+    private readonly List<DamageIndicator> _activeIndicators = new();
+    private Camera _mainCamera = null!;
 
 
     private void Awake()
     {
-        mainCamera = Camera.main;
+        _mainCamera = Camera.main;
     }
 
     private void OnEnable()
@@ -68,8 +68,8 @@ public class DamageIndicatorUI : MonoBehaviour
         indicator.RectTransform.gameObject.SetActive(true);
 
         // Calculate rotation & position same as before
-        Vector3 playerForward = mainCamera.transform.forward;
-        Vector3 toSource = (sourcePosition - mainCamera.transform.position).normalized;
+        Vector3 playerForward = _mainCamera.transform.forward;
+        Vector3 toSource = (sourcePosition - _mainCamera.transform.position).normalized;
 
         Vector3 flatForward = new Vector3(playerForward.x, 0, playerForward.z).normalized;
         Vector3 flatToSource = new Vector3(toSource.x, 0, toSource.z).normalized;
@@ -132,7 +132,7 @@ public class DamageIndicatorUI : MonoBehaviour
 
         indicator.StartLife(indicatorDuration, fadeDuration);
 
-        activeIndicators.Add(indicator);
+        _activeIndicators.Add(indicator);
 
         if (playSound && audioSource != null)
         {
@@ -152,9 +152,9 @@ public class DamageIndicatorUI : MonoBehaviour
 
     private DamageIndicator GetIndicatorFromPool()
     {
-        if (indicatorPool.Count > 0)
+        if (_indicatorPool.Count > 0)
         {
-            return indicatorPool.Dequeue();
+            return _indicatorPool.Dequeue();
         }
         else
         {
@@ -167,7 +167,7 @@ public class DamageIndicatorUI : MonoBehaviour
     private void RecycleIndicator(DamageIndicator indicator)
     {
         indicator.RectTransform.gameObject.SetActive(false);
-        indicatorPool.Enqueue(indicator);
+        _indicatorPool.Enqueue(indicator);
     }
 
     public void StartLife(float lifeDuration, float fadeDuration)
@@ -199,14 +199,14 @@ public class DamageIndicatorUI : MonoBehaviour
     private void Update()
     {
         float delta = Time.unscaledDeltaTime;
-        for (int i = activeIndicators.Count - 1; i >= 0; i--)
+        for (int i = _activeIndicators.Count - 1; i >= 0; i--)
         {
-            var indicator = activeIndicators[i];
+            var indicator = _activeIndicators[i];
             indicator.UpdateIndicator(delta);
             if (indicator.IsExpired)
             {
                 RecycleIndicator(indicator);
-                activeIndicators.RemoveAt(i);
+                _activeIndicators.RemoveAt(i);
             }
         }
     }

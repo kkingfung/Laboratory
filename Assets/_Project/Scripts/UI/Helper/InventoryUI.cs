@@ -22,7 +22,7 @@ public class InventoryUI : MonoBehaviour
 
     private List<InventoryItem> currentItems = new();
 
-    private int selectedIndex = -1;
+    private int _selectedIndex = -1;
 
     private void Awake()
     {
@@ -40,7 +40,7 @@ public class InventoryUI : MonoBehaviour
     public void UpdateInventory(List<InventoryItem> items)
     {
         currentItems = items;
-        selectedIndex = -1;
+        _selectedIndex = -1;
 
         for (int i = 0; i < slots.Count; i++)
         {
@@ -73,7 +73,7 @@ public class InventoryUI : MonoBehaviour
     {
         if (index < 0 || index >= currentItems.Count) return;
 
-        selectedIndex = index;
+        _selectedIndex = index;
         OnItemSelected?.Invoke(index);
         // You can highlight selected slot here if needed
     }
@@ -83,8 +83,8 @@ public class InventoryUI : MonoBehaviour
     /// </summary>
     public InventoryItem? GetSelectedItem()
     {
-        if (selectedIndex < 0 || selectedIndex >= currentItems.Count) return null;
-        return currentItems[selectedIndex];
+        if (_selectedIndex < 0 || _selectedIndex >= currentItems.Count) return null;
+        return currentItems[_selectedIndex];
     }
 }
 

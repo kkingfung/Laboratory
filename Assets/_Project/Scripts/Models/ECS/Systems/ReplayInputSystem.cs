@@ -13,6 +13,15 @@ namespace Laboratory.Models.ECS.Systems
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class ReplayInputSystem : SystemBase
     {
+        #region Constants
+
+        /// <summary>
+        /// Movement speed multiplier applied to replayed movement inputs.
+        /// </summary>
+        private const float MovementSpeedMultiplier = 5f;
+        
+        #endregion
+
         #region Fields
 
         /// <summary>
@@ -24,11 +33,6 @@ namespace Laboratory.Models.ECS.Systems
         /// Flag indicating whether the system is currently in replay mode.
         /// </summary>
         private bool _isReplaying = false;
-
-        /// <summary>
-        /// Movement speed multiplier applied to replayed movement inputs.
-        /// </summary>
-        private const float MovementSpeedMultiplier = 5f;
 
         #endregion
 

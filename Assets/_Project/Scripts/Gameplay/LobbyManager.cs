@@ -136,14 +136,8 @@ namespace Laboratory.Gameplay.Lobby
 
         private void UpdateLobbyClients()
         {
-            // Here you would update NetworkVariables or send ClientRPCs to update lobby UI on clients
+            // Update NetworkVariables or send ClientRPCs to update lobby UI on clients
         }
-
-        #endregion
-
-        #region Inner Classes, Enums
-
-        // No inner classes or enums currently.
 
         #endregion
     }

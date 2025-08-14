@@ -15,7 +15,7 @@ public class UIProgressBar : MonoBehaviour
     [Tooltip("Fill animation duration in seconds.")]
     [SerializeField] private float animationDuration = 0.3f;
 
-    private Coroutine animationCoroutine;
+    private Coroutine _animationCoroutine;
 
     private void Reset()
     {
@@ -37,10 +37,10 @@ public class UIProgressBar : MonoBehaviour
     public void SetValue(float fill)
     {
         fill = Mathf.Clamp01(fill);
-        if (animationCoroutine != null)
+        if (_animationCoroutine != null)
         {
-            StopCoroutine(animationCoroutine);
-            animationCoroutine = null;
+            StopCoroutine(_animationCoroutine);
+            _animationCoroutine = null;
         }
         fillImage.fillAmount = fill;
         UpdateBackgroundVisibility(fill);
@@ -55,11 +55,11 @@ public class UIProgressBar : MonoBehaviour
     public void AnimateTo(float targetFill, float duration = -1f, Action? onComplete = null)
     {
         targetFill = Mathf.Clamp01(targetFill);
-        if (animationCoroutine != null)
+        if (_animationCoroutine != null)
         {
-            StopCoroutine(animationCoroutine);
+            StopCoroutine(_animationCoroutine);
         }
-        animationCoroutine = StartCoroutine(AnimateFill(targetFill, duration < 0 ? animationDuration : duration, onComplete));
+        _animationCoroutine = StartCoroutine(AnimateFill(targetFill, duration < 0 ? animationDuration : duration, onComplete));
     }
 
     private IEnumerator AnimateFill(float targetFill, float duration, Action? onComplete)
@@ -77,7 +77,7 @@ public class UIProgressBar : MonoBehaviour
 
         fillImage.fillAmount = targetFill;
         UpdateBackgroundVisibility(targetFill);
-        animationCoroutine = null;
+        _animationCoroutine = null;
         onComplete?.Invoke();
     }
 

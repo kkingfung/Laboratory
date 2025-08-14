@@ -187,11 +187,5 @@ namespace Laboratory.Core.Bootstrap
         }
 
         #endregion
-
-        #region Inner Classes, Enums
-
-        // Add inner classes, enums, or structs here if needed in future.
-
-        #endregion
     }
 }

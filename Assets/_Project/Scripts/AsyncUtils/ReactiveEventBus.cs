@@ -65,12 +65,6 @@ namespace Laboratory.Infrastructure.AsyncUtils
 
         #endregion
 
-        #region Private Methods
-
-        // No private methods currently.
-
-        #endregion
-
         #region Inner Classes, Enums
 
         private class MessagingPipeObservable<T> : System.IObservable<T>

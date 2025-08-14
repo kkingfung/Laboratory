@@ -15,8 +15,8 @@ public class CrosshairUI : MonoBehaviour
     [SerializeField] private Color hitColor = Color.red;
     [SerializeField] private float hitFlashDuration = 0.15f;
 
-    private Coroutine currentExpandCoroutine;
-    private Coroutine currentHitCoroutine;
+    private Coroutine _currentExpandCoroutine;
+    private Coroutine _currentHitCoroutine;
 
     private void Awake()
     {
@@ -43,9 +43,9 @@ public class CrosshairUI : MonoBehaviour
     /// </summary>
     public void ExpandCrosshair()
     {
-        if (currentExpandCoroutine != null)
-            StopCoroutine(currentExpandCoroutine);
-        currentExpandCoroutine = StartCoroutine(ExpandRoutine());
+        if (_currentExpandCoroutine != null)
+            StopCoroutine(_currentExpandCoroutine);
+        _currentExpandCoroutine = StartCoroutine(ExpandRoutine());
     }
 
     private IEnumerator ExpandRoutine()
@@ -79,9 +79,9 @@ public class CrosshairUI : MonoBehaviour
     /// </summary>
     public void ShowHitFeedback()
     {
-        if (currentHitCoroutine != null)
-            StopCoroutine(currentHitCoroutine);
-        currentHitCoroutine = StartCoroutine(HitFlashRoutine());
+        if (_currentHitCoroutine != null)
+            StopCoroutine(_currentHitCoroutine);
+        _currentHitCoroutine = StartCoroutine(HitFlashRoutine());
     }
 
     private IEnumerator HitFlashRoutine()

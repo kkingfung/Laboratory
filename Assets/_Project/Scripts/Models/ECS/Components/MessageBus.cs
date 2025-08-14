@@ -1,4 +1,3 @@
-// MessageBus.cs
 using System;
 using UnityEngine;
 

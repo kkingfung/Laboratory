@@ -11,7 +11,7 @@ namespace Laboratory.Models.ECS.Systems
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class DeathSystem : SystemBase
     {
-        #region Fields
+        #region Constants
 
         /// <summary>
         /// Default respawn delay in seconds

@@ -13,7 +13,7 @@ public class LobbyUI : MonoBehaviour
     [SerializeField] private Button startGameButton;
     [SerializeField] private TextMeshProUGUI statusText;
 
-    private Dictionary<ulong, PlayerListEntry> playerEntries = new();
+    private Dictionary<ulong, PlayerListEntry> _playerEntries = new();
 
     // Example player data structure for UI
     private class PlayerListEntry
@@ -57,14 +57,14 @@ public class LobbyUI : MonoBehaviour
     /// </summary>
     public void AddPlayer(ulong clientId, string playerName, bool isReady)
     {
-        if (playerEntries.ContainsKey(clientId)) return;
+        if (_playerEntries.ContainsKey(clientId)) return;
 
         GameObject entryObj = Instantiate(playerListEntryPrefab, playerListContent);
         PlayerListEntry entry = new(entryObj);
         entry.SetName(playerName);
         entry.SetReady(isReady);
 
-        playerEntries.Add(clientId, entry);
+        _playerEntries.Add(clientId, entry);
 
         UpdateStatus();
     }
@@ -74,10 +74,10 @@ public class LobbyUI : MonoBehaviour
     /// </summary>
     public void RemovePlayer(ulong clientId)
     {
-        if (playerEntries.TryGetValue(clientId, out PlayerListEntry entry))
+        if (_playerEntries.TryGetValue(clientId, out PlayerListEntry entry))
         {
             Destroy(entry.gameObject);
-            playerEntries.Remove(clientId);
+            _playerEntries.Remove(clientId);
             UpdateStatus();
         }
     }
@@ -87,7 +87,7 @@ public class LobbyUI : MonoBehaviour
     /// </summary>
     public void UpdatePlayerReadyStatus(ulong clientId, bool isReady)
     {
-        if (playerEntries.TryGetValue(clientId, out PlayerListEntry entry))
+        if (_playerEntries.TryGetValue(clientId, out PlayerListEntry entry))
         {
             entry.SetReady(isReady);
             UpdateStatus();
@@ -96,7 +96,7 @@ public class LobbyUI : MonoBehaviour
 
     private void UpdateStatus()
     {
-        if (playerEntries.Count == 0)
+        if (_playerEntries.Count == 0)
         {
             statusText.text = "Waiting for players...";
             UpdateStartGameButtonVisibility(false);
@@ -104,7 +104,7 @@ public class LobbyUI : MonoBehaviour
         }
 
         bool allReady = true;
-        foreach (var entry in playerEntries.Values)
+        foreach (var entry in _playerEntries.Values)
         {
             if (entry.readyIndicator.color != Color.green)
             {

@@ -32,39 +32,39 @@ public class MiniMapUI : MonoBehaviour
     [SerializeField] private Transform playerTransform = null!; // Player to move
 
 
-    private PlayerControls controls = null!;
+    private PlayerControls _controls = null!;
 
-    private Vector3 panOrigin;
-    private bool isPanning = false;
+    private Vector3 _panOrigin;
+    private bool _isPanning = false;
 
-    private readonly Dictionary<Transform, MarkerInstance> activeMarkers = new();
-    private readonly Queue<MarkerInstance> playerMarkerPool = new();
-    private readonly Queue<MarkerInstance> enemyMarkerPool = new();
-    private readonly Queue<MarkerInstance> enemyMarkerPoolLarge = new();
+    private readonly Dictionary<Transform, MarkerInstance> _activeMarkers = new();
+    private readonly Queue<MarkerInstance> _playerMarkerPool = new();
+    private readonly Queue<MarkerInstance> _enemyMarkerPool = new();
+    private readonly Queue<MarkerInstance> _enemyMarkerPoolLarge = new();
 
     // For smooth movement
-    private Vector3 panVelocity = Vector3.zero;
-    private float zoomVelocity = 0f;
+    private Vector3 _panVelocity = Vector3.zero;
+    private float _zoomVelocity = 0f;
 
     private void Awake()
     {
-        controls = new PlayerControls();
+        _controls = new PlayerControls();
 
-        controls.MiniMap.Zoom.performed += ctx => OnZoomInput(ctx.ReadValue<float>());
-        controls.MiniMap.Pan.started += ctx => StartPan(ctx.ReadValue<Vector2>());
-        controls.MiniMap.Pan.canceled += ctx => EndPan();
-        controls.MiniMap.Pan.performed += ctx => OnPanInput(ctx.ReadValue<Vector2>());
-        controls.MiniMap.Click.performed += ctx => OnMiniMapClick(ctx.ReadValue<Vector2>());
+        _controls.MiniMap.Zoom.performed += ctx => OnZoomInput(ctx.ReadValue<float>());
+        _controls.MiniMap.Pan.started += ctx => StartPan(ctx.ReadValue<Vector2>());
+        _controls.MiniMap.Pan.canceled += ctx => EndPan();
+        _controls.MiniMap.Pan.performed += ctx => OnPanInput(ctx.ReadValue<Vector2>());
+        _controls.MiniMap.Click.performed += ctx => OnMiniMapClick(ctx.ReadValue<Vector2>());
     }
 
     private void OnEnable()
     {
-        controls.Enable();
+        _controls.Enable();
     }
 
     private void OnDisable()
     {
-        controls.Disable();
+        _controls.Disable();
     }
 
     private void Update()
@@ -97,21 +97,21 @@ public class MiniMapUI : MonoBehaviour
 
     private void StartPan(Vector2 startPos)
     {
-        isPanning = true;
-        panOrigin = ScreenToWorldXZ(startPos);
+        _isPanning = true;
+        _panOrigin = ScreenToWorldXZ(startPos);
     }
 
     private void EndPan()
     {
-        isPanning = false;
+        _isPanning = false;
     }
 
     private void OnPanInput(Vector2 currentPos)
     {
-        if (!isPanning) return;
+        if (!_isPanning) return;
 
         Vector3 currentWorldPos = ScreenToWorldXZ(currentPos);
-        Vector3 difference = panOrigin - currentWorldPos;
+        Vector3 difference = _panOrigin - currentWorldPos;
         Vector3 targetPos = miniMapCamera.transform.position + difference;
 
         targetPos = ClampPositionToBounds(targetPos);
@@ -127,7 +127,7 @@ public class MiniMapUI : MonoBehaviour
         while (elapsed < smoothTime)
         {
             elapsed += Time.unscaledDeltaTime;
-            miniMapCamera.transform.position = Vector3.SmoothDamp(miniMapCamera.transform.position, targetPos, ref panVelocity, smoothTime);
+            miniMapCamera.transform.position = Vector3.SmoothDamp(miniMapCamera.transform.position, targetPos, ref _panVelocity, smoothTime);
             await UniTask.Yield(PlayerLoopTiming.Update);
         }
 
@@ -164,13 +164,13 @@ public class MiniMapUI : MonoBehaviour
     /// <param name="isLargeEnemy">If enemy, true for large enemy marker size.</param>
     public void RegisterTrackedEntity(Transform worldTransform, bool isPlayer, bool isLargeEnemy = false)
     {
-        if (activeMarkers.ContainsKey(worldTransform))
+        if (_activeMarkers.ContainsKey(worldTransform))
             return;
 
         MarkerInstance marker = GetMarkerFromPool(isPlayer, isLargeEnemy);
         marker.GameObject.SetActive(true);
         marker.IsPlayerMarker = isPlayer;
-        activeMarkers.Add(worldTransform, marker);
+        _activeMarkers.Add(worldTransform, marker);
         marker.WorldTransform = worldTransform;
 
         // Start fade-in
@@ -179,7 +179,7 @@ public class MiniMapUI : MonoBehaviour
 
     public void UnregisterTrackedEntity(Transform worldTransform)
     {
-        if (!activeMarkers.TryGetValue(worldTransform, out var marker))
+        if (!_activeMarkers.TryGetValue(worldTransform, out var marker))
             return;
 
         // Start fade-out and then deactivate and pool
@@ -189,12 +189,12 @@ public class MiniMapUI : MonoBehaviour
             ReturnMarkerToPool(marker);
         }).Forget();
 
-        activeMarkers.Remove(worldTransform);
+        _activeMarkers.Remove(worldTransform);
     }
 
     private void UpdateMarkers()
     {
-        foreach (var kvp in activeMarkers)
+        foreach (var kvp in _activeMarkers)
         {
             Transform worldTransform = kvp.Key;
             MarkerInstance marker = kvp.Value;
@@ -230,14 +230,14 @@ public class MiniMapUI : MonoBehaviour
     {
         if (isPlayer)
         {
-            if (playerMarkerPool.Count > 0)
-                return playerMarkerPool.Dequeue();
+            if (_playerMarkerPool.Count > 0)
+                return _playerMarkerPool.Dequeue();
             else
                 return CreateNewMarker(playerMarkerPrefab, true);
         }
         else
         {
-            var pool = isLargeEnemy ? enemyMarkerPoolLarge : enemyMarkerPoolSmall;
+            var pool = isLargeEnemy ? _enemyMarkerPoolLarge : enemyMarkerPoolSmall;
             if (pool.Count > 0)
                 return pool.Dequeue();
             else
@@ -257,10 +257,10 @@ public class MiniMapUI : MonoBehaviour
     private void ReturnMarkerToPool(MarkerInstance marker)
     {
         if (marker.IsPlayerMarker)
-            playerMarkerPool.Enqueue(marker);
+            _playerMarkerPool.Enqueue(marker);
         else
         {
-            if (marker.GameObject == enemyMarkerPrefabLarge) enemyMarkerPoolLarge.Enqueue(marker);
+            if (marker.GameObject == enemyMarkerPrefabLarge) _enemyMarkerPoolLarge.Enqueue(marker);
             else enemyMarkerPoolSmall.Enqueue(marker);
         }
     }

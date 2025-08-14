@@ -11,30 +11,30 @@ public class ButtonDebouncer : MonoBehaviour
     [Tooltip("Optional UnityEvent invoked when a click is ignored due to debounce.")]
     public UnityEvent? onDebouncedClick;
 
-    private Button button;
-    private float lastClickTime = -Mathf.Infinity;
+    private Button _button;
+    private float _lastClickTime = -Mathf.Infinity;
 
     private void Awake()
     {
-        button = GetComponent<Button>();
-        button.onClick.AddListener(OnButtonClicked);
+        _button = GetComponent<Button>();
+        _button.onClick.AddListener(OnButtonClicked);
     }
 
     private void OnDestroy()
     {
-        button.onClick.RemoveListener(OnButtonClicked);
+        _button.onClick.RemoveListener(OnButtonClicked);
     }
 
     private void OnButtonClicked()
     {
-        if (Time.unscaledTime - lastClickTime < debounceTime)
+        if (Time.unscaledTime - _lastClickTime < debounceTime)
         {
             // Ignore click - debounced
             onDebouncedClick?.Invoke();
             return;
         }
 
-        lastClickTime = Time.unscaledTime;
+        _lastClickTime = Time.unscaledTime;
         // Let the button proceed with normal click events
         // Note: If you want to intercept before other listeners,
         // consider adding this script earlier or controlling invocation order.

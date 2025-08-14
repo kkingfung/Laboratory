@@ -20,8 +20,8 @@ public class UISelectableNavigator : MonoBehaviour
     [Tooltip("Time delay between navigation inputs to prevent overscrolling.")]
     [SerializeField] private float inputDelay = 0.2f;
 
-    private int currentIndex = 0;
-    private float inputTimer = 0f;
+    private int _currentIndex = 0;
+    private float _inputTimer = 0f;
 
     private void Start()
     {
@@ -32,16 +32,16 @@ public class UISelectableNavigator : MonoBehaviour
         }
 
         // Set first selectable as selected on start
-        SetSelected(currentIndex);
+        SetSelected(_currentIndex);
     }
 
     private void Update()
     {
         if (selectables.Count == 0) return;
 
-        inputTimer -= Time.unscaledDeltaTime;
+        _inputTimer -= Time.unscaledDeltaTime;
 
-        if (inputTimer > 0f) return;
+        if (_inputTimer > 0f) return;
 
         float verticalInput = Input.GetAxisRaw(verticalAxis);
         float horizontalInput = Input.GetAxisRaw(horizontalAxis);
@@ -58,21 +58,21 @@ public class UISelectableNavigator : MonoBehaviour
 
     private void Navigate(int direction)
     {
-        currentIndex += direction;
+        _currentIndex += direction;
 
         if (wrapAround)
         {
-            if (currentIndex < 0) currentIndex = selectables.Count - 1;
-            else if (currentIndex >= selectables.Count) currentIndex = 0;
+            if (_currentIndex < 0) _currentIndex = selectables.Count - 1;
+            else if (_currentIndex >= selectables.Count) _currentIndex = 0;
         }
         else
         {
-            currentIndex = Mathf.Clamp(currentIndex, 0, selectables.Count - 1);
+            _currentIndex = Mathf.Clamp(_currentIndex, 0, selectables.Count - 1);
         }
 
-        SetSelected(currentIndex);
+        SetSelected(_currentIndex);
 
-        inputTimer = inputDelay;
+        _inputTimer = inputDelay;
     }
 
     private void SetSelected(int index)

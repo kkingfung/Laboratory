@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Presentation
 {
-    public class _View : MonoBehaviour, IDisposable
+    public class TemplateView : MonoBehaviour, IDisposable
     {
         protected _ViewModel? ViewModel { get; private set; }
 

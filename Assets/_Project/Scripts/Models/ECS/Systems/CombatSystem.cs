@@ -10,7 +10,7 @@ namespace Laboratory.Models.ECS.Systems
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CombatSystem : SystemBase
     {
-        #region Fields
+        #region Constants
 
         /// <summary>
         /// Fixed damage amount applied per successful attack
