@@ -17,9 +17,15 @@ namespace Laboratory.UI.Utils
         [SerializeField] private bool useFade = true;
 
         [Tooltip("Duration of fade animations in seconds.")]
-        [SerializeField] private float fadeDuration = 0.3f;
+        [SerializeField, Min(0f)] private float fadeDuration = 0.3f;
 
-        protected CanvasGroup _canvasGroup;
+        [Tooltip("CanvasGroup component to control UI visibility and interactions.")]
+        [SerializeField] private CanvasGroup canvasGroup = null!; // Assign in Inspector
+
+        #endregion
+
+        #region Private Fields
+
         private Coroutine _fadeCoroutine;
 
         #endregion
@@ -35,12 +41,15 @@ namespace Laboratory.UI.Utils
 
         #region Unity Override Methods
 
-        /// <summary>
-        /// Initialize the UI controller with default invisible state.
-        /// </summary>
-        protected virtual void Awake()
+        private void Awake()
         {
-            _canvasGroup = GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                Debug.LogError($"{nameof(UIController)} requires a CanvasGroup assigned in the Inspector.", this);
+                enabled = false;
+                return;
+            }
+
             SetInitialState();
         }
 
@@ -53,13 +62,10 @@ namespace Laboratory.UI.Utils
         /// </summary>
         public virtual void Show()
         {
-            if (IsOpen) 
-                return;
+            if (IsOpen) return;
 
             gameObject.SetActive(true);
-
-            if (_fadeCoroutine != null)
-                StopCoroutine(_fadeCoroutine);
+            StopCurrentFade();
 
             if (useFade)
                 _fadeCoroutine = StartCoroutine(FadeIn());
@@ -72,11 +78,9 @@ namespace Laboratory.UI.Utils
         /// </summary>
         public virtual void Hide()
         {
-            if (!IsOpen) 
-                return;
+            if (!IsOpen) return;
 
-            if (_fadeCoroutine != null)
-                StopCoroutine(_fadeCoroutine);
+            StopCurrentFade();
 
             if (useFade)
                 _fadeCoroutine = StartCoroutine(FadeOut());
@@ -97,54 +101,46 @@ namespace Laboratory.UI.Utils
             IsOpen = true;
             float elapsed = 0f;
 
-            _canvasGroup.interactable = true;
-            _canvasGroup.blocksRaycasts = true;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
 
             while (elapsed < fadeDuration)
             {
                 elapsed += Time.unscaledDeltaTime;
-                _canvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
+                canvasGroup.alpha = Mathf.Clamp01(elapsed / fadeDuration);
                 yield return null;
             }
 
-            _canvasGroup.alpha = 1f;
+            canvasGroup.alpha = 1f;
             _fadeCoroutine = null;
         }
 
-        /// <summary>
-        /// Coroutine that handles fade-out animation.
-        /// </summary>
-        /// <returns>Coroutine enumerator</returns>
         protected virtual IEnumerator FadeOut()
         {
             IsOpen = false;
             float elapsed = 0f;
 
-            _canvasGroup.interactable = false;
-            _canvasGroup.blocksRaycasts = false;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
 
             while (elapsed < fadeDuration)
             {
                 elapsed += Time.unscaledDeltaTime;
-                _canvasGroup.alpha = 1f - Mathf.Clamp01(elapsed / fadeDuration);
+                canvasGroup.alpha = 1f - Mathf.Clamp01(elapsed / fadeDuration);
                 yield return null;
             }
 
-            _canvasGroup.alpha = 0f;
+            canvasGroup.alpha = 0f;
             gameObject.SetActive(false);
             _fadeCoroutine = null;
         }
 
-        /// <summary>
-        /// Instantly sets the visibility state without animation.
-        /// </summary>
-        /// <param name="visible">Whether the UI should be visible</param>
         protected virtual void SetVisible(bool visible)
         {
             IsOpen = visible;
-            _canvasGroup.alpha = visible ? 1f : 0f;
-            _canvasGroup.interactable = visible;
-            _canvasGroup.blocksRaycasts = visible;
+            canvasGroup.alpha = visible ? 1f : 0f;
+            canvasGroup.interactable = visible;
+            canvasGroup.blocksRaycasts = visible;
             gameObject.SetActive(visible);
         }
 
@@ -152,15 +148,21 @@ namespace Laboratory.UI.Utils
 
         #region Private Methods
 
-        /// <summary>
-        /// Sets the initial state of the UI controller to invisible and inactive.
-        /// </summary>
         private void SetInitialState()
         {
-            _canvasGroup.alpha = 0f;
-            _canvasGroup.interactable = false;
-            _canvasGroup.blocksRaycasts = false;
+            canvasGroup.alpha = 0f;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
             gameObject.SetActive(false);
+        }
+
+        private void StopCurrentFade()
+        {
+            if (_fadeCoroutine != null)
+            {
+                StopCoroutine(_fadeCoroutine);
+                _fadeCoroutine = null;
+            }
         }
 
         #endregion

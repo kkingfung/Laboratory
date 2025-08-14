@@ -17,13 +17,13 @@ namespace Laboratory.UI.Utils
 
         [Header("Sound Configuration")]
         [Tooltip("Sound played when pointer enters the button area.")]
-        [SerializeField] private AudioManager.UISound hoverSound = AudioManager.UISound.ButtonHover;
+        [SerializeField] private AudioClip hoverSound;
 
         [Tooltip("Sound played when button is clicked.")]
-        [SerializeField] private AudioManager.UISound clickSound = AudioManager.UISound.ButtonClick;
+        [SerializeField] private AudioClip clickSound;
 
         [Tooltip("Sound played when pointer is pressed down on button.")]
-        [SerializeField] private AudioManager.UISound downSound = AudioManager.UISound.ButtonDown;
+        [SerializeField] private AudioClip downSound;
 
         [Header("Audio Settings")]
         [Tooltip("Volume level for button sounds.")]
@@ -34,8 +34,11 @@ namespace Laboratory.UI.Utils
         [Range(0.5f, 2f)]
         [SerializeField] private float pitch = 1f;
 
-        private AudioSource _audioSource;
-        private Button _button;
+        [Tooltip("AudioSource used to play the sounds.")]
+        [SerializeField] private AudioSource audioSource = null!;
+
+        [Tooltip("Button component to hook click events.")]
+        [SerializeField] private Button button = null!;
 
         #endregion
 
@@ -46,13 +49,21 @@ namespace Laboratory.UI.Utils
         /// </summary>
         private void Awake()
         {
-            _audioSource = GetComponent<AudioSource>();
-            _button = GetComponent<Button>();
-
-            if (_button != null)
+            if (audioSource == null)
             {
-                _button.onClick.AddListener(PlayClickSound);
+                Debug.LogError($"{nameof(UIButtonSound)} requires an AudioSource assigned in the Inspector.", this);
+                enabled = false;
+                return;
             }
+
+            if (button == null)
+            {
+                Debug.LogError($"{nameof(UIButtonSound)} requires a Button assigned in the Inspector.", this);
+                enabled = false;
+                return;
+            }
+
+            button.onClick.AddListener(PlayClickSound);
         }
 
         /// <summary>
@@ -60,9 +71,9 @@ namespace Laboratory.UI.Utils
         /// </summary>
         private void OnDestroy()
         {
-            if (_button != null)
+            if (button != null)
             {
-                _button.onClick.RemoveListener(PlayClickSound);
+                button.onClick.RemoveListener(PlayClickSound);
             }
         }
 
@@ -76,7 +87,7 @@ namespace Laboratory.UI.Utils
         /// <param name="eventData">Pointer event data</param>
         public void OnPointerEnter(PointerEventData eventData)
         {
-            PlaySound(GetAudioClip(hoverSound));
+            PlaySound(hoverSound);
         }
 
         /// <summary>
@@ -85,7 +96,7 @@ namespace Laboratory.UI.Utils
         /// <param name="eventData">Pointer event data</param>
         public void OnPointerDown(PointerEventData eventData)
         {
-            PlaySound(GetAudioClip(downSound));
+            PlaySound(downSound);
         }
 
         #endregion
@@ -97,7 +108,7 @@ namespace Laboratory.UI.Utils
         /// </summary>
         private void PlayClickSound()
         {
-            PlaySound(GetAudioClip(clickSound));
+            PlaySound(clickSound);
         }
 
         /// <summary>
@@ -106,25 +117,12 @@ namespace Laboratory.UI.Utils
         /// <param name="clip">Audio clip to play</param>
         private void PlaySound(AudioClip clip)
         {
-            if (clip == null || _audioSource == null) 
+            if (clip == null || audioSource == null)
                 return;
 
-            _audioSource.pitch = pitch;
-            _audioSource.volume = volume;
-            _audioSource.PlayOneShot(clip);
-        }
-
-        /// <summary>
-        /// Gets the AudioClip for the specified UI sound from the AudioManager.
-        /// </summary>
-        /// <param name="uiSound">UI sound type to retrieve</param>
-        /// <returns>AudioClip associated with the UI sound, or null if not found</returns>
-        private AudioClip GetAudioClip(AudioManager.UISound uiSound)
-        {
-            // This method would need to be implemented based on your AudioManager structure
-            // For now, returning null as a placeholder
-            // TODO: Implement proper AudioManager integration
-            return null;
+            audioSource.pitch = pitch;
+            audioSource.volume = volume;
+            audioSource.PlayOneShot(clip);
         }
 
         #endregion

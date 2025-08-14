@@ -18,7 +18,7 @@ namespace Laboratory.Gameplay.Inventory
         [SerializeField] private TextMeshProUGUI rarityText;
         [SerializeField] private TextMeshProUGUI valueText;
         [SerializeField] private Transform statsContainer;
-        [SerializeField] private GameObject statEntryPrefab;
+        [SerializeField] private StatEntryUI statEntryPrefab;
 
         #endregion
 
@@ -46,19 +46,16 @@ namespace Laboratory.Gameplay.Inventory
             rarityText.text = GetRarityText(item.Rarity);
             valueText.text = item.Value.ToString();
 
-            foreach (Transform child in statsContainer)
-                Destroy(child.gameObject);
+            // Clear old entries (consider pooling for better FPS)
+            for (int i = statsContainer.childCount - 1; i >= 0; i--)
+            {
+                Destroy(statsContainer.GetChild(i).gameObject);
+            }
 
             foreach (var stat in item.Stats)
             {
                 var entry = Instantiate(statEntryPrefab, statsContainer);
-                var statNameText = entry.transform.Find("StatName")?.GetComponent<TextMeshProUGUI>();
-                var statValueText = entry.transform.Find("StatValue")?.GetComponent<TextMeshProUGUI>();
-                var statIconImage = entry.transform.Find("StatIcon")?.GetComponent<Image>();
-
-                if (statNameText != null) statNameText.text = stat.StatName;
-                if (statValueText != null) statValueText.text = stat.StatValue;
-                if (statIconImage != null) statIconImage.sprite = stat.StatIcon;
+                entry.SetData(stat);
             }
 
             gameObject.SetActive(true);
@@ -87,6 +84,32 @@ namespace Laboratory.Gameplay.Inventory
                 4 => "Legendary",
                 _ => "Unknown"
             };
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// UI component for a single stat entry.
+    /// </summary>
+    [System.Serializable]
+    public class StatEntryUI : MonoBehaviour
+    {
+        #region Fields
+
+        [SerializeField] private TextMeshProUGUI statNameText;
+        [SerializeField] private TextMeshProUGUI statValueText;
+        [SerializeField] private Image statIconImage;
+
+        #endregion
+
+        #region Public Methods
+
+        public void SetData(ItemStat stat)
+        {
+            statNameText.text = stat.StatName;
+            statValueText.text = stat.StatValue;
+            statIconImage.sprite = stat.StatIcon;
         }
 
         #endregion

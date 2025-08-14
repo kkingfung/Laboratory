@@ -3,42 +3,24 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-// FIXME: tidyup after 8/29
+using Unity.Netcode; // Assuming you're using Netcode for GameObjects
+
 public class LobbyUI : MonoBehaviour
 {
+    #region Fields
+
     [Header("UI References")]
     [SerializeField] private Transform playerListContent;
-    [SerializeField] private GameObject playerListEntryPrefab;
+    [SerializeField] private PlayerListEntryUI playerListEntryPrefab; // Strongly typed prefab
     [SerializeField] private Button readyButton;
     [SerializeField] private Button startGameButton;
     [SerializeField] private TextMeshProUGUI statusText;
 
-    private Dictionary<ulong, PlayerListEntry> _playerEntries = new();
+    private readonly Dictionary<ulong, PlayerListEntryUI> _playerEntries = new();
 
-    // Example player data structure for UI
-    private class PlayerListEntry
-    {
-        public GameObject gameObject;
-        public TextMeshProUGUI playerNameText;
-        public Image readyIndicator;
+    #endregion
 
-        public PlayerListEntry(GameObject obj)
-        {
-            gameObject = obj;
-            playerNameText = obj.transform.Find("PlayerNameText").GetComponent<TextMeshProUGUI>();
-            readyIndicator = obj.transform.Find("ReadyIndicator").GetComponent<Image>();
-        }
-
-        public void SetReady(bool ready)
-        {
-            readyIndicator.color = ready ? Color.green : Color.red;
-        }
-
-        public void SetName(string name)
-        {
-            playerNameText.text = name;
-        }
-    }
+    #region Unity Methods
 
     private void Awake()
     {
@@ -52,29 +34,39 @@ public class LobbyUI : MonoBehaviour
         statusText.text = "Waiting for players...";
     }
 
-    /// <summary>
-    /// Call when a player joins the lobby.
-    /// </summary>
+    private void OnEnable()
+    {
+        NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerJoined;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnPlayerLeft;
+
+        RefreshPlayerList();
+    }
+
+    private void OnDisable()
+    {
+        NetworkManager.Singleton.OnClientConnectedCallback -= OnPlayerJoined;
+        NetworkManager.Singleton.OnClientDisconnectCallback -= OnPlayerLeft;
+    }
+
+    #endregion
+
+    #region Public Methods
+
     public void AddPlayer(ulong clientId, string playerName, bool isReady)
     {
         if (_playerEntries.ContainsKey(clientId)) return;
 
-        GameObject entryObj = Instantiate(playerListEntryPrefab, playerListContent);
-        PlayerListEntry entry = new(entryObj);
+        var entry = Instantiate(playerListEntryPrefab, playerListContent);
         entry.SetName(playerName);
         entry.SetReady(isReady);
 
         _playerEntries.Add(clientId, entry);
-
         UpdateStatus();
     }
 
-    /// <summary>
-    /// Call when a player leaves the lobby.
-    /// </summary>
     public void RemovePlayer(ulong clientId)
     {
-        if (_playerEntries.TryGetValue(clientId, out PlayerListEntry entry))
+        if (_playerEntries.TryGetValue(clientId, out var entry))
         {
             Destroy(entry.gameObject);
             _playerEntries.Remove(clientId);
@@ -82,17 +74,18 @@ public class LobbyUI : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Call to update a player's ready status.
-    /// </summary>
     public void UpdatePlayerReadyStatus(ulong clientId, bool isReady)
     {
-        if (_playerEntries.TryGetValue(clientId, out PlayerListEntry entry))
+        if (_playerEntries.TryGetValue(clientId, out var entry))
         {
             entry.SetReady(isReady);
             UpdateStatus();
         }
     }
+
+    #endregion
+
+    #region Private Methods
 
     private void UpdateStatus()
     {
@@ -106,7 +99,7 @@ public class LobbyUI : MonoBehaviour
         bool allReady = true;
         foreach (var entry in _playerEntries.Values)
         {
-            if (entry.readyIndicator.color != Color.green)
+            if (!entry.IsReady)
             {
                 allReady = false;
                 break;
@@ -120,85 +113,105 @@ public class LobbyUI : MonoBehaviour
     private void RefreshPlayerList()
     {
         // Clear old UI
-        foreach (var item in playerItems.Values)
+        foreach (var entry in _playerEntries.Values)
         {
-            Destroy(item);
+            Destroy(entry.gameObject);
         }
-        playerItems.Clear();
+        _playerEntries.Clear();
 
-        // Get current lobby players from LobbyManager (you need to expose this)
+        // Get current lobby players from LobbyManager (must be provided by your game)
         foreach (var playerEntry in LobbyManager.Instance.GetAllPlayers())
         {
-            var item = Instantiate(playerListItemPrefab, playerListContainer);
-            var playerNameText = item.transform.Find("PlayerNameText").GetComponent<Text>();
-            var readyToggle = item.transform.Find("ReadyToggle").GetComponent<Toggle>();
+            var item = Instantiate(playerListEntryPrefab, playerListContent);
+            item.SetName(playerEntry.PlayerName);
+            item.SetReady(playerEntry.IsReady.Value);
 
-            playerNameText.text = playerEntry.PlayerName;
-            readyToggle.isOn = playerEntry.IsReady.Value;
-
-            // If this is local player, enable toggle, else disable
+            // Local player toggle
+            item.SetInteractable(playerEntry.ClientId == NetworkManager.Singleton.LocalClientId);
             if (playerEntry.ClientId == NetworkManager.Singleton.LocalClientId)
             {
-                readyToggle.interactable = true;
-                readyToggle.onValueChanged.AddListener(isReady =>
+                item.OnReadyChanged += isReady =>
                 {
                     LobbyManager.Instance.RequestReadyStatusServerRpc(isReady);
-                });
-            }
-            else
-            {
-                readyToggle.interactable = false;
+                };
             }
 
-            playerItems[playerEntry.ClientId] = item;
+            _playerEntries[playerEntry.ClientId] = item;
         }
     }
 
-    /// <summary>
-    /// Call to update Start Game button visibility (host only).
-    /// </summary>
     private void UpdateStartGameButtonVisibility(bool visible)
     {
-        // TODO: Implement host check here to enable/disable button.
+        // TODO: Implement host check here to enable/disable button
         startGameButton.gameObject.SetActive(visible);
     }
 
     private void OnReadyButtonClicked()
     {
-        // TODO: Send ready/unready status to server.
-
-        // Example toggle local ready status:
-        // bool newReadyStatus = !currentReadyStatus;
-        // UpdatePlayerReadyStatus(localClientId, newReadyStatus);
+        // TODO: Send ready/unready status to server
     }
 
     private void OnStartGameButtonClicked()
     {
-        // TODO: Notify server to start the game.
+        // TODO: Notify server to start the game
     }
 
-    private void OnEnable()
-    {
-        // Subscribe to network events or custom events to update UI
-        NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerJoined;
-        NetworkManager.Singleton.OnClientDisconnectCallback += OnPlayerLeft;
+    private void OnPlayerJoined(ulong clientId) => RefreshPlayerList();
 
-        RefreshPlayerList();
+    private void OnPlayerLeft(ulong clientId) => RefreshPlayerList();
+
+    #endregion
+}
+
+/// <summary>
+/// UI component for a single player list entry.
+/// </summary>
+[Serializable]
+public class PlayerListEntryUI : MonoBehaviour
+{
+    #region Fields
+
+    [SerializeField] private TextMeshProUGUI playerNameText;
+    [SerializeField] private Image readyIndicator;
+    [SerializeField] private Toggle readyToggle;
+
+    public event Action<bool> OnReadyChanged;
+
+    public bool IsReady { get; private set; }
+
+    #endregion
+
+    #region Public Methods
+
+    public void SetName(string name)
+    {
+        playerNameText.text = name;
     }
 
-    private void OnDisable()
+    public void SetReady(bool ready)
     {
-        NetworkManager.Singleton.OnClientConnectedCallback -= OnPlayerJoined;
-        NetworkManager.Singleton.OnClientDisconnectCallback -= OnPlayerLeft;
-    }
-    
-        private void OnPlayerJoined(ulong clientId)
-    {
-        RefreshPlayerList();
+        IsReady = ready;
+        readyIndicator.color = ready ? Color.green : Color.red;
+        if (readyToggle != null)
+            readyToggle.isOn = ready;
     }
 
-    private void OnPlayerLeft(ulong clientId)
+    public void SetInteractable(bool interactable)
     {
-        RefreshPlayerList();
+        if (readyToggle != null)
+        {
+            readyToggle.interactable = interactable;
+            readyToggle.onValueChanged.RemoveAllListeners();
+            if (interactable)
+            {
+                readyToggle.onValueChanged.AddListener(value =>
+                {
+                    SetReady(value);
+                    OnReadyChanged?.Invoke(value);
+                });
+            }
+        }
     }
+
+    #endregion
 }

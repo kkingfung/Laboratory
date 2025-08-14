@@ -8,28 +8,45 @@ using TMPro;
 using Unity.Netcode;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
-// FIXME: tidyup after 8/29
+
 namespace Game.UI
 {
     public class ScoreboardUI : MonoBehaviour, IDisposable
     {
-        [Header("UI References")]
-        [SerializeField] private Transform playerListContainer;
-        [SerializeField] private GameObject playerRowPrefab;
-        [SerializeField] private int itemsPerPage = 10;
-        [SerializeField] private Button nextPageButton;
-        [SerializeField] private Button prevPageButton;
-        [SerializeField] private TextMeshProUGUI pageIndicatorText;
+        #region Serialized Fields
 
-        private readonly Dictionary<ulong, PlayerRow> _playerRows = new();
-        private List<PlayerRow> _sortedPlayers = new();
+        [Header("UI References")]
+        [SerializeField] private Transform playerListContainer = null!;
+        [SerializeField] private PlayerRowUI playerRowPrefab = null!; // Prefab assigned in Inspector
+        [SerializeField] private int itemsPerPage = 10;
+        [SerializeField] private Button nextPageButton = null!;
+        [SerializeField] private Button prevPageButton = null!;
+        [SerializeField] private TextMeshProUGUI pageIndicatorText = null!;
+
+        #endregion
+
+        #region Private Fields
+
+        private readonly Dictionary<ulong, PlayerRowUI> _playerRows = new();
+        private List<PlayerRowUI> _sortedPlayers = new();
         private int _currentPage = 0;
         private int _totalPages = 1;
 
         private IDisposable _scoreboardUpdateSubscription;
-
         private IPublisher<ScoreboardUpdateEvent> _scoreboardUpdatePublisher;
         private ISubscriber<ScoreboardUpdateEvent> _scoreboardUpdateSubscriber;
+
+        private readonly SortCriterion[] _sortPriority =
+        {
+            SortCriterion.Kills,
+            SortCriterion.Deaths,
+            SortCriterion.Assists,
+            SortCriterion.Score
+        };
+
+        #endregion
+
+        #region Enums
 
         public enum SortCriterion
         {
@@ -37,17 +54,12 @@ namespace Game.UI
             Kills,
             Deaths,
             Assists,
-            Custom // For extensibility
+            Custom
         }
 
-        // Define sorting priority (primary to secondary)
-        private SortCriterion[] _sortPriority = new SortCriterion[]
-        {
-            SortCriterion.Kills,
-            SortCriterion.Deaths,
-            SortCriterion.Assists,
-            SortCriterion.Score
-        };
+        #endregion
+
+        #region Unity Methods
 
         private void Awake()
         {
@@ -88,12 +100,14 @@ namespace Game.UI
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnPlayerDisconnected;
 
             _scoreboardUpdateSubscription?.Dispose();
-
             ClearAllPlayers();
         }
 
-        private void OnPlayerConnected(ulong clientId) => AddPlayer(clientId);
+        #endregion
 
+        #region Player Management
+
+        private void OnPlayerConnected(ulong clientId) => AddPlayer(clientId);
         private void OnPlayerDisconnected(ulong clientId) => RemovePlayer(clientId);
 
         private void AddPlayer(ulong clientId)
@@ -107,21 +121,20 @@ namespace Game.UI
             var playerData = playerObj.GetComponent<NetworkPlayerData>();
             if (playerData == null) return;
 
-            var rowGO = Instantiate(playerRowPrefab, playerListContainer);
-            var row = new PlayerRow(rowGO, playerData);
+            var rowUI = Instantiate(playerRowPrefab, playerListContainer);
+            rowUI.Initialize(playerData, this);
+            rowUI.Bind(() => _scoreboardUpdatePublisher?.Publish(new ScoreboardUpdateEvent()));
 
-            _playerRows.Add(clientId, row);
-            row.Bind(() => _scoreboardUpdatePublisher?.Publish(new ScoreboardUpdateEvent()));
-
+            _playerRows.Add(clientId, rowUI);
             RefreshAllPlayers();
         }
 
         private void RemovePlayer(ulong clientId)
         {
-            if (!_playerRows.TryGetValue(clientId, out var row)) return;
+            if (!_playerRows.TryGetValue(clientId, out var rowUI)) return;
 
-            row.Unbind();
-            Destroy(row.GameObject);
+            rowUI.Unbind();
+            Destroy(rowUI.gameObject);
             _playerRows.Remove(clientId);
 
             RefreshAllPlayers();
@@ -132,11 +145,15 @@ namespace Game.UI
             foreach (var row in _playerRows.Values)
             {
                 row.Unbind();
-                Destroy(row.GameObject);
+                Destroy(row.gameObject);
             }
             _playerRows.Clear();
             _sortedPlayers.Clear();
         }
+
+        #endregion
+
+        #region UI Refresh & Sorting
 
         private async UniTaskVoid PeriodicSortLoop()
         {
@@ -150,7 +167,7 @@ namespace Game.UI
         private void RefreshAllPlayers()
         {
             _sortedPlayers = _playerRows.Values
-                .OrderBy(row => row, Comparer<PlayerRow>.Create(ComparePlayers))
+                .OrderBy(row => row, Comparer<PlayerRowUI>.Create(ComparePlayers))
                 .ToList();
 
             _totalPages = Mathf.Max(1, Mathf.CeilToInt((float)_sortedPlayers.Count / itemsPerPage));
@@ -171,7 +188,7 @@ namespace Game.UI
         {
             foreach (var row in _playerRows.Values)
             {
-                row.GameObject.SetActive(false);
+                row.gameObject.SetActive(false);
             }
 
             int start = _currentPage * itemsPerPage;
@@ -180,7 +197,7 @@ namespace Game.UI
             for (int i = start; i < end; i++)
             {
                 var row = _sortedPlayers[i];
-                row.GameObject.SetActive(true);
+                row.gameObject.SetActive(true);
                 row.AnimateRankChange(i + 1);
             }
         }
@@ -192,7 +209,7 @@ namespace Game.UI
             DisplayCurrentPage();
         }
 
-        private int ComparePlayers(PlayerRow a, PlayerRow b)
+        private int ComparePlayers(PlayerRowUI a, PlayerRowUI b)
         {
             foreach (var criterion in _sortPriority)
             {
@@ -200,13 +217,12 @@ namespace Game.UI
                 {
                     SortCriterion.Score => b.PlayerData.Score.Value.CompareTo(a.PlayerData.Score.Value),
                     SortCriterion.Kills => b.PlayerData.Kills.Value.CompareTo(a.PlayerData.Kills.Value),
-                    SortCriterion.Deaths => a.PlayerData.Deaths.Value.CompareTo(b.PlayerData.Deaths.Value), // fewer deaths better
+                    SortCriterion.Deaths => a.PlayerData.Deaths.Value.CompareTo(b.PlayerData.Deaths.Value),
                     SortCriterion.Assists => b.PlayerData.Assists.Value.CompareTo(a.PlayerData.Assists.Value),
                     _ => 0
                 };
 
-                if (cmp != 0)
-                    return cmp;
+                if (cmp != 0) return cmp;
             }
             return 0;
         }
@@ -217,111 +233,132 @@ namespace Game.UI
             _scoreboardUpdateSubscription?.Dispose();
         }
 
-        private class PlayerRow
+        #endregion
+    }
+
+    /// <summary>
+    /// Strongly typed player row prefab.
+    /// </summary>
+    [Serializable]
+    public class PlayerRowUI : MonoBehaviour
+    {
+        #region Serialized Fields
+
+        [Header("UI References")]
+        [SerializeField] private TextMeshProUGUI nameText = null!;
+        [SerializeField] private TextMeshProUGUI scoreText = null!;
+        [SerializeField] private TextMeshProUGUI rankText = null!;
+        [SerializeField] private Image avatarImage = null!;
+        [SerializeField] private TextMeshProUGUI pingText = null!;
+        [SerializeField] private Image pingBar = null!;
+
+        #endregion
+
+        #region Properties & Private Fields
+
+        public NetworkPlayerData PlayerData { get; private set; } = null!;
+        private MonoBehaviour _coroutineRunner = null!;
+        private int _currentRank = 0;
+        private Coroutine _rankAnimCoroutine;
+        private Action _onDataChanged;
+
+        #endregion
+
+        #region Initialization
+
+        public void Initialize(NetworkPlayerData playerData, MonoBehaviour coroutineRunner)
         {
-            public GameObject GameObject { get; }
-            public NetworkPlayerData PlayerData { get; }
-
-            private TextMeshProUGUI _nameText;
-            private TextMeshProUGUI _scoreText;
-            private TextMeshProUGUI _rankText;
-            private Image _avatarImage;
-            private TextMeshProUGUI _pingText;
-            private Image _pingBar;
-
-            private int _currentRank = 0;
-            private Coroutine _rankAnimCoroutine;
-            private MonoBehaviour _coroutineRunner;
-
-            public PlayerRow(GameObject go, NetworkPlayerData playerData)
-            {
-                GameObject = go;
-                PlayerData = playerData;
-
-                _nameText = go.transform.Find("NameText").GetComponent<TextMeshProUGUI>();
-                _scoreText = go.transform.Find("ScoreText").GetComponent<TextMeshProUGUI>();
-                _rankText = go.transform.Find("RankText").GetComponent<TextMeshProUGUI>();
-                _avatarImage = go.transform.Find("AvatarImage").GetComponent<Image>();
-                _pingText = go.transform.Find("PingText").GetComponent<TextMeshProUGUI>();
-                _pingBar = go.transform.Find("PingBar").GetComponent<Image>();
-
-                _coroutineRunner = go.GetComponent<MonoBehaviour>() ?? go.AddComponent<MonoBehaviour>();
-            }
-
-            public void Bind(Action onDataChanged)
-            {
-                UpdateUI();
-
-                PlayerData.Score.OnValueChanged += (oldVal, newVal) => { UpdateUI(); onDataChanged?.Invoke(); };
-                PlayerData.PlayerName.OnValueChanged += (oldVal, newVal) => { UpdateUI(); onDataChanged?.Invoke(); };
-                PlayerData.Kills.OnValueChanged += (oldVal, newVal) => { UpdateUI(); onDataChanged?.Invoke(); };
-                PlayerData.Deaths.OnValueChanged += (oldVal, newVal) => { UpdateUI(); onDataChanged?.Invoke(); };
-                PlayerData.Assists.OnValueChanged += (oldVal, newVal) => { UpdateUI(); onDataChanged?.Invoke(); };
-                PlayerData.Ping.OnValueChanged += (oldVal, newVal) => { UpdateUI(); };
-            }
-
-            public void Unbind()
-            {
-                PlayerData.Score.OnValueChanged = null;
-                PlayerData.PlayerName.OnValueChanged = null;
-                PlayerData.Kills.OnValueChanged = null;
-                PlayerData.Deaths.OnValueChanged = null;
-                PlayerData.Assists.OnValueChanged = null;
-                PlayerData.Ping.OnValueChanged = null;
-            }
-
-            public void UpdateUI()
-            {
-                _nameText.text = PlayerData.PlayerName.Value.ToString();
-                _scoreText.text = PlayerData.Score.Value.ToString();
-                _pingText.text = $"{PlayerData.Ping.Value} ms";
-
-                UpdatePingBar(PlayerData.Ping.Value);
-
-                // TODO: Avatar loading (by ID or URL) can be implemented here
-            }
-
-            private void UpdatePingBar(int ping)
-            {
-                int clampedPing = Mathf.Clamp(ping, 0, 300);
-                float widthPercent = 1f - (clampedPing / 300f);
-                _pingBar.rectTransform.localScale = new Vector3(widthPercent, 1f, 1f);
-
-                if (clampedPing < 75)
-                    _pingBar.color = Color.green;
-                else if (clampedPing < 150)
-                    _pingBar.color = Color.yellow;
-                else
-                    _pingBar.color = Color.red;
-            }
-
-            public void AnimateRankChange(int newRank)
-            {
-                if (_rankAnimCoroutine != null)
-                    _coroutineRunner.StopCoroutine(_rankAnimCoroutine);
-                _rankAnimCoroutine = _coroutineRunner.StartCoroutine(AnimateRank(newRank));
-            }
-
-            private IEnumerator AnimateRank(int newRank)
-            {
-                const float duration = 0.5f;
-                float elapsed = 0f;
-                int startRank = _currentRank == 0 ? newRank : _currentRank;
-                int endRank = newRank;
-
-                while (elapsed < duration)
-                {
-                    elapsed += Time.deltaTime;
-                    float t = Mathf.Clamp01(elapsed / duration);
-                    int displayRank = Mathf.RoundToInt(Mathf.Lerp(startRank, endRank, t));
-                    _rankText.text = displayRank.ToString();
-                    yield return null;
-                }
-
-                _rankText.text = newRank.ToString();
-                _currentRank = newRank;
-            }
+            PlayerData = playerData;
+            _coroutineRunner = coroutineRunner;
+            UpdateUI();
         }
+
+        public void Bind(Action onDataChanged)
+        {
+            _onDataChanged = onDataChanged;
+
+            PlayerData.Score.OnValueChanged += OnValueChanged;
+            PlayerData.PlayerName.OnValueChanged += OnValueChanged;
+            PlayerData.Kills.OnValueChanged += OnValueChanged;
+            PlayerData.Deaths.OnValueChanged += OnValueChanged;
+            PlayerData.Assists.OnValueChanged += OnValueChanged;
+            PlayerData.Ping.OnValueChanged += (_, _) => UpdateUI();
+        }
+
+        public void Unbind()
+        {
+            PlayerData.Score.OnValueChanged = null;
+            PlayerData.PlayerName.OnValueChanged = null;
+            PlayerData.Kills.OnValueChanged = null;
+            PlayerData.Deaths.OnValueChanged = null;
+            PlayerData.Assists.OnValueChanged = null;
+            PlayerData.Ping.OnValueChanged = null;
+        }
+
+        #endregion
+
+        #region UI Updates
+
+        private void OnValueChanged<T>(T oldVal, T newVal)
+        {
+            UpdateUI();
+            _onDataChanged?.Invoke();
+        }
+
+        public void UpdateUI()
+        {
+            nameText.text = PlayerData.PlayerName.Value;
+            scoreText.text = PlayerData.Score.Value.ToString();
+            pingText.text = $"{PlayerData.Ping.Value} ms";
+            UpdatePingBar(PlayerData.Ping.Value);
+            // TODO: Avatar loading
+        }
+
+        private void UpdatePingBar(int ping)
+        {
+            int clampedPing = Mathf.Clamp(ping, 0, 300);
+            float widthPercent = 1f - (clampedPing / 300f);
+            pingBar.rectTransform.localScale = new Vector3(widthPercent, 1f, 1f);
+
+            pingBar.color = clampedPing switch
+            {
+                < 75 => Color.green,
+                < 150 => Color.yellow,
+                _ => Color.red
+            };
+        }
+
+        #endregion
+
+        #region Rank Animation
+
+        public void AnimateRankChange(int newRank)
+        {
+            if (_rankAnimCoroutine != null)
+                _coroutineRunner.StopCoroutine(_rankAnimCoroutine);
+            _rankAnimCoroutine = _coroutineRunner.StartCoroutine(AnimateRank(newRank));
+        }
+
+        private IEnumerator AnimateRank(int newRank)
+        {
+            const float duration = 0.5f;
+            float elapsed = 0f;
+            int startRank = _currentRank == 0 ? newRank : _currentRank;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                int displayRank = Mathf.RoundToInt(Mathf.Lerp(startRank, newRank, t));
+                rankText.text = displayRank.ToString();
+                yield return null;
+            }
+
+            rankText.text = newRank.ToString();
+            _currentRank = newRank;
+        }
+
+        #endregion
     }
 
     public record ScoreboardUpdateEvent();

@@ -16,14 +16,18 @@ namespace Laboratory.UI.Utils
 
         [Header("Progress Bar Configuration")]
         [Tooltip("Image component with Fill Method (e.g. radial, horizontal).")]
-        [SerializeField] private Image fillImage;
+        [SerializeField] private Image fillImage = null!; // Assign in Inspector
 
-        [Tooltip("Optional: Background image to enable/disable when empty/full.")]
+        [Tooltip("Optional background object to enable/disable based on fill.")]
         [SerializeField] private GameObject background;
 
         [Header("Animation Settings")]
-        [Tooltip("Fill animation duration in seconds.")]
-        [SerializeField] private float animationDuration = 0.3f;
+        [Tooltip("Default animation duration in seconds.")]
+        [SerializeField, Min(0f)] private float animationDuration = 0.3f;
+
+        #endregion
+
+        #region Private Fields
 
         private Coroutine _animationCoroutine;
 
@@ -41,21 +45,14 @@ namespace Laboratory.UI.Utils
         #region Unity Override Methods
 
         /// <summary>
-        /// Automatically assigns the fill image from this GameObject's Image component.
-        /// </summary>
-        private void Reset()
-        {
-            fillImage = GetComponent<Image>();
-        }
-
-        /// <summary>
         /// Validates component setup and logs errors for missing references.
         /// </summary>
         private void Awake()
         {
             if (fillImage == null)
             {
-                Debug.LogError("UIProgressBar: Fill Image is not assigned.", this);
+                Debug.LogError($"{nameof(UIProgressBar)} requires a Fill Image assigned in the Inspector.", this);
+                enabled = false;
             }
         }
 
@@ -69,11 +66,9 @@ namespace Laboratory.UI.Utils
         /// <param name="fill">Fill amount between 0 and 1</param>
         public void SetValue(float fill)
         {
-            if (fillImage == null)
-                return;
+            if (fillImage == null) return;
 
             fill = Mathf.Clamp01(fill);
-            
             StopCurrentAnimation();
             fillImage.fillAmount = fill;
             UpdateBackgroundVisibility(fill);
@@ -87,23 +82,17 @@ namespace Laboratory.UI.Utils
         /// <param name="onComplete">Optional callback invoked when animation completes</param>
         public void AnimateTo(float targetFill, float duration = -1f, Action onComplete = null)
         {
-            if (fillImage == null)
-                return;
+            if (fillImage == null) return;
 
             targetFill = Mathf.Clamp01(targetFill);
-            float actualDuration = duration < 0 ? animationDuration : duration;
+            float actualDuration = duration < 0f ? animationDuration : duration;
 
             StopCurrentAnimation();
             _animationCoroutine = StartCoroutine(AnimateFillCoroutine(targetFill, actualDuration, onComplete));
         }
 
-        /// <summary>
-        /// Stops any currently running animation and keeps the progress bar at its current state.
-        /// </summary>
-        public void StopAnimation()
-        {
-            StopCurrentAnimation();
-        }
+        /// <summary>Stops any ongoing fill animation.</summary>
+        public void StopAnimation() => StopCurrentAnimation();
 
         #endregion
 
@@ -145,7 +134,7 @@ namespace Laboratory.UI.Utils
             // Ensure we end at exactly the target value
             fillImage.fillAmount = targetFill;
             UpdateBackgroundVisibility(targetFill);
-            
+
             _animationCoroutine = null;
             onComplete?.Invoke();
         }

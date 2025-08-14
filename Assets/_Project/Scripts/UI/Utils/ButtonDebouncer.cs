@@ -14,13 +14,15 @@ namespace Laboratory.UI.Utils
         #region Fields
 
         [Header("Debounce Configuration")]
+        [Tooltip("Button to apply debounce to.")]
+        [SerializeField] private Button button = null!;
+
         [Tooltip("Minimum time in seconds between consecutive button clicks.")]
         [SerializeField] private float debounceTime = 0.5f;
 
         [Tooltip("Optional UnityEvent invoked when a click is ignored due to debounce.")]
         public UnityEvent onDebouncedClick;
 
-        private Button _button;
         private float _lastClickTime = -Mathf.Infinity;
 
         #endregion
@@ -32,8 +34,14 @@ namespace Laboratory.UI.Utils
         /// </summary>
         private void Awake()
         {
-            _button = GetComponent<Button>();
-            _button.onClick.AddListener(OnButtonClicked);
+            if (button == null)
+            {
+                Debug.LogError($"{nameof(ButtonDebouncer)} requires a Button assigned in the Inspector.", this);
+                enabled = false;
+                return;
+            }
+
+            button.onClick.AddListener(OnButtonClicked);
         }
 
         /// <summary>
@@ -41,10 +49,8 @@ namespace Laboratory.UI.Utils
         /// </summary>
         private void OnDestroy()
         {
-            if (_button != null)
-            {
-                _button.onClick.RemoveListener(OnButtonClicked);
-            }
+            if (button != null)
+                button.onClick.RemoveListener(OnButtonClicked);
         }
 
         #endregion

@@ -11,8 +11,13 @@ namespace Laboratory.Models
     {
         #region Fields
 
+        [Header("Dependencies")]
+        [Tooltip("NetworkHealth component representing the player's health.")]
+        [SerializeField] private NetworkHealth networkHealth = null!;
+
+        [Header("UI References")]
+        [Tooltip("Damage indicator UI to display damage taken.")]
         [SerializeField] private DamageIndicatorUI damageIndicatorUI = null!;
-        private NetworkHealth _networkHealth = null!;
 
         #endregion
 
@@ -29,14 +34,14 @@ namespace Laboratory.Models
 
         private void OnEnable()
         {
-            if (_networkHealth != null)
-                _networkHealth.CurrentHealth.OnValueChanged += OnHealthChanged;
+            if (networkHealth != null)
+                networkHealth.CurrentHealth.OnValueChanged += OnHealthChanged;
         }
 
         private void OnDisable()
         {
-            if (_networkHealth != null)
-                _networkHealth.CurrentHealth.OnValueChanged -= OnHealthChanged;
+            if (networkHealth != null)
+                networkHealth.CurrentHealth.OnValueChanged -= OnHealthChanged;
         }
 
         #endregion
