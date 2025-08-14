@@ -9,23 +9,23 @@ using Unity.Netcode;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
 
-namespace Game.UI
+namespace Laboratory.Infrastructure.UI
 {
+    /// <summary>
+    /// Manages the multiplayer scoreboard UI with player ranking, pagination, and real-time updates.
+    /// Handles player connection/disconnection events and provides sorted leaderboard display.
+    /// </summary>
     public class ScoreboardUI : MonoBehaviour, IDisposable
     {
-        #region Serialized Fields
+        #region Fields
 
         [Header("UI References")]
         [SerializeField] private Transform playerListContainer = null!;
-        [SerializeField] private PlayerRowUI playerRowPrefab = null!; // Prefab assigned in Inspector
+        [SerializeField] private PlayerRowUI playerRowPrefab = null!;
         [SerializeField] private int itemsPerPage = 10;
         [SerializeField] private Button nextPageButton = null!;
         [SerializeField] private Button prevPageButton = null!;
         [SerializeField] private TextMeshProUGUI pageIndicatorText = null!;
-
-        #endregion
-
-        #region Private Fields
 
         private readonly Dictionary<ulong, PlayerRowUI> _playerRows = new();
         private List<PlayerRowUI> _sortedPlayers = new();
@@ -48,6 +48,9 @@ namespace Game.UI
 
         #region Enums
 
+        /// <summary>
+        /// Defines the sorting criteria for player ranking
+        /// </summary>
         public enum SortCriterion
         {
             Score,
@@ -61,21 +64,18 @@ namespace Game.UI
 
         #region Unity Override Methods
 
+        /// <summary>
+        /// Initialize UI components and event handlers
+        /// </summary>
         private void Awake()
         {
             nextPageButton.onClick.AddListener(() => ChangePage(_currentPage + 1));
             prevPageButton.onClick.AddListener(() => ChangePage(_currentPage - 1));
         }
 
-        [Inject]
-        public void Construct(
-            IPublisher<ScoreboardUpdateEvent> scoreboardUpdatePublisher,
-            ISubscriber<ScoreboardUpdateEvent> scoreboardUpdateSubscriber)
-        {
-            _scoreboardUpdatePublisher = scoreboardUpdatePublisher;
-            _scoreboardUpdateSubscriber = scoreboardUpdateSubscriber;
-        }
-
+        /// <summary>
+        /// Setup network event handlers and start periodic updates
+        /// </summary>
         private void OnEnable()
         {
             NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerConnected;
@@ -94,6 +94,9 @@ namespace Game.UI
             PeriodicSortLoop().Forget();
         }
 
+        /// <summary>
+        /// Cleanup network event handlers and clear players
+        /// </summary>
         private void OnDisable()
         {
             NetworkManager.Singleton.OnClientConnectedCallback -= OnPlayerConnected;
@@ -105,11 +108,51 @@ namespace Game.UI
 
         #endregion
 
+        #region Public Methods
+
+        /// <summary>
+        /// Inject dependencies for scoreboard messaging system
+        /// </summary>
+        /// <param name="scoreboardUpdatePublisher">Publisher for scoreboard update events</param>
+        /// <param name="scoreboardUpdateSubscriber">Subscriber for scoreboard update events</param>
+        [Inject]
+        public void Construct(
+            IPublisher<ScoreboardUpdateEvent> scoreboardUpdatePublisher,
+            ISubscriber<ScoreboardUpdateEvent> scoreboardUpdateSubscriber)
+        {
+            _scoreboardUpdatePublisher = scoreboardUpdatePublisher;
+            _scoreboardUpdateSubscriber = scoreboardUpdateSubscriber;
+        }
+
+        /// <summary>
+        /// Dispose of resources and cleanup
+        /// </summary>
+        public void Dispose()
+        {
+            ClearAllPlayers();
+            _scoreboardUpdateSubscription?.Dispose();
+        }
+
+        #endregion
+
         #region Player Management
 
+        /// <summary>
+        /// Handle player connection events
+        /// </summary>
+        /// <param name="clientId">Connected client ID</param>
         private void OnPlayerConnected(ulong clientId) => AddPlayer(clientId);
+
+        /// <summary>
+        /// Handle player disconnection events
+        /// </summary>
+        /// <param name="clientId">Disconnected client ID</param>
         private void OnPlayerDisconnected(ulong clientId) => RemovePlayer(clientId);
 
+        /// <summary>
+        /// Add a new player to the scoreboard
+        /// </summary>
+        /// <param name="clientId">Client ID of the player to add</param>
         private void AddPlayer(ulong clientId)
         {
             if (_playerRows.ContainsKey(clientId)) return;
@@ -129,6 +172,10 @@ namespace Game.UI
             RefreshAllPlayers();
         }
 
+        /// <summary>
+        /// Remove a player from the scoreboard
+        /// </summary>
+        /// <param name="clientId">Client ID of the player to remove</param>
         private void RemovePlayer(ulong clientId)
         {
             if (!_playerRows.TryGetValue(clientId, out var rowUI)) return;
@@ -140,6 +187,9 @@ namespace Game.UI
             RefreshAllPlayers();
         }
 
+        /// <summary>
+        /// Clear all players from the scoreboard
+        /// </summary>
         private void ClearAllPlayers()
         {
             foreach (var row in _playerRows.Values)
@@ -155,6 +205,10 @@ namespace Game.UI
 
         #region UI Refresh & Sorting
 
+        /// <summary>
+        /// Continuous sorting loop for real-time scoreboard updates
+        /// </summary>
+        /// <returns>UniTaskVoid for async operation</returns>
         private async UniTaskVoid PeriodicSortLoop()
         {
             while (true)
@@ -164,6 +218,9 @@ namespace Game.UI
             }
         }
 
+        /// <summary>
+        /// Refresh and sort all players in the scoreboard
+        /// </summary>
         private void RefreshAllPlayers()
         {
             _sortedPlayers = _playerRows.Values
@@ -177,6 +234,9 @@ namespace Game.UI
             DisplayCurrentPage();
         }
 
+        /// <summary>
+        /// Update pagination UI elements
+        /// </summary>
         private void UpdatePageIndicator()
         {
             pageIndicatorText.text = $"Page {_currentPage + 1} / {_totalPages}";
@@ -184,6 +244,9 @@ namespace Game.UI
             nextPageButton.interactable = _currentPage < _totalPages - 1;
         }
 
+        /// <summary>
+        /// Display the current page of players
+        /// </summary>
         private void DisplayCurrentPage()
         {
             foreach (var row in _playerRows.Values)
@@ -202,6 +265,10 @@ namespace Game.UI
             }
         }
 
+        /// <summary>
+        /// Change to a specific page
+        /// </summary>
+        /// <param name="newPage">Target page index</param>
         private void ChangePage(int newPage)
         {
             _currentPage = Mathf.Clamp(newPage, 0, _totalPages - 1);
@@ -209,6 +276,12 @@ namespace Game.UI
             DisplayCurrentPage();
         }
 
+        /// <summary>
+        /// Compare two players based on sorting criteria
+        /// </summary>
+        /// <param name="a">First player to compare</param>
+        /// <param name="b">Second player to compare</param>
+        /// <returns>Comparison result</returns>
         private int ComparePlayers(PlayerRowUI a, PlayerRowUI b)
         {
             foreach (var criterion in _sortPriority)
@@ -227,22 +300,16 @@ namespace Game.UI
             return 0;
         }
 
-        public void Dispose()
-        {
-            ClearAllPlayers();
-            _scoreboardUpdateSubscription?.Dispose();
-        }
-
         #endregion
     }
 
     /// <summary>
-    /// Strongly typed player row prefab.
+    /// Represents a single player row in the scoreboard with data binding and animations
     /// </summary>
     [Serializable]
     public class PlayerRowUI : MonoBehaviour
     {
-        #region Serialized Fields
+        #region Fields
 
         [Header("UI References")]
         [SerializeField] private TextMeshProUGUI nameText = null!;
@@ -252,20 +319,29 @@ namespace Game.UI
         [SerializeField] private TextMeshProUGUI pingText = null!;
         [SerializeField] private Image pingBar = null!;
 
-        #endregion
-
-        #region Properties & Private Fields
-
-        public NetworkPlayerData PlayerData { get; private set; } = null!;
-        private MonoBehaviour _coroutineRunner = null!;
         private int _currentRank = 0;
         private Coroutine _rankAnimCoroutine;
         private Action _onDataChanged;
+        private MonoBehaviour _coroutineRunner = null!;
 
         #endregion
 
-        #region Initialization
+        #region Properties
 
+        /// <summary>
+        /// Player network data reference
+        /// </summary>
+        public NetworkPlayerData PlayerData { get; private set; } = null!;
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Initialize the player row with data and coroutine runner
+        /// </summary>
+        /// <param name="playerData">Player network data</param>
+        /// <param name="coroutineRunner">MonoBehaviour for running coroutines</param>
         public void Initialize(NetworkPlayerData playerData, MonoBehaviour coroutineRunner)
         {
             PlayerData = playerData;
@@ -273,6 +349,10 @@ namespace Game.UI
             UpdateUI();
         }
 
+        /// <summary>
+        /// Bind to player data change events
+        /// </summary>
+        /// <param name="onDataChanged">Callback for data changes</param>
         public void Bind(Action onDataChanged)
         {
             _onDataChanged = onDataChanged;
@@ -285,6 +365,9 @@ namespace Game.UI
             PlayerData.Ping.OnValueChanged += (_, _) => UpdateUI();
         }
 
+        /// <summary>
+        /// Unbind from player data events
+        /// </summary>
         public void Unbind()
         {
             PlayerData.Score.OnValueChanged = null;
@@ -295,16 +378,36 @@ namespace Game.UI
             PlayerData.Ping.OnValueChanged = null;
         }
 
+        /// <summary>
+        /// Animate rank change with smooth transition
+        /// </summary>
+        /// <param name="newRank">New rank to animate to</param>
+        public void AnimateRankChange(int newRank)
+        {
+            if (_rankAnimCoroutine != null)
+                _coroutineRunner.StopCoroutine(_rankAnimCoroutine);
+            _rankAnimCoroutine = _coroutineRunner.StartCoroutine(AnimateRank(newRank));
+        }
+
         #endregion
 
         #region UI Updates
 
+        /// <summary>
+        /// Handle value changed events and update UI
+        /// </summary>
+        /// <typeparam name="T">Type of the changed value</typeparam>
+        /// <param name="oldVal">Previous value</param>
+        /// <param name="newVal">New value</param>
         private void OnValueChanged<T>(T oldVal, T newVal)
         {
             UpdateUI();
             _onDataChanged?.Invoke();
         }
 
+        /// <summary>
+        /// Update all UI elements with current player data
+        /// </summary>
         public void UpdateUI()
         {
             nameText.text = PlayerData.PlayerName.Value;
@@ -314,6 +417,10 @@ namespace Game.UI
             // TODO: Avatar loading
         }
 
+        /// <summary>
+        /// Update ping bar visual based on ping value
+        /// </summary>
+        /// <param name="ping">Current ping value</param>
         private void UpdatePingBar(int ping)
         {
             int clampedPing = Mathf.Clamp(ping, 0, 300);
@@ -332,13 +439,11 @@ namespace Game.UI
 
         #region Rank Animation
 
-        public void AnimateRankChange(int newRank)
-        {
-            if (_rankAnimCoroutine != null)
-                _coroutineRunner.StopCoroutine(_rankAnimCoroutine);
-            _rankAnimCoroutine = _coroutineRunner.StartCoroutine(AnimateRank(newRank));
-        }
-
+        /// <summary>
+        /// Animate rank number transition
+        /// </summary>
+        /// <param name="newRank">Target rank</param>
+        /// <returns>Coroutine enumerator</returns>
         private IEnumerator AnimateRank(int newRank)
         {
             const float duration = 0.5f;
@@ -361,5 +466,8 @@ namespace Game.UI
         #endregion
     }
 
+    /// <summary>
+    /// Event record for scoreboard updates
+    /// </summary>
     public record ScoreboardUpdateEvent();
 }

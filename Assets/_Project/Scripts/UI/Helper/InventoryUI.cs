@@ -3,9 +3,25 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-// FIXME: tidyup after 8/29
-public class InventoryUI : MonoBehaviour
+
+namespace Laboratory.UI.Helper
 {
+    /// <summary>
+    /// Represents a single inventory item with basic properties.
+    /// </summary>
+    [Serializable]
+    public class InventoryItem
+    {
+        public string name = "";
+        public Sprite icon;
+        public int quantity = 1;
+        
+        // Add other fields like item ID, description, effects, etc.
+    }
+
+    /// <summary>
+    /// Represents a single inventory slot in the UI.
+    /// </summary>
     [Serializable]
     public class InventorySlot
     {
@@ -15,88 +31,148 @@ public class InventoryUI : MonoBehaviour
         public TextMeshProUGUI quantityText;
     }
 
-    [Header("UI Elements")]
-    [SerializeField] private List<InventorySlot> slots = new();
-
-    public event Action<int>? OnItemSelected; // index of selected item
-
-    private List<InventoryItem> currentItems = new();
-
-    private int _selectedIndex = -1;
-
-    private void Awake()
-    {
-        // Setup button listeners
-        for (int i = 0; i < slots.Count; i++)
-        {
-            int index = i;
-            slots[i].slotButton.onClick.AddListener(() => SelectItem(index));
-        }
-    }
-
     /// <summary>
-    /// Updates the inventory UI with current items.
+    /// UI component for managing inventory display and item selection.
+    /// Handles item visualization, slot management, and selection events.
     /// </summary>
-    public void UpdateInventory(List<InventoryItem> items)
+    public class InventoryUI : MonoBehaviour
     {
-        currentItems = items;
-        _selectedIndex = -1;
+        #region Fields
 
-        for (int i = 0; i < slots.Count; i++)
+        [Header("UI Elements")]
+        [SerializeField] private List<InventorySlot> slots = new();
+
+        private List<InventoryItem> currentItems = new();
+        private int _selectedIndex = -1;
+
+        #endregion
+
+        #region Events
+
+        /// <summary>
+        /// Event triggered when an item is selected. Passes the index of the selected item.
+        /// </summary>
+        public event Action<int> OnItemSelected;
+
+        #endregion
+
+        #region Unity Override Methods
+
+        /// <summary>
+        /// Initialize inventory slots and setup button listeners.
+        /// </summary>
+        private void Awake()
         {
-            if (i < items.Count)
+            SetupSlotHandlers();
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Updates the inventory UI with current items.
+        /// </summary>
+        /// <param name="items">List of inventory items to display</param>
+        public void UpdateInventory(List<InventoryItem> items)
+        {
+            currentItems = items;
+            _selectedIndex = -1;
+
+            RefreshAllSlots();
+        }
+
+        /// <summary>
+        /// Gets the currently selected item, or null if none selected.
+        /// </summary>
+        /// <returns>Selected inventory item or null</returns>
+        public InventoryItem GetSelectedItem()
+        {
+            if (_selectedIndex < 0 || _selectedIndex >= currentItems.Count) 
+                return null;
+            
+            return currentItems[_selectedIndex];
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// Setup button listeners for all inventory slots.
+        /// </summary>
+        private void SetupSlotHandlers()
+        {
+            for (int i = 0; i < slots.Count; i++)
             {
-                var item = items[i];
-                slots[i].itemIcon.sprite = item.icon;
-                slots[i].itemIcon.enabled = item.icon != null;
-                slots[i].itemNameText.text = item.name;
-                slots[i].quantityText.text = item.quantity > 1 ? item.quantity.ToString() : "";
-                slots[i].slotButton.interactable = true;
-            }
-            else
-            {
-                ClearSlot(i);
+                int index = i; // Capture loop variable
+                slots[i].slotButton.onClick.AddListener(() => SelectItem(index));
             }
         }
+
+        /// <summary>
+        /// Refresh all slot displays with current inventory data.
+        /// </summary>
+        private void RefreshAllSlots()
+        {
+            for (int i = 0; i < slots.Count; i++)
+            {
+                if (i < currentItems.Count)
+                {
+                    PopulateSlot(i, currentItems[i]);
+                }
+                else
+                {
+                    ClearSlot(i);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Populate a specific slot with item data.
+        /// </summary>
+        /// <param name="index">Slot index</param>
+        /// <param name="item">Item to display</param>
+        private void PopulateSlot(int index, InventoryItem item)
+        {
+            var slot = slots[index];
+            
+            slot.itemIcon.sprite = item.icon;
+            slot.itemIcon.enabled = item.icon != null;
+            slot.itemNameText.text = item.name;
+            slot.quantityText.text = item.quantity > 1 ? item.quantity.ToString() : "";
+            slot.slotButton.interactable = true;
+        }
+
+        /// <summary>
+        /// Clear a specific slot of all item data.
+        /// </summary>
+        /// <param name="index">Slot index to clear</param>
+        private void ClearSlot(int index)
+        {
+            var slot = slots[index];
+            
+            slot.itemIcon.sprite = null;
+            slot.itemIcon.enabled = false;
+            slot.itemNameText.text = "";
+            slot.quantityText.text = "";
+            slot.slotButton.interactable = false;
+        }
+
+        /// <summary>
+        /// Handle item selection from slot interaction.
+        /// </summary>
+        /// <param name="index">Index of selected slot</param>
+        private void SelectItem(int index)
+        {
+            if (index < 0 || index >= currentItems.Count) return;
+
+            _selectedIndex = index;
+            OnItemSelected?.Invoke(index);
+            
+            // TODO: Add visual highlight for selected slot if needed
+        }
+
+        #endregion
     }
-
-    private void ClearSlot(int index)
-    {
-        slots[index].itemIcon.sprite = null;
-        slots[index].itemIcon.enabled = false;
-        slots[index].itemNameText.text = "";
-        slots[index].quantityText.text = "";
-        slots[index].slotButton.interactable = false;
-    }
-
-    private void SelectItem(int index)
-    {
-        if (index < 0 || index >= currentItems.Count) return;
-
-        _selectedIndex = index;
-        OnItemSelected?.Invoke(index);
-        // You can highlight selected slot here if needed
-    }
-
-    /// <summary>
-    /// Gets the currently selected item, or null if none selected.
-    /// </summary>
-    public InventoryItem? GetSelectedItem()
-    {
-        if (_selectedIndex < 0 || _selectedIndex >= currentItems.Count) return null;
-        return currentItems[_selectedIndex];
-    }
-}
-
-/// <summary>
-/// Example inventory item class; replace with your own implementation.
-/// </summary>
-[Serializable]
-public class InventoryItem
-{
-    public string name = "";
-    public Sprite icon = null!;
-    public int quantity = 1;
-
-    // Add other fields like item ID, description, effects, etc.
 }

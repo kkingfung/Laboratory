@@ -4,273 +4,442 @@ using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class MiniMapUI : MonoBehaviour
+namespace Laboratory.UI.Helper
 {
-    #region References
-
-    [Header("Core")]
-    [SerializeField] private Camera miniMapCamera;
-    [SerializeField] private RectTransform markerContainer;
-    [SerializeField] private CanvasGroup minimapCanvasGroup;
-
-    [Header("Prefabs")]
-    [SerializeField] private MarkerInstance playerMarkerPrefab;
-    [SerializeField] private MarkerInstance enemyMarkerPrefabSmall;
-    [SerializeField] private MarkerInstance enemyMarkerPrefabLarge;
-
-    [Header("Click to Move")]
-    [SerializeField] private LayerMask groundLayerMask;
-    [SerializeField] private Transform playerTransform;
-
-    #endregion
-
-    #region Settings
-
-    [Header("Map Settings")]
-    [SerializeField, Min(1f)] private float zoomSpeed = 2f;
-    [SerializeField, Min(0.1f)] private float minZoom = 10f;
-    [SerializeField, Min(0.1f)] private float maxZoom = 100f;
-    [SerializeField] private float panSpeed = 10f;
-    [SerializeField] private float smoothTime = 0.2f;
-
-    [Header("Boundaries")]
-    [SerializeField] private Vector2 minBoundary = new(-50, -50);
-    [SerializeField] private Vector2 maxBoundary = new(50, 50);
-
-    #endregion
-
-    #region Fields
-
-    private PlayerControls _controls;
-    private Vector3 _panOrigin;
-    private bool _isPanning;
-
-    private readonly Dictionary<Transform, MarkerInstance> _activeMarkers = new();
-    private readonly Queue<MarkerInstance> _playerMarkerPool = new();
-    private readonly Queue<MarkerInstance> _enemyMarkerPool = new();
-    private readonly Queue<MarkerInstance> _enemyMarkerPoolLarge = new();
-
-    private Vector3 _panVelocity;
-
-    #endregion
-
-    #region Unity Callbacks
-
-    private void Awake()
-    {
-        _controls = new PlayerControls();
-        _controls.MiniMap.Zoom.performed += ctx => OnZoomInput(ctx.ReadValue<float>());
-        _controls.MiniMap.Pan.started += ctx => StartPan(ctx.ReadValue<Vector2>());
-        _controls.MiniMap.Pan.canceled += ctx => EndPan();
-        _controls.MiniMap.Pan.performed += ctx => OnPanInput(ctx.ReadValue<Vector2>());
-        _controls.MiniMap.Click.performed += ctx => OnMiniMapClick(ctx.ReadValue<Vector2>());
-    }
-
-    private void OnEnable() => _controls.Enable();
-    private void OnDisable() => _controls.Disable();
-    private void Update() => UpdateMarkers();
-
-    #endregion
-
-    #region Zoom & Pan
-
-    private void OnZoomInput(float zoomDelta)
-    {
-        if (!miniMapCamera) return;
-
-        float targetZoom = Mathf.Clamp(miniMapCamera.orthographicSize - zoomDelta * zoomSpeed, minZoom, maxZoom);
-        SmoothZoom(targetZoom).Forget();
-    }
-
-    private async UniTask SmoothZoom(float targetZoom)
-    {
-        float startZoom = miniMapCamera.orthographicSize;
-        float elapsed = 0f;
-
-        while (elapsed < smoothTime)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            miniMapCamera.orthographicSize = Mathf.SmoothStep(startZoom, targetZoom, elapsed / smoothTime);
-            await UniTask.Yield(PlayerLoopTiming.Update);
-        }
-
-        miniMapCamera.orthographicSize = targetZoom;
-    }
-
-    private void StartPan(Vector2 startPos)
-    {
-        _isPanning = true;
-        _panOrigin = ScreenToWorldXZ(startPos);
-    }
-
-    private void EndPan() => _isPanning = false;
-
-    private void OnPanInput(Vector2 currentPos)
-    {
-        if (!_isPanning) return;
-
-        Vector3 targetPos = miniMapCamera.transform.position + (_panOrigin - ScreenToWorldXZ(currentPos));
-        targetPos = ClampPositionToBounds(targetPos);
-
-        SmoothPan(targetPos).Forget();
-    }
-
-    private async UniTask SmoothPan(Vector3 targetPos)
-    {
-        while ((miniMapCamera.transform.position - targetPos).sqrMagnitude > 0.001f)
-        {
-            miniMapCamera.transform.position = Vector3.SmoothDamp(
-                miniMapCamera.transform.position,
-                targetPos,
-                ref _panVelocity,
-                smoothTime
-            );
-            await UniTask.Yield(PlayerLoopTiming.Update);
-        }
-
-        miniMapCamera.transform.position = targetPos;
-    }
-
-    private Vector3 ClampPositionToBounds(Vector3 position)
-    {
-        return new Vector3(
-            Mathf.Clamp(position.x, minBoundary.x, maxBoundary.x),
-            position.y,
-            Mathf.Clamp(position.z, minBoundary.y, maxBoundary.y)
-        );
-    }
-
-    private Vector3 ScreenToWorldXZ(Vector2 screenPos)
-    {
-        Ray ray = miniMapCamera.ScreenPointToRay(screenPos);
-        Plane groundPlane = new(Vector3.up, new Vector3(0, miniMapCamera.transform.position.y, 0));
-
-        return groundPlane.Raycast(ray, out float enter) ? ray.GetPoint(enter) : miniMapCamera.transform.position;
-    }
-
-    #endregion
-
-    #region Marker Management
-
-   /// <summary>
-    /// Register an entity to track.
+    /// <summary>
+    /// Represents a marker instance on the minimap with associated UI components.
     /// </summary>
-    /// <param name="worldTransform">Entity's world transform.</param>
-    /// <param name="isPlayer">True if player, false if enemy.</param>
-    /// <param name="isLargeEnemy">If enemy, true for large enemy marker size.</param>
-    public void RegisterTrackedEntity(Transform worldTransform, bool isPlayer, bool isLargeEnemy = false)
+    [System.Serializable]
+    public class MarkerInstance : MonoBehaviour
     {
-        if (_activeMarkers.ContainsKey(worldTransform)) return;
+        #region Properties
 
-        MarkerInstance marker = GetMarkerFromPool(isPlayer, isLargeEnemy);
-        marker.GameObject.SetActive(true);
-        marker.IsPlayerMarker = isPlayer;
-        marker.WorldTransform = worldTransform;
+        /// <summary>
+        /// GameObject reference for this marker.
+        /// </summary>
+        public GameObject GameObject => gameObject;
 
-        _activeMarkers.Add(worldTransform, marker);
-        FadeMarker(marker, true).Forget();
+        /// <summary>
+        /// RectTransform component for positioning.
+        /// </summary>
+        public RectTransform RectTransform => (RectTransform)transform;
+
+        /// <summary>
+        /// Canvas group for fade animations.
+        /// </summary>
+        public CanvasGroup CanvasGroup;
+
+        /// <summary>
+        /// World transform this marker is tracking.
+        /// </summary>
+        [HideInInspector] public Transform WorldTransform;
+
+        /// <summary>
+        /// Whether this is a player marker or enemy marker.
+        /// </summary>
+        [HideInInspector] public bool IsPlayerMarker;
+
+        #endregion
     }
 
-    public void UnregisterTrackedEntity(Transform worldTransform)
+    /// <summary>
+    /// UI component for minimap functionality including zoom, pan, marker tracking, and click-to-move.
+    /// Provides real-time world position tracking with smooth camera controls.
+    /// </summary>
+    public class MiniMapUI : MonoBehaviour
     {
-        if (!_activeMarkers.TryGetValue(worldTransform, out var marker)) return;
+        #region Fields
 
-        FadeMarker(marker, false).ContinueWith(() =>
+        [Header("Core References")]
+        [SerializeField] private Camera miniMapCamera;
+        [SerializeField] private RectTransform markerContainer;
+        [SerializeField] private CanvasGroup minimapCanvasGroup;
+
+        [Header("Marker Prefabs")]
+        [SerializeField] private MarkerInstance playerMarkerPrefab;
+        [SerializeField] private MarkerInstance enemyMarkerPrefabSmall;
+        [SerializeField] private MarkerInstance enemyMarkerPrefabLarge;
+
+        [Header("Click to Move")]
+        [SerializeField] private LayerMask groundLayerMask;
+        [SerializeField] private Transform playerTransform;
+
+        [Header("Camera Settings")]
+        [SerializeField, Min(1f)] private float zoomSpeed = 2f;
+        [SerializeField, Min(0.1f)] private float minZoom = 10f;
+        [SerializeField, Min(0.1f)] private float maxZoom = 100f;
+        [SerializeField] private float panSpeed = 10f;
+        [SerializeField] private float smoothTime = 0.2f;
+
+        [Header("Map Boundaries")]
+        [SerializeField] private Vector2 minBoundary = new(-50, -50);
+        [SerializeField] private Vector2 maxBoundary = new(50, 50);
+
+        private PlayerControls _controls;
+        private Vector3 _panOrigin;
+        private bool _isPanning;
+        private Vector3 _panVelocity;
+
+        private readonly Dictionary<Transform, MarkerInstance> _activeMarkers = new();
+        private readonly Queue<MarkerInstance> _playerMarkerPool = new();
+        private readonly Queue<MarkerInstance> _enemyMarkerPool = new();
+        private readonly Queue<MarkerInstance> _enemyMarkerPoolLarge = new();
+
+        #endregion
+
+        #region Unity Override Methods
+
+        /// <summary>
+        /// Initialize input controls and setup event handlers.
+        /// </summary>
+        private void Awake()
         {
-            marker.GameObject.SetActive(false);
-            ReturnMarkerToPool(marker);
-        }).Forget();
-
-        _activeMarkers.Remove(worldTransform);
-    }
-
-    private void UpdateMarkers()
-    {
-        foreach (var kvp in _activeMarkers)
-        {
-            if (!kvp.Key) { UnregisterTrackedEntity(kvp.Key); continue; }
-
-            Vector3 pos = WorldToMiniMapPosition(kvp.Key.position);
-            kvp.Value.RectTransform.anchoredPosition = pos;
-
-            float angle = Mathf.Atan2(kvp.Key.forward.x, kvp.Key.forward.z) * Mathf.Rad2Deg;
-            kvp.Value.RectTransform.localRotation = Quaternion.Euler(0, 0, -angle);
+            SetupInputControls();
         }
-    }
 
-    private Vector3 WorldToMiniMapPosition(Vector3 worldPos)
-    {
-        Vector3 vp = miniMapCamera.WorldToViewportPoint(worldPos);
-        vp.x = Mathf.Clamp01(vp.x);
-        vp.y = Mathf.Clamp01(vp.y);
+        /// <summary>
+        /// Enable input controls.
+        /// </summary>
+        private void OnEnable() => _controls.Enable();
 
-        return new Vector3(
-            (vp.x - 0.5f) * markerContainer.rect.width,
-            (vp.y - 0.5f) * markerContainer.rect.height,
-            0
-        );
-    }
+        /// <summary>
+        /// Disable input controls.
+        /// </summary>
+        private void OnDisable() => _controls.Disable();
 
-    private MarkerInstance GetMarkerFromPool(bool isPlayer, bool isLargeEnemy)
-    {
-        if (isPlayer) return _playerMarkerPool.Count > 0 ? _playerMarkerPool.Dequeue() : Instantiate(playerMarkerPrefab, markerContainer);
-        var pool = isLargeEnemy ? _enemyMarkerPoolLarge : _enemyMarkerPool;
-        if (pool.Count > 0) return pool.Dequeue();
-        var prefab = isLargeEnemy ? enemyMarkerPrefabLarge : enemyMarkerPrefabSmall;
-        return Instantiate(prefab, markerContainer);
-    }
+        /// <summary>
+        /// Update marker positions and rotations.
+        /// </summary>
+        private void Update() => UpdateMarkers();
 
-    private void ReturnMarkerToPool(MarkerInstance marker)
-    {
-        if (marker.IsPlayerMarker) _playerMarkerPool.Enqueue(marker);
-        else if (marker == enemyMarkerPrefabLarge) _enemyMarkerPoolLarge.Enqueue(marker);
-        else _enemyMarkerPool.Enqueue(marker);
-    }
+        #endregion
 
-    private async UniTask FadeMarker(MarkerInstance marker, bool fadeIn)
-    {
-        CanvasGroup cg = marker.CanvasGroup;
-        cg.alpha = fadeIn ? 0f : 1f;
+        #region Public Methods
 
-        float elapsed = 0f;
-        const float duration = 0.3f;
-
-        while (elapsed < duration)
+        /// <summary>
+        /// Register an entity to track on the minimap.
+        /// </summary>
+        /// <param name="worldTransform">Entity's world transform</param>
+        /// <param name="isPlayer">True if player, false if enemy</param>
+        /// <param name="isLargeEnemy">If enemy, true for large enemy marker size</param>
+        public void RegisterTrackedEntity(Transform worldTransform, bool isPlayer, bool isLargeEnemy = false)
         {
-            elapsed += Time.unscaledDeltaTime;
-            cg.alpha = Mathf.Lerp(fadeIn ? 0f : 1f, fadeIn ? 1f : 0f, elapsed / duration);
-            await UniTask.Yield();
+            if (_activeMarkers.ContainsKey(worldTransform)) return;
+
+            MarkerInstance marker = GetMarkerFromPool(isPlayer, isLargeEnemy);
+            ConfigureMarker(marker, worldTransform, isPlayer);
+
+            _activeMarkers.Add(worldTransform, marker);
+            FadeMarker(marker, true).Forget();
         }
 
-        cg.alpha = fadeIn ? 1f : 0f;
+        /// <summary>
+        /// Unregister an entity from minimap tracking.
+        /// </summary>
+        /// <param name="worldTransform">Entity's world transform</param>
+        public void UnregisterTrackedEntity(Transform worldTransform)
+        {
+            if (!_activeMarkers.TryGetValue(worldTransform, out var marker)) return;
+
+            FadeMarker(marker, false).ContinueWith(() =>
+            {
+                marker.GameObject.SetActive(false);
+                ReturnMarkerToPool(marker);
+            }).Forget();
+
+            _activeMarkers.Remove(worldTransform);
+        }
+
+        #endregion
+
+        #region Private Methods - Input Setup
+
+        /// <summary>
+        /// Setup input control bindings.
+        /// </summary>
+        private void SetupInputControls()
+        {
+            _controls = new PlayerControls();
+            _controls.MiniMap.Zoom.performed += ctx => OnZoomInput(ctx.ReadValue<float>());
+            _controls.MiniMap.Pan.started += ctx => StartPan(ctx.ReadValue<Vector2>());
+            _controls.MiniMap.Pan.canceled += ctx => EndPan();
+            _controls.MiniMap.Pan.performed += ctx => OnPanInput(ctx.ReadValue<Vector2>());
+            _controls.MiniMap.Click.performed += ctx => OnMiniMapClick(ctx.ReadValue<Vector2>());
+        }
+
+        #endregion
+
+        #region Private Methods - Camera Controls
+
+        /// <summary>
+        /// Handle zoom input from mouse wheel or gamepad.
+        /// </summary>
+        /// <param name="zoomDelta">Zoom input delta</param>
+        private void OnZoomInput(float zoomDelta)
+        {
+            if (!miniMapCamera) return;
+
+            float targetZoom = Mathf.Clamp(
+                miniMapCamera.orthographicSize - zoomDelta * zoomSpeed, 
+                minZoom, 
+                maxZoom);
+                
+            SmoothZoom(targetZoom).Forget();
+        }
+
+        /// <summary>
+        /// Smoothly zoom the camera to target zoom level.
+        /// </summary>
+        /// <param name="targetZoom">Target orthographic size</param>
+        private async UniTask SmoothZoom(float targetZoom)
+        {
+            float startZoom = miniMapCamera.orthographicSize;
+            float elapsed = 0f;
+
+            while (elapsed < smoothTime)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                miniMapCamera.orthographicSize = Mathf.SmoothStep(startZoom, targetZoom, elapsed / smoothTime);
+                await UniTask.Yield(PlayerLoopTiming.Update);
+            }
+
+            miniMapCamera.orthographicSize = targetZoom;
+        }
+
+        /// <summary>
+        /// Begin camera panning operation.
+        /// </summary>
+        /// <param name="startPos">Starting screen position</param>
+        private void StartPan(Vector2 startPos)
+        {
+            _isPanning = true;
+            _panOrigin = ScreenToWorldXZ(startPos);
+        }
+
+        /// <summary>
+        /// End camera panning operation.
+        /// </summary>
+        private void EndPan() => _isPanning = false;
+
+        /// <summary>
+        /// Handle pan input during panning operation.
+        /// </summary>
+        /// <param name="currentPos">Current screen position</param>
+        private void OnPanInput(Vector2 currentPos)
+        {
+            if (!_isPanning) return;
+
+            Vector3 targetPos = miniMapCamera.transform.position + (_panOrigin - ScreenToWorldXZ(currentPos));
+            targetPos = ClampPositionToBounds(targetPos);
+
+            SmoothPan(targetPos).Forget();
+        }
+
+        /// <summary>
+        /// Smoothly pan camera to target position.
+        /// </summary>
+        /// <param name="targetPos">Target world position</param>
+        private async UniTask SmoothPan(Vector3 targetPos)
+        {
+            while ((miniMapCamera.transform.position - targetPos).sqrMagnitude > 0.001f)
+            {
+                miniMapCamera.transform.position = Vector3.SmoothDamp(
+                    miniMapCamera.transform.position,
+                    targetPos,
+                    ref _panVelocity,
+                    smoothTime
+                );
+                await UniTask.Yield(PlayerLoopTiming.Update);
+            }
+
+            miniMapCamera.transform.position = targetPos;
+        }
+
+        /// <summary>
+        /// Clamp camera position to defined boundaries.
+        /// </summary>
+        /// <param name="position">World position to clamp</param>
+        /// <returns>Clamped position</returns>
+        private Vector3 ClampPositionToBounds(Vector3 position)
+        {
+            return new Vector3(
+                Mathf.Clamp(position.x, minBoundary.x, maxBoundary.x),
+                position.y,
+                Mathf.Clamp(position.z, minBoundary.y, maxBoundary.y)
+            );
+        }
+
+        /// <summary>
+        /// Convert screen position to world XZ coordinates.
+        /// </summary>
+        /// <param name="screenPos">Screen position</param>
+        /// <returns>World position on XZ plane</returns>
+        private Vector3 ScreenToWorldXZ(Vector2 screenPos)
+        {
+            Ray ray = miniMapCamera.ScreenPointToRay(screenPos);
+            Plane groundPlane = new(Vector3.up, new Vector3(0, miniMapCamera.transform.position.y, 0));
+
+            return groundPlane.Raycast(ray, out float enter) 
+                ? ray.GetPoint(enter) 
+                : miniMapCamera.transform.position;
+        }
+
+        #endregion
+
+        #region Private Methods - Marker Management
+
+        /// <summary>
+        /// Configure marker properties and activation.
+        /// </summary>
+        /// <param name="marker">Marker to configure</param>
+        /// <param name="worldTransform">World transform to track</param>
+        /// <param name="isPlayer">Whether this is a player marker</param>
+        private void ConfigureMarker(MarkerInstance marker, Transform worldTransform, bool isPlayer)
+        {
+            marker.GameObject.SetActive(true);
+            marker.IsPlayerMarker = isPlayer;
+            marker.WorldTransform = worldTransform;
+        }
+
+        /// <summary>
+        /// Update all active marker positions and rotations.
+        /// </summary>
+        private void UpdateMarkers()
+        {
+            foreach (var kvp in _activeMarkers)
+            {
+                if (!kvp.Key) 
+                { 
+                    UnregisterTrackedEntity(kvp.Key); 
+                    continue; 
+                }
+
+                UpdateMarkerTransform(kvp.Value, kvp.Key);
+            }
+        }
+
+        /// <summary>
+        /// Update individual marker position and rotation.
+        /// </summary>
+        /// <param name="marker">Marker to update</param>
+        /// <param name="worldTransform">World transform being tracked</param>
+        private void UpdateMarkerTransform(MarkerInstance marker, Transform worldTransform)
+        {
+            // Update position
+            Vector3 pos = WorldToMiniMapPosition(worldTransform.position);
+            marker.RectTransform.anchoredPosition = pos;
+
+            // Update rotation
+            float angle = Mathf.Atan2(worldTransform.forward.x, worldTransform.forward.z) * Mathf.Rad2Deg;
+            marker.RectTransform.localRotation = Quaternion.Euler(0, 0, -angle);
+        }
+
+        /// <summary>
+        /// Convert world position to minimap UI coordinates.
+        /// </summary>
+        /// <param name="worldPos">World position to convert</param>
+        /// <returns>Minimap UI position</returns>
+        private Vector3 WorldToMiniMapPosition(Vector3 worldPos)
+        {
+            Vector3 vp = miniMapCamera.WorldToViewportPoint(worldPos);
+            vp.x = Mathf.Clamp01(vp.x);
+            vp.y = Mathf.Clamp01(vp.y);
+
+            return new Vector3(
+                (vp.x - 0.5f) * markerContainer.rect.width,
+                (vp.y - 0.5f) * markerContainer.rect.height,
+                0
+            );
+        }
+
+        /// <summary>
+        /// Get marker instance from appropriate object pool.
+        /// </summary>
+        /// <param name="isPlayer">Whether marker is for player</param>
+        /// <param name="isLargeEnemy">Whether marker is for large enemy</param>
+        /// <returns>Available marker instance</returns>
+        private MarkerInstance GetMarkerFromPool(bool isPlayer, bool isLargeEnemy)
+        {
+            if (isPlayer)
+            {
+                return _playerMarkerPool.Count > 0 
+                    ? _playerMarkerPool.Dequeue() 
+                    : Instantiate(playerMarkerPrefab, markerContainer);
+            }
+
+            var pool = isLargeEnemy ? _enemyMarkerPoolLarge : _enemyMarkerPool;
+            if (pool.Count > 0) return pool.Dequeue();
+
+            var prefab = isLargeEnemy ? enemyMarkerPrefabLarge : enemyMarkerPrefabSmall;
+            return Instantiate(prefab, markerContainer);
+        }
+
+        /// <summary>
+        /// Return marker to appropriate object pool.
+        /// </summary>
+        /// <param name="marker">Marker to return to pool</param>
+        private void ReturnMarkerToPool(MarkerInstance marker)
+        {
+            if (marker.IsPlayerMarker)
+                _playerMarkerPool.Enqueue(marker);
+            else if (marker == enemyMarkerPrefabLarge)
+                _enemyMarkerPoolLarge.Enqueue(marker);
+            else
+                _enemyMarkerPool.Enqueue(marker);
+        }
+
+        /// <summary>
+        /// Fade marker in or out with animation.
+        /// </summary>
+        /// <param name="marker">Marker to fade</param>
+        /// <param name="fadeIn">True to fade in, false to fade out</param>
+        private async UniTask FadeMarker(MarkerInstance marker, bool fadeIn)
+        {
+            CanvasGroup cg = marker.CanvasGroup;
+            cg.alpha = fadeIn ? 0f : 1f;
+
+            float elapsed = 0f;
+            const float duration = 0.3f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                cg.alpha = Mathf.Lerp(fadeIn ? 0f : 1f, fadeIn ? 1f : 0f, elapsed / duration);
+                await UniTask.Yield();
+            }
+
+            cg.alpha = fadeIn ? 1f : 0f;
+        }
+
+        #endregion
+
+        #region Private Methods - Click to Move
+
+        /// <summary>
+        /// Handle minimap click for player movement.
+        /// </summary>
+        /// <param name="screenPosition">Screen position of click</param>
+        private void OnMiniMapClick(Vector2 screenPosition)
+        {
+            Vector3 worldPos = ScreenToWorldPosition(screenPosition);
+            if (worldPos != Vector3.zero && playerTransform != null)
+                playerTransform.position = worldPos;
+        }
+
+        /// <summary>
+        /// Convert screen position to world position via raycast.
+        /// </summary>
+        /// <param name="screenPosition">Screen position to convert</param>
+        /// <returns>World position or Vector3.zero if no hit</returns>
+        private Vector3 ScreenToWorldPosition(Vector2 screenPosition)
+        {
+            Ray ray = miniMapCamera.ScreenPointToRay(screenPosition);
+            if (Physics.Raycast(ray, out RaycastHit hit, 1000f, groundLayerMask))
+                return hit.point;
+                
+            return Vector3.zero;
+        }
+
+        #endregion
     }
-
-    #endregion
-
-    #region Click-to-Move
-
-    private void OnMiniMapClick(Vector2 screenPosition)
-    {
-        Vector3 worldPos = ScreenToWorldPosition(screenPosition);
-        if (worldPos != Vector3.zero) playerTransform.position = worldPos;
-    }
-
-    private Vector3 ScreenToWorldPosition(Vector2 screenPosition)
-    {
-        Ray ray = miniMapCamera.ScreenPointToRay(screenPosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, 1000f, groundLayerMask)) return hit.point;
-        return Vector3.zero;
-    }
-
-    #endregion
-}
-
-[System.Serializable]
-public class MarkerInstance : MonoBehaviour
-{
-    public GameObject GameObject => gameObject;
-    public RectTransform RectTransform => (RectTransform)transform;
-    public CanvasGroup CanvasGroup;
-    [HideInInspector] public Transform WorldTransform;
-    [HideInInspector] public bool IsPlayerMarker;
 }
