@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Laboratory.Infrastructure.AsyncUtils
+namespace Laboratory.UI.Utils
 {
     /// <summary>
     /// Utility class providing async tween functions for common UI animations using UniTask.
