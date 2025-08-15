@@ -3,22 +3,103 @@
     "name": "PlayerControls",
     "maps": [
         {
-            "name": "DefaultActions",
+            "name": "InGame",
             "id": "9e7eac11-138b-4591-bf9d-f27059d330b5",
             "actions": [
                 {
-                    "name": "Run",
+                    "name": "GoEast",
                     "type": "Button",
-                    "id": "de539fa0-01cb-4ce8-9f72-58a95f16e146",
+                    "id": "6a971f39-0f54-4cfa-accc-1c4c7674c637",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Pick",
+                    "name": "GoSouth",
                     "type": "Button",
-                    "id": "8afe64f3-751f-435f-9fe2-f3d1d59bc050",
+                    "id": "e9bde908-ff32-4b34-9582-e94bee5867ce",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "GoWest",
+                    "type": "Button",
+                    "id": "5bd2888f-9a4b-4e69-9dfc-05255a36e673",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "GoNorth",
+                    "type": "Button",
+                    "id": "b8b0d284-d64e-4e2f-aef3-f12b216da2e2",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Roll",
+                    "type": "Button",
+                    "id": "5c7843de-f712-4a65-b0b2-d9804b4ca250",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Jump",
+                    "type": "Button",
+                    "id": "48a77bb6-7e1a-4132-9793-efd90c111154",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "AttackOrThrow",
+                    "type": "Button",
+                    "id": "a2c8a955-11d0-4ed0-9245-41d3c312e6d3",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ActionOrCraft",
+                    "type": "Button",
+                    "id": "294770b2-ed69-44a3-abfa-4941974f5a74",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "CharSkill",
+                    "type": "Button",
+                    "id": "74b0f8e4-a27c-45d3-9c6c-6049ccd5bd00",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "WeaponSkill",
+                    "type": "Button",
+                    "id": "06dd6156-07be-43bb-988f-a7b01b9cda34",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Pause",
+                    "type": "Button",
+                    "id": "562dcee3-d705-4d74-96b9-b287546d8821",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -28,23 +109,503 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "2458545e-90fc-47ca-8e00-1a45eaaaf90a",
-                    "path": "",
+                    "id": "097b63fa-849d-41fe-a81a-cdaa05ba0d6a",
+                    "path": "<Gamepad>/dpad/up",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Run",
+                    "groups": ";DefaultGamepad",
+                    "action": "GoNorth",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "e3c09162-143c-4e2f-8e04-255e2bdbe187",
-                    "path": "",
+                    "id": "8624d478-1938-4654-88ee-2d5ace258bc8",
+                    "path": "<Keyboard>/w",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Pick",
+                    "groups": ";DefaultKeyboardOnly;DefaultKeybroadAndMouse",
+                    "action": "GoNorth",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "cd34e974-2c47-4c3f-a46d-e2ed0b938abe",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "Roll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b0b10d73-e272-47c2-bad4-78bcea920a31",
+                    "path": "<Keyboard>/shift",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly;DefaultKeybroadAndMouse",
+                    "action": "Roll",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f97ebc20-ac03-48b8-86ea-2ba0b361a425",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "27632a6e-d29b-41c3-813c-080dcee13b64",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly;DefaultKeybroadAndMouse",
+                    "action": "Jump",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5b886c4e-a385-4e1b-ba3e-6325ce29e9ee",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "AttackOrThrow",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "679f3692-23d7-49b0-acef-000e6f02bf49",
+                    "path": "<Keyboard>/j",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly",
+                    "action": "AttackOrThrow",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ebc71f16-6c21-49fd-9d5f-a7356f491796",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeybroadAndMouse",
+                    "action": "AttackOrThrow",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7d998969-b67b-454e-ab44-b080ba579ea3",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "ActionOrCraft",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fd469b7b-ccf1-46f4-b9aa-78354e7587fe",
+                    "path": "<Keyboard>/k",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly",
+                    "action": "ActionOrCraft",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c5b09ac8-68ca-4d38-a7b3-293202781f77",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeybroadAndMouse",
+                    "action": "ActionOrCraft",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b5f9e671-14e3-45ca-8317-a7c136192a3b",
+                    "path": "<Gamepad>/leftShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "CharSkill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "80ab3f28-cc7e-4596-b0b0-94a0674fdea7",
+                    "path": "<Keyboard>/u",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly",
+                    "action": "CharSkill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "54b40c2c-d8de-4964-8521-0aa7d852c7d2",
+                    "path": "<Keyboard>/q",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeybroadAndMouse;DefaultKeyboardOnly",
+                    "action": "CharSkill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "84a9db00-e619-4bd4-8df5-db456d50b820",
+                    "path": "<Gamepad>/rightShoulder",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "WeaponSkill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "7785ffc4-9031-47b0-80f6-8d884d2c48b7",
+                    "path": "<Keyboard>/i",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly",
+                    "action": "WeaponSkill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a00795a3-3423-43d2-859f-6aa8ca39829b",
+                    "path": "<Keyboard>/e",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly;DefaultKeybroadAndMouse",
+                    "action": "WeaponSkill",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "17b7ea3b-bab8-4b81-8447-d52b70c70847",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "GoEast",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "800507b4-dfe1-43c3-9982-ea81f965c1ea",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly;DefaultKeybroadAndMouse",
+                    "action": "GoEast",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ad4b69bf-ddbb-4498-b145-e50560c01500",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "GoWest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "620a3aa3-50d3-4168-9263-9d32da6b6d23",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly;DefaultKeybroadAndMouse",
+                    "action": "GoWest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "eedb25b2-6206-4f2b-866f-113f4fb4e301",
+                    "path": "<Gamepad>/dpad/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "GoSouth",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d51ec1f5-e9a7-4474-94db-b83908db87da",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly;DefaultKeybroadAndMouse",
+                    "action": "GoSouth",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9744a4a7-0261-4140-afb9-57c372070781",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3c258468-6c6a-478e-9b86-c533889e02f4",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly;DefaultKeybroadAndMouse",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "OutGame",
+            "id": "7bb5bd48-d173-487b-90ff-c3758feefe86",
+            "actions": [
+                {
+                    "name": "Up",
+                    "type": "Button",
+                    "id": "3b23600e-6490-4bf3-b66f-d05e7dfd2063",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Left",
+                    "type": "Button",
+                    "id": "067890e4-abbd-4d0d-860f-d1b2f52dcb13",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Right",
+                    "type": "Button",
+                    "id": "fc89843c-a0c7-45e4-aa37-f9d0fb789035",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Down",
+                    "type": "Button",
+                    "id": "f694b0ab-1d02-4253-ac2b-bc9709afb1ef",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Confirm",
+                    "type": "Button",
+                    "id": "739a16f5-615b-425e-8416-82277647f94c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Cancel",
+                    "type": "Button",
+                    "id": "c16a82f5-6e8a-452c-b400-971080c600c5",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f1bd676d-2bf2-4d72-89b5-9d60a58e073a",
+                    "path": "<Gamepad>/dpad/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "Up",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d93579bb-ea54-4419-9263-30cac5eca8b9",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly;DefaultKeybroadAndMouse",
+                    "action": "Up",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a5e93595-d48a-40bb-8922-2d22e80c1405",
+                    "path": "<Gamepad>/dpad/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "2c43148a-7bfa-46d2-b8d6-62040151e8d8",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly;DefaultKeybroadAndMouse",
+                    "action": "Left",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a21d1f83-4646-4eec-9478-83d46be1c4b9",
+                    "path": "<Gamepad>/dpad/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ab2cd2ad-f1c7-42c7-a751-cf74f66b9048",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly;DefaultKeybroadAndMouse",
+                    "action": "Right",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "8d61aee1-30f1-4ec6-b7e9-1b1d286b5d5b",
+                    "path": "<Gamepad>/dpad/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "Down",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9796043e-2b41-422e-94d0-9e435535dfbd",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly;DefaultKeybroadAndMouse",
+                    "action": "Down",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "dc680b64-de8b-4a77-8c6a-2175a2362fb3",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "Confirm",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "11e754e2-e203-414a-b98d-96e3c37cb54e",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeybroadAndMouse",
+                    "action": "Confirm",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b74abf58-4812-4e13-83e6-750d073db40f",
+                    "path": "<Keyboard>/j",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly",
+                    "action": "Confirm",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ed8874a8-da0f-4ac5-9f96-81e48257e4f3",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "663e6d4f-50f7-419b-a442-a430bb4cf12c",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeybroadAndMouse",
+                    "action": "Cancel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "da07839b-28ff-4763-8dab-fa3e724e339f",
+                    "path": "<Keyboard>/k",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeyboardOnly",
+                    "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -53,14 +614,20 @@
     ],
     "controlSchemes": [
         {
-            "name": "InGame",
-            "bindingGroup": "InGame",
+            "name": "DefaultGamepad",
+            "bindingGroup": "DefaultGamepad",
             "devices": [
                 {
                     "devicePath": "<Gamepad>",
                     "isOptional": false,
                     "isOR": false
-                },
+                }
+            ]
+        },
+        {
+            "name": "DefaultKeyboardOnly",
+            "bindingGroup": "DefaultKeyboardOnly",
+            "devices": [
                 {
                     "devicePath": "<Keyboard>",
                     "isOptional": false,
@@ -69,8 +636,8 @@
             ]
         },
         {
-            "name": "OutGame",
-            "bindingGroup": "OutGame",
+            "name": "DefaultKeybroadAndMouse",
+            "bindingGroup": "DefaultKeybroadAndMouse",
             "devices": [
                 {
                     "devicePath": "<Mouse>",
@@ -79,11 +646,6 @@
                 },
                 {
                     "devicePath": "<Keyboard>",
-                    "isOptional": false,
-                    "isOR": false
-                },
-                {
-                    "devicePath": "<Gamepad>",
                     "isOptional": false,
                     "isOR": false
                 }

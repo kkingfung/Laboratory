@@ -89,22 +89,103 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     ""name"": ""PlayerControls"",
     ""maps"": [
         {
-            ""name"": ""DefaultActions"",
+            ""name"": ""InGame"",
             ""id"": ""9e7eac11-138b-4591-bf9d-f27059d330b5"",
             ""actions"": [
                 {
-                    ""name"": ""Run"",
+                    ""name"": ""GoEast"",
                     ""type"": ""Button"",
-                    ""id"": ""de539fa0-01cb-4ce8-9f72-58a95f16e146"",
+                    ""id"": ""6a971f39-0f54-4cfa-accc-1c4c7674c637"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Pick"",
+                    ""name"": ""GoSouth"",
                     ""type"": ""Button"",
-                    ""id"": ""8afe64f3-751f-435f-9fe2-f3d1d59bc050"",
+                    ""id"": ""e9bde908-ff32-4b34-9582-e94bee5867ce"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""GoWest"",
+                    ""type"": ""Button"",
+                    ""id"": ""5bd2888f-9a4b-4e69-9dfc-05255a36e673"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""GoNorth"",
+                    ""type"": ""Button"",
+                    ""id"": ""b8b0d284-d64e-4e2f-aef3-f12b216da2e2"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Roll"",
+                    ""type"": ""Button"",
+                    ""id"": ""5c7843de-f712-4a65-b0b2-d9804b4ca250"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Jump"",
+                    ""type"": ""Button"",
+                    ""id"": ""48a77bb6-7e1a-4132-9793-efd90c111154"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""AttackOrThrow"",
+                    ""type"": ""Button"",
+                    ""id"": ""a2c8a955-11d0-4ed0-9245-41d3c312e6d3"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ActionOrCraft"",
+                    ""type"": ""Button"",
+                    ""id"": ""294770b2-ed69-44a3-abfa-4941974f5a74"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""CharSkill"",
+                    ""type"": ""Button"",
+                    ""id"": ""74b0f8e4-a27c-45d3-9c6c-6049ccd5bd00"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""WeaponSkill"",
+                    ""type"": ""Button"",
+                    ""id"": ""06dd6156-07be-43bb-988f-a7b01b9cda34"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Pause"",
+                    ""type"": ""Button"",
+                    ""id"": ""562dcee3-d705-4d74-96b9-b287546d8821"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -114,23 +195,503 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             ""bindings"": [
                 {
                     ""name"": """",
-                    ""id"": ""2458545e-90fc-47ca-8e00-1a45eaaaf90a"",
-                    ""path"": """",
+                    ""id"": ""097b63fa-849d-41fe-a81a-cdaa05ba0d6a"",
+                    ""path"": ""<Gamepad>/dpad/up"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Run"",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""GoNorth"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": """",
-                    ""id"": ""e3c09162-143c-4e2f-8e04-255e2bdbe187"",
-                    ""path"": """",
+                    ""id"": ""8624d478-1938-4654-88ee-2d5ace258bc8"",
+                    ""path"": ""<Keyboard>/w"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Pick"",
+                    ""groups"": "";DefaultKeyboardOnly;DefaultKeybroadAndMouse"",
+                    ""action"": ""GoNorth"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""cd34e974-2c47-4c3f-a46d-e2ed0b938abe"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""Roll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b0b10d73-e272-47c2-bad4-78bcea920a31"",
+                    ""path"": ""<Keyboard>/shift"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly;DefaultKeybroadAndMouse"",
+                    ""action"": ""Roll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f97ebc20-ac03-48b8-86ea-2ba0b361a425"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""27632a6e-d29b-41c3-813c-080dcee13b64"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly;DefaultKeybroadAndMouse"",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5b886c4e-a385-4e1b-ba3e-6325ce29e9ee"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""AttackOrThrow"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""679f3692-23d7-49b0-acef-000e6f02bf49"",
+                    ""path"": ""<Keyboard>/j"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly"",
+                    ""action"": ""AttackOrThrow"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ebc71f16-6c21-49fd-9d5f-a7356f491796"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeybroadAndMouse"",
+                    ""action"": ""AttackOrThrow"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7d998969-b67b-454e-ab44-b080ba579ea3"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""ActionOrCraft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fd469b7b-ccf1-46f4-b9aa-78354e7587fe"",
+                    ""path"": ""<Keyboard>/k"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly"",
+                    ""action"": ""ActionOrCraft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c5b09ac8-68ca-4d38-a7b3-293202781f77"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeybroadAndMouse"",
+                    ""action"": ""ActionOrCraft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b5f9e671-14e3-45ca-8317-a7c136192a3b"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""CharSkill"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""80ab3f28-cc7e-4596-b0b0-94a0674fdea7"",
+                    ""path"": ""<Keyboard>/u"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly"",
+                    ""action"": ""CharSkill"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""54b40c2c-d8de-4964-8521-0aa7d852c7d2"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeybroadAndMouse;DefaultKeyboardOnly"",
+                    ""action"": ""CharSkill"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""84a9db00-e619-4bd4-8df5-db456d50b820"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""WeaponSkill"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7785ffc4-9031-47b0-80f6-8d884d2c48b7"",
+                    ""path"": ""<Keyboard>/i"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly"",
+                    ""action"": ""WeaponSkill"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a00795a3-3423-43d2-859f-6aa8ca39829b"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly;DefaultKeybroadAndMouse"",
+                    ""action"": ""WeaponSkill"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""17b7ea3b-bab8-4b81-8447-d52b70c70847"",
+                    ""path"": ""<Gamepad>/dpad/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""GoEast"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""800507b4-dfe1-43c3-9982-ea81f965c1ea"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly;DefaultKeybroadAndMouse"",
+                    ""action"": ""GoEast"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ad4b69bf-ddbb-4498-b145-e50560c01500"",
+                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""GoWest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""620a3aa3-50d3-4168-9263-9d32da6b6d23"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly;DefaultKeybroadAndMouse"",
+                    ""action"": ""GoWest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""eedb25b2-6206-4f2b-866f-113f4fb4e301"",
+                    ""path"": ""<Gamepad>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""GoSouth"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d51ec1f5-e9a7-4474-94db-b83908db87da"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly;DefaultKeybroadAndMouse"",
+                    ""action"": ""GoSouth"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9744a4a7-0261-4140-afb9-57c372070781"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3c258468-6c6a-478e-9b86-c533889e02f4"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly;DefaultKeybroadAndMouse"",
+                    ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""OutGame"",
+            ""id"": ""7bb5bd48-d173-487b-90ff-c3758feefe86"",
+            ""actions"": [
+                {
+                    ""name"": ""Up"",
+                    ""type"": ""Button"",
+                    ""id"": ""3b23600e-6490-4bf3-b66f-d05e7dfd2063"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Left"",
+                    ""type"": ""Button"",
+                    ""id"": ""067890e4-abbd-4d0d-860f-d1b2f52dcb13"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Right"",
+                    ""type"": ""Button"",
+                    ""id"": ""fc89843c-a0c7-45e4-aa37-f9d0fb789035"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Down"",
+                    ""type"": ""Button"",
+                    ""id"": ""f694b0ab-1d02-4253-ac2b-bc9709afb1ef"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Confirm"",
+                    ""type"": ""Button"",
+                    ""id"": ""739a16f5-615b-425e-8416-82277647f94c"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Cancel"",
+                    ""type"": ""Button"",
+                    ""id"": ""c16a82f5-6e8a-452c-b400-971080c600c5"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""f1bd676d-2bf2-4d72-89b5-9d60a58e073a"",
+                    ""path"": ""<Gamepad>/dpad/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""Up"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d93579bb-ea54-4419-9263-30cac5eca8b9"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly;DefaultKeybroadAndMouse"",
+                    ""action"": ""Up"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a5e93595-d48a-40bb-8922-2d22e80c1405"",
+                    ""path"": ""<Gamepad>/dpad/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""Left"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2c43148a-7bfa-46d2-b8d6-62040151e8d8"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly;DefaultKeybroadAndMouse"",
+                    ""action"": ""Left"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a21d1f83-4646-4eec-9478-83d46be1c4b9"",
+                    ""path"": ""<Gamepad>/dpad/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""Right"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ab2cd2ad-f1c7-42c7-a751-cf74f66b9048"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly;DefaultKeybroadAndMouse"",
+                    ""action"": ""Right"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""8d61aee1-30f1-4ec6-b7e9-1b1d286b5d5b"",
+                    ""path"": ""<Gamepad>/dpad/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""Down"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9796043e-2b41-422e-94d0-9e435535dfbd"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly;DefaultKeybroadAndMouse"",
+                    ""action"": ""Down"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dc680b64-de8b-4a77-8c6a-2175a2362fb3"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""Confirm"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""11e754e2-e203-414a-b98d-96e3c37cb54e"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeybroadAndMouse"",
+                    ""action"": ""Confirm"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b74abf58-4812-4e13-83e6-750d073db40f"",
+                    ""path"": ""<Keyboard>/j"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly"",
+                    ""action"": ""Confirm"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ed8874a8-da0f-4ac5-9f96-81e48257e4f3"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""Cancel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""663e6d4f-50f7-419b-a442-a430bb4cf12c"",
+                    ""path"": ""<Mouse>/rightButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeybroadAndMouse"",
+                    ""action"": ""Cancel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""da07839b-28ff-4763-8dab-fa3e724e339f"",
+                    ""path"": ""<Keyboard>/k"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeyboardOnly"",
+                    ""action"": ""Cancel"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -139,14 +700,20 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     ],
     ""controlSchemes"": [
         {
-            ""name"": ""InGame"",
-            ""bindingGroup"": ""InGame"",
+            ""name"": ""DefaultGamepad"",
+            ""bindingGroup"": ""DefaultGamepad"",
             ""devices"": [
                 {
                     ""devicePath"": ""<Gamepad>"",
                     ""isOptional"": false,
                     ""isOR"": false
-                },
+                }
+            ]
+        },
+        {
+            ""name"": ""DefaultKeyboardOnly"",
+            ""bindingGroup"": ""DefaultKeyboardOnly"",
+            ""devices"": [
                 {
                     ""devicePath"": ""<Keyboard>"",
                     ""isOptional"": false,
@@ -155,8 +722,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             ]
         },
         {
-            ""name"": ""OutGame"",
-            ""bindingGroup"": ""OutGame"",
+            ""name"": ""DefaultKeybroadAndMouse"",
+            ""bindingGroup"": ""DefaultKeybroadAndMouse"",
             ""devices"": [
                 {
                     ""devicePath"": ""<Mouse>"",
@@ -167,25 +734,38 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""devicePath"": ""<Keyboard>"",
                     ""isOptional"": false,
                     ""isOR"": false
-                },
-                {
-                    ""devicePath"": ""<Gamepad>"",
-                    ""isOptional"": false,
-                    ""isOR"": false
                 }
             ]
         }
     ]
 }");
-        // DefaultActions
-        m_DefaultActions = asset.FindActionMap("DefaultActions", throwIfNotFound: true);
-        m_DefaultActions_Run = m_DefaultActions.FindAction("Run", throwIfNotFound: true);
-        m_DefaultActions_Pick = m_DefaultActions.FindAction("Pick", throwIfNotFound: true);
+        // InGame
+        m_InGame = asset.FindActionMap("InGame", throwIfNotFound: true);
+        m_InGame_GoEast = m_InGame.FindAction("GoEast", throwIfNotFound: true);
+        m_InGame_GoSouth = m_InGame.FindAction("GoSouth", throwIfNotFound: true);
+        m_InGame_GoWest = m_InGame.FindAction("GoWest", throwIfNotFound: true);
+        m_InGame_GoNorth = m_InGame.FindAction("GoNorth", throwIfNotFound: true);
+        m_InGame_Roll = m_InGame.FindAction("Roll", throwIfNotFound: true);
+        m_InGame_Jump = m_InGame.FindAction("Jump", throwIfNotFound: true);
+        m_InGame_AttackOrThrow = m_InGame.FindAction("AttackOrThrow", throwIfNotFound: true);
+        m_InGame_ActionOrCraft = m_InGame.FindAction("ActionOrCraft", throwIfNotFound: true);
+        m_InGame_CharSkill = m_InGame.FindAction("CharSkill", throwIfNotFound: true);
+        m_InGame_WeaponSkill = m_InGame.FindAction("WeaponSkill", throwIfNotFound: true);
+        m_InGame_Pause = m_InGame.FindAction("Pause", throwIfNotFound: true);
+        // OutGame
+        m_OutGame = asset.FindActionMap("OutGame", throwIfNotFound: true);
+        m_OutGame_Up = m_OutGame.FindAction("Up", throwIfNotFound: true);
+        m_OutGame_Left = m_OutGame.FindAction("Left", throwIfNotFound: true);
+        m_OutGame_Right = m_OutGame.FindAction("Right", throwIfNotFound: true);
+        m_OutGame_Down = m_OutGame.FindAction("Down", throwIfNotFound: true);
+        m_OutGame_Confirm = m_OutGame.FindAction("Confirm", throwIfNotFound: true);
+        m_OutGame_Cancel = m_OutGame.FindAction("Cancel", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
     {
-        UnityEngine.Debug.Assert(!m_DefaultActions.enabled, "This will cause a leak and performance issues, PlayerControls.DefaultActions.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_InGame.enabled, "This will cause a leak and performance issues, PlayerControls.InGame.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_OutGame.enabled, "This will cause a leak and performance issues, PlayerControls.OutGame.Disable() has not been called.");
     }
 
     /// <summary>
@@ -258,34 +838,79 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         return asset.FindBinding(bindingMask, out action);
     }
 
-    // DefaultActions
-    private readonly InputActionMap m_DefaultActions;
-    private List<IDefaultActionsActions> m_DefaultActionsActionsCallbackInterfaces = new List<IDefaultActionsActions>();
-    private readonly InputAction m_DefaultActions_Run;
-    private readonly InputAction m_DefaultActions_Pick;
+    // InGame
+    private readonly InputActionMap m_InGame;
+    private List<IInGameActions> m_InGameActionsCallbackInterfaces = new List<IInGameActions>();
+    private readonly InputAction m_InGame_GoEast;
+    private readonly InputAction m_InGame_GoSouth;
+    private readonly InputAction m_InGame_GoWest;
+    private readonly InputAction m_InGame_GoNorth;
+    private readonly InputAction m_InGame_Roll;
+    private readonly InputAction m_InGame_Jump;
+    private readonly InputAction m_InGame_AttackOrThrow;
+    private readonly InputAction m_InGame_ActionOrCraft;
+    private readonly InputAction m_InGame_CharSkill;
+    private readonly InputAction m_InGame_WeaponSkill;
+    private readonly InputAction m_InGame_Pause;
     /// <summary>
-    /// Provides access to input actions defined in input action map "DefaultActions".
+    /// Provides access to input actions defined in input action map "InGame".
     /// </summary>
-    public struct DefaultActionsActions
+    public struct InGameActions
     {
         private @PlayerControls m_Wrapper;
 
         /// <summary>
         /// Construct a new instance of the input action map wrapper class.
         /// </summary>
-        public DefaultActionsActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
+        public InGameActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
         /// <summary>
-        /// Provides access to the underlying input action "DefaultActions/Run".
+        /// Provides access to the underlying input action "InGame/GoEast".
         /// </summary>
-        public InputAction @Run => m_Wrapper.m_DefaultActions_Run;
+        public InputAction @GoEast => m_Wrapper.m_InGame_GoEast;
         /// <summary>
-        /// Provides access to the underlying input action "DefaultActions/Pick".
+        /// Provides access to the underlying input action "InGame/GoSouth".
         /// </summary>
-        public InputAction @Pick => m_Wrapper.m_DefaultActions_Pick;
+        public InputAction @GoSouth => m_Wrapper.m_InGame_GoSouth;
+        /// <summary>
+        /// Provides access to the underlying input action "InGame/GoWest".
+        /// </summary>
+        public InputAction @GoWest => m_Wrapper.m_InGame_GoWest;
+        /// <summary>
+        /// Provides access to the underlying input action "InGame/GoNorth".
+        /// </summary>
+        public InputAction @GoNorth => m_Wrapper.m_InGame_GoNorth;
+        /// <summary>
+        /// Provides access to the underlying input action "InGame/Roll".
+        /// </summary>
+        public InputAction @Roll => m_Wrapper.m_InGame_Roll;
+        /// <summary>
+        /// Provides access to the underlying input action "InGame/Jump".
+        /// </summary>
+        public InputAction @Jump => m_Wrapper.m_InGame_Jump;
+        /// <summary>
+        /// Provides access to the underlying input action "InGame/AttackOrThrow".
+        /// </summary>
+        public InputAction @AttackOrThrow => m_Wrapper.m_InGame_AttackOrThrow;
+        /// <summary>
+        /// Provides access to the underlying input action "InGame/ActionOrCraft".
+        /// </summary>
+        public InputAction @ActionOrCraft => m_Wrapper.m_InGame_ActionOrCraft;
+        /// <summary>
+        /// Provides access to the underlying input action "InGame/CharSkill".
+        /// </summary>
+        public InputAction @CharSkill => m_Wrapper.m_InGame_CharSkill;
+        /// <summary>
+        /// Provides access to the underlying input action "InGame/WeaponSkill".
+        /// </summary>
+        public InputAction @WeaponSkill => m_Wrapper.m_InGame_WeaponSkill;
+        /// <summary>
+        /// Provides access to the underlying input action "InGame/Pause".
+        /// </summary>
+        public InputAction @Pause => m_Wrapper.m_InGame_Pause;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
-        public InputActionMap Get() { return m_Wrapper.m_DefaultActions; }
+        public InputActionMap Get() { return m_Wrapper.m_InGame; }
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
         public void Enable() { Get().Enable(); }
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
@@ -293,9 +918,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
         public bool enabled => Get().enabled;
         /// <summary>
-        /// Implicitly converts an <see ref="DefaultActionsActions" /> to an <see ref="InputActionMap" /> instance.
+        /// Implicitly converts an <see ref="InGameActions" /> to an <see ref="InputActionMap" /> instance.
         /// </summary>
-        public static implicit operator InputActionMap(DefaultActionsActions set) { return set.Get(); }
+        public static implicit operator InputActionMap(InGameActions set) { return set.Get(); }
         /// <summary>
         /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
         /// </summary>
@@ -303,17 +928,44 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <remarks>
         /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
         /// </remarks>
-        /// <seealso cref="DefaultActionsActions" />
-        public void AddCallbacks(IDefaultActionsActions instance)
+        /// <seealso cref="InGameActions" />
+        public void AddCallbacks(IInGameActions instance)
         {
-            if (instance == null || m_Wrapper.m_DefaultActionsActionsCallbackInterfaces.Contains(instance)) return;
-            m_Wrapper.m_DefaultActionsActionsCallbackInterfaces.Add(instance);
-            @Run.started += instance.OnRun;
-            @Run.performed += instance.OnRun;
-            @Run.canceled += instance.OnRun;
-            @Pick.started += instance.OnPick;
-            @Pick.performed += instance.OnPick;
-            @Pick.canceled += instance.OnPick;
+            if (instance == null || m_Wrapper.m_InGameActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_InGameActionsCallbackInterfaces.Add(instance);
+            @GoEast.started += instance.OnGoEast;
+            @GoEast.performed += instance.OnGoEast;
+            @GoEast.canceled += instance.OnGoEast;
+            @GoSouth.started += instance.OnGoSouth;
+            @GoSouth.performed += instance.OnGoSouth;
+            @GoSouth.canceled += instance.OnGoSouth;
+            @GoWest.started += instance.OnGoWest;
+            @GoWest.performed += instance.OnGoWest;
+            @GoWest.canceled += instance.OnGoWest;
+            @GoNorth.started += instance.OnGoNorth;
+            @GoNorth.performed += instance.OnGoNorth;
+            @GoNorth.canceled += instance.OnGoNorth;
+            @Roll.started += instance.OnRoll;
+            @Roll.performed += instance.OnRoll;
+            @Roll.canceled += instance.OnRoll;
+            @Jump.started += instance.OnJump;
+            @Jump.performed += instance.OnJump;
+            @Jump.canceled += instance.OnJump;
+            @AttackOrThrow.started += instance.OnAttackOrThrow;
+            @AttackOrThrow.performed += instance.OnAttackOrThrow;
+            @AttackOrThrow.canceled += instance.OnAttackOrThrow;
+            @ActionOrCraft.started += instance.OnActionOrCraft;
+            @ActionOrCraft.performed += instance.OnActionOrCraft;
+            @ActionOrCraft.canceled += instance.OnActionOrCraft;
+            @CharSkill.started += instance.OnCharSkill;
+            @CharSkill.performed += instance.OnCharSkill;
+            @CharSkill.canceled += instance.OnCharSkill;
+            @WeaponSkill.started += instance.OnWeaponSkill;
+            @WeaponSkill.performed += instance.OnWeaponSkill;
+            @WeaponSkill.canceled += instance.OnWeaponSkill;
+            @Pause.started += instance.OnPause;
+            @Pause.performed += instance.OnPause;
+            @Pause.canceled += instance.OnPause;
         }
 
         /// <summary>
@@ -322,24 +974,51 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <remarks>
         /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
         /// </remarks>
-        /// <seealso cref="DefaultActionsActions" />
-        private void UnregisterCallbacks(IDefaultActionsActions instance)
+        /// <seealso cref="InGameActions" />
+        private void UnregisterCallbacks(IInGameActions instance)
         {
-            @Run.started -= instance.OnRun;
-            @Run.performed -= instance.OnRun;
-            @Run.canceled -= instance.OnRun;
-            @Pick.started -= instance.OnPick;
-            @Pick.performed -= instance.OnPick;
-            @Pick.canceled -= instance.OnPick;
+            @GoEast.started -= instance.OnGoEast;
+            @GoEast.performed -= instance.OnGoEast;
+            @GoEast.canceled -= instance.OnGoEast;
+            @GoSouth.started -= instance.OnGoSouth;
+            @GoSouth.performed -= instance.OnGoSouth;
+            @GoSouth.canceled -= instance.OnGoSouth;
+            @GoWest.started -= instance.OnGoWest;
+            @GoWest.performed -= instance.OnGoWest;
+            @GoWest.canceled -= instance.OnGoWest;
+            @GoNorth.started -= instance.OnGoNorth;
+            @GoNorth.performed -= instance.OnGoNorth;
+            @GoNorth.canceled -= instance.OnGoNorth;
+            @Roll.started -= instance.OnRoll;
+            @Roll.performed -= instance.OnRoll;
+            @Roll.canceled -= instance.OnRoll;
+            @Jump.started -= instance.OnJump;
+            @Jump.performed -= instance.OnJump;
+            @Jump.canceled -= instance.OnJump;
+            @AttackOrThrow.started -= instance.OnAttackOrThrow;
+            @AttackOrThrow.performed -= instance.OnAttackOrThrow;
+            @AttackOrThrow.canceled -= instance.OnAttackOrThrow;
+            @ActionOrCraft.started -= instance.OnActionOrCraft;
+            @ActionOrCraft.performed -= instance.OnActionOrCraft;
+            @ActionOrCraft.canceled -= instance.OnActionOrCraft;
+            @CharSkill.started -= instance.OnCharSkill;
+            @CharSkill.performed -= instance.OnCharSkill;
+            @CharSkill.canceled -= instance.OnCharSkill;
+            @WeaponSkill.started -= instance.OnWeaponSkill;
+            @WeaponSkill.performed -= instance.OnWeaponSkill;
+            @WeaponSkill.canceled -= instance.OnWeaponSkill;
+            @Pause.started -= instance.OnPause;
+            @Pause.performed -= instance.OnPause;
+            @Pause.canceled -= instance.OnPause;
         }
 
         /// <summary>
-        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="DefaultActionsActions.UnregisterCallbacks(IDefaultActionsActions)" />.
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="InGameActions.UnregisterCallbacks(IInGameActions)" />.
         /// </summary>
-        /// <seealso cref="DefaultActionsActions.UnregisterCallbacks(IDefaultActionsActions)" />
-        public void RemoveCallbacks(IDefaultActionsActions instance)
+        /// <seealso cref="InGameActions.UnregisterCallbacks(IInGameActions)" />
+        public void RemoveCallbacks(IInGameActions instance)
         {
-            if (m_Wrapper.m_DefaultActionsActionsCallbackInterfaces.Remove(instance))
+            if (m_Wrapper.m_InGameActionsCallbackInterfaces.Remove(instance))
                 UnregisterCallbacks(instance);
         }
 
@@ -349,67 +1028,344 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <remarks>
         /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
         /// </remarks>
-        /// <seealso cref="DefaultActionsActions.AddCallbacks(IDefaultActionsActions)" />
-        /// <seealso cref="DefaultActionsActions.RemoveCallbacks(IDefaultActionsActions)" />
-        /// <seealso cref="DefaultActionsActions.UnregisterCallbacks(IDefaultActionsActions)" />
-        public void SetCallbacks(IDefaultActionsActions instance)
+        /// <seealso cref="InGameActions.AddCallbacks(IInGameActions)" />
+        /// <seealso cref="InGameActions.RemoveCallbacks(IInGameActions)" />
+        /// <seealso cref="InGameActions.UnregisterCallbacks(IInGameActions)" />
+        public void SetCallbacks(IInGameActions instance)
         {
-            foreach (var item in m_Wrapper.m_DefaultActionsActionsCallbackInterfaces)
+            foreach (var item in m_Wrapper.m_InGameActionsCallbackInterfaces)
                 UnregisterCallbacks(item);
-            m_Wrapper.m_DefaultActionsActionsCallbackInterfaces.Clear();
+            m_Wrapper.m_InGameActionsCallbackInterfaces.Clear();
             AddCallbacks(instance);
         }
     }
     /// <summary>
-    /// Provides a new <see cref="DefaultActionsActions" /> instance referencing this action map.
+    /// Provides a new <see cref="InGameActions" /> instance referencing this action map.
     /// </summary>
-    public DefaultActionsActions @DefaultActions => new DefaultActionsActions(this);
-    private int m_InGameSchemeIndex = -1;
+    public InGameActions @InGame => new InGameActions(this);
+
+    // OutGame
+    private readonly InputActionMap m_OutGame;
+    private List<IOutGameActions> m_OutGameActionsCallbackInterfaces = new List<IOutGameActions>();
+    private readonly InputAction m_OutGame_Up;
+    private readonly InputAction m_OutGame_Left;
+    private readonly InputAction m_OutGame_Right;
+    private readonly InputAction m_OutGame_Down;
+    private readonly InputAction m_OutGame_Confirm;
+    private readonly InputAction m_OutGame_Cancel;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "OutGame".
+    /// </summary>
+    public struct OutGameActions
+    {
+        private @PlayerControls m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public OutGameActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "OutGame/Up".
+        /// </summary>
+        public InputAction @Up => m_Wrapper.m_OutGame_Up;
+        /// <summary>
+        /// Provides access to the underlying input action "OutGame/Left".
+        /// </summary>
+        public InputAction @Left => m_Wrapper.m_OutGame_Left;
+        /// <summary>
+        /// Provides access to the underlying input action "OutGame/Right".
+        /// </summary>
+        public InputAction @Right => m_Wrapper.m_OutGame_Right;
+        /// <summary>
+        /// Provides access to the underlying input action "OutGame/Down".
+        /// </summary>
+        public InputAction @Down => m_Wrapper.m_OutGame_Down;
+        /// <summary>
+        /// Provides access to the underlying input action "OutGame/Confirm".
+        /// </summary>
+        public InputAction @Confirm => m_Wrapper.m_OutGame_Confirm;
+        /// <summary>
+        /// Provides access to the underlying input action "OutGame/Cancel".
+        /// </summary>
+        public InputAction @Cancel => m_Wrapper.m_OutGame_Cancel;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_OutGame; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="OutGameActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(OutGameActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="OutGameActions" />
+        public void AddCallbacks(IOutGameActions instance)
+        {
+            if (instance == null || m_Wrapper.m_OutGameActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_OutGameActionsCallbackInterfaces.Add(instance);
+            @Up.started += instance.OnUp;
+            @Up.performed += instance.OnUp;
+            @Up.canceled += instance.OnUp;
+            @Left.started += instance.OnLeft;
+            @Left.performed += instance.OnLeft;
+            @Left.canceled += instance.OnLeft;
+            @Right.started += instance.OnRight;
+            @Right.performed += instance.OnRight;
+            @Right.canceled += instance.OnRight;
+            @Down.started += instance.OnDown;
+            @Down.performed += instance.OnDown;
+            @Down.canceled += instance.OnDown;
+            @Confirm.started += instance.OnConfirm;
+            @Confirm.performed += instance.OnConfirm;
+            @Confirm.canceled += instance.OnConfirm;
+            @Cancel.started += instance.OnCancel;
+            @Cancel.performed += instance.OnCancel;
+            @Cancel.canceled += instance.OnCancel;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="OutGameActions" />
+        private void UnregisterCallbacks(IOutGameActions instance)
+        {
+            @Up.started -= instance.OnUp;
+            @Up.performed -= instance.OnUp;
+            @Up.canceled -= instance.OnUp;
+            @Left.started -= instance.OnLeft;
+            @Left.performed -= instance.OnLeft;
+            @Left.canceled -= instance.OnLeft;
+            @Right.started -= instance.OnRight;
+            @Right.performed -= instance.OnRight;
+            @Right.canceled -= instance.OnRight;
+            @Down.started -= instance.OnDown;
+            @Down.performed -= instance.OnDown;
+            @Down.canceled -= instance.OnDown;
+            @Confirm.started -= instance.OnConfirm;
+            @Confirm.performed -= instance.OnConfirm;
+            @Confirm.canceled -= instance.OnConfirm;
+            @Cancel.started -= instance.OnCancel;
+            @Cancel.performed -= instance.OnCancel;
+            @Cancel.canceled -= instance.OnCancel;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="OutGameActions.UnregisterCallbacks(IOutGameActions)" />.
+        /// </summary>
+        /// <seealso cref="OutGameActions.UnregisterCallbacks(IOutGameActions)" />
+        public void RemoveCallbacks(IOutGameActions instance)
+        {
+            if (m_Wrapper.m_OutGameActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="OutGameActions.AddCallbacks(IOutGameActions)" />
+        /// <seealso cref="OutGameActions.RemoveCallbacks(IOutGameActions)" />
+        /// <seealso cref="OutGameActions.UnregisterCallbacks(IOutGameActions)" />
+        public void SetCallbacks(IOutGameActions instance)
+        {
+            foreach (var item in m_Wrapper.m_OutGameActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_OutGameActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="OutGameActions" /> instance referencing this action map.
+    /// </summary>
+    public OutGameActions @OutGame => new OutGameActions(this);
+    private int m_DefaultGamepadSchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
     /// </summary>
     /// <seealso cref="UnityEngine.InputSystem.InputControlScheme" />
-    public InputControlScheme InGameScheme
+    public InputControlScheme DefaultGamepadScheme
     {
         get
         {
-            if (m_InGameSchemeIndex == -1) m_InGameSchemeIndex = asset.FindControlSchemeIndex("InGame");
-            return asset.controlSchemes[m_InGameSchemeIndex];
+            if (m_DefaultGamepadSchemeIndex == -1) m_DefaultGamepadSchemeIndex = asset.FindControlSchemeIndex("DefaultGamepad");
+            return asset.controlSchemes[m_DefaultGamepadSchemeIndex];
         }
     }
-    private int m_OutGameSchemeIndex = -1;
+    private int m_DefaultKeyboardOnlySchemeIndex = -1;
     /// <summary>
     /// Provides access to the input control scheme.
     /// </summary>
     /// <seealso cref="UnityEngine.InputSystem.InputControlScheme" />
-    public InputControlScheme OutGameScheme
+    public InputControlScheme DefaultKeyboardOnlyScheme
     {
         get
         {
-            if (m_OutGameSchemeIndex == -1) m_OutGameSchemeIndex = asset.FindControlSchemeIndex("OutGame");
-            return asset.controlSchemes[m_OutGameSchemeIndex];
+            if (m_DefaultKeyboardOnlySchemeIndex == -1) m_DefaultKeyboardOnlySchemeIndex = asset.FindControlSchemeIndex("DefaultKeyboardOnly");
+            return asset.controlSchemes[m_DefaultKeyboardOnlySchemeIndex];
+        }
+    }
+    private int m_DefaultKeybroadAndMouseSchemeIndex = -1;
+    /// <summary>
+    /// Provides access to the input control scheme.
+    /// </summary>
+    /// <seealso cref="UnityEngine.InputSystem.InputControlScheme" />
+    public InputControlScheme DefaultKeybroadAndMouseScheme
+    {
+        get
+        {
+            if (m_DefaultKeybroadAndMouseSchemeIndex == -1) m_DefaultKeybroadAndMouseSchemeIndex = asset.FindControlSchemeIndex("DefaultKeybroadAndMouse");
+            return asset.controlSchemes[m_DefaultKeybroadAndMouseSchemeIndex];
         }
     }
     /// <summary>
-    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "DefaultActions" which allows adding and removing callbacks.
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "InGame" which allows adding and removing callbacks.
     /// </summary>
-    /// <seealso cref="DefaultActionsActions.AddCallbacks(IDefaultActionsActions)" />
-    /// <seealso cref="DefaultActionsActions.RemoveCallbacks(IDefaultActionsActions)" />
-    public interface IDefaultActionsActions
+    /// <seealso cref="InGameActions.AddCallbacks(IInGameActions)" />
+    /// <seealso cref="InGameActions.RemoveCallbacks(IInGameActions)" />
+    public interface IInGameActions
     {
         /// <summary>
-        /// Method invoked when associated input action "Run" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "GoEast" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnRun(InputAction.CallbackContext context);
+        void OnGoEast(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Pick" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "GoSouth" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPick(InputAction.CallbackContext context);
+        void OnGoSouth(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "GoWest" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnGoWest(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "GoNorth" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnGoNorth(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Roll" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRoll(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Jump" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnJump(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "AttackOrThrow" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnAttackOrThrow(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "ActionOrCraft" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnActionOrCraft(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "CharSkill" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCharSkill(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "WeaponSkill" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnWeaponSkill(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Pause" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPause(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "OutGame" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="OutGameActions.AddCallbacks(IOutGameActions)" />
+    /// <seealso cref="OutGameActions.RemoveCallbacks(IOutGameActions)" />
+    public interface IOutGameActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Up" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnUp(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Left" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLeft(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Right" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRight(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Down" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDown(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Confirm" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnConfirm(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Cancel" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnCancel(InputAction.CallbackContext context);
     }
 }
