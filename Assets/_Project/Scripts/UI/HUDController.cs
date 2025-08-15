@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
-using Game.UI;
-using Game.Abilities;
+using Laboratory.Gameplay.Abilities;
+using Laboratory.UI.Helper;
+using Laboratory.Infrastructure.UI;
 
 namespace Laboratory.UI
 {

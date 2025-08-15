@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Collections;
 using UnityEngine;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models.ECS.Systems
 {

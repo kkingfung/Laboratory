@@ -4,6 +4,8 @@ using UnityEngine;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Gameplay.Combat;
+using Laboratory.Models.ECS.Components;
+using Laboratory.Models.ECS.Systems;
 
 namespace Laboratory.ECS.Systems
 {

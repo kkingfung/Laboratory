@@ -5,6 +5,7 @@ using Unity.Transforms;
 using UnityEngine;
 using Laboratory.Infrastructure;
 using Laboratory.Models.ECS.Components;
+using Laboratory.Tools;
 
 namespace Laboratory.Models.ECS.Systems
 {

@@ -2,6 +2,7 @@ using Unity.Entities;
 using UnityEngine;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
+using Laboratory.Gameplay.Lobby;
 
 namespace Laboratory.ECS.Systems
 {

@@ -8,6 +8,7 @@ using TMPro;
 using Unity.Netcode;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
+using Laboratory.Infrastructure.Networking;
 
 namespace Laboratory.Infrastructure.UI
 {

@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
 using Laboratory.Gameplay.UI;
+using Laboratory.UI.Utils;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.UI.Helper
 {
