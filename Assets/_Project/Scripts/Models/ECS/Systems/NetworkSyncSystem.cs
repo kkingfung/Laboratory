@@ -4,6 +4,7 @@ using UnityEngine;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
+using Laboratory.Models.ECS.Components;
 
 #nullable enable
 

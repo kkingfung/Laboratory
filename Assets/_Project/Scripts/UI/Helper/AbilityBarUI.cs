@@ -3,6 +3,7 @@ using MessagePipe;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Laboratory.Gameplay.Abilities;
 
 namespace Laboratory.UI.Helper
 {

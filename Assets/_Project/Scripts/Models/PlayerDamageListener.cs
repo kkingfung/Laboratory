@@ -1,5 +1,5 @@
 using UnityEngine;
-using Laboratory.Networking;
+using Laboratory.Infrastructure.Networking;
 using Laboratory.UI.Helper;
 
 namespace Laboratory.Models

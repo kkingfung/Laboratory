@@ -3,9 +3,54 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Laboratory.Infrastructure.Networking;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models.ECS.Systems
 {
+    /// <summary>
+    /// Job that processes player state updates in parallel.
+    /// </summary>
+    [BurstCompile]
+    public struct PlayerStateJob : IJobChunk
+    {
+        public float DeltaTime;
+        public float StaminaRegenRate;
+        
+        public ComponentTypeHandle<PlayerStateComponent> PlayerStateHandle;
+
+        public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
+        {
+            var stateArray = chunk.GetNativeArray(ref PlayerStateHandle);
+            
+            for (int i = 0; i < chunk.Count; i++)
+            {
+                var state = stateArray[i];
+                
+                // Skip processing for dead players
+                if (!state.IsAlive)
+                    continue;
+
+                // Regenerate stamina up to maximum capacity
+                state.Stamina += StaminaRegenRate * DeltaTime;
+                
+                if (state.Stamina > state.MaxStamina)
+                {
+                    state.Stamina = state.MaxStamina;
+                }
+
+                // Check for death condition and handle state transition
+                if (state.CurrentHP <= 0)
+                {
+                    state.IsAlive = false;
+                    state.CurrentHP = 0;
+                }
+                
+                stateArray[i] = state;
+            }
+        }
+    }
+
     /// <summary>
     /// Manages player state updates including stamina regeneration, death detection, and status effects.
     /// Runs during simulation group and processes all living players for state changes.
@@ -22,76 +67,44 @@ namespace Laboratory.Models.ECS.Systems
 
         #endregion
 
+        #region Fields
+
+        private EntityQuery m_PlayerQuery;
+        private ComponentTypeHandle<PlayerStateComponent> m_PlayerStateHandle;
+
+        #endregion
+
         #region Unity Override Methods
+
+        /// <summary>
+        /// Initialize the system and create entity queries.
+        /// </summary>
+        protected override void OnCreate()
+        {
+            // Create a query for entities with PlayerStateComponent
+            m_PlayerQuery = GetEntityQuery(ComponentType.ReadWrite<PlayerStateComponent>());
+            
+            // Get component type handle
+            m_PlayerStateHandle = GetComponentTypeHandle<PlayerStateComponent>();
+        }
 
         /// <summary>
         /// Updates player states each frame, handling stamina regeneration and death detection.
         /// </summary>
         protected override void OnUpdate()
         {
-            float deltaTime = SystemAPI.Time.DeltaTime;
-
-            // Process all entities with PlayerStateComponent
-            Entities.ForEach((ref PlayerStateComponent state) =>
-            {
-                ProcessPlayerState(ref state, deltaTime);
-            }).ScheduleParallel();
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        /// Processes individual player state updates including stamina regeneration and death detection.
-        /// </summary>
-        /// <param name="state">Reference to the player state component to update</param>
-        /// <param name="deltaTime">Time elapsed since last frame</param>
-        private static void ProcessPlayerState(ref PlayerStateComponent state, float deltaTime)
-        {
-            // Skip processing for dead players
-            if (!state.IsAlive)
-                return;
-
-            // Regenerate stamina up to maximum capacity
-            RegenerateStamina(ref state, deltaTime);
-
-            // Check for death condition and handle state transition
-            CheckAndHandleDeath(ref state);
-
-            // Additional status effect processing can be added here
-            // ProcessStatusEffects(ref state, deltaTime);
-        }
-
-        /// <summary>
-        /// Regenerates player stamina at the defined rate, capped at maximum stamina.
-        /// </summary>
-        /// <param name="state">Reference to the player state component</param>
-        /// <param name="deltaTime">Time elapsed since last frame</param>
-        private static void RegenerateStamina(ref PlayerStateComponent state, float deltaTime)
-        {
-            state.Stamina += StaminaRegenRate * deltaTime;
+            // Update the component type handle
+            m_PlayerStateHandle.Update(this);
             
-            if (state.Stamina > state.MaxStamina)
+            var job = new PlayerStateJob
             {
-                state.Stamina = state.MaxStamina;
-            }
-        }
+                DeltaTime = SystemAPI.Time.DeltaTime,
+                StaminaRegenRate = StaminaRegenRate,
+                PlayerStateHandle = m_PlayerStateHandle
+            };
 
-        /// <summary>
-        /// Checks if player health has dropped to zero or below and handles death state transition.
-        /// </summary>
-        /// <param name="state">Reference to the player state component</param>
-        private static void CheckAndHandleDeath(ref PlayerStateComponent state)
-        {
-            if (state.CurrentHP <= 0)
-            {
-                state.IsAlive = false;
-                state.CurrentHP = 0;
-                
-                // TODO: Consider adding death event messaging system here
-                // This could trigger death animations, respawn timers, or UI updates
-            }
+            // Schedule the job
+            Dependency = job.ScheduleParallel(m_PlayerQuery, Dependency);
         }
 
         #endregion

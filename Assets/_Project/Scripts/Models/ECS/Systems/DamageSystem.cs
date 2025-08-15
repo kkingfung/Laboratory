@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Netcode;
 using Unity.Transforms;
 using UnityEngine;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models.ECS.Systems
 {

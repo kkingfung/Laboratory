@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.ECS.Components;
+using Laboratory.Infrastructure.Networking;
 
 namespace Laboratory.ECS.Systems
 {

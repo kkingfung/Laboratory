@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Laboratory.UI.Character
+namespace Laboratory.UI.Helper
 {
     /// <summary>
     /// UI controller for character customization interface. 

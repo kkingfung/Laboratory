@@ -3,7 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
-using Laboratory.Combat;
+using Laboratory.Gameplay.Combat;
 
 namespace Laboratory.ECS.Systems
 {

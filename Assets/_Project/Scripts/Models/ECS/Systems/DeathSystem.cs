@@ -1,6 +1,8 @@
 using Unity.Entities;
 using Unity.Netcode;
 using UnityEngine;
+using Laboratory.Models.ECS.Components;
+using Laboratory.Infrastructure.Networking;
 
 namespace Laboratory.Models.ECS.Systems
 {

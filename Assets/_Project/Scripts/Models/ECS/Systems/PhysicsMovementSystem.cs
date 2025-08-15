@@ -6,6 +6,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.ECS.Systems
 {
@@ -101,7 +102,8 @@ namespace Laboratory.ECS.Systems
                 MaxVelocity = MaxVelocityMagnitude
             };
 
-            state.Dependency = movementJob.ScheduleParallel(state.Dependency);
+            // Use WithAll to filter entities that have PlayerTag component
+            state.Dependency = movementJob.WithAll<PlayerTag>().ScheduleParallel(state.Dependency);
         }
 
         /// <summary>
@@ -156,7 +158,7 @@ namespace Laboratory.ECS.Systems
             /// </summary>
             /// <param name="transform">The entity's transform component (position/rotation)</param>
             /// <param name="velocity">The entity's physics velocity component</param>
-            public void Execute(ref LocalTransform transform, in PhysicsVelocity velocity, in PlayerTag playerTag)
+            public void Execute(ref LocalTransform transform, in PhysicsVelocity velocity)
             {
                 // Validate velocity to prevent physics instability
                 var clampedVelocity = ValidateVelocity(velocity.Linear);

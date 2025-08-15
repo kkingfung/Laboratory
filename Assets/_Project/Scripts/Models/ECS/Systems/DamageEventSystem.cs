@@ -1,4 +1,5 @@
 using UnityEngine;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models.ECS.Systems
 {

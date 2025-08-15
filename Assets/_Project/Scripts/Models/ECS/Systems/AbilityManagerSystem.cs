@@ -27,8 +27,21 @@ namespace Laboratory.Models.ECS.Systems
 
             Entities.ForEach((ref AbilityComponent ability) =>
             {
-                UpdateCooldownTimer(ref ability, deltaTime);
-                ProcessActivationRequest(ref ability);
+                // Update cooldown timer
+                if (ability.CooldownRemaining > 0f)
+                {
+                    ability.CooldownRemaining -= deltaTime;
+                    if (ability.CooldownRemaining < 0f)
+                        ability.CooldownRemaining = 0f;
+                }
+
+                // Process activation request
+                if (ability.RequestedActivation && ability.CooldownRemaining == 0f)
+                {
+                    ability.IsActive = true;
+                    ability.CooldownRemaining = ability.CooldownDuration;
+                    ability.RequestedActivation = false;
+                }
             }).Schedule();
         }
 
@@ -36,34 +49,7 @@ namespace Laboratory.Models.ECS.Systems
 
         #region Private Methods
 
-        /// <summary>
-        /// Updates the cooldown timer for an ability component.
-        /// </summary>
-        /// <param name="ability">The ability component to update</param>
-        /// <param name="deltaTime">Time elapsed since last frame</param>
-        private void UpdateCooldownTimer(ref AbilityComponent ability, float deltaTime)
-        {
-            if (ability.CooldownRemaining > 0f)
-            {
-                ability.CooldownRemaining -= deltaTime;
-                if (ability.CooldownRemaining < 0f)
-                    ability.CooldownRemaining = 0f;
-            }
-        }
-
-        /// <summary>
-        /// Processes ability activation requests when cooldown is complete.
-        /// </summary>
-        /// <param name="ability">The ability component to process</param>
-        private void ProcessActivationRequest(ref AbilityComponent ability)
-        {
-            if (ability.RequestedActivation && ability.CooldownRemaining == 0f)
-            {
-                ability.IsActive = true;
-                ability.CooldownRemaining = ability.CooldownDuration;
-                ability.RequestedActivation = false;
-            }
-        }
+        // Private methods removed - logic inlined into Entities.ForEach for Burst compatibility
 
         #endregion
 

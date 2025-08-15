@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models.ECS.Systems
 {
@@ -26,12 +27,10 @@ namespace Laboratory.Models.ECS.Systems
         /// </summary>
         protected override void OnUpdate()
         {
-            Entities
-                .WithAll<PlayerInputComponent, PlayerStateComponent>()
-                .ForEach((ref PlayerStateComponent state, in PlayerInputComponent input) =>
-                {
-                    ProcessCombatInput(ref state, in input);
-                }).ScheduleParallel();
+            foreach (var (playerState, playerInput) in SystemAPI.Query<RefRW<PlayerStateComponent>, RefRO<PlayerInputComponent>>().WithAll<PlayerInputComponent, PlayerStateComponent>())
+            {
+                ProcessCombatInput(ref playerState.ValueRW, in playerInput.ValueRO);
+            }
         }
 
         #endregion
