@@ -7,7 +7,7 @@ using Laboratory.Gameplay.Combat;
 using Laboratory.Models.ECS.Components;
 using Laboratory.Models.ECS.Systems;
 
-namespace Laboratory.ECS.Systems
+namespace Laboratory.Models.ECS.Systems
 {
     /// <summary>
     /// NetworkBehaviour system responsible for handling networked damage events and broadcasting
@@ -273,13 +273,13 @@ namespace Laboratory.ECS.Systems
         /// <returns>Configured damage event structure</returns>
         private DamageEvent CreateDamageEvent(ulong targetNetworkId, float damage, Vector3 hitDirection, ulong attackerId)
         {
-            return new DamageEvent
-            {
-                TargetId = targetNetworkId,
-                AttackerId = attackerId,
-                DamageAmount = damage,
-                HitDirection = hitDirection
-            };
+            return new DamageEvent(
+            
+                targetClientId : targetNetworkId,
+                attackerClientId : attackerId,
+                damageAmount : damage,
+                hitDirection : hitDirection
+            );
         }
 
         /// <summary>

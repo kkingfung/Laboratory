@@ -23,7 +23,7 @@ namespace Laboratory.Models.ECS.Systems
         /// </summary>
         protected override void OnUpdate()
         {
-            float deltaTime = Time.DeltaTime;
+            float deltaTime = SystemAPI.Time.DeltaTime;
 
             Entities.ForEach((ref AbilityComponent ability) =>
             {

@@ -25,8 +25,7 @@ namespace Laboratory.Models
 
         private void Awake()
         {
-            _networkHealth = GetComponent<NetworkHealth>();
-            if (_networkHealth == null)
+            if (networkHealth == null)
             {
                 Debug.LogError($"NetworkHealth component not found on {gameObject.name}");
             }

@@ -66,17 +66,17 @@ namespace Laboratory.Core
         /// <summary>
         /// Registers a new game state.
         /// </summary>
-        public void RegisterState(string key, GameStateMachine.IGameState state)
+        public void RegisterState(GameState gameState, GameStateMachine.IGameState state)
         {
-            _stateMachine?.RegisterState(key, state);
+            _stateMachine?.RegisterState(gameState, state);
         }
 
         /// <summary>
         /// Changes the current game state.
         /// </summary>
-        public void ChangeState(string key)
+        public void ChangeState(GameState gameState)
         {
-            _stateMachine?.ChangeState(key);
+            _stateMachine?.ChangeState(gameState);
         }
 
         #endregion

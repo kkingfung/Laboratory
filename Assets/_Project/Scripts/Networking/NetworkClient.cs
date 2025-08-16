@@ -87,7 +87,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
                 Connected?.Invoke();
                 _messageBroker.Publish(new NetworkConnectedMessage());
 
-                _ = ReceiveLoopAsync(_cts.Token).Forget();
+                ReceiveLoopAsync(_cts.Token).Forget();
             }
             catch (Exception ex)
             {

@@ -10,7 +10,27 @@ namespace Laboratory.Core
     {
         #region Fields
 
+        private static ServiceLocator _instance;
         private readonly Dictionary<Type, object> _services = new Dictionary<Type, object>();
+
+        #endregion
+
+        #region Singleton
+
+        /// <summary>
+        /// Gets the singleton instance of the ServiceLocator.
+        /// </summary>
+        public static ServiceLocator Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = new ServiceLocator();
+                }
+                return _instance;
+            }
+        }
 
         #endregion
 
@@ -34,6 +54,14 @@ namespace Laboratory.Core
                 return (T)service;
             }
             throw new InvalidOperationException($"Service of type {typeof(T)} not registered.");
+        }
+
+        /// <summary>
+        /// Resolves a registered service instance by type. Alias for Get&lt;T&gt;().
+        /// </summary>
+        public T Resolve<T>()
+        {
+            return Get<T>();
         }
 
         /// <summary>

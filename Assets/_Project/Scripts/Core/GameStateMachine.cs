@@ -10,7 +10,7 @@ namespace Laboratory.Core
     {
         #region Fields
 
-        private readonly Dictionary<string, IGameState> _states = new();
+        private readonly Dictionary<GameStateManager.GameState, IGameState> _states = new();
         private IGameState? _currentState;
 
         #endregion
@@ -29,18 +29,18 @@ namespace Laboratory.Core
         /// <summary>
         /// Registers a new game state.
         /// </summary>
-        public void RegisterState(string key, IGameState state)
+        public void RegisterState(GameStateManager.GameState gameState, IGameState state)
         {
-            if (!_states.ContainsKey(key))
-                _states.Add(key, state);
+            if (!_states.ContainsKey(gameState))
+                _states.Add(gameState, state);
         }
 
         /// <summary>
         /// Changes the current state to the specified key.
         /// </summary>
-        public void ChangeState(string key)
+        public void ChangeState(GameStateManager.GameState gameState)
         {
-            if (_states.TryGetValue(key, out var newState))
+            if (_states.TryGetValue(gameState, out var newState))
             {
                 _currentState?.OnExit();
                 _currentState = newState;
@@ -48,7 +48,7 @@ namespace Laboratory.Core
             }
             else
             {
-                throw new ArgumentException($"GameState '{key}' not found.");
+                throw new ArgumentException($"GameState '{gameState}' not found.");
             }
         }
 

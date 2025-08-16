@@ -35,7 +35,7 @@ namespace Laboratory.Models.ECS.Systems
             if (!NetworkManager.Singleton.IsServer)
                 return;
 
-            float deltaTime = Time.DeltaTime;
+            float deltaTime = SystemAPI.Time.DeltaTime;
 
             // Process all dead entities with respawn timers
             Entities

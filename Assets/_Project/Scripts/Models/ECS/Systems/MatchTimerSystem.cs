@@ -4,7 +4,7 @@ using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Gameplay.Lobby;
 
-namespace Laboratory.ECS.Systems
+namespace Laboratory.Models.ECS.Systems
 {
     /// <summary>
     /// System responsible for managing match timer functionality during gameplay.
@@ -74,7 +74,7 @@ namespace Laboratory.ECS.Systems
         {
             try
             {
-                _matchTimer = Infrastructure.ServiceLocator.Instance.Resolve<MatchTimer>();
+                _matchTimer = ServiceLocator.Instance.Resolve<MatchTimer>();
                 
                 if (_matchTimer == null)
                 {

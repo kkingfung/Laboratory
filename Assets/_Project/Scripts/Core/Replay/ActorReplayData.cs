@@ -8,7 +8,7 @@ namespace Laboratory.Core.Replay
     /// Contains actor name and frame data for replay functionality.
     /// </summary>
     [Serializable]
-    public struct ActorReplayData
+    public class ActorReplayData
     {
         #region Fields
 

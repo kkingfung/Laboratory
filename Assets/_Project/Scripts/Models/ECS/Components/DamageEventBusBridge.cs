@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Entities;
 using System;
+using Laboratory.Gameplay.Combat;
 
 namespace Laboratory.Models.ECS.Components
 {

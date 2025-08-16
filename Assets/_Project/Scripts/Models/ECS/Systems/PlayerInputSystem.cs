@@ -8,7 +8,7 @@ using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Models.ECS.Components;
 using Laboratory.Infrastructure.Networking;
 
-namespace Laboratory.ECS.Systems
+namespace Laboratory.Models.ECS.Systems
 {
     /// <summary>
     /// MonoBehaviour system responsible for capturing player input using Unity's Input System
@@ -34,7 +34,7 @@ namespace Laboratory.ECS.Systems
         /// <summary>
         /// Entity manager for accessing and modifying ECS entities and components
         /// </summary>
-        private EntityManager _entityManager = null!;
+        private EntityManager _entityManager;
         
         /// <summary>
         /// The player entity that this input system controls
@@ -131,7 +131,7 @@ namespace Laboratory.ECS.Systems
         {
             try
             {
-                _entityManager = World.DefaultGameObjectInjectionWorld?.EntityManager;
+                _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
                 
                 if (_entityManager == null)
                 {
@@ -240,7 +240,7 @@ namespace Laboratory.ECS.Systems
             {
                 if (_controls != null)
                 {
-                    _controls.Enable();
+                    _controls.InGame.Enable();
                     Debug.Log("Input controls enabled");
                 }
             }
@@ -259,7 +259,7 @@ namespace Laboratory.ECS.Systems
             {
                 if (_controls != null)
                 {
-                    _controls.Disable();
+                    _controls.InGame.Disable();
                     Debug.Log("Input controls disabled");
                 }
             }
@@ -314,23 +314,29 @@ namespace Laboratory.ECS.Systems
         {
             var input = new PlayerInputComponent();
 
-            // Read movement input
-            Vector2 rawMovement = _controls.Gameplay.Move.ReadValue<Vector2>();
-            input.MoveDirection = ApplyDeadzone(new float2(rawMovement.x, rawMovement.y));
+            // Read movement input from directional buttons
+            float horizontal = 0f;
+            float vertical = 0f;
+            
+            if (_controls.InGame.GoEast.IsPressed()) horizontal += 1f;
+            if (_controls.InGame.GoWest.IsPressed()) horizontal -= 1f;
+            if (_controls.InGame.GoNorth.IsPressed()) vertical += 1f;
+            if (_controls.InGame.GoSouth.IsPressed()) vertical -= 1f;
+            
+            input.MoveDirection = ApplyDeadzone(new float2(horizontal, vertical));
 
-            // Read look input with sensitivity
-            Vector2 rawLook = _controls.Gameplay.Look.ReadValue<Vector2>();
-            var lookInput = new float2(rawLook.x, rawLook.y) * _lookSensitivity;
-            input.LookDirection = new float3(lookInput.x, lookInput.y, 0);
+            // No look input available in current input map - set to zero
+            input.LookDirection = float3.zero;
 
             // Read discrete action inputs
-            input.AttackPressed = _controls.Gameplay.Attack.WasPressedThisFrame();
-            input.JumpPressed = _controls.Gameplay.Jump.IsPressed();
-            
-            // Add additional input actions as needed
-            input.SprintPressed = _controls.Gameplay.Sprint?.IsPressed() ?? false;
-            input.CrouchPressed = _controls.Gameplay.Crouch?.IsPressed() ?? false;
+            input.AttackPressed = _controls.InGame.AttackOrThrow.WasPressedThisFrame();
+            input.ActionPressed = _controls.InGame.ActionOrCraft.WasPressedThisFrame();
+            input.JumpPressed = _controls.InGame.Jump.IsPressed();
+            input.RollPressed = _controls.InGame.Roll.IsPressed();
 
+            // Add additional input actions as needed
+            input.WeaponSkillPressed = _controls.InGame.WeaponSkill.IsPressed();
+            input.CharSkillPressed = _controls.InGame.CharSkill.IsPressed();
             return input;
         }
 
@@ -362,11 +368,12 @@ namespace Laboratory.ECS.Systems
         private bool InputComponentEquals(PlayerInputComponent a, PlayerInputComponent b)
         {
             return math.all(a.MoveDirection == b.MoveDirection) &&
-                   math.all(a.LookDirection == b.LookDirection) &&
                    a.AttackPressed == b.AttackPressed &&
                    a.JumpPressed == b.JumpPressed &&
-                   a.SprintPressed == b.SprintPressed &&
-                   a.CrouchPressed == b.CrouchPressed;
+                   a.ActionPressed == b.ActionPressed &&
+                   a.RollPressed == b.RollPressed &&
+                   a.CharSkillPressed == b.CharSkillPressed &&
+                   a.WeaponSkillPressed == b.WeaponSkillPressed;
         }
 
         /// <summary>
@@ -392,7 +399,7 @@ namespace Laboratory.ECS.Systems
         {
             try
             {
-                _controls?.Disable();
+                _controls?.InGame.Disable();
                 _controls?.Dispose();
                 _controls = null!;
                 

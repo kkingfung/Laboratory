@@ -5,7 +5,7 @@ using UnityEngine;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
 
-namespace Laboratory.ECS.Systems
+namespace Laboratory.Models.ECS.Systems
 {
     /// <summary>
     /// System responsible for reacting to game state changes and enabling/disabling
@@ -71,7 +71,7 @@ namespace Laboratory.ECS.Systems
         {
             try
             {
-                _gameStateManager = Infrastructure.ServiceLocator.Instance.Resolve<GameStateManager>();
+                _gameStateManager = ServiceLocator.Instance.Resolve<GameStateManager>();
             }
             catch (Exception ex)
             {
@@ -135,9 +135,9 @@ namespace Laboratory.ECS.Systems
             }
 
             // Enable/disable core gameplay systems
-            SetSystemEnabled<Laboratory.ECS.Systems.PhysicsMovementSystem>(enabled);
-            SetSystemEnabled<Laboratory.ECS.Systems.CombatSystem>(enabled);
-            SetSystemEnabled<Laboratory.ECS.Systems.NetworkSyncSystem>(enabled);
+            SetSystemEnabled<PhysicsMovementSystem>(enabled);
+            SetSystemEnabled<CombatSystem>(enabled);
+            SetSystemEnabled<NetworkSyncSystem>(enabled);
             
             // Add more gameplay systems here as needed
             // SetSystemEnabled<Laboratory.ECS.Systems.YourGameplaySystem>(enabled);

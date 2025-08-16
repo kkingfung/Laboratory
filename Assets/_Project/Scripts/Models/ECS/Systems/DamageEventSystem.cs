@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models.ECS.Systems
@@ -18,9 +19,6 @@ namespace Laboratory.Models.ECS.Systems
         public void ApplyDamage(DamageEvent damageEvent)
         {
             var targetHealth = GetTargetHealthComponent(damageEvent.TargetId);
-            if (targetHealth == null) 
-                return;
-
             ProcessDamageApplication(targetHealth, damageEvent);
             PublishDamageEvent(damageEvent);
             CheckForDeath(targetHealth, damageEvent);
@@ -81,10 +79,10 @@ namespace Laboratory.Models.ECS.Systems
         private void PublishDeathEvent(DamageEvent damageEvent)
         {
             var deathEvent = new DeathEvent
-            {
-                VictimId = damageEvent.TargetId,
-                KillerId = damageEvent.AttackerId
-            };
+            (
+                victimClientId : damageEvent.TargetId,
+                killerClientId : damageEvent.AttackerId
+            );
             MessageBus.Publish(deathEvent);
         }
 

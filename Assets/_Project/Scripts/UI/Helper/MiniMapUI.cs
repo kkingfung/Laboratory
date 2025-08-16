@@ -159,12 +159,15 @@ namespace Laboratory.UI.Helper
         /// </summary>
         private void SetupInputControls()
         {
+            // Implement if necessary
+            /* 
             _controls = new PlayerControls();
             _controls.MiniMap.Zoom.performed += ctx => OnZoomInput(ctx.ReadValue<float>());
             _controls.MiniMap.Pan.started += ctx => StartPan(ctx.ReadValue<Vector2>());
             _controls.MiniMap.Pan.canceled += ctx => EndPan();
             _controls.MiniMap.Pan.performed += ctx => OnPanInput(ctx.ReadValue<Vector2>());
             _controls.MiniMap.Click.performed += ctx => OnMiniMapClick(ctx.ReadValue<Vector2>());
+            */
         }
 
         #endregion
@@ -405,7 +408,7 @@ namespace Laboratory.UI.Helper
             {
                 elapsed += Time.unscaledDeltaTime;
                 cg.alpha = Mathf.Lerp(fadeIn ? 0f : 1f, fadeIn ? 1f : 0f, elapsed / duration);
-                await UniTask.Yield();
+                await UniTask.DelayFrame();
             }
 
             cg.alpha = fadeIn ? 1f : 0f;

@@ -25,7 +25,7 @@ namespace Laboratory.Core.Ragdoll
         /// </summary>
         protected override void OnUpdate()
         {
-            float deltaTime = Time.DeltaTime;
+            float deltaTime = SystemAPI.Time.DeltaTime;
             var commandBuffer = _commandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
             Entities.WithAll<BlendBackTag, BlendData>().ForEach((Entity entity, int entityInQueryIndex, ref LocalTransform transform, ref BlendData blend) =>

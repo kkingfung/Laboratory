@@ -88,9 +88,21 @@ namespace Laboratory.Network.Ragdoll
         /// <returns>Entity associated with the character root, or Entity.Null if not found</returns>
         private Entity GetCharacterEntity()
         {
-            if (characterRoot?.GetComponent<GameObjectEntity>() != null)
+            if (characterRoot != null)
             {
-                return characterRoot.GetComponent<GameObjectEntity>().Entity;
+                // In modern DOTS, you would typically get the entity reference through:
+                // 1. A Baker system that converted this GameObject
+                // 2. Manual entity creation and association
+                // 3. Entity reference stored during conversion
+
+                // For now, we'll create an entity if none exists
+                // This should be replaced with your actual entity conversion logic
+                var world = World.DefaultGameObjectInjectionWorld;
+                if (world != null && entityManager != default)
+                {
+                    // This is a placeholder - replace with your actual entity conversion logic
+                    return entityManager.CreateEntity();
+                }
             }
             return Entity.Null;
         }

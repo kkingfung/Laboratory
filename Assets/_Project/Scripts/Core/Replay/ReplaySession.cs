@@ -8,7 +8,7 @@ namespace Laboratory.Core.Replay
     /// Stores all actor data and frame rate information for a complete replay session.
     /// </summary>
     [Serializable]
-    public struct ReplaySession
+    public class ReplaySession
     {
         #region Fields
 

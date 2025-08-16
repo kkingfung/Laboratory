@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Collections;
 using UnityEngine;
 using Laboratory.Models.ECS.Components;
+using Laboratory.Gameplay.Combat;
 
 namespace Laboratory.Models.ECS.Systems
 {
@@ -74,10 +75,10 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="damageEvent">The damage event to process</param>
         private void ProcessSingleDamageEvent(DamageEvent damageEvent)
         {
-            if (!EntityManager.HasComponent<Unity.Netcode.NetworkObject>(damageEvent.TargetEntity))
+            if (!EntityManager.HasComponent<Unity.Netcode.NetworkObject>(damageEvent.TargetClientId))
                 return;
 
-            var networkObject = EntityManager.GetComponentObject<Unity.Netcode.NetworkObject>(damageEvent.TargetEntity);
+            var networkObject = EntityManager.GetComponentObject<Unity.Netcode.NetworkObject>(damageEvent.TargetClientId);
             var gameObject = networkObject.gameObject;
 
             TriggerDamageIndicator(damageEvent, gameObject);

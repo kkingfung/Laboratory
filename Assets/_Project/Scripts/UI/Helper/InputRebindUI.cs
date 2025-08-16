@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using Laboratory.Gameplay.Input;
 
 namespace Laboratory.UI.Helper
 {
@@ -132,9 +133,9 @@ namespace Laboratory.UI.Helper
             actionReference.action.Enable();
             
             // Save the rebindings
-            if (Laboratory.Infrastructure.Input.InputRebindManager.Instance != null)
+            if (InputRebindManager.Instance != null)
             {
-                Laboratory.Infrastructure.Input.InputRebindManager.Instance.SaveRebinds();
+                InputRebindManager.Instance.SaveRebinds();
             }
             
             // Update the display and clean up

@@ -6,6 +6,7 @@ using UnityEngine;
 using Laboratory.Infrastructure;
 using Laboratory.Models.ECS.Components;
 using Laboratory.Tools;
+using Laboratory.Core;
 
 namespace Laboratory.Models.ECS.Systems
 {
@@ -49,7 +50,7 @@ namespace Laboratory.Models.ECS.Systems
             base.OnCreate();
 
             // Resolve ReplayRecorder instance from ServiceLocator
-            _replayRecorder = Laboratory.Infrastructure.ServiceLocator.Instance.Resolve<ReplayRecorder>();
+            _replayRecorder = ServiceLocator.Instance.Resolve<ReplayRecorder>();
 
             // Initialize in non-replaying state
             _isReplaying = false;

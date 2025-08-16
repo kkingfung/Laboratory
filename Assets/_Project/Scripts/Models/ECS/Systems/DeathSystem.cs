@@ -33,7 +33,7 @@ namespace Laboratory.Models.ECS.Systems
             if (!NetworkManager.Singleton.IsServer)
                 return;
 
-            float currentTime = (float)Time.ElapsedTime;
+            float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
             Entities
                 .WithNone<DeadTag>()

@@ -8,7 +8,7 @@ using Laboratory.Models.ECS.Components;
 
 #nullable enable
 
-namespace Laboratory.ECS.Systems
+namespace Laboratory.Models.ECS.Systems
 {
     /// <summary>
     /// System responsible for synchronizing player state and input data with the network.
@@ -97,7 +97,7 @@ namespace Laboratory.ECS.Systems
         {
             try
             {
-                var serviceLocator = Infrastructure.ServiceLocator.Instance;
+                var serviceLocator = ServiceLocator.Instance;
                 if (serviceLocator.TryResolve<NetworkClient>(out var client))
                 {
                     _networkClient = client;
@@ -279,10 +279,9 @@ namespace Laboratory.ECS.Systems
                     Position = state.Position,
                     Rotation = state.Rotation,
                     Velocity = state.Velocity,
-                    Health = state.Health,
-                    InputMovement = input.Movement,
-                    InputRotation = input.Rotation,
-                    InputActions = input.Actions
+                    Health = state.CurrentHP,
+                    InputMovement = input.MoveDirection,
+                    InputAction = (byte)input.CurrentActions
                 };
 
                 return SerializeMessage(stateData);
@@ -447,8 +446,7 @@ namespace Laboratory.ECS.Systems
             public Vector3 Velocity;
             public float Health;
             public Vector2 InputMovement;
-            public float InputRotation;
-            public int InputActions;
+            public byte InputAction;
         }
 
         #endregion

@@ -41,7 +41,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
         /// </summary>
         public IDisposable Subscribe<T>(Action<T> handler)
         {
-            return _messageBroker.Subscribe(handler);
+            return _messageBroker.Receive<T>().Subscribe(handler);
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
 
             public IDisposable Subscribe(System.IObserver<T> observer)
             {
-                return _broker.Subscribe(observer.OnNext);
+                return _broker.Receive<T>().Subscribe(observer.OnNext);
             }
         }
 

@@ -412,7 +412,7 @@ namespace Laboratory.UI.Helper
         /// </summary>
         public void UpdateUI()
         {
-            nameText.text = PlayerData.PlayerName.Value;
+            nameText.text = PlayerData.PlayerName.Value.ToString();
             scoreText.text = PlayerData.Score.Value.ToString();
             pingText.text = $"{PlayerData.Ping.Value} ms";
             UpdatePingBar(PlayerData.Ping.Value);

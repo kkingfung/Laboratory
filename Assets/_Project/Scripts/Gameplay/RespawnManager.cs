@@ -9,6 +9,32 @@ namespace Laboratory.Gameplay.Respawn
     /// </summary>
     public class RespawnManager : MonoBehaviour
     {
+        #region Singleton
+
+        private static RespawnManager _instance;
+
+        /// <summary>
+        /// Gets the singleton instance of RespawnManager.
+        /// </summary>
+        public static RespawnManager Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindObjectOfType<RespawnManager>();
+                    if (_instance == null)
+                    {
+                        GameObject go = new GameObject("RespawnManager");
+                        _instance = go.AddComponent<RespawnManager>();
+                        DontDestroyOnLoad(go);
+                    }
+                }
+                return _instance;
+            }
+        }
+
+        #endregion
         #region Fields
 
         [Header("Respawn Settings")]
@@ -21,9 +47,30 @@ namespace Laboratory.Gameplay.Respawn
 
         #region Unity Override Methods
 
+        private void Awake()
+        {
+            if (_instance == null)
+            {
+                _instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else if (_instance != this)
+            {
+                Destroy(gameObject);
+            }
+        }
+
         private void Update()
         {
             UpdateRespawnTimers();
+        }
+
+        private void OnDestroy()
+        {
+            if (_instance == this)
+            {
+                _instance = null;
+            }
         }
 
         #endregion

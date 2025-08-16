@@ -7,7 +7,7 @@ using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.UI;
 
-namespace Laboratory.ECS.Systems
+namespace Laboratory.Models.ECS.Systems
 {
     /// <summary>
     /// System responsible for managing network chat functionality including sending and receiving
@@ -92,8 +92,8 @@ namespace Laboratory.ECS.Systems
         {
             try
             {
-                _messageBroker = Infrastructure.ServiceLocator.Instance.Resolve<IMessageBroker>();
-                _networkTransport = Infrastructure.ServiceLocator.Instance.Resolve<INetworkChatTransport>();
+                _messageBroker = ServiceLocator.Instance.Resolve<IMessageBroker>();
+                _networkTransport = ServiceLocator.Instance.Resolve<INetworkChatTransport>();
                 
                 ValidateDependencies();
                 _isInitialized = true;

@@ -69,7 +69,7 @@ namespace Laboratory.Core.Ragdoll
         /// <param name="hitEvent">Hit event containing force and timing data</param>
         private void ApplyPartialRagdollToEntity(NativeArray<Entity> boneArray, HitEvent hitEvent)
         {
-            PartialRagdollControllerDots.ApplyPartialRagdoll(
+            PartialRagdollControllerByDots.ApplyPartialRagdoll(
                 EntityManager,
                 boneArray,
                 hitEvent.Force,

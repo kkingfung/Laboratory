@@ -8,7 +8,7 @@ using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Models.ECS.Components;
 
-namespace Laboratory.ECS.Systems
+namespace Laboratory.Models.ECS.Systems
 {
     /// <summary>
     /// System responsible for handling physics-based movement calculations for entities.

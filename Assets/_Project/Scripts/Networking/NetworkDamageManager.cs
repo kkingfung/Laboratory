@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Infrastructure.Networking
 {

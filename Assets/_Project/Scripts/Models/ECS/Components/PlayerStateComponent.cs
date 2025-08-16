@@ -40,6 +40,15 @@ namespace Laboratory.Models.ECS.Components
         /// <summary>Current status flags bitmask (e.g. stunned, poisoned).</summary>
         public uint StatusFlags;
 
+        /// <summary>Current Position.</summary>
+        public Vector3 Position;
+
+        /// <summary>Current Rotation.</summary>
+        public Quaternion Rotation;
+
+        /// <summary>Current Velocity.</summary>
+        public Vector3 Velocity;
+
         /// <summary>Resets to default alive state with full HP and stamina.</summary>
         public void ResetState(int maxHp, float maxStamina)
         {

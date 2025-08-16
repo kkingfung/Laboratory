@@ -1,6 +1,8 @@
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using Laboratory.Gameplay.Respawn;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Infrastructure.Networking
 {

@@ -1,5 +1,6 @@
 using MessagePipe;
 using UniRx;
+using Laboratory.Core.Events;
 
 namespace Laboratory.Models
 {
@@ -31,7 +32,7 @@ namespace Laboratory.Models
         /// <param name="message">The notification message to send.</param>
         public void SendNotification(string message)
         {
-            _messageBroker.Publish(new Laboratory.UI.Events.NotificationEvent(message));
+            _messageBroker.Publish(new NotificationEvent(message));
         }
 
         #endregion

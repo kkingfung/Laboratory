@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
 using Laboratory.Gameplay.UI;

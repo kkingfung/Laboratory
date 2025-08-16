@@ -116,17 +116,17 @@ namespace Laboratory.UI.Helper
             
             if (hairColorPicker != null)
             {
-                hairColorPicker.onColorChanged += customizationManager.SetHairColor;
+                hairColorPicker.OnColorChanged += customizationManager.SetHairColor;
             }
             
             if (skinColorPicker != null)
             {
-                skinColorPicker.onColorChanged += customizationManager.SetSkinColor;
+                skinColorPicker.OnColorChanged += customizationManager.SetSkinColor;
             }
             
             if (armorColorPicker != null)
             {
-                armorColorPicker.onColorChanged += customizationManager.SetArmorColor;
+                armorColorPicker.OnColorChanged += customizationManager.SetArmorColor;
             }
         }
         

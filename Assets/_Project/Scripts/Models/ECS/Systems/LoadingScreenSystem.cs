@@ -6,7 +6,7 @@ using UnityEngine;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
 
-namespace Laboratory.ECS.Systems
+namespace Laboratory.Models.ECS.Systems
 {
     /// <summary>
     /// System responsible for managing loading screen operations and scene transitions.
@@ -82,8 +82,8 @@ namespace Laboratory.ECS.Systems
         {
             try
             {
-                _gameStateManager = Infrastructure.ServiceLocator.Instance.Resolve<GameStateManager>();
-                _loadingScreen = Infrastructure.ServiceLocator.Instance.Resolve<LoadingScreen>();
+                _gameStateManager = ServiceLocator.Instance.Resolve<GameStateManager>();
+                _loadingScreen = ServiceLocator.Instance.Resolve<LoadingScreen>();
                 
                 if (_gameStateManager == null)
                 {
@@ -205,7 +205,7 @@ namespace Laboratory.ECS.Systems
         {
             try
             {
-                _gameStateManager.SetState(GameStateManager.GameState.Playing);
+                _gameStateManager.ChangeState(GameStateManager.GameState.Playing);
                 Debug.Log("Transitioned to Playing state");
             }
             catch (Exception ex)
@@ -227,7 +227,7 @@ namespace Laboratory.ECS.Systems
                 await Task.Delay(100);
                 
                 // Transition to main menu or error state
-                _gameStateManager.SetState(GameStateManager.GameState.MainMenu);
+                _gameStateManager.ChangeState(GameStateManager.GameState.MainMenu);
                 Debug.Log("Transitioned to MainMenu state due to loading error");
                 
                 // Optionally show error message to user through loading screen

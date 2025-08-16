@@ -2,19 +2,11 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Laboratory.Gameplay.Lobby;
 
 namespace Laboratory.UI.Helper
 {
-    /// <summary>
-    /// Represents the different states of matchmaking process.
-    /// </summary>
-    public enum MatchmakingState
-    {
-        Idle,
-        Searching,
-        MatchFound,
-        Failed
-    }
+    using MatchmakingState = MatchmakingManager.MatchmakingState;
 
     /// <summary>
     /// UI component for managing matchmaking interface and status display.
@@ -68,7 +60,7 @@ namespace Laboratory.UI.Helper
         private void OnEnable()
         {
             SubscribeToMatchmakingEvents();
-            
+
             if (MatchmakingManager.Instance != null)
                 UpdateUI(MatchmakingManager.Instance.CurrentState);
         }
@@ -159,7 +151,7 @@ namespace Laboratory.UI.Helper
         {
             if (startButton != null)
                 startButton.onClick.AddListener(OnStartClicked);
-            
+
             if (cancelButton != null)
                 cancelButton.onClick.AddListener(OnCancelClicked);
 
@@ -174,7 +166,7 @@ namespace Laboratory.UI.Helper
         {
             if (startButton != null)
                 startButton.onClick.RemoveListener(OnStartClicked);
-            
+
             if (cancelButton != null)
                 cancelButton.onClick.RemoveListener(OnCancelClicked);
 
@@ -229,15 +221,15 @@ namespace Laboratory.UI.Helper
                 case MatchmakingState.Idle:
                     SetIdleState();
                     break;
-                    
+
                 case MatchmakingState.Searching:
                     SetSearchingState();
                     break;
-                    
+
                 case MatchmakingState.MatchFound:
                     SetMatchFoundState();
                     break;
-                    
+
                 case MatchmakingState.Failed:
                     SetFailedState();
                     break;

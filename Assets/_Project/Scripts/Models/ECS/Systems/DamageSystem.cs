@@ -67,7 +67,7 @@ namespace Laboratory.Models.ECS.Systems
         /// </summary>
         /// <param name="health">The health component to modify</param>
         /// <param name="damageAmount">Amount of damage to apply</param>
-        private void ApplyDamageToHealth(ref HealthComponent health, float damageAmount)
+        private void ApplyDamageToHealth(ref HealthComponent health, int damageAmount)
         {
             health.CurrentHealth -= damageAmount;
             if (health.CurrentHealth < 0) 

@@ -157,7 +157,7 @@ namespace Laboratory.Infrastructure.Localization
             try
             {
                 // Switch to the selected locale
-                yield return LocalizationSettings.SelectLocaleAsync(selectedLocale);
+                LocalizationSettings.SelectedLocale = selectedLocale;
                 
                 // Save the language preference
                 SaveLanguagePreference(selectedLocale.Identifier.Code);

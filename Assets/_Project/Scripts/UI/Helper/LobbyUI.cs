@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Netcode;
+using Laboratory.Gameplay.Lobby;
 
 namespace Laboratory.UI.Helper
 {
