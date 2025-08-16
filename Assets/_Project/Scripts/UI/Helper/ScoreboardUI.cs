@@ -8,6 +8,7 @@ using TMPro;
 using Unity.Netcode;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
+using VContainer;
 using Laboratory.Infrastructure.Networking;
 
 namespace Laboratory.UI.Helper

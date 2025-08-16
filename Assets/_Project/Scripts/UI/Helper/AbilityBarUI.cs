@@ -1,6 +1,7 @@
 using System;
 using MessagePipe;
 using TMPro;
+using VContainer;
 using UnityEngine;
 using UnityEngine.UI;
 using Laboratory.Gameplay.Abilities;

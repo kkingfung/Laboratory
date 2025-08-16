@@ -13,7 +13,7 @@ namespace Laboratory.Core.Ragdoll
     /// This static utility class handles compression of bone transform data in the ECS architecture,
     /// using quantization techniques to minimize network bandwidth while maintaining acceptable precision.
     /// </remarks>
-    public static class RagdollTransformCompressorDots
+    public static class RagdollTransformCompressorByDots
     {
         #region Data Structures
 

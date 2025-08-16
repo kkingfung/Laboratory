@@ -79,6 +79,15 @@ namespace Laboratory.Infrastructure.Networking
         }
 
         /// <summary>
+        /// Applies damage to this health component. Server authority only.
+        /// </summary>
+        /// <param name="amount">Amount of damage to apply (must be positive).</param>
+        public void ApplyDamage(float amount)
+        {
+            ApplyDamage(Mathf.RoundToInt(amount));
+        }
+
+        /// <summary>
         /// Heals this health component. Server authority only.
         /// </summary>
         /// <param name="amount">Amount of health to restore (must be positive).</param>

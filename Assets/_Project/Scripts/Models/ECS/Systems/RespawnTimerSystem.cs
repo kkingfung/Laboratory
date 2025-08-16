@@ -1,5 +1,5 @@
 using Unity.Entities;
-using Unity.NetCode;
+using Unity.Netcode;
 using UnityEngine;
 using Laboratory.Infrastructure.Networking;
 using Laboratory.Models.ECS.Components;

@@ -15,23 +15,18 @@ namespace Laboratory.Models.ECS.Systems
     public partial class DamageSystem : SystemBase
     {
         #region Fields
-
-        /// <summary>
-        /// Lookup for network health components (read-only)
-        /// </summary>
-        private ComponentLookup<NetworkHealth> _networkHealthLookup;
-
+        // No component lookups needed for MonoBehaviour components
         #endregion
 
         #region Unity Override Methods
 
         /// <summary>
-        /// Initializes component lookups for efficient access.
+        /// System initialization.
         /// </summary>
         protected override void OnCreate()
         {
             base.OnCreate();
-            _networkHealthLookup = GetComponentLookup<NetworkHealth>(true);
+            // NetworkHealth is a MonoBehaviour, accessed through GameObject
         }
 
         /// <summary>
@@ -40,7 +35,6 @@ namespace Laboratory.Models.ECS.Systems
         protected override void OnUpdate()
         {
             var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            _networkHealthLookup.Update(this);
 
             Entities
                 .WithAll<DamageRequest, HealthComponent>()

@@ -1,4 +1,5 @@
 using UnityEngine;
+using Laboratory.Network.Ragdoll;
 
 namespace Laboratory.Core.Ragdoll
 {

@@ -1,5 +1,5 @@
 using UnityEngine;
-using Cinemachine;
+using Unity.Cinemachine;
 
 namespace Laboratory.Core.Replay
 {
@@ -17,7 +17,7 @@ namespace Laboratory.Core.Replay
 
         [Header("Camera Configuration")]
         [Tooltip("Cinemachine virtual camera used for following targets")]
-        [SerializeField] private CinemachineVirtualCamera virtualCamera;
+        [SerializeField] private CinemachineCamera  virtualCamera;
         
         [Tooltip("Current target transform to follow and look at")]
         [SerializeField] private Transform target;

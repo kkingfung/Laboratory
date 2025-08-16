@@ -12,6 +12,25 @@ namespace Laboratory.Core
     /// </summary>
     public class GameStateManager : MonoBehaviour
     {
+        #region Enums
+
+        /// <summary>
+        /// Default game states
+        /// </summary>
+        public enum GameState
+        {
+            None,
+            Initializing,
+            MainMenu,
+            Loading,
+            Playing,
+            Paused,
+            GameOver,
+            Disconnecting,
+        }
+
+        #endregion
+
         #region Fields
 
         private GameStateMachine _stateMachine;

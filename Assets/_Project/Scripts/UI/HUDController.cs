@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using Laboratory.Gameplay.Abilities;
 using Laboratory.UI.Helper;
-using Laboratory.Infrastructure.UI;
 
 namespace Laboratory.UI
 {
@@ -267,12 +266,12 @@ namespace Laboratory.UI
         /// <summary>
         /// Observable stream of damage events with source positions.
         /// </summary>
-        IObservable<Vector3> DamageTaken { get; }
+        UniRx.IObservable<Vector3> DamageTaken { get; }
         
         /// <summary>
         /// Observable stream of player transform changes.
         /// </summary>
-        IObservable<Transform> PlayerTransformObservable { get; }
+        UniRx.IObservable<Transform> PlayerTransformObservable { get; }
         
         /// <summary>
         /// Current player transform reference.

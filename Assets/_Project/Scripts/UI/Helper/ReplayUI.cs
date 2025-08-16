@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Laboratory.Core.Replay;
 
 namespace Laboratory.UI.Helper
 {

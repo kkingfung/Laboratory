@@ -7,6 +7,7 @@ using Laboratory.Infrastructure.AsyncUtils;
 using MessagePipe;
 using Unity.Entities;
 using UnityEngine;
+using UniRx;
 
 namespace Laboratory.Infrastructure.Networking
 {

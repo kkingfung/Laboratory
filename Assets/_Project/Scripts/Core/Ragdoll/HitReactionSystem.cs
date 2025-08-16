@@ -83,7 +83,15 @@ namespace Laboratory.Core.Ragdoll
         /// <param name="hitEvent">Hit event data to propagate to impact systems</param>
         private void AddImpactEventComponent(HitEvent hitEvent)
         {
-            EntityManager.AddComponentData(hitEvent.BoneEntity, hitEvent);
+            // Add the hit event to the bone entity for sound processing
+            EntityManager.AddComponentData(hitEvent.BoneEntity, new HitEvent
+            {
+                BoneEntity = hitEvent.BoneEntity,
+                Force = hitEvent.Force,
+                DelayBeforeBlend = hitEvent.DelayBeforeBlend,
+                ImpactPoint = hitEvent.ImpactPoint,
+                ImpactMagnitude = hitEvent.ImpactMagnitude
+            });
         }
         
         /// <summary>

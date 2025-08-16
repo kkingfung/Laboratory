@@ -1,9 +1,9 @@
 using UnityEngine;
-using Cinemachine;
+using Unity.Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Laboratory.Core.Camera
+namespace Laboratory.Core
 {
     /// <summary>
     /// Manages player camera states and transitions between different camera modes.
@@ -46,23 +46,23 @@ namespace Laboratory.Core.Camera
         [Header("Virtual Cameras")]
         [SerializeField]
         [Tooltip("Camera for following alive player")]
-        private CinemachineVirtualCamera followPlayerVC;
+        private CinemachineCamera  followPlayerVC;
         
         [SerializeField]
         [Tooltip("Camera for orbiting around dead player")]
-        private CinemachineVirtualCamera deathCamOrbitVC;
+        private CinemachineCamera  deathCamOrbitVC;
         
         [SerializeField]
         [Tooltip("Camera for following teammates when dead")]
-        private CinemachineVirtualCamera followTeammateVC;
+        private CinemachineCamera  followTeammateVC;
         
         [SerializeField]
         [Tooltip("Camera for cinematic shots")]
-        private CinemachineVirtualCamera cinematicShotVC;
+        private CinemachineCamera  cinematicShotVC;
         
         [SerializeField]
         [Tooltip("Camera for free spectator mode")]
-        private CinemachineVirtualCamera freeSpectatorVC;
+        private CinemachineCamera  freeSpectatorVC;
 
         [Header("Settings")]
         [SerializeField]

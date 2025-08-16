@@ -55,7 +55,7 @@ namespace Laboratory.Gameplay.Inventory
             foreach (var stat in item.Stats)
             {
                 var entry = Instantiate(statEntryPrefab, statsContainer);
-                entry.SetData(stat);
+                entry.SetData(stat.StatName, stat.StatValue, stat.StatIcon);
             }
 
             gameObject.SetActive(true);
@@ -101,11 +101,11 @@ namespace Laboratory.Gameplay.Inventory
         [SerializeField] private TextMeshProUGUI statValueText;
         [SerializeField] private Image statIconImage;
 
-        public void SetData(ItemStat stat)
+        public void SetData(string statName, string statValue, Sprite statIcon)
         {
-            statNameText.text = stat.StatName;
-            statValueText.text = stat.StatValue;
-            statIconImage.sprite = stat.StatIcon;
+            statNameText.text = statName;
+            statValueText.text = statValue;
+            statIconImage.sprite = statIcon;
         }
     }
     

@@ -1,12 +1,12 @@
 using MessagePipe;
 using UniRx;
 
-namespace Laboratory.Models.ViewModels
+namespace Laboratory.Models
 {
     /// <summary>
-    /// ViewModel for handling notification messages through the message broker.
+    /// Model for handling notification messages through the message broker.
     /// </summary>
-    public class NotificationViewModel
+    public class NotificationModel
     {
         #region Fields
 
@@ -16,7 +16,7 @@ namespace Laboratory.Models.ViewModels
 
         #region Constructor
 
-        public NotificationViewModel(IMessageBroker messageBroker)
+        public NotificationModel(IMessageBroker messageBroker)
         {
             _messageBroker = messageBroker;
         }

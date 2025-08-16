@@ -5,7 +5,6 @@ using UniRx;
 using MessagePipe;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
-using Laboratory.Infrastructure.UI;
 using Laboratory.UI;
 
 namespace Laboratory.ECS.Systems

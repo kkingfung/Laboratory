@@ -12,7 +12,7 @@ namespace Laboratory.Network.Ragdoll
     /// DOTS-compatible network synchronization system for ragdoll physics.
     /// Handles networked hit events and optional bone transform synchronization using Unity.Entities.
     /// </summary>
-    public class NetworkRagdollSyncDots : NetworkBehaviour
+    public class NetworkRagdollSyncByDots : NetworkBehaviour
     {
         #region Fields
         

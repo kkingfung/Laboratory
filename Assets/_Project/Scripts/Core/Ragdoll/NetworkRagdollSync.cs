@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
+using Laboratory.Core.Ragdoll;
 
 namespace Laboratory.Network.Ragdoll
 {

@@ -4,6 +4,8 @@ using Unity.Physics.Systems;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
 using Laboratory.Infrastructure.AsyncUtils;
+using Laboratory.Core;
+using UniRx;
 
 namespace Laboratory.Core.Bootstrap
 {
@@ -179,7 +181,7 @@ namespace Laboratory.Core.Bootstrap
         /// <summary>
         /// Handles game state changes and synchronizes over network.
         /// </summary>
-        private void HandleGameStateChanged(GameState newState)
+        private void HandleGameStateChanged(GameStateManager.GameState newState)
         {
             // TODO: Implement state synchronization when GameState and RPCSerializer are ready
             // var bytes = RPCSerializer.SerializeGameState(newState);

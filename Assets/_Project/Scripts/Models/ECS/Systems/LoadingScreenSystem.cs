@@ -5,7 +5,6 @@ using UniRx;
 using UnityEngine;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
-using Laboratory.Infrastructure.UI;
 
 namespace Laboratory.ECS.Systems
 {

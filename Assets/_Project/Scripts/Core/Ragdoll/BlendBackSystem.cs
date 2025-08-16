@@ -11,7 +11,13 @@ namespace Laboratory.Core.Ragdoll
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class BlendBackSystem : SystemBase
     {
+        private EndSimulationEntityCommandBufferSystem _commandBufferSystem;
         #region Unity Override Methods
+        
+        protected override void OnCreate()
+        {
+            _commandBufferSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+        }
         
         /// <summary>
         /// Updates the blend back interpolation for all entities with blend data.
@@ -20,8 +26,9 @@ namespace Laboratory.Core.Ragdoll
         protected override void OnUpdate()
         {
             float deltaTime = Time.DeltaTime;
+            var commandBuffer = _commandBufferSystem.CreateCommandBuffer().AsParallelWriter();
 
-            Entities.WithAll<BlendBackTag, BlendData>().ForEach((Entity entity, ref LocalTransform transform, ref BlendData blend) =>
+            Entities.WithAll<BlendBackTag, BlendData>().ForEach((Entity entity, int entityInQueryIndex, ref LocalTransform transform, ref BlendData blend) =>
             {
                 // Update blend timer
                 blend.Timer += deltaTime;
@@ -34,9 +41,11 @@ namespace Laboratory.Core.Ragdoll
                 // Remove blend component when complete
                 if (blendProgress >= 1f)
                 {
-                    EntityManager.RemoveComponent<BlendBackTag>(entity);
+                    commandBuffer.RemoveComponent<BlendBackTag>(entityInQueryIndex, entity);
                 }
-            }).WithoutBurst().Run();
+            }).ScheduleParallel();
+            
+            _commandBufferSystem.AddJobHandleForProducer(Dependency);
         }
         
         #endregion

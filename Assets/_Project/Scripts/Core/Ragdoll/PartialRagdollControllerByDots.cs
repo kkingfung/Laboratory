@@ -11,7 +11,7 @@ namespace Laboratory.Core.Ragdoll
     /// Applies physics forces to selected bone entities while maintaining animation control over others.
     /// Integrates with ECS blend-back systems for smooth recovery transitions.
     /// </summary>
-    public static class PartialRagdollControllerDots
+    public static class PartialRagdollControllerByDots
     {
         #region Public Methods
         

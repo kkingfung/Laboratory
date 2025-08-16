@@ -143,7 +143,7 @@ namespace Laboratory.Gameplay.Lobby
             OnMatchmakingStateChanged?.Invoke(state);
         }
 
-        private void SetupHost(CreateAllocationResponse allocation)
+        private void SetupHost(Allocation allocation)
         {
             // Configure Unity Netcode with Relay server data for host
             var relayServerData = new UnityTransport.RelayServerData(
@@ -189,7 +189,7 @@ namespace Laboratory.Gameplay.Lobby
             }
         }
 
-        private void SetupClient(JoinAllocationResponse joinAllocation)
+        private void SetupClient(JoinResponseBody joinAllocation)
         {
             // Configure Unity Netcode with Relay server data for client
             var relayServerData = new UnityTransport.RelayServerData(
