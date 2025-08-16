@@ -1,6 +1,6 @@
 using System;
 
-namespace Laboratory.Core.Networking
+namespace Laboratory.Infrastructure.Networking
 {
     /// <summary>
     /// Interface for transporting chat messages across a network.

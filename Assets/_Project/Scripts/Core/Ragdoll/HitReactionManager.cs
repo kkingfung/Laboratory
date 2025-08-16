@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Laboratory.Core.Combat
+namespace Laboratory.Core.Ragdoll
 {
     /// <summary>
     /// Manages hit reactions for characters using ragdoll physics.

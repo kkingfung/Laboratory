@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Laboratory.Infrastructure.Input
+namespace Laboratory.Gameplay.Input
 {
     /// <summary>
     /// Singleton manager for handling input rebinding functionality.

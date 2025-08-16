@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Laboratory.Core.Combat
+namespace Laboratory.Core.Ragdoll
 {
     /// <summary>
     /// Component for detecting and processing hits on ragdoll bones.

@@ -10,7 +10,7 @@ using Cysharp.Threading.Tasks;
 using MessagePipe;
 using Laboratory.Infrastructure.Networking;
 
-namespace Laboratory.Infrastructure.UI
+namespace Laboratory.UI.Helper
 {
     /// <summary>
     /// Manages the multiplayer scoreboard UI with player ranking, pagination, and real-time updates.

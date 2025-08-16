@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace Laboratory.Infrastructure.UI
+namespace Laboratory.UI.Helper
 {
     /// <summary>
     /// Manages the game settings menu UI with audio, graphics, and control options.
