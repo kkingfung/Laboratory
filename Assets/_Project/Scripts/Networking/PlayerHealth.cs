@@ -249,7 +249,11 @@ namespace Laboratory.Infrastructure.Networking
             // Try to get position from respawn manager
             if (RespawnManager.Instance != null)
             {
-                return RespawnManager.Instance.GetRespawnPosition(OwnerClientId);
+                Transform spawnPoint = RespawnManager.Instance.GetRandomSpawnPoint();
+                if (spawnPoint != null)
+                {
+                    return spawnPoint.position;
+                }
             }
 
             // Fall back to designated respawn point or origin

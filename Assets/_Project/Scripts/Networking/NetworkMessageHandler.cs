@@ -52,7 +52,7 @@ namespace Laboratory.Infrastructure.Networking
         {
             _networkClient = networkClient ?? throw new ArgumentNullException(nameof(networkClient));
             _messageBroker = messageBroker ?? throw new ArgumentNullException(nameof(messageBroker));
-            _entityManager = entityManager ?? throw new ArgumentNullException(nameof(entityManager));
+            _entityManager = entityManager;
 
             // Subscribe to network client data events
             _networkClient.DataReceived += OnDataReceived;

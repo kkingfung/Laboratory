@@ -18,7 +18,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="damageEvent">The damage event containing target and damage information</param>
         public void ApplyDamage(DamageEvent damageEvent)
         {
-            var targetHealth = GetTargetHealthComponent(damageEvent.TargetId);
+            var targetHealth = GetTargetHealthComponent(damageEvent.TargetClientId);
             ProcessDamageApplication(targetHealth, damageEvent);
             PublishDamageEvent(damageEvent);
             CheckForDeath(targetHealth, damageEvent);
@@ -80,8 +80,8 @@ namespace Laboratory.Models.ECS.Systems
         {
             var deathEvent = new DeathEvent
             (
-                victimClientId : damageEvent.TargetId,
-                killerClientId : damageEvent.AttackerId
+                victimClientId : damageEvent.TargetClientId,
+                killerClientId : damageEvent.AttackerClientId
             );
             MessageBus.Publish(deathEvent);
         }

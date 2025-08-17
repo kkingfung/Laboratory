@@ -150,6 +150,24 @@ namespace Laboratory.UI.Helper
             _activeMarkers.Remove(worldTransform);
         }
 
+        /// <summary>
+        /// Set the player transform for tracking and click-to-move functionality.
+        /// </summary>
+        /// <param name="playerTransform">The player's transform to track</param>
+        public void SetPlayerTransform(Transform playerTransform)
+        {
+            this.playerTransform = playerTransform;
+            
+            // Update camera to follow player if we have one
+            if (miniMapCamera != null && playerTransform != null)
+            {
+                Vector3 cameraPos = miniMapCamera.transform.position;
+                cameraPos.x = playerTransform.position.x;
+                cameraPos.z = playerTransform.position.z;
+                miniMapCamera.transform.position = ClampPositionToBounds(cameraPos);
+            }
+        }
+
         #endregion
 
         #region Private Methods - Input Setup
@@ -408,7 +426,7 @@ namespace Laboratory.UI.Helper
             {
                 elapsed += Time.unscaledDeltaTime;
                 cg.alpha = Mathf.Lerp(fadeIn ? 0f : 1f, fadeIn ? 1f : 0f, elapsed / duration);
-                await UniTask.DelayFrame();
+                await UniTask.DelayFrame(1);
             }
 
             cg.alpha = fadeIn ? 1f : 0f;

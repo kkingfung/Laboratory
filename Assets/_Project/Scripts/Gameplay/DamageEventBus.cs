@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using Unity.Entities;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Gameplay.Combat
 {
     /// <summary>
     /// Publishes and subscribes to damage events for combat systems.
+    /// Also provides ECS entity creation for DOTS integration.
     /// </summary>
     public class DamageEventBus
     {
@@ -42,6 +45,18 @@ namespace Laboratory.Gameplay.Combat
         public void Unsubscribe(Action<DamageEvent> handler)
         {
             _subscribers.Remove(handler);
+        }
+
+        /// <summary>
+        /// Creates an entity for handling damage events in DOTS.
+        /// </summary>
+        /// <param name="entityManager">The EntityManager to create the entity with</param>
+        /// <returns>The created damage event bus entity</returns>
+        public static Entity Create(EntityManager entityManager)
+        {
+            var entity = entityManager.CreateEntity();
+            entityManager.AddBuffer<DamageTakenEventBufferElement>(entity);
+            return entity;
         }
 
         #endregion

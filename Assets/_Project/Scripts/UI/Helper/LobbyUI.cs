@@ -331,14 +331,14 @@ namespace Laboratory.UI.Helper
         /// </summary>
         private void PopulatePlayerListFromLobbyManager()
         {
-            foreach (var playerEntry in LobbyManager.Instance.GetAllPlayers())
+            foreach (var (clientId, playerData) in LobbyManager.Instance.GetAllPlayers())
             {
                 var item = CreatePlayerEntry(
-                    playerEntry.ClientId, 
-                    playerEntry.PlayerName, 
-                    playerEntry.IsReady.Value);
+                    clientId, 
+                    playerData.PlayerName, 
+                    playerData.IsReady.Value);
 
-                _playerEntries[playerEntry.ClientId] = item;
+                _playerEntries[clientId] = item;
             }
         }
 

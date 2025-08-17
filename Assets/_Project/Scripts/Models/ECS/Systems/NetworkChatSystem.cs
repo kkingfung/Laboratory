@@ -148,11 +148,6 @@ namespace Laboratory.Models.ECS.Systems
         {
             try
             {
-                if (evt == null)
-                {
-                    Debug.LogWarning("Received null chat message event");
-                    return;
-                }
 
                 if (string.IsNullOrEmpty(evt.Sender) || string.IsNullOrEmpty(evt.Message))
                 {

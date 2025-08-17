@@ -86,7 +86,7 @@ namespace Laboratory.Gameplay.Lobby
             try
             {
                 // Create allocation with max 2 players for example
-                var allocation = await RelayService.Instance.CreateAllocationAsync(1, cancellationToken: cts.Token);
+                var allocation = await RelayService.Instance.CreateAllocationAsync(1);
 
                 string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
 
@@ -146,15 +146,13 @@ namespace Laboratory.Gameplay.Lobby
         private void SetupHost(Allocation allocation)
         {
             // Configure Unity Netcode with Relay server data for host
-            var relayServerData = new UnityTransport.RelayServerData(
+            var unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            unityTransport.SetRelayServerData(
                 allocation.RelayServer.IpV4,
                 (ushort)allocation.RelayServer.Port,
                 allocation.AllocationIdBytes,
                 allocation.Key,
                 allocation.ConnectionData);
-
-            var unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-            unityTransport.SetRelayServerData(relayServerData);
 
             NetworkManager.Singleton.StartHost();
         }
@@ -169,7 +167,7 @@ namespace Laboratory.Gameplay.Lobby
 
             try
             {
-                var joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode, cancellationToken: cts.Token);
+                var joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
                 Debug.Log("Relay join allocation successful.");
 
@@ -189,19 +187,17 @@ namespace Laboratory.Gameplay.Lobby
             }
         }
 
-        private void SetupClient(JoinResponseBody joinAllocation)
+        private void SetupClient(JoinAllocation joinAllocation)
         {
             // Configure Unity Netcode with Relay server data for client
-            var relayServerData = new UnityTransport.RelayServerData(
+            var unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
+            unityTransport.SetRelayServerData(
                 joinAllocation.RelayServer.IpV4,
                 (ushort)joinAllocation.RelayServer.Port,
                 joinAllocation.AllocationIdBytes,
                 joinAllocation.Key,
                 joinAllocation.ConnectionData,
                 joinAllocation.HostConnectionData);
-
-            var unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-            unityTransport.SetRelayServerData(relayServerData);
 
             NetworkManager.Singleton.StartClient();
         }

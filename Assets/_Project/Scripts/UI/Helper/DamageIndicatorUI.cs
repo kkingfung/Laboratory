@@ -87,6 +87,29 @@ namespace Laboratory.UI.Helper
         #region Public Methods
 
         /// <summary>
+        /// Shows a damage indicator pointing toward the damage source position.
+        /// This is the main method called by external systems like HUDController.
+        /// </summary>
+        /// <param name="damageSourcePosition">World position where damage came from</param>
+        /// <param name="playerTransform">Player transform for directional calculation</param>
+        public void ShowDamageIndicator(Vector3 damageSourcePosition, Transform playerTransform)
+        {
+            SpawnIndicator(damageSourcePosition, null, DamageType.Normal, true, false);
+        }
+
+        /// <summary>
+        /// Shows a damage indicator with specific damage amount and type.
+        /// </summary>
+        /// <param name="damageSourcePosition">World position where damage came from</param>
+        /// <param name="playerTransform">Player transform for directional calculation</param>
+        /// <param name="damageAmount">Amount of damage taken</param>
+        /// <param name="damageType">Type of damage for styling</param>
+        public void ShowDamageIndicator(Vector3 damageSourcePosition, Transform playerTransform, int damageAmount, DamageType damageType = DamageType.Normal)
+        {
+            SpawnIndicator(damageSourcePosition, damageAmount, damageType, true, false);
+        }
+
+        /// <summary>
         /// Spawns a damage indicator with optional damage amount, damage type, and sound/vibration effects.
         /// </summary>
         /// <param name="sourcePosition">World position where damage came from</param>
@@ -124,7 +147,7 @@ namespace Laboratory.UI.Helper
         /// <param name="damageEvent">Damage event data</param>
         private void OnDamageEvent(DamageEvent damageEvent)
         {
-            if (damageEvent.TargetId != NetworkManager.Singleton.LocalClientId) return;
+            if (damageEvent.TargetClientId != NetworkManager.Singleton.LocalClientId) return;
 
             var indicator = GetIndicatorFromPool();
             indicator.Setup(damageEvent.HitDirection);
@@ -208,14 +231,14 @@ namespace Laboratory.UI.Helper
         /// </summary>
         /// <param name="damageType">Type of damage</param>
         /// <returns>Color and font style tuple</returns>
-        private (Color color, FontStyle fontStyle) GetDamageTextStyle(DamageType damageType)
+        private (Color color, TMPro.FontStyles fontStyle) GetDamageTextStyle(DamageType damageType)
         {
             return damageType switch
             {
-                DamageType.Critical => (Color.red, FontStyle.Bold),
-                DamageType.Fire => (new Color(1f, 0.5f, 0f), FontStyle.Normal),
-                DamageType.Ice => (Color.cyan, FontStyle.Normal),
-                _ => (Color.white, FontStyle.Normal)
+                DamageType.Critical => (Color.red, TMPro.FontStyles.Bold),
+                DamageType.Fire => (new Color(1f, 0.5f, 0f), TMPro.FontStyles.Normal),
+                DamageType.Ice => (Color.cyan, TMPro.FontStyles.Normal),
+                _ => (Color.white, TMPro.FontStyles.Normal)
             };
         }
 
@@ -230,8 +253,7 @@ namespace Laboratory.UI.Helper
                 return _indicatorPool.Dequeue();
             }
             
-            var go = Instantiate(indicatorPrefab, indicatorsParent);
-            return new DamageIndicator(go);
+            return Instantiate(indicatorPrefab, indicatorsParent);
         }
 
         /// <summary>

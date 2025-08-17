@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using System.Collections;
 
 namespace Laboratory.Gameplay.Lobby
 {
@@ -99,6 +100,30 @@ namespace Laboratory.Gameplay.Lobby
             {
                 player.IsReady.Value = ready;
                 UpdateLobbyClients();
+            }
+        }
+
+        /// <summary>
+        /// ServerRpc called by clients to request ready status change.
+        /// </summary>
+        /// <param name="isReady">The desired ready status</param>
+        /// <param name="serverRpcParams">Server RPC parameters containing sender info</param>
+        [ServerRpc(RequireOwnership = false)]
+        public void RequestReadyStatusServerRpc(bool isReady, ServerRpcParams serverRpcParams = default)
+        {
+            var clientId = serverRpcParams.Receive.SenderClientId;
+            SetPlayerReady(clientId, isReady);
+        }
+
+        /// <summary>
+        /// Get all connected players data.
+        /// </summary>
+        /// <returns>Collection of player data with client IDs</returns>
+        public IEnumerable<(ulong ClientId, PlayerData PlayerData)> GetAllPlayers()
+        {
+            foreach (var kvp in connectedPlayers)
+            {
+                yield return (kvp.Key, kvp.Value);
             }
         }
 

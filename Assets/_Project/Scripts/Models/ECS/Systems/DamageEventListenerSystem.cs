@@ -73,12 +73,12 @@ namespace Laboratory.Models.ECS.Systems
         /// Processes a single damage event and triggers UI/audio responses.
         /// </summary>
         /// <param name="damageEvent">The damage event to process</param>
-        private void ProcessSingleDamageEvent(DamageEvent damageEvent)
+        private void ProcessSingleDamageEvent(DamageTakenEvent damageEvent)
         {
-            if (!EntityManager.HasComponent<Unity.Netcode.NetworkObject>(damageEvent.TargetClientId))
+            if (!EntityManager.HasComponent<Unity.Netcode.NetworkObject>(damageEvent.TargetEntity))
                 return;
 
-            var networkObject = EntityManager.GetComponentObject<Unity.Netcode.NetworkObject>(damageEvent.TargetClientId);
+            var networkObject = EntityManager.GetComponentObject<Unity.Netcode.NetworkObject>(damageEvent.TargetEntity);
             var gameObject = networkObject.gameObject;
 
             TriggerDamageIndicator(damageEvent, gameObject);
@@ -89,7 +89,7 @@ namespace Laboratory.Models.ECS.Systems
         /// </summary>
         /// <param name="damageEvent">The damage event data</param>
         /// <param name="targetGameObject">The target GameObject</param>
-        private void TriggerDamageIndicator(DamageEvent damageEvent, GameObject targetGameObject)
+        private void TriggerDamageIndicator(DamageTakenEvent damageEvent, GameObject targetGameObject)
         {
             var damageIndicatorUI = GameObject.FindObjectOfType<DamageIndicatorUI>();
             damageIndicatorUI?.SpawnIndicator(

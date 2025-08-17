@@ -1,0 +1,16 @@
+namespace Laboratory.Models.ECS.Components
+{
+    /// <summary>
+    /// Types of damage that can be applied to entities.
+    /// </summary>
+    public enum DamageType
+    {
+        Physical,
+        Magical,
+        Fire,
+        Ice,
+        Lightning,
+        Poison,
+        Healing
+    }
+}

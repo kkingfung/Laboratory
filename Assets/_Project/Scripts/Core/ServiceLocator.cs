@@ -72,6 +72,23 @@ namespace Laboratory.Core
             return _services.ContainsKey(typeof(T));
         }
 
+        /// <summary>
+        /// Tries to resolve a registered service instance by type.
+        /// </summary>
+        /// <typeparam name="T">The type of service to resolve</typeparam>
+        /// <param name="service">The resolved service instance, or default if not found</param>
+        /// <returns>True if the service was found and resolved, false otherwise</returns>
+        public bool TryResolve<T>(out T service)
+        {
+            if (_services.TryGetValue(typeof(T), out var serviceObj))
+            {
+                service = (T)serviceObj;
+                return true;
+            }
+            service = default(T);
+            return false;
+        }
+
         #endregion
     }
 }

@@ -118,6 +118,27 @@ namespace Laboratory.UI.Helper
 
         #endregion
 
+        #region Public Methods
+
+        /// <summary>
+        /// Updates the cooldown display for a specific ability.
+        /// This method provides direct access for external systems that need to update cooldowns.
+        /// </summary>
+        /// <param name="abilityIndex">Index of the ability to update</param>
+        /// <param name="cooldownRemaining">Remaining cooldown time in seconds</param>
+        public void UpdateCooldown(int abilityIndex, float cooldownRemaining)
+        {
+            if (abilityIndex < 0 || abilityIndex >= abilityButtons.Length) return;
+
+            bool isOnCooldown = cooldownRemaining > 0f;
+            abilityButtons[abilityIndex].interactable = !isOnCooldown;
+            cooldownTexts[abilityIndex].text = isOnCooldown
+                ? $"{Mathf.CeilToInt(cooldownRemaining)}s"
+                : "";
+        }
+
+        #endregion
+
         #region IDisposable Implementation
 
         /// <summary>

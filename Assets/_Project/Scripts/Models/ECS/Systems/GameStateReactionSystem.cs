@@ -4,6 +4,7 @@ using UniRx;
 using UnityEngine;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models.ECS.Systems
 {
@@ -85,13 +86,13 @@ namespace Laboratory.Models.ECS.Systems
         /// </summary>
         private void SubscribeToGameStateChanges()
         {
-            if (_gameStateManager?.CurrentState != null)
+            if (_gameStateManager != null)
             {
-                _subscription = _gameStateManager.CurrentState.Subscribe(OnGameStateChanged);
+                _subscription = _gameStateManager.OnStateChanged.Subscribe(OnGameStateChanged);
             }
             else
             {
-                Debug.LogError("GameStateManager or CurrentState is null, cannot subscribe to state changes");
+                Debug.LogError("GameStateManager is null, cannot subscribe to state changes");
             }
         }
 
@@ -134,37 +135,82 @@ namespace Laboratory.Models.ECS.Systems
                 return;
             }
 
-            // Enable/disable core gameplay systems
-            SetSystemEnabled<PhysicsMovementSystem>(enabled);
-            SetSystemEnabled<CombatSystem>(enabled);
-            SetSystemEnabled<NetworkSyncSystem>(enabled);
+            // Enable/disable SystemBase systems (these can be enabled/disabled directly)
+            SetSystemBaseEnabled<CombatSystem>(enabled);
+            SetSystemBaseEnabled<NetworkSyncSystem>(enabled);
             
-            // Add more gameplay systems here as needed
-            // SetSystemEnabled<Laboratory.ECS.Systems.YourGameplaySystem>(enabled);
+            // For ISystem systems, we'll create/update a singleton component that they can query
+            // This is the recommended approach in Unity Entities 1.0+
+            UpdateGameStateControlComponent(enabled);
+            
+            // Add more SystemBase systems here as needed
+            // SetSystemBaseEnabled<Laboratory.ECS.Systems.YourSystemBaseSystem>(enabled);
         }
 
         /// <summary>
-        /// Enables or disables a specific system type
+        /// Enables or disables a specific SystemBase system type
         /// </summary>
-        /// <typeparam name="T">The system type to enable/disable</typeparam>
+        /// <typeparam name="T">The SystemBase system type to enable/disable</typeparam>
         /// <param name="enabled">True to enable the system, false to disable it</param>
-        private void SetSystemEnabled<T>(bool enabled) where T : SystemBase
+        private void SetSystemBaseEnabled<T>(bool enabled) where T : SystemBase
         {
             try
             {
-                var system = World.DefaultGameObjectInjectionWorld?.GetExistingSystem<T>();
+                var system = World.DefaultGameObjectInjectionWorld?.GetExistingSystemManaged<T>();
                 if (system != null)
                 {
                     system.Enabled = enabled;
                 }
                 else
                 {
-                    Debug.LogWarning($"System of type {typeof(T).Name} not found or not yet created");
+                    Debug.LogWarning($"SystemBase of type {typeof(T).Name} not found or not yet created");
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to set system {typeof(T).Name} enabled state to {enabled}: {ex.Message}");
+                Debug.LogError($"Failed to set SystemBase {typeof(T).Name} enabled state to {enabled}: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Updates or creates a singleton component that ISystem systems can query to determine if they should run
+        /// This is the recommended approach for controlling ISystem behavior in Unity Entities 1.0+
+        /// </summary>
+        /// <param name="gameplayEnabled">True if gameplay systems should run, false otherwise</param>
+        private void UpdateGameStateControlComponent(bool gameplayEnabled)
+        {
+            try
+            {
+                var world = World.DefaultGameObjectInjectionWorld;
+                if (world?.EntityManager == null)
+                {
+                    Debug.LogWarning("EntityManager is null, cannot update game state control component");
+                    return;
+                }
+
+                var entityManager = world.EntityManager;
+                
+                // Try to find existing singleton entity
+                var query = entityManager.CreateEntityQuery(typeof(GameStateControlComponent));
+                
+                if (query.IsEmpty)
+                {
+                    // Create new singleton entity with the component
+                    var entity = entityManager.CreateEntity(typeof(GameStateControlComponent));
+                    entityManager.SetComponentData(entity, new GameStateControlComponent { GameplayEnabled = gameplayEnabled });
+                }
+                else
+                {
+                    // Update existing singleton
+                    var entity = query.GetSingletonEntity();
+                    entityManager.SetComponentData(entity, new GameStateControlComponent { GameplayEnabled = gameplayEnabled });
+                }
+                
+                query.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to update game state control component: {ex.Message}");
             }
         }
 

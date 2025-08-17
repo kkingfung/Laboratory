@@ -97,7 +97,6 @@ namespace Laboratory.Core.Ragdoll
             // Create a singleton entity for settings
             var settingsEntity = state.EntityManager.CreateEntity();
             state.EntityManager.AddComponentData(settingsEntity, defaultSettings);
-            state.EntityManager.AddComponent<Singleton>(settingsEntity);
 
             return defaultSettings;
         }

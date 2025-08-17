@@ -76,6 +76,25 @@ namespace Laboratory.Gameplay.Lobby
             _isRunning = false;
         }
 
+        /// <summary>
+        /// Updates the timer with a specified delta time.
+        /// This method allows external systems to control timer updates.
+        /// </summary>
+        /// <param name="deltaTime">The time elapsed since the last tick</param>
+        public void Tick(float deltaTime)
+        {
+            if (!_isRunning) return;
+
+            _elapsedTime += deltaTime;
+            UpdateTimerUI();
+
+            if (_elapsedTime >= matchDuration)
+            {
+                _isRunning = false;
+                OnMatchEnded();
+            }
+        }
+
         #endregion
 
         #region Private Methods

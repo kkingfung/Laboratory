@@ -102,8 +102,8 @@ namespace Laboratory.Models.ECS.Systems
                 MaxVelocity = MaxVelocityMagnitude
             };
 
-            // Use WithAll to filter entities that have PlayerTag component
-            state.Dependency = movementJob.WithAll<PlayerTag>().ScheduleParallel(state.Dependency);
+            // Schedule the job - it will automatically process entities with the required components
+            state.Dependency = movementJob.ScheduleParallel(state.Dependency);
         }
 
         /// <summary>
@@ -158,7 +158,8 @@ namespace Laboratory.Models.ECS.Systems
             /// </summary>
             /// <param name="transform">The entity's transform component (position/rotation)</param>
             /// <param name="velocity">The entity's physics velocity component</param>
-            public void Execute(ref LocalTransform transform, in PhysicsVelocity velocity)
+            /// <param name="playerTag">The player tag component for filtering</param>
+            public void Execute(ref LocalTransform transform, in PhysicsVelocity velocity, in PlayerTag playerTag)
             {
                 // Validate velocity to prevent physics instability
                 var clampedVelocity = ValidateVelocity(velocity.Linear);

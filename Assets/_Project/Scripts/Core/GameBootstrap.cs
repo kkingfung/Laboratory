@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Entities;
 using Unity.Physics.Systems;
+using Unity.Physics;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
 using Laboratory.Infrastructure.AsyncUtils;
@@ -90,9 +91,11 @@ namespace Laboratory.Core.Bootstrap
             _defaultWorld = World.DefaultGameObjectInjectionWorld ?? new World("Default World");
 
             var systemGroup = _defaultWorld.GetOrCreateSystemManaged<SimulationSystemGroup>();
-            _defaultWorld.GetOrCreateSystemManaged<BuildPhysicsWorld>();
-            _defaultWorld.GetOrCreateSystemManaged<StepPhysicsWorld>();
-            _defaultWorld.GetOrCreateSystemManaged<EndFramePhysicsSystem>();
+            
+            // Create unmanaged physics systems
+            _defaultWorld.GetOrCreateSystem<BuildPhysicsWorld>();
+            _defaultWorld.GetOrCreateSystem<StepPhysicsWorld>();
+            _defaultWorld.GetOrCreateSystem<EndFramePhysicsSystem>();
 
             World.DefaultGameObjectInjectionWorld = _defaultWorld;
         }

@@ -34,6 +34,7 @@ namespace Laboratory.Core
         #region Fields
 
         private GameStateMachine _stateMachine;
+        private readonly Subject<GameState> _stateChangeSubject = new();
 
         #endregion
 
@@ -43,6 +44,16 @@ namespace Laboratory.Core
         /// Gets the current game state.
         /// </summary>
         public GameStateMachine.IGameState? CurrentState => _stateMachine?.CurrentState;
+
+        /// <summary>
+        /// Observable that emits when game state changes.
+        /// </summary>
+        public UniRx.IObservable<GameState> OnStateChanged => _stateChangeSubject.AsObservable();
+
+        /// <summary>
+        /// Gets the current game state as an enum.
+        /// </summary>
+        public GameState CurrentGameState { get; private set; } = GameState.None;
 
         #endregion
 
@@ -76,7 +87,41 @@ namespace Laboratory.Core
         /// </summary>
         public void ChangeState(GameState gameState)
         {
-            _stateMachine?.ChangeState(gameState);
+            if (CurrentGameState != gameState)
+            {
+                _stateMachine?.ChangeState(gameState);
+                CurrentGameState = gameState;
+                _stateChangeSubject.OnNext(gameState);
+            }
+        }
+
+        /// <summary>
+        /// Applies a remote game state change without broadcasting.
+        /// Used for network synchronization to prevent message loops.
+        /// </summary>
+        /// <param name="gameState">The game state to apply from remote source.</param>
+        public void ApplyRemoteState(GameState gameState)
+        {
+            // Apply the state change without any network broadcasting
+            // This prevents infinite loops when receiving state sync messages
+            if (CurrentGameState != gameState)
+            {
+                _stateMachine?.ChangeState(gameState);
+                CurrentGameState = gameState;
+                _stateChangeSubject.OnNext(gameState);
+            }
+            
+            // Log for debugging network sync
+            Debug.Log($"GameStateManager: Applied remote state change to {gameState}");
+        }
+
+        #endregion
+
+        #region Unity Cleanup
+
+        private void OnDestroy()
+        {
+            _stateChangeSubject?.Dispose();
         }
 
         #endregion

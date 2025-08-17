@@ -6,9 +6,10 @@ namespace Laboratory.Models.ECS.Components
     /// <summary>
     /// Represents a damage event for an entity.
     /// </summary>
+    [System.Serializable]
     public struct DamageTakenEvent
     {
-        public Entity TargetEntity;
+        public int TargetEntityId;  // Using int instead of Entity for buffer compatibility
         public int DamageAmount;
         public DamageType DamageType;
         public float3 SourcePosition;

@@ -61,6 +61,15 @@ namespace Laboratory.Infrastructure.AsyncUtils
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        /// Gets a value indicating whether the client is currently connected to the server.
+        /// </summary>
+        public bool IsConnected => _isConnected;
+
+        #endregion
+
         #region Public Methods
 
         /// <summary>
@@ -80,7 +89,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
 
             try
             {
-                await _tcpClient.ConnectAsync(host, port).ToUniTask(cancellationToken: _cts.Token);
+                await _tcpClient.ConnectAsync(host, port).AsUniTask();
                 _networkStream = _tcpClient.GetStream();
                 _isConnected = true;
 

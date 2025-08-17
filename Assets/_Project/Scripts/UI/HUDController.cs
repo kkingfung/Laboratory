@@ -224,15 +224,24 @@ namespace Laboratory.UI
         
         /// <summary>
         /// Binds scoreboard system to player list updates.
+        /// Note: ScoreboardUI manages its own networked player list automatically,
+        /// so we only need to ensure it's active when in game.
         /// </summary>
         private void BindScoreboardSystem()
         {
-            _matchmakingVM.PlayerList
-                .Subscribe(playerList =>
+            // ScoreboardUI automatically handles networked players through Unity Netcode
+            // No manual updates needed - it subscribes to network events internally
+            
+            // We could add additional bindings here if needed for non-networked scoreboards
+            // For example, enabling/disabling the scoreboard based on game state:
+            /*
+            _gameStateVM.IsInGame
+                .Subscribe(isInGame =>
                 {
-                    scoreboardUI.UpdateScoreboard(playerList);
+                    scoreboardUI.gameObject.SetActive(isInGame);
                 })
                 .AddTo(_disposables);
+            */
         }
         
         /// <summary>
