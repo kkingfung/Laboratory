@@ -6,6 +6,8 @@ using UnityEngine;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
 
+#nullable enable
+
 namespace Laboratory.Models.ECS.Systems
 {
     /// <summary>

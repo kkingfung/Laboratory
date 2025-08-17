@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Unity.NetCode;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Laboratory.Core.Ragdoll

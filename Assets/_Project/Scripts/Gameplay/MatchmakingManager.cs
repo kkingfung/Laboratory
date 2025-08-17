@@ -9,6 +9,8 @@ using Unity.Services.Relay.Models;
 using UnityEngine;
 using Unity.Netcode.Transports.UTP;
 
+#nullable enable
+
 namespace Laboratory.Gameplay.Lobby
 {
     /// <summary>

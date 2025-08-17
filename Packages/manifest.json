@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "com.cysharp.messagepipe": "1.8.1",
     "com.cysharp.unitask": "2.5.10",
     "com.gamelovers.mcp-unity": "https://github.com/CoderGamester/mcp-unity.git",
     "com.unity.2d.enhancers": "1.0.0",

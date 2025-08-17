@@ -3,6 +3,8 @@ using Unity.Entities;
 using System;
 using Laboratory.Gameplay.Combat;
 
+#nullable enable
+
 namespace Laboratory.Models.ECS.Components
 {
     /// <summary>

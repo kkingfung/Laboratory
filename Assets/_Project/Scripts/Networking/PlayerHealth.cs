@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using Laboratory.Gameplay.Respawn;
@@ -78,11 +79,13 @@ namespace Laboratory.Infrastructure.Networking
         /// <summary>
         /// Cleanup event subscriptions on destroy.
         /// </summary>
-        private void OnDestroy()
+        public override void OnDestroy()
         {
             CurrentHealth.OnValueChanged -= OnHealthChanged;
             IsAlive.OnValueChanged -= OnLifeStateChanged;
             RespawnTimeRemaining.OnValueChanged -= OnRespawnTimeChanged;
+            
+            base.OnDestroy();
         }
 
         #endregion

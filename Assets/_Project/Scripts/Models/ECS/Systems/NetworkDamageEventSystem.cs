@@ -58,9 +58,11 @@ namespace Laboratory.Models.ECS.Systems
         /// <summary>
         /// Called when the NetworkBehaviour is destroyed. Cleans up resources and references.
         /// </summary>
-        private void OnDestroy()
+        public override void OnDestroy()
         {
             CleanupResources();
+
+            base.OnDestroy();
         }
 
         #endregion

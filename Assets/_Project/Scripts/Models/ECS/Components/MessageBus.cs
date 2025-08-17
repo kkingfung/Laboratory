@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 
+#nullable enable
+
 namespace Laboratory.Models.ECS.Components
 {
     #region Event Structs
