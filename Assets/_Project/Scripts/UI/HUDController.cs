@@ -18,16 +18,16 @@ namespace Laboratory.UI
         #region Serialized Fields
         
         [Header("Core UI Elements")]
-        [SerializeField] private Text healthText = null!;
-        [SerializeField] private Text scoreText = null!;
-        [SerializeField] private Button[] abilityButtons = null!;
+        [SerializeField] private Text _healthText = null!;
+        [SerializeField] private Text _scoreText = null!;
+        [SerializeField] private Button[] _abilityButtons = null!;
 
         [Header("Specialized UI Components")]
-        [SerializeField] private MiniMapUI miniMapUI = null!;
-        [SerializeField] private DamageIndicatorUI damageIndicatorUI = null!;
-        [SerializeField] private CrosshairUI crosshairUI = null!;
-        [SerializeField] private AbilityBarUI abilityBarUI = null!;
-        [SerializeField] private ScoreboardUI scoreboardUI = null!;
+        [SerializeField] private MiniMapUI _miniMapUI = null!;
+        [SerializeField] private DamageIndicatorUI _damageIndicatorUI = null!;
+        [SerializeField] private CrosshairUI _crosshairUI = null!;
+        [SerializeField] private AbilityBarUI _abilityBarUI = null!;
+        [SerializeField] private ScoreboardUI _scoreboardUI = null!;
         
         #endregion
         
@@ -96,7 +96,7 @@ namespace Laboratory.UI
         /// </summary>
         public void ShowCrosshairHitFeedback()
         {
-            crosshairUI.ShowHitFeedback();
+            _crosshairUI.ShowHitFeedback();
         }
         
         /// <summary>
@@ -145,7 +145,7 @@ namespace Laboratory.UI
         private void BindPlayerStatus()
         {
             _playerStatusVM.Health
-                .Subscribe(health => healthText.text = $"Health: {health}")
+                .Subscribe(health => _healthText.text = $"Health: {health}")
                 .AddTo(_disposables);
         }
         
@@ -155,7 +155,7 @@ namespace Laboratory.UI
         private void BindScoreSystem()
         {
             _scoreVM.Score
-                .Subscribe(score => scoreText.text = $"Score: {score}")
+                .Subscribe(score => _scoreText.text = $"Score: {score}")
                 .AddTo(_disposables);
         }
         
@@ -164,7 +164,7 @@ namespace Laboratory.UI
         /// </summary>
         private void BindAbilitySystem()
         {
-            for (int i = 0; i < abilityButtons.Length; i++)
+            for (int i = 0; i < _abilityButtons.Length; i++)
             {
                 BindAbilityButton(i);
             }
@@ -176,14 +176,14 @@ namespace Laboratory.UI
         /// <param name="abilityIndex">Index of the ability to bind</param>
         private void BindAbilityButton(int abilityIndex)
         {
-            var button = abilityButtons[abilityIndex];
+            var button = _abilityButtons[abilityIndex];
             
             // Bind cooldown visualization
             _abilityVM.GetCooldownRemaining(abilityIndex)
                 .Subscribe(cooldown =>
                 {
                     button.interactable = cooldown <= 0f;
-                    abilityBarUI.UpdateCooldown(abilityIndex, cooldown);
+                    _abilityBarUI.UpdateCooldown(abilityIndex, cooldown);
                 })
                 .AddTo(_disposables);
 
@@ -192,7 +192,7 @@ namespace Laboratory.UI
             button.onClick.AddListener(() =>
             {
                 _abilityVM.ActivateAbility(abilityIndex);
-                crosshairUI.ExpandCrosshair(); // Visual feedback on ability use
+                _crosshairUI.ExpandCrosshair(); // Visual feedback on ability use
             });
         }
         
@@ -204,7 +204,7 @@ namespace Laboratory.UI
             _playerStatusVM.DamageTaken
                 .Subscribe(damageSourcePosition =>
                 {
-                    damageIndicatorUI.ShowDamageIndicator(damageSourcePosition, _playerStatusVM.PlayerTransform);
+                    _damageIndicatorUI.ShowDamageIndicator(damageSourcePosition, _playerStatusVM.PlayerTransform);
                 })
                 .AddTo(_disposables);
         }
@@ -217,7 +217,7 @@ namespace Laboratory.UI
             _playerStatusVM.PlayerTransformObservable
                 .Subscribe(playerTransform =>
                 {
-                    miniMapUI.SetPlayerTransform(playerTransform);
+                    _miniMapUI.SetPlayerTransform(playerTransform);
                 })
                 .AddTo(_disposables);
         }
@@ -238,7 +238,7 @@ namespace Laboratory.UI
             _gameStateVM.IsInGame
                 .Subscribe(isInGame =>
                 {
-                    scoreboardUI.gameObject.SetActive(isInGame);
+                    _scoreboardUI.gameObject.SetActive(isInGame);
                 })
                 .AddTo(_disposables);
             */

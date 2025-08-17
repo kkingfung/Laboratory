@@ -15,74 +15,74 @@ namespace Laboratory.Core.Character
         [Header("Targeting Settings")]
         [SerializeField] 
         [Tooltip("Camera used for raycast targeting when not using proximity mode")]
-        private Camera playerCamera;
+        private Camera _playerCamera;
         
         [SerializeField] 
         [Tooltip("Use proximity-based targeting instead of camera raycast")]
-        private bool useProximity = false;
+        private bool _useProximity = false;
         
         [SerializeField] 
         [Tooltip("Maximum distance for raycast targeting")]
-        private float maxDistance = 10f;
+        private float _maxDistance = 10f;
         
         [SerializeField] 
         [Tooltip("Radius for proximity-based target detection")]
-        private float proximityRadius = 3f;
+        private float _proximityRadius = 3f;
         
         [SerializeField] 
         [Tooltip("Layer mask for valid look-at targets")]
-        private LayerMask targetLayers;
+        private LayerMask _targetLayers;
 
         [Header("Head Rigging")]
         [SerializeField] 
         [Tooltip("Multi-aim constraint for head bone targeting")]
-        private MultiAimConstraint headConstraint;
+        private MultiAimConstraint _headConstraint;
         
         [SerializeField] 
         [Tooltip("Speed of head rotation transitions")]
-        private float headAimSpeed = 5f;
+        private float _headAimSpeed = 5f;
         
         [SerializeField] 
         [Tooltip("Maximum angle the head can turn from forward direction")]
-        private float headMaxAngle = 80f;
+        private float _headMaxAngle = 80f;
 
         [Header("Chest Rigging (Optional)")]
         [SerializeField] 
         [Tooltip("Multi-aim constraint for chest bone targeting")]
-        private MultiAimConstraint chestConstraint;
+        private MultiAimConstraint _chestConstraint;
         
         [SerializeField] 
         [Tooltip("Enable chest rotation for more natural body movement")]
-        private bool useChestRotation = true;
+        private bool _useChestRotation = true;
         
         [SerializeField] 
         [Tooltip("Speed of chest rotation transitions")]
-        private float chestAimSpeed = 3f;
+        private float _chestAimSpeed = 3f;
         
         [SerializeField] 
         [Tooltip("Maximum weight for chest constraint")]
-        private float chestWeightMax = 0.3f;
+        private float _chestWeightMax = 0.3f;
 
         [Header("Animator IK Fallback")]
         [SerializeField] 
         [Tooltip("Animator component for IK fallback when rigging is unavailable")]
-        private Animator animator;
+        private Animator _animator;
         
         [SerializeField] 
         [Range(0, 1f)]
         [Tooltip("Weight of IK look-at when using fallback")]
-        private float ikLookWeight = 0.8f;
+        private float _ikLookWeight = 0.8f;
         
         [SerializeField] 
         [Tooltip("Use Animator IK as fallback when rigging constraints are disabled")]
-        private bool useIKFallback = true;
+        private bool _useIKFallback = true;
 
         // Runtime state
-        private Transform currentTarget;
-        private WeightedTransformArray headSources;
-        private WeightedTransformArray chestSources;
-        private float headWeight = 0f;
-        private float chestWeight = 0f;
+        private Transform _currentTarget;
+        private WeightedTransformArray _headSources;
+        private WeightedTransformArray _chestSources;
+        private float _headWeight = 0f;
+        private float _chestWeight = 0f;
 
         #endregion
 
@@ -91,17 +91,17 @@ namespace Laboratory.Core.Character
         /// <summary>
         /// Currently targeted transform for look-at behavior
         /// </summary>
-        public Transform CurrentTarget => currentTarget;
+        public Transform CurrentTarget => _currentTarget;
 
         /// <summary>
         /// Current weight of head constraint (0-1)
         /// </summary>
-        public float HeadWeight => headWeight;
+        public float HeadWeight => _headWeight;
 
         /// <summary>
         /// Current weight of chest constraint (0-1)
         /// </summary>
-        public float ChestWeight => chestWeight;
+        public float ChestWeight => _chestWeight;
 
         #endregion
 
@@ -130,17 +130,17 @@ namespace Laboratory.Core.Character
         /// <param name="layerIndex">Animation layer index</param>
         private void OnAnimatorIK(int layerIndex)
         {
-            if (!useIKFallback || animator == null) 
+            if (!_useIKFallback || _animator == null) 
                 return;
 
-            if (currentTarget != null && ShouldUseIKFallback())
+            if (_currentTarget != null && ShouldUseIKFallback())
             {
-                animator.SetLookAtWeight(ikLookWeight);
-                animator.SetLookAtPosition(currentTarget.position);
+                _animator.SetLookAtWeight(_ikLookWeight);
+                _animator.SetLookAtPosition(_currentTarget.position);
             }
             else
             {
-                animator.SetLookAtWeight(0f);
+                _animator.SetLookAtWeight(0f);
             }
         }
 
@@ -149,10 +149,10 @@ namespace Laboratory.Core.Character
         /// </summary>
         private void OnDrawGizmosSelected()
         {
-            if (useProximity)
+            if (_useProximity)
             {
                 Gizmos.color = Color.yellow;
-                Gizmos.DrawWireSphere(transform.position, proximityRadius);
+                Gizmos.DrawWireSphere(transform.position, _proximityRadius);
             }
         }
 
@@ -166,7 +166,7 @@ namespace Laboratory.Core.Character
         /// <param name="target">Transform to look at</param>
         public void SetTarget(Transform target)
         {
-            currentTarget = target;
+            _currentTarget = target;
         }
 
         /// <summary>
@@ -174,7 +174,7 @@ namespace Laboratory.Core.Character
         /// </summary>
         public void ClearTarget()
         {
-            currentTarget = null;
+            _currentTarget = null;
         }
 
         /// <summary>
@@ -185,7 +185,7 @@ namespace Laboratory.Core.Character
         {
             if (!enabled)
             {
-                currentTarget = null;
+                _currentTarget = null;
             }
         }
 
@@ -198,10 +198,10 @@ namespace Laboratory.Core.Character
         /// </summary>
         private void CacheConstraintSources()
         {
-            if (headConstraint != null)
-                headSources = headConstraint.data.sourceObjects;
-            if (chestConstraint != null)
-                chestSources = chestConstraint.data.sourceObjects;
+            if (_headConstraint != null)
+                _headSources = _headConstraint.data.sourceObjects;
+            if (_chestConstraint != null)
+                _chestSources = _chestConstraint.data.sourceObjects;
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ namespace Laboratory.Core.Character
         /// <returns>True if IK should be used as fallback</returns>
         private bool ShouldUseIKFallback()
         {
-            return headConstraint == null || headConstraint.weight <= 0.01f;
+            return _headConstraint == null || _headConstraint.weight <= 0.01f;
         }
 
         /// <summary>
@@ -218,7 +218,7 @@ namespace Laboratory.Core.Character
         /// </summary>
         private void SelectTarget()
         {
-            if (useProximity)
+            if (_useProximity)
                 FindProximityTarget();
             else
                 FindRaycastTarget();
@@ -229,15 +229,15 @@ namespace Laboratory.Core.Character
         /// </summary>
         private void FindRaycastTarget()
         {
-            currentTarget = null;
+            _currentTarget = null;
             
-            if (playerCamera == null) 
+            if (_playerCamera == null) 
                 return;
 
-            if (Physics.Raycast(playerCamera.transform.position, playerCamera.transform.forward,
-                out RaycastHit hit, maxDistance, targetLayers))
+            if (Physics.Raycast(_playerCamera.transform.position, _playerCamera.transform.forward,
+                out RaycastHit hit, _maxDistance, _targetLayers))
             {
-                currentTarget = hit.collider.transform;
+                _currentTarget = hit.collider.transform;
             }
         }
 
@@ -246,8 +246,8 @@ namespace Laboratory.Core.Character
         /// </summary>
         private void FindProximityTarget()
         {
-            currentTarget = null;
-            Collider[] hits = Physics.OverlapSphere(transform.position, proximityRadius, targetLayers);
+            _currentTarget = null;
+            Collider[] hits = Physics.OverlapSphere(transform.position, _proximityRadius, _targetLayers);
             
             if (hits.Length == 0) 
                 return;
@@ -259,7 +259,7 @@ namespace Laboratory.Core.Character
                 if (dist < closestDist)
                 {
                     closestDist = dist;
-                    currentTarget = col.transform;
+                    _currentTarget = col.transform;
                 }
             }
         }
@@ -269,7 +269,7 @@ namespace Laboratory.Core.Character
         /// </summary>
         private void UpdateRigging()
         {
-            if (currentTarget != null)
+            if (_currentTarget != null)
             {
                 UpdateConstraintsWithTarget();
             }
@@ -284,30 +284,30 @@ namespace Laboratory.Core.Character
         /// </summary>
         private void UpdateConstraintsWithTarget()
         {
-            Vector3 dirToTarget = currentTarget.position - transform.position;
+            Vector3 dirToTarget = _currentTarget.position - transform.position;
             float angle = Vector3.Angle(transform.forward, dirToTarget);
 
             // Update head constraint
-            if (headConstraint != null)
+            if (_headConstraint != null)
             {
-                if (angle < headMaxAngle)
+                if (angle < _headMaxAngle)
                 {
-                    SetHeadTarget(currentTarget);
-                    headWeight = Mathf.Lerp(headWeight, 1f, Time.deltaTime * headAimSpeed);
+                    SetHeadTarget(_currentTarget);
+                    _headWeight = Mathf.Lerp(_headWeight, 1f, Time.deltaTime * _headAimSpeed);
                 }
                 else
                 {
-                    headWeight = Mathf.Lerp(headWeight, 0f, Time.deltaTime * headAimSpeed);
+                    _headWeight = Mathf.Lerp(_headWeight, 0f, Time.deltaTime * _headAimSpeed);
                 }
-                headConstraint.weight = headWeight;
+                _headConstraint.weight = _headWeight;
             }
 
             // Update chest constraint
-            if (useChestRotation && chestConstraint != null)
+            if (_useChestRotation && _chestConstraint != null)
             {
-                SetChestTarget(currentTarget);
-                chestWeight = Mathf.Lerp(chestWeight, chestWeightMax, Time.deltaTime * chestAimSpeed);
-                chestConstraint.weight = chestWeight;
+                SetChestTarget(_currentTarget);
+                _chestWeight = Mathf.Lerp(_chestWeight, _chestWeightMax, Time.deltaTime * _chestAimSpeed);
+                _chestConstraint.weight = _chestWeight;
             }
         }
 
@@ -316,16 +316,16 @@ namespace Laboratory.Core.Character
         /// </summary>
         private void UpdateConstraintsWithoutTarget()
         {
-            if (headConstraint != null)
+            if (_headConstraint != null)
             {
-                headWeight = Mathf.Lerp(headWeight, 0f, Time.deltaTime * headAimSpeed);
-                headConstraint.weight = headWeight;
+                _headWeight = Mathf.Lerp(_headWeight, 0f, Time.deltaTime * _headAimSpeed);
+                _headConstraint.weight = _headWeight;
             }
 
-            if (chestConstraint != null)
+            if (_chestConstraint != null)
             {
-                chestWeight = Mathf.Lerp(chestWeight, 0f, Time.deltaTime * chestAimSpeed);
-                chestConstraint.weight = chestWeight;
+                _chestWeight = Mathf.Lerp(_chestWeight, 0f, Time.deltaTime * _chestAimSpeed);
+                _chestConstraint.weight = _chestWeight;
             }
         }
 
@@ -335,10 +335,10 @@ namespace Laboratory.Core.Character
         /// <param name="target">Target transform</param>
         private void SetHeadTarget(Transform target)
         {
-            if (headSources.Count > 0)
+            if (_headSources.Count > 0)
             {
-                headSources.SetTransform(0, target);
-                headConstraint.data.sourceObjects = headSources;
+                _headSources.SetTransform(0, target);
+                _headConstraint.data.sourceObjects = _headSources;
             }
         }
 
@@ -348,10 +348,10 @@ namespace Laboratory.Core.Character
         /// <param name="target">Target transform</param>
         private void SetChestTarget(Transform target)
         {
-            if (chestSources.Count > 0)
+            if (_chestSources.Count > 0)
             {
-                chestSources.SetTransform(0, target);
-                chestConstraint.data.sourceObjects = chestSources;
+                _chestSources.SetTransform(0, target);
+                _chestConstraint.data.sourceObjects = _chestSources;
             }
         }
 

@@ -56,31 +56,31 @@ namespace Laboratory.Core.Ragdoll
         [Header("Ragdoll Configuration")]
         [SerializeField]
         [Tooltip("List of all bones that participate in ragdoll physics - assign manually")]
-        private List<RagdollBone> ragdollBones = new List<RagdollBone>();
+        private List<RagdollBone> _ragdollBones = new List<RagdollBone>();
 
         [Header("Animation Integration")]
         [SerializeField]
         [Tooltip("Character animator component - assign manually")]
-        private Animator animator;
+        private Animator _animator;
 
         [SerializeField]
         [Tooltip("Start in kinematic (animated) mode rather than ragdoll mode")]
-        private bool startKinematic = true;
+        private bool _startKinematic = true;
 
         [Header("Partial Ragdoll Settings")]
         [SerializeField]
         [Tooltip("Duration for partial ragdoll effects before returning to animation")]
-        private float partialRagdollDuration = 2f;
+        private float _partialRagdollDuration = 2f;
 
         [SerializeField]
         [Tooltip("Whether to blend back to animation smoothly after partial ragdoll")]
-        private bool blendBackToAnimation = true;
+        private bool _blendBackToAnimation = true;
 
         // Runtime state
-        private bool isRagdollActive = false;
-        private bool isPartialRagdollActive = false;
-        private float partialRagdollTimer = 0f;
-        private Dictionary<string, RagdollBone> boneMap = new Dictionary<string, RagdollBone>();
+        private bool _isRagdollActive = false;
+        private bool _isPartialRagdollActive = false;
+        private float _partialRagdollTimer = 0f;
+        private Dictionary<string, RagdollBone> _boneMap = new Dictionary<string, RagdollBone>();
 
         #endregion
 
@@ -89,27 +89,27 @@ namespace Laboratory.Core.Ragdoll
         /// <summary>
         /// Character animator component
         /// </summary>
-        public Animator Animator => animator;
+        public Animator Animator => _animator;
 
         /// <summary>
         /// Read-only access to all ragdoll bones
         /// </summary>
-        public IReadOnlyList<RagdollBone> RagdollBones => ragdollBones.AsReadOnly();
+        public IReadOnlyList<RagdollBone> RagdollBones => _ragdollBones.AsReadOnly();
 
         /// <summary>
         /// Whether full ragdoll physics is currently active
         /// </summary>
-        public bool IsRagdollActive => isRagdollActive;
+        public bool IsRagdollActive => _isRagdollActive;
 
         /// <summary>
         /// Whether partial ragdoll is currently active
         /// </summary>
-        public bool IsPartialRagdollActive => isPartialRagdollActive;
+        public bool IsPartialRagdollActive => _isPartialRagdollActive;
 
         /// <summary>
         /// Total number of configured ragdoll bones
         /// </summary>
-        public int BoneCount => ragdollBones.Count;
+        public int BoneCount => _ragdollBones.Count;
 
         #endregion
 
@@ -149,9 +149,9 @@ namespace Laboratory.Core.Ragdoll
         /// <param name="active">Whether ragdoll should be active</param>
         public void SetRagdollActive(bool active)
         {
-            isRagdollActive = active;
-            isPartialRagdollActive = false;
-            partialRagdollTimer = 0f;
+            _isRagdollActive = active;
+            _isPartialRagdollActive = false;
+            _partialRagdollTimer = 0f;
 
             SetAnimatorEnabled(!active);
             ApplyRagdollStateToAllBones(active);
@@ -163,7 +163,7 @@ namespace Laboratory.Core.Ragdoll
         /// <param name="targetBoneName">Name of the bone to activate ragdoll for</param>
         public void SetPartialRagdoll(string targetBoneName)
         {
-            SetPartialRagdoll(targetBoneName, partialRagdollDuration);
+            SetPartialRagdoll(targetBoneName, _partialRagdollDuration);
         }
 
         /// <summary>
@@ -173,8 +173,8 @@ namespace Laboratory.Core.Ragdoll
         /// <param name="duration">Duration to maintain partial ragdoll state</param>
         public void SetPartialRagdoll(string targetBoneName, float duration)
         {
-            isPartialRagdollActive = true;
-            partialRagdollTimer = duration;
+            _isPartialRagdollActive = true;
+            _partialRagdollTimer = duration;
             
             // Keep animator active for unaffected bones
             SetAnimatorEnabled(true);
@@ -187,11 +187,11 @@ namespace Laboratory.Core.Ragdoll
         /// </summary>
         public void DisableRagdollKeepPose()
         {
-            isRagdollActive = false;
-            isPartialRagdollActive = false;
-            partialRagdollTimer = 0f;
+            _isRagdollActive = false;
+            _isPartialRagdollActive = false;
+            _partialRagdollTimer = 0f;
 
-            foreach (var bone in ragdollBones)
+            foreach (var bone in _ragdollBones)
             {
                 if (!bone.IsValid) continue;
                 
@@ -209,7 +209,7 @@ namespace Laboratory.Core.Ragdoll
         /// <returns>True if force was applied successfully</returns>
         public bool ApplyForceToBone(string boneName, Vector3 force, ForceMode mode = ForceMode.Impulse)
         {
-            if (boneMap.TryGetValue(boneName, out RagdollBone bone) && bone.Rigidbody != null)
+            if (_boneMap.TryGetValue(boneName, out RagdollBone bone) && bone.Rigidbody != null)
             {
                 bone.Rigidbody.AddForce(force, mode);
                 return true;
@@ -227,7 +227,7 @@ namespace Laboratory.Core.Ragdoll
         /// <returns>True if force was applied successfully</returns>
         public bool ApplyForceAtPosition(string boneName, Vector3 force, Vector3 position)
         {
-            if (boneMap.TryGetValue(boneName, out RagdollBone bone) && bone.Rigidbody != null)
+            if (_boneMap.TryGetValue(boneName, out RagdollBone bone) && bone.Rigidbody != null)
             {
                 bone.Rigidbody.AddForceAtPosition(force, position);
                 return true;
@@ -243,7 +243,7 @@ namespace Laboratory.Core.Ragdoll
         /// <returns>Bone configuration or null if not found</returns>
         public RagdollBone GetBone(string boneName)
         {
-            boneMap.TryGetValue(boneName, out RagdollBone bone);
+            _boneMap.TryGetValue(boneName, out RagdollBone bone);
             return bone;
         }
 
@@ -254,7 +254,7 @@ namespace Laboratory.Core.Ragdoll
         /// <returns>True if bone exists</returns>
         public bool HasBone(string boneName)
         {
-            return boneMap.ContainsKey(boneName);
+            return _boneMap.ContainsKey(boneName);
         }
 
         #endregion
@@ -268,7 +268,7 @@ namespace Laboratory.Core.Ragdoll
         {
             BuildBoneMap();
             CacheInitialStates();
-            SetRagdollActive(!startKinematic);
+            SetRagdollActive(!_startKinematic);
         }
 
         /// <summary>
@@ -276,13 +276,13 @@ namespace Laboratory.Core.Ragdoll
         /// </summary>
         private void BuildBoneMap()
         {
-            boneMap.Clear();
+            _boneMap.Clear();
             
-            foreach (var bone in ragdollBones)
+            foreach (var bone in _ragdollBones)
             {
                 if (!string.IsNullOrEmpty(bone.BoneName))
                 {
-                    boneMap[bone.BoneName] = bone;
+                    _boneMap[bone.BoneName] = bone;
                 }
             }
         }
@@ -292,7 +292,7 @@ namespace Laboratory.Core.Ragdoll
         /// </summary>
         private void CacheInitialStates()
         {
-            foreach (var bone in ragdollBones)
+            foreach (var bone in _ragdollBones)
             {
                 if (!bone.IsValid) continue;
                 
@@ -306,9 +306,9 @@ namespace Laboratory.Core.Ragdoll
         /// </summary>
         private void ValidateConfiguration()
         {
-            for (int i = 0; i < ragdollBones.Count; i++)
+            for (int i = 0; i < _ragdollBones.Count; i++)
             {
-                var bone = ragdollBones[i];
+                var bone = _ragdollBones[i];
                 if (!bone.IsValid)
                 {
                     Debug.LogWarning($"[RagdollSetup] Bone at index {i} is missing required components.", this);
@@ -322,9 +322,9 @@ namespace Laboratory.Core.Ragdoll
         /// <param name="enabled">Whether animator should be enabled</param>
         private void SetAnimatorEnabled(bool enabled)
         {
-            if (animator != null)
+            if (_animator != null)
             {
-                animator.enabled = enabled;
+                _animator.enabled = enabled;
             }
         }
 
@@ -334,7 +334,7 @@ namespace Laboratory.Core.Ragdoll
         /// <param name="ragdollActive">Whether ragdoll physics should be active</param>
         private void ApplyRagdollStateToAllBones(bool ragdollActive)
         {
-            foreach (var bone in ragdollBones)
+            foreach (var bone in _ragdollBones)
             {
                 if (!bone.IsValid) continue;
                 
@@ -349,7 +349,7 @@ namespace Laboratory.Core.Ragdoll
         /// <param name="targetBoneName">Name of the target bone</param>
         private void ApplyPartialRagdollState(string targetBoneName)
         {
-            foreach (var bone in ragdollBones)
+            foreach (var bone in _ragdollBones)
             {
                 if (!bone.IsValid || !bone.AffectedByPartialRagdoll) continue;
 
@@ -365,11 +365,11 @@ namespace Laboratory.Core.Ragdoll
         /// </summary>
         private void UpdatePartialRagdollTimer()
         {
-            if (!isPartialRagdollActive) return;
+            if (!_isPartialRagdollActive) return;
 
-            partialRagdollTimer -= Time.deltaTime;
+            _partialRagdollTimer -= Time.deltaTime;
             
-            if (partialRagdollTimer <= 0f)
+            if (_partialRagdollTimer <= 0f)
             {
                 DisablePartialRagdoll();
             }
@@ -380,13 +380,13 @@ namespace Laboratory.Core.Ragdoll
         /// </summary>
         private void DisablePartialRagdoll()
         {
-            isPartialRagdollActive = false;
-            partialRagdollTimer = 0f;
+            _isPartialRagdollActive = false;
+            _partialRagdollTimer = 0f;
 
-            if (blendBackToAnimation)
+            if (_blendBackToAnimation)
             {
                 // Smoothly return to kinematic state
-                foreach (var bone in ragdollBones)
+                foreach (var bone in _ragdollBones)
                 {
                     if (!bone.IsValid) continue;
                     
@@ -404,7 +404,7 @@ namespace Laboratory.Core.Ragdoll
         /// <returns>True if bone is a child of target</returns>
         private bool IsChildOfBone(string targetName, Transform bone)
         {
-            if (!boneMap.TryGetValue(targetName, out RagdollBone targetBone) || targetBone.BoneTransform == null)
+            if (!_boneMap.TryGetValue(targetName, out RagdollBone targetBone) || targetBone.BoneTransform == null)
                 return false;
 
             Transform current = bone.parent;

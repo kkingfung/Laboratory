@@ -15,15 +15,15 @@ namespace Laboratory.Core.Input
 
         [Header("Input Settings")]
         [Tooltip("Input action for interaction")]
-        [SerializeField] private InputAction interactAction;
+        [SerializeField] private InputAction _interactAction;
         
         [Tooltip("Time threshold in seconds before a long press starts")]
-        [SerializeField] private float longPressThreshold = 0.5f;
+        [SerializeField] private float _longPressThreshold = 0.5f;
         
         [Tooltip("How often long press triggers while holding in seconds")]
-        [SerializeField] private float longPressRepeatRate = 0.1f;
+        [SerializeField] private float _longPressRepeatRate = 0.1f;
 
-        private Coroutine longPressCoroutine;
+        private Coroutine _longPressCoroutine;
 
         #endregion
 
@@ -53,9 +53,9 @@ namespace Laboratory.Core.Input
         /// </summary>
         private void OnEnable()
         {
-            interactAction.Enable();
-            interactAction.performed += HandlePress;
-            interactAction.canceled += HandleRelease;
+            _interactAction.Enable();
+            _interactAction.performed += HandlePress;
+            _interactAction.canceled += HandleRelease;
         }
 
         /// <summary>
@@ -63,9 +63,9 @@ namespace Laboratory.Core.Input
         /// </summary>
         private void OnDisable()
         {
-            interactAction.performed -= HandlePress;
-            interactAction.canceled -= HandleRelease;
-            interactAction.Disable();
+            _interactAction.performed -= HandlePress;
+            _interactAction.canceled -= HandleRelease;
+            _interactAction.Disable();
         }
 
         #endregion
@@ -78,10 +78,10 @@ namespace Laboratory.Core.Input
         /// <param name="context">Input callback context</param>
         private void HandlePress(InputAction.CallbackContext context)
         {
-            if (longPressCoroutine != null)
-                StopCoroutine(longPressCoroutine);
+            if (_longPressCoroutine != null)
+                StopCoroutine(_longPressCoroutine);
 
-            longPressCoroutine = StartCoroutine(LongPressRoutine());
+            _longPressCoroutine = StartCoroutine(LongPressRoutine());
         }
 
         /// <summary>
@@ -90,10 +90,10 @@ namespace Laboratory.Core.Input
         /// <param name="context">Input callback context</param>
         private void HandleRelease(InputAction.CallbackContext context)
         {
-            if (longPressCoroutine != null)
+            if (_longPressCoroutine != null)
             {
-                StopCoroutine(longPressCoroutine);
-                longPressCoroutine = null;
+                StopCoroutine(_longPressCoroutine);
+                _longPressCoroutine = null;
 
                 // If released before long press threshold, it's a click
                 OnClick?.Invoke();
@@ -107,16 +107,16 @@ namespace Laboratory.Core.Input
         private IEnumerator LongPressRoutine()
         {
             // Wait until long press threshold
-            yield return new WaitForSeconds(longPressThreshold);
+            yield return new WaitForSeconds(_longPressThreshold);
 
             // Long press started
             OnLongPressStart?.Invoke();
 
             // Repeat while holding
-            while (interactAction.ReadValue<float>() > 0)
+            while (_interactAction.ReadValue<float>() > 0)
             {
                 OnLongPressHold?.Invoke();
-                yield return new WaitForSeconds(longPressRepeatRate);
+                yield return new WaitForSeconds(_longPressRepeatRate);
             }
         }
 

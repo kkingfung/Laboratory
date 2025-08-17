@@ -18,17 +18,17 @@ namespace Laboratory.Core.Bootstrap
     {
         #region Constants
 
-        private const string DefaultInitialSceneName = "LobbyScene";
-        private const int DefaultNetworkPort = 7777;
-        private const string DefaultNetworkAddress = "127.0.0.1";
+        private const string DEFAULT_INITIAL_SCENE_NAME = "LobbyScene";
+        private const int DEFAULT_NETWORK_PORT = 7777;
+        private const string DEFAULT_NETWORK_ADDRESS = "127.0.0.1";
 
         #endregion
 
         #region Fields
 
         [Header("Startup Scene Settings")]
-        [SerializeField] private string initialSceneName = DefaultInitialSceneName;
-        [SerializeField] private bool loadInitialSceneOnStart = true;
+        [SerializeField] private string _initialSceneName = DEFAULT_INITIAL_SCENE_NAME;
+        [SerializeField] private bool _loadInitialSceneOnStart = true;
 
         private World _defaultWorld;
         private ServiceLocator _services;
@@ -62,7 +62,7 @@ namespace Laboratory.Core.Bootstrap
             RegisterViewModels();
             await InitializeAsync();
 
-            if (loadInitialSceneOnStart)
+            if (_loadInitialSceneOnStart)
             {
                 await LoadInitialScene();
             }
@@ -141,7 +141,7 @@ namespace Laboratory.Core.Bootstrap
             try
             {
                 // TODO: Implement NetworkClient connection when it's created
-                // await _networkClient.ConnectAsync(DefaultNetworkAddress, DefaultNetworkPort);
+                // await _networkClient.ConnectAsync(DEFAULT_NETWORK_ADDRESS, DEFAULT_NETWORK_PORT);
 
                 var assetPreloader = new AssetPreloader();
                 _services.Register<AssetPreloader>(assetPreloader);
@@ -161,8 +161,8 @@ namespace Laboratory.Core.Bootstrap
         /// </summary>
         private async UniTask LoadInitialScene()
         {
-            Debug.Log($"Loading initial scene: {initialSceneName}");
-            await UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(initialSceneName);
+            Debug.Log($"Loading initial scene: {_initialSceneName}");
+            await UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(_initialSceneName);
         }
 
         #endregion

@@ -20,8 +20,8 @@ namespace Laboratory.Infrastructure.Settings
         #region Serialized Fields
         
         [Header("UI Elements")]
-        [SerializeField] private Dropdown resolutionDropdown;
-        [SerializeField] private Toggle fullscreenToggle;
+        [SerializeField] private Dropdown _resolutionDropdown;
+        [SerializeField] private Toggle _fullscreenToggle;
         
         #endregion
         
@@ -30,7 +30,7 @@ namespace Laboratory.Infrastructure.Settings
         /// <summary>
         /// Predefined list of supported screen resolutions.
         /// </summary>
-        private readonly List<Vector2Int> allowedResolutions = new List<Vector2Int>()
+        private readonly List<Vector2Int> _allowedResolutions = new List<Vector2Int>()
         {
             new Vector2Int(1280, 720),   // HD
             new Vector2Int(1600, 900),   // HD+
@@ -39,7 +39,7 @@ namespace Laboratory.Infrastructure.Settings
             new Vector2Int(3840, 2160)   // 4K
         };
         
-        private int currentResolutionIndex = 0;
+        private int _currentResolutionIndex = 0;
         
         #endregion
         
@@ -65,13 +65,13 @@ namespace Laboratory.Infrastructure.Settings
         /// <param name="index">The selected resolution index</param>
         public void OnResolutionChange(int index)
         {
-            if (index < 0 || index >= allowedResolutions.Count)
+            if (index < 0 || index >= _allowedResolutions.Count)
             {
                 Debug.LogWarning($"Invalid resolution index: {index}. Clamping to valid range.", this);
-                index = Mathf.Clamp(index, 0, allowedResolutions.Count - 1);
+                index = Mathf.Clamp(index, 0, _allowedResolutions.Count - 1);
             }
             
-            currentResolutionIndex = index;
+            _currentResolutionIndex = index;
             ApplySettings();
         }
 
@@ -89,17 +89,17 @@ namespace Laboratory.Infrastructure.Settings
         /// </summary>
         public void ResetToDefaults()
         {
-            currentResolutionIndex = GetDefaultResolutionIndex();
+            _currentResolutionIndex = GetDefaultResolutionIndex();
             
-            if (resolutionDropdown != null)
+            if (_resolutionDropdown != null)
             {
-                resolutionDropdown.value = currentResolutionIndex;
-                resolutionDropdown.RefreshShownValue();
+                _resolutionDropdown.value = _currentResolutionIndex;
+                _resolutionDropdown.RefreshShownValue();
             }
             
-            if (fullscreenToggle != null)
+            if (_fullscreenToggle != null)
             {
-                fullscreenToggle.isOn = true;
+                _fullscreenToggle.isOn = true;
             }
             
             ApplySettings();
@@ -114,32 +114,32 @@ namespace Laboratory.Infrastructure.Settings
         /// </summary>
         private void SetupResolutionOptions()
         {
-            if (resolutionDropdown == null)
+            if (_resolutionDropdown == null)
             {
                 Debug.LogError("Resolution dropdown is not assigned!", this);
                 return;
             }
             
-            resolutionDropdown.ClearOptions();
+            _resolutionDropdown.ClearOptions();
             
             var options = new List<string>();
-            foreach (var resolution in allowedResolutions)
+            foreach (var resolution in _allowedResolutions)
             {
                 string option = $"{resolution.x} x {resolution.y}";
                 options.Add(option);
             }
             
-            resolutionDropdown.AddOptions(options);
+            _resolutionDropdown.AddOptions(options);
             
             // Validate and set current resolution index
-            currentResolutionIndex = Mathf.Clamp(currentResolutionIndex, 0, allowedResolutions.Count - 1);
-            resolutionDropdown.value = currentResolutionIndex;
-            resolutionDropdown.RefreshShownValue();
+            _currentResolutionIndex = Mathf.Clamp(_currentResolutionIndex, 0, _allowedResolutions.Count - 1);
+            _resolutionDropdown.value = _currentResolutionIndex;
+            _resolutionDropdown.RefreshShownValue();
             
             // Set fullscreen toggle state
-            if (fullscreenToggle != null)
+            if (_fullscreenToggle != null)
             {
-                fullscreenToggle.isOn = Screen.fullScreen;
+                _fullscreenToggle.isOn = Screen.fullScreen;
             }
         }
         
@@ -148,14 +148,14 @@ namespace Laboratory.Infrastructure.Settings
         /// </summary>
         private void SetupEventListeners()
         {
-            if (resolutionDropdown != null)
+            if (_resolutionDropdown != null)
             {
-                resolutionDropdown.onValueChanged.AddListener(OnResolutionChange);
+                _resolutionDropdown.onValueChanged.AddListener(OnResolutionChange);
             }
             
-            if (fullscreenToggle != null)
+            if (_fullscreenToggle != null)
             {
-                fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggle);
+                _fullscreenToggle.onValueChanged.AddListener(OnFullscreenToggle);
             }
         }
         
@@ -168,14 +168,14 @@ namespace Laboratory.Infrastructure.Settings
         /// </summary>
         private void ApplySettings()
         {
-            if (currentResolutionIndex < 0 || currentResolutionIndex >= allowedResolutions.Count)
+            if (_currentResolutionIndex < 0 || _currentResolutionIndex >= _allowedResolutions.Count)
             {
-                Debug.LogError($"Cannot apply settings - invalid resolution index: {currentResolutionIndex}", this);
+                Debug.LogError($"Cannot apply settings - invalid resolution index: {_currentResolutionIndex}", this);
                 return;
             }
             
-            var resolution = allowedResolutions[currentResolutionIndex];
-            bool isFullscreen = fullscreenToggle != null ? fullscreenToggle.isOn : Screen.fullScreen;
+            var resolution = _allowedResolutions[_currentResolutionIndex];
+            bool isFullscreen = _fullscreenToggle != null ? _fullscreenToggle.isOn : Screen.fullScreen;
             
             try
             {
@@ -195,8 +195,8 @@ namespace Laboratory.Infrastructure.Settings
         /// </summary>
         private void SaveSettings()
         {
-            PlayerPrefs.SetInt(PREF_RESOLUTION_INDEX, currentResolutionIndex);
-            PlayerPrefs.SetInt(PREF_FULLSCREEN, fullscreenToggle != null && fullscreenToggle.isOn ? 1 : 0);
+            PlayerPrefs.SetInt(PREF_RESOLUTION_INDEX, _currentResolutionIndex);
+            PlayerPrefs.SetInt(PREF_FULLSCREEN, _fullscreenToggle != null && _fullscreenToggle.isOn ? 1 : 0);
             PlayerPrefs.Save();
         }
 
@@ -205,7 +205,7 @@ namespace Laboratory.Infrastructure.Settings
         /// </summary>
         private void LoadSettings()
         {
-            currentResolutionIndex = PlayerPrefs.GetInt(PREF_RESOLUTION_INDEX, GetDefaultResolutionIndex());
+            _currentResolutionIndex = PlayerPrefs.GetInt(PREF_RESOLUTION_INDEX, GetDefaultResolutionIndex());
             bool isFullscreen = PlayerPrefs.GetInt(PREF_FULLSCREEN, 1) == 1;
             
             // Apply fullscreen setting immediately
@@ -219,9 +219,9 @@ namespace Laboratory.Infrastructure.Settings
         private int GetDefaultResolutionIndex()
         {
             // Default to Full HD (1920x1080)
-            for (int i = 0; i < allowedResolutions.Count; i++)
+            for (int i = 0; i < _allowedResolutions.Count; i++)
             {
-                if (allowedResolutions[i].x == 1920 && allowedResolutions[i].y == 1080)
+                if (_allowedResolutions[i].x == 1920 && _allowedResolutions[i].y == 1080)
                 {
                     return i;
                 }

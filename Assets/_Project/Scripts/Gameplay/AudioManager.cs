@@ -11,12 +11,12 @@ namespace Laboratory.Gameplay.Audio
         #region Fields
 
         [Header("Audio Sources")]
-        [SerializeField] private AudioSource musicSource;
-        [SerializeField] private AudioSource sfxSource;
+        [SerializeField] private AudioSource _musicSource;
+        [SerializeField] private AudioSource _sfxSource;
 
         [Header("Audio Clips")]
-        [SerializeField] private List<AudioClip> musicClips;
-        [SerializeField] private List<AudioClip> sfxClips;
+        [SerializeField] private List<AudioClip> _musicClips;
+        [SerializeField] private List<AudioClip> _sfxClips;
 
         private Dictionary<string, AudioClip> _musicClipDict;
         private Dictionary<string, AudioClip> _sfxClipDict;
@@ -41,9 +41,9 @@ namespace Laboratory.Gameplay.Audio
         {
             if (_musicClipDict.TryGetValue(clipName, out var clip))
             {
-                musicSource.clip = clip;
-                musicSource.loop = loop;
-                musicSource.Play();
+                _musicSource.clip = clip;
+                _musicSource.loop = loop;
+                _musicSource.Play();
             }
             else
             {
@@ -58,7 +58,7 @@ namespace Laboratory.Gameplay.Audio
         {
             if (_sfxClipDict.TryGetValue(clipName, out var clip))
             {
-                sfxSource.PlayOneShot(clip);
+                _sfxSource.PlayOneShot(clip);
             }
             else
             {
@@ -71,7 +71,7 @@ namespace Laboratory.Gameplay.Audio
         /// </summary>
         public void StopMusic()
         {
-            musicSource.Stop();
+            _musicSource.Stop();
         }
 
         #endregion
@@ -81,14 +81,14 @@ namespace Laboratory.Gameplay.Audio
         private void InitializeClipDictionaries()
         {
             _musicClipDict = new Dictionary<string, AudioClip>();
-            foreach (var clip in musicClips)
+            foreach (var clip in _musicClips)
             {
                 if (clip != null && !_musicClipDict.ContainsKey(clip.name))
                     _musicClipDict.Add(clip.name, clip);
             }
 
             _sfxClipDict = new Dictionary<string, AudioClip>();
-            foreach (var clip in sfxClips)
+            foreach (var clip in _sfxClips)
             {
                 if (clip != null && !_sfxClipDict.ContainsKey(clip.name))
                     _sfxClipDict.Add(clip.name, clip);

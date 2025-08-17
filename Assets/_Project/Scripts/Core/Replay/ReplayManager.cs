@@ -13,18 +13,18 @@ namespace Laboratory.Core.Replay
         #region Fields
         
         [Header("Recording Configuration")]
-        [SerializeField] private ActorRecorder[] recorders;
+        [SerializeField] private ActorRecorder[] _recorders;
         
         [Header("Playback Configuration")]
-        [SerializeField] private ActorPlayback[] players;
+        [SerializeField] private ActorPlayback[] _players;
         
         [Header("File Settings")]
-        [SerializeField] private string saveFileName = "replay.json";
+        [SerializeField] private string _saveFileName = "replay.json";
         
         /// <summary>
         /// Current replay session data containing all actor recordings
         /// </summary>
-        private ReplaySession session;
+        private ReplaySession _session;
         
         #endregion
         
@@ -35,9 +35,9 @@ namespace Laboratory.Core.Replay
         /// </summary>
         public void StartRecording()
         {
-            session = new ReplaySession();
+            _session = new ReplaySession();
             
-            foreach (var recorder in recorders)
+            foreach (var recorder in _recorders)
             {
                 recorder.Clear();
             }
@@ -50,7 +50,7 @@ namespace Laboratory.Core.Replay
         /// </summary>
         public void StopRecording()
         {
-            if (session == null)
+            if (_session == null)
             {
                 Debug.LogWarning("No active recording session to stop");
                 return;
@@ -58,7 +58,7 @@ namespace Laboratory.Core.Replay
             
             var actorDataList = new List<ActorReplayData>();
             
-            foreach (var recorder in recorders)
+            foreach (var recorder in _recorders)
             {
                 var replayData = recorder.GetReplayData();
                 if (replayData != null)
@@ -67,7 +67,7 @@ namespace Laboratory.Core.Replay
                 }
             }
             
-            session.actors = actorDataList.ToArray();
+            _session.actors = actorDataList.ToArray();
             SaveToFile();
             
             Debug.Log($"Replay recording stopped. Recorded {actorDataList.Count} actors");
@@ -84,7 +84,7 @@ namespace Laboratory.Core.Replay
         {
             LoadFromFile();
             
-            if (session?.actors == null)
+            if (_session?.actors == null)
             {
                 Debug.LogError("No replay session data available for playback");
                 return;
@@ -92,9 +92,9 @@ namespace Laboratory.Core.Replay
             
             int playersConfigured = 0;
             
-            foreach (var player in players)
+            foreach (var player in _players)
             {
-                var actorData = System.Array.Find(session.actors, actor => actor.actorName == player.name);
+                var actorData = System.Array.Find(_session.actors, actor => actor.actorName == player.name);
                 
                 if (actorData != null)
                 {
@@ -116,7 +116,7 @@ namespace Laboratory.Core.Replay
         /// </summary>
         public void StopPlayback()
         {
-            foreach (var player in players)
+            foreach (var player in _players)
             {
                 player.Stop();
             }
@@ -131,17 +131,17 @@ namespace Laboratory.Core.Replay
         /// <summary>
         /// Gets whether a replay session is currently loaded and available for playback
         /// </summary>
-        public bool HasReplaySession => session?.actors != null && session.actors.Length > 0;
+        public bool HasReplaySession => _session?.actors != null && _session.actors.Length > 0;
         
         /// <summary>
         /// Gets the current replay session data
         /// </summary>
-        public ReplaySession CurrentSession => session;
+        public ReplaySession CurrentSession => _session;
         
         /// <summary>
         /// Gets the configured save file name
         /// </summary>
-        public string SaveFileName => saveFileName;
+        public string SaveFileName => _saveFileName;
         
         #endregion
         
@@ -152,7 +152,7 @@ namespace Laboratory.Core.Replay
         /// </summary>
         private void SaveToFile()
         {
-            if (session == null)
+            if (_session == null)
             {
                 Debug.LogError("No session data to save");
                 return;
@@ -161,7 +161,7 @@ namespace Laboratory.Core.Replay
             try
             {
                 string filePath = GetSaveFilePath();
-                string jsonData = JsonUtility.ToJson(session, true);
+                string jsonData = JsonUtility.ToJson(_session, true);
                 
                 // Ensure directory exists
                 string directoryPath = Path.GetDirectoryName(filePath);
@@ -195,9 +195,9 @@ namespace Laboratory.Core.Replay
                 }
                 
                 string jsonData = File.ReadAllText(filePath);
-                session = JsonUtility.FromJson<ReplaySession>(jsonData);
+                _session = JsonUtility.FromJson<ReplaySession>(jsonData);
                 
-                if (session == null)
+                if (_session == null)
                 {
                     Debug.LogError("Failed to deserialize replay session data");
                     return;
@@ -217,7 +217,7 @@ namespace Laboratory.Core.Replay
         /// <returns>Complete file path for the replay save file</returns>
         private string GetSaveFilePath()
         {
-            return Path.Combine(Application.persistentDataPath, "Replays", saveFileName);
+            return Path.Combine(Application.persistentDataPath, "Replays", _saveFileName);
         }
         
         #endregion
@@ -241,20 +241,20 @@ namespace Laboratory.Core.Replay
         /// </summary>
         private void ValidateConfiguration()
         {
-            if (recorders == null || recorders.Length == 0)
+            if (_recorders == null || _recorders.Length == 0)
             {
                 Debug.LogWarning("No recorders configured for ReplayManager");
             }
             
-            if (players == null || players.Length == 0)
+            if (_players == null || _players.Length == 0)
             {
                 Debug.LogWarning("No players configured for ReplayManager");
             }
             
-            if (string.IsNullOrEmpty(saveFileName))
+            if (string.IsNullOrEmpty(_saveFileName))
             {
                 Debug.LogWarning("Save file name is empty, using default");
-                saveFileName = "replay.json";
+                _saveFileName = "replay.json";
             }
         }
         

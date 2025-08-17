@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using System.Collections;
 
 namespace Laboratory.Gameplay.Lobby
 {
@@ -13,13 +12,13 @@ namespace Laboratory.Gameplay.Lobby
         #region Fields
 
         [Header("Lobby Settings")]
-        [SerializeField] private int maxPlayers = 4;
+        [SerializeField] private int _maxPlayers = 8;
 
         private int _currentPlayers;
 
         public static LobbyManager Instance { get; private set; } = null!;
 
-        private readonly Dictionary<ulong, PlayerData> connectedPlayers = new();
+        private readonly Dictionary<ulong, PlayerData> _connectedPlayers = new();
 
         #endregion
 
@@ -33,7 +32,7 @@ namespace Laboratory.Gameplay.Lobby
         /// <summary>
         /// Gets the maximum number of players allowed in the lobby.
         /// </summary>
-        public int MaxPlayers => maxPlayers;
+        public int MaxPlayers => _maxPlayers;
 
         #endregion
 
@@ -69,7 +68,7 @@ namespace Laboratory.Gameplay.Lobby
         /// </summary>
         public bool AddPlayer()
         {
-            if (_currentPlayers < maxPlayers)
+            if (_currentPlayers < _maxPlayers)
             {
                 _currentPlayers++;
                 // Raise lobby event here if needed
@@ -96,7 +95,7 @@ namespace Laboratory.Gameplay.Lobby
         {
             if (!IsServer) return;
 
-            if (connectedPlayers.TryGetValue(clientId, out var player))
+            if (_connectedPlayers.TryGetValue(clientId, out var player))
             {
                 player.IsReady.Value = ready;
                 UpdateLobbyClients();
@@ -121,7 +120,7 @@ namespace Laboratory.Gameplay.Lobby
         /// <returns>Collection of player data with client IDs</returns>
         public IEnumerable<(ulong ClientId, PlayerData PlayerData)> GetAllPlayers()
         {
-            foreach (var kvp in connectedPlayers)
+            foreach (var kvp in _connectedPlayers)
             {
                 yield return (kvp.Key, kvp.Value);
             }
@@ -136,7 +135,7 @@ namespace Laboratory.Gameplay.Lobby
             if (!IsServer) return;
 
             // Add player with default not ready
-            connectedPlayers[clientId] = new PlayerData
+            _connectedPlayers[clientId] = new PlayerData
             {
                 PlayerName = $"Player {clientId}"
             };
@@ -148,7 +147,7 @@ namespace Laboratory.Gameplay.Lobby
         {
             if (!IsServer) return;
 
-            connectedPlayers.Remove(clientId);
+            _connectedPlayers.Remove(clientId);
 
             UpdateLobbyClients();
         }

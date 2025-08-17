@@ -8,16 +8,23 @@ namespace Laboratory.Infrastructure.AsyncUtils
     /// </summary>
     public class CooldownTimer
     {
+        #region Fields
+
+        private float _duration;
+        private float _remaining;
+
+        #endregion
+
         #region Properties
 
         /// <summary>Cooldown duration in seconds.</summary>
-        public float Duration { get; private set; }
+        public float Duration => _duration;
 
         /// <summary>Remaining time on cooldown in seconds.</summary>
-        public float Remaining { get; private set; }
+        public float Remaining => _remaining;
 
         /// <summary>True if cooldown is currently active.</summary>
-        public bool IsActive => Remaining > 0f;
+        public bool IsActive => _remaining > 0f;
 
         #endregion
 
@@ -30,8 +37,8 @@ namespace Laboratory.Infrastructure.AsyncUtils
         public CooldownTimer(float duration)
         {
             if (duration < 0f) throw new ArgumentException("Duration must be >= 0");
-            Duration = duration;
-            Remaining = 0f;
+            _duration = duration;
+            _remaining = 0f;
         }
 
         #endregion
@@ -43,7 +50,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
         /// </summary>
         public void Start()
         {
-            Remaining = Duration;
+            _remaining = _duration;
         }
 
         /// <summary>
@@ -64,11 +71,11 @@ namespace Laboratory.Infrastructure.AsyncUtils
         /// <param name="deltaTime">Time in seconds to reduce from Remaining.</param>
         public void Tick(float deltaTime)
         {
-            if (Remaining <= 0f) return;
+            if (_remaining <= 0f) return;
 
-            Remaining -= deltaTime;
-            if (Remaining < 0f)
-                Remaining = 0f;
+            _remaining -= deltaTime;
+            if (_remaining < 0f)
+                _remaining = 0f;
         }
 
         /// <summary>
@@ -76,7 +83,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
         /// </summary>
         public void Reset()
         {
-            Remaining = 0f;
+            _remaining = 0f;
         }
 
         #endregion

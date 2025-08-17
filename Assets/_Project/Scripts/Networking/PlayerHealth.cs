@@ -1,4 +1,3 @@
-using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using Laboratory.Gameplay.Respawn;
@@ -16,7 +15,7 @@ namespace Laboratory.Infrastructure.Networking
         #region Fields
 
         [Header("Health Configuration")]
-        [SerializeField] private int maxHealth = 100;
+        [SerializeField] private int _maxHealth = 100;
 
         /// <summary>Current health value synchronized across all clients.</summary>
         public NetworkVariable<int> CurrentHealth = new NetworkVariable<int>(
@@ -37,15 +36,15 @@ namespace Laboratory.Infrastructure.Networking
             NetworkVariableWritePermission.Server);
 
         [Header("Respawn Configuration")]
-        [SerializeField] private float respawnDelay = 5f;
-        [SerializeField] private Transform respawnPointFallback;
+        [SerializeField] private float _respawnDelay = 5f;
+        [SerializeField] private Transform _respawnPointFallback;
 
         [Header("Components to Disable on Death")]
-        [SerializeField] private MonoBehaviour[] componentsToDisable = new MonoBehaviour[0];
-        [SerializeField] private GameObject[] objectsToDisable = new GameObject[0];
+        [SerializeField] private MonoBehaviour[] _componentsToDisable = new MonoBehaviour[0];
+        [SerializeField] private GameObject[] _objectsToDisable = new GameObject[0];
 
         [Header("Animation")]
-        [SerializeField] private Animator animator;
+        [SerializeField] private Animator _animator;
 
         /// <summary>Current respawn countdown coroutine.</summary>
         private Coroutine _respawnCoroutine;
@@ -55,10 +54,10 @@ namespace Laboratory.Infrastructure.Networking
         #region Properties
 
         /// <summary>Maximum health value for this player.</summary>
-        public int MaxHealth => maxHealth;
+        public int MaxHealth => _maxHealth;
 
         /// <summary>Health as a normalized percentage (0.0 to 1.0).</summary>
-        public float HealthPercentage => maxHealth > 0 ? (float)CurrentHealth.Value / maxHealth : 0f;
+        public float HealthPercentage => _maxHealth > 0 ? (float)CurrentHealth.Value / _maxHealth : 0f;
 
         /// <summary>Whether the player can currently respawn.</summary>
         public bool CanRespawn => !IsAlive.Value && RespawnTimeRemaining.Value <= 0f;
@@ -72,7 +71,7 @@ namespace Laboratory.Infrastructure.Networking
         /// </summary>
         private void Awake()
         {
-            CurrentHealth.Value = maxHealth;
+            CurrentHealth.Value = _maxHealth;
             IsAlive.Value = true;
         }
 
@@ -136,7 +135,7 @@ namespace Laboratory.Infrastructure.Networking
         {
             if (!IsServer || amount <= 0) return;
 
-            CurrentHealth.Value = Mathf.Min(maxHealth, CurrentHealth.Value + amount);
+            CurrentHealth.Value = Mathf.Min(_maxHealth, CurrentHealth.Value + amount);
         }
 
         /// <summary>
@@ -146,7 +145,7 @@ namespace Laboratory.Infrastructure.Networking
         {
             if (!IsServer) return;
 
-            CurrentHealth.Value = maxHealth;
+            CurrentHealth.Value = _maxHealth;
             IsAlive.Value = true;
             RespawnTimeRemaining.Value = 0f;
         }
@@ -164,15 +163,15 @@ namespace Laboratory.Infrastructure.Networking
             if (!IsServer) return;
 
             IsAlive.Value = false;
-            RespawnTimeRemaining.Value = respawnDelay;
+            RespawnTimeRemaining.Value = _respawnDelay;
 
             // Disable gameplay components
-            foreach (var component in componentsToDisable)
+            foreach (var component in _componentsToDisable)
             {
                 if (component != null) component.enabled = false;
             }
 
-            foreach (var gameObject in objectsToDisable)
+            foreach (var gameObject in _objectsToDisable)
             {
                 if (gameObject != null) gameObject.SetActive(false);
             }
@@ -194,7 +193,7 @@ namespace Laboratory.Infrastructure.Networking
         /// <returns>Coroutine enumerator.</returns>
         private IEnumerator RespawnCountdown()
         {
-            float remaining = respawnDelay;
+            float remaining = _respawnDelay;
             RespawnTimeRemaining.Value = remaining;
 
             while (remaining > 0f)
@@ -216,17 +215,17 @@ namespace Laboratory.Infrastructure.Networking
             if (!IsServer) return;
 
             // Restore health and life state
-            CurrentHealth.Value = maxHealth;
+            CurrentHealth.Value = _maxHealth;
             IsAlive.Value = true;
             RespawnTimeRemaining.Value = 0f;
 
             // Re-enable gameplay components
-            foreach (var component in componentsToDisable)
+            foreach (var component in _componentsToDisable)
             {
                 if (component != null) component.enabled = true;
             }
 
-            foreach (var gameObject in objectsToDisable)
+            foreach (var gameObject in _objectsToDisable)
             {
                 if (gameObject != null) gameObject.SetActive(true);
             }
@@ -257,7 +256,7 @@ namespace Laboratory.Infrastructure.Networking
             }
 
             // Fall back to designated respawn point or origin
-            return respawnPointFallback != null ? respawnPointFallback.position : Vector3.zero;
+            return _respawnPointFallback != null ? _respawnPointFallback.position : Vector3.zero;
         }
 
         /// <summary>
@@ -303,9 +302,9 @@ namespace Laboratory.Infrastructure.Networking
         [ClientRpc]
         private void PlayDeathAnimationClientRpc(ClientRpcParams clientRpcParams = default)
         {
-            if (animator != null)
+            if (_animator != null)
             {
-                animator.SetTrigger("Die");
+                _animator.SetTrigger("Die");
             }
             // TODO: Add camera effects, screen overlay, etc.
         }
@@ -321,9 +320,9 @@ namespace Laboratory.Infrastructure.Networking
             // Ensure transform is updated on clients
             transform.position = spawnPosition;
 
-            if (animator != null)
+            if (_animator != null)
             {
-                animator.SetTrigger("Respawn");
+                _animator.SetTrigger("Respawn");
             }
 
             // TODO: Add respawn particle effects, sound effects, etc.

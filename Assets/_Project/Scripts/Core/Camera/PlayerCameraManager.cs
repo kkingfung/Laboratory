@@ -37,46 +37,46 @@ namespace Laboratory.Core
         [Header("Common References")]
         [SerializeField]
         [Tooltip("Main Cinemachine brain controlling camera transitions")]
-        private CinemachineBrain cinemachineBrain;
+        private CinemachineBrain _cinemachineBrain;
         
         [SerializeField]
         [Tooltip("Primary player transform to follow")]
-        private Transform player;
+        private Transform _player;
 
         [Header("Virtual Cameras")]
         [SerializeField]
         [Tooltip("Camera for following alive player")]
-        private CinemachineCamera  followPlayerVC;
+        private CinemachineCamera _followPlayerVC;
         
         [SerializeField]
         [Tooltip("Camera for orbiting around dead player")]
-        private CinemachineCamera  deathCamOrbitVC;
+        private CinemachineCamera _deathCamOrbitVC;
         
         [SerializeField]
         [Tooltip("Camera for following teammates when dead")]
-        private CinemachineCamera  followTeammateVC;
+        private CinemachineCamera _followTeammateVC;
         
         [SerializeField]
         [Tooltip("Camera for cinematic shots")]
-        private CinemachineCamera  cinematicShotVC;
+        private CinemachineCamera _cinematicShotVC;
         
         [SerializeField]
         [Tooltip("Camera for free spectator mode")]
-        private CinemachineCamera  freeSpectatorVC;
+        private CinemachineCamera _freeSpectatorVC;
 
         [Header("Settings")]
         [SerializeField]
         [Tooltip("Delay before switching to death camera")]
-        private float blendDelay = 0.5f;
+        private float _blendDelay = 0.5f;
         
         [SerializeField]
         [Tooltip("Delay when switching between teammates")]
-        private float teammateSwitchDelay = 1.0f;
+        private float _teammateSwitchDelay = 1.0f;
 
         // Runtime state
-        private List<Transform> teammates = new List<Transform>();
-        private int currentTeammateIndex = 0;
-        private CameraMode currentMode = CameraMode.FollowPlayer;
+        private List<Transform> _teammates = new List<Transform>();
+        private int _currentTeammateIndex = 0;
+        private CameraMode _currentMode = CameraMode.FollowPlayer;
 
         #endregion
 
@@ -85,23 +85,23 @@ namespace Laboratory.Core
         /// <summary>
         /// Current active camera mode
         /// </summary>
-        public CameraMode CurrentMode => currentMode;
+        public CameraMode CurrentMode => _currentMode;
 
         /// <summary>
         /// List of available teammates for spectating
         /// </summary>
-        public IReadOnlyList<Transform> Teammates => teammates.AsReadOnly();
+        public IReadOnlyList<Transform> Teammates => _teammates.AsReadOnly();
 
         /// <summary>
         /// Currently spectated teammate index
         /// </summary>
-        public int CurrentTeammateIndex => currentTeammateIndex;
+        public int CurrentTeammateIndex => _currentTeammateIndex;
 
         /// <summary>
         /// Currently spectated teammate transform
         /// </summary>
-        public Transform CurrentTeammate => teammates.Count > 0 && currentTeammateIndex < teammates.Count 
-            ? teammates[currentTeammateIndex] 
+        public Transform CurrentTeammate => _teammates.Count > 0 && _currentTeammateIndex < _teammates.Count 
+            ? _teammates[_currentTeammateIndex] 
             : null;
 
         #endregion
@@ -126,12 +126,12 @@ namespace Laboratory.Core
         /// <param name="newTeammates">List of teammate transforms</param>
         public void SetTeammates(List<Transform> newTeammates)
         {
-            teammates.Clear();
+            _teammates.Clear();
             if (newTeammates != null)
             {
-                teammates.AddRange(newTeammates);
+                _teammates.AddRange(newTeammates);
             }
-            currentTeammateIndex = 0;
+            _currentTeammateIndex = 0;
         }
 
         /// <summary>
@@ -140,9 +140,9 @@ namespace Laboratory.Core
         /// <param name="teammate">Teammate transform to add</param>
         public void AddTeammate(Transform teammate)
         {
-            if (teammate != null && !teammates.Contains(teammate))
+            if (teammate != null && !_teammates.Contains(teammate))
             {
-                teammates.Add(teammate);
+                _teammates.Add(teammate);
             }
         }
 
@@ -152,19 +152,19 @@ namespace Laboratory.Core
         /// <param name="teammate">Teammate transform to remove</param>
         public void RemoveTeammate(Transform teammate)
         {
-            if (teammates.Contains(teammate))
+            if (_teammates.Contains(teammate))
             {
-                int removedIndex = teammates.IndexOf(teammate);
-                teammates.Remove(teammate);
+                int removedIndex = _teammates.IndexOf(teammate);
+                _teammates.Remove(teammate);
                 
                 // Adjust current index if necessary
-                if (currentTeammateIndex >= teammates.Count && teammates.Count > 0)
+                if (_currentTeammateIndex >= _teammates.Count && _teammates.Count > 0)
                 {
-                    currentTeammateIndex = teammates.Count - 1;
+                    _currentTeammateIndex = _teammates.Count - 1;
                 }
-                else if (currentTeammateIndex > removedIndex)
+                else if (_currentTeammateIndex > removedIndex)
                 {
-                    currentTeammateIndex--;
+                    _currentTeammateIndex--;
                 }
             }
         }
@@ -175,7 +175,7 @@ namespace Laboratory.Core
         /// <param name="mode">Camera mode to activate</param>
         public void SetCameraMode(CameraMode mode)
         {
-            currentMode = mode;
+            _currentMode = mode;
             DisableAllCameras();
             ActivateModeCamera(mode);
         }
@@ -202,10 +202,10 @@ namespace Laboratory.Core
         /// </summary>
         public void CycleToNextTeammate()
         {
-            if (teammates.Count <= 1) 
+            if (_teammates.Count <= 1) 
                 return;
 
-            currentTeammateIndex = (currentTeammateIndex + 1) % teammates.Count;
+            _currentTeammateIndex = (_currentTeammateIndex + 1) % _teammates.Count;
             UpdateTeammateCamera();
         }
 
@@ -214,10 +214,10 @@ namespace Laboratory.Core
         /// </summary>
         public void CycleToPreviousTeammate()
         {
-            if (teammates.Count <= 1) 
+            if (_teammates.Count <= 1) 
                 return;
 
-            currentTeammateIndex = (currentTeammateIndex - 1 + teammates.Count) % teammates.Count;
+            _currentTeammateIndex = (_currentTeammateIndex - 1 + _teammates.Count) % _teammates.Count;
             UpdateTeammateCamera();
         }
 
@@ -227,9 +227,9 @@ namespace Laboratory.Core
         /// <param name="index">Index of teammate to spectate</param>
         public void SetTeammateIndex(int index)
         {
-            if (index >= 0 && index < teammates.Count)
+            if (index >= 0 && index < _teammates.Count)
             {
-                currentTeammateIndex = index;
+                _currentTeammateIndex = index;
                 UpdateTeammateCamera();
             }
         }
@@ -243,11 +243,11 @@ namespace Laboratory.Core
         /// </summary>
         private void DisableAllCameras()
         {
-            if (followPlayerVC != null) followPlayerVC.gameObject.SetActive(false);
-            if (deathCamOrbitVC != null) deathCamOrbitVC.gameObject.SetActive(false);
-            if (followTeammateVC != null) followTeammateVC.gameObject.SetActive(false);
-            if (cinematicShotVC != null) cinematicShotVC.gameObject.SetActive(false);
-            if (freeSpectatorVC != null) freeSpectatorVC.gameObject.SetActive(false);
+            if (_followPlayerVC != null) _followPlayerVC.gameObject.SetActive(false);
+            if (_deathCamOrbitVC != null) _deathCamOrbitVC.gameObject.SetActive(false);
+            if (_followTeammateVC != null) _followTeammateVC.gameObject.SetActive(false);
+            if (_cinematicShotVC != null) _cinematicShotVC.gameObject.SetActive(false);
+            if (_freeSpectatorVC != null) _freeSpectatorVC.gameObject.SetActive(false);
         }
 
         /// <summary>
@@ -285,11 +285,11 @@ namespace Laboratory.Core
         /// </summary>
         private void ActivateFollowPlayerCamera()
         {
-            if (followPlayerVC != null && player != null)
+            if (_followPlayerVC != null && _player != null)
             {
-                followPlayerVC.Follow = player;
-                followPlayerVC.LookAt = player;
-                followPlayerVC.gameObject.SetActive(true);
+                _followPlayerVC.Follow = _player;
+                _followPlayerVC.LookAt = _player;
+                _followPlayerVC.gameObject.SetActive(true);
             }
         }
 
@@ -298,11 +298,11 @@ namespace Laboratory.Core
         /// </summary>
         private void ActivateDeathCamOrbitCamera()
         {
-            if (deathCamOrbitVC != null && player != null)
+            if (_deathCamOrbitVC != null && _player != null)
             {
-                deathCamOrbitVC.Follow = player;
-                deathCamOrbitVC.LookAt = player;
-                deathCamOrbitVC.gameObject.SetActive(true);
+                _deathCamOrbitVC.Follow = _player;
+                _deathCamOrbitVC.LookAt = _player;
+                _deathCamOrbitVC.gameObject.SetActive(true);
             }
         }
 
@@ -311,11 +311,11 @@ namespace Laboratory.Core
         /// </summary>
         private void ActivateFollowTeammateCamera()
         {
-            if (followTeammateVC != null && teammates.Count > 0)
+            if (_followTeammateVC != null && _teammates.Count > 0)
             {
-                currentTeammateIndex = Mathf.Clamp(currentTeammateIndex, 0, teammates.Count - 1);
+                _currentTeammateIndex = Mathf.Clamp(_currentTeammateIndex, 0, _teammates.Count - 1);
                 UpdateTeammateCamera();
-                followTeammateVC.gameObject.SetActive(true);
+                _followTeammateVC.gameObject.SetActive(true);
             }
         }
 
@@ -324,9 +324,9 @@ namespace Laboratory.Core
         /// </summary>
         private void ActivateCinematicShotCamera()
         {
-            if (cinematicShotVC != null)
+            if (_cinematicShotVC != null)
             {
-                cinematicShotVC.gameObject.SetActive(true);
+                _cinematicShotVC.gameObject.SetActive(true);
             }
         }
 
@@ -335,9 +335,9 @@ namespace Laboratory.Core
         /// </summary>
         private void ActivateFreeSpectatorCamera()
         {
-            if (freeSpectatorVC != null)
+            if (_freeSpectatorVC != null)
             {
-                freeSpectatorVC.gameObject.SetActive(true);
+                _freeSpectatorVC.gameObject.SetActive(true);
             }
         }
 
@@ -346,10 +346,10 @@ namespace Laboratory.Core
         /// </summary>
         private void UpdateTeammateCamera()
         {
-            if (followTeammateVC != null && CurrentTeammate != null)
+            if (_followTeammateVC != null && CurrentTeammate != null)
             {
-                followTeammateVC.Follow = CurrentTeammate;
-                followTeammateVC.LookAt = CurrentTeammate;
+                _followTeammateVC.Follow = CurrentTeammate;
+                _followTeammateVC.LookAt = CurrentTeammate;
             }
         }
 
@@ -360,7 +360,7 @@ namespace Laboratory.Core
         /// <returns>Coroutine enumerator</returns>
         private IEnumerator SwitchAfterDelay(CameraMode mode)
         {
-            yield return new WaitForSeconds(blendDelay);
+            yield return new WaitForSeconds(_blendDelay);
             SetCameraMode(mode);
         }
 

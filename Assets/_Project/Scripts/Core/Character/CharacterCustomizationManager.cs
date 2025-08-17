@@ -1,302 +1,329 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Laboratory.Core.Character
 {
     /// <summary>
-    /// Manages character customization features including hair styles, armor sets, and color customization.
-    /// Handles saving and loading customization data to PlayerPrefs.
+    /// Manages character customization including appearance, equipment, and visual modifications.
+    /// Handles dynamic loading of customization assets and maintains character state.
     /// </summary>
     public class CharacterCustomizationManager : MonoBehaviour
     {
-        #region Constants
-        
-        private const string SAVE_KEY = "CharacterCustomization";
-        
-        #endregion
-        
-        #region Serialized Fields
-        
-        [Header("Character Parts")]
-        [SerializeField] private SkinnedMeshRenderer hairRenderer;
-        [SerializeField] private SkinnedMeshRenderer bodyRenderer;
-        [SerializeField] private SkinnedMeshRenderer armorRenderer;
+        #region Fields
 
-        [Header("Hair Styles")]
-        [SerializeField] private Mesh[] hairMeshes;
+        [Header("Character References")]
+        [SerializeField] private SkinnedMeshRenderer _characterMeshRenderer;
+        [SerializeField] private Transform _characterRoot;
+        [SerializeField] private Animator _characterAnimator;
 
-        [Header("Armor Sets")]
-        [SerializeField] private Mesh[] armorMeshes;
+        [Header("Customization Categories")]
+        [SerializeField] private Transform _hairParent;
+        [SerializeField] private Transform _clothingParent;
+        [SerializeField] private Transform _accessoriesParent;
+        [SerializeField] private Transform _weaponsParent;
 
-        [Header("Material Instances")]
-        [SerializeField] private Material hairMaterial;
-        [SerializeField] private Material skinMaterial;
-        [SerializeField] private Material armorMaterial;
-        
+        [Header("Default Assets")]
+        [SerializeField] private GameObject _defaultHair;
+        [SerializeField] private GameObject _defaultClothing;
+        [SerializeField] private GameObject _defaultAccessories;
+
+        // Runtime state
+        private Dictionary<string, GameObject> _activeCustomizations = new Dictionary<string, GameObject>();
+        private CharacterCustomizationData _currentCustomization;
+        private bool _isInitialized = false;
+
         #endregion
-        
-        #region Private Fields
-        
-        private int currentHairIndex = 0;
-        private int currentArmorIndex = 0;
-        private Color currentHairColor = Color.black;
-        private Color currentSkinColor = Color.white;
-        private Color currentArmorColor = Color.gray;
-        
-        #endregion
-        
-        #region Unity Override Methods
-        
+
+        #region Properties
+
         /// <summary>
-        /// Initializes the component and loads saved customization data.
+        /// Current character customization data
         /// </summary>
+        public CharacterCustomizationData CurrentCustomization => _currentCustomization;
+
+        /// <summary>
+        /// Whether the customization system has been initialized
+        /// </summary>
+        public bool IsInitialized => _isInitialized;
+
+        /// <summary>
+        /// Character's skinned mesh renderer for material modifications
+        /// </summary>
+        public SkinnedMeshRenderer CharacterMeshRenderer => _characterMeshRenderer;
+
+        #endregion
+
+        #region Unity Lifecycle
+
+        private void Awake()
+        {
+            InitializeCustomizationSystem();
+        }
+
         private void Start()
         {
-            LoadCustomization();
+            ApplyDefaultCustomization();
         }
-        
+
         #endregion
-        
-        #region Public Methods - Hair Customization
-        
-        /// <summary>
-        /// Cycles to the next available hair style.
-        /// </summary>
-        public void NextHair()
-        {
-            if (hairMeshes == null || hairMeshes.Length == 0) return;
-            
-            currentHairIndex = (currentHairIndex + 1) % hairMeshes.Length;
-            ApplyHairMesh();
-        }
+
+        #region Public Methods
 
         /// <summary>
-        /// Cycles to the previous hair style.
+        /// Applies a complete customization set to the character
         /// </summary>
-        public void PreviousHair()
+        /// <param name="customizationData">Customization data to apply</param>
+        public void ApplyCustomization(CharacterCustomizationData customizationData)
         {
-            if (hairMeshes == null || hairMeshes.Length == 0) return;
-            
-            currentHairIndex = (currentHairIndex - 1 + hairMeshes.Length) % hairMeshes.Length;
-            ApplyHairMesh();
-        }
-
-        /// <summary>
-        /// Sets the hair color to the specified color.
-        /// </summary>
-        /// <param name="color">The new hair color</param>
-        public void SetHairColor(Color color)
-        {
-            currentHairColor = color;
-            if (hairMaterial != null)
+            if (!_isInitialized)
             {
-                hairMaterial.color = currentHairColor;
+                Debug.LogWarning("Customization system not initialized");
+                return;
+            }
+
+            _currentCustomization = customizationData;
+            ApplyHairCustomization(customizationData.HairId);
+            ApplyClothingCustomization(customizationData.ClothingId);
+            ApplyAccessoryCustomization(customizationData.AccessoryIds);
+            ApplyWeaponCustomization(customizationData.WeaponId);
+            ApplyColorCustomization(customizationData.ColorScheme);
+        }
+
+        /// <summary>
+        /// Applies only hair customization
+        /// </summary>
+        /// <param name="hairId">Hair asset identifier</param>
+        public void ApplyHairCustomization(string hairId)
+        {
+            if (string.IsNullOrEmpty(hairId)) return;
+
+            RemoveCustomization("hair");
+            var hairPrefab = LoadCustomizationAsset(hairId, "Hair");
+            if (hairPrefab != null)
+            {
+                var hairInstance = Instantiate(hairPrefab, _hairParent);
+                _activeCustomizations["hair"] = hairInstance;
             }
         }
-        
-        #endregion
-        
-        #region Public Methods - Armor Customization
-        
+
         /// <summary>
-        /// Cycles to the next available armor set.
+        /// Applies only clothing customization
         /// </summary>
-        public void NextArmor()
+        /// <param name="clothingId">Clothing asset identifier</param>
+        public void ApplyClothingCustomization(string clothingId)
         {
-            if (armorMeshes == null || armorMeshes.Length == 0) return;
-            
-            currentArmorIndex = (currentArmorIndex + 1) % armorMeshes.Length;
-            ApplyArmorMesh();
+            if (string.IsNullOrEmpty(clothingId)) return;
+
+            RemoveCustomization("clothing");
+            var clothingPrefab = LoadCustomizationAsset(clothingId, "Clothing");
+            if (clothingPrefab != null)
+            {
+                var clothingInstance = Instantiate(clothingPrefab, _clothingParent);
+                _activeCustomizations["clothing"] = clothingInstance;
+            }
         }
 
         /// <summary>
-        /// Cycles to the previous armor set.
+        /// Applies accessory customizations
         /// </summary>
-        public void PreviousArmor()
+        /// <param name="accessoryIds">Array of accessory identifiers</param>
+        public void ApplyAccessoryCustomization(string[] accessoryIds)
         {
-            if (armorMeshes == null || armorMeshes.Length == 0) return;
-            
-            currentArmorIndex = (currentArmorIndex - 1 + armorMeshes.Length) % armorMeshes.Length;
-            ApplyArmorMesh();
+            if (accessoryIds == null || accessoryIds.Length == 0) return;
+
+            RemoveCustomization("accessories");
+            foreach (var accessoryId in accessoryIds)
+            {
+                var accessoryPrefab = LoadCustomizationAsset(accessoryId, "Accessories");
+                if (accessoryPrefab != null)
+                {
+                    var accessoryInstance = Instantiate(accessoryPrefab, _accessoriesParent);
+                    if (!_activeCustomizations.ContainsKey("accessories"))
+                        _activeCustomizations["accessories"] = accessoryInstance;
+                }
+            }
         }
 
         /// <summary>
-        /// Sets the armor color to the specified color.
+        /// Applies weapon customization
         /// </summary>
-        /// <param name="color">The new armor color</param>
-        public void SetArmorColor(Color color)
+        /// <param name="weaponId">Weapon asset identifier</param>
+        public void ApplyWeaponCustomization(string weaponId)
         {
-            currentArmorColor = color;
-            if (armorMaterial != null)
+            if (string.IsNullOrEmpty(weaponId)) return;
+
+            RemoveCustomization("weapon");
+            var weaponPrefab = LoadCustomizationAsset(weaponId, "Weapons");
+            if (weaponPrefab != null)
             {
-                armorMaterial.color = currentArmorColor;
+                var weaponInstance = Instantiate(weaponPrefab, _weaponsParent);
+                _activeCustomizations["weapon"] = weaponInstance;
             }
         }
-        
-        #endregion
-        
-        #region Public Methods - Skin Customization
-        
+
         /// <summary>
-        /// Sets the skin color to the specified color.
+        /// Applies color scheme to character materials
         /// </summary>
-        /// <param name="color">The new skin color</param>
-        public void SetSkinColor(Color color)
+        /// <param name="colorScheme">Color scheme data</param>
+        public void ApplyColorCustomization(ColorScheme colorScheme)
         {
-            currentSkinColor = color;
-            if (skinMaterial != null)
+            if (colorScheme == null || _characterMeshRenderer == null) return;
+
+            var materials = _characterMeshRenderer.materials;
+            for (int i = 0; i < materials.Length; i++)
             {
-                skinMaterial.color = currentSkinColor;
+                if (colorScheme.TryGetColorForMaterial(i, out Color color))
+                {
+                    materials[i].color = color;
+                }
+            }
+            _characterMeshRenderer.materials = materials;
+        }
+
+        /// <summary>
+        /// Removes a specific customization category
+        /// </summary>
+        /// <param name="category">Customization category to remove</param>
+        public void RemoveCustomization(string category)
+        {
+            if (_activeCustomizations.TryGetValue(category, out GameObject customization))
+            {
+                DestroyImmediate(customization);
+                _activeCustomizations.Remove(category);
             }
         }
-        
-        #endregion
-        
-        #region Public Methods - Save/Load
-        
+
         /// <summary>
-        /// Saves the current customization settings to PlayerPrefs.
+        /// Removes all customizations and returns to default state
+        /// </summary>
+        public void RemoveAllCustomizations()
+        {
+            foreach (var customization in _activeCustomizations.Values)
+            {
+                if (customization != null)
+                    DestroyImmediate(customization);
+            }
+            _activeCustomizations.Clear();
+            ApplyDefaultCustomization();
+        }
+
+        /// <summary>
+        /// Saves current customization to persistent storage
         /// </summary>
         public void SaveCustomization()
         {
-            var data = new CharacterCustomizationData()
+            if (_currentCustomization != null)
             {
-                hairIndex = currentHairIndex,
-                armorIndex = currentArmorIndex,
-                hairColor = new SerializableColor(currentHairColor),
-                skinColor = new SerializableColor(currentSkinColor),
-                armorColor = new SerializableColor(currentArmorColor)
-            };
-
-            string json = JsonUtility.ToJson(data);
-            PlayerPrefs.SetString(SAVE_KEY, json);
-            PlayerPrefs.Save();
+                string json = JsonUtility.ToJson(_currentCustomization);
+                PlayerPrefs.SetString("CharacterCustomization", json);
+                PlayerPrefs.Save();
+            }
         }
 
         /// <summary>
-        /// Loads customization settings from PlayerPrefs and applies them to the character.
+        /// Loads customization from persistent storage
         /// </summary>
         public void LoadCustomization()
         {
-            if (!PlayerPrefs.HasKey(SAVE_KEY)) return;
-            
-            try
+            if (PlayerPrefs.HasKey("CharacterCustomization"))
             {
-                string json = PlayerPrefs.GetString(SAVE_KEY);
-                var data = JsonUtility.FromJson<CharacterCustomizationData>(json);
-
-                currentHairIndex = Mathf.Clamp(data.hairIndex, 0, hairMeshes?.Length - 1 ?? 0);
-                currentArmorIndex = Mathf.Clamp(data.armorIndex, 0, armorMeshes?.Length - 1 ?? 0);
-                currentHairColor = data.hairColor.ToColor();
-                currentSkinColor = data.skinColor.ToColor();
-                currentArmorColor = data.armorColor.ToColor();
-
-                ApplyAllCustomizations();
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"Failed to load character customization: {e.Message}");
+                string json = PlayerPrefs.GetString("CharacterCustomization");
+                var customization = JsonUtility.FromJson<CharacterCustomizationData>(json);
+                if (customization != null)
+                {
+                    ApplyCustomization(customization);
+                }
             }
         }
-        
+
         #endregion
-        
+
         #region Private Methods
-        
-        /// <summary>
-        /// Applies the current hair mesh to the hair renderer.
-        /// </summary>
-        private void ApplyHairMesh()
+
+        private void InitializeCustomizationSystem()
         {
-            if (hairRenderer != null && hairMeshes != null && currentHairIndex < hairMeshes.Length)
+            ValidateReferences();
+            _isInitialized = true;
+        }
+
+        private void ValidateReferences()
+        {
+            if (_characterMeshRenderer == null)
+                _characterMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+
+            if (_characterRoot == null)
+                _characterRoot = transform;
+
+            if (_characterAnimator == null)
+                _characterAnimator = GetComponent<Animator>();
+        }
+
+        private void ApplyDefaultCustomization()
+        {
+            if (_defaultHair != null)
             {
-                hairRenderer.sharedMesh = hairMeshes[currentHairIndex];
+                var hairInstance = Instantiate(_defaultHair, _hairParent);
+                _activeCustomizations["hair"] = hairInstance;
+            }
+
+            if (_defaultClothing != null)
+            {
+                var clothingInstance = Instantiate(_defaultClothing, _clothingParent);
+                _activeCustomizations["clothing"] = clothingInstance;
+            }
+
+            if (_defaultAccessories != null)
+            {
+                var accessoriesInstance = Instantiate(_defaultAccessories, _accessoriesParent);
+                _activeCustomizations["accessories"] = accessoriesInstance;
             }
         }
-        
-        /// <summary>
-        /// Applies the current armor mesh to the armor renderer.
-        /// </summary>
-        private void ApplyArmorMesh()
+
+        private GameObject LoadCustomizationAsset(string assetId, string category)
         {
-            if (armorRenderer != null && armorMeshes != null && currentArmorIndex < armorMeshes.Length)
-            {
-                armorRenderer.sharedMesh = armorMeshes[currentArmorIndex];
-            }
+            // This would typically load from Resources, Addressables, or asset bundles
+            // For now, return null to indicate asset not found
+            Debug.Log($"Loading {category} asset: {assetId}");
+            return null;
         }
-        
-        /// <summary>
-        /// Applies all current customizations to the character.
-        /// </summary>
-        private void ApplyAllCustomizations()
-        {
-            ApplyHairMesh();
-            ApplyArmorMesh();
-            
-            if (hairMaterial != null) hairMaterial.color = currentHairColor;
-            if (skinMaterial != null) skinMaterial.color = currentSkinColor;
-            if (armorMaterial != null) armorMaterial.color = currentArmorColor;
-        }
-        
+
         #endregion
     }
 
-    #region Data Structures
-    
+    #region Supporting Classes
+
     /// <summary>
-    /// Serializable data structure for storing character customization settings.
+    /// Data structure for character customization
     /// </summary>
-    [Serializable]
+    [System.Serializable]
     public class CharacterCustomizationData
     {
-        public int hairIndex;
-        public int armorIndex;
-        public SerializableColor hairColor;
-        public SerializableColor skinColor;
-        public SerializableColor armorColor;
+        public string HairId;
+        public string ClothingId;
+        public string[] AccessoryIds;
+        public string WeaponId;
+        public ColorScheme ColorScheme;
     }
 
     /// <summary>
-    /// Serializable wrapper for Unity's Color struct to enable JSON serialization.
+    /// Color scheme for character materials
     /// </summary>
-    [Serializable]
-    public struct SerializableColor
+    [System.Serializable]
+    public class ColorScheme
     {
-        #region Fields
-        
-        public float r, g, b, a;
-        
-        #endregion
-        
-        #region Constructor
-        
-        /// <summary>
-        /// Creates a SerializableColor from a Unity Color.
-        /// </summary>
-        /// <param name="color">The Unity Color to convert</param>
-        public SerializableColor(Color color)
+        public Color[] MaterialColors = new Color[4];
+
+        public bool TryGetColorForMaterial(int materialIndex, out Color color)
         {
-            r = color.r;
-            g = color.g;
-            b = color.b;
-            a = color.a;
+            if (materialIndex >= 0 && materialIndex < MaterialColors.Length)
+            {
+                color = MaterialColors[materialIndex];
+                return true;
+            }
+            color = Color.white;
+            return false;
         }
-        
-        #endregion
-        
-        #region Public Methods
-        
-        /// <summary>
-        /// Converts this SerializableColor back to a Unity Color.
-        /// </summary>
-        /// <returns>A Unity Color with the same RGBA values</returns>
-        public Color ToColor()
-        {
-            return new Color(r, g, b, a);
-        }
-        
-        #endregion
     }
-    
+
     #endregion
 }
