@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Text;
 using Laboratory.Core;
+using Laboratory.Core.State;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -128,7 +129,7 @@ namespace Laboratory.Infrastructure.Networking
         /// </summary>
         /// <param name="state">Game state to synchronize.</param>
         /// <returns>Serialized byte array representing the game state sync RPC.</returns>
-        public static byte[] SerializeGameState(GameStateManager.GameState state)
+        public static byte[] SerializeGameState(GameState state)
         {
             using var ms = new MemoryStream();
             using var writer = new BinaryWriter(ms);
@@ -206,7 +207,7 @@ namespace Laboratory.Infrastructure.Networking
                     case RPCType.GameStateSync:
                         // Handle game state sync separately
                         ms.Position = 1; // Reset to after RPC type byte
-                        rpcData = (GameStateManager.GameState)reader.ReadByte();
+                        rpcData = (GameState)reader.ReadByte();
                         break;
 
                     default:
@@ -229,9 +230,9 @@ namespace Laboratory.Infrastructure.Networking
         /// <param name="data">Raw message bytes containing game state.</param>
         /// <param name="state">Output game state if deserialization succeeds.</param>
         /// <returns>True if game state was successfully extracted; otherwise, false.</returns>
-        public static bool TryDeserializeGameState(byte[] data, out GameStateManager.GameState state)
+        public static bool TryDeserializeGameState(byte[] data, out GameState state)
         {
-            state = GameStateManager.GameState.None;
+            state = GameState.None;
 
             if (data == null || data.Length < 2)
             {
@@ -249,7 +250,7 @@ namespace Laboratory.Infrastructure.Networking
                     return false;
                 }
 
-                state = (GameStateManager.GameState)reader.ReadByte();
+                state = (GameState)reader.ReadByte();
                 return true;
             }
             catch (Exception ex)

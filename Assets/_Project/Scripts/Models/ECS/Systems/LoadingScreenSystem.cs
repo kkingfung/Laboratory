@@ -1,10 +1,14 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Unity.Entities;
 using UniRx;
 using UnityEngine;
 using Laboratory.Core;
+using Laboratory.Core.DI;
+using Laboratory.Core.State;
+using Laboratory.Core.Events.Messages;
 using Laboratory.Infrastructure.AsyncUtils;
 
 #nullable enable
@@ -22,9 +26,14 @@ namespace Laboratory.Models.ECS.Systems
         #region Fields
         
         /// <summary>
-        /// Reference to the game state manager for monitoring and controlling game states
+        /// Reference to the game state service for monitoring and controlling game states
         /// </summary>
-        private GameStateManager _gameStateManager = null!;
+        private IGameStateService _gameStateService = null!;
+        
+        /// <summary>
+        /// Reference to the service container for dependency injection
+        /// </summary>
+        private IServiceContainer _services = null!;
         
         /// <summary>
         /// Reference to the loading screen UI component for displaying loading progress
@@ -79,18 +88,20 @@ namespace Laboratory.Models.ECS.Systems
         #region Private Methods
 
         /// <summary>
-        /// Initializes all required dependencies from the service locator
+        /// Initializes all required dependencies from the service container
         /// </summary>
         private void InitializeDependencies()
         {
             try
             {
-                _gameStateManager = ServiceLocator.Instance.Resolve<GameStateManager>();
-                _loadingScreen = ServiceLocator.Instance.Resolve<LoadingScreen>();
+                // Get the service container from GlobalServiceProvider
+                _services = GlobalServiceProvider.Instance;
+                _gameStateService = _services.Resolve<IGameStateService>();
+                _loadingScreen = _services.Resolve<LoadingScreen>();
                 
-                if (_gameStateManager == null)
+                if (_gameStateService == null)
                 {
-                    throw new InvalidOperationException("GameStateManager could not be resolved");
+                    throw new InvalidOperationException("IGameStateService could not be resolved");
                 }
                 
                 if (_loadingScreen == null)
@@ -112,15 +123,15 @@ namespace Laboratory.Models.ECS.Systems
         {
             try
             {
-                if (_gameStateManager != null)
+                if (_gameStateService != null)
                 {
-                    _stateSubscription = _gameStateManager.OnStateChanged
-                        .Where(state => state == GameStateManager.GameState.Loading)
+                    _stateSubscription = _gameStateService.StateChanges
+                        .Where(evt => evt.CurrentState == GameState.Loading)
                         .Subscribe(async _ => await HandleLoadingStateAsync());
                 }
                 else
                 {
-                    Debug.LogError("GameStateManager or CurrentState is null, cannot subscribe to loading states");
+                    Debug.LogError("IGameStateService is null, cannot subscribe to loading states");
                 }
             }
             catch (Exception ex)
@@ -132,7 +143,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <summary>
         /// Handles the loading state by initiating the asynchronous loading process
         /// </summary>
-        private async Task HandleLoadingStateAsync()
+        private async UniTask HandleLoadingStateAsync()
         {
             try
             {
@@ -149,7 +160,7 @@ namespace Laboratory.Models.ECS.Systems
         /// Initiates the asynchronous loading process for scene transitions
         /// </summary>
         /// <returns>A task representing the asynchronous loading operation</returns>
-        private async Task StartLoadingAsync()
+        private async UniTask StartLoadingAsync()
         {
             if (_isLoading)
             {
@@ -185,7 +196,7 @@ namespace Laboratory.Models.ECS.Systems
         /// Loads the main game scene asynchronously
         /// </summary>
         /// <returns>A task representing the scene loading operation</returns>
-        private async Task LoadGameSceneAsync()
+        private async UniTask LoadGameSceneAsync()
         {
             const string gameSceneName = "GameScene";
             
@@ -204,11 +215,11 @@ namespace Laboratory.Models.ECS.Systems
         /// <summary>
         /// Transitions the game state to playing after successful loading
         /// </summary>
-        private void TransitionToPlayingState()
+        private async void TransitionToPlayingState()
         {
             try
             {
-                _gameStateManager.ChangeState(GameStateManager.GameState.Playing);
+                await _gameStateService.RequestTransitionAsync(GameState.Playing);
                 Debug.Log("Transitioned to Playing state");
             }
             catch (Exception ex)
@@ -222,15 +233,15 @@ namespace Laboratory.Models.ECS.Systems
         /// Handles loading errors by transitioning to an appropriate error state
         /// </summary>
         /// <returns>A task representing the error handling operation</returns>
-        private async Task HandleLoadingError()
+        private async UniTask HandleLoadingError()
         {
             try
             {
                 // Give a brief delay to ensure any ongoing operations complete
-                await Task.Delay(100);
+                await UniTask.Delay(100);
                 
                 // Transition to main menu or error state
-                _gameStateManager.ChangeState(GameStateManager.GameState.MainMenu);
+                await _gameStateService.RequestTransitionAsync(GameState.MainMenu);
                 Debug.Log("Transitioned to MainMenu state due to loading error");
                 
                 // Optionally show error message to user through loading screen

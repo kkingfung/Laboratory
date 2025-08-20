@@ -9,7 +9,6 @@ namespace Laboratory.Core.Events
 {
     /// <summary>
     /// Unified event bus interface that combines MessagePipe with UniRx convenience methods.
-    /// Replaces the separate ReactiveEventBus and direct MessagePipe usage.
     /// </summary>
     public interface IEventBus : IDisposable
     {
@@ -26,7 +25,7 @@ namespace Laboratory.Core.Events
         /// <summary>
         /// Observes events of type T as an IObservable for reactive programming.
         /// </summary>
-        IObservable<T> Observe<T>() where T : class;
+        UniRx.IObservable<T> Observe<T>() where T : class;
         
         /// <summary>
         /// Subscribes to events of type T on the main thread (Unity thread-safe).

@@ -18,7 +18,6 @@ namespace Laboratory.Core.Services
 
     /// <summary>
     /// Service interface for scene loading and management.
-    /// Replaces AsyncSceneLoader with improved functionality.
     /// </summary>
     public interface ISceneService
     {

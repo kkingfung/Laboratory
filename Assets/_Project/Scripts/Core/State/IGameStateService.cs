@@ -20,7 +20,7 @@ namespace Laboratory.Core.State
         GameState Current { get; }
         
         /// <summary>Observable that emits when game state changes.</summary>
-        IObservable<GameStateChangedEvent> StateChanges { get; }
+        UniRx.IObservable<GameStateChangedEvent> StateChanges { get; }
         
         /// <summary>Requests a state transition with optional context data.</summary>
         UniTask<bool> RequestTransitionAsync(GameState targetState, object? context = null);
@@ -39,5 +39,8 @@ namespace Laboratory.Core.State
         
         /// <summary>Checks if a transition to the target state is valid.</summary>
         bool CanTransitionTo(GameState targetState);
+        
+        /// <summary>Updates the current state implementation (call from MonoBehaviour Update).</summary>
+        void Update();
     }
 }

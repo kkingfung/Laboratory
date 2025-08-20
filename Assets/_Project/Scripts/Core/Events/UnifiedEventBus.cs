@@ -1,7 +1,9 @@
 using System;
+using System.Collections.Generic;
 using MessagePipe;
 using UniRx;
 using UnityEngine;
+using Laboratory.Core.State;
 
 #nullable enable
 
@@ -15,7 +17,8 @@ namespace Laboratory.Core.Events
     {
         #region Fields
         
-        private readonly IMessageBroker _messageBroker;
+        private readonly IMessageBroker? _messageBroker;
+        private readonly Dictionary<Type, object> _subjects = new();
         private readonly CompositeDisposable _disposables = new();
         private bool _disposed = false;
         
@@ -23,9 +26,16 @@ namespace Laboratory.Core.Events
         
         #region Constructor
         
+        public UnifiedEventBus()
+        {
+            // Use simple UniRx subjects as fallback when MessagePipe is not available
+            _messageBroker = null;
+        }
+        
+        // Temporary constructor that accepts IMessageBroker for when we fix MessagePipe integration
         public UnifiedEventBus(IMessageBroker messageBroker)
         {
-            _messageBroker = messageBroker ?? throw new ArgumentNullException(nameof(messageBroker));
+            _messageBroker = messageBroker;
         }
         
         #endregion
@@ -42,7 +52,16 @@ namespace Laboratory.Core.Events
                 return;
             }
             
-            _messageBroker.Publish(message);
+            if (_messageBroker != null)
+            {
+                _messageBroker.Publish(message);
+            }
+            else
+            {
+                // Fallback to UniRx subjects
+                var subject = GetSubject<T>();
+                subject.OnNext(message);
+            }
         }
         
         public IDisposable Subscribe<T>(Action<T> handler) where T : class
@@ -52,13 +71,32 @@ namespace Laboratory.Core.Events
             if (handler == null) 
                 throw new ArgumentNullException(nameof(handler));
             
-            return _messageBroker.Receive<T>().Subscribe(handler);
+            if (_messageBroker != null)
+            {
+                return _messageBroker.Receive<T>().Subscribe(handler);
+            }
+            else
+            {
+                // Fallback to UniRx subjects
+                var subject = GetSubject<T>();
+                return subject.Subscribe(handler);
+            }
         }
         
-        public IObservable<T> Observe<T>() where T : class
+        public UniRx.IObservable<T> Observe<T>() where T : class
         {
             ThrowIfDisposed();
-            return _messageBroker.Receive<T>().AsObservable();
+            
+            if (_messageBroker != null)
+            {
+                return _messageBroker.Receive<T>().AsObservable();
+            }
+            else
+            {
+                // Fallback to UniRx subjects
+                var subject = GetSubject<T>();
+                return subject.AsObservable();
+            }
         }
         
         public IDisposable SubscribeOnMainThread<T>(Action<T> handler) where T : class
@@ -68,9 +106,38 @@ namespace Laboratory.Core.Events
             if (handler == null) 
                 throw new ArgumentNullException(nameof(handler));
             
-            return _messageBroker.Receive<T>()
-                .ObserveOnMainThread()
-                .Subscribe(handler);
+            if (_messageBroker != null)
+            {
+                return _messageBroker.Receive<T>()
+                    .ObserveOnMainThread()
+                    .Subscribe(handler);
+            }
+            else
+            {
+                // Fallback to UniRx subjects
+                var subject = GetSubject<T>();
+                return subject
+                    .ObserveOn(Scheduler.MainThreadScheduler)
+                    .Subscribe(handler);
+            }
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private Subject<T> GetSubject<T>() where T : class
+        {
+            var type = typeof(T);
+            if (!_subjects.TryGetValue(type, out var subject))
+            {
+                subject = new Subject<T>();
+                _subjects[type] = subject;
+                
+                // Ensure subject gets disposed with the event bus
+                ((Subject<T>)subject).AddTo(_disposables);
+            }
+            return (Subject<T>)subject;
         }
         
         #endregion
@@ -82,6 +149,17 @@ namespace Laboratory.Core.Events
             if (_disposed) return;
             
             _disposables?.Dispose();
+            
+            // Dispose individual subjects
+            foreach (var subject in _subjects.Values)
+            {
+                if (subject is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            }
+            _subjects.Clear();
+            
             _disposed = true;
         }
         
@@ -174,13 +252,13 @@ namespace Laboratory.Core.Events.Messages
     
     public class GameStateChangeRequestedEvent
     {
-        public GameStateManager.GameState FromState { get; }
-        public GameStateManager.GameState ToState { get; }
+        public GameState FromState { get; }
+        public GameState ToState { get; }
         public object? Context { get; }
         
         public GameStateChangeRequestedEvent(
-            GameStateManager.GameState fromState, 
-            GameStateManager.GameState toState, 
+            GameState fromState, 
+            GameState toState, 
             object? context = null)
         {
             FromState = fromState;
@@ -191,11 +269,11 @@ namespace Laboratory.Core.Events.Messages
     
     public class GameStateChangedEvent
     {
-        public GameStateManager.GameState PreviousState { get; }
-        public GameStateManager.GameState CurrentState { get; }
+        public GameState PreviousState { get; }
+        public GameState CurrentState { get; }
         public DateTime ChangedAt { get; }
         
-        public GameStateChangedEvent(GameStateManager.GameState previousState, GameStateManager.GameState currentState)
+        public GameStateChangedEvent(GameState previousState, GameState currentState)
         {
             PreviousState = previousState;
             CurrentState = currentState;

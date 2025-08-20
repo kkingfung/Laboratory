@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core;
+using Laboratory.Core.State;
 using Laboratory.Infrastructure.AsyncUtils;
 using MessagePipe;
 using Unity.Entities;
@@ -34,8 +35,8 @@ namespace Laboratory.Infrastructure.Networking
         /// <summary>Cancellation token source for stopping message processing.</summary>
         private CancellationTokenSource _cts = new CancellationTokenSource();
 
-        /// <summary>Game state manager reference for state synchronization.</summary>
-        private GameStateManager _gameStateManager;
+        /// <summary>Game state service reference for state synchronization.</summary>
+        private IGameStateService _gameStateService;
 
         #endregion
 
@@ -66,12 +67,12 @@ namespace Laboratory.Infrastructure.Networking
         #region Public Methods
 
         /// <summary>
-        /// Sets the game state manager reference for state synchronization.
+        /// Sets the game state service reference for state synchronization.
         /// </summary>
-        /// <param name="gameStateManager">Game state manager instance.</param>
-        public void SetGameStateManager(GameStateManager gameStateManager)
+        /// <param name="gameStateService">Game state service instance.</param>
+        public void SetGameStateService(IGameStateService gameStateService)
         {
-            _gameStateManager = gameStateManager;
+            _gameStateService = gameStateService;
         }
 
         #endregion
@@ -193,10 +194,10 @@ namespace Laboratory.Infrastructure.Networking
         {
             if (RPCSerializer.TryDeserializeGameState(data, out var state))
             {
-                if (_gameStateManager != null)
+                if (_gameStateService != null)
                 {
                     // Apply remote state without broadcasting to prevent loops
-                    _gameStateManager.ApplyRemoteState(state);
+                    _gameStateService.ApplyRemoteStateChange(state, suppressEvents: true);
                     Debug.Log($"NetworkMessageHandler: Applied game state sync - {state}");
                 }
             }

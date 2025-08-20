@@ -7,8 +7,10 @@ using Laboratory.Core.Events;
 using Laboratory.Core.Services;
 using Laboratory.Core.State;
 using Laboratory.Core.Bootstrap;
+using Laboratory.Core.Bootstrap.StartupTasks;
 using Laboratory.Infrastructure.AsyncUtils;
 using System.Threading;
+using System;
 
 #nullable enable
 
@@ -90,6 +92,7 @@ namespace Laboratory.Core.Bootstrap
 
         private void OnDestroy()
         {
+            GlobalServiceProvider.Shutdown();
             _services?.Dispose();
             _shutdownCts?.Dispose();
         }
@@ -126,7 +129,7 @@ namespace Laboratory.Core.Bootstrap
             ConfigureStartupTasks();
             
             // Phase 3: Execute all startup tasks
-            var progress = new Progress<float>(OnInitializationProgress);
+            var progress = new System.Progress<float>(OnInitializationProgress);
             await _orchestrator.InitializeAsync(_services, progress, cancellation);
             
             // Phase 4: Final setup
@@ -139,6 +142,9 @@ namespace Laboratory.Core.Bootstrap
             
             // Register the container itself so services can access it
             _services.RegisterInstance<IServiceContainer>(_services);
+            
+            // Initialize the global service provider for ECS systems
+            GlobalServiceProvider.Initialize(_services);
         }
 
         private void RegisterCoreServices()
@@ -202,7 +208,7 @@ namespace Laboratory.Core.Bootstrap
         private async UniTask LoadInitialSceneAsync()
         {
             var sceneService = _services.Resolve<ISceneService>();
-            var progress = new Progress<float>(p => 
+            var progress = new System.Progress<float>(p => 
                 Debug.Log($"Loading initial scene: {p:P1}"));
             
             await sceneService.LoadSceneAsync(_initialSceneName, 

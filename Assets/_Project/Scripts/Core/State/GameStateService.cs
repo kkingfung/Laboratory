@@ -49,7 +49,7 @@ namespace Laboratory.Core.State
 
         public GameState Current => _currentState;
         
-        public IObservable<GameStateChangedEvent> StateChanges => _stateChangeSubject.AsObservable();
+        public UniRx.IObservable<GameStateChangedEvent> StateChanges => _stateChangeSubject.AsObservable();
 
         #endregion
 

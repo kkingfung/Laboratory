@@ -22,9 +22,8 @@ namespace Laboratory.Core.DI
 
     /// <summary>
     /// Dependency injection container interface.
-    /// Replaces the singleton ServiceLocator with proper IoC container.
     /// </summary>
-    public interface IServiceContainer
+    public interface IServiceContainer : IDisposable
     {
         /// <summary>
         /// Registers a service implementation for an interface.

@@ -4,6 +4,7 @@ using UnityEngine;
 using UniRx;
 using MessagePipe;
 using Laboratory.Core;
+using Laboratory.Core.DI;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.UI;
 
@@ -94,8 +95,8 @@ namespace Laboratory.Models.ECS.Systems
         {
             try
             {
-                _messageBroker = ServiceLocator.Instance.Resolve<IMessageBroker>();
-                _networkTransport = ServiceLocator.Instance.Resolve<INetworkChatTransport>();
+                _messageBroker = GlobalServiceProvider.Resolve<IMessageBroker>();
+                _networkTransport = GlobalServiceProvider.Resolve<INetworkChatTransport>();
                 
                 ValidateDependencies();
                 _isInitialized = true;

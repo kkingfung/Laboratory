@@ -18,7 +18,6 @@ namespace Laboratory.Core.Services
 
     /// <summary>
     /// Service interface for configuration loading and management.
-    /// Replaces ConfigLoader with caching and validation.
     /// </summary>
     public interface IConfigService
     {

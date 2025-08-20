@@ -18,7 +18,6 @@ namespace Laboratory.Core.Services
 
     /// <summary>
     /// Service interface for asset loading and management.
-    /// Replaces the AssetPreloader with a more comprehensive service.
     /// </summary>
     public interface IAssetService
     {

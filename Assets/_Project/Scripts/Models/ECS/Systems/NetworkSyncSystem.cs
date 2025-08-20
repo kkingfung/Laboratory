@@ -3,6 +3,7 @@ using Unity.Entities;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core;
+using Laboratory.Core.DI;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Models.ECS.Components;
 
@@ -97,8 +98,7 @@ namespace Laboratory.Models.ECS.Systems
         {
             try
             {
-                var serviceLocator = ServiceLocator.Instance;
-                if (serviceLocator.TryResolve<NetworkClient>(out var client))
+                if (GlobalServiceProvider.TryResolve<NetworkClient>(out var client))
                 {
                     _networkClient = client;
                     _isInitialized = true;

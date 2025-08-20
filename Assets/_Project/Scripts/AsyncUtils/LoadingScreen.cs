@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -100,9 +101,9 @@ namespace Laboratory.Infrastructure.AsyncUtils
         /// Loads a scene asynchronously with progress tracking and UI management.
         /// </summary>
         /// <param name="sceneName">Name of the scene to load</param>
-        /// <returns>Task representing the asynchronous loading operation</returns>
+        /// <returns>UniTask representing the asynchronous loading operation</returns>
         /// <exception cref="ArgumentException">Thrown when sceneName is null or empty</exception>
-        public async Task LoadSceneAsync(string sceneName)
+        public async UniTask LoadSceneAsync(string sceneName)
         {
             if (string.IsNullOrEmpty(sceneName))
                 throw new ArgumentException("Scene name cannot be null or empty", nameof(sceneName));
@@ -173,33 +174,23 @@ namespace Laboratory.Infrastructure.AsyncUtils
             _loadingCanvasGroup.interactable = visible;
         }
         
-        /// <summary>
-        /// Performs the actual asynchronous scene loading with progress updates.
-        /// </summary>
-        /// <param name="sceneName">Name of the scene to load</param>
-        /// <returns>Task representing the loading operation</returns>
-        private async Task PerformSceneLoadAsync(string sceneName)
+        private async UniTask PerformSceneLoadAsync(string sceneName)
         {
             var asyncOperation = SceneManager.LoadSceneAsync(sceneName);
             asyncOperation.allowSceneActivation = false;
 
-            // Track loading progress
             while (!asyncOperation.isDone)
             {
-                // Unity reports progress up to 0.9 before scene activation
                 float normalizedProgress = Mathf.Clamp01(asyncOperation.progress / 0.9f);
                 _progress.Value = normalizedProgress;
 
-                // Check if scene is ready for activation
                 if (asyncOperation.progress >= 0.9f)
                 {
                     _progress.Value = 1f;
-                    
-                    // Allow scene activation
                     asyncOperation.allowSceneActivation = true;
                 }
 
-                await Task.Yield();
+                await UniTask.Yield();
             }
         }
         

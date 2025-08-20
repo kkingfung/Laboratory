@@ -3,6 +3,9 @@ using Unity.Entities;
 using UniRx;
 using UnityEngine;
 using Laboratory.Core;
+using Laboratory.Core.DI;
+using Laboratory.Core.State;
+using Laboratory.Core.Events.Messages;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Models.ECS.Components;
 
@@ -21,9 +24,14 @@ namespace Laboratory.Models.ECS.Systems
         #region Fields
         
         /// <summary>
-        /// Reference to the game state manager for monitoring state changes
+        /// Reference to the game state service for monitoring state changes
         /// </summary>
-        private GameStateManager _gameStateManager = null!;
+        private IGameStateService _gameStateService = null!;
+        
+        /// <summary>
+        /// Reference to the service container for dependency injection
+        /// </summary>
+        private IServiceContainer _services = null!;
         
         /// <summary>
         /// Subscription to game state change events
@@ -35,13 +43,13 @@ namespace Laboratory.Models.ECS.Systems
         #region Unity Override Methods
 
         /// <summary>
-        /// Called when the system is created. Initializes the game state manager
+        /// Called when the system is created. Initializes the game state service
         /// and subscribes to state change events.
         /// </summary>
         protected override void OnCreate()
         {
             base.OnCreate();
-            InitializeGameStateManager();
+            InitializeGameStateService();
             SubscribeToGameStateChanges();
         }
 
@@ -68,57 +76,59 @@ namespace Laboratory.Models.ECS.Systems
         #region Private Methods
 
         /// <summary>
-        /// Initializes the game state manager from the service locator
+        /// Initializes the game state service from the service container
         /// </summary>
-        private void InitializeGameStateManager()
+        private void InitializeGameStateService()
         {
             try
             {
-                _gameStateManager = ServiceLocator.Instance.Resolve<GameStateManager>();
+                // Get the service container from GlobalServiceProvider
+                _services = GlobalServiceProvider.Instance;
+                _gameStateService = _services.Resolve<IGameStateService>();
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Failed to resolve GameStateManager: {ex.Message}");
+                Debug.LogError($"Failed to resolve IGameStateService: {ex.Message}");
                 throw;
             }
         }
 
         /// <summary>
-        /// Subscribes to game state change events from the game state manager
+        /// Subscribes to game state change events from the game state service
         /// </summary>
         private void SubscribeToGameStateChanges()
         {
-            if (_gameStateManager != null)
+            if (_gameStateService != null)
             {
-                _subscription = _gameStateManager.OnStateChanged.Subscribe(OnGameStateChanged);
+                _subscription = _gameStateService.StateChanges.Subscribe(OnGameStateChanged);
             }
             else
             {
-                Debug.LogError("GameStateManager is null, cannot subscribe to state changes");
+                Debug.LogError("IGameStateService is null, cannot subscribe to state changes");
             }
         }
 
         /// <summary>
         /// Handles game state change events and enables/disables systems accordingly
         /// </summary>
-        /// <param name="state">The new game state</param>
-        private void OnGameStateChanged(GameStateManager.GameState state)
+        /// <param name="evt">The game state change event</param>
+        private void OnGameStateChanged(GameStateChangedEvent evt)
         {
-            switch (state)
+            switch (evt.CurrentState)
             {
-                case GameStateManager.GameState.Playing:
+                case GameState.Playing:
                     EnableGameplaySystems(true);
                     break;
                     
-                case GameStateManager.GameState.Paused:
-                case GameStateManager.GameState.MainMenu:
-                case GameStateManager.GameState.Loading:
-                case GameStateManager.GameState.GameOver:
+                case GameState.Paused:
+                case GameState.MainMenu:
+                case GameState.Loading:
+                case GameState.GameOver:
                     EnableGameplaySystems(false);
                     break;
                     
                 default:
-                    Debug.LogWarning($"Unknown game state: {state}, disabling gameplay systems");
+                    Debug.LogWarning($"Unknown game state: {evt.CurrentState}, disabling gameplay systems");
                     EnableGameplaySystems(false);
                     break;
             }

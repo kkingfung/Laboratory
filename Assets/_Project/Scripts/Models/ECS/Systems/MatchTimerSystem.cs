@@ -1,6 +1,7 @@
 using Unity.Entities;
 using UnityEngine;
 using Laboratory.Core;
+using Laboratory.Core.DI;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Gameplay.Lobby;
 
@@ -74,7 +75,7 @@ namespace Laboratory.Models.ECS.Systems
         {
             try
             {
-                _matchTimer = ServiceLocator.Instance.Resolve<MatchTimer>();
+                _matchTimer = GlobalServiceProvider.Resolve<MatchTimer>();
                 
                 if (_matchTimer == null)
                 {
