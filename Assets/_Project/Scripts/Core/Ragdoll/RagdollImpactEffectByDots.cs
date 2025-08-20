@@ -361,7 +361,6 @@ namespace Laboratory.Core.Ragdoll
             if (_isInitialized)
             {
                 _isInitialized = false;
-                _entityManager = null;
                 _defaultWorld = null;
                 Debug.Log("RagdollImpactEffectByDots: DOTS system cleaned up");
             }

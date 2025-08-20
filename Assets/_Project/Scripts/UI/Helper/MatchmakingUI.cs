@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -177,14 +178,14 @@ namespace Laboratory.UI.Helper
         /// <summary>
         /// Handle start button click - begin matchmaking or join with code.
         /// </summary>
-        private void OnStartClicked()
+        private async void OnStartClicked()
         {
             if (MatchmakingManager.Instance == null) return;
 
             string joinCode = joinCodeInput.text.Trim();
             if (!string.IsNullOrEmpty(joinCode))
             {
-                MatchmakingManager.Instance.JoinMatch(joinCode);
+                await MatchmakingManager.Instance.JoinMatch(joinCode);
             }
             else
             {

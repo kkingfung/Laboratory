@@ -293,7 +293,7 @@ namespace Laboratory.Core.Replay
         {
             if (targetRigidbody == null || !_hasPhysicsData) return;
 
-            targetRigidbody.velocity = _velocity;
+            targetRigidbody.linearVelocity = _velocity;
             targetRigidbody.angularVelocity = _angularVelocity;
         }
 

@@ -90,13 +90,10 @@ namespace Laboratory.Core.Bootstrap
         {
             _defaultWorld = World.DefaultGameObjectInjectionWorld ?? new World("Default World");
 
-            var systemGroup = _defaultWorld.GetOrCreateSystemManaged<SimulationSystemGroup>();
+            // Modern Unity Physics typically creates necessary systems automatically
+            // when you use DefaultWorldInitialization.Initialize()
+            // Only manually create systems if you need specific customization
             
-            // Create unmanaged physics systems
-            _defaultWorld.GetOrCreateSystem<BuildPhysicsWorld>();
-            _defaultWorld.GetOrCreateSystem<StepPhysicsWorld>();
-            _defaultWorld.GetOrCreateSystem<EndFramePhysicsSystem>();
-
             World.DefaultGameObjectInjectionWorld = _defaultWorld;
         }
 

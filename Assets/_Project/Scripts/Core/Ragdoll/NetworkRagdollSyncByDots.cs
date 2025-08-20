@@ -23,9 +23,12 @@ namespace Laboratory.Core.Ragdoll
 
         [Header("Compression Settings")]
         [SerializeField] private bool _useCompression = true;
-        [SerializeField] private float _positionPrecision = 0.001f;
-        [SerializeField] private float _rotationPrecision = 0.01f;
-        [SerializeField] private int _compressionLevel = 2;
+        [SerializeField, Tooltip("Position compression precision - smaller values = more compression but less accuracy"), Min(0.001f)] 
+        private float _positionPrecision = 0.001f;
+        [SerializeField, Tooltip("Rotation compression precision - smaller values = more compression but less accuracy"), Min(0.001f)] 
+        private float _rotationPrecision = 0.01f;
+        [SerializeField, Range(1, 5), Tooltip("Compression level for network data (1=low, 5=high)")]
+        private int _compressionLevel = 2;
 
         [Header("Performance")]
         [SerializeField] private int _maxSyncedBones = 32;
@@ -74,6 +77,16 @@ namespace Laboratory.Core.Ragdoll
         /// Position threshold for triggering sync
         /// </summary>
         public float PositionThreshold => _positionThreshold;
+
+        /// <summary>
+        /// Position precision for compression
+        /// </summary>
+        public float PositionPrecision => _positionPrecision;
+
+        /// <summary>
+        /// Rotation precision for compression
+        /// </summary>
+        public float RotationPrecision => _rotationPrecision;
 
         #endregion
 
@@ -159,6 +172,24 @@ namespace Laboratory.Core.Ragdoll
         public void SetCompressionEnabled(bool enabled)
         {
             _useCompression = enabled;
+        }
+
+        /// <summary>
+        /// Sets the position precision for compression
+        /// </summary>
+        /// <param name="precision">Position precision value</param>
+        public void SetPositionPrecision(float precision)
+        {
+            _positionPrecision = Mathf.Max(0.001f, precision);
+        }
+
+        /// <summary>
+        /// Sets the rotation precision for compression
+        /// </summary>
+        /// <param name="precision">Rotation precision value</param>
+        public void SetRotationPrecision(float precision)
+        {
+            _rotationPrecision = Mathf.Max(0.001f, precision);
         }
 
         /// <summary>
@@ -255,6 +286,18 @@ namespace Laboratory.Core.Ragdoll
                 _rotationThreshold = 0.1f;
             }
 
+            if (_positionPrecision <= 0f)
+            {
+                Debug.LogWarning("NetworkRagdollSyncByDots: Position precision should be greater than 0");
+                _positionPrecision = 0.001f;
+            }
+
+            if (_rotationPrecision <= 0f)
+            {
+                Debug.LogWarning("NetworkRagdollSyncByDots: Rotation precision should be greater than 0");
+                _rotationPrecision = 0.01f;
+            }
+
             if (_maxSyncedBones <= 0)
             {
                 Debug.LogWarning("NetworkRagdollSyncByDots: Max synced bones should be greater than 0");
@@ -332,11 +375,11 @@ namespace Laboratory.Core.Ragdoll
                 EntityId = GetInstanceID()
             });
 
-            // Add ragdoll state data
+            // Create and compress ragdoll state data
             var ragdollState = new RagdollStateData
             {
-                Position = transform.position,
-                Rotation = transform.rotation,
+                Position = _useCompression ? CompressPosition(transform.position) : transform.position,
+                Rotation = _useCompression ? CompressRotation(transform.rotation) : transform.rotation,
                 BoneCount = _syncedBoneCount,
                 SyncTimestamp = Time.time
             };
@@ -380,16 +423,19 @@ namespace Laboratory.Core.Ragdoll
 
         private void ApplyRagdollState(RagdollStateData state)
         {
+            Vector3 targetPosition = _useCompression ? DecompressPosition(state.Position) : state.Position;
+            Quaternion targetRotation = _useCompression ? DecompressRotation(state.Rotation) : state.Rotation;
+
             if (_interpolateMovement)
             {
                 // Apply interpolated movement
-                StartCoroutine(InterpolateToState(state));
+                StartCoroutine(InterpolateToState(targetPosition, targetRotation));
             }
             else
             {
                 // Apply immediate movement
-                transform.position = state.Position;
-                transform.rotation = state.Rotation;
+                transform.position = targetPosition;
+                transform.rotation = targetRotation;
             }
 
             _syncedBoneCount = state.BoneCount;
@@ -400,7 +446,7 @@ namespace Laboratory.Core.Ragdoll
             }
         }
 
-        private System.Collections.IEnumerator InterpolateToState(RagdollStateData targetState)
+        private System.Collections.IEnumerator InterpolateToState(Vector3 targetPosition, Quaternion targetRotation)
         {
             Vector3 startPosition = transform.position;
             Quaternion startRotation = transform.rotation;
@@ -412,15 +458,15 @@ namespace Laboratory.Core.Ragdoll
                 elapsed += Time.deltaTime;
                 float t = elapsed / duration;
 
-                transform.position = Vector3.Lerp(startPosition, targetState.Position, t);
-                transform.rotation = Quaternion.Slerp(startRotation, targetState.Rotation, t);
+                transform.position = Vector3.Lerp(startPosition, targetPosition, t);
+                transform.rotation = Quaternion.Slerp(startRotation, targetRotation, t);
 
                 yield return null;
             }
 
             // Ensure we reach the exact target
-            transform.position = targetState.Position;
-            transform.rotation = targetState.Rotation;
+            transform.position = targetPosition;
+            transform.rotation = targetRotation;
         }
 
         private void CleanupDotsSystem()
@@ -428,11 +474,89 @@ namespace Laboratory.Core.Ragdoll
             if (_isInitialized)
             {
                 _isInitialized = false;
-                _entityManager = null;
                 _defaultWorld = null;
                 Debug.Log("NetworkRagdollSyncByDots: DOTS system cleaned up");
             }
         }
+
+        #region Compression Methods
+
+        /// <summary>
+        /// Compresses a Vector3 position using the configured precision
+        /// </summary>
+        /// <param name="position">Original position</param>
+        /// <returns>Compressed position</returns>
+        private float3 CompressPosition(Vector3 position)
+        {
+            if (!_useCompression) return position;
+
+            // Round position components to the specified precision
+            float x = Mathf.Round(position.x / _positionPrecision) * _positionPrecision;
+            float y = Mathf.Round(position.y / _positionPrecision) * _positionPrecision;
+            float z = Mathf.Round(position.z / _positionPrecision) * _positionPrecision;
+
+            return new float3(x, y, z);
+        }
+
+        /// <summary>
+        /// Compresses a Quaternion rotation using the configured precision
+        /// </summary>
+        /// <param name="rotation">Original rotation</param>
+        /// <returns>Compressed rotation</returns>
+        private quaternion CompressRotation(Quaternion rotation)
+        {
+            if (!_useCompression) return rotation;
+
+            // Convert to Euler angles for compression
+            Vector3 euler = rotation.eulerAngles;
+            
+            // Round Euler angles to the specified precision
+            float x = Mathf.Round(euler.x / _rotationPrecision) * _rotationPrecision;
+            float y = Mathf.Round(euler.y / _rotationPrecision) * _rotationPrecision;
+            float z = Mathf.Round(euler.z / _rotationPrecision) * _rotationPrecision;
+
+            // Convert back to quaternion
+            return Quaternion.Euler(x, y, z);
+        }
+
+        /// <summary>
+        /// Decompresses a float3 position (currently just a type conversion)
+        /// </summary>
+        /// <param name="compressedPosition">Compressed position</param>
+        /// <returns>Decompressed Vector3 position</returns>
+        private Vector3 DecompressPosition(float3 compressedPosition)
+        {
+            return new Vector3(compressedPosition.x, compressedPosition.y, compressedPosition.z);
+        }
+
+        /// <summary>
+        /// Decompresses a quaternion rotation (currently just a type conversion)
+        /// </summary>
+        /// <param name="compressedRotation">Compressed rotation</param>
+        /// <returns>Decompressed Quaternion rotation</returns>
+        private Quaternion DecompressRotation(quaternion compressedRotation)
+        {
+            return new Quaternion(compressedRotation.value.x, compressedRotation.value.y, 
+                                compressedRotation.value.z, compressedRotation.value.w);
+        }
+
+        /// <summary>
+        /// Calculates the compression ratio for position data
+        /// </summary>
+        /// <param name="originalPosition">Original position</param>
+        /// <param name="compressedPosition">Compressed position</param>
+        /// <returns>Compression ratio (0-1, where 1 is no compression)</returns>
+        private float GetPositionCompressionRatio(Vector3 originalPosition, float3 compressedPosition)
+        {
+            Vector3 decompressed = DecompressPosition(compressedPosition);
+            float originalSize = originalPosition.magnitude;
+            float compressedSize = decompressed.magnitude;
+            
+            if (originalSize == 0f) return 1f;
+            return compressedSize / originalSize;
+        }
+
+        #endregion
 
         #endregion
 

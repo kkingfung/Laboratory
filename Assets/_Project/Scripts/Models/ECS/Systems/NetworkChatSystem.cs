@@ -272,7 +272,7 @@ namespace Laboratory.Models.ECS.Systems
         /// Gets the current network transport instance for external access
         /// </summary>
         /// <returns>The current network transport instance, or null if not initialized</returns>
-        public INetworkChatTransport GetNetworkTransport()
+        public INetworkChatTransport? GetNetworkTransport()
         {
             return _isInitialized ? _networkTransport : null;
         }

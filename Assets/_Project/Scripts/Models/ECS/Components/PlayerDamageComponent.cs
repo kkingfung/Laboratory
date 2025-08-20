@@ -10,9 +10,9 @@ namespace Laboratory.Models.ECS.Components
     #region Components
 
     /// <summary>
-    /// Health component - replicated via NetworkVariable.
+    /// ECS Health component - replicated via NetworkVariable.
     /// </summary>
-    public struct HealthComponent : IComponentData
+    public struct ECSHealthComponent : IComponentData
     {
         public int MaxHealth;
         public int CurrentHealth;
@@ -27,21 +27,6 @@ namespace Laboratory.Models.ECS.Components
         public DamageType Type;
         public float3 SourcePosition;
         public Entity SourceEntity;
-    }
-
-    #endregion
-
-    #region Enums
-
-    /// <summary>
-    /// DamageType enum matching previous definition.
-    /// </summary>
-    public enum DamageType
-    {
-        Normal,
-        Critical,
-        Fire,
-        Ice
     }
 
     #endregion

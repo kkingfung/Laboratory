@@ -35,11 +35,16 @@ namespace Laboratory.Core.Replay
         /// </summary>
         public void StartRecording()
         {
-            _session = new ReplaySession();
+            _session = new ReplaySession(
+                sessionName: $"Recording_{System.DateTime.Now:yyyy-MM-dd_HH-mm-ss}",
+                mapName: UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
+                gameMode: "Recording",
+                frameRate: Mathf.RoundToInt(1f / Time.fixedDeltaTime)
+            );
             
             foreach (var recorder in _recorders)
             {
-                recorder.Clear();
+                recorder.ClearRecording();
             }
             
             Debug.Log("Replay recording started");
@@ -56,21 +61,17 @@ namespace Laboratory.Core.Replay
                 return;
             }
             
-            var actorDataList = new List<ActorReplayData>();
-            
             foreach (var recorder in _recorders)
             {
                 var replayData = recorder.GetReplayData();
                 if (replayData != null)
                 {
-                    actorDataList.Add(replayData);
+                    _session.AddActor(replayData);
                 }
             }
-            
-            _session.actors = actorDataList.ToArray();
             SaveToFile();
             
-            Debug.Log($"Replay recording stopped. Recorded {actorDataList.Count} actors");
+            Debug.Log($"Replay recording stopped. Recorded {_session.ActorCount} actors");
         }
         
         #endregion
@@ -84,7 +85,7 @@ namespace Laboratory.Core.Replay
         {
             LoadFromFile();
             
-            if (_session?.actors == null)
+            if (_session?.Actors == null)
             {
                 Debug.LogError("No replay session data available for playback");
                 return;
@@ -94,12 +95,12 @@ namespace Laboratory.Core.Replay
             
             foreach (var player in _players)
             {
-                var actorData = System.Array.Find(_session.actors, actor => actor.actorName == player.name);
+                var actorData = System.Array.Find(_session.Actors, actor => actor.ActorName == player.name);
                 
                 if (actorData != null)
                 {
-                    player.SetFrames(actorData.frames);
-                    player.Play();
+                    player.SetReplayData(actorData);
+                    player.StartPlayback();
                     playersConfigured++;
                 }
                 else
@@ -118,7 +119,7 @@ namespace Laboratory.Core.Replay
         {
             foreach (var player in _players)
             {
-                player.Stop();
+                player.StopPlayback();
             }
             
             Debug.Log("Replay playback stopped");
@@ -131,7 +132,7 @@ namespace Laboratory.Core.Replay
         /// <summary>
         /// Gets whether a replay session is currently loaded and available for playback
         /// </summary>
-        public bool HasReplaySession => _session?.actors != null && _session.actors.Length > 0;
+        public bool HasReplaySession => _session?.Actors != null && _session.Actors.Length > 0;
         
         /// <summary>
         /// Gets the current replay session data

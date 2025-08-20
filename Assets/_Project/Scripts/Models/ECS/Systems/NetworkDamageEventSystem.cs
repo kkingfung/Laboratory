@@ -127,7 +127,7 @@ namespace Laboratory.Models.ECS.Systems
         {
             try
             {
-                _damageEventSystem = FindObjectOfType<DamageEventSystem>();
+                _damageEventSystem = FindAnyObjectByType<DamageEventSystem>();
                 _networkManager = NetworkManager.Singleton;
                 
                 ValidateDependencies();

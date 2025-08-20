@@ -246,7 +246,7 @@ namespace Laboratory.Core.Replay
                 _cinemachineBrain = GetComponent<CinemachineBrain>();
 
             if (_cinemachineBrain == null)
-                _cinemachineBrain = FindObjectOfType<CinemachineBrain>();
+                _cinemachineBrain = FindFirstObjectByType<CinemachineBrain>();
 
             if (_cinemachineBrain == null)
             {
@@ -360,25 +360,29 @@ namespace Laboratory.Core.Replay
         {
             if (_followCamera == null || _targetActor == null) return;
 
-            // Configure follow camera settings
-            var follow = _followCamera.GetCinemachineComponent<CinemachineFramingTransposer>();
-            if (follow != null)
-            {
-                follow.m_CameraDistance = _followDistance;
-                follow.m_CameraHeight = _followHeight;
-            }
+            // Set the follow target directly
+            _followCamera.Target.TrackingTarget = _targetActor;
+            _followCamera.Target.LookAtTarget = _targetActor;
+            
+            // Configure follow camera settings using the CinemachineCamera's properties
+            // Note: In Unity Cinemachine 3.x, component configuration is handled differently
+            // These settings would typically be configured in the Inspector or through CinemachineCamera properties
         }
 
         private void SetupCinematicCamera()
         {
             if (_cinematicCamera == null) return;
 
-            // Configure cinematic camera for wide shots
-            var composer = _cinematicCamera.GetCinemachineComponent<CinemachineComposer>();
-            if (composer != null)
+            // Set the cinematic target if available
+            if (_targetActor != null)
             {
-                composer.m_TrackedObjectOffset = new Vector3(0, 2f, 0);
+                _cinematicCamera.Target.TrackingTarget = _targetActor;
+                _cinematicCamera.Target.LookAtTarget = _targetActor;
             }
+            
+            // Configure cinematic camera for wide shots
+            // Note: In Unity Cinemachine 3.x, component configuration is handled differently
+            // These settings would typically be configured in the Inspector or through CinemachineCamera properties
         }
 
         private void SetupOverviewCamera()

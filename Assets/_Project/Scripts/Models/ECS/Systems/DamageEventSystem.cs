@@ -47,7 +47,10 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="damageEvent">The damage event data</param>
         private void ProcessDamageApplication(HealthComponent targetHealth, DamageEvent damageEvent)
         {
-            targetHealth.ApplyDamage(damageEvent.DamageAmount);
+            if (targetHealth != null)
+            {
+                targetHealth.ApplyDamage(damageEvent.DamageAmount);
+            }
         }
 
         /// <summary>
@@ -66,7 +69,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="damageEvent">The original damage event</param>
         private void CheckForDeath(HealthComponent targetHealth, DamageEvent damageEvent)
         {
-            if (targetHealth.CurrentHealth <= 0)
+            if (targetHealth != null && targetHealth.CurrentHealth.Value <= 0)
             {
                 PublishDeathEvent(damageEvent);
             }

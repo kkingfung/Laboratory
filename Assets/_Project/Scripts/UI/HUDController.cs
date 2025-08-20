@@ -232,16 +232,20 @@ namespace Laboratory.UI
             // ScoreboardUI automatically handles networked players through Unity Netcode
             // No manual updates needed - it subscribes to network events internally
             
-            // We could add additional bindings here if needed for non-networked scoreboards
-            // For example, enabling/disabling the scoreboard based on game state:
-            /*
+            // Enable/disable the scoreboard based on game state
             _gameStateVM.IsInGame
                 .Subscribe(isInGame =>
                 {
-                    _scoreboardUI.gameObject.SetActive(isInGame);
+                    if (_scoreboardUI != null)
+                    {
+                        _scoreboardUI.gameObject.SetActive(isInGame);
+                    }
                 })
                 .AddTo(_disposables);
-            */
+
+            // Note: ScoreboardUI handles networked players automatically via Unity Netcode
+            // Player list updates are managed internally through network events
+            // No manual UpdatePlayerList calls needed
         }
         
         /// <summary>

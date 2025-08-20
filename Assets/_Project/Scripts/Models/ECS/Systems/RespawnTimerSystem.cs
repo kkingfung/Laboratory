@@ -40,7 +40,7 @@ namespace Laboratory.Models.ECS.Systems
             // Process all dead entities with respawn timers
             Entities
                 .WithAll<DeadTag>()
-                .ForEach((Entity entity, NetworkLifeState netLife, ref RespawnTimer timer, ref HealthComponent health) =>
+                .ForEach((Entity entity, NetworkLifeState netLife, ref RespawnTimer timer, ref ECSHealthComponent health) =>
                 {
                     ProcessRespawnTimer(entity, netLife, ref timer, ref health, deltaTime);
                 })
@@ -60,7 +60,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="timer">Respawn timer component to update</param>
         /// <param name="health">Health component to restore on respawn</param>
         /// <param name="deltaTime">Time elapsed since last frame</param>
-        private void ProcessRespawnTimer(Entity entity, NetworkLifeState netLife, ref RespawnTimer timer, ref HealthComponent health, float deltaTime)
+        private void ProcessRespawnTimer(Entity entity, NetworkLifeState netLife, ref RespawnTimer timer, ref ECSHealthComponent health, float deltaTime)
         {
             // Decrease respawn timer
             timer.TimeRemaining -= deltaTime;
@@ -81,7 +81,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="entity">The entity to respawn</param>
         /// <param name="netLife">Network life state component</param>
         /// <param name="health">Health component to restore</param>
-        private void ExecuteRespawn(Entity entity, NetworkLifeState netLife, ref HealthComponent health)
+        private void ExecuteRespawn(Entity entity, NetworkLifeState netLife, ref ECSHealthComponent health)
         {
             // Restore player health to maximum
             RestorePlayerHealth(ref health);
@@ -100,7 +100,7 @@ namespace Laboratory.Models.ECS.Systems
         /// Restores player health to maximum capacity.
         /// </summary>
         /// <param name="health">Health component to restore</param>
-        private static void RestorePlayerHealth(ref HealthComponent health)
+        private static void RestorePlayerHealth(ref ECSHealthComponent health)
         {
             health.CurrentHealth = health.MaxHealth;
         }

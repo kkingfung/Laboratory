@@ -46,10 +46,34 @@ namespace Laboratory.Infrastructure.Networking
             NetworkVariableReadPermission.Everyone);
 
         [Header("Player Customization")]
-        /// <summary>Player's avatar/profile picture sprite.</summary>
-        public NetworkVariable<Sprite> Avatar = new NetworkVariable<Sprite>(
-            null, 
+        /// <summary>Player's avatar/profile picture sprite ID. Use string ID to reference sprite assets.</summary>
+        public NetworkVariable<FixedString64Bytes> AvatarId = new NetworkVariable<FixedString64Bytes>(
+            default, 
             NetworkVariableReadPermission.Everyone);
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Gets the actual Sprite object from the avatar ID.
+        /// This method should be implemented to load sprites from your asset management system.
+        /// </summary>
+        /// <returns>The sprite corresponding to the current avatar ID, or null if not found.</returns>
+        public Sprite GetAvatarSprite()
+        {
+            if (AvatarId.Value.IsEmpty)
+                return null;
+
+            // TODO: Implement sprite loading from your asset management system
+            // Example:
+            // return Resources.Load<Sprite>($"Avatars/{AvatarId.Value}");
+            // or use Addressables:
+            // return Addressables.LoadAssetAsync<Sprite>(AvatarId.Value.ToString()).WaitForCompletion();
+            
+            Debug.LogWarning($"GetAvatarSprite not fully implemented. Avatar ID: {AvatarId.Value}");
+            return null;
+        }
 
         #endregion
 
@@ -59,7 +83,7 @@ namespace Laboratory.Infrastructure.Networking
         public float KillDeathRatio => Deaths.Value > 0 ? (float)Kills.Value / Deaths.Value : Kills.Value;
 
         /// <summary>Whether this player has a custom avatar set.</summary>
-        public bool HasCustomAvatar => Avatar.Value != null;
+        public bool HasCustomAvatar => !AvatarId.Value.IsEmpty;
 
         #endregion
 
@@ -153,6 +177,17 @@ namespace Laboratory.Infrastructure.Networking
         {
             if (!IsServer) return;
             Assists.Value++;
+        }
+
+        /// <summary>
+        /// Sets the player's avatar ID. Server authority required.
+        /// </summary>
+        /// <param name="avatarId">Avatar sprite identifier.</param>
+        [ServerRpc(RequireOwnership = false)]
+        public void SetAvatarIdServerRpc(FixedString64Bytes avatarId)
+        {
+            if (!IsServer) return;
+            AvatarId.Value = avatarId;
         }
 
         #endregion

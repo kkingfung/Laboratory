@@ -47,6 +47,11 @@ namespace Laboratory.Core.Replay
         private List<float> _animationTimes = new List<float>();
         private List<string> _animationStates = new List<string>();
         private List<float> _animationWeights = new List<float>();
+        
+        // Physics recording
+        private Rigidbody _rigidbody;
+        private List<Vector3> _velocities = new List<Vector3>();
+        private List<Vector3> _angularVelocities = new List<Vector3>();
 
         #endregion
 
@@ -129,6 +134,12 @@ namespace Laboratory.Core.Replay
             _animationTimes.Clear();
             _animationStates.Clear();
             _animationWeights.Clear();
+            
+            if (_recordPhysics)
+            {
+                _velocities.Clear();
+                _angularVelocities.Clear();
+            }
 
             // Record initial frame
             RecordFrame();
@@ -196,6 +207,12 @@ namespace Laboratory.Core.Replay
             _animationTimes.Clear();
             _animationStates.Clear();
             _animationWeights.Clear();
+            
+            if (_recordPhysics)
+            {
+                _velocities.Clear();
+                _angularVelocities.Clear();
+            }
 
             Debug.Log($"ActorRecorder: Cleared recording for {gameObject.name}");
         }
@@ -280,6 +297,9 @@ namespace Laboratory.Core.Replay
         {
             if (_targetAnimator == null)
                 _targetAnimator = GetComponent<Animator>();
+                
+            if (_recordPhysics && _rigidbody == null)
+                _rigidbody = GetComponent<Rigidbody>();
 
             // Pre-allocate lists for better performance
             _positions.Capacity = _maxFrames;
@@ -288,6 +308,12 @@ namespace Laboratory.Core.Replay
             _animationTimes.Capacity = _maxFrames;
             _animationStates.Capacity = _maxFrames;
             _animationWeights.Capacity = _maxFrames;
+            
+            if (_recordPhysics)
+            {
+                _velocities.Capacity = _maxFrames;
+                _angularVelocities.Capacity = _maxFrames;
+            }
         }
 
         private void UpdateRecording()
@@ -346,6 +372,13 @@ namespace Laboratory.Core.Replay
                 {
                     _animationWeights.Add(1f); // Default weight, could be enhanced
                 }
+            }
+            
+            // Record physics data
+            if (_recordPhysics && _rigidbody != null)
+            {
+                _velocities.Add(_rigidbody.linearVelocity);
+                _angularVelocities.Add(_rigidbody.angularVelocity);
             }
 
             _frameCount++;

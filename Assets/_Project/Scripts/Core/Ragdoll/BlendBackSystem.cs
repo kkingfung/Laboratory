@@ -304,13 +304,13 @@ namespace Laboratory.Core.Ragdoll
                 if (bone != null)
                 {
                     // Gradually reduce physics influence
-                    bone.drag = Mathf.Lerp(0f, 10f, blendValue);
-                    bone.angularDrag = Mathf.Lerp(0f, 10f, blendValue);
+                    bone.linearDamping = Mathf.Lerp(0f, 10f, blendValue);
+                    bone.angularDamping = Mathf.Lerp(0f, 10f, blendValue);
 
                     // Preserve momentum if enabled
                     if (_maintainMomentum && blendValue < 0.5f)
                     {
-                        bone.velocity *= _momentumPreservation;
+                        bone.linearVelocity *= _momentumPreservation;
                         bone.angularVelocity *= _momentumPreservation;
                     }
                 }

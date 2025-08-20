@@ -242,11 +242,26 @@ namespace Laboratory.Core.Ragdoll
         /// </summary>
         public void StopAllSounds()
         {
-            foreach (var audioSource in _audioSourcePool)
+            if (_useObjectPooling)
             {
-                if (audioSource != null && audioSource.isPlaying)
+                foreach (var audioSource in _audioSourcePool)
                 {
-                    audioSource.Stop();
+                    if (audioSource != null && audioSource.isPlaying)
+                    {
+                        audioSource.Stop();
+                    }
+                }
+            }
+            else
+            {
+                // Find and stop all AudioSource components when not using pooling
+                var audioSources = GetComponents<AudioSource>();
+                foreach (var audioSource in audioSources)
+                {
+                    if (audioSource != null && audioSource.isPlaying)
+                    {
+                        audioSource.Stop();
+                    }
                 }
             }
             _activeSoundCount = 0;
@@ -326,6 +341,8 @@ namespace Laboratory.Core.Ragdoll
 
         private void InitializeAudioPool()
         {
+            if (!_useObjectPooling) return;
+
             for (int i = 0; i < _audioSourcePoolSize; i++)
             {
                 var audioSource = gameObject.AddComponent<AudioSource>();
@@ -395,7 +412,7 @@ namespace Laboratory.Core.Ragdoll
         private AudioClip GetRandomClip(AudioClip[] clips)
         {
             if (clips == null || clips.Length == 0) return null;
-            return clips[Random.Range(0, clips.Length)];
+            return clips[UnityEngine.Random.Range(0, clips.Length)];
         }
 
         private float CalculateImpactVolume(float force)
@@ -408,7 +425,7 @@ namespace Laboratory.Core.Ragdoll
         {
             if (!_randomizePitch) return _impactPitch;
             
-            float variation = Random.Range(-_pitchVariation, _pitchVariation);
+            float variation = UnityEngine.Random.Range(-_pitchVariation, _pitchVariation);
             return _impactPitch + variation;
         }
 
@@ -460,14 +477,24 @@ namespace Laboratory.Core.Ragdoll
 
         private AudioSource GetAvailableAudioSource()
         {
-            foreach (var audioSource in _audioSourcePool)
+            if (_useObjectPooling)
             {
-                if (audioSource != null && !audioSource.isPlaying)
+                foreach (var audioSource in _audioSourcePool)
                 {
-                    return audioSource;
+                    if (audioSource != null && !audioSource.isPlaying)
+                    {
+                        return audioSource;
+                    }
                 }
+                return null;
             }
-            return null;
+            else
+            {
+                // Create a new AudioSource for one-time use
+                var audioSource = gameObject.AddComponent<AudioSource>();
+                ConfigureAudioSource(audioSource);
+                return audioSource;
+            }
         }
 
         private System.Collections.IEnumerator ReturnAudioSourceToPool(AudioSource audioSource, float delay)
@@ -479,6 +506,12 @@ namespace Laboratory.Core.Ragdoll
                 audioSource.Stop();
                 audioSource.clip = null;
                 _activeSoundCount--;
+
+                // If not using pooling, destroy the AudioSource component
+                if (!_useObjectPooling)
+                {
+                    DestroyImmediate(audioSource);
+                }
             }
         }
 
@@ -487,7 +520,6 @@ namespace Laboratory.Core.Ragdoll
             if (_isInitialized)
             {
                 _isInitialized = false;
-                _entityManager = null;
                 _defaultWorld = null;
                 Debug.Log("RagdollSoundManagerByDots: DOTS system cleaned up");
             }

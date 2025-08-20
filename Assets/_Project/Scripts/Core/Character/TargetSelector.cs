@@ -70,6 +70,11 @@ namespace Laboratory.Core.Character
         /// </summary>
         public float DetectionRadius => _detectionRadius;
 
+        /// <summary>
+        /// Whether to prioritize closest target over scoring system
+        /// </summary>
+        public bool PrioritizeClosest => _prioritizeClosest;
+
         #endregion
 
         #region Unity Lifecycle
@@ -123,6 +128,15 @@ namespace Laboratory.Core.Character
         }
 
         /// <summary>
+        /// Sets whether to prioritize closest target over scoring system
+        /// </summary>
+        /// <param name="prioritize">True to prioritize closest target</param>
+        public void SetPrioritizeClosest(bool prioritize)
+        {
+            _prioritizeClosest = prioritize;
+        }
+
+        /// <summary>
         /// Manually sets the current target
         /// </summary>
         /// <param name="target">Target transform to set</param>
@@ -162,6 +176,13 @@ namespace Laboratory.Core.Character
         {
             if (_detectedTargets.Count == 0) return null;
 
+            // If prioritize closest is enabled, simply return the closest target
+            if (_prioritizeClosest)
+            {
+                return GetClosestTarget();
+            }
+
+            // Otherwise, use the scoring system
             Transform bestTarget = null;
             float bestScore = float.MinValue;
 
@@ -193,6 +214,30 @@ namespace Laboratory.Core.Character
                 }
             }
             return targets;
+        }
+
+        /// <summary>
+        /// Gets the closest target from the detected targets list
+        /// </summary>
+        /// <returns>Closest target or null if none found</returns>
+        public Transform GetClosestTarget()
+        {
+            if (_detectedTargets.Count == 0) return null;
+
+            Transform closestTarget = null;
+            float closestDistance = float.MaxValue;
+
+            foreach (var target in _detectedTargets)
+            {
+                float distance = Vector3.Distance(transform.position, target.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestTarget = target;
+                }
+            }
+
+            return closestTarget;
         }
 
         #endregion

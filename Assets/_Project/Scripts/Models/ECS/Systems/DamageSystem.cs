@@ -37,8 +37,8 @@ namespace Laboratory.Models.ECS.Systems
             var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
             Entities
-                .WithAll<DamageRequest, HealthComponent>()
-                .ForEach((Entity entity, ref HealthComponent health, in DamageRequest damageRequest) =>
+                .WithAll<DamageRequest, ECSHealthComponent>()
+                .ForEach((Entity entity, ref ECSHealthComponent health, in DamageRequest damageRequest) =>
                 {
                     ProcessDamageRequest(entity, ref health, in damageRequest, entityManager);
                 }).WithoutBurst().Run();
@@ -55,7 +55,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="health">The health component to modify</param>
         /// <param name="damageRequest">The damage request to process</param>
         /// <param name="entityManager">Entity manager for component operations</param>
-        private void ProcessDamageRequest(Entity entity, ref HealthComponent health, in DamageRequest damageRequest, EntityManager entityManager)
+        private void ProcessDamageRequest(Entity entity, ref ECSHealthComponent health, in DamageRequest damageRequest, EntityManager entityManager)
         {
             ApplyDamageToHealth(ref health, damageRequest.Amount);
             SyncNetworkHealth(entity, damageRequest.Amount, entityManager);
@@ -67,7 +67,7 @@ namespace Laboratory.Models.ECS.Systems
         /// </summary>
         /// <param name="health">The health component to modify</param>
         /// <param name="damageAmount">Amount of damage to apply</param>
-        private void ApplyDamageToHealth(ref HealthComponent health, int damageAmount)
+        private void ApplyDamageToHealth(ref ECSHealthComponent health, int damageAmount)
         {
             health.CurrentHealth -= damageAmount;
             if (health.CurrentHealth < 0) 

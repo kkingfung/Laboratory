@@ -311,10 +311,10 @@ namespace Laboratory.Core.Ragdoll
             
             foreach (var hit in hits)
             {
-                if (hit.attachedRigidbody != null && hit.attachedRigidbody.velocity.magnitude > _hitVelocityThreshold)
+                if (hit.attachedRigidbody != null && hit.attachedRigidbody.linearVelocity.magnitude > _hitVelocityThreshold)
                 {
                     Vector3 hitPoint = hit.ClosestPoint(transform.position);
-                    Vector3 hitForce = hit.attachedRigidbody.velocity * hit.attachedRigidbody.mass;
+                    Vector3 hitForce = hit.attachedRigidbody.linearVelocity * hit.attachedRigidbody.mass;
                     
                     TriggerHitReaction(hitPoint, hitForce, hit.gameObject);
                 }
@@ -407,7 +407,7 @@ namespace Laboratory.Core.Ragdoll
                     // Maintain momentum if enabled
                     if (_maintainMomentum)
                     {
-                        bone.velocity *= 0.8f; // Reduce velocity slightly
+                        bone.linearVelocity *= 0.8f; // Reduce velocity slightly
                     }
                 }
             }

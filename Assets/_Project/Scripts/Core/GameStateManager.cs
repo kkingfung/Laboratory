@@ -33,7 +33,7 @@ namespace Laboratory.Core
 
         #region Fields
 
-        private GameStateMachine _stateMachine;
+        private GameStateMachine _stateMachine = new();
         private readonly Subject<GameState> _stateChangeSubject = new();
 
         #endregion
@@ -61,7 +61,6 @@ namespace Laboratory.Core
 
         private void Awake()
         {
-            _stateMachine = new GameStateMachine();
             // Register initial states here if needed
         }
 

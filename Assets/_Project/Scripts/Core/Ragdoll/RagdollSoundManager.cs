@@ -5,6 +5,17 @@ using UnityEngine;
 namespace Laboratory.Core.Ragdoll
 {
     /// <summary>
+    /// ECS component data for ragdoll sound configuration
+    /// </summary>
+    public struct RagdollSoundConfig : IComponentData
+    {
+        /// <summary>
+        /// Volume level for ragdoll sound effects
+        /// </summary>
+        public float Volume;
+    }
+
+    /// <summary>
     /// MonoBehaviour companion to RagdollSoundManagerByDots for handling audio playback.
     /// This class bridges the gap between ECS and Unity's audio system.
     /// </summary>

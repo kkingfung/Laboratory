@@ -68,8 +68,10 @@ namespace Laboratory.UI.Helper
         [SerializeField, Min(1f)] private float zoomSpeed = 2f;
         [SerializeField, Min(0.1f)] private float minZoom = 10f;
         [SerializeField, Min(0.1f)] private float maxZoom = 100f;
-        [SerializeField] private float panSpeed = 10f;
-        [SerializeField] private float smoothTime = 0.2f;
+        [SerializeField, Tooltip("Speed multiplier for camera panning (higher values = faster panning)"), Min(0.1f)] 
+        private float panSpeed = 10f;
+        [SerializeField, Tooltip("Smooth transition time for camera movements"), Min(0.1f)] 
+        private float smoothTime = 0.2f;
 
         [Header("Map Boundaries")]
         [SerializeField] private Vector2 minBoundary = new(-50, -50);
@@ -168,6 +170,45 @@ namespace Laboratory.UI.Helper
             }
         }
 
+        /// <summary>
+        /// Gets the current pan speed value.
+        /// </summary>
+        public float PanSpeed => panSpeed;
+
+        /// <summary>
+        /// Sets the pan speed for camera movement.
+        /// </summary>
+        /// <param name="speed">Pan speed multiplier (higher values = faster panning)</param>
+        public void SetPanSpeed(float speed)
+        {
+            panSpeed = Mathf.Max(0.1f, speed);
+        }
+
+        /// <summary>
+        /// Sets the zoom limits for the minimap camera.
+        /// </summary>
+        /// <param name="min">Minimum zoom level (orthographic size)</param>
+        /// <param name="max">Maximum zoom level (orthographic size)</param>
+        public void SetZoomLimits(float min, float max)
+        {
+            minZoom = Mathf.Max(0.1f, min);
+            maxZoom = Mathf.Max(minZoom, max);
+        }
+
+        /// <summary>
+        /// Instantly pan the camera to a target position (bypasses smooth panning).
+        /// </summary>
+        /// <param name="targetPosition">World position to pan to</param>
+        public void PanToPosition(Vector3 targetPosition)
+        {
+            if (miniMapCamera == null) return;
+            
+            Vector3 newPos = miniMapCamera.transform.position;
+            newPos.x = targetPosition.x;
+            newPos.z = targetPosition.z;
+            miniMapCamera.transform.position = ClampPositionToBounds(newPos);
+        }
+
         #endregion
 
         #region Private Methods - Input Setup
@@ -250,7 +291,11 @@ namespace Laboratory.UI.Helper
         {
             if (!_isPanning) return;
 
-            Vector3 targetPos = miniMapCamera.transform.position + (_panOrigin - ScreenToWorldXZ(currentPos));
+            Vector3 currentWorldPos = ScreenToWorldXZ(currentPos);
+            Vector3 panDelta = _panOrigin - currentWorldPos;
+            
+            // Apply pan speed multiplier to the delta
+            Vector3 targetPos = miniMapCamera.transform.position + (panDelta * panSpeed * Time.unscaledDeltaTime);
             targetPos = ClampPositionToBounds(targetPos);
 
             SmoothPan(targetPos).Forget();

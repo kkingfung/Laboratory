@@ -37,7 +37,7 @@ namespace Laboratory.Models.ECS.Systems
 
             Entities
                 .WithNone<DeadTag>()
-                .ForEach((Entity entity, NetworkLifeState netLife, ref HealthComponent health) =>
+                .ForEach((Entity entity, NetworkLifeState netLife, ref ECSHealthComponent health) =>
                 {
                     ProcessPotentialDeath(entity, netLife, ref health, currentTime);
                 }).WithoutBurst().Run();
@@ -54,7 +54,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="netLife">The network life state component</param>
         /// <param name="health">The health component</param>
         /// <param name="currentTime">Current elapsed time</param>
-        private void ProcessPotentialDeath(Entity entity, NetworkLifeState netLife, ref HealthComponent health, float currentTime)
+        private void ProcessPotentialDeath(Entity entity, NetworkLifeState netLife, ref ECSHealthComponent health, float currentTime)
         {
             if (health.CurrentHealth <= 0 && netLife.IsAlive)
             {

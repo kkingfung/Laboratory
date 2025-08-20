@@ -99,7 +99,7 @@ namespace Laboratory.UI.Helper
         {
             if (mainPlayer != null)
             {
-                mainPlayer.Pause();
+                mainPlayer.PausePlayback();
             }
         }
         
@@ -243,7 +243,7 @@ namespace Laboratory.UI.Helper
             if (isScrubbing || mainPlayer == null || frameSlider == null)
                 return;
             
-            if (!mainPlayer.enabled || mainPlayer.FramesLength <= 0)
+            if (!mainPlayer.enabled || mainPlayer.TotalFrames <= 0)
             {
                 ResetTimelineSlider();
                 return;
@@ -256,11 +256,11 @@ namespace Laboratory.UI.Helper
             }
             
             // Update slider value based on current frame
-            float normalizedProgress = (float)mainPlayer.CurrentFrame / (mainPlayer.FramesLength - 1);
+            float normalizedProgress = (float)mainPlayer.CurrentFrame / (mainPlayer.TotalFrames - 1);
             frameSlider.value = Mathf.Clamp01(normalizedProgress);
             
             // Cache frame count for change detection
-            lastFrameCount = mainPlayer.FramesLength;
+            lastFrameCount = mainPlayer.TotalFrames;
         }
         
         /// <summary>
@@ -269,15 +269,15 @@ namespace Laboratory.UI.Helper
         /// <param name="value">Normalized slider value (0-1)</param>
         private void OnTimelineSliderChanged(float value)
         {
-            if (mainPlayer == null || mainPlayer.FramesLength <= 0)
+            if (mainPlayer == null || mainPlayer.TotalFrames <= 0)
                 return;
             
             isScrubbing = true;
             
-            int targetFrame = Mathf.RoundToInt(value * (mainPlayer.FramesLength - 1));
-            targetFrame = Mathf.Clamp(targetFrame, 0, mainPlayer.FramesLength - 1);
+            int targetFrame = Mathf.RoundToInt(value * (mainPlayer.TotalFrames - 1));
+            targetFrame = Mathf.Clamp(targetFrame, 0, mainPlayer.TotalFrames - 1);
             
-            mainPlayer.GoToFrame(targetFrame);
+            mainPlayer.JumpToFrame(targetFrame);
             
             // Reset scrubbing flag after a short delay to allow for smooth scrubbing
             Invoke(nameof(EndScrubbing), 0.1f);

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Unity.Entities;
 using UniRx;
@@ -111,9 +112,9 @@ namespace Laboratory.Models.ECS.Systems
         {
             try
             {
-                if (_gameStateManager?.CurrentState != null)
+                if (_gameStateManager != null)
                 {
-                    _stateSubscription = _gameStateManager.CurrentState
+                    _stateSubscription = _gameStateManager.OnStateChanged
                         .Where(state => state == GameStateManager.GameState.Loading)
                         .Subscribe(async _ => await HandleLoadingStateAsync());
                 }

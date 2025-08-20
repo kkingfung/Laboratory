@@ -10,15 +10,15 @@ namespace Laboratory.Models
     {
         #region Fields
 
-        private readonly IMessageBroker _messageBroker;
+        private readonly IPublisher<NotificationEvent> _publisher;
 
         #endregion
 
         #region Constructor
 
-        public NotificationModel(IMessageBroker messageBroker)
+        public NotificationModel(IPublisher<NotificationEvent> publisher)
         {
-            _messageBroker = messageBroker;
+            _publisher = publisher;
         }
 
         #endregion
@@ -31,7 +31,7 @@ namespace Laboratory.Models
         /// <param name="message">The notification message to send.</param>
         public void SendNotification(string message)
         {
-            _messageBroker.Publish(new NotificationEvent(message));
+            _publisher.Publish(new NotificationEvent(message));
         }
 
         #endregion

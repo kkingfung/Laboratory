@@ -22,7 +22,7 @@ namespace Laboratory.Gameplay.Respawn
             {
                 if (_instance == null)
                 {
-                    _instance = FindObjectOfType<RespawnManager>();
+                    _instance = FindAnyObjectByType<RespawnManager>();
                     if (_instance == null)
                     {
                         GameObject go = new GameObject("RespawnManager");

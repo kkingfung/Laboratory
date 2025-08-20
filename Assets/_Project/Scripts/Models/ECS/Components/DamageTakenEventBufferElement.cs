@@ -1,3 +1,5 @@
+#nullable disable
+
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -25,3 +27,5 @@ namespace Laboratory.Models.ECS.Components
         public DamageTakenEvent Value;
     }
 }
+
+#nullable restore

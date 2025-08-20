@@ -3,6 +3,7 @@ using Unity.Collections;
 using UnityEngine;
 using Laboratory.Models.ECS.Components;
 using Laboratory.Gameplay.Combat;
+using Laboratory.UI.Helper;
 
 namespace Laboratory.Models.ECS.Systems
 {
@@ -75,10 +76,14 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="damageEvent">The damage event to process</param>
         private void ProcessSingleDamageEvent(DamageTakenEvent damageEvent)
         {
-            if (!EntityManager.HasComponent<Unity.Netcode.NetworkObject>(damageEvent.TargetEntity))
+            // Convert the integer ID back to an Entity
+            var targetEntity = new Entity { Index = damageEvent.TargetEntityId, Version = 1 };
+            
+            // Check if the entity still exists and has the required component
+            if (!EntityManager.Exists(targetEntity) || !EntityManager.HasComponent<Unity.Netcode.NetworkObject>(targetEntity))
                 return;
 
-            var networkObject = EntityManager.GetComponentObject<Unity.Netcode.NetworkObject>(damageEvent.TargetEntity);
+            var networkObject = EntityManager.GetComponentObject<Unity.Netcode.NetworkObject>(targetEntity);
             var gameObject = networkObject.gameObject;
 
             TriggerDamageIndicator(damageEvent, gameObject);
@@ -91,13 +96,30 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="targetGameObject">The target GameObject</param>
         private void TriggerDamageIndicator(DamageTakenEvent damageEvent, GameObject targetGameObject)
         {
-            var damageIndicatorUI = GameObject.FindObjectOfType<DamageIndicatorUI>();
+            var damageIndicatorUI = Object.FindFirstObjectByType<DamageIndicatorUI>();
+            var uiDamageType = ConvertToUIDamageType(damageEvent.DamageType);
             damageIndicatorUI?.SpawnIndicator(
                 damageEvent.SourcePosition,
                 damageEvent.DamageAmount,
-                damageEvent.DamageType,
+                uiDamageType,
                 playSound: true,
                 vibrate: true);
+        }
+
+        /// <summary>
+        /// Converts ECS DamageType to UI DamageType.
+        /// </summary>
+        /// <param name="ecsDamageType">ECS damage type</param>
+        /// <returns>Corresponding UI damage type</returns>
+        private Laboratory.UI.Helper.DamageType ConvertToUIDamageType(Laboratory.Models.ECS.Components.DamageType ecsDamageType)
+        {
+            return ecsDamageType switch
+            {
+                Laboratory.Models.ECS.Components.DamageType.Critical => Laboratory.UI.Helper.DamageType.Critical,
+                Laboratory.Models.ECS.Components.DamageType.Fire => Laboratory.UI.Helper.DamageType.Fire,
+                Laboratory.Models.ECS.Components.DamageType.Ice => Laboratory.UI.Helper.DamageType.Ice,
+                _ => Laboratory.UI.Helper.DamageType.Normal
+            };
         }
 
         /// <summary>
