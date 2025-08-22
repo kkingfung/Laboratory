@@ -37,7 +37,9 @@ namespace Laboratory.Core.Ragdoll
         [SerializeField] private float _animationBlendWeight = 0.7f;
         [SerializeField] private bool _playHitAnimation = true;
         [SerializeField] private string _hitAnimationTrigger = "Hit";
+        #pragma warning disable 0414 // Field assigned but never used - reserved for future animation blending
         [SerializeField] private float _animationBlendDuration = 0.3f;
+        #pragma warning restore 0414
 
         [Header("Visual Effects")]
         [SerializeField] private bool _enableHitEffects = true;

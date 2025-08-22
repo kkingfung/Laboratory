@@ -34,7 +34,9 @@ namespace Laboratory.Core.Ragdoll
         [SerializeField] private int _maxSyncedBones = 32;
         [SerializeField] private bool _useLOD = true;
         [SerializeField] private float _lodDistance = 10f;
+        #pragma warning disable 0414 // Field assigned but never used - planned for future LOD system
         [SerializeField] private bool _prioritizeVisibleBones = true;
+        #pragma warning restore 0414
 
         [Header("Debug")]
         [SerializeField] private bool _showSyncInfo = false;

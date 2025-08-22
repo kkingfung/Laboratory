@@ -26,8 +26,10 @@ namespace Laboratory.Core.Character
 
         [Header("Camera Integration")]
         [SerializeField] private Camera _playerCamera;
+        #pragma warning disable 0414 // Field assigned but never used - intended for future camera integration
         [SerializeField] private float _screenCenterWeight = 0.3f;
         [SerializeField] private bool _useCameraCenterBias = true;
+        #pragma warning restore 0414
 
         [Header("Target Validation")]
         [SerializeField] private bool _validateLineOfSight = true;

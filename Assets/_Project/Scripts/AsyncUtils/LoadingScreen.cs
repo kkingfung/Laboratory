@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Laboratory.Core.Timing;
 
 namespace Laboratory.Infrastructure.AsyncUtils
 {
@@ -27,18 +28,18 @@ namespace Laboratory.Infrastructure.AsyncUtils
         private readonly UnityEngine.UI.Slider _progressBar;
         
         /// <summary>
-        /// Reactive property tracking loading progress from 0 to 1
+        /// Progress timer for smooth loading transitions
         /// </summary>
-        private readonly ReactiveProperty<float> _progress = new(0f);
+        private readonly ProgressTimer _progressTimer;
         
         #endregion
         
         #region Properties
         
         /// <summary>
-        /// Gets the current loading progress as a reactive property (0 to 1).
+        /// Gets the current loading progress as a reactive-like property (0 to 1).
         /// </summary>
-        public IReadOnlyReactiveProperty<float> Progress => _progress;
+        public float Progress => _progressTimer?.Progress ?? 0f;
         
         /// <summary>
         /// Gets a value indicating whether the loading screen is currently visible.
@@ -73,6 +74,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
         {
             _loadingCanvasGroup = loadingCanvasGroup ?? throw new ArgumentNullException(nameof(loadingCanvasGroup));
             _progressBar = progressBar;
+            _progressTimer = new ProgressTimer(duration: 0f, autoProgress: false, autoRegister: false);
             
             Initialize();
         }
@@ -128,7 +130,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
         /// <param name="progress">Progress value between 0 and 1</param>
         public void SetProgress(float progress)
         {
-            _progress.Value = Mathf.Clamp01(progress);
+            _progressTimer.SetProgress(progress);
         }
         
         /// <summary>
@@ -136,7 +138,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
         /// </summary>
         public void Dispose()
         {
-            _progress?.Dispose();
+            _progressTimer?.Dispose();
         }
         
         #endregion
@@ -153,13 +155,13 @@ namespace Laboratory.Infrastructure.AsyncUtils
         }
         
         /// <summary>
-        /// Binds the progress reactive property to the UI progress bar.
+        /// Binds the progress timer to the UI progress bar.
         /// </summary>
         private void BindProgressBar()
         {
             if (_progressBar != null)
             {
-                _progress.Subscribe(value => _progressBar.value = value);
+                _progressTimer.OnProgressChanged += (progress) => _progressBar.value = progress;
             }
         }
         
@@ -182,11 +184,11 @@ namespace Laboratory.Infrastructure.AsyncUtils
             while (!asyncOperation.isDone)
             {
                 float normalizedProgress = Mathf.Clamp01(asyncOperation.progress / 0.9f);
-                _progress.Value = normalizedProgress;
+                _progressTimer.SetProgress(normalizedProgress);
 
                 if (asyncOperation.progress >= 0.9f)
                 {
-                    _progress.Value = 1f;
+                    _progressTimer.SetProgress(1f);
                     asyncOperation.allowSceneActivation = true;
                 }
 

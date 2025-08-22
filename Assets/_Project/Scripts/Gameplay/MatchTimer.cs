@@ -3,6 +3,7 @@ using MessagePipe;
 using UniRx;
 using UnityEngine;
 using TMPro;
+using Laboratory.Core.Timing;
 
 namespace Laboratory.Gameplay.Lobby
 {
@@ -19,8 +20,7 @@ namespace Laboratory.Gameplay.Lobby
         [Header("Timer Settings")]
         [SerializeField] private float matchDuration = 300f; // seconds
 
-        private float _elapsedTime;
-        private bool _isRunning;
+        private CountdownTimer _matchTimer;
 
         #endregion
 
@@ -29,29 +29,25 @@ namespace Laboratory.Gameplay.Lobby
         /// <summary>
         /// Gets the remaining time in seconds.
         /// </summary>
-        public float RemainingTime => Mathf.Max(matchDuration - _elapsedTime, 0f);
+        public float RemainingTime => _matchTimer?.Remaining ?? 0f;
 
         /// <summary>
         /// Gets whether the timer is running.
         /// </summary>
-        public bool IsRunning => _isRunning;
+        public bool IsRunning => _matchTimer?.IsActive ?? false;
 
         #endregion
 
         #region Unity Override Methods
 
-        private void Update()
+        private void Awake()
         {
-            if (!_isRunning) return;
+            InitializeTimer();
+        }
 
-            _elapsedTime += Time.deltaTime;
-            UpdateTimerUI();
-
-            if (_elapsedTime >= matchDuration)
-            {
-                _isRunning = false;
-                OnMatchEnded();
-            }
+        private void OnDestroy()
+        {
+            _matchTimer?.Dispose();
         }
 
         #endregion
@@ -63,9 +59,7 @@ namespace Laboratory.Gameplay.Lobby
         /// </summary>
         public void StartTimer()
         {
-            _elapsedTime = 0f;
-            _isRunning = true;
-            UpdateTimerUI();
+            _matchTimer?.Start();
         }
 
         /// <summary>
@@ -73,46 +67,64 @@ namespace Laboratory.Gameplay.Lobby
         /// </summary>
         public void StopTimer()
         {
-            _isRunning = false;
+            _matchTimer?.Stop();
         }
 
         /// <summary>
         /// Updates the timer with a specified delta time.
         /// This method allows external systems to control timer updates.
+        /// Note: This is optional since the TimerService handles automatic updates.
         /// </summary>
         /// <param name="deltaTime">The time elapsed since the last tick</param>
         public void Tick(float deltaTime)
         {
-            if (!_isRunning) return;
+            _matchTimer?.Tick(deltaTime);
+        }
 
-            _elapsedTime += deltaTime;
-            UpdateTimerUI();
-
-            if (_elapsedTime >= matchDuration)
-            {
-                _isRunning = false;
-                OnMatchEnded();
-            }
+        /// <summary>
+        /// Sets the match duration and reinitializes the timer.
+        /// </summary>
+        /// <param name="duration">New match duration in seconds</param>
+        public void SetMatchDuration(float duration)
+        {
+            matchDuration = duration;
+            InitializeTimer();
         }
 
         #endregion
 
         #region Private Methods
 
-        private void UpdateTimerUI()
+        private void InitializeTimer()
+        {
+            // Dispose existing timer if any
+            _matchTimer?.Dispose();
+            
+            // Create new countdown timer
+            _matchTimer = new CountdownTimer(matchDuration);
+            _matchTimer.OnCompleted += OnMatchEnded;
+            _matchTimer.OnTick += (remainingTime) => UpdateTimerUI(remainingTime);
+        }
+
+        private void UpdateTimerUI(float remainingTime)
         {
             if (timerText != null)
             {
-                float timeLeft = RemainingTime;
-                int minutes = Mathf.FloorToInt(timeLeft / 60f);
-                int seconds = Mathf.FloorToInt(timeLeft % 60f);
+                int minutes = Mathf.FloorToInt(remainingTime / 60f);
+                int seconds = Mathf.FloorToInt(remainingTime % 60f);
                 timerText.text = $"{minutes:00}:{seconds:00}";
             }
+        }
+
+        private void UpdateTimerUI()
+        {
+            UpdateTimerUI(RemainingTime);
         }
 
         private void OnMatchEnded()
         {
             // Handle match end logic here (e.g., notify manager, show UI)
+            Debug.Log("Match timer ended!");
         }
 
         #endregion

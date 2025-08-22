@@ -196,12 +196,12 @@ namespace Laboratory.Core.DI
             }
 
             // Resolve constructor parameters
-            var parameters = bestConstructor.GetParameters();
-            var args = new object[parameters.Length];
+            var constructorParams = bestConstructor.GetParameters();
+            var args = new object[constructorParams.Length];
             
-            for (int i = 0; i < parameters.Length; i++)
+            for (int i = 0; i < constructorParams.Length; i++)
             {
-                args[i] = ResolveInternal(parameters[i].ParameterType);
+                args[i] = ResolveInternal(constructorParams[i].ParameterType);
             }
 
             return Activator.CreateInstance(type, args)!;

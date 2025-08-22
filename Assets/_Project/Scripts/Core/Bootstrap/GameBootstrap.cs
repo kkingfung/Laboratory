@@ -1,7 +1,7 @@
 using UnityEngine;
 using Unity.Entities;
 using Cysharp.Threading.Tasks;
-using MessagePipe;
+// using MessagePipe; // TODO: Add MessagePipe package and uncomment
 using Laboratory.Core.DI;
 using Laboratory.Core.Events;
 using Laboratory.Core.Services;
@@ -81,7 +81,7 @@ namespace Laboratory.Core.Bootstrap
             // Update the game state service (if it needs per-frame updates)
             if (_services?.TryResolve<IGameStateService>(out var stateService) == true)
             {
-                stateService.Update();
+                stateService?.Update();
             }
         }
 
@@ -150,8 +150,7 @@ namespace Laboratory.Core.Bootstrap
         private void RegisterCoreServices()
         {
             // Core infrastructure services
-            var messageBroker = new MessageBroker();
-            _services.RegisterInstance<IMessageBroker>(messageBroker);
+            // MessagePipe will be added later when properly configured
             
             _services.Register<IEventBus, UnifiedEventBus>();
             _services.Register<IGameStateService, GameStateService>();

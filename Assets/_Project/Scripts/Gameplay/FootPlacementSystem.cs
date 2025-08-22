@@ -57,8 +57,10 @@ namespace Laboratory.Gameplay.Character
         [SerializeField, Tooltip("Project feet forward vector onto ground to maintain natural twist")]
         private bool projectFootForwardOnGround = true;
 
+        #pragma warning disable 0414 // Field assigned but never used - planned for future airborne detection
         [SerializeField, Tooltip("Fade out IK when character is airborne")]
         private bool autoDisableWhenAirborne = true;
+        #pragma warning restore 0414
 
         [SerializeField, Tooltip("Animator parameter (float) representing locomotion speed for high-speed IK damping")]
         private string speedParameter = "Speed";

@@ -69,9 +69,11 @@ namespace Laboratory.Core
         [Tooltip("Delay before switching to death camera")]
         private float _blendDelay = 0.5f;
         
+        #pragma warning disable 0414 // Field assigned but never used - planned for future teammate switching feature
         [SerializeField]
         [Tooltip("Delay when switching between teammates")]
         private float _teammateSwitchDelay = 1.0f;
+        #pragma warning restore 0414
 
         // Runtime state
         private List<Transform> _teammates = new List<Transform>();

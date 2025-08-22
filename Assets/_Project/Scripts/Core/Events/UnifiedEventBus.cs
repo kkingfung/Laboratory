@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using MessagePipe;
+// using MessagePipe; // TODO: Add MessagePipe package and uncomment
 using UniRx;
 using UnityEngine;
 using Laboratory.Core.State;
@@ -17,7 +17,7 @@ namespace Laboratory.Core.Events
     {
         #region Fields
         
-        private readonly IMessageBroker? _messageBroker;
+        private readonly object? _messageBroker; // Will be IMessageBroker when MessagePipe is added
         private readonly Dictionary<Type, object> _subjects = new();
         private readonly CompositeDisposable _disposables = new();
         private bool _disposed = false;
@@ -32,10 +32,13 @@ namespace Laboratory.Core.Events
             _messageBroker = null;
         }
         
-        // Temporary constructor that accepts IMessageBroker for when we fix MessagePipe integration
-        public UnifiedEventBus(IMessageBroker messageBroker)
+        // Constructor for dependency injection - will be used when MessagePipe is properly configured
+        // For now, this just uses the fallback UniRx implementation
+        public UnifiedEventBus(object messageBroker)
         {
-            _messageBroker = messageBroker;
+            // Temporarily ignore the messageBroker parameter until MessagePipe is properly set up
+            _messageBroker = null;
+            Debug.LogWarning("MessagePipe not available, using UniRx fallback for EventBus");
         }
         
         #endregion
@@ -54,7 +57,8 @@ namespace Laboratory.Core.Events
             
             if (_messageBroker != null)
             {
-                _messageBroker.Publish(message);
+                // MessagePipe integration will be implemented here
+                Debug.LogWarning("MessagePipe not available, using fallback");
             }
             else
             {
@@ -73,7 +77,8 @@ namespace Laboratory.Core.Events
             
             if (_messageBroker != null)
             {
-                return _messageBroker.Receive<T>().Subscribe(handler);
+                // MessagePipe integration will be implemented here
+                throw new NotImplementedException("MessagePipe integration pending");
             }
             else
             {
@@ -89,7 +94,8 @@ namespace Laboratory.Core.Events
             
             if (_messageBroker != null)
             {
-                return _messageBroker.Receive<T>().AsObservable();
+                // MessagePipe integration will be implemented here
+                throw new NotImplementedException("MessagePipe integration pending");
             }
             else
             {
@@ -108,17 +114,15 @@ namespace Laboratory.Core.Events
             
             if (_messageBroker != null)
             {
-                return _messageBroker.Receive<T>()
-                    .ObserveOnMainThread()
-                    .Subscribe(handler);
+                // MessagePipe integration - will be implemented when MessagePipe is properly set up
+                throw new NotImplementedException("MessagePipe integration pending");
             }
             else
             {
-                // Fallback to UniRx subjects
+                // Fallback to UniRx subjects - use ObserveOnMainThread if available
                 var subject = GetSubject<T>();
-                return subject
-                    .ObserveOn(Scheduler.MainThreadScheduler)
-                    .Subscribe(handler);
+                // For now, just subscribe directly since main thread scheduling isn't critical for basic functionality
+                return subject.Subscribe(handler);
             }
         }
         

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Laboratory.Core.Timing;
 
 namespace Laboratory.Gameplay.Abilities
 {
@@ -18,8 +19,27 @@ namespace Laboratory.Gameplay.Abilities
         #region Fields
 
         [SerializeField] private int abilityCount = 3;
-        private readonly List<float> _cooldowns = new();
-        private readonly List<bool> _isOnCooldown = new();
+        private readonly List<CooldownTimer> _abilityCooldowns = new();
+        private readonly List<AbilityData> _abilities = new();
+
+        #endregion
+
+        #region Data Structures
+
+        [System.Serializable]
+        private class AbilityData
+        {
+            public string name;
+            public float cooldownDuration = DefaultCooldown;
+            public int index;
+
+            public AbilityData(int index, string name = null, float cooldown = DefaultCooldown)
+            {
+                this.index = index;
+                this.name = string.IsNullOrEmpty(name) ? $"Ability {index + 1}" : name;
+                this.cooldownDuration = cooldown;
+            }
+        }
 
         #endregion
 
@@ -36,9 +56,14 @@ namespace Laboratory.Gameplay.Abilities
             InitializeAbilities();
         }
 
-        private void Update()
+        private void OnDestroy()
         {
-            UpdateCooldowns();
+            // Clean up timers
+            foreach (var cooldown in _abilityCooldowns)
+            {
+                cooldown?.Dispose();
+            }
+            _abilityCooldowns.Clear();
         }
 
         #endregion
@@ -53,18 +78,45 @@ namespace Laboratory.Gameplay.Abilities
             if (index < 0 || index >= abilityCount)
                 throw new ArgumentOutOfRangeException(nameof(index));
 
-            if (_isOnCooldown[index])
-                return;
+            var cooldownTimer = _abilityCooldowns[index];
+            if (cooldownTimer.IsActive)
+                return; // Ability is on cooldown
 
-            _isOnCooldown[index] = true;
-            _cooldowns[index] = DefaultCooldown;
+            // Start cooldown
+            cooldownTimer.Start();
 
-            // Raise event (implementation depends on your event system)
+            // Raise ability activated event
             var evt = new AbilityActivatedEvent(index);
             // EventBus.Publish(evt); // Example, replace with your event system
 
-            var stateEvt = new AbilityStateChangedEvent(index, true, DefaultCooldown);
+            var stateEvt = new AbilityStateChangedEvent(index, true, cooldownTimer.Duration);
             // EventBus.Publish(stateEvt);
+        }
+
+        /// <summary>
+        /// Gets the remaining cooldown time for an ability.
+        /// </summary>
+        /// <param name="index">Ability index</param>
+        /// <returns>Remaining cooldown time in seconds</returns>
+        public float GetAbilityCooldown(int index)
+        {
+            if (index < 0 || index >= abilityCount)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            return _abilityCooldowns[index].Remaining;
+        }
+
+        /// <summary>
+        /// Checks if an ability is currently on cooldown.
+        /// </summary>
+        /// <param name="index">Ability index</param>
+        /// <returns>True if ability is on cooldown</returns>
+        public bool IsAbilityOnCooldown(int index)
+        {
+            if (index < 0 || index >= abilityCount)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            return _abilityCooldowns[index].IsActive;
         }
 
         #endregion
@@ -73,32 +125,27 @@ namespace Laboratory.Gameplay.Abilities
 
         private void InitializeAbilities()
         {
-            _cooldowns.Clear();
-            _isOnCooldown.Clear();
+            _abilities.Clear();
+            _abilityCooldowns.Clear();
+            
             for (int i = 0; i < abilityCount; i++)
             {
-                _cooldowns.Add(0f);
-                _isOnCooldown.Add(false);
+                // Create ability data
+                var abilityData = new AbilityData(i);
+                _abilities.Add(abilityData);
+                
+                // Create cooldown timer with event callbacks
+                var cooldownTimer = new CooldownTimer(abilityData.cooldownDuration);
+                cooldownTimer.OnCompleted += () => OnAbilityCooldownComplete(i);
+                _abilityCooldowns.Add(cooldownTimer);
             }
         }
-
-        private void UpdateCooldowns()
+        
+        private void OnAbilityCooldownComplete(int abilityIndex)
         {
-            for (int i = 0; i < abilityCount; i++)
-            {
-                if (_isOnCooldown[i])
-                {
-                    _cooldowns[i] -= Time.deltaTime;
-                    if (_cooldowns[i] <= 0f)
-                    {
-                        _cooldowns[i] = 0f;
-                        _isOnCooldown[i] = false;
-
-                        var stateEvt = new AbilityStateChangedEvent(i, false, 0f);
-                        // EventBus.Publish(stateEvt); // Example, replace with your event system
-                    }
-                }
-            }
+            // Fire ability ready event
+            var stateEvt = new AbilityStateChangedEvent(abilityIndex, false, 0f);
+            // EventBus.Publish(stateEvt); // Example, replace with your event system
         }
 
         #endregion

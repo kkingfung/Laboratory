@@ -17,7 +17,9 @@ namespace Laboratory.Gameplay.UI
         [SerializeField] private TextMeshProUGUI damageText;
         [SerializeField] private Image image;
         [SerializeField] private float floatSpeed = 1.5f;
+        #pragma warning disable 0414 // Field assigned but never used - reserved for future fade configuration
         [SerializeField] private float fadeDuration = 0.75f;
+        #pragma warning restore 0414
 
         private Color _originalColor;
         private float _timer;

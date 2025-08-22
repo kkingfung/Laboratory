@@ -34,7 +34,9 @@ namespace Laboratory.Core.Ragdoll
         [Header("Performance")]
         [SerializeField] private int _maxSimultaneousImpacts = 10;
         [SerializeField] private float _impactCooldown = 0.1f;
+        #pragma warning disable 0414 // Field assigned but never used - planned for future object pooling system
         [SerializeField] private bool _useObjectPooling = true;
+        #pragma warning restore 0414
 
         // Runtime state
         private EntityManager _entityManager;
