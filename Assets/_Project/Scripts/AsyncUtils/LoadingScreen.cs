@@ -1,80 +1,65 @@
 using System;
-using System.Threading.Tasks;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Laboratory.Core.Timing;
+using Laboratory.Core.Events;
+using Laboratory.Core.Events.Messages;
+using Laboratory.Core.DI;
+using Laboratory.Core.Services;
 
 namespace Laboratory.Infrastructure.AsyncUtils
 {
     /// <summary>
-    /// Manages loading screen UI and asynchronous scene loading operations.
+    /// Enhanced loading screen that integrates with the unified service architecture.
     /// Provides progress tracking, event notifications, and smooth loading transitions.
-    /// Supports both automatic and manual scene activation control.
+    /// Now supports multiple loading sources and better error handling.
     /// </summary>
     public class LoadingScreen : IDisposable
     {
         #region Fields
         
-        /// <summary>
-        /// Canvas group controlling the loading screen visibility
-        /// </summary>
         private readonly CanvasGroup _loadingCanvasGroup;
-        
-        /// <summary>
-        /// UI slider component for displaying loading progress
-        /// </summary>
         private readonly UnityEngine.UI.Slider _progressBar;
-        
-        /// <summary>
-        /// Progress timer for smooth loading transitions
-        /// </summary>
+        private readonly UnityEngine.UI.Text _statusText;
         private readonly ProgressTimer _progressTimer;
+        private readonly CompositeDisposable _disposables = new();
+        
+        private IEventBus? _eventBus;
+        private ISceneService? _sceneService;
+        private bool _disposed = false;
         
         #endregion
         
         #region Properties
         
-        /// <summary>
-        /// Gets the current loading progress as a reactive-like property (0 to 1).
-        /// </summary>
         public float Progress => _progressTimer?.Progress ?? 0f;
-        
-        /// <summary>
-        /// Gets a value indicating whether the loading screen is currently visible.
-        /// </summary>
         public bool IsVisible => _loadingCanvasGroup.alpha > 0f;
+        public string? CurrentStatus { get; private set; }
         
         #endregion
         
         #region Events
         
-        /// <summary>
-        /// Event fired when a loading operation begins.
-        /// </summary>
-        public event Action OnLoadStarted;
-        
-        /// <summary>
-        /// Event fired when a loading operation completes successfully.
-        /// </summary>
-        public event Action OnLoadCompleted;
+        public event Action? OnLoadStarted;
+        public event Action<string>? OnStatusChanged;
+        public event Action? OnLoadCompleted;
+        public event Action<Exception>? OnLoadFailed;
         
         #endregion
         
         #region Constructor
         
-        /// <summary>
-        /// Initializes a new instance of the LoadingScreen class.
-        /// </summary>
-        /// <param name="loadingCanvasGroup">Canvas group controlling loading UI visibility</param>
-        /// <param name="progressBar">Optional UI slider for progress display</param>
-        /// <exception cref="ArgumentNullException">Thrown when loadingCanvasGroup is null</exception>
-        public LoadingScreen(CanvasGroup loadingCanvasGroup, UnityEngine.UI.Slider progressBar = null)
+        public LoadingScreen(CanvasGroup loadingCanvasGroup, 
+                           UnityEngine.UI.Slider? progressBar = null,
+                           UnityEngine.UI.Text? statusText = null)
         {
             _loadingCanvasGroup = loadingCanvasGroup ?? throw new ArgumentNullException(nameof(loadingCanvasGroup));
             _progressBar = progressBar;
-            _progressTimer = new ProgressTimer(duration: 0f, autoProgress: false, autoRegister: false);
+            _statusText = statusText;
+            _progressTimer = new ProgressTimer(duration: 1f, autoProgress: false, autoRegister: false);
             
             Initialize();
         }
@@ -84,42 +69,113 @@ namespace Laboratory.Infrastructure.AsyncUtils
         #region Public Methods
         
         /// <summary>
-        /// Shows the loading screen UI with full opacity and interaction enabled.
+        /// Shows the loading screen with optional status message.
         /// </summary>
-        public void Show()
+        public void Show(string? statusMessage = null)
         {
+            ThrowIfDisposed();
+            
             SetCanvasGroupState(true);
+            UpdateStatus(statusMessage ?? "Loading...");
+            SetProgress(0f);
         }
         
         /// <summary>
-        /// Hides the loading screen UI with zero opacity and interaction disabled.
+        /// Hides the loading screen.
         /// </summary>
         public void Hide()
         {
+            if (_disposed) return;
+            
             SetCanvasGroupState(false);
+            UpdateStatus(null);
         }
         
         /// <summary>
-        /// Loads a scene asynchronously with progress tracking and UI management.
+        /// Loads a scene using the unified service architecture.
         /// </summary>
-        /// <param name="sceneName">Name of the scene to load</param>
-        /// <returns>UniTask representing the asynchronous loading operation</returns>
-        /// <exception cref="ArgumentException">Thrown when sceneName is null or empty</exception>
-        public async UniTask LoadSceneAsync(string sceneName)
+        public async UniTask LoadSceneAsync(string sceneName, CancellationToken cancellation = default)
         {
+            ThrowIfDisposed();
+            
             if (string.IsNullOrEmpty(sceneName))
                 throw new ArgumentException("Scene name cannot be null or empty", nameof(sceneName));
 
-            Show();
+            Show($"Loading {sceneName}...");
             OnLoadStarted?.Invoke();
 
             try
             {
-                await PerformSceneLoadAsync(sceneName);
+                if (_sceneService != null)
+                {
+                    // Use the service-based approach
+                    var progress = new Progress<float>(SetProgress);
+                    await _sceneService.LoadSceneAsync(sceneName, LoadSceneMode.Single, progress, cancellation);
+                }
+                else
+                {
+                    // Fallback to direct Unity API
+                    await PerformDirectSceneLoadAsync(sceneName, cancellation);
+                }
+                
+                UpdateStatus("Loading complete!");
+                OnLoadCompleted?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"LoadingScreen: Failed to load scene '{sceneName}': {ex.Message}");
+                UpdateStatus($"Loading failed: {ex.Message}");
+                OnLoadFailed?.Invoke(ex);
+                throw;
             }
             finally
             {
+                // Small delay to show completion message
+                await UniTask.Delay(500, cancellationToken: cancellation);
+                Hide();
+            }
+        }
+        
+        /// <summary>
+        /// Loads multiple assets with progress tracking.
+        /// </summary>
+        public async UniTask LoadAssetsAsync(string[] assetKeys, CancellationToken cancellation = default)
+        {
+            ThrowIfDisposed();
+            
+            if (assetKeys == null || assetKeys.Length == 0)
+                return;
+
+            Show("Loading assets...");
+            OnLoadStarted?.Invoke();
+
+            try
+            {
+                var assetService = GlobalServiceProvider.Instance?.Resolve<IAssetService>();
+                if (assetService != null)
+                {
+                    for (int i = 0; i < assetKeys.Length; i++)
+                    {
+                        cancellation.ThrowIfCancellationRequested();
+                        
+                        UpdateStatus($"Loading {assetKeys[i]}...");
+                        await assetService.LoadAssetAsync<UnityEngine.Object>(assetKeys[i]);
+                        
+                        float progress = (float)(i + 1) / assetKeys.Length;
+                        SetProgress(progress);
+                    }
+                }
+                
                 OnLoadCompleted?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"LoadingScreen: Failed to load assets: {ex.Message}");
+                OnLoadFailed?.Invoke(ex);
+                throw;
+            }
+            finally
+            {
                 Hide();
             }
         }
@@ -127,36 +183,55 @@ namespace Laboratory.Infrastructure.AsyncUtils
         /// <summary>
         /// Updates the loading progress manually.
         /// </summary>
-        /// <param name="progress">Progress value between 0 and 1</param>
         public void SetProgress(float progress)
         {
-            _progressTimer.SetProgress(progress);
+            ThrowIfDisposed();
+            _progressTimer.SetProgress(Mathf.Clamp01(progress));
         }
         
         /// <summary>
-        /// Releases all resources used by the LoadingScreen instance.
+        /// Updates the status text.
         /// </summary>
+        public void UpdateStatus(string? status)
+        {
+            CurrentStatus = status;
+            
+            if (_statusText != null)
+            {
+                _statusText.text = status ?? "";
+            }
+            
+            OnStatusChanged?.Invoke(status ?? "");
+        }
+        
         public void Dispose()
         {
+            if (_disposed) return;
+            
+            _disposables?.Dispose();
             _progressTimer?.Dispose();
+            _disposed = true;
         }
         
         #endregion
         
         #region Private Methods
         
-        /// <summary>
-        /// Initializes the loading screen components and bindings.
-        /// </summary>
         private void Initialize()
         {
+            // Get services if available
+            if (GlobalServiceProvider.IsInitialized)
+            {
+                var services = GlobalServiceProvider.Instance;
+                services?.TryResolve(out _eventBus);
+                services?.TryResolve(out _sceneService);
+            }
+            
             BindProgressBar();
+            SubscribeToLoadingEvents();
             Hide(); // Start hidden
         }
         
-        /// <summary>
-        /// Binds the progress timer to the UI progress bar.
-        /// </summary>
         private void BindProgressBar()
         {
             if (_progressBar != null)
@@ -165,10 +240,55 @@ namespace Laboratory.Infrastructure.AsyncUtils
             }
         }
         
-        /// <summary>
-        /// Sets the canvas group visibility and interaction state.
-        /// </summary>
-        /// <param name="visible">Whether the canvas group should be visible and interactive</param>
+        private void SubscribeToLoadingEvents()
+        {
+            if (_eventBus != null)
+            {
+                // Subscribe to global loading events
+                _eventBus.Subscribe<LoadingStartedEvent>(OnGlobalLoadingStarted)
+                         .AddTo(_disposables);
+                         
+                _eventBus.Subscribe<LoadingProgressEvent>(OnGlobalLoadingProgress)
+                         .AddTo(_disposables);
+                         
+                _eventBus.Subscribe<LoadingCompletedEvent>(OnGlobalLoadingCompleted)
+                         .AddTo(_disposables);
+            }
+        }
+        
+        private void OnGlobalLoadingStarted(LoadingStartedEvent evt)
+        {
+            if (!IsVisible)
+            {
+                Show(evt.Description);
+            }
+            else
+            {
+                UpdateStatus(evt.Description);
+            }
+        }
+        
+        private void OnGlobalLoadingProgress(LoadingProgressEvent evt)
+        {
+            SetProgress(evt.Progress);
+            if (!string.IsNullOrEmpty(evt.StatusText))
+            {
+                UpdateStatus(evt.StatusText);
+            }
+        }
+        
+        private void OnGlobalLoadingCompleted(LoadingCompletedEvent evt)
+        {
+            if (evt.Success)
+            {
+                UpdateStatus($"{evt.OperationName} completed successfully");
+            }
+            else
+            {
+                UpdateStatus($"{evt.OperationName} failed: {evt.ErrorMessage}");
+            }
+        }
+        
         private void SetCanvasGroupState(bool visible)
         {
             _loadingCanvasGroup.alpha = visible ? 1f : 0f;
@@ -176,24 +296,37 @@ namespace Laboratory.Infrastructure.AsyncUtils
             _loadingCanvasGroup.interactable = visible;
         }
         
-        private async UniTask PerformSceneLoadAsync(string sceneName)
+        private async UniTask PerformDirectSceneLoadAsync(string sceneName, CancellationToken cancellation)
         {
             var asyncOperation = SceneManager.LoadSceneAsync(sceneName);
+            if (asyncOperation == null)
+            {
+                throw new InvalidOperationException($"Failed to start loading scene '{sceneName}'");
+            }
+            
             asyncOperation.allowSceneActivation = false;
 
             while (!asyncOperation.isDone)
             {
+                cancellation.ThrowIfCancellationRequested();
+                
                 float normalizedProgress = Mathf.Clamp01(asyncOperation.progress / 0.9f);
-                _progressTimer.SetProgress(normalizedProgress);
+                SetProgress(normalizedProgress);
 
                 if (asyncOperation.progress >= 0.9f)
                 {
-                    _progressTimer.SetProgress(1f);
+                    SetProgress(1f);
                     asyncOperation.allowSceneActivation = true;
                 }
 
                 await UniTask.Yield();
             }
+        }
+        
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(LoadingScreen));
         }
         
         #endregion

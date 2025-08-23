@@ -1,7 +1,7 @@
 using UnityEngine;
 using Unity.Entities;
 using Cysharp.Threading.Tasks;
-// using MessagePipe; // TODO: Add MessagePipe package and uncomment
+// MessagePipe removed - using pure UniRx implementation
 using Laboratory.Core.DI;
 using Laboratory.Core.Events;
 using Laboratory.Core.Services;
@@ -149,9 +149,7 @@ namespace Laboratory.Core.Bootstrap
 
         private void RegisterCoreServices()
         {
-            // Core infrastructure services
-            // MessagePipe will be added later when properly configured
-            
+            // Core infrastructure services using pure UniRx implementation
             _services.Register<IEventBus, UnifiedEventBus>();
             _services.Register<IGameStateService, GameStateService>();
             
@@ -175,10 +173,11 @@ namespace Laboratory.Core.Bootstrap
             _orchestrator.AddTask<ConfigurationStartupTask>();       // Priority: 20
             _orchestrator.AddTask<AssetPreloadStartupTask>();        // Priority: 30
             _orchestrator.AddTask<GameStateSetupStartupTask>();      // Priority: 40
+            _orchestrator.AddTask<GameSystemStartupTask>();          // Priority: 45
             _orchestrator.AddTask<NetworkInitializationStartupTask>();// Priority: 50
             _orchestrator.AddTask<UISystemStartupTask>();            // Priority: 60
             
-            Debug.Log($"GameBootstrap: Configured {6} startup tasks");
+            Debug.Log($"GameBootstrap: Configured {7} startup tasks");
         }
 
         private void OnInitializationProgress(float progress)

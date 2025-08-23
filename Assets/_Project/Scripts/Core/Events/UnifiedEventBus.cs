@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-// using MessagePipe; // TODO: Add MessagePipe package and uncomment
 using UniRx;
 using UnityEngine;
 using Laboratory.Core.State;
@@ -10,14 +9,14 @@ using Laboratory.Core.State;
 namespace Laboratory.Core.Events
 {
     /// <summary>
-    /// Implementation of IEventBus that wraps MessagePipe with UniRx extensions.
-    /// Thread-safe and Unity-optimized for game development.
+    /// Enhanced implementation of IEventBus that removes MessagePipe dependencies
+    /// and provides a stable, Unity-optimized event system using UniRx.
+    /// Thread-safe and performant for game development.
     /// </summary>
-    public class UnifiedEventBus : IEventBus
+    public class UnifiedEventBus : IEventBus, IDisposable
     {
         #region Fields
         
-        private readonly object? _messageBroker; // Will be IMessageBroker when MessagePipe is added
         private readonly Dictionary<Type, object> _subjects = new();
         private readonly CompositeDisposable _disposables = new();
         private bool _disposed = false;
@@ -28,17 +27,7 @@ namespace Laboratory.Core.Events
         
         public UnifiedEventBus()
         {
-            // Use simple UniRx subjects as fallback when MessagePipe is not available
-            _messageBroker = null;
-        }
-        
-        // Constructor for dependency injection - will be used when MessagePipe is properly configured
-        // For now, this just uses the fallback UniRx implementation
-        public UnifiedEventBus(object messageBroker)
-        {
-            // Temporarily ignore the messageBroker parameter until MessagePipe is properly set up
-            _messageBroker = null;
-            Debug.LogWarning("MessagePipe not available, using UniRx fallback for EventBus");
+            Debug.Log("UnifiedEventBus: Initialized with UniRx backend");
         }
         
         #endregion
@@ -55,16 +44,14 @@ namespace Laboratory.Core.Events
                 return;
             }
             
-            if (_messageBroker != null)
+            var subject = GetSubject<T>();
+            try
             {
-                // MessagePipe integration will be implemented here
-                Debug.LogWarning("MessagePipe not available, using fallback");
-            }
-            else
-            {
-                // Fallback to UniRx subjects
-                var subject = GetSubject<T>();
                 subject.OnNext(message);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error publishing event {typeof(T).Name}: {ex}");
             }
         }
         
@@ -75,34 +62,20 @@ namespace Laboratory.Core.Events
             if (handler == null) 
                 throw new ArgumentNullException(nameof(handler));
             
-            if (_messageBroker != null)
-            {
-                // MessagePipe integration will be implemented here
-                throw new NotImplementedException("MessagePipe integration pending");
-            }
-            else
-            {
-                // Fallback to UniRx subjects
-                var subject = GetSubject<T>();
-                return subject.Subscribe(handler);
-            }
+            var subject = GetSubject<T>();
+            return subject
+                .Subscribe(
+                    onNext: handler,
+                    onError: ex => Debug.LogError($"Error in event handler for {typeof(T).Name}: {ex}")
+                );
         }
         
         public UniRx.IObservable<T> Observe<T>() where T : class
         {
             ThrowIfDisposed();
             
-            if (_messageBroker != null)
-            {
-                // MessagePipe integration will be implemented here
-                throw new NotImplementedException("MessagePipe integration pending");
-            }
-            else
-            {
-                // Fallback to UniRx subjects
-                var subject = GetSubject<T>();
-                return subject.AsObservable();
-            }
+            var subject = GetSubject<T>();
+            return subject.AsObservable();
         }
         
         public IDisposable SubscribeOnMainThread<T>(Action<T> handler) where T : class
@@ -112,17 +85,92 @@ namespace Laboratory.Core.Events
             if (handler == null) 
                 throw new ArgumentNullException(nameof(handler));
             
-            if (_messageBroker != null)
+            var subject = GetSubject<T>();
+            return subject
+                .ObserveOnMainThread()
+                .Subscribe(
+                    onNext: handler,
+                    onError: ex => Debug.LogError($"Error in main thread event handler for {typeof(T).Name}: {ex}")
+                );
+        }
+        
+        #endregion
+        
+        #region Enhanced Features
+        
+        /// <summary>
+        /// Subscribe with filtering predicate.
+        /// </summary>
+        public IDisposable SubscribeWhere<T>(Func<T, bool> predicate, Action<T> handler) where T : class
+        {
+            ThrowIfDisposed();
+            
+            if (predicate == null) throw new ArgumentNullException(nameof(predicate));
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+            
+            var subject = GetSubject<T>();
+            return subject
+                .Where(predicate)
+                .Subscribe(
+                    onNext: handler,
+                    onError: ex => Debug.LogError($"Error in filtered event handler for {typeof(T).Name}: {ex}")
+                );
+        }
+        
+        /// <summary>
+        /// Subscribe for only the first occurrence of an event.
+        /// </summary>
+        public IDisposable SubscribeFirst<T>(Action<T> handler) where T : class
+        {
+            ThrowIfDisposed();
+            
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+            
+            var subject = GetSubject<T>();
+            return subject
+                .First()
+                .Subscribe(
+                    onNext: handler,
+                    onError: ex => Debug.LogError($"Error in first-only event handler for {typeof(T).Name}: {ex}")
+                );
+        }
+        
+        /// <summary>
+        /// Get count of active subscribers for a specific event type.
+        /// Note: UniRx doesn't expose exact subscriber count, so this returns whether there are any subscribers.
+        /// </summary>
+        public bool HasSubscribers<T>() where T : class
+        {
+            ThrowIfDisposed();
+            
+            if (_subjects.TryGetValue(typeof(T), out var subject))
             {
-                // MessagePipe integration - will be implemented when MessagePipe is properly set up
-                throw new NotImplementedException("MessagePipe integration pending");
+                return ((Subject<T>)subject).HasObservers;
             }
-            else
+            return false;
+        }
+        
+        /// <summary>
+        /// Get count of registered event types.
+        /// </summary>
+        public int GetEventTypeCount()
+        {
+            ThrowIfDisposed();
+            return _subjects.Count;
+        }
+        
+        /// <summary>
+        /// Clear all subjects and subscriptions for a specific type.
+        /// </summary>
+        public void ClearSubscriptions<T>() where T : class
+        {
+            ThrowIfDisposed();
+            
+            var type = typeof(T);
+            if (_subjects.TryGetValue(type, out var subject))
             {
-                // Fallback to UniRx subjects - use ObserveOnMainThread if available
-                var subject = GetSubject<T>();
-                // For now, just subscribe directly since main thread scheduling isn't critical for basic functionality
-                return subject.Subscribe(handler);
+                ((Subject<T>)subject)?.Dispose();
+                _subjects.Remove(type);
             }
         }
         
@@ -152,19 +200,30 @@ namespace Laboratory.Core.Events
         {
             if (_disposed) return;
             
-            _disposables?.Dispose();
-            
-            // Dispose individual subjects
-            foreach (var subject in _subjects.Values)
+            try
             {
-                if (subject is IDisposable disposable)
+                _disposables?.Dispose();
+                
+                // Dispose individual subjects
+                foreach (var subject in _subjects.Values)
                 {
-                    disposable.Dispose();
+                    if (subject is IDisposable disposable)
+                    {
+                        disposable.Dispose();
+                    }
                 }
+                _subjects.Clear();
+                
+                Debug.Log("UnifiedEventBus: Disposed successfully");
             }
-            _subjects.Clear();
-            
-            _disposed = true;
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error disposing UnifiedEventBus: {ex}");
+            }
+            finally
+            {
+                _disposed = true;
+            }
         }
         
         private void ThrowIfDisposed()
@@ -177,7 +236,7 @@ namespace Laboratory.Core.Events
     }
 }
 
-// Common event messages for the system
+// Enhanced event messages for the system
 namespace Laboratory.Core.Events.Messages
 {
     #region System Events
@@ -298,6 +357,57 @@ namespace Laboratory.Core.Events.Messages
         {
             SceneName = sceneName;
             LoadMode = loadMode;
+        }
+    }
+    
+    #endregion
+    
+    #region Health & Combat Events
+    
+    /// <summary>
+    /// Unified damage event that replaces fragmented damage events across the system.
+    /// </summary>
+    public class DamageEvent
+    {
+        public UnityEngine.GameObject Target { get; }
+        public UnityEngine.GameObject Source { get; }
+        public float Amount { get; }
+        public Laboratory.Core.Health.DamageType Type { get; }
+        public UnityEngine.Vector3 Direction { get; }
+        public ulong TargetClientId { get; }
+        public ulong AttackerClientId { get; }
+
+        public DamageEvent(UnityEngine.GameObject target, UnityEngine.GameObject source, float amount, 
+            Laboratory.Core.Health.DamageType type, UnityEngine.Vector3 direction, 
+            ulong targetClientId = 0, ulong attackerClientId = 0)
+        {
+            Target = target;
+            Source = source;
+            Amount = amount;
+            Type = type;
+            Direction = direction;
+            TargetClientId = targetClientId;
+            AttackerClientId = attackerClientId;
+        }
+    }
+
+    /// <summary>
+    /// Unified death event that replaces fragmented death events across the system.
+    /// </summary>
+    public class DeathEvent
+    {
+        public UnityEngine.GameObject Target { get; }
+        public UnityEngine.GameObject Source { get; }
+        public ulong VictimClientId { get; }
+        public ulong KillerClientId { get; }
+
+        public DeathEvent(UnityEngine.GameObject target, UnityEngine.GameObject source = null,
+            ulong victimClientId = 0, ulong killerClientId = 0)
+        {
+            Target = target;
+            Source = source;
+            VictimClientId = victimClientId;
+            KillerClientId = killerClientId;
         }
     }
     

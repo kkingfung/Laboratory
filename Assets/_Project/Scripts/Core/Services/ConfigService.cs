@@ -6,196 +6,175 @@ using Cysharp.Threading.Tasks;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.SceneManagement;
+using Newtonsoft.Json;
 
 #nullable enable
 
 namespace Laboratory.Core.Services
 {
-    #region Config Service
-
     /// <summary>
-    /// Implementation of IConfigService with improved caching and validation.
+    /// Implementation of IConfigService that handles configuration loading and caching.
     /// </summary>
     public class ConfigService : IConfigService, IDisposable
     {
-        #region Fields
-
+        private readonly Dictionary<string, object> _cache = new();
         private readonly IEventBus _eventBus;
-        private readonly Dictionary<string, object> _configCache = new();
         private bool _disposed = false;
-
-        #endregion
-
-        #region Constructor
 
         public ConfigService(IEventBus eventBus)
         {
             _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
         }
 
-        #endregion
-
-        #region IConfigService Implementation
-
         public async UniTask<T?> LoadJsonConfigAsync<T>(string relativePath) where T : class
         {
             ThrowIfDisposed();
-            
-            if (string.IsNullOrEmpty(relativePath))
-                throw new ArgumentException("Relative path cannot be null or empty", nameof(relativePath));
 
-            // Check cache first
-            if (_configCache.TryGetValue(relativePath, out var cached) && cached is T cachedConfig)
+            var cacheKey = $"json:{relativePath}";
+            if (_cache.TryGetValue(cacheKey, out var cached) && cached is T cachedConfig)
             {
                 return cachedConfig;
             }
 
-            string fullPath = Path.Combine(Application.streamingAssetsPath, relativePath);
-            _eventBus.Publish(new LoadingStartedEvent($"Config:{relativePath}", $"Loading config: {relativePath}"));
-
             try
             {
-                string json;
-
-#if UNITY_ANDROID && !UNITY_EDITOR
-                using var www = UnityEngine.Networking.UnityWebRequest.Get(fullPath);
-                await www.SendWebRequest();
+                var fullPath = Path.Combine(Application.streamingAssetsPath, relativePath);
                 
-                if (www.result != UnityEngine.Networking.UnityWebRequest.Result.Success)
+                if (!File.Exists(fullPath))
                 {
-                    throw new InvalidOperationException($"Failed to load config: {www.error}");
+                    Debug.LogWarning($"Config file not found: {fullPath}");
+                    return null;
                 }
-                
-                json = www.downloadHandler.text;
-#else
-                json = await File.ReadAllTextAsync(fullPath);
-#endif
 
-                var config = JsonUtility.FromJson<T>(json);
+                var json = await File.ReadAllTextAsync(fullPath);
+                var config = JsonConvert.DeserializeObject<T>(json);
                 
-                if (config != null)
+                if (config != null && ValidateConfig(config))
                 {
-                    if (ValidateConfig(config))
-                    {
-                        _configCache[relativePath] = config;
-                        _eventBus.Publish(new LoadingCompletedEvent($"Config:{relativePath}", true));
-                        return config;
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException($"Config validation failed for {relativePath}");
-                    }
+                    _cache[cacheKey] = config;
+                    return config;
                 }
-                
-                return null;
             }
             catch (Exception ex)
             {
-                _eventBus.Publish(new LoadingCompletedEvent($"Config:{relativePath}", false, ex.Message));
-                Debug.LogError($"ConfigService: Failed to load JSON config from {relativePath}: {ex}");
-                return null;
+                Debug.LogError($"Failed to load JSON config '{relativePath}': {ex.Message}");
             }
+
+            return null;
         }
 
         public async UniTask<T?> LoadScriptableObjectConfigAsync<T>(string resourcePath) where T : ScriptableObject
         {
             ThrowIfDisposed();
-            
-            if (string.IsNullOrEmpty(resourcePath))
-                throw new ArgumentException("Resource path cannot be null or empty", nameof(resourcePath));
 
-            // Check cache first
-            if (_configCache.TryGetValue(resourcePath, out var cached) && cached is T cachedConfig)
+            var cacheKey = $"so:{resourcePath}";
+            if (_cache.TryGetValue(cacheKey, out var cached) && cached is T cachedConfig)
             {
                 return cachedConfig;
             }
-
-            _eventBus.Publish(new LoadingStartedEvent($"Config:{resourcePath}", $"Loading ScriptableObject config: {resourcePath}"));
 
             try
             {
                 var request = Resources.LoadAsync<T>(resourcePath);
                 await request;
-
-                if (request.asset is T config)
+                
+                var config = request.asset as T;
+                if (config != null)
                 {
-                    _configCache[resourcePath] = config;
-                    _eventBus.Publish(new LoadingCompletedEvent($"Config:{resourcePath}", true));
+                    _cache[cacheKey] = config;
                     return config;
                 }
-                
-                _eventBus.Publish(new LoadingCompletedEvent($"Config:{resourcePath}", false, "Asset not found"));
-                return null;
             }
             catch (Exception ex)
             {
-                _eventBus.Publish(new LoadingCompletedEvent($"Config:{resourcePath}", false, ex.Message));
-                Debug.LogError($"ConfigService: Failed to load ScriptableObject config at {resourcePath}: {ex}");
-                return null;
+                Debug.LogError($"Failed to load ScriptableObject config '{resourcePath}': {ex.Message}");
             }
+
+            return null;
         }
 
         public T? GetCachedConfig<T>(string key) where T : class
         {
             ThrowIfDisposed();
-            
-            return _configCache.TryGetValue(key, out var config) && config is T cachedConfig ? cachedConfig : null;
+            return _cache.TryGetValue(key, out var config) && config is T cachedConfig ? cachedConfig : null;
         }
 
         public async UniTask PreloadEssentialConfigsAsync(IProgress<float>? progress = null, CancellationToken cancellation = default)
         {
             ThrowIfDisposed();
-            
-            // Define essential configs that should be loaded at startup
+
             var essentialConfigs = new[]
             {
-                ("Configs/game.json", typeof(object)), // Replace with your actual config types
-                ("Configs/audio.json", typeof(object)),
-                ("Configs/graphics.json", typeof(object)),
-                // Add more essential configs as needed
+                ("game_settings.json", typeof(object)),
+                ("input_bindings.json", typeof(object)),
+                ("audio_settings.json", typeof(object)),
+                ("graphics_settings.json", typeof(object))
             };
 
-            var totalConfigs = essentialConfigs.Length;
-            var completedConfigs = 0;
+            progress?.Report(0f);
+            _eventBus.Publish(new LoadingStartedEvent("EssentialConfigs", "Loading essential configurations"));
 
-            foreach (var (configPath, configType) in essentialConfigs)
+            for (int i = 0; i < essentialConfigs.Length; i++)
             {
                 cancellation.ThrowIfCancellationRequested();
                 
-                // Load config (this is a simplified example - you'd need proper type handling)
-                await LoadJsonConfigAsync<object>(configPath);
-                
-                completedConfigs++;
-                progress?.Report((float)completedConfigs / totalConfigs);
+                try
+                {
+                    await LoadJsonConfigAsync<object>(essentialConfigs[i].Item1);
+                    progress?.Report((float)(i + 1) / essentialConfigs.Length);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"Failed to preload essential config '{essentialConfigs[i].Item1}': {ex.Message}");
+                }
             }
 
-            Debug.Log($"ConfigService: Preloaded {completedConfigs} essential configs");
+            _eventBus.Publish(new LoadingCompletedEvent("EssentialConfigs", true));
         }
 
         public bool ValidateConfig<T>(T config) where T : class
         {
-            if (config == null) return false;
-            
-            // Add custom validation logic here
-            // This could include checking required fields, value ranges, etc.
-            
-            return true; // Placeholder - implement validation as needed
+            ThrowIfDisposed();
+
+            if (config == null)
+                return false;
+
+            // Basic validation - can be extended with specific rules
+            try
+            {
+                // Check if config has required properties (example validation)
+                var type = typeof(T);
+                var properties = type.GetProperties();
+                
+                foreach (var prop in properties)
+                {
+                    var value = prop.GetValue(config);
+                    
+                    // Check for required attributes or validation rules
+                    if (prop.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.RequiredAttribute), false).Length > 0)
+                    {
+                        if (value == null || (value is string str && string.IsNullOrEmpty(str)))
+                        {
+                            Debug.LogError($"Config validation failed: Required property '{prop.Name}' is null or empty");
+                            return false;
+                        }
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Config validation error: {ex.Message}");
+                return false;
+            }
         }
 
         public void ClearCache()
         {
             ThrowIfDisposed();
-            
-            _configCache.Clear();
-            Debug.Log("ConfigService: Cache cleared");
+            _cache.Clear();
         }
-
-        #endregion
-
-        #region IDisposable
 
         public void Dispose()
         {
@@ -210,9 +189,5 @@ namespace Laboratory.Core.Services
             if (_disposed)
                 throw new ObjectDisposedException(nameof(ConfigService));
         }
-
-        #endregion
     }
-
-    #endregion
 }

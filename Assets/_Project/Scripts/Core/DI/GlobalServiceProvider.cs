@@ -103,5 +103,131 @@ namespace Laboratory.Core.DI
         {
             return _instance?.IsRegistered<T>() ?? false;
         }
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// Validates that all core services are properly registered.
+        /// This is useful for development and debugging.
+        /// </summary>
+        /// <returns>True if all core services are registered, false otherwise</returns>
+        public static bool ValidateCoreServices()
+        {
+            if (!IsInitialized)
+            {
+                Debug.LogError("VALIDATION FAILED: GlobalServiceProvider is not initialized");
+                return false;
+            }
+
+            var coreServiceTypes = new Type[]
+            {
+                typeof(Laboratory.Core.Events.IEventBus),
+                typeof(Laboratory.Core.State.IGameStateService),
+                typeof(Laboratory.Core.Services.IAssetService),
+                typeof(Laboratory.Core.Services.IConfigService),
+                typeof(Laboratory.Core.Services.ISceneService)
+            };
+
+            bool allServicesRegistered = true;
+            foreach (var serviceType in coreServiceTypes)
+            {
+                if (!_instance!.IsRegistered(serviceType))
+                {
+                    Debug.LogError($"VALIDATION FAILED: Core service {serviceType.Name} is not registered");
+                    allServicesRegistered = false;
+                }
+                else
+                {
+                    Debug.Log($"✅ Core service {serviceType.Name} is properly registered");
+                }
+            }
+
+            if (allServicesRegistered)
+            {
+                Debug.Log("🎉 All core services validation passed!");
+            }
+
+            return allServicesRegistered;
+        }
+
+        /// <summary>
+        /// Tests the event system functionality by publishing and subscribing to a test event.
+        /// </summary>
+        /// <returns>True if event system is working correctly, false otherwise</returns>
+        public static bool TestEventSystem()
+        {
+            if (!IsInitialized)
+            {
+                Debug.LogError("Cannot test event system: GlobalServiceProvider not initialized");
+                return false;
+            }
+
+            try
+            {
+                if (!TryResolve<Laboratory.Core.Events.IEventBus>(out var eventBus) || eventBus == null)
+                {
+                    Debug.LogError("Cannot test event system: IEventBus not available");
+                    return false;
+                }
+
+                bool eventReceived = false;
+                var testEvent = new ValidationTestEvent { Message = "ServiceProviderValidationTest" };
+
+                var subscription = eventBus.Subscribe<ValidationTestEvent>(evt => eventReceived = true);
+                eventBus.Publish(testEvent);
+                subscription.Dispose();
+
+                if (eventReceived)
+                {
+                    Debug.Log("✅ Event system validation passed");
+                    return true;
+                }
+                else
+                {
+                    Debug.LogError("❌ Event system validation failed: Event not received");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"❌ Event system validation failed with exception: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets diagnostic information about the service provider state.
+        /// </summary>
+        /// <returns>Diagnostic information string</returns>
+        public static string GetDiagnosticInfo()
+        {
+            if (!IsInitialized)
+            {
+                return "GlobalServiceProvider: NOT INITIALIZED";
+            }
+
+            var info = new System.Text.StringBuilder();
+            info.AppendLine("GlobalServiceProvider Diagnostic Info:");
+            info.AppendLine($"- Initialized: {IsInitialized}");
+            info.AppendLine($"- Container Type: {_instance!.GetType().Name}");
+            
+            // Add service registration info if available
+            if (_instance is ServiceContainer container)
+            {
+                info.AppendLine($"- Registered Services Count: {container.GetRegisteredServiceCount()}");
+            }
+
+            return info.ToString();
+        }
+#endif
     }
+
+#if UNITY_EDITOR
+    /// <summary>
+    /// Test event for validation purposes.
+    /// </summary>
+    internal class ValidationTestEvent
+    {
+        public string Message { get; set; } = "";
+    }
+#endif
 }

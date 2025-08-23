@@ -239,6 +239,36 @@ namespace Laboratory.Core.DI
             return _services.ContainsKey(typeof(T));
         }
 
+        public bool IsRegistered(Type serviceType)
+        {
+            ThrowIfDisposed();
+            return _services.ContainsKey(serviceType);
+        }
+
+#if UNITY_EDITOR
+        /// <summary>
+        /// Gets the count of registered services. Useful for diagnostics.
+        /// </summary>
+        /// <returns>Number of registered services</returns>
+        public int GetRegisteredServiceCount()
+        {
+            ThrowIfDisposed();
+            return _services.Count;
+        }
+
+        /// <summary>
+        /// Gets the types of all registered services. Useful for diagnostics.
+        /// </summary>
+        /// <returns>Array of registered service types</returns>
+        public Type[] GetRegisteredServiceTypes()
+        {
+            ThrowIfDisposed();
+            var types = new Type[_services.Count];
+            _services.Keys.CopyTo(types, 0);
+            return types;
+        }
+#endif
+
         #endregion
 
         #region IDisposable

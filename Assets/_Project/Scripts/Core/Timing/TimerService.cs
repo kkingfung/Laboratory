@@ -39,9 +39,20 @@ namespace Laboratory.Core.Timing
                 DontDestroyOnLoad(gameObject);
                 
                 // Register with service container if available
-                if (GlobalServiceProvider.Instance != null)
+                if (GlobalServiceProvider.IsInitialized)
                 {
-                    GlobalServiceProvider.Instance.RegisterService<TimerService>(this);
+                    try
+                    {
+                        var services = GlobalServiceProvider.Instance;
+                        if (services is ServiceContainer container)
+                        {
+                            container.RegisterInstance<TimerService>(this);
+                        }
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogWarning($"Could not register TimerService with container: {ex.Message}");
+                    }
                 }
             }
             else if (_instance != this)
@@ -143,6 +154,68 @@ namespace Laboratory.Core.Timing
         public void ClearAllTimers()
         {
             _activeTimers.Clear();
+        }
+
+        #endregion
+
+        #region Example Usage (Context Menu Items)
+
+        [ContextMenu("Create Example Weapon Cooldown")]
+        private void CreateExampleWeaponCooldown()
+        {
+            var weaponCooldown = new CooldownTimer(3f);
+            weaponCooldown.OnCompleted += () => Debug.Log("⚔️ Weapon ready to fire!");
+            weaponCooldown.OnTick += (elapsed) => Debug.Log($"⏱️ Weapon cooldown: {weaponCooldown.Progress:P1}");
+            
+            weaponCooldown.Start();
+            Debug.Log("Started example weapon cooldown (3 seconds)");
+        }
+
+        [ContextMenu("Create Example Match Timer")]
+        private void CreateExampleMatchTimer()
+        {
+            var matchTimer = new CountdownTimer(60f);
+            matchTimer.OnCompleted += () => Debug.Log("🏁 Match ended! Time's up!");
+            matchTimer.OnTick += (remaining) => {
+                int minutes = Mathf.FloorToInt(remaining / 60f);
+                int seconds = Mathf.FloorToInt(remaining % 60f);
+                if (seconds % 10 == 0 && seconds > 0) // Log every 10 seconds
+                    Debug.Log($"🕒 Match time remaining: {minutes:00}:{seconds:00}");
+            };
+            
+            matchTimer.Start();
+            Debug.Log("Started example match timer (60 seconds)");
+        }
+
+        [ContextMenu("Create Example Loading Progress")]
+        private void CreateExampleLoadingProgress()
+        {
+            var loadingProgress = new ProgressTimer(duration: 5f, autoProgress: true);
+            loadingProgress.OnProgressChanged += (progress) => {
+                if (progress % 0.25f < 0.1f) // Log at 25%, 50%, 75%, 100%
+                    Debug.Log($"📎 Loading progress: {progress:P0}");
+            };
+            loadingProgress.OnCompleted += () => Debug.Log("✅ Loading completed!");
+            
+            loadingProgress.Start();
+            Debug.Log("Started example loading progress (5 seconds)");
+        }
+
+        [ContextMenu("Test Timer Cleanup")]
+        private void TestTimerCleanup()
+        {
+            Debug.Log($"Before cleanup: {GetActiveTimerCount()} active timers");
+            
+            // Create some temporary timers that will auto-complete
+            for (int i = 0; i < 3; i++)
+            {
+                var tempTimer = new CooldownTimer(0.5f + i * 0.5f);
+                tempTimer.OnCompleted += () => Debug.Log("✅ Temporary timer completed");
+                tempTimer.Start();
+            }
+            
+            Debug.Log($"After creating temporary timers: {GetActiveTimerCount()} active timers");
+            Debug.Log("Timers will auto-cleanup when they complete...");
         }
 
         #endregion
