@@ -4,6 +4,7 @@ using UnityEngine;
 using Laboratory.Models.ECS.Components;
 using Laboratory.Gameplay.Combat;
 using Laboratory.UI.Helper;
+using Laboratory.Core.Health;
 
 namespace Laboratory.Models.ECS.Systems
 {

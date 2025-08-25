@@ -1,5 +1,5 @@
 using System;
-using UniRx;
+using R3;
 using UnityEngine;
 
 #nullable enable
@@ -8,7 +8,7 @@ namespace Laboratory.Core.Events
 {
     /// <summary>
     /// Unified event bus interface that provides reactive event handling without external dependencies.
-    /// Uses UniRx for reliable, performant event management in Unity projects.
+    /// Uses R3 for reliable, performant event management in Unity projects.
     /// </summary>
     public interface IEventBus : IDisposable
     {
@@ -23,9 +23,9 @@ namespace Laboratory.Core.Events
         IDisposable Subscribe<T>(Action<T> handler) where T : class;
         
         /// <summary>
-        /// Observes events of type T as an IObservable for reactive programming.
+        /// Observes events of type T as an Observable for reactive programming.
         /// </summary>
-        UniRx.IObservable<T> Observe<T>() where T : class;
+        Observable<T> Observe<T>() where T : class;
         
         /// <summary>
         /// Subscribes to events of type T on the main thread (Unity thread-safe).

@@ -88,6 +88,16 @@ namespace Laboratory.Core.Timing
         }
 
         /// <summary>
+        /// Attempts to start timer only if not active. Returns true if started.
+        /// </summary>
+        public bool TryStart()
+        {
+            if (_isActive) return false;
+            Start();
+            return true;
+        }
+
+        /// <summary>
         /// Stops the timer.
         /// </summary>
         public void Stop()

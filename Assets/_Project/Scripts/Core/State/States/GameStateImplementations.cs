@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
-using UniRx;
+using R3;
 using UnityEngine;
 
 #nullable enable
@@ -33,6 +33,30 @@ namespace Laboratory.Core.State.Implementations
                 GameState.None => false,
                 GameState.Initializing => false, // Can't go back to initializing
                 _ => true
+            };
+        }
+    }
+
+    /// <summary>
+    /// Initializing state - handles game initialization and startup.
+    /// </summary>
+    public class InitializingGameState : GameStateBase
+    {
+        public override GameState StateType => GameState.Initializing;
+
+        public override async UniTask OnEnterAsync(GameState fromState, object? context = null)
+        {
+            await base.OnEnterAsync(fromState, context);
+            Debug.Log("InitializingGameState: Game is initializing...");
+        }
+
+        public override bool CanTransitionTo(GameState targetState)
+        {
+            return targetState switch
+            {
+                GameState.None => false,
+                GameState.Initializing => false, // Already initializing
+                _ => true // Can transition to any state after initialization
             };
         }
     }

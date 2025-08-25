@@ -1,0 +1,28 @@
+{
+    "name": "Laboratory.Core.Tests",
+    "rootNamespace": "Laboratory.Core.Tests",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "Unity.TestTools.CodeCoverage.Editor.OpenCover.Model",
+        "UniRx",
+        "UniTask",
+        "Unity.Netcode.TestHelpers.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "Newtonsoft.Json.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -5,7 +5,6 @@ namespace Laboratory.Core.Timing
 {
     /// <summary>
     /// Enhanced cooldown timer with events and auto-registration support.
-    /// Backward compatible with existing CooldownTimer usage.
     /// </summary>
     public class CooldownTimer : ITimer, IDisposable
     {

@@ -7,19 +7,10 @@ using Cysharp.Threading.Tasks;
 using Laboratory.Gameplay.UI;
 using Laboratory.UI.Utils;
 using Laboratory.Models.ECS.Components;
+using Laboratory.Core.Health;
 
 namespace Laboratory.UI.Helper
 {
-    /// <summary>
-    /// Damage types for styling damage indicators.
-    /// </summary>
-    public enum DamageType
-    {
-        Normal,
-        Critical,
-        Fire,
-        Ice
-    }
 
     /// <summary>
     /// UI component for displaying directional damage indicators around the screen edges.

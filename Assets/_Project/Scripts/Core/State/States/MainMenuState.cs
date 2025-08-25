@@ -10,16 +10,7 @@ using UnityEngine;
 
 namespace Laboratory.Core.State.Implementations
 {
-    public class MainMenuGameState : GameStateBase
-    {
-        public override GameState StateType => GameState.MainMenu;
-
-        public override bool CanTransitionTo(GameState targetState)
-        {
-            // From main menu, can go to loading, network lobby, or quit
-            return targetState == GameState.Loading || 
-                   targetState == GameState.NetworkLobby ||
-                   targetState == GameState.None;
-        }
-    }
+    // This file contains legacy state definitions that have been moved to GameStateImplementations.cs
+    // Keeping this file to avoid breaking references, but the actual implementations are in GameStateImplementations.cs
+    // TODO: Remove this file after updating all references
 }

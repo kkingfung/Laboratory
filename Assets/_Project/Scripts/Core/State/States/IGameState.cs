@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 using Laboratory.Core.DI;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
-using UniRx;
+using R3;
 using UnityEngine;
 
 #nullable enable

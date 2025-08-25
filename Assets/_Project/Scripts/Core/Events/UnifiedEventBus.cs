@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using UniRx;
+using R3;
 using UnityEngine;
 using Laboratory.Core.State;
 
@@ -10,7 +10,7 @@ namespace Laboratory.Core.Events
 {
     /// <summary>
     /// Enhanced implementation of IEventBus that removes MessagePipe dependencies
-    /// and provides a stable, Unity-optimized event system using UniRx.
+    /// and provides a stable, Unity-optimized event system using R3.
     /// Thread-safe and performant for game development.
     /// </summary>
     public class UnifiedEventBus : IEventBus, IDisposable
@@ -27,7 +27,7 @@ namespace Laboratory.Core.Events
         
         public UnifiedEventBus()
         {
-            Debug.Log("UnifiedEventBus: Initialized with UniRx backend");
+            Debug.Log("UnifiedEventBus: Initialized with R3 backend");
         }
         
         #endregion
@@ -70,7 +70,7 @@ namespace Laboratory.Core.Events
                 );
         }
         
-        public UniRx.IObservable<T> Observe<T>() where T : class
+        public Observable<T> Observe<T>() where T : class
         {
             ThrowIfDisposed();
             
@@ -135,9 +135,21 @@ namespace Laboratory.Core.Events
                 );
         }
         
+        public int GetSubscriberCount<T>() where T : class
+        {
+            ThrowIfDisposed();
+            
+            if (_subjects.TryGetValue(typeof(T), out var subject))
+            {
+                // R3 doesn't expose exact subscriber count, so we return 1 if has observers, 0 otherwise
+                return ((Subject<T>)subject).HasObservers ? 1 : 0;
+            }
+            return 0;
+        }
+        
         /// <summary>
         /// Get count of active subscribers for a specific event type.
-        /// Note: UniRx doesn't expose exact subscriber count, so this returns whether there are any subscribers.
+        /// Note: R3 doesn't expose exact subscriber count, so this returns whether there are any subscribers.
         /// </summary>
         public bool HasSubscribers<T>() where T : class
         {
@@ -187,7 +199,7 @@ namespace Laboratory.Core.Events
                 _subjects[type] = subject;
                 
                 // Ensure subject gets disposed with the event bus
-                ((Subject<T>)subject).AddTo(_disposables);
+                _disposables.Add((Subject<T>)subject);
             }
             return (Subject<T>)subject;
         }
@@ -236,180 +248,4 @@ namespace Laboratory.Core.Events
     }
 }
 
-// Enhanced event messages for the system
-namespace Laboratory.Core.Events.Messages
-{
-    #region System Events
-    
-    public class SystemInitializedEvent
-    {
-        public string SystemName { get; }
-        public DateTime InitializedAt { get; }
-        
-        public SystemInitializedEvent(string systemName)
-        {
-            SystemName = systemName;
-            InitializedAt = DateTime.UtcNow;
-        }
-    }
-    
-    public class SystemShutdownEvent
-    {
-        public string SystemName { get; }
-        public DateTime ShutdownAt { get; }
-        
-        public SystemShutdownEvent(string systemName)
-        {
-            SystemName = systemName;
-            ShutdownAt = DateTime.UtcNow;
-        }
-    }
-    
-    #endregion
-    
-    #region Loading Events
-    
-    public class LoadingStartedEvent
-    {
-        public string OperationName { get; }
-        public string Description { get; }
-        
-        public LoadingStartedEvent(string operationName, string description = "")
-        {
-            OperationName = operationName;
-            Description = description;
-        }
-    }
-    
-    public class LoadingProgressEvent
-    {
-        public string OperationName { get; }
-        public float Progress { get; }
-        public string? StatusText { get; }
-        
-        public LoadingProgressEvent(string operationName, float progress, string? statusText = null)
-        {
-            OperationName = operationName;
-            Progress = UnityEngine.Mathf.Clamp01(progress);
-            StatusText = statusText;
-        }
-    }
-    
-    public class LoadingCompletedEvent
-    {
-        public string OperationName { get; }
-        public bool Success { get; }
-        public string? ErrorMessage { get; }
-        
-        public LoadingCompletedEvent(string operationName, bool success, string? errorMessage = null)
-        {
-            OperationName = operationName;
-            Success = success;
-            ErrorMessage = errorMessage;
-        }
-    }
-    
-    #endregion
-    
-    #region Game State Events
-    
-    public class GameStateChangeRequestedEvent
-    {
-        public GameState FromState { get; }
-        public GameState ToState { get; }
-        public object? Context { get; }
-        
-        public GameStateChangeRequestedEvent(
-            GameState fromState, 
-            GameState toState, 
-            object? context = null)
-        {
-            FromState = fromState;
-            ToState = toState;
-            Context = context;
-        }
-    }
-    
-    public class GameStateChangedEvent
-    {
-        public GameState PreviousState { get; }
-        public GameState CurrentState { get; }
-        public DateTime ChangedAt { get; }
-        
-        public GameStateChangedEvent(GameState previousState, GameState currentState)
-        {
-            PreviousState = previousState;
-            CurrentState = currentState;
-            ChangedAt = DateTime.UtcNow;
-        }
-    }
-    
-    #endregion
-    
-    #region Scene Events
-    
-    public class SceneChangeRequestedEvent
-    {
-        public string SceneName { get; }
-        public UnityEngine.SceneManagement.LoadSceneMode LoadMode { get; }
-        
-        public SceneChangeRequestedEvent(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadMode)
-        {
-            SceneName = sceneName;
-            LoadMode = loadMode;
-        }
-    }
-    
-    #endregion
-    
-    #region Health & Combat Events
-    
-    /// <summary>
-    /// Unified damage event that replaces fragmented damage events across the system.
-    /// </summary>
-    public class DamageEvent
-    {
-        public UnityEngine.GameObject Target { get; }
-        public UnityEngine.GameObject Source { get; }
-        public float Amount { get; }
-        public Laboratory.Core.Health.DamageType Type { get; }
-        public UnityEngine.Vector3 Direction { get; }
-        public ulong TargetClientId { get; }
-        public ulong AttackerClientId { get; }
-
-        public DamageEvent(UnityEngine.GameObject target, UnityEngine.GameObject source, float amount, 
-            Laboratory.Core.Health.DamageType type, UnityEngine.Vector3 direction, 
-            ulong targetClientId = 0, ulong attackerClientId = 0)
-        {
-            Target = target;
-            Source = source;
-            Amount = amount;
-            Type = type;
-            Direction = direction;
-            TargetClientId = targetClientId;
-            AttackerClientId = attackerClientId;
-        }
-    }
-
-    /// <summary>
-    /// Unified death event that replaces fragmented death events across the system.
-    /// </summary>
-    public class DeathEvent
-    {
-        public UnityEngine.GameObject Target { get; }
-        public UnityEngine.GameObject Source { get; }
-        public ulong VictimClientId { get; }
-        public ulong KillerClientId { get; }
-
-        public DeathEvent(UnityEngine.GameObject target, UnityEngine.GameObject source = null,
-            ulong victimClientId = 0, ulong killerClientId = 0)
-        {
-            Target = target;
-            Source = source;
-            VictimClientId = victimClientId;
-            KillerClientId = killerClientId;
-        }
-    }
-    
-    #endregion
-}
+// Event messages are now organized in separate files under Events/Messages/

@@ -2,6 +2,7 @@
 
 using Unity.Entities;
 using Unity.Mathematics;
+using Laboratory.Core.Health;
 
 namespace Laboratory.Models.ECS.Components
 {

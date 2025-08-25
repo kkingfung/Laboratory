@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
-using UniRx;
+using R3;
 using UnityEngine;
 
 #nullable enable
@@ -39,8 +39,8 @@ namespace Laboratory.Core.State
             _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
             
             // Subscribe to state change requests from other systems
-            _eventBus.Subscribe<GameStateChangeRequestedEvent>(OnStateChangeRequested)
-                .AddTo(_disposables);
+            var subscription = _eventBus.Subscribe<GameStateChangeRequestedEvent>(OnStateChangeRequested);
+            _disposables.Add(subscription);
         }
 
         #endregion
@@ -49,7 +49,7 @@ namespace Laboratory.Core.State
 
         public GameState Current => _currentState;
         
-        public UniRx.IObservable<GameStateChangedEvent> StateChanges => _stateChangeSubject.AsObservable();
+        public Observable<GameStateChangedEvent> StateChanges => _stateChangeSubject.AsObservable();
 
         #endregion
 

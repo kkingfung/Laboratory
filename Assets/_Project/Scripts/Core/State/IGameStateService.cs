@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
-using UniRx;
+using R3;
 using UnityEngine;
 
 #nullable enable
@@ -20,7 +20,7 @@ namespace Laboratory.Core.State
         GameState Current { get; }
         
         /// <summary>Observable that emits when game state changes.</summary>
-        UniRx.IObservable<GameStateChangedEvent> StateChanges { get; }
+        Observable<GameStateChangedEvent> StateChanges { get; }
         
         /// <summary>Requests a state transition with optional context data.</summary>
         UniTask<bool> RequestTransitionAsync(GameState targetState, object? context = null);

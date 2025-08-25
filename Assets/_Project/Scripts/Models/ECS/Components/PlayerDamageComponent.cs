@@ -4,6 +4,7 @@ using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Collections;
 using UnityEngine;
+using Laboratory.Core.Health;
 
 namespace Laboratory.Models.ECS.Components
 {

@@ -66,7 +66,7 @@ namespace Laboratory.Core.Health.Managers
             // Get event bus from service container
             if (GlobalServiceProvider.IsInitialized)
             {
-                GlobalServiceProvider.Services?.TryResolve<IEventBus>(out _eventBus);
+                GlobalServiceProvider.TryResolve<IEventBus>(out _eventBus);
             }
 
             // Register default damage processors
@@ -123,7 +123,7 @@ namespace Laboratory.Core.Health.Managers
         /// <summary>
         /// Applies damage to multiple targets.
         /// </summary>
-        public int ApplyAreaDamage(Vector3 center, float radius, DamageRequest baseDamageRequest, LayerMask targetLayers = -1)
+        public int ApplyAreaDamage(Vector3 center, float radius, DamageRequest baseDamageRequest, LayerMask targetLayers = default)
         {
             var colliders = Physics.OverlapSphere(center, radius, targetLayers);
             int targetsHit = 0;

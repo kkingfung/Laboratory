@@ -14,7 +14,7 @@ namespace Laboratory.Core.Health.Components
     /// consistent implementation that works across all networked entities.
     /// </summary>
     [RequireComponent(typeof(NetworkObject))]
-    public class NetworkHealthComponent : HealthComponentBase, INetworkBehaviour
+    public class NetworkHealthComponent : HealthComponentBase
     {
         #region Network Variables
 
@@ -85,7 +85,7 @@ namespace Laboratory.Core.Health.Components
 
         #region NetworkBehaviour Implementation
 
-        public override void OnNetworkSpawn()
+        public void OnNetworkSpawn()
         {
             // Subscribe to network variable changes
             NetworkCurrentHealth.OnValueChanged += OnNetworkHealthChanged;
@@ -96,7 +96,7 @@ namespace Laboratory.Core.Health.Components
             SyncLocalValuesFromNetwork();
         }
 
-        public override void OnNetworkDespawn()
+        public void OnNetworkDespawn()
         {
             // Unsubscribe from network variable changes
             NetworkCurrentHealth.OnValueChanged -= OnNetworkHealthChanged;
@@ -251,7 +251,7 @@ namespace Laboratory.Core.Health.Components
         /// <summary>
         /// Sets maximum health. Server authority only.
         /// </summary>
-        public void SetMaxHealth(int newMaxHealth)
+        public override void SetMaxHealth(int newMaxHealth)
         {
             if (!IsServer || newMaxHealth <= 0) return;
 

@@ -11,6 +11,36 @@ using Laboratory.Core.Bootstrap;
 namespace Laboratory.Core.Bootstrap.StartupTasks
 {
     /// <summary>
+    /// Core services startup task - initializes dependency injection and core infrastructure.
+    /// </summary>
+    public class CoreServicesStartupTask : StartupTaskBase
+    {
+        public override int Priority => 10;
+        public override string Name => "Core Services";
+
+        public override async UniTask ExecuteAsync(IServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
+        {
+            ReportProgress(progress, 0.1f);
+            
+            LogInfo("Initializing core services");
+            
+            ReportProgress(progress, 0.3f);
+            
+            // Core services are already registered in GameBootstrap
+            // This task validates they are working correctly
+            
+            ReportProgress(progress, 0.7f);
+            
+            // Test service resolution
+            var eventBus = services.Resolve<Laboratory.Core.Events.IEventBus>();
+            var stateService = services.Resolve<Laboratory.Core.State.IGameStateService>();
+            
+            LogInfo("Core services validation complete");
+            ReportProgress(progress, 1.0f);
+        }
+    }
+
+    /// <summary>
     /// Loads and validates configuration files during startup.
     /// </summary>
     public class ConfigurationStartupTask : StartupTaskBase
@@ -80,10 +110,20 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
         {
             ReportProgress(progress, 0.1f);
             
-            var stateService = services.Resolve<IGameStateService>();
+            var stateService = services.Resolve<Laboratory.Core.State.IGameStateService>();
             LogInfo("Setting up initial game state");
             
-            ReportProgress(progress, 0.5f);
+            ReportProgress(progress, 0.3f);
+            
+            // Register all game state implementations
+            stateService.RegisterState<Laboratory.Core.State.Implementations.InitializingGameState>();
+            stateService.RegisterState<Laboratory.Core.State.Implementations.MainMenuGameState>();
+            stateService.RegisterState<Laboratory.Core.State.Implementations.LoadingGameState>();
+            stateService.RegisterState<Laboratory.Core.State.Implementations.PlayingGameState>();
+            stateService.RegisterState<Laboratory.Core.State.Implementations.PausedGameState>();
+            stateService.RegisterState<Laboratory.Core.State.Implementations.GameOverGameState>();
+            
+            ReportProgress(progress, 0.7f);
             
             // Transition to initializing state
             await stateService.RequestTransitionAsync(Laboratory.Core.State.GameState.Initializing);
