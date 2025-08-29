@@ -75,11 +75,24 @@ namespace Laboratory.Core.Timing
                 var timer = _activeTimers[i];
                 if (timer != null)
                 {
-                    timer.Tick(deltaTime);
-                    
-                    // Mark inactive timers for removal
-                    if (!timer.IsActive)
+                    try
                     {
+                        timer.Tick(deltaTime);
+                        
+                        // Mark inactive timers for removal
+                        if (!timer.IsActive)
+                        {
+                            _timersToRemove.Add(timer);
+                        }
+                    }
+                    catch (System.ObjectDisposedException)
+                    {
+                        // Timer was disposed externally, mark for removal
+                        _timersToRemove.Add(timer);
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Debug.LogError($"TimerService: Error updating timer: {ex.Message}");
                         _timersToRemove.Add(timer);
                     }
                 }

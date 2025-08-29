@@ -1,0 +1,25 @@
+{
+    "name": "Laboratory.Core.Timing.Tests",
+    "rootNamespace": "Laboratory.Tests.Core.Timing",
+    "references": [
+        "Laboratory.Core.Timing",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "Unity.TestTools.CodeCoverage.Editor.OpenCover.Model"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

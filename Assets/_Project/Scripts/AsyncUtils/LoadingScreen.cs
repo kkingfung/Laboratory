@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using UniRx;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Laboratory.Core.Timing;
@@ -25,7 +25,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
         private readonly UnityEngine.UI.Slider _progressBar;
         private readonly UnityEngine.UI.Text _statusText;
         private readonly ProgressTimer _progressTimer;
-        private readonly CompositeDisposable _disposables = new();
+        private readonly List<IDisposable> _disposables = new();
         
         private IEventBus? _eventBus;
         private ISceneService? _sceneService;
@@ -208,7 +208,13 @@ namespace Laboratory.Infrastructure.AsyncUtils
         {
             if (_disposed) return;
             
-            _disposables?.Dispose();
+            // Dispose all subscriptions
+            foreach (var disposable in _disposables)
+            {
+                disposable?.Dispose();
+            }
+            _disposables.Clear();
+            
             _progressTimer?.Dispose();
             _disposed = true;
         }
@@ -245,14 +251,13 @@ namespace Laboratory.Infrastructure.AsyncUtils
             if (_eventBus != null)
             {
                 // Subscribe to global loading events
-                _eventBus.Subscribe<LoadingStartedEvent>(OnGlobalLoadingStarted)
-                         .AddTo(_disposables);
-                         
-                _eventBus.Subscribe<LoadingProgressEvent>(OnGlobalLoadingProgress)
-                         .AddTo(_disposables);
-                         
-                _eventBus.Subscribe<LoadingCompletedEvent>(OnGlobalLoadingCompleted)
-                         .AddTo(_disposables);
+                var sub1 = _eventBus.Subscribe<LoadingStartedEvent>(OnGlobalLoadingStarted);
+                var sub2 = _eventBus.Subscribe<LoadingProgressEvent>(OnGlobalLoadingProgress);
+                var sub3 = _eventBus.Subscribe<LoadingCompletedEvent>(OnGlobalLoadingCompleted);
+                
+                if (sub1 != null) _disposables.Add(sub1);
+                if (sub2 != null) _disposables.Add(sub2);
+                if (sub3 != null) _disposables.Add(sub3);
             }
         }
         

@@ -181,6 +181,82 @@ namespace Laboratory.Core.Health.Managers
         {
             _damageProcessors.Clear();
         }
+        
+        #region Network Damage Processing
+        
+        /// <summary>
+        /// Requests damage to be applied to a target player over the network. Server validates and applies damage.
+        /// </summary>
+        /// <param name="targetPlayerClientId">Client ID of the target player to damage.</param>
+        /// <param name="damage">Amount of damage to apply.</param>
+        /// <param name="damageType">Type of damage being applied.</param>
+        /// <param name="hitDirection">Direction vector of the hit for physics effects.</param>
+        /// <param name="rpcParams">Server RPC parameters containing sender information.</param>
+        [ServerRpc(RequireOwnership = false)]
+        public void RequestPlayerDamageServerRpc(ulong targetPlayerClientId, float damage, DamageType damageType, Vector3 hitDirection, ServerRpcParams rpcParams = default)
+        {
+            if (!IsServer) return;
+
+            ulong attackerClientId = rpcParams.Receive.SenderClientId;
+
+            var targetNetObj = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(targetPlayerClientId);
+            if (targetNetObj == null)
+            {
+                Debug.LogWarning($"RequestPlayerDamageServerRpc: target player {targetPlayerClientId} not found.");
+                return;
+            }
+
+            var healthComponent = targetNetObj.GetComponent<IHealthComponent>();
+            if (healthComponent == null)
+            {
+                Debug.LogWarning("RequestPlayerDamageServerRpc: target missing health component.");
+                return;
+            }
+
+            // Create damage request with network context
+            var damageRequest = new DamageRequest(damage, damageType, hitDirection)
+            {
+                Source = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(attackerClientId)?.gameObject
+            };
+            
+            damageRequest.Metadata["AttackerClientId"] = attackerClientId;
+            damageRequest.Metadata["VictimClientId"] = targetPlayerClientId;
+            damageRequest.Metadata["NetworkDamage"] = true;
+
+            // Apply damage through unified system
+            bool damageApplied = ApplyDamage(targetNetObj.gameObject, damageRequest);
+            
+            if (damageApplied)
+            {
+                // Notify all clients for visual/audio feedback
+                BroadcastPlayerDamageClientRpc(targetPlayerClientId, attackerClientId, damage, damageType, hitDirection);
+            }
+        }
+        
+        /// <summary>
+        /// Notifies all clients about player damage events for local effects and UI updates.
+        /// </summary>
+        [ClientRpc]
+        private void BroadcastPlayerDamageClientRpc(ulong targetClientId, ulong attackerClientId, float damage, DamageType damageType, Vector3 hitDirection)
+        {
+            // Publish network damage event to unified event system
+            if (_eventBus != null)
+            {
+                var networkDamageEvent = new NetworkPlayerDamageEvent
+                {
+                    TargetClientId = targetClientId,
+                    AttackerClientId = attackerClientId,
+                    Damage = damage,
+                    DamageType = damageType,
+                    HitDirection = hitDirection,
+                    Timestamp = Time.time
+                };
+                
+                _eventBus.Publish(networkDamageEvent);
+            }
+        }
+        
+        #endregion
 
         #endregion
 
@@ -394,6 +470,19 @@ namespace Laboratory.Core.Health.Managers
         public DamageType Type { get; set; }
         public Vector3 Direction { get; set; }
         public Vector3 SourcePosition { get; set; }
+        public float Timestamp { get; set; }
+    }
+    
+    /// <summary>
+    /// Network-aware player damage event for multiplayer scenarios.
+    /// </summary>
+    public class NetworkPlayerDamageEvent
+    {
+        public ulong TargetClientId { get; set; }
+        public ulong AttackerClientId { get; set; }
+        public float Damage { get; set; }
+        public DamageType DamageType { get; set; }
+        public Vector3 HitDirection { get; set; }
         public float Timestamp { get; set; }
     }
 

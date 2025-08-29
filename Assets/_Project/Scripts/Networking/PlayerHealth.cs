@@ -5,6 +5,7 @@ using Laboratory.Core.Health.Components;
 using Laboratory.Core.Health;
 using Laboratory.Core.Events;
 using Laboratory.Core.DI;
+using Laboratory.Core.Systems;
 using Laboratory.Gameplay;
 
 namespace Laboratory.Infrastructure.Networking
@@ -13,16 +14,19 @@ namespace Laboratory.Infrastructure.Networking
     /// Enhanced player health system that combines network health with respawn mechanics.
     /// This replaces the old fragmented PlayerHealth implementation with a composition-based approach.
     /// Uses the unified NetworkHealthComponent and adds player-specific respawn functionality.
+    /// Integrates with the unified health system service for centralized management.
     /// </summary>
     [RequireComponent(typeof(NetworkHealthComponent))]
     [RequireComponent(typeof(PlayerRespawnComponent))]
-    public class PlayerHealth : MonoBehaviour
+    public class PlayerHealth : MonoBehaviour, IDisposable
     {
         #region Components
         
         private NetworkHealthComponent _healthComponent;
         private PlayerRespawnComponent _respawnComponent;
         private IEventBus _eventBus;
+        private IHealthSystem _healthSystem;
+        private bool _isDisposed = false;
         
         #endregion
         
@@ -73,24 +77,24 @@ namespace Laboratory.Infrastructure.Networking
         
         private void Start()
         {
-            // Get event bus
+            // Get services from global service provider
             if (GlobalServiceProvider.IsInitialized)
             {
-                _eventBus = GlobalServiceProvider.Instance.Resolve<IEventBus>();
+                GlobalServiceProvider.Services?.TryResolve<IEventBus>(out _eventBus);
+                GlobalServiceProvider.Services?.TryResolve<IHealthSystem>(out _healthSystem);
             }
             
             // Subscribe to health component events
             _healthComponent.OnHealthChanged += OnHealthChanged;
             _healthComponent.OnDeath += OnPlayerDeath;
+            
+            // Register with health system (manual registration for player-specific handling)
+            _healthSystem?.RegisterHealthComponent(_healthComponent);
         }
         
         private void OnDestroy()
         {
-            if (_healthComponent != null)
-            {
-                _healthComponent.OnHealthChanged -= OnHealthChanged;
-                _healthComponent.OnDeath -= OnPlayerDeath;
-            }
+            Dispose();
         }
         
         #endregion
@@ -144,6 +148,30 @@ namespace Laboratory.Infrastructure.Networking
         public void TriggerRespawn()
         {
             _respawnComponent.TriggerRespawn();
+        }
+        
+        #endregion
+        
+        #region IDisposable
+        
+        public void Dispose()
+        {
+            if (_isDisposed) return;
+            
+            // Unregister from health system
+            if (_healthSystem != null && _healthComponent != null)
+            {
+                _healthSystem.UnregisterHealthComponent(_healthComponent);
+            }
+            
+            // Unsubscribe from events
+            if (_healthComponent != null)
+            {
+                _healthComponent.OnHealthChanged -= OnHealthChanged;
+                _healthComponent.OnDeath -= OnPlayerDeath;
+            }
+            
+            _isDisposed = true;
         }
         
         #endregion

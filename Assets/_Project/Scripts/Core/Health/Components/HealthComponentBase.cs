@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using Laboratory.Core.Events;
 using Laboratory.Core.DI;
+using Laboratory.Core.Systems;
 
 namespace Laboratory.Core.Health.Components
 {
@@ -21,9 +22,11 @@ namespace Laboratory.Core.Health.Components
         [Header("Damage Settings")]
         [SerializeField] protected bool _canTakeDamage = true;
         [SerializeField] protected float _invulnerabilityDuration = 0.5f;
+        [SerializeField] protected bool _autoRegisterWithSystem = true;
         
         private float _lastDamageTime = -1f;
         private IEventBus _eventBus;
+        private IHealthSystem _healthSystem;
 
         #endregion
 
@@ -52,9 +55,24 @@ namespace Laboratory.Core.Health.Components
             InitializeHealth();
             InjectDependencies();
         }
+        
+        protected virtual void Start()
+        {
+            // Auto-register with health system if enabled
+            if (_autoRegisterWithSystem && _healthSystem != null)
+            {
+                _healthSystem.RegisterHealthComponent(this);
+            }
+        }
 
         protected virtual void OnDestroy()
         {
+            // Auto-unregister from health system
+            if (_healthSystem != null)
+            {
+                _healthSystem.UnregisterHealthComponent(this);
+            }
+            
             OnHealthChanged = null;
             OnDeath = null;
         }
@@ -220,10 +238,11 @@ namespace Laboratory.Core.Health.Components
 
         private void InjectDependencies()
         {
-            // Try to get event bus from global service provider
+            // Try to get services from global service provider
             if (GlobalServiceProvider.IsInitialized)
             {
                 GlobalServiceProvider.Services?.TryResolve<IEventBus>(out _eventBus);
+                GlobalServiceProvider.Services?.TryResolve<IHealthSystem>(out _healthSystem);
             }
         }
 

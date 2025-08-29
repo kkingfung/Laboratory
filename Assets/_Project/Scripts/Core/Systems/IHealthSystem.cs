@@ -5,10 +5,13 @@ namespace Laboratory.Core.Systems
 {
     /// <summary>
     /// Interface for health system management across the game.
-    /// Provides centralized health operations and coordination.
+    /// Provides centralized health operations, coordination, and monitoring.
+    /// Integrates with the unified service architecture.
     /// </summary>
     public interface IHealthSystem
     {
+        #region Component Management
+        
         /// <summary>
         /// Register a health component with the system.
         /// </summary>
@@ -20,6 +23,15 @@ namespace Laboratory.Core.Systems
         void UnregisterHealthComponent(IHealthComponent healthComponent);
 
         /// <summary>
+        /// Get all registered health components.
+        /// </summary>
+        System.Collections.Generic.IReadOnlyList<IHealthComponent> GetAllHealthComponents();
+        
+        #endregion
+        
+        #region Health Operations
+
+        /// <summary>
         /// Apply damage to a specific health component.
         /// </summary>
         bool ApplyDamage(IHealthComponent target, DamageRequest damageRequest);
@@ -28,11 +40,10 @@ namespace Laboratory.Core.Systems
         /// Apply healing to a specific health component.
         /// </summary>
         bool ApplyHealing(IHealthComponent target, int amount, object source = null);
-
-        /// <summary>
-        /// Get all registered health components.
-        /// </summary>
-        System.Collections.Generic.IReadOnlyList<IHealthComponent> GetAllHealthComponents();
+        
+        #endregion
+        
+        #region Events
 
         /// <summary>
         /// Event fired when any health component takes damage.
@@ -48,5 +59,7 @@ namespace Laboratory.Core.Systems
         /// Event fired when any health component dies.
         /// </summary>
         event Action<IHealthComponent> OnComponentDeath;
+        
+        #endregion
     }
 }
