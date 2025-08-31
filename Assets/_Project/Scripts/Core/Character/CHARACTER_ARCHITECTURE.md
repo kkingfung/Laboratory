@@ -463,29 +463,6 @@ public IEnumerator AimController_WithTargetSelector_AutoTargetsCorrectly()
     Assert.IsNotNull(aimController.CurrentTarget);
     Assert.Contains(aimController.CurrentTarget, targets);
 }
-```
-
-## Migration from Legacy Systems
-
-### Replacing Old Components
-
-1. **Backup existing prefabs** before migration
-2. **Replace old aim controllers** with UnifiedAimController
-3. **Update references** to use new interfaces
-4. **Migrate settings** to new ScriptableObject configurations
-5. **Test thoroughly** in representative scenarios
-
-### Legacy Compatibility
-
-The new system provides compatibility helpers:
-
-```csharp
-// Legacy support methods
-public void LegacySetLookTarget(Transform target) => SetTarget(target);
-public bool LegacyIsAiming() => IsAiming;
-public void LegacySetAimEnabled(bool enabled) => SetActive(enabled);
-```
-
 ---
 
 *This documentation covers the improved Character & Movement subsystem for the Laboratory Unity project. The system provides robust, extensible, and well-tested character control with modern Unity integration.*

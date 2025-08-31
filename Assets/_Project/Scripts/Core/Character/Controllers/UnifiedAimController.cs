@@ -1,17 +1,17 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Animations.Rigging;
 using Laboratory.Core.DI;
 using Laboratory.Core.Events;
 using Laboratory.Core.Character.Configuration;
 using Laboratory.Core.Character.Events;
+using Laboratory.Core.Character.Systems;
 
 namespace Laboratory.Core.Character.Controllers
 {
     /// <summary>
     /// Unified aim controller that consolidates head, chest, and upper body aiming.
-    /// Handles Animation Rigging constraints and IK fallback for comprehensive aiming control.
+    /// Uses IK fallback when Animation Rigging constraints are not available.
     /// </summary>
     [RequireComponent(typeof(Animator))]
     public class UnifiedAimController : MonoBehaviour, IAimController
@@ -22,25 +22,25 @@ namespace Laboratory.Core.Character.Controllers
         [SerializeField, Tooltip("Aim settings configuration")]
         private CharacterAimSettings _aimSettings;
 
-        [Header("Rigging Constraints")]
-        [SerializeField, Tooltip("Multi-aim constraint for head targeting")]
-        private MultiAimConstraint _headConstraint;
-
-        [SerializeField, Tooltip("Multi-aim constraint for chest targeting")]
-        private MultiAimConstraint _chestConstraint;
-
-        [SerializeField, Tooltip("Multi-aim constraint for spine targeting")]
-        private MultiAimConstraint _spineConstraint;
-
-        [SerializeField, Tooltip("Multi-aim constraint for shoulder targeting")]
-        private MultiAimConstraint _shoulderConstraint;
-
         [Header("Target Selection")]
         [SerializeField, Tooltip("Integrated target selector component")]
         private AdvancedTargetSelector _targetSelector;
 
         [SerializeField, Tooltip("Enable automatic target selection")]
         private bool _autoTargeting = true;
+
+        [Header("IK Settings")]
+        [SerializeField, Range(0f, 1f), Tooltip("Overall look weight")]
+        private float _lookWeight = 1f;
+        
+        [SerializeField, Range(0f, 1f), Tooltip("Body weight")]
+        private float _bodyWeight = 0.3f;
+        
+        [SerializeField, Range(0f, 1f), Tooltip("Head weight")]
+        private float _headWeight = 0.8f;
+        
+        [SerializeField, Range(0f, 1f), Tooltip("Eyes weight")]
+        private float _eyesWeight = 1f;
 
         // Runtime state
         private bool _isActive = true;
@@ -49,19 +49,12 @@ namespace Laboratory.Core.Character.Controllers
         private float _currentAimWeight = 0f;
         private float _targetAimWeight = 0f;
         
-        // Constraint management
-        private WeightedTransformArray _headSources;
-        private WeightedTransformArray _chestSources;
-        private WeightedTransformArray _spineSources;
-        private WeightedTransformArray _shoulderSources;
-        
         // Services
         private IServiceContainer _services;
         private IEventBus _eventBus;
         private Animator _animator;
         
-        // IK fallback state
-        private bool _shouldUseIKFallback = false;
+        // IK state
         private bool _wasAiming = false;
         
         // Performance tracking
@@ -108,7 +101,6 @@ namespace Laboratory.Core.Character.Controllers
                 return;
             }
 
-            CacheConstraintSources();
             ValidateComponents();
         }
 
@@ -121,7 +113,10 @@ namespace Laboratory.Core.Character.Controllers
                 Debug.LogWarning($"[UnifiedAimController] No aim settings assigned to {name}, using defaults");
             }
 
-            _aimSettings.ValidateSettings();
+            if (_aimSettings != null)
+            {
+                _aimSettings.ValidateSettings();
+            }
         }
 
         private void Update()
@@ -129,15 +124,15 @@ namespace Laboratory.Core.Character.Controllers
             if (!_isActive || !_isInitialized) return;
 
             UpdateTargeting();
-            UpdateConstraintWeights();
-            UpdateIKFallback();
+            UpdateAimWeight();
+            UpdateIKState();
         }
 
         private void OnAnimatorIK(int layerIndex)
         {
-            if (!_shouldUseIKFallback || _animator == null || !IsAiming) return;
+            if (_animator == null || !IsAiming) return;
 
-            ApplyIKFallback();
+            ApplyIKLook();
         }
 
         private void OnDestroy()
@@ -222,8 +217,6 @@ namespace Laboratory.Core.Character.Controllers
                 PublishAimStoppedEvent(previousTarget);
                 OnTargetLost?.Invoke(previousTarget);
             }
-
-            UpdateConstraintTargets();
         }
 
         public void ClearTarget()
@@ -274,29 +267,8 @@ namespace Laboratory.Core.Character.Controllers
 
         #region Private Methods
 
-        private void CacheConstraintSources()
-        {
-            if (_headConstraint != null)
-                _headSources = _headConstraint.data.sourceObjects;
-            if (_chestConstraint != null)
-                _chestSources = _chestConstraint.data.sourceObjects;
-            if (_spineConstraint != null)
-                _spineSources = _spineConstraint.data.sourceObjects;
-            if (_shoulderConstraint != null)
-                _shoulderSources = _shoulderConstraint.data.sourceObjects;
-        }
-
         private void ValidateComponents()
         {
-            bool hasConstraints = _headConstraint != null || _chestConstraint != null || 
-                                  _spineConstraint != null || _shoulderConstraint != null;
-
-            if (!hasConstraints)
-            {
-                Debug.LogWarning($"[UnifiedAimController] No rigging constraints assigned to {name}. Will use IK fallback only.");
-                _shouldUseIKFallback = true;
-            }
-
             if (_targetSelector == null)
             {
                 _targetSelector = GetComponent<AdvancedTargetSelector>();
@@ -319,7 +291,7 @@ namespace Laboratory.Core.Character.Controllers
             // Target selector handles its own updates
         }
 
-        private void UpdateConstraintWeights()
+        private void UpdateAimWeight()
         {
             if (_aimSettings == null) return;
 
@@ -335,88 +307,29 @@ namespace Laboratory.Core.Character.Controllers
             {
                 _currentAimWeight = targetWeight;
             }
-
-            // Apply weights to constraints
-            ApplyConstraintWeights();
-            
-            // Check if we should use IK fallback
-            _shouldUseIKFallback = ShouldUseIKFallback();
         }
 
-        private void ApplyConstraintWeights()
+        private void UpdateIKState()
         {
-            if (_headConstraint != null)
-            {
-                _headConstraint.weight = _currentAimWeight * _aimSettings.headWeight;
-            }
-
-            if (_chestConstraint != null)
-            {
-                _chestConstraint.weight = _currentAimWeight * _aimSettings.chestWeight;
-            }
-
-            if (_spineConstraint != null)
-            {
-                _spineConstraint.weight = _currentAimWeight * _aimSettings.spineWeight;
-            }
-
-            if (_shoulderConstraint != null)
-            {
-                _shoulderConstraint.weight = _currentAimWeight * _aimSettings.shoulderWeight;
-            }
-        }
-
-        private void UpdateConstraintTargets()
-        {
-            if (_currentTarget == null) return;
-
-            UpdateConstraintTarget(_headConstraint, _headSources);
-            UpdateConstraintTarget(_chestConstraint, _chestSources);
-            UpdateConstraintTarget(_spineConstraint, _spineSources);
-            UpdateConstraintTarget(_shoulderConstraint, _shoulderSources);
-        }
-
-        private void UpdateConstraintTarget(MultiAimConstraint constraint, WeightedTransformArray sources)
-        {
-            if (constraint == null || sources.Count == 0 || _currentTarget == null) return;
-
-            sources.SetTransform(0, _currentTarget);
-            constraint.data.sourceObjects = sources;
-        }
-
-        private bool ShouldUseIKFallback()
-        {
-            if (!_aimSettings?.useIKFallback == true) return false;
-
-            // Use IK fallback when no rigging constraints are active
-            bool hasActiveConstraints = (_headConstraint?.weight > 0.01f) ||
-                                       (_chestConstraint?.weight > 0.01f) ||
-                                       (_spineConstraint?.weight > 0.01f) ||
-                                       (_shoulderConstraint?.weight > 0.01f);
-
-            return !hasActiveConstraints && IsAiming;
-        }
-
-        private void UpdateIKFallback()
-        {
-            // Track aiming state changes for IK fallback
+            // Track aiming state changes for IK
             bool isAimingNow = IsAiming;
             if (_wasAiming != isAimingNow)
             {
                 _wasAiming = isAimingNow;
-                // IK fallback logic is handled in OnAnimatorIK
             }
         }
 
-        private void ApplyIKFallback()
+        private void ApplyIKLook()
         {
-            if (_aimSettings == null || _animator == null || _currentTarget == null) return;
+            if (_currentTarget == null) return;
 
+            float finalWeight = _currentAimWeight * _lookWeight;
+            
             _animator.SetLookAtWeight(
-                _aimSettings.ikLookWeight * _currentAimWeight,
-                _aimSettings.ikBodyWeight,
-                _aimSettings.ikHeadWeight,
-                _aimSettings.ikEyesWeight,
+                finalWeight,
+                _bodyWeight,
+                _headWeight,
+                _eyesWeight,
                 0.5f
             );
             

@@ -503,43 +503,6 @@ eventBus.Subscribe<HealthChangedEvent>(healthEvent =>
 });
 ```
 
-## Migration Guide
-
-### From Old Health Systems
-```csharp
-// Old: Multiple health implementations
-PlayerHealth playerHealth;
-EnemyHealth enemyHealth;
-NPCHealth npcHealth;
-
-// New: Unified interface
-IHealthComponent playerHealth = GetComponent<NetworkHealthComponent>();
-IHealthComponent enemyHealth = GetComponent<AIHealthComponent>();
-IHealthComponent npcHealth = GetComponent<LocalHealthComponent>();
-```
-
-### From Direct Damage Application
-```csharp
-// Old: Direct method calls
-playerHealth.TakeDamage(50f);
-enemyHealth.DealDamage(25f, DamageType.Fire);
-
-// New: Unified damage system
-var damageRequest = new DamageRequest(50f, DamageType.Fire, attacker);
-DamageManager.Instance.ApplyDamage(target, damageRequest);
-```
-
-### From Manual Event Handling
-```csharp
-// Old: Manual event management
-PlayerHealth.OnPlayerDied += HandlePlayerDeath;
-EnemyHealth.OnEnemyKilled += HandleEnemyDeath;
-
-// New: Unified event system
-eventBus.Subscribe<DeathEvent>(HandleAnyDeath);
-healthSystem.OnComponentDeath += HandleComponentDeath;
-```
-
 ## Best Practices
 
 ### Component Design

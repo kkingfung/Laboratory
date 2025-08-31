@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Core.Timing;
+using Laboratory.Core.Events;
 
 namespace Laboratory.Gameplay.Abilities
 {
     /// <summary>
-    /// Manages player abilities, cooldowns, and activation logic.
+    /// Enhanced ability manager with proper event integration and improved architecture.
+    /// Manages player abilities, cooldowns, and activation logic with full event system support.
     /// </summary>
     public class AbilityManager : MonoBehaviour
     {
@@ -18,26 +20,62 @@ namespace Laboratory.Gameplay.Abilities
 
         #region Fields
 
+        [Header("Configuration")]
         [SerializeField] private int abilityCount = 3;
+        [SerializeField] private bool enableDebugLogs = false;
+        
+        [Header("Ability Data")]
+        [SerializeField] private List<AbilityData> abilityDataList = new();
+
         private readonly List<CooldownTimer> _abilityCooldowns = new();
         private readonly List<AbilityData> _abilities = new();
+        private readonly Dictionary<int, bool> _abilityStates = new();
 
         #endregion
 
         #region Data Structures
 
         [System.Serializable]
-        private class AbilityData
+        public class AbilityData
         {
-            public string name;
+            [Header("Basic Info")]
+            public string name = "Unnamed Ability";
+            public string description = "";
+            
+            [Header("Timing")]
             public float cooldownDuration = DefaultCooldown;
-            public int index;
+            public float castTime = 0f;
+            
+            [Header("Visual")]
+            public Sprite icon;
+            
+            public int index { get; set; }
+
+            public AbilityData() { }
 
             public AbilityData(int index, string name = null, float cooldown = DefaultCooldown)
             {
                 this.index = index;
                 this.name = string.IsNullOrEmpty(name) ? $"Ability {index + 1}" : name;
                 this.cooldownDuration = cooldown;
+            }
+
+            /// <summary>
+            /// Virtual method to check if ability can be activated.
+            /// Override in derived classes for custom logic.
+            /// </summary>
+            public virtual bool CanActivate(AbilityManager manager)
+            {
+                return !manager.IsAbilityOnCooldown(index);
+            }
+
+            /// <summary>
+            /// Virtual method called when ability is activated.
+            /// Override in derived classes for custom effects.
+            /// </summary>
+            public virtual void OnActivate(AbilityManager manager)
+            {
+                Debug.Log($"[AbilityManager] Activated ability: {name}");
             }
         }
 
@@ -46,6 +84,7 @@ namespace Laboratory.Gameplay.Abilities
         #region Properties
 
         public int AbilityCount => abilityCount;
+        public IReadOnlyList<AbilityData> Abilities => _abilities.AsReadOnly();
 
         #endregion
 
@@ -54,16 +93,20 @@ namespace Laboratory.Gameplay.Abilities
         private void Awake()
         {
             InitializeAbilities();
+            RegisterWithAbilitySystem();
+        }
+
+        private void Start()
+        {
+            // Subscribe to events after all systems are initialized
+            SubscribeToEvents();
         }
 
         private void OnDestroy()
         {
-            // Clean up timers
-            foreach (var cooldown in _abilityCooldowns)
-            {
-                cooldown?.Dispose();
-            }
-            _abilityCooldowns.Clear();
+            UnsubscribeFromEvents();
+            CleanupTimers();
+            UnregisterFromAbilitySystem();
         }
 
         #endregion
@@ -73,24 +116,53 @@ namespace Laboratory.Gameplay.Abilities
         /// <summary>
         /// Attempts to activate an ability by index.
         /// </summary>
-        public void ActivateAbility(int index)
+        /// <param name="index">Index of the ability to activate</param>
+        /// <returns>True if ability was activated successfully</returns>
+        public bool ActivateAbility(int index)
         {
-            if (index < 0 || index >= abilityCount)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            if (!ValidateAbilityIndex(index))
+                return false;
 
+            var ability = _abilities[index];
             var cooldownTimer = _abilityCooldowns[index];
-            if (cooldownTimer.IsActive)
-                return; // Ability is on cooldown
+
+            // Check if ability can be activated
+            if (!ability.CanActivate(this))
+            {
+                if (enableDebugLogs)
+                    Debug.LogWarning($"[AbilityManager] Cannot activate ability {index}: {ability.name}");
+                return false;
+            }
 
             // Start cooldown
             cooldownTimer.Start();
+            _abilityStates[index] = true;
 
-            // Raise ability activated event
-            var evt = new AbilityActivatedEvent(index);
-            // EventBus.Publish(evt); // Example, replace with your event system
+            // Execute ability effect
+            ability.OnActivate(this);
 
-            var stateEvt = new AbilityStateChangedEvent(index, true, cooldownTimer.Duration);
-            // EventBus.Publish(stateEvt);
+            // Publish events
+            PublishAbilityActivated(index);
+            PublishAbilityStateChanged(index, true, cooldownTimer.Duration);
+
+            if (enableDebugLogs)
+                Debug.Log($"[AbilityManager] Successfully activated ability {index}: {ability.name}");
+
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to activate an ability only if it's not on cooldown.
+        /// </summary>
+        public bool TryActivateAbility(int index)
+        {
+            if (!ValidateAbilityIndex(index))
+                return false;
+
+            if (IsAbilityOnCooldown(index))
+                return false;
+
+            return ActivateAbility(index);
         }
 
         /// <summary>
@@ -100,8 +172,8 @@ namespace Laboratory.Gameplay.Abilities
         /// <returns>Remaining cooldown time in seconds</returns>
         public float GetAbilityCooldown(int index)
         {
-            if (index < 0 || index >= abilityCount)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            if (!ValidateAbilityIndex(index))
+                return 0f;
 
             return _abilityCooldowns[index].Remaining;
         }
@@ -113,40 +185,181 @@ namespace Laboratory.Gameplay.Abilities
         /// <returns>True if ability is on cooldown</returns>
         public bool IsAbilityOnCooldown(int index)
         {
-            if (index < 0 || index >= abilityCount)
-                throw new ArgumentOutOfRangeException(nameof(index));
+            if (!ValidateAbilityIndex(index))
+                return true; // Safer to return true for invalid indices
 
             return _abilityCooldowns[index].IsActive;
+        }
+
+        /// <summary>
+        /// Gets the progress of an ability's cooldown (0 = ready, 1 = just activated).
+        /// </summary>
+        public float GetAbilityCooldownProgress(int index)
+        {
+            if (!ValidateAbilityIndex(index))
+                return 0f;
+
+            return _abilityCooldowns[index].Progress;
+        }
+
+        /// <summary>
+        /// Gets ability data by index.
+        /// </summary>
+        public AbilityData GetAbilityData(int index)
+        {
+            if (!ValidateAbilityIndex(index))
+                return null;
+
+            return _abilities[index];
+        }
+
+        /// <summary>
+        /// Resets all ability cooldowns. Useful for testing or special events.
+        /// </summary>
+        public void ResetAllCooldowns()
+        {
+            for (int i = 0; i < _abilityCooldowns.Count; i++)
+            {
+                _abilityCooldowns[i].Reset();
+                _abilityStates[i] = false;
+                PublishAbilityStateChanged(i, false, 0f);
+            }
+
+            if (enableDebugLogs)
+                Debug.Log("[AbilityManager] Reset all ability cooldowns");
         }
 
         #endregion
 
         #region Private Methods
 
+        private bool ValidateAbilityIndex(int index)
+        {
+            if (index < 0 || index >= abilityCount)
+            {
+                Debug.LogError($"[AbilityManager] Invalid ability index: {index}. Valid range: 0-{abilityCount - 1}");
+                return false;
+            }
+            return true;
+        }
+
         private void InitializeAbilities()
         {
             _abilities.Clear();
             _abilityCooldowns.Clear();
+            _abilityStates.Clear();
             
+            // Use provided ability data or create default
             for (int i = 0; i < abilityCount; i++)
             {
-                // Create ability data
-                var abilityData = new AbilityData(i);
+                AbilityData abilityData;
+                
+                if (i < abilityDataList.Count && abilityDataList[i] != null)
+                {
+                    abilityData = abilityDataList[i];
+                    abilityData.index = i;
+                }
+                else
+                {
+                    abilityData = new AbilityData(i);
+                }
+                
                 _abilities.Add(abilityData);
+                _abilityStates[i] = false;
                 
                 // Create cooldown timer with event callbacks
                 var cooldownTimer = new CooldownTimer(abilityData.cooldownDuration);
                 cooldownTimer.OnCompleted += () => OnAbilityCooldownComplete(i);
                 _abilityCooldowns.Add(cooldownTimer);
             }
+
+            if (enableDebugLogs)
+                Debug.Log($"[AbilityManager] Initialized {abilityCount} abilities");
         }
-        
+
         private void OnAbilityCooldownComplete(int abilityIndex)
         {
-            // Fire ability ready event
-            var stateEvt = new AbilityStateChangedEvent(abilityIndex, false, 0f);
-            // EventBus.Publish(stateEvt); // Example, replace with your event system
+            _abilityStates[abilityIndex] = false;
+            
+            // Fire ability ready events
+            PublishAbilityStateChanged(abilityIndex, false, 0f);
+            PublishAbilityCooldownComplete(abilityIndex);
+
+            if (enableDebugLogs)
+                Debug.Log($"[AbilityManager] Ability {abilityIndex} cooldown completed: {_abilities[abilityIndex].name}");
         }
+
+        #region Event Integration
+
+        private void PublishAbilityActivated(int index)
+        {
+            var evt = new AbilityActivatedEvent(index, gameObject);
+            
+            // Publish through event bus if available
+            if (UnifiedEventBus.Instance != null)
+            {
+                UnifiedEventBus.Instance.Publish(evt);
+            }
+        }
+
+        private void PublishAbilityStateChanged(int index, bool isOnCooldown, float cooldownRemaining)
+        {
+            var evt = new AbilityStateChangedEvent(index, isOnCooldown, cooldownRemaining, gameObject);
+            
+            if (UnifiedEventBus.Instance != null)
+            {
+                UnifiedEventBus.Instance.Publish(evt);
+            }
+        }
+
+        private void PublishAbilityCooldownComplete(int index)
+        {
+            var evt = new AbilityCooldownCompleteEvent(index, gameObject);
+            
+            if (UnifiedEventBus.Instance != null)
+            {
+                UnifiedEventBus.Instance.Publish(evt);
+            }
+        }
+
+        #endregion
+
+        #region System Integration
+
+        private void RegisterWithAbilitySystem()
+        {
+            // Register with global ability system if available
+            var abilitySystem = GlobalServiceProvider.Instance?.GetService<Laboratory.Core.Systems.IAbilitySystem>();
+            abilitySystem?.RegisterAbilityManager(this);
+        }
+
+        private void UnregisterFromAbilitySystem()
+        {
+            var abilitySystem = GlobalServiceProvider.Instance?.GetService<Laboratory.Core.Systems.IAbilitySystem>();
+            abilitySystem?.UnregisterAbilityManager(this);
+        }
+
+        private void SubscribeToEvents()
+        {
+            // Subscribe to any global events if needed
+            // This is where you'd subscribe to external ability activation requests
+        }
+
+        private void UnsubscribeFromEvents()
+        {
+            // Clean up event subscriptions
+        }
+
+        private void CleanupTimers()
+        {
+            foreach (var cooldown in _abilityCooldowns)
+            {
+                cooldown?.Dispose();
+            }
+            _abilityCooldowns.Clear();
+        }
+
+        #endregion
 
         #endregion
     }

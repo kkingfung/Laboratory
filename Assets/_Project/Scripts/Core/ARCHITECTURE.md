@@ -11,7 +11,6 @@ The Core Architecture subsystem provides the foundational infrastructure for the
 - [Dependency Graph](#dependency-graph)
 - [Usage Examples](#usage-examples)
 - [Best Practices](#best-practices)
-- [Migration Guide](#migration-guide)
 
 ## Architecture Principles
 
@@ -348,43 +347,6 @@ sceneService.ActivatePreloadedScene("GameLevel2");
 - **Event Testing**: Test event publishing and subscription behavior
 - **State Testing**: Verify state transitions and validation rules
 - **Integration Tests**: Test service interactions in realistic scenarios
-
-## Migration Guide
-
-### From Old Event Systems
-
-```csharp
-// Old: Multiple event systems
-DamageEventBus.Subscribe(OnDamageEvent);
-MessageBus.OnDeath += OnDeathEvent;
-
-// New: Unified event system
-eventBus.Subscribe<DamageEvent>(OnDamageEvent);
-eventBus.Subscribe<DeathEvent>(OnDeathEvent);
-```
-
-### From Direct Service Access
-
-```csharp
-// Old: FindObjectOfType and direct references
-var audioManager = FindObjectOfType<AudioManager>();
-var sceneManager = GetComponent<CustomSceneManager>();
-
-// New: Dependency injection
-var audioService = GlobalServiceProvider.Resolve<IAudioService>();
-var sceneService = GlobalServiceProvider.Resolve<ISceneService>();
-```
-
-### From Manual State Management
-
-```csharp
-// Old: Manual state switching
-currentState = GameState.Playing;
-OnStateChanged?.Invoke(GameState.Playing);
-
-// New: Proper state service
-await stateService.RequestTransitionAsync(GameState.Playing);
-```
 
 ## System Integration Points
 

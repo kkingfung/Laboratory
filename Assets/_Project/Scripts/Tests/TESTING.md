@@ -13,8 +13,7 @@ Core/Tests/
 │   ├── UnifiedEventBusTests.cs    # Event System Tests
 │   └── GameStateServiceTests.cs   # State Management Tests
 ├── Integration/                    # Integration Tests
-│   ├── BootstrapIntegrationTests.cs
-│   └── EventSystemBridgeIntegrationTests.cs
+│   └── BootstrapIntegrationTests.cs
 └── Laboratory.Core.Tests.asmdef   # Assembly Definition
 ```
 
@@ -64,15 +63,6 @@ Core/Tests/
   - Performance benchmarks
   - Resource cleanup
   - Error handling and recovery
-
-#### EventSystemBridgeIntegrationTests.cs
-- **Coverage**: Legacy event system migration
-- **Key Tests**:
-  - Event migration between old and new systems
-  - Backward compatibility maintenance
-  - High-volume event processing
-  - Memory leak prevention
-  - Integration with other services
 
 ## Running Tests
 
