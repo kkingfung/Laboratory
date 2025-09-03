@@ -1,0 +1,9 @@
+using UnityEngine;
+
+namespace Laboratory.Infrastructure.Bootstrap
+{
+    public class BootstrapBase : MonoBehaviour
+    {
+        // Basic bootstrap functionality
+    }
+}

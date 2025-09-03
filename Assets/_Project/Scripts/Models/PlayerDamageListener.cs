@@ -1,11 +1,16 @@
 using UnityEngine;
+using System;
 using Laboratory.Infrastructure.Networking;
-using Laboratory.UI.Helper;
+using Laboratory.Core.Events;
+using Laboratory.Core.DI;
+// UI dependency removed to prevent circular dependency
+// using Laboratory.UI.Helper;
 
 namespace Laboratory.Models
 {
     /// <summary>
-    /// Listens to player damage events and triggers appropriate UI feedback.
+    /// Listens to player damage events and publishes them to the unified event bus.
+    /// UI components can subscribe to these events separately.
     /// </summary>
     public class PlayerDamageListener : MonoBehaviour
     {
@@ -13,11 +18,11 @@ namespace Laboratory.Models
 
         [Header("Dependencies")]
         [Tooltip("NetworkHealth component representing the player's health.")]
-        [SerializeField] private NetworkHealth networkHealth = null!;
+        // [SerializeField] private NetworkHealth networkHealth = null!;
+        // TODO: NetworkHealth component needs to be created or moved to proper assembly
 
-        [Header("UI References")]
-        [Tooltip("Damage indicator UI to display damage taken.")]
-        [SerializeField] private DamageIndicatorUI damageIndicatorUI = null!;
+        // Event bus for decoupled communication
+        private IEventBus _eventBus;
 
         #endregion
 
@@ -25,22 +30,31 @@ namespace Laboratory.Models
 
         private void Awake()
         {
-            if (networkHealth == null)
+            // TODO: Re-enable when NetworkHealth component is created
+            // if (networkHealth == null)
+            // {
+            //     Debug.LogError($"NetworkHealth component not found on {gameObject.name}");
+            // }
+            
+            // Get event bus from service provider
+            if (GlobalServiceProvider.IsInitialized)
             {
-                Debug.LogError($"NetworkHealth component not found on {gameObject.name}");
+                GlobalServiceProvider.Instance.TryResolve<IEventBus>(out _eventBus);
             }
         }
 
         private void OnEnable()
         {
-            if (networkHealth != null)
-                networkHealth.CurrentHealth.OnValueChanged += OnHealthChanged;
+            // TODO: Re-enable when NetworkHealth component is created
+            // if (networkHealth != null)
+            //     networkHealth.CurrentHealth.OnValueChanged += OnHealthChanged;
         }
 
         private void OnDisable()
         {
-            if (networkHealth != null)
-                networkHealth.CurrentHealth.OnValueChanged -= OnHealthChanged;
+            // TODO: Re-enable when NetworkHealth component is created
+            // if (networkHealth != null)
+            //     networkHealth.CurrentHealth.OnValueChanged -= OnHealthChanged;
         }
 
         #endregion
@@ -48,21 +62,30 @@ namespace Laboratory.Models
         #region Private Methods
 
         /// <summary>
-        /// Handles health value changes and triggers damage indicators.
+        /// Handles health value changes and publishes damage events.
         /// </summary>
         /// <param name="oldVal">Previous health value.</param>
         /// <param name="newVal">New health value.</param>
         private void OnHealthChanged(int oldVal, int newVal)
         {
             int damageTaken = oldVal - newVal;
-            if (damageTaken > 0 && damageIndicatorUI != null)
+            if (damageTaken > 0 && _eventBus != null)
             {
-                damageIndicatorUI.SpawnIndicator(
-                    sourcePosition: transform.position,
-                    damageAmount: damageTaken,
-                    damageType: DamageType.Normal,
-                    playSound: true,
-                    vibrate: true);
+                // TODO: Re-enable when NetworkHealth component is created
+                // Publish damage event for UI to handle
+                var damageEvent = new Laboratory.Core.Events.Messages.DamageEvent(
+                    target: gameObject,
+                    source: null,
+                    amount: damageTaken,
+                    type: Laboratory.Core.Health.DamageType.Normal,
+                    direction: Vector3.zero,
+                    targetClientId: 0, // networkHealth.OwnerClientId,
+                    attackerClientId: 0
+                );
+                
+                _eventBus.Publish(damageEvent);
+                Debug.Log($"PlayerDamageListener: Published damage event - Amount: {damageTaken}");
+                // Debug.Log($"PlayerDamageListener: Published damage event - Target: {networkHealth.OwnerClientId}, Amount: {damageTaken}");
             }
         }
 

@@ -1,7 +1,6 @@
 using UnityEngine;
 using Unity.Entities;
 using System;
-using Laboratory.Gameplay.Combat;
 
 #nullable enable
 

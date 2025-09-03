@@ -61,7 +61,7 @@ namespace Laboratory.Core.Character.Systems
 
         [Header("Camera Integration")]
         [SerializeField]
-        private Camera _playerCamera;
+        private UnityEngine.Camera _playerCamera;
 
         [SerializeField, Range(0f, 1f)]
         private float _screenCenterWeight = 0.3f;
@@ -141,7 +141,7 @@ namespace Laboratory.Core.Character.Systems
         private void Awake()
         {
             if (_playerCamera == null)
-                _playerCamera = Camera.main;
+                _playerCamera = UnityEngine.Camera.main;
 
             _detectedTargets = new List<Transform>();
             _targetScores = new Dictionary<Transform, float>();

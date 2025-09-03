@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 using Laboratory.Core.Events;
+using Laboratory.Core.DI;
 
 namespace Laboratory.Core.Abilities.Events
 {
@@ -40,9 +41,10 @@ namespace Laboratory.Core.Abilities.Events
             OnAbilityActivated.Invoke(evt);
             
             // Also publish to global event bus if available
-            if (UnifiedEventBus.Instance != null)
+            if (GlobalServiceProvider.IsInitialized)
             {
-                UnifiedEventBus.Instance.Publish(evt);
+                var eventBus = GlobalServiceProvider.Instance.Resolve<IEventBus>();
+                eventBus?.Publish(evt);
             }
         }
 
@@ -53,9 +55,10 @@ namespace Laboratory.Core.Abilities.Events
         {
             OnAbilityStateChanged.Invoke(evt);
             
-            if (UnifiedEventBus.Instance != null)
+            if (GlobalServiceProvider.IsInitialized)
             {
-                UnifiedEventBus.Instance.Publish(evt);
+                var eventBus = GlobalServiceProvider.Instance.Resolve<IEventBus>();
+                eventBus?.Publish(evt);
             }
         }
 
@@ -66,9 +69,10 @@ namespace Laboratory.Core.Abilities.Events
         {
             OnAbilityCooldownComplete.Invoke(evt);
             
-            if (UnifiedEventBus.Instance != null)
+            if (GlobalServiceProvider.IsInitialized)
             {
-                UnifiedEventBus.Instance.Publish(evt);
+                var eventBus = GlobalServiceProvider.Instance.Resolve<IEventBus>();
+                eventBus?.Publish(evt);
             }
         }
 

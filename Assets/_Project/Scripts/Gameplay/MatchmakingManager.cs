@@ -3,9 +3,9 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Services.Authentication;
-using Unity.Services.Core;
-using Unity.Services.Relay;
-using Unity.Services.Relay.Models;
+// using Unity.Services.Core;
+// using Unity.Services.Relay;
+// using Unity.Services.Relay.Models;
 using UnityEngine;
 using Unity.Netcode.Transports.UTP;
 
@@ -14,10 +14,27 @@ using Unity.Netcode.Transports.UTP;
 namespace Laboratory.Gameplay.Lobby
 {
     /// <summary>
+    /// Enum representing different matchmaking states.
+    /// </summary>
+    public enum MatchmakingState
+    {
+        Idle,
+        Searching,
+        MatchFound,
+        Failed
+    }
+
+    /// <summary>
     /// Handles matchmaking logic, queueing, and starting matches.
     /// </summary>
     public class MatchmakingManager : MonoBehaviour
     {
+        #region Singleton
+
+        public static MatchmakingManager? Instance { get; private set; }
+
+        #endregion
+
         #region Fields
 
         [Header("Matchmaking Settings")]
@@ -87,19 +104,21 @@ namespace Laboratory.Gameplay.Lobby
 
             try
             {
+                // TODO: Implement Relay integration when Unity Services packages are available
                 // Create allocation with max 2 players for example
-                var allocation = await RelayService.Instance.CreateAllocationAsync(1);
+                // var allocation = await RelayService.Instance.CreateAllocationAsync(1);
+                
+                // string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+                
+                Debug.Log("Matchmaking started - Relay integration disabled");
 
-                string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-
-                Debug.Log($"Relay allocation created. Join code: {joinCode}");
+                // Simulate matchmaking delay
+                await UniTask.Delay(1000, cancellationToken: cts.Token);
 
                 SetState(MatchmakingState.MatchFound);
 
-                // Setup host with Relay data
-                SetupHost(allocation);
-
-                // Optionally show join code to player or send to matchmaking backend
+                // Setup host directly without Relay
+                NetworkManager.Singleton.StartHost();
             }
             catch (OperationCanceledException)
             {
@@ -108,7 +127,7 @@ namespace Laboratory.Gameplay.Lobby
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Relay matchmaking failed: {ex}");
+                Debug.LogError($"Matchmaking failed: {ex}");
                 SetState(MatchmakingState.Failed);
             }
         }
@@ -145,17 +164,10 @@ namespace Laboratory.Gameplay.Lobby
             OnMatchmakingStateChanged?.Invoke(state);
         }
 
-        private void SetupHost(Allocation allocation)
+        private void SetupHost()
         {
-            // Configure Unity Netcode with Relay server data for host
-            var unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-            unityTransport.SetRelayServerData(
-                allocation.RelayServer.IpV4,
-                (ushort)allocation.RelayServer.Port,
-                allocation.AllocationIdBytes,
-                allocation.Key,
-                allocation.ConnectionData);
-
+            // TODO: Configure Unity Netcode with Relay server data when services are available
+            // For now, start host directly
             NetworkManager.Singleton.StartHost();
         }
 
@@ -169,11 +181,16 @@ namespace Laboratory.Gameplay.Lobby
 
             try
             {
-                var joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
+                // TODO: Implement Relay join when Unity Services packages are available
+                // var joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
 
-                Debug.Log("Relay join allocation successful.");
+                Debug.Log($"Join match requested with code: {joinCode} - Relay integration disabled");
 
-                SetupClient(joinAllocation);
+                // Simulate connection delay
+                await UniTask.Delay(500, cancellationToken: cts.Token);
+
+                // Setup client directly
+                NetworkManager.Singleton.StartClient();
 
                 SetState(MatchmakingState.MatchFound);
             }
@@ -184,63 +201,32 @@ namespace Laboratory.Gameplay.Lobby
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Relay join failed: {ex}");
+                Debug.LogError($"Join failed: {ex}");
                 SetState(MatchmakingState.Failed);
             }
         }
 
-        private void SetupClient(JoinAllocation joinAllocation)
+        private void SetupClient()
         {
-            // Configure Unity Netcode with Relay server data for client
-            var unityTransport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-            unityTransport.SetRelayServerData(
-                joinAllocation.RelayServer.IpV4,
-                (ushort)joinAllocation.RelayServer.Port,
-                joinAllocation.AllocationIdBytes,
-                joinAllocation.Key,
-                joinAllocation.ConnectionData,
-                joinAllocation.HostConnectionData);
-
+            // TODO: Configure Unity Netcode with Relay server data when services are available
+            // For now, start client directly
             NetworkManager.Singleton.StartClient();
         }
 
         private async UniTask InitializeUnityServicesAsync()
         {
-            await UnityServices.InitializeAsync();
+            // TODO: Initialize Unity Services when packages are available
+            // await UnityServices.InitializeAsync();
+            
+            // if (!AuthenticationService.Instance.IsSignedIn)
+            // {
+            //     await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            // }
 
-            if (!AuthenticationService.Instance.IsSignedIn)
-            {
-                await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            }
-        }
-
-        private void OnDestroy()
-        {
-            cts.Cancel();
-            cts.Dispose();
-        }
-
-        #endregion
-
-        #region Inner Classes, Enums
-
-        /// <summary>
-        /// Represents the current state of the matchmaking process.
-        /// </summary>
-        public enum MatchmakingState
-        {
-            /// <summary>Not actively matchmaking.</summary>
-            Idle,
-            /// <summary>Currently searching for a match.</summary>
-            Searching,
-            /// <summary>Match found, preparing to start.</summary>
-            MatchFound,
-            /// <summary>Matchmaking failed due to an error.</summary>
-            Failed
+            Debug.Log("Unity Services initialization skipped - packages not available");
+            await UniTask.CompletedTask;
         }
 
         #endregion
-
-        public static MatchmakingManager Instance { get; private set; } = null!;
     }
 }

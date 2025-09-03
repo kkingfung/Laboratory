@@ -14,7 +14,7 @@ namespace Laboratory.Core.Character.Tests
         private GameObject _testSelector;
         private AdvancedTargetSelector _targetSelector;
         private ServiceContainer _mockServices;
-        private Camera _testCamera;
+        private UnityEngine.Camera _testCamera;
         private List<GameObject> _testTargets;
 
         [SetUp]
@@ -26,7 +26,7 @@ namespace Laboratory.Core.Character.Tests
 
             // Create test camera
             var cameraGO = new GameObject("TestCamera");
-            _testCamera = cameraGO.AddComponent<Camera>();
+            _testCamera = cameraGO.AddComponent<UnityEngine.Camera>();
 
             // Set camera reference using reflection
             var cameraField = typeof(AdvancedTargetSelector).GetField("_playerCamera", 

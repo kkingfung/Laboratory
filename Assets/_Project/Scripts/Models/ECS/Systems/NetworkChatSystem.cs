@@ -6,7 +6,7 @@ using MessagePipe;
 using Laboratory.Core;
 using Laboratory.Core.DI;
 using Laboratory.Infrastructure.AsyncUtils;
-using Laboratory.UI;
+using Laboratory.Models.ECS.Components;
 
 #nullable enable
 

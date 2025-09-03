@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Core.Timing;
 using Laboratory.Core.Events;
+using Laboratory.Core.Systems;
+using Laboratory.Core.Abilities.Events;
+using Laboratory.Core.DI;
 
 namespace Laboratory.Gameplay.Abilities
 {
@@ -10,7 +13,7 @@ namespace Laboratory.Gameplay.Abilities
     /// Enhanced ability manager with proper event integration and improved architecture.
     /// Manages player abilities, cooldowns, and activation logic with full event system support.
     /// </summary>
-    public class AbilityManager : MonoBehaviour
+    public class AbilityManager : MonoBehaviour, IAbilityManager, IAbilityManagerCore
     {
         #region Constants
 
@@ -30,6 +33,9 @@ namespace Laboratory.Gameplay.Abilities
         private readonly List<CooldownTimer> _abilityCooldowns = new();
         private readonly List<AbilityData> _abilities = new();
         private readonly Dictionary<int, bool> _abilityStates = new();
+
+        // Cache event bus reference
+        private IEventBus _eventBus;
 
         #endregion
 
@@ -81,10 +87,25 @@ namespace Laboratory.Gameplay.Abilities
 
         #endregion
 
+        #region IAbilityManager Events
+
+        /// <summary>
+        /// Event triggered when an ability is activated.
+        /// </summary>
+        public event Action<int> OnAbilityActivated;
+        
+        /// <summary>
+        /// Event triggered when an ability's state changes.
+        /// </summary>
+        public event Action<int, bool> OnAbilityStateChanged;
+
+        #endregion
+
         #region Properties
 
         public int AbilityCount => abilityCount;
         public IReadOnlyList<AbilityData> Abilities => _abilities.AsReadOnly();
+        public GameObject GameObject => gameObject;
 
         #endregion
 
@@ -98,6 +119,9 @@ namespace Laboratory.Gameplay.Abilities
 
         private void Start()
         {
+            // Initialize event bus reference
+            InitializeEventBus();
+            
             // Subscribe to events after all systems are initialized
             SubscribeToEvents();
         }
@@ -144,6 +168,10 @@ namespace Laboratory.Gameplay.Abilities
             // Publish events
             PublishAbilityActivated(index);
             PublishAbilityStateChanged(index, true, cooldownTimer.Duration);
+            
+            // Trigger interface events
+            OnAbilityActivated?.Invoke(index);
+            OnAbilityStateChanged?.Invoke(index, true);
 
             if (enableDebugLogs)
                 Debug.Log($"[AbilityManager] Successfully activated ability {index}: {ability.name}");
@@ -204,6 +232,17 @@ namespace Laboratory.Gameplay.Abilities
 
         /// <summary>
         /// Gets ability data by index.
+        /// </summary>
+        object IAbilityManager.GetAbilityData(int index)
+        {
+            if (!ValidateAbilityIndex(index))
+                return null;
+
+            return _abilities[index];
+        }
+        
+        /// <summary>
+        /// Gets ability data by index (strongly typed version).
         /// </summary>
         public AbilityData GetAbilityData(int index)
         {
@@ -284,6 +323,9 @@ namespace Laboratory.Gameplay.Abilities
             // Fire ability ready events
             PublishAbilityStateChanged(abilityIndex, false, 0f);
             PublishAbilityCooldownComplete(abilityIndex);
+            
+            // Trigger interface event
+            OnAbilityStateChanged?.Invoke(abilityIndex, false);
 
             if (enableDebugLogs)
                 Debug.Log($"[AbilityManager] Ability {abilityIndex} cooldown completed: {_abilities[abilityIndex].name}");
@@ -291,34 +333,66 @@ namespace Laboratory.Gameplay.Abilities
 
         #region Event Integration
 
+        private void InitializeEventBus()
+        {
+            // Try to get the event bus from the service container
+            if (GlobalServiceProvider.IsInitialized && 
+                GlobalServiceProvider.Instance.TryResolve<IEventBus>(out var eventBus))
+            {
+                _eventBus = eventBus;
+            }
+            else
+            {
+                if (enableDebugLogs)
+                    Debug.LogWarning("[AbilityManager] Event bus not available - events will not be published");
+            }
+        }
+
         private void PublishAbilityActivated(int index)
         {
+            if (_eventBus == null) return;
+
             var evt = new AbilityActivatedEvent(index, gameObject);
             
-            // Publish through event bus if available
-            if (UnifiedEventBus.Instance != null)
+            try
             {
-                UnifiedEventBus.Instance.Publish(evt);
+                _eventBus.Publish(evt);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[AbilityManager] Failed to publish AbilityActivatedEvent: {ex.Message}");
             }
         }
 
         private void PublishAbilityStateChanged(int index, bool isOnCooldown, float cooldownRemaining)
         {
+            if (_eventBus == null) return;
+
             var evt = new AbilityStateChangedEvent(index, isOnCooldown, cooldownRemaining, gameObject);
             
-            if (UnifiedEventBus.Instance != null)
+            try
             {
-                UnifiedEventBus.Instance.Publish(evt);
+                _eventBus.Publish(evt);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[AbilityManager] Failed to publish AbilityStateChangedEvent: {ex.Message}");
             }
         }
 
         private void PublishAbilityCooldownComplete(int index)
         {
+            if (_eventBus == null) return;
+
             var evt = new AbilityCooldownCompleteEvent(index, gameObject);
             
-            if (UnifiedEventBus.Instance != null)
+            try
             {
-                UnifiedEventBus.Instance.Publish(evt);
+                _eventBus.Publish(evt);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[AbilityManager] Failed to publish AbilityCooldownCompleteEvent: {ex.Message}");
             }
         }
 
@@ -329,14 +403,20 @@ namespace Laboratory.Gameplay.Abilities
         private void RegisterWithAbilitySystem()
         {
             // Register with global ability system if available
-            var abilitySystem = GlobalServiceProvider.Instance?.GetService<Laboratory.Core.Systems.IAbilitySystem>();
-            abilitySystem?.RegisterAbilityManager(this);
+            if (GlobalServiceProvider.IsInitialized && 
+                GlobalServiceProvider.Instance.TryResolve<Laboratory.Core.Systems.IAbilitySystem>(out var abilitySystem))
+            {
+                abilitySystem?.RegisterAbilityManager(this);
+            }
         }
 
         private void UnregisterFromAbilitySystem()
         {
-            var abilitySystem = GlobalServiceProvider.Instance?.GetService<Laboratory.Core.Systems.IAbilitySystem>();
-            abilitySystem?.UnregisterAbilityManager(this);
+            if (GlobalServiceProvider.IsInitialized && 
+                GlobalServiceProvider.Instance.TryResolve<Laboratory.Core.Systems.IAbilitySystem>(out var abilitySystem))
+            {
+                abilitySystem?.UnregisterAbilityManager(this);
+            }
         }
 
         private void SubscribeToEvents()

@@ -327,10 +327,11 @@ namespace Laboratory.Tests.Unit.Core
         public int CurrentHealth { get; private set; } = 100;
         public int MaxHealth { get; private set; } = 100;
         public bool IsAlive => CurrentHealth > 0;
+        public float HealthPercentage => MaxHealth > 0 ? (float)CurrentHealth / MaxHealth : 0f;
         public GameObject? GameObject => null;
 
-        public event Action<HealthChangedEvent>? OnHealthChanged;
-        public event Action<DeathEvent>? OnDeath;
+        public event Action<HealthChangedEventArgs>? OnHealthChanged;
+        public event Action<DeathEventArgs>? OnDeath;
 
         public void SetCurrentHealth(int health)
         {
@@ -344,6 +345,13 @@ namespace Laboratory.Tests.Unit.Core
                 CurrentHealth = MaxHealth;
         }
 
+        public void ResetToMaxHealth()
+        {
+            int oldHealth = CurrentHealth;
+            CurrentHealth = MaxHealth;
+            OnHealthChanged?.Invoke(new HealthChangedEventArgs(oldHealth, CurrentHealth, this));
+        }
+
         public bool TakeDamage(DamageRequest damageRequest)
         {
             if (!IsAlive) return false;
@@ -351,11 +359,11 @@ namespace Laboratory.Tests.Unit.Core
             int oldHealth = CurrentHealth;
             CurrentHealth = Mathf.Max(0, CurrentHealth - damageRequest.Amount);
             
-            OnHealthChanged?.Invoke(new HealthChangedEvent(oldHealth, CurrentHealth, GameObject!));
+            OnHealthChanged?.Invoke(new HealthChangedEventArgs(oldHealth, CurrentHealth, this));
 
             if (!IsAlive)
             {
-                OnDeath?.Invoke(new DeathEvent(GameObject!, damageRequest.Source, damageRequest.Type));
+                OnDeath?.Invoke(new DeathEventArgs(this, damageRequest.Source));
             }
 
             return true;
@@ -368,7 +376,7 @@ namespace Laboratory.Tests.Unit.Core
             int oldHealth = CurrentHealth;
             CurrentHealth = Mathf.Min(MaxHealth, CurrentHealth + amount);
             
-            OnHealthChanged?.Invoke(new HealthChangedEvent(oldHealth, CurrentHealth, GameObject!));
+            OnHealthChanged?.Invoke(new HealthChangedEventArgs(oldHealth, CurrentHealth, source));
 
             return CurrentHealth != oldHealth; // Return true if healing was applied
         }

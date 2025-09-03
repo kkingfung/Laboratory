@@ -1,6 +1,6 @@
 using System;
 using Unity.Entities;
-using UniRx;
+using R3;
 using UnityEngine;
 using Laboratory.Core;
 using Laboratory.Core.DI;
@@ -100,7 +100,8 @@ namespace Laboratory.Models.ECS.Systems
         {
             if (_gameStateService != null)
             {
-                _subscription = _gameStateService.StateChanges.Subscribe(OnGameStateChanged);
+                var observable = _gameStateService.StateChanges as Observable<GameStateChangedEvent>;
+                _subscription = observable?.Subscribe(OnGameStateChanged);
             }
             else
             {

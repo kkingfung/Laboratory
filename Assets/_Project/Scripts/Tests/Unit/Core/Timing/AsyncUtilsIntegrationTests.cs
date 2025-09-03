@@ -3,8 +3,8 @@ using System.Collections;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Core.Timing;
+using Laboratory.Infrastructure.AsyncUtils;
 
 namespace Laboratory.Tests.AsyncUtils
 {

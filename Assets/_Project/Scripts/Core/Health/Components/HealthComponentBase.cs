@@ -24,7 +24,7 @@ namespace Laboratory.Core.Health.Components
         [SerializeField] protected float _invulnerabilityDuration = 0.5f;
         [SerializeField] protected bool _autoRegisterWithSystem = true;
         
-        private float _lastDamageTime = -1f;
+        private protected float _lastDamageTime = -1f;
         private IEventBus _eventBus;
         private IHealthSystem _healthSystem;
 
@@ -109,6 +109,22 @@ namespace Laboratory.Core.Health.Components
             }
 
             return true;
+        }
+        
+        /// <summary>
+        /// Applies damage directly to the health component.
+        /// </summary>
+        /// <param name="damageAmount">Amount of damage to apply</param>
+        /// <returns>True if damage was applied successfully</returns>
+        public virtual bool ApplyDamage(int damageAmount)
+        {
+            var damageRequest = new DamageRequest
+            {
+                Amount = damageAmount,
+                Source = null,
+                Type = DamageType.Normal
+            };
+            return TakeDamage(damageRequest);
         }
 
         public virtual bool Heal(int amount, object source = null)
@@ -234,6 +250,26 @@ namespace Laboratory.Core.Health.Components
 
         #endregion
 
+        #region Protected Event Triggers
+        
+        /// <summary>
+        /// Triggers the OnHealthChanged event from derived classes.
+        /// </summary>
+        protected void TriggerHealthChangedEvent(HealthChangedEventArgs args)
+        {
+            OnHealthChanged?.Invoke(args);
+        }
+        
+        /// <summary>
+        /// Triggers the OnDeath event from derived classes.
+        /// </summary>
+        protected void TriggerDeathEvent(DeathEventArgs args)
+        {
+            OnDeath?.Invoke(args);
+        }
+        
+        #endregion
+
         #region Private Methods
 
         private void InjectDependencies()
@@ -241,8 +277,8 @@ namespace Laboratory.Core.Health.Components
             // Try to get services from global service provider
             if (GlobalServiceProvider.IsInitialized)
             {
-                GlobalServiceProvider.Services?.TryResolve<IEventBus>(out _eventBus);
-                GlobalServiceProvider.Services?.TryResolve<IHealthSystem>(out _healthSystem);
+                GlobalServiceProvider.Instance?.TryResolve<IEventBus>(out _eventBus);
+                GlobalServiceProvider.Instance?.TryResolve<IHealthSystem>(out _healthSystem);
             }
         }
 

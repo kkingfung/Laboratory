@@ -8,6 +8,12 @@ using Laboratory.Gameplay.UI;
 using Laboratory.UI.Utils;
 using Laboratory.Models.ECS.Components;
 using Laboratory.Core.Health;
+using Laboratory.Core.Events.Messages;
+
+// Type aliases to resolve ambiguous references
+using ECSComponents = Laboratory.Models.ECS.Components;
+using CoreHealth = Laboratory.Core.Health;
+using CoreMessages = Laboratory.Core.Events.Messages;
 
 namespace Laboratory.UI.Helper
 {
@@ -85,7 +91,7 @@ namespace Laboratory.UI.Helper
         /// <param name="playerTransform">Player transform for directional calculation</param>
         public void ShowDamageIndicator(Vector3 damageSourcePosition, Transform playerTransform)
         {
-            SpawnIndicator(damageSourcePosition, null, DamageType.Normal, true, false);
+            SpawnIndicator(damageSourcePosition, null, ECSComponents.DamageType.Normal, true, false);
         }
 
         /// <summary>
@@ -95,7 +101,7 @@ namespace Laboratory.UI.Helper
         /// <param name="playerTransform">Player transform for directional calculation</param>
         /// <param name="damageAmount">Amount of damage taken</param>
         /// <param name="damageType">Type of damage for styling</param>
-        public void ShowDamageIndicator(Vector3 damageSourcePosition, Transform playerTransform, int damageAmount, DamageType damageType = DamageType.Normal)
+        public void ShowDamageIndicator(Vector3 damageSourcePosition, Transform playerTransform, int damageAmount, ECSComponents.DamageType damageType = ECSComponents.DamageType.Normal)
         {
             SpawnIndicator(damageSourcePosition, damageAmount, damageType, true, false);
         }
@@ -111,7 +117,7 @@ namespace Laboratory.UI.Helper
         public void SpawnIndicator(
             Vector3 sourcePosition,
             int? damageAmount = null,
-            DamageType damageType = DamageType.Normal,
+            ECSComponents.DamageType damageType = ECSComponents.DamageType.Normal,
             bool playSound = true,
             bool vibrate = false)
         {
@@ -136,7 +142,7 @@ namespace Laboratory.UI.Helper
         /// Handle damage event from message bus.
         /// </summary>
         /// <param name="damageEvent">Damage event data</param>
-        private void OnDamageEvent(DamageEvent damageEvent)
+        private void OnDamageEvent(ECSComponents.DamageEvent damageEvent)
         {
             if (damageEvent.TargetClientId != NetworkManager.Singleton.LocalClientId) return;
 
@@ -172,7 +178,7 @@ namespace Laboratory.UI.Helper
         /// <param name="indicator">Indicator to configure</param>
         /// <param name="damageAmount">Optional damage amount</param>
         /// <param name="damageType">Type of damage</param>
-        private void ConfigureIndicatorAppearance(DamageIndicator indicator, int? damageAmount, DamageType damageType)
+        private void ConfigureIndicatorAppearance(DamageIndicator indicator, int? damageAmount, ECSComponents.DamageType damageType)
         {
             ConfigureDamageText(indicator, damageAmount, damageType);
             ConfigureIndicatorColor(indicator, damageType);
@@ -184,7 +190,7 @@ namespace Laboratory.UI.Helper
         /// <param name="indicator">Indicator to configure</param>
         /// <param name="damageAmount">Optional damage amount</param>
         /// <param name="damageType">Type of damage</param>
-        private void ConfigureDamageText(DamageIndicator indicator, int? damageAmount, DamageType damageType)
+        private void ConfigureDamageText(DamageIndicator indicator, int? damageAmount, ECSComponents.DamageType damageType)
         {
             if (damageAmount.HasValue)
             {
@@ -193,7 +199,9 @@ namespace Laboratory.UI.Helper
 
                 var (color, fontStyle) = GetDamageTextStyle(damageType);
                 indicator.DamageText.color = color;
-                indicator.DamageText.fontStyle = fontStyle;
+                // Note: DamageText is a legacy UI Text component, so we can't use TMPro FontStyles
+                // Convert TMPro.FontStyles to UnityEngine.FontStyle
+                indicator.DamageText.fontStyle = fontStyle == TMPro.FontStyles.Bold ? FontStyle.Bold : FontStyle.Normal;
             }
             else
             {
@@ -206,13 +214,13 @@ namespace Laboratory.UI.Helper
         /// </summary>
         /// <param name="indicator">Indicator to configure</param>
         /// <param name="damageType">Type of damage</param>
-        private void ConfigureIndicatorColor(DamageIndicator indicator, DamageType damageType)
+        private void ConfigureIndicatorColor(DamageIndicator indicator, ECSComponents.DamageType damageType)
         {
             indicator.Image.color = damageType switch
             {
-                DamageType.Critical => Color.red,
-                DamageType.Fire => new Color(1f, 0.5f, 0f),
-                DamageType.Ice => Color.cyan,
+                ECSComponents.DamageType.Critical => Color.red,
+                ECSComponents.DamageType.Fire => new Color(1f, 0.5f, 0f),
+                ECSComponents.DamageType.Ice => Color.cyan,
                 _ => Color.white
             };
         }
@@ -222,13 +230,13 @@ namespace Laboratory.UI.Helper
         /// </summary>
         /// <param name="damageType">Type of damage</param>
         /// <returns>Color and font style tuple</returns>
-        private (Color color, TMPro.FontStyles fontStyle) GetDamageTextStyle(DamageType damageType)
+        private (Color color, TMPro.FontStyles fontStyle) GetDamageTextStyle(ECSComponents.DamageType damageType)
         {
             return damageType switch
             {
-                DamageType.Critical => (Color.red, TMPro.FontStyles.Bold),
-                DamageType.Fire => (new Color(1f, 0.5f, 0f), TMPro.FontStyles.Normal),
-                DamageType.Ice => (Color.cyan, TMPro.FontStyles.Normal),
+                ECSComponents.DamageType.Critical => (Color.red, TMPro.FontStyles.Bold),
+                ECSComponents.DamageType.Fire => (new Color(1f, 0.5f, 0f), TMPro.FontStyles.Normal),
+                ECSComponents.DamageType.Ice => (Color.cyan, TMPro.FontStyles.Normal),
                 _ => (Color.white, TMPro.FontStyles.Normal)
             };
         }
@@ -281,11 +289,11 @@ namespace Laboratory.UI.Helper
         /// </summary>
         /// <param name="damageType">Type of damage</param>
         /// <param name="playSound">Whether to play sound</param>
-        private void HandleAudioFeedback(DamageType damageType, bool playSound)
+        private void HandleAudioFeedback(ECSComponents.DamageType damageType, bool playSound)
         {
             if (!playSound || audioSource == null) return;
 
-            AudioClip clipToPlay = (damageType == DamageType.Critical && criticalDamageSound != null)
+            AudioClip clipToPlay = (damageType == ECSComponents.DamageType.Critical && criticalDamageSound != null)
                 ? criticalDamageSound
                 : damageSound;
 

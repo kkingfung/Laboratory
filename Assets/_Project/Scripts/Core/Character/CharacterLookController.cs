@@ -15,7 +15,7 @@ namespace Laboratory.Core.Character
         [Header("Targeting Settings")]
         [SerializeField] 
         [Tooltip("Camera used for raycast targeting when not using proximity mode")]
-        private Camera _playerCamera;
+        private UnityEngine.Camera _playerCamera;
         
         [SerializeField] 
         [Tooltip("Use proximity-based targeting instead of camera raycast")]

@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using Laboratory.Models.ECS.Components;
+using Laboratory.Core.Health.Components;
 
 namespace Laboratory.Models.ECS.Systems
 {
@@ -32,12 +33,12 @@ namespace Laboratory.Models.ECS.Systems
         /// Retrieves the health component for the specified target.
         /// </summary>
         /// <param name="targetId">Network ID of the target entity</param>
-        /// <returns>HealthComponent if found, null otherwise</returns>
-        private HealthComponent GetTargetHealthComponent(ulong targetId)
+        /// <returns>HealthComponentBase if found, null otherwise</returns>
+        private HealthComponentBase GetTargetHealthComponent(ulong targetId)
         {
             return NetworkManager.Singleton.SpawnManager
                 .GetPlayerNetworkObject(targetId)
-                ?.GetComponent<HealthComponent>();
+                ?.GetComponent<HealthComponentBase>();
         }
 
         /// <summary>
@@ -45,11 +46,11 @@ namespace Laboratory.Models.ECS.Systems
         /// </summary>
         /// <param name="targetHealth">The health component to modify</param>
         /// <param name="damageEvent">The damage event data</param>
-        private void ProcessDamageApplication(HealthComponent targetHealth, DamageEvent damageEvent)
+        private void ProcessDamageApplication(HealthComponentBase targetHealth, DamageEvent damageEvent)
         {
             if (targetHealth != null)
             {
-                targetHealth.ApplyDamage(damageEvent.DamageAmount);
+                targetHealth.ApplyDamage((int)damageEvent.DamageAmount);
             }
         }
 
@@ -67,9 +68,9 @@ namespace Laboratory.Models.ECS.Systems
         /// </summary>
         /// <param name="targetHealth">The target's health component</param>
         /// <param name="damageEvent">The original damage event</param>
-        private void CheckForDeath(HealthComponent targetHealth, DamageEvent damageEvent)
+        private void CheckForDeath(HealthComponentBase targetHealth, DamageEvent damageEvent)
         {
-            if (targetHealth != null && targetHealth.CurrentHealth.Value <= 0)
+            if (targetHealth != null && targetHealth.CurrentHealth <= 0)
             {
                 PublishDeathEvent(damageEvent);
             }
@@ -81,7 +82,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="damageEvent">The damage event that caused the death</param>
         private void PublishDeathEvent(DamageEvent damageEvent)
         {
-            var deathEvent = new DeathEvent
+            var deathEvent = new Laboratory.Models.ECS.Components.DeathEvent
             (
                 victimClientId : damageEvent.TargetClientId,
                 killerClientId : damageEvent.AttackerClientId

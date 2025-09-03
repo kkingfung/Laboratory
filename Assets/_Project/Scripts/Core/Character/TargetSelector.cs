@@ -25,7 +25,7 @@ namespace Laboratory.Core.Character
         [SerializeField] private bool _prioritizeClosest = true;
 
         [Header("Camera Integration")]
-        [SerializeField] private Camera _playerCamera;
+        [SerializeField] private UnityEngine.Camera _playerCamera;
         #pragma warning disable 0414 // Field assigned but never used - intended for future camera integration
         [SerializeField] private float _screenCenterWeight = 0.3f;
         [SerializeField] private bool _useCameraCenterBias = true;
@@ -89,7 +89,7 @@ namespace Laboratory.Core.Character
         private void Start()
         {
             if (_playerCamera == null)
-                _playerCamera = Camera.main;
+                _playerCamera = UnityEngine.Camera.main;
         }
 
         private void Update()

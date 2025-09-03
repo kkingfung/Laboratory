@@ -7,7 +7,7 @@ using Laboratory.Gameplay.Lobby;
 
 namespace Laboratory.UI.Helper
 {
-    using MatchmakingState = MatchmakingManager.MatchmakingState;
+    using MatchmakingState = Laboratory.Gameplay.Lobby.MatchmakingState;
 
     /// <summary>
     /// UI component for managing matchmaking interface and status display.

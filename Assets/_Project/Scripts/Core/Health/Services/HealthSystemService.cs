@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Core.Health.Components;
-using Laboratory.Core.Health.Managers;
+// using Laboratory.Infrastructure.Health; // Removed to break cyclic dependency
 using Laboratory.Core.Events;
 using Laboratory.Core.DI;
+using Laboratory.Core.Systems;
 
 namespace Laboratory.Core.Health.Services
 {
@@ -23,7 +24,8 @@ namespace Laboratory.Core.Health.Services
         private readonly List<IDisposable> _subscriptions = new();
         
         private IEventBus _eventBus;
-        private DamageManager _damageManager;
+        // Remove direct dependency on Infrastructure.DamageManager
+        // private DamageManager _damageManager;
         private bool _isDisposed = false;
 
         #endregion
@@ -70,14 +72,14 @@ namespace Laboratory.Core.Health.Services
                 GlobalServiceProvider.TryResolve<IEventBus>(out _eventBus);
             }
 
-            _damageManager = DamageManager.Instance;
+            // _damageManager = DamageManager.Instance; // Removed to break cycle
 
             Statistics = new HealthSystemStats();
 
             if (_eventBus != null)
             {
                 // Subscribe to system-wide health events
-                var damageEventSub = _eventBus.Subscribe<GlobalDamageEvent>(OnGlobalDamageEvent);
+                var damageEventSub = _eventBus.Subscribe<DamageAppliedEvent>(OnGlobalDamageEvent);
                 var deathEventSub = _eventBus.Subscribe<DeathEvent>(OnGlobalDeathEvent);
                 
                 _subscriptions.Add(damageEventSub);
@@ -216,12 +218,24 @@ namespace Laboratory.Core.Health.Services
 
         /// <summary>
         /// Applies area damage to all registered components within range.
+        /// NOTE: This method now uses events instead of direct DamageManager dependency.
         /// </summary>
         public int ApplyAreaDamage(Vector3 center, float radius, DamageRequest baseDamageRequest, LayerMask targetLayers = default)
         {
-            if (_damageManager == null) return 0;
-
-            return _damageManager.ApplyAreaDamage(center, radius, baseDamageRequest, targetLayers);
+            // Use event-based damage application instead of direct DamageManager
+            var areaDamageEvent = new AreaDamageEvent
+            {
+                Center = center,
+                Radius = radius,
+                BaseDamageRequest = baseDamageRequest,
+                TargetLayers = targetLayers
+            };
+            
+            _eventBus?.Publish(areaDamageEvent);
+            
+            // Return a count based on registered components in range
+            // This is an approximation since we can't directly call DamageManager
+            return GetComponentsInRadius(center, radius).Count();
         }
 
         /// <summary>
@@ -230,6 +244,21 @@ namespace Laboratory.Core.Health.Services
         public void ResetStatistics()
         {
             Statistics = new HealthSystemStats();
+        }
+
+        /// <summary>
+        /// Gets components within a radius (helper for area damage).
+        /// </summary>
+        private IEnumerable<IHealthComponent> GetComponentsInRadius(Vector3 center, float radius)
+        {
+            return _registeredComponents.Where(component =>
+            {
+                if (component is MonoBehaviour mb && mb != null)
+                {
+                    return Vector3.Distance(mb.transform.position, center) <= radius;
+                }
+                return false;
+            });
         }
 
         #endregion
@@ -256,7 +285,7 @@ namespace Laboratory.Core.Health.Services
 
             // Find the component that died
             var deadComponent = _registeredComponents.FirstOrDefault(c => 
-                args.Source == c || (c is MonoBehaviour mb && mb == args.Source));
+                ReferenceEquals(args.Source, c) || (c is MonoBehaviour mb && ReferenceEquals(mb, args.Source)));
 
             if (deadComponent != null)
             {
@@ -264,7 +293,7 @@ namespace Laboratory.Core.Health.Services
             }
         }
 
-        private void OnGlobalDamageEvent(GlobalDamageEvent damageEvent)
+        private void OnGlobalDamageEvent(DamageAppliedEvent damageEvent)
         {
             // Track system-wide damage events for statistics
             Statistics.LastSystemDamageTime = Time.time;
@@ -372,6 +401,32 @@ namespace Laboratory.Core.Health.Services
             Component = component;
             Timestamp = DateTime.UtcNow;
         }
+    }
+
+    /// <summary>
+    /// Event for requesting area damage through the event system.
+    /// </summary>
+    public class AreaDamageEvent
+    {
+        public Vector3 Center { get; set; }
+        public float Radius { get; set; }
+        public DamageRequest BaseDamageRequest { get; set; }
+        public LayerMask TargetLayers { get; set; }
+        public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Event fired when damage is successfully applied to any health component.
+    /// </summary>
+    public class DamageAppliedEvent
+    {
+        public GameObject Target { get; set; }
+        public GameObject Source { get; set; }
+        public float Amount { get; set; }
+        public DamageType Type { get; set; }
+        public Vector3 Direction { get; set; }
+        public Vector3 SourcePosition { get; set; }
+        public float Timestamp { get; set; } = Time.time;
     }
 
     #endregion

@@ -2,10 +2,10 @@
     "name": "Laboratory.Core.Timing.Tests",
     "rootNamespace": "Laboratory.Tests.Core.Timing",
     "references": [
-        "Laboratory.Core.Timing",
+        "Laboratory.Core",
+        "Laboratory.Infrastructure",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
-        "Unity.TestTools.CodeCoverage.Editor.OpenCover.Model"
+        "UnityEditor.TestRunner"
     ],
     "includePlatforms": [
         "Editor"

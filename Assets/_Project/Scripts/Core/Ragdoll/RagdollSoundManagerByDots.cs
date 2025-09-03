@@ -374,7 +374,7 @@ namespace Laboratory.Core.Ragdoll
             else
             {
                 // Fallback to camera transform
-                var camera = Camera.main;
+                var camera = UnityEngine.Camera.main;
                 if (camera != null)
                 {
                     _playerTransform = camera.transform;

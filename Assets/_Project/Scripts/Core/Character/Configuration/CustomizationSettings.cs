@@ -54,7 +54,7 @@ namespace Laboratory.Core.Character.Configuration
 
         [Header("Color Customization")]
         [SerializeField, Tooltip("Available hair colors")]
-        public Color[] availableHairColors = { Color.black, Color.brown, Color.blonde, Color.red };
+        public Color[] availableHairColors = { Color.black, new Color(0.4f, 0.2f, 0.1f), new Color(0.8f, 0.7f, 0.3f), Color.red };
 
         [SerializeField, Tooltip("Available skin colors")]
         public Color[] availableSkinColors = { new Color(1f, 0.8f, 0.6f), new Color(0.8f, 0.6f, 0.4f), new Color(0.6f, 0.4f, 0.2f) };

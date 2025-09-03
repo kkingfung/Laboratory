@@ -5,7 +5,7 @@ using UnityEngine;
 using Laboratory.Core.Health;
 using Laboratory.Core.Health.Services;
 using Laboratory.Core.Health.Components;
-using Laboratory.Core.Health.Managers;
+// using Laboratory.Core.Health.Managers; // Moved to Infrastructure
 
 namespace Laboratory.Core.Health.Tests.Unit
 {
@@ -376,45 +376,8 @@ namespace Laboratory.Core.Health.Tests.Unit
 
         #region Damage Processing Tests
 
-        [Test]
-        public void DamageManager_ApplyDamage_ValidTarget_AppliesDamage()
-        {
-            // Arrange
-            var damageManager = DamageManager.Instance;
-            Assert.IsNotNull(damageManager, "DamageManager instance should exist");
-            
-            var damageRequest = new DamageRequest(30f, DamageType.Normal);
-            var initialHealth = _testHealthComponent.CurrentHealth;
-            
-            // Act
-            bool result = damageManager.ApplyDamage(_testGameObject, damageRequest);
-            
-            // Assert
-            Assert.IsTrue(result);
-            Assert.AreEqual(initialHealth - 30, _testHealthComponent.CurrentHealth);
-        }
-
-        [Test]
-        public void DamageManager_ApplyDamage_InvalidTarget_ReturnsFalse()
-        {
-            // Arrange
-            var damageManager = DamageManager.Instance;
-            var emptyGameObject = new GameObject("EmptyObject"); // No health component
-            var damageRequest = new DamageRequest(30f, DamageType.Normal);
-            
-            try
-            {
-                // Act
-                bool result = damageManager.ApplyDamage(emptyGameObject, damageRequest);
-                
-                // Assert
-                Assert.IsFalse(result);
-            }
-            finally
-            {
-                UnityEngine.Object.DestroyImmediate(emptyGameObject);
-            }
-        }
+        // DamageManager tests removed - DamageManager moved to infrastructure
+        // Use HealthSystemService.ApplyDamage instead
 
         #endregion
 

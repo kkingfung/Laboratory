@@ -2,8 +2,6 @@ using Unity.Entities;
 using Unity.Collections;
 using UnityEngine;
 using Laboratory.Models.ECS.Components;
-using Laboratory.Gameplay.Combat;
-using Laboratory.UI.Helper;
 using Laboratory.Core.Health;
 
 namespace Laboratory.Models.ECS.Systems
@@ -92,11 +90,17 @@ namespace Laboratory.Models.ECS.Systems
 
         /// <summary>
         /// Triggers visual damage indicator and associated feedback.
+        /// TODO: Replace with event-based communication to decouple from UI.
         /// </summary>
         /// <param name="damageEvent">The damage event data</param>
         /// <param name="targetGameObject">The target GameObject</param>
         private void TriggerDamageIndicator(DamageTakenEvent damageEvent, GameObject targetGameObject)
         {
+            // TODO: Publish event to unified event bus instead of direct UI dependency
+            // var damageIndicatorEvent = new DamageIndicatorRequestedEvent(damageEvent);
+            // EventBus.Publish(damageIndicatorEvent);
+            
+            /* Original UI code - commented out to remove dependency
             var damageIndicatorUI = Object.FindFirstObjectByType<DamageIndicatorUI>();
             var uiDamageType = ConvertToUIDamageType(damageEvent.DamageType);
             damageIndicatorUI?.SpawnIndicator(
@@ -105,13 +109,16 @@ namespace Laboratory.Models.ECS.Systems
                 uiDamageType,
                 playSound: true,
                 vibrate: true);
+            */
         }
 
         /// <summary>
         /// Converts ECS DamageType to UI DamageType.
+        /// TODO: Remove when UI dependency is eliminated.
         /// </summary>
         /// <param name="ecsDamageType">ECS damage type</param>
         /// <returns>Corresponding UI damage type</returns>
+        /*
         private Laboratory.UI.Helper.DamageType ConvertToUIDamageType(Laboratory.Models.ECS.Components.DamageType ecsDamageType)
         {
             return ecsDamageType switch
@@ -122,6 +129,7 @@ namespace Laboratory.Models.ECS.Systems
                 _ => Laboratory.UI.Helper.DamageType.Normal
             };
         }
+        */
 
         /// <summary>
         /// Clears all processed events from the buffer.

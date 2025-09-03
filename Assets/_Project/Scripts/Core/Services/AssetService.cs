@@ -11,6 +11,31 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 #nullable enable
 
+// Helper extension for converting Action to IDisposable
+static class ActionExtensions
+{
+    public static System.IDisposable AsDisposable(this System.Action action)
+    {
+        return new ActionDisposable(action);
+    }
+    
+    private class ActionDisposable : System.IDisposable
+    {
+        private System.Action? _action;
+        
+        public ActionDisposable(System.Action action)
+        {
+            _action = action;
+        }
+        
+        public void Dispose()
+        {
+            _action?.Invoke();
+            _action = null;
+        }
+    }
+}
+
 namespace Laboratory.Core.Services
 {
     /// <summary>
@@ -19,7 +44,8 @@ namespace Laboratory.Core.Services
     public class AssetService : IAssetService, IDisposable
     {
         private readonly Dictionary<string, UnityEngine.Object> _cache = new();
-        private readonly Dictionary<string, AsyncOperationHandle> _addressableHandles = new();
+        private readonly Dictionary<string, object> _addressableHandles = new();
+        private readonly Dictionary<string, System.IDisposable> _handleDisposables = new();
         private readonly IEventBus _eventBus;
         private bool _disposed = false;
 
@@ -124,12 +150,13 @@ namespace Laboratory.Core.Services
             
             if (_cache.TryGetValue(key, out var asset))
             {
-                if (_addressableHandles.TryGetValue(key, out var handle))
+                if (_handleDisposables.TryGetValue(key, out var disposable))
                 {
-                    Addressables.Release(handle);
-                    _addressableHandles.Remove(key);
+                    disposable?.Dispose();
+                    _handleDisposables.Remove(key);
                 }
                 
+                _addressableHandles.Remove(key);
                 _cache.Remove(key);
             }
         }
@@ -138,11 +165,12 @@ namespace Laboratory.Core.Services
         {
             ThrowIfDisposed();
             
-            foreach (var handle in _addressableHandles.Values)
+            foreach (var disposable in _handleDisposables.Values)
             {
-                Addressables.Release(handle);
+                disposable?.Dispose();
             }
             
+            _handleDisposables.Clear();
             _addressableHandles.Clear();
             _cache.Clear();
         }
@@ -192,13 +220,30 @@ namespace Laboratory.Core.Services
         {
             try
             {
+                // Use UniTask integration with Addressables
                 var handle = Addressables.LoadAssetAsync<T>(key);
-                _addressableHandles[key] = handle;
-                var asset = await handle;
+                await handle;
+                T asset = handle.Result;
+                
+                if (asset != null)
+                {
+                    // Store a simple cleanup action
+                    _addressableHandles[key] = key; // Just store the key for tracking
+                    _handleDisposables[key] = new System.Action(() => 
+                    {
+                        // Use the asset reference to release
+                        if (_cache.TryGetValue(key, out var cachedAsset) && cachedAsset != null)
+                        {
+                            Addressables.Release(cachedAsset);
+                        }
+                    }).AsDisposable();
+                }
+                
                 return asset;
             }
-            catch (Exception)
+            catch (System.Exception ex)
             {
+                Debug.LogError($"Failed to load addressable asset '{key}': {ex.Message}");
                 return null;
             }
         }

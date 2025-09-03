@@ -33,7 +33,7 @@ namespace Laboratory.UI.Utils
         /// </summary>
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Laboratory.UI.Input.InputSystem.GetKeyDown(KeyCode.Escape))
             {
                 ClosePopup();
             }

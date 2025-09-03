@@ -118,27 +118,61 @@ namespace Laboratory.Core.DI
                 return false;
             }
 
-            var coreServiceTypes = new Type[]
-            {
-                typeof(Laboratory.Core.Events.IEventBus),
-                typeof(Laboratory.Core.State.IGameStateService),
-                typeof(Laboratory.Core.Services.IAssetService),
-                typeof(Laboratory.Core.Services.IConfigService),
-                typeof(Laboratory.Core.Services.ISceneService)
-            };
-
             bool allServicesRegistered = true;
-            foreach (var serviceType in coreServiceTypes)
+            
+            // Check Laboratory.Core.Events.IEventBus
+            if (!_instance!.IsRegistered<Laboratory.Core.Events.IEventBus>())
             {
-                if (!_instance!.IsRegistered(serviceType))
-                {
-                    Debug.LogError($"VALIDATION FAILED: Core service {serviceType.Name} is not registered");
-                    allServicesRegistered = false;
-                }
-                else
-                {
-                    Debug.Log($"✅ Core service {serviceType.Name} is properly registered");
-                }
+                Debug.LogError($"VALIDATION FAILED: Core service IEventBus is not registered");
+                allServicesRegistered = false;
+            }
+            else
+            {
+                Debug.Log($"✅ Core service IEventBus is properly registered");
+            }
+            
+            // Check Laboratory.Core.State.IGameStateService
+            if (!_instance!.IsRegistered<Laboratory.Core.State.IGameStateService>())
+            {
+                Debug.LogError($"VALIDATION FAILED: Core service IGameStateService is not registered");
+                allServicesRegistered = false;
+            }
+            else
+            {
+                Debug.Log($"✅ Core service IGameStateService is properly registered");
+            }
+            
+            // Check Laboratory.Core.Services.IAssetService
+            if (!_instance!.IsRegistered<Laboratory.Core.Services.IAssetService>())
+            {
+                Debug.LogError($"VALIDATION FAILED: Core service IAssetService is not registered");
+                allServicesRegistered = false;
+            }
+            else
+            {
+                Debug.Log($"✅ Core service IAssetService is properly registered");
+            }
+            
+            // Check Laboratory.Core.Services.IConfigService
+            if (!_instance!.IsRegistered<Laboratory.Core.Services.IConfigService>())
+            {
+                Debug.LogError($"VALIDATION FAILED: Core service IConfigService is not registered");
+                allServicesRegistered = false;
+            }
+            else
+            {
+                Debug.Log($"✅ Core service IConfigService is properly registered");
+            }
+            
+            // Check Laboratory.Core.Services.ISceneService
+            if (!_instance!.IsRegistered<Laboratory.Core.Services.ISceneService>())
+            {
+                Debug.LogError($"VALIDATION FAILED: Core service ISceneService is not registered");
+                allServicesRegistered = false;
+            }
+            else
+            {
+                Debug.Log($"✅ Core service ISceneService is properly registered");
             }
 
             if (allServicesRegistered)

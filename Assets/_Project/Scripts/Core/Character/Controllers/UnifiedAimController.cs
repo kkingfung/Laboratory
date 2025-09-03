@@ -415,7 +415,9 @@ namespace Laboratory.Core.Character.Controllers
 #if UNITY_EDITOR
         [Header("Debug Info")]
         [SerializeField, Tooltip("Show debug information in inspector")]
+        #pragma warning disable CS0414 // Field assigned but never used - reserved for future debug UI feature
         private bool _showDebugInfo = true;
+        #pragma warning restore CS0414
 
         private void OnValidate()
         {

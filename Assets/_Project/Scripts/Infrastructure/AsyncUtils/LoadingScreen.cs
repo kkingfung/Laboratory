@@ -8,6 +8,8 @@ using Laboratory.Core.Timing;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using Laboratory.Core.DI;
+
+#nullable enable
 using Laboratory.Core.Services;
 
 namespace Laboratory.Infrastructure.AsyncUtils
@@ -22,8 +24,8 @@ namespace Laboratory.Infrastructure.AsyncUtils
         #region Fields
         
         private readonly CanvasGroup _loadingCanvasGroup;
-        private readonly UnityEngine.UI.Slider _progressBar;
-        private readonly UnityEngine.UI.Text _statusText;
+        private readonly UnityEngine.UI.Slider? _progressBar;
+        private readonly UnityEngine.UI.Text? _statusText;
         private readonly ProgressTimer _progressTimer;
         private readonly List<IDisposable> _disposables = new();
         

@@ -114,24 +114,5 @@ namespace Laboratory.Core.Input.Interfaces
         public InputDevice Device;
     }
 
-    /// <summary>
-    /// Input configuration interface.
-    /// </summary>
-    public interface IInputConfiguration
-    {
-        /// <summary>Look sensitivity setting.</summary>
-        float LookSensitivity { get; set; }
-        
-        /// <summary>Input deadzone setting.</summary>
-        float InputDeadzone { get; set; }
-        
-        /// <summary>Whether input buffering is enabled.</summary>
-        bool InputBufferingEnabled { get; set; }
-        
-        /// <summary>Input buffer time in seconds.</summary>
-        float InputBufferTime { get; set; }
-        
-        /// <summary>Custom key bindings.</summary>
-        string SerializedBindings { get; set; }
-    }
+
 }

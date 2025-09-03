@@ -1,0 +1,23 @@
+{
+    "name": "Laboratory.Infrastructure",
+    "rootNamespace": "Laboratory.Infrastructure",
+    "references": [
+        "Laboratory.Core",
+        "Laboratory.Settings",
+        "UniTask",
+        "Unity.Addressables",
+        "UnityEngine.UI",
+        "Unity.Netcode.Runtime",
+        "Unity.Mathematics",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

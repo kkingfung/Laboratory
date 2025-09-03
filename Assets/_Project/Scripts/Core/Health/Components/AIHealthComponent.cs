@@ -121,7 +121,7 @@ namespace Laboratory.Core.Health.Components
             if (oldHealth != newHealth)
             {
                 var healthChangedArgs = new HealthChangedEventArgs(oldHealth, newHealth, this);
-                OnHealthChanged?.Invoke(healthChangedArgs);
+                TriggerHealthChangedEvent(healthChangedArgs);
             }
         }
 

@@ -1,0 +1,30 @@
+{
+    "name": "Laboratory.Models",
+    "rootNamespace": "Laboratory.Models",
+    "references": [
+        "Laboratory.Core",
+        "Laboratory.Infrastructure",
+        "Laboratory.Tools",
+        "Laboratory.Settings",
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Collections",
+        "Unity.Physics",
+        "Unity.Transforms",
+        "Unity.Netcode.Runtime",
+        "Unity.Burst",
+        "Unity.InputSystem",
+        "UniTask"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [
+        "UniRx.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

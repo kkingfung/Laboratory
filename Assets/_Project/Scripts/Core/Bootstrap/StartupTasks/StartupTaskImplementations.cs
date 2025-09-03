@@ -35,6 +35,9 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
             var eventBus = services.Resolve<Laboratory.Core.Events.IEventBus>();
             var stateService = services.Resolve<Laboratory.Core.State.IGameStateService>();
             
+            // Add small delay to make this truly async
+            await UniTask.Yield();
+            
             LogInfo("Core services validation complete");
             ReportProgress(progress, 1.0f);
         }
@@ -147,18 +150,18 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
             
             LogInfo("Initializing game systems");
             
-            // Initialize damage manager
+            // Initialize health system service
             try
             {
-                var damageManager = Laboratory.Core.Health.Managers.DamageManager.Instance;
-                if (damageManager != null)
+                var healthSystemService = services.Resolve<Laboratory.Core.Systems.IHealthSystem>();
+                if (healthSystemService != null)
                 {
-                    LogInfo("Damage manager initialized");
+                    LogInfo("Health system service initialized");
                 }
             }
             catch (Exception ex)
             {
-                LogError("Failed to initialize damage manager", ex);
+                LogError("Failed to initialize health system", ex);
             }
             
             ReportProgress(progress, 0.5f);

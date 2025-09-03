@@ -2,8 +2,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using Cysharp.Threading.Tasks;
-using TMPro;
 
 namespace Laboratory.Gameplay.UI
 {
@@ -14,7 +12,7 @@ namespace Laboratory.Gameplay.UI
     {
         #region Fields
 
-        [SerializeField] private TextMeshProUGUI damageText;
+        [SerializeField] private Text damageText;
         [SerializeField] private Image image;
         [SerializeField] private float floatSpeed = 1.5f;
         #pragma warning disable 0414 // Field assigned but never used - reserved for future fade configuration
@@ -36,7 +34,7 @@ namespace Laboratory.Gameplay.UI
         /// <summary>
         /// Gets the damage text component.
         /// </summary>
-        public TextMeshProUGUI DamageText => damageText;
+        public Text DamageText => damageText;
 
         /// <summary>
         /// Gets the image component.

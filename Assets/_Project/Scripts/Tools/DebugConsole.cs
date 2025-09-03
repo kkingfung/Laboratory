@@ -146,7 +146,7 @@ namespace Laboratory.Infrastructure.Tools
         /// <param name="inputText">The text entered in the input field.</param>
         private void HandleInputSubmission(string inputText)
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.KeypadEnter))
             {
                 ProcessCommand(inputText);
             }

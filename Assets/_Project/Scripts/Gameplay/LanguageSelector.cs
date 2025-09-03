@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Localization;
-using UnityEngine.Localization.Settings;
+using LocalizationSettings = UnityEngine.Localization.Settings.LocalizationSettings;
 using UnityEngine.UI;
 
 namespace Laboratory.Infrastructure.Localization
@@ -10,6 +10,7 @@ namespace Laboratory.Infrastructure.Localization
     /// <summary>
     /// Manages language selection UI and handles switching between available locales.
     /// Integrates with Unity's Localization system to provide runtime language switching.
+    /// Note: Currently using stub implementation for localization.
     /// </summary>
     public class LanguageSelector : MonoBehaviour
     {

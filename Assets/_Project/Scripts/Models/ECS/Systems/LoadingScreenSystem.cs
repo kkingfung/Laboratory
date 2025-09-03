@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Unity.Entities;
-using UniRx;
+using R3;
 using UnityEngine;
 using Laboratory.Core;
 using Laboratory.Core.DI;
@@ -125,7 +125,8 @@ namespace Laboratory.Models.ECS.Systems
             {
                 if (_gameStateService != null)
                 {
-                    _stateSubscription = _gameStateService.StateChanges
+                    var observable = _gameStateService.StateChanges as Observable<GameStateChangedEvent>;
+                    _stateSubscription = observable?
                         .Where(evt => evt.CurrentState == GameState.Loading)
                         .Subscribe(async _ => await HandleLoadingStateAsync());
                 }

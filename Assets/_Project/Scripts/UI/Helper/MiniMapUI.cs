@@ -77,7 +77,8 @@ namespace Laboratory.UI.Helper
         [SerializeField] private Vector2 minBoundary = new(-50, -50);
         [SerializeField] private Vector2 maxBoundary = new(50, 50);
 
-        private PlayerControls _controls;
+        // private PlayerControls _controls; // TODO: Create PlayerControls class or use Unity Input System
+        private Laboratory.UI.Input.PlayerControls _controls;
         private Vector3 _panOrigin;
         private bool _isPanning;
         private Vector3 _panVelocity;
@@ -218,9 +219,11 @@ namespace Laboratory.UI.Helper
         /// </summary>
         private void SetupInputControls()
         {
-            // Implement if necessary
+            // Initialize the controls with the stub implementation
+            _controls = new Laboratory.UI.Input.PlayerControls();
+            
+            // TODO: Implement proper input bindings when Unity Input System is properly integrated
             /* 
-            _controls = new PlayerControls();
             _controls.MiniMap.Zoom.performed += ctx => OnZoomInput(ctx.ReadValue<float>());
             _controls.MiniMap.Pan.started += ctx => StartPan(ctx.ReadValue<Vector2>());
             _controls.MiniMap.Pan.canceled += ctx => EndPan();

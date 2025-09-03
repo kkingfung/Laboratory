@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 namespace Laboratory.Gameplay.Inventory
 {
@@ -12,11 +11,11 @@ namespace Laboratory.Gameplay.Inventory
         #region Fields
 
         [Header("UI References")]
-        [SerializeField] private TextMeshProUGUI itemNameText;
-        [SerializeField] private TextMeshProUGUI descriptionText;
+        [SerializeField] private Text itemNameText;
+        [SerializeField] private Text descriptionText;
         [SerializeField] private Image iconImage;
-        [SerializeField] private TextMeshProUGUI rarityText;
-        [SerializeField] private TextMeshProUGUI valueText;
+        [SerializeField] private Text rarityText;
+        [SerializeField] private Text valueText;
         [SerializeField] private Transform statsContainer;
         [SerializeField] private StatEntryUI statEntryPrefab;
 
@@ -97,8 +96,8 @@ namespace Laboratory.Gameplay.Inventory
     [System.Serializable]
     public class StatEntryUI : MonoBehaviour
     {
-        [SerializeField] private TextMeshProUGUI statNameText;
-        [SerializeField] private TextMeshProUGUI statValueText;
+        [SerializeField] private Text statNameText;
+        [SerializeField] private Text statValueText;
         [SerializeField] private Image statIconImage;
 
         public void SetData(string statName, string statValue, Sprite statIcon)

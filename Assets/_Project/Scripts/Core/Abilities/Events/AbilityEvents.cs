@@ -5,44 +5,107 @@ namespace Laboratory.Core.Abilities.Events
     /// <summary>
     /// Event triggered when an ability is activated.
     /// </summary>
-    public record AbilityActivatedEvent(int AbilityIndex, GameObject Source = null)
+    public class AbilityActivatedEvent
     {
+        public int AbilityIndex { get; }
+        public GameObject Source { get; }
+
+        public AbilityActivatedEvent(int abilityIndex, GameObject source = null)
+        {
+            AbilityIndex = abilityIndex;
+            Source = source;
+        }
+
         /// <summary>
         /// Resets the event for object pooling.
         /// </summary>
         public void Reset()
         {
-            // Events are immutable records, so we can't reset them
-            // This is here for potential future pooling implementations
+            // This method is kept for potential future pooling implementations
+            // Since we're using immutable properties, actual reset would require object recreation
         }
     }
 
     /// <summary>
     /// Event triggered when an ability's state changes (e.g., cooldown).
     /// </summary>
-    public record AbilityStateChangedEvent(
-        int AbilityIndex, 
-        bool IsOnCooldown, 
-        float CooldownRemaining, 
-        GameObject Source = null);
+    public class AbilityStateChangedEvent
+    {
+        public int AbilityIndex { get; }
+        public bool IsOnCooldown { get; }
+        public float CooldownRemaining { get; }
+        public GameObject Source { get; }
+
+        public AbilityStateChangedEvent(int abilityIndex, bool isOnCooldown, float cooldownRemaining, GameObject source = null)
+        {
+            AbilityIndex = abilityIndex;
+            IsOnCooldown = isOnCooldown;
+            CooldownRemaining = cooldownRemaining;
+            Source = source;
+        }
+    }
 
     /// <summary>
     /// Event triggered when an ability cooldown completes.
     /// </summary>
-    public record AbilityCooldownCompleteEvent(int AbilityIndex, GameObject Source = null);
+    public class AbilityCooldownCompleteEvent
+    {
+        public int AbilityIndex { get; }
+        public GameObject Source { get; }
+
+        public AbilityCooldownCompleteEvent(int abilityIndex, GameObject source = null)
+        {
+            AbilityIndex = abilityIndex;
+            Source = source;
+        }
+    }
 
     /// <summary>
     /// Event triggered when an ability begins casting.
     /// </summary>
-    public record AbilityCastStartEvent(int AbilityIndex, float CastTime, GameObject Source = null);
+    public class AbilityCastStartEvent
+    {
+        public int AbilityIndex { get; }
+        public float CastTime { get; }
+        public GameObject Source { get; }
+
+        public AbilityCastStartEvent(int abilityIndex, float castTime, GameObject source = null)
+        {
+            AbilityIndex = abilityIndex;
+            CastTime = castTime;
+            Source = source;
+        }
+    }
 
     /// <summary>
     /// Event triggered when an ability cast completes.
     /// </summary>
-    public record AbilityCastCompleteEvent(int AbilityIndex, GameObject Source = null);
+    public class AbilityCastCompleteEvent
+    {
+        public int AbilityIndex { get; }
+        public GameObject Source { get; }
+
+        public AbilityCastCompleteEvent(int abilityIndex, GameObject source = null)
+        {
+            AbilityIndex = abilityIndex;
+            Source = source;
+        }
+    }
 
     /// <summary>
     /// Event triggered when an ability cast is interrupted.
     /// </summary>
-    public record AbilityCastInterruptedEvent(int AbilityIndex, string Reason, GameObject Source = null);
+    public class AbilityCastInterruptedEvent
+    {
+        public int AbilityIndex { get; }
+        public string Reason { get; }
+        public GameObject Source { get; }
+
+        public AbilityCastInterruptedEvent(int abilityIndex, string reason, GameObject source = null)
+        {
+            AbilityIndex = abilityIndex;
+            Reason = reason;
+            Source = source;
+        }
+    }
 }

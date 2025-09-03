@@ -4,10 +4,13 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
-        "Unity.TestTools.CodeCoverage.Editor.OpenCover.Model",
-        "UniRx",
-        "UniTask",
-        "Unity.Netcode.TestHelpers.Runtime"
+        "Laboratory.Core",
+        "Laboratory.Infrastructure",
+        "Laboratory.Gameplay",
+        "Laboratory.UI",
+        "Unity.Mathematics",
+        "Unity.InputSystem",
+        "UniTask"
     ],
     "includePlatforms": [
         "Editor"
@@ -17,7 +20,7 @@
     "overrideReferences": true,
     "precompiledReferences": [
         "nunit.framework.dll",
-        "Newtonsoft.Json.dll"
+        "UniRx.dll"
     ],
     "autoReferenced": false,
     "defineConstraints": [

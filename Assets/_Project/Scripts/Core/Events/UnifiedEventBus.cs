@@ -64,10 +64,7 @@ namespace Laboratory.Core.Events
             
             var subject = GetSubject<T>();
             return subject
-                .Subscribe(
-                    onNext: handler,
-                    onError: ex => Debug.LogError($"Error in event handler for {typeof(T).Name}: {ex}")
-                );
+                .Subscribe(handler);
         }
         
         public Observable<T> Observe<T>() where T : class
@@ -86,12 +83,10 @@ namespace Laboratory.Core.Events
                 throw new ArgumentNullException(nameof(handler));
             
             var subject = GetSubject<T>();
-            return subject
-                .ObserveOnMainThread()
-                .Subscribe(
-                    onNext: handler,
-                    onError: ex => Debug.LogError($"Error in main thread event handler for {typeof(T).Name}: {ex}")
-                );
+            
+            // For now, just subscribe directly since we're already on the main thread in Unity
+            // TODO: Add proper main thread scheduling when R3 scheduler is available
+            return subject.Subscribe(handler);
         }
         
         #endregion
@@ -111,10 +106,7 @@ namespace Laboratory.Core.Events
             var subject = GetSubject<T>();
             return subject
                 .Where(predicate)
-                .Subscribe(
-                    onNext: handler,
-                    onError: ex => Debug.LogError($"Error in filtered event handler for {typeof(T).Name}: {ex}")
-                );
+                .Subscribe(handler);
         }
         
         /// <summary>
@@ -128,11 +120,8 @@ namespace Laboratory.Core.Events
             
             var subject = GetSubject<T>();
             return subject
-                .First()
-                .Subscribe(
-                    onNext: handler,
-                    onError: ex => Debug.LogError($"Error in first-only event handler for {typeof(T).Name}: {ex}")
-                );
+                .Take(1)
+                .Subscribe(handler);
         }
         
         public int GetSubscriberCount<T>() where T : class
@@ -141,8 +130,8 @@ namespace Laboratory.Core.Events
             
             if (_subjects.TryGetValue(typeof(T), out var subject))
             {
-                // R3 doesn't expose exact subscriber count, so we return 1 if has observers, 0 otherwise
-                return ((Subject<T>)subject).HasObservers ? 1 : 0;
+                // R3 doesn't expose exact subscriber count, so we return 1 if subject exists, 0 otherwise
+                return subject != null ? 1 : 0;
             }
             return 0;
         }
@@ -157,7 +146,7 @@ namespace Laboratory.Core.Events
             
             if (_subjects.TryGetValue(typeof(T), out var subject))
             {
-                return ((Subject<T>)subject).HasObservers;
+                return subject != null;
             }
             return false;
         }

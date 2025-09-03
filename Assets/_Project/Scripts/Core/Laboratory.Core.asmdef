@@ -2,9 +2,21 @@
     "name": "Laboratory.Core",
     "rootNamespace": "Laboratory.Core",
     "references": [
+        "R3",
         "UniRx",
         "UniTask",
-        "Unity.Netcode.Runtime"
+        "Unity.Netcode.Runtime",
+        "Unity.Mathematics",
+        "Unity.InputSystem",
+        "Unity.Addressables",
+        "Unity.ResourceManager",
+        "Unity.Entities",
+        "Unity.Physics",
+        "Unity.Transforms",
+        "Unity.Cinemachine",
+        "Unity.Animation.Rigging",
+        "Unity.Collections",
+        "Unity.Burst"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

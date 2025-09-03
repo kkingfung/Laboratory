@@ -4,6 +4,7 @@ using Unity.Transforms;
 using UnityEngine;
 using Laboratory.Models.ECS.Components;
 using Laboratory.Infrastructure.Networking;
+using Laboratory.Core.Health.Components;
 
 namespace Laboratory.Models.ECS.Systems
 {
@@ -37,8 +38,8 @@ namespace Laboratory.Models.ECS.Systems
             var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
             Entities
-                .WithAll<DamageRequest, ECSHealthComponent>()
-                .ForEach((Entity entity, ref ECSHealthComponent health, in DamageRequest damageRequest) =>
+                .WithAll<Laboratory.Models.ECS.Components.DamageRequest, ECSHealthComponent>()
+                .ForEach((Entity entity, ref ECSHealthComponent health, in Laboratory.Models.ECS.Components.DamageRequest damageRequest) =>
                 {
                     ProcessDamageRequest(entity, ref health, in damageRequest, entityManager);
                 }).WithoutBurst().Run();
@@ -55,7 +56,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="health">The health component to modify</param>
         /// <param name="damageRequest">The damage request to process</param>
         /// <param name="entityManager">Entity manager for component operations</param>
-        private void ProcessDamageRequest(Entity entity, ref ECSHealthComponent health, in DamageRequest damageRequest, EntityManager entityManager)
+        private void ProcessDamageRequest(Entity entity, ref ECSHealthComponent health, in Laboratory.Models.ECS.Components.DamageRequest damageRequest, EntityManager entityManager)
         {
             ApplyDamageToHealth(ref health, damageRequest.Amount);
             SyncNetworkHealth(entity, damageRequest.Amount, entityManager);
@@ -67,9 +68,9 @@ namespace Laboratory.Models.ECS.Systems
         /// </summary>
         /// <param name="health">The health component to modify</param>
         /// <param name="damageAmount">Amount of damage to apply</param>
-        private void ApplyDamageToHealth(ref ECSHealthComponent health, int damageAmount)
+        private void ApplyDamageToHealth(ref ECSHealthComponent health, float damageAmount)
         {
-            health.CurrentHealth -= damageAmount;
+            health.CurrentHealth -= (int)damageAmount;
             if (health.CurrentHealth < 0) 
                 health.CurrentHealth = 0;
         }
@@ -87,11 +88,18 @@ namespace Laboratory.Models.ECS.Systems
 
             var networkObject = entityManager.GetComponentObject<NetworkObject>(entity);
             var gameObject = networkObject.gameObject;
-            var networkHealth = gameObject.GetComponent<NetworkHealth>();
+            var networkHealth = gameObject.GetComponent<NetworkHealthComponent>();
 
             if (networkHealth != null && networkHealth.IsServer)
             {
-                networkHealth.ApplyDamage(damageAmount);
+                var damageRequest = new Laboratory.Core.Health.DamageRequest
+                {
+                    Amount = damageAmount,
+                    Type = Laboratory.Core.Health.DamageType.Normal,
+                    Source = null,
+                    Direction = Vector3.zero
+                };
+                networkHealth.TakeDamage(damageRequest);
             }
         }
 
@@ -101,7 +109,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="entity">The entity to clean up</param>
         private void CleanupDamageRequest(Entity entity)
         {
-            EntityManager.RemoveComponent<DamageRequest>(entity);
+            EntityManager.RemoveComponent<Laboratory.Models.ECS.Components.DamageRequest>(entity);
         }
 
         #endregion

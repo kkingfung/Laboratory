@@ -170,10 +170,18 @@ namespace Laboratory.Infrastructure.AsyncUtils
 
     #region MessagePipe Events
 
-    public record NetworkConnectedMessage();
-    public record NetworkDisconnectedMessage();
-    public record NetworkDataReceivedMessage(byte[] Data);
-    public record NetworkErrorMessage(Exception Exception);
+    public class NetworkConnectedMessage { }
+    public class NetworkDisconnectedMessage { }
+    public class NetworkDataReceivedMessage 
+    { 
+        public byte[] Data { get; }
+        public NetworkDataReceivedMessage(byte[] data) => Data = data;
+    }
+    public class NetworkErrorMessage 
+    { 
+        public Exception Exception { get; }
+        public NetworkErrorMessage(Exception exception) => Exception = exception;
+    }
 
     #endregion
 }

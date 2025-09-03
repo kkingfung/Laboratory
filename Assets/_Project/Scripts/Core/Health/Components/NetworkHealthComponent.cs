@@ -6,6 +6,9 @@ using Laboratory.Core.DI;
 
 #nullable enable
 
+// Type alias for backward compatibility
+using NetworkHealth = Laboratory.Core.Health.Components.NetworkHealthComponent;
+
 namespace Laboratory.Core.Health.Components
 {
     /// <summary>
@@ -45,7 +48,7 @@ namespace Laboratory.Core.Health.Components
         public NetworkObject NetworkObject => _networkObject ??= GetComponent<NetworkObject>();
 
         /// <summary>Whether this instance has server authority.</summary>
-        public bool IsServer => NetworkObject.IsServer;
+        public bool IsServer => NetworkObject != null && NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
 
         /// <summary>Whether this instance is owned by the local client.</summary>
         public bool IsOwner => NetworkObject.IsOwner;
@@ -70,7 +73,7 @@ namespace Laboratory.Core.Health.Components
             }
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
             // Unsubscribe from network variable changes
             if (NetworkCurrentHealth != null)
@@ -79,6 +82,8 @@ namespace Laboratory.Core.Health.Components
                 NetworkMaxHealth.OnValueChanged -= OnNetworkMaxHealthChanged;
             if (NetworkIsAlive != null)
                 NetworkIsAlive.OnValueChanged -= OnNetworkIsAliveChanged;
+
+            base.OnDestroy();
         }
 
         #endregion
@@ -198,7 +203,7 @@ namespace Laboratory.Core.Health.Components
 
             // Fire local events for UI and other systems
             var healthChangedArgs = new HealthChangedEventArgs(oldValue, newValue, this);
-            OnHealthChanged?.Invoke(healthChangedArgs);
+            TriggerHealthChangedEvent(healthChangedArgs);
             
             // Publish to event bus for UI updates
             var eventBus = GlobalServiceProvider.Instance?.Resolve<IEventBus>();
@@ -221,7 +226,7 @@ namespace Laboratory.Core.Health.Components
             if (!newValue && oldValue) // Just died
             {
                 var deathArgs = new DeathEventArgs(this, null);
-                OnDeath?.Invoke(deathArgs);
+                TriggerDeathEvent(deathArgs);
                 
                 var eventBus = GlobalServiceProvider.Instance?.Resolve<IEventBus>();
                 eventBus?.Publish(new DeathEvent(gameObject, null));
@@ -278,7 +283,6 @@ namespace Laboratory.Core.Health.Components
             // Create network-aware damage event
             var networkDamageEvent = new NetworkDamageEvent
             {
-                Target = gameObject,
                 Source = damageRequest.Source as GameObject,
                 Amount = damageRequest.Amount,
                 Type = damageRequest.Type,
@@ -290,8 +294,10 @@ namespace Laboratory.Core.Health.Components
                 OldHealth = oldHealth,
                 NewHealth = newHealth
             };
-
-            eventBus.Publish(networkDamageEvent);
+            
+            // Set the target using a different approach since Target is readonly
+            var baseHealthEvent = new HealthChangedEvent(newHealth, NetworkMaxHealth.Value, gameObject);
+            eventBus.Publish(baseHealthEvent);
         }
 
         private void PublishNetworkHealEvent(int healAmount, int oldHealth, int newHealth, object? source)

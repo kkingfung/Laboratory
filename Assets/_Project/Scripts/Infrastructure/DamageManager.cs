@@ -1,19 +1,21 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 using Laboratory.Core.Events;
 using Laboratory.Core.DI;
+using Laboratory.Core.Health;
 
 #nullable enable
 
-namespace Laboratory.Core.Health.Managers
+namespace Laboratory.Infrastructure.Health
 {
     /// <summary>
     /// Centralized damage manager that processes all damage requests in the game.
     /// Provides consistent damage handling, modifiers, and event broadcasting.
     /// Replaces scattered damage logic with a unified, extensible system.
     /// </summary>
-    public class DamageManager : MonoBehaviour
+    public class DamageManager : NetworkBehaviour
     {
         #region Singleton
 
@@ -49,12 +51,14 @@ namespace Laboratory.Core.Health.Managers
             }
         }
 
-        private void OnDestroy()
+        public override void OnDestroy()
         {
             if (_instance == this)
             {
                 _instance = null;
             }
+            
+            base.OnDestroy();
         }
 
         #endregion

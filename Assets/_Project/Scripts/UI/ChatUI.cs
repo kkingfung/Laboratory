@@ -119,7 +119,7 @@ namespace Laboratory.UI
             // Send message on Enter key press
             _chatInputField.onEndEdit.AddListener(text =>
             {
-                if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+                if (Laboratory.UI.Input.InputSystem.GetKeyDown(KeyCode.Return) || Laboratory.UI.Input.InputSystem.GetKeyDown(KeyCode.KeypadEnter))
                 {
                     SendChatMessage();
                 }

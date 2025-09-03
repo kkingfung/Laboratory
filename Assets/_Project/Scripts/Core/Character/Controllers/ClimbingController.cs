@@ -267,7 +267,7 @@ namespace Laboratory.Core.Character
         private void HandleState()
         {
             bool canClimbWall = DetectClimbable();
-            bool wantsClimb = Input.GetKey(KeyCode.Space) && _stamina > 0;
+            bool wantsClimb = UnityEngine.Input.GetKey(KeyCode.Space) && _stamina > 0;
 
             switch (_currentState)
             {
@@ -288,7 +288,7 @@ namespace Laboratory.Core.Character
                         ExitClimb();
                     else if (DetectLedge() && wantsClimb)
                         EnterMantle();
-                    else if (Input.GetKeyDown(KeyCode.Space))
+                    else if (UnityEngine.Input.GetKeyDown(KeyCode.Space))
                         WallJump();
                     break;
                     
@@ -359,8 +359,8 @@ namespace Laboratory.Core.Character
         /// </summary>
         private void ClimbMovement()
         {
-            float vertical = Input.GetAxis("Vertical");
-            float horizontal = Input.GetAxis("Horizontal");
+            float vertical = UnityEngine.Input.GetAxis("Vertical");
+            float horizontal = UnityEngine.Input.GetAxis("Horizontal");
 
             if (_playerCamera == null) return;
 

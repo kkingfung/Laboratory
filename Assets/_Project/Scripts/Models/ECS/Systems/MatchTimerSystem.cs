@@ -1,9 +1,10 @@
+#nullable enable
 using Unity.Entities;
 using UnityEngine;
 using Laboratory.Core;
 using Laboratory.Core.DI;
 using Laboratory.Infrastructure.AsyncUtils;
-using Laboratory.Gameplay.Lobby;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models.ECS.Systems
 {
@@ -20,7 +21,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <summary>
         /// Reference to the match timer component for tracking game duration and time-based events
         /// </summary>
-        private MatchTimer _matchTimer = null!;
+        private MatchTimer? _matchTimer;
         
         /// <summary>
         /// Flag indicating whether the system is properly initialized
@@ -109,7 +110,7 @@ namespace Laboratory.Models.ECS.Systems
                 }
                 
                 // Update the match timer with validated delta time
-                _matchTimer.Tick(deltaTime);
+                _matchTimer!.Tick(deltaTime);
             }
             catch (System.Exception ex)
             {
@@ -124,7 +125,7 @@ namespace Laboratory.Models.ECS.Systems
         {
             try
             {
-                _matchTimer = null!;
+                _matchTimer = null;
                 _isInitialized = false;
                 Debug.Log("MatchTimerSystem resources cleaned up");
             }
@@ -142,9 +143,9 @@ namespace Laboratory.Models.ECS.Systems
         /// Gets the current match timer instance for external access
         /// </summary>
         /// <returns>The current match timer instance, or null if not initialized</returns>
-        public MatchTimer GetMatchTimer()
+        public MatchTimer? GetMatchTimer()
         {
-            return _isInitialized ? _matchTimer : null!;
+            return _isInitialized ? _matchTimer : null;
         }
 
         /// <summary>

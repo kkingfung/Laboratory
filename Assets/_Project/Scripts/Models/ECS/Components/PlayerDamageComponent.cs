@@ -8,27 +8,13 @@ using Laboratory.Core.Health;
 
 namespace Laboratory.Models.ECS.Components
 {
-    #region Components
-
+    // Note: ECSHealthComponent and DamageRequest are now defined in separate files
+    // to avoid conflicts and improve code organization.
+    
     /// <summary>
-    /// ECS Health component - replicated via NetworkVariable.
+    /// Placeholder file - ECS components have been moved to dedicated files:
+    /// - ECSHealthComponent.cs for health component
+    /// - DamageRequest.cs for damage request component  
+    /// This maintains compatibility while avoiding duplicate definitions.
     /// </summary>
-    public struct ECSHealthComponent : IComponentData
-    {
-        public int MaxHealth;
-        public int CurrentHealth;
-    }
-
-    /// <summary>
-    /// Damage request component - when added, triggers damage application.
-    /// </summary>
-    public struct DamageRequest : IComponentData
-    {
-        public int Amount;
-        public DamageType Type;
-        public float3 SourcePosition;
-        public Entity SourceEntity;
-    }
-
-    #endregion
 }

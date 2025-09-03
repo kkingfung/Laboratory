@@ -1,0 +1,16 @@
+{
+    "name": "Laboratory.Core.Abilities",
+    "rootNamespace": "Laboratory.Core.Abilities",
+    "references": [
+        "Laboratory.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

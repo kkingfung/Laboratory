@@ -2,7 +2,7 @@ using System;
 using MessagePipe;
 using UniRx;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
 using Laboratory.Core.Timing;
 
 namespace Laboratory.Gameplay.Lobby
@@ -15,7 +15,7 @@ namespace Laboratory.Gameplay.Lobby
         #region Fields
 
         [Header("UI Reference")]
-        [SerializeField] private TextMeshProUGUI timerText;
+        [SerializeField] private Text timerText;
 
         [Header("Timer Settings")]
         [SerializeField] private float matchDuration = 300f; // seconds

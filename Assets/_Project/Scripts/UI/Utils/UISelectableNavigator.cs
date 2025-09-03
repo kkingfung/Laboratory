@@ -176,8 +176,8 @@ namespace Laboratory.UI.Utils
             if (_inputTimer > 0f) 
                 return;
 
-            float verticalInput = Input.GetAxisRaw(verticalAxis);
-            float horizontalInput = Input.GetAxisRaw(horizontalAxis);
+            float verticalInput = Laboratory.UI.Input.InputSystem.GetAxisRaw(verticalAxis);
+            float horizontalInput = Laboratory.UI.Input.InputSystem.GetAxisRaw(horizontalAxis);
 
             if (Mathf.Abs(verticalInput) > inputThreshold)
             {
