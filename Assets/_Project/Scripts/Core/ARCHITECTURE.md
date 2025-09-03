@@ -2,15 +2,22 @@
 
 ## Overview
 
-The Core Architecture subsystem provides the foundational infrastructure for the Laboratory game project. It implements modern software architecture patterns including Dependency Injection, Event-Driven Architecture, and State Management.
+The Core Architecture subsystem provides the foundational infrastructure for the Laboratory game project. It implements modern software architecture patterns including Dependency Injection, Event-Driven Architecture, State Management, and comprehensive subsystem organization.
+
+**Last Updated:** 2025-01-20  
+**Architecture Version:** 2.0  
+**Status:** ✅ Improved & Tested
 
 ## 📋 Table of Contents
 
 - [Architecture Principles](#architecture-principles)
-- [Subsystem Components](#subsystem-components)
+- [Subsystem Organization](#subsystem-organization)
+- [Core Components](#core-components)
 - [Dependency Graph](#dependency-graph)
 - [Usage Examples](#usage-examples)
+- [Testing Strategy](#testing-strategy)
 - [Best Practices](#best-practices)
+- [Recent Improvements](#recent-improvements)
 
 ## Architecture Principles
 
@@ -365,6 +372,139 @@ sceneService.ActivatePreloadedScene("GameLevel2");
 - Events drive UI updates reactively
 - State changes automatically update UI elements
 
+## 🏗️ Subsystem Organization
+
+The project is organized into 12 main subsystems, each with clear responsibilities:
+
+### 1. **Player System** 🎮
+**Location:** `Core/Character/`, `Core/Camera/`, `Core/Input/`
+**Responsibilities:** Character control, movement, camera management, input handling
+
+### 2. **Enemy/AI System** 🤖
+**Location:** `Core/NPC/`
+**Responsibilities:** NPC behavior, AI management, pathfinding
+
+### 3. **Combat System** ⚔️
+**Location:** `Core/Health/`, `Core/Abilities/`, `Core/Ragdoll/`
+**Responsibilities:** Health management, damage system, abilities, combat mechanics
+
+### 4. **UI System** 🖥️
+**Location:** `UI/`
+**Responsibilities:** User interface, HUD, menus, notifications
+
+### 5. **Networking System** 🌐
+**Location:** `Networking/`, `Models/ECS/`
+**Responsibilities:** Multiplayer, network communication, synchronization
+
+### 6. **Inventory System** 📦
+**Location:** `Gameplay/` (Items)
+**Responsibilities:** Item management, quest items, inventory UI
+
+### 7. **Utility System** 🔧
+**Location:** `Core/DI/`, `Core/Events/`, `Core/Services/`, `Tools/`
+**Responsibilities:** Core services, tools, debugging, utilities
+
+### 8. **Bootstrap System** 🚀
+**Location:** `Core/Bootstrap/`, `Core/State/`
+**Responsibilities:** Game initialization, startup sequence, state management
+
+### 9. **Audio System** 🔊
+**Location:** `Gameplay/` (AudioManager), `Core/Ragdoll/` (Sound)
+**Responsibilities:** Sound management, audio events, music
+
+### 10. **Input System** 🎮
+**Location:** `Core/Input/`, `Infrastructure/Input/`
+**Responsibilities:** Input handling, configuration, rebinding
+
+### 11. **Replay System** 📹
+**Location:** `Core/Replay/`
+**Responsibilities:** Game recording, playback, replay management
+
+### 12. **Physics/Ragdoll System** 🎯
+**Location:** `Core/Ragdoll/`
+**Responsibilities:** Physics simulation, ragdoll mechanics, hit reactions
+
+## 🧪 Testing Strategy
+
+The architecture includes comprehensive testing at multiple levels:
+
+### Unit Tests
+**Location:** `Tests/Unit/`
+- **Ability System Tests:** Core functionality, cooldowns, events
+- **Health System Tests:** Damage, healing, death mechanics
+- **Service Container Tests:** DI functionality, lifetime management
+- **Event Bus Tests:** Publishing, subscription, disposal
+
+### Integration Tests
+**Location:** `Tests/Integration/`
+- **Bootstrap Tests:** Full system initialization
+- **State Transition Tests:** Game state management
+- **Network Integration Tests:** Multiplayer functionality
+
+### Test Coverage Goals
+- Core Systems: 95%+
+- Business Logic: 90%+
+- UI Components: 80%+
+- Network Code: 85%+
+
+### Testing Best Practices
+- Use NUnit for all tests
+- Mock external dependencies
+- Test both success and failure cases
+- Include performance tests for critical paths
+- Automated testing in CI/CD pipeline
+
+## 📈 Recent Improvements (Version 2.0)
+
+### ✅ Completed Improvements
+
+#### 1. **Consolidated Duplicates**
+- Removed duplicate `DamageEventBus` implementations
+- Cleaned up backup files and deprecated code
+- Standardized naming conventions
+
+#### 2. **Enhanced Interfaces**
+- Added `IAbilityManagerCore` interface
+- Created comprehensive `IAbility` interface hierarchy
+- Implemented proper base classes with `BaseAbility`
+
+#### 3. **Improved Documentation**
+- Updated architecture documentation with subsystem organization
+- Added comprehensive inline documentation
+- Created testing strategy documentation
+
+#### 4. **Comprehensive Testing**
+- Added unit tests for Ability System
+- Created Health System test suite
+- Implemented Unified Ability System tests
+- Established testing patterns and best practices
+
+#### 5. **Code Quality Improvements**
+- Fixed compiler warnings and errors
+- Standardized error handling patterns
+- Improved event handling consistency
+- Enhanced logging and debugging capabilities
+
+### 🔄 Architecture Strengths
+
+✅ **Well-Structured Subsystems**: Clear separation of concerns across 12 subsystems
+✅ **Modern Patterns**: Comprehensive use of DI, events, and async programming
+✅ **Scalable Design**: Modular architecture supports future expansion
+✅ **Network-Ready**: Full multiplayer implementation with ECS integration
+✅ **Test Coverage**: Comprehensive unit and integration testing
+✅ **Documentation**: Complete architectural documentation and examples
+✅ **Performance**: Optimized patterns for Unity development
+
+### 📋 Maintenance Checklist
+
+- [ ] Regular dependency updates
+- [ ] Performance profiling and optimization
+- [ ] Test coverage monitoring
+- [ ] Documentation updates with new features
+- [ ] Code review process enforcement
+- [ ] Architecture decision records (ADRs)
+
 ---
 
 *This documentation is part of the Core Architecture subsystem for the Laboratory Unity project.*
+*Last updated: 2025-01-20 | Version 2.0 | Status: ✅ Production Ready*

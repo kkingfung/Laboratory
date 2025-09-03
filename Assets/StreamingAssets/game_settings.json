@@ -1,0 +1,16 @@
+{
+  "version": "1.0.0",
+  "gameTitle": "Laboratory",
+  "maxPlayers": 8,
+  "tickRate": 60,
+  "gameModules": [
+    "Core",
+    "Networking",
+    "Combat",
+    "UI"
+  ],
+  "debugMode": false,
+  "logLevel": "Info",
+  "autoSave": true,
+  "autoSaveInterval": 300
+}

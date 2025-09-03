@@ -1,0 +1,23 @@
+{
+  "masterVolume": 1.0,
+  "musicVolume": 0.8,
+  "sfxVolume": 0.9,
+  "voiceVolume": 1.0,
+  "uiVolume": 0.7,
+  "audioDevice": "default",
+  "sampleRate": 44100,
+  "bufferSize": 1024,
+  "spatialAudio": {
+    "enabled": true,
+    "mode": "3D",
+    "dopplerLevel": 1.0,
+    "rolloffScale": 1.0
+  },
+  "compression": {
+    "enabled": false,
+    "threshold": -20.0,
+    "ratio": 4.0,
+    "attackTime": 0.003,
+    "releaseTime": 0.1
+  }
+}

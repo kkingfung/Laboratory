@@ -44,7 +44,8 @@ namespace Laboratory.Core.Abilities.Systems
 
             if (_registeredManagers.Contains(abilityManager))
             {
-                Debug.LogWarning($"[UnifiedAbilitySystem] Manager is already registered");
+                if (enableSystemLogs)
+                    Debug.Log($"[UnifiedAbilitySystem] Manager (ID: {_managerIds[abilityManager]}) is already registered, skipping...");
                 return;
             }
 
@@ -64,9 +65,13 @@ namespace Laboratory.Core.Abilities.Systems
 
             if (!_registeredManagers.Contains(abilityManager))
             {
-                Debug.LogWarning($"[UnifiedAbilitySystem] Manager was not registered");
+                if (enableSystemLogs)
+                    Debug.Log($"[UnifiedAbilitySystem] Manager was not registered, skipping unregistration...");
                 return;
             }
+
+            // Get the ID before removing for logging
+            int managerId = _managerIds.TryGetValue(abilityManager, out int id) ? id : -1;
 
             // Unsubscribe from manager events
             UnsubscribeFromManagerEvents(abilityManager);
@@ -75,7 +80,7 @@ namespace Laboratory.Core.Abilities.Systems
             _managerIds.Remove(abilityManager);
 
             if (enableSystemLogs)
-                Debug.Log($"[UnifiedAbilitySystem] Unregistered AbilityManager");
+                Debug.Log($"[UnifiedAbilitySystem] Unregistered AbilityManager (ID: {managerId})");
         }
 
         public bool TryActivateAbility(IAbilityManagerCore manager, int abilityIndex)
@@ -218,25 +223,38 @@ namespace Laboratory.Core.Abilities.Systems
 
         private void OnGlobalAbilityActivated(AbilityActivatedEvent evt)
         {
-            if (evt.Source != null && evt.Source.TryGetComponent<IAbilityManagerCore>(out var manager))
+            // Find the manager that corresponds to this event source
+            foreach (var manager in _registeredManagers)
             {
-                OnAbilityActivated?.Invoke(manager, evt.AbilityIndex);
+                if (manager.GameObject == evt.Source)
+                {
+                    OnAbilityActivated?.Invoke(manager, evt.AbilityIndex);
+                    break;
+                }
             }
         }
 
         private void OnGlobalAbilityStateChanged(AbilityStateChangedEvent evt)
         {
-            if (evt.Source != null && evt.Source.TryGetComponent<IAbilityManagerCore>(out var manager))
+            foreach (var manager in _registeredManagers)
             {
-                OnAbilityStateChanged?.Invoke(manager, evt.AbilityIndex, evt.IsOnCooldown, evt.CooldownRemaining);
+                if (manager.GameObject == evt.Source)
+                {
+                    OnAbilityStateChanged?.Invoke(manager, evt.AbilityIndex, evt.IsOnCooldown, evt.CooldownRemaining);
+                    break;
+                }
             }
         }
 
         private void OnGlobalAbilityCooldownComplete(AbilityCooldownCompleteEvent evt)
         {
-            if (evt.Source != null && evt.Source.TryGetComponent<IAbilityManagerCore>(out var manager))
+            foreach (var manager in _registeredManagers)
             {
-                OnAbilityCooldownComplete?.Invoke(manager, evt.AbilityIndex);
+                if (manager.GameObject == evt.Source)
+                {
+                    OnAbilityCooldownComplete?.Invoke(manager, evt.AbilityIndex);
+                    break;
+                }
             }
         }
 

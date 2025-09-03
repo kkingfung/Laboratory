@@ -415,9 +415,7 @@ namespace Laboratory.Core.Character.Controllers
 #if UNITY_EDITOR
         [Header("Debug Info")]
         [SerializeField, Tooltip("Show debug information in inspector")]
-        #pragma warning disable CS0414 // Field assigned but never used - reserved for future debug UI feature
         private bool _showDebugInfo = true;
-        #pragma warning restore CS0414
 
         private void OnValidate()
         {
@@ -425,6 +423,29 @@ namespace Laboratory.Core.Character.Controllers
             {
                 _aimSettings.ValidateSettings();
             }
+        }
+        
+        /// <summary>
+        /// Get debug information about the current aim state
+        /// </summary>
+        public string GetDebugInfo()
+        {
+            if (!_showDebugInfo) return "Debug info disabled";
+            
+            var info = new System.Text.StringBuilder();
+            info.AppendLine($"Is Active: {_isActive}");
+            info.AppendLine($"Is Aiming: {IsAiming}");
+            info.AppendLine($"Current Target: {(_currentTarget != null ? _currentTarget.name : "None")}");
+            info.AppendLine($"Aim Weight: {_currentAimWeight:F2} / {_targetAimWeight:F2}");
+            info.AppendLine($"Max Aim Distance: {MaxAimDistance:F1}m");
+            info.AppendLine($"Auto Targeting: {_autoTargeting}");
+            
+            if (_targetSelector != null)
+            {
+                info.AppendLine($"Target Selector Active: {_targetSelector.IsActive}");
+            }
+            
+            return info.ToString();
         }
 #endif
 

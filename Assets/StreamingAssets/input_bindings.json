@@ -1,0 +1,48 @@
+{
+  "version": "1.0.0",
+  "keyBindings": {
+    "movement": {
+      "forward": "W",
+      "backward": "S",
+      "left": "A",
+      "right": "D",
+      "jump": "Space",
+      "crouch": "LeftCtrl",
+      "sprint": "LeftShift"
+    },
+    "combat": {
+      "primaryAttack": "Mouse0",
+      "secondaryAttack": "Mouse1",
+      "aim": "Mouse1",
+      "reload": "R",
+      "melee": "F",
+      "grenade": "G",
+      "switchWeapon": "Q"
+    },
+    "interaction": {
+      "interact": "E",
+      "pickup": "F",
+      "drop": "X",
+      "inventory": "Tab"
+    },
+    "ui": {
+      "menu": "Escape",
+      "chat": "T",
+      "scoreboard": "Tab",
+      "map": "M",
+      "console": "BackQuote"
+    }
+  },
+  "mouseSettings": {
+    "sensitivity": 2.0,
+    "invertY": false,
+    "rawInput": true,
+    "acceleration": false
+  },
+  "gamepadSettings": {
+    "deadzone": 0.2,
+    "sensitivity": 1.5,
+    "invertY": false,
+    "rumbleEnabled": true
+  }
+}

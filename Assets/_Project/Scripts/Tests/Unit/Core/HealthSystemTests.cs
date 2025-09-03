@@ -1,397 +1,289 @@
-using System;
-using System.Linq;
-using UnityEngine;
 using NUnit.Framework;
-using Laboratory.Core.Health;
-using Laboratory.Core.Systems;
+using UnityEngine;
+using UnityEngine.TestTools;
 using Laboratory.Core.Health.Components;
+using Laboratory.Core.Health;
 
-#nullable enable
-
-namespace Laboratory.Tests.Unit.Core
+namespace Laboratory.Core.Tests.Unit.Health
 {
     /// <summary>
-    /// Unit tests for Health System functionality.
-    /// Tests health component registration, damage/healing application, and events.
+    /// Unit tests for the Health System components and functionality.
     /// </summary>
+    [TestFixture]
     public class HealthSystemTests
     {
-        private MockHealthSystem? _healthSystem;
-        private MockHealthComponent? _healthComponent;
-
+        private GameObject _testObject;
+        private LocalHealthComponent _healthComponent;
+        
         [SetUp]
         public void SetUp()
         {
-            _healthSystem = new MockHealthSystem();
-            _healthComponent = new MockHealthComponent();
+            _testObject = new GameObject("TestObject");
+            _healthComponent = _testObject.AddComponent<LocalHealthComponent>();
         }
-
+        
         [TearDown]
         public void TearDown()
         {
-            _healthSystem?.Dispose();
-            _healthSystem = null;
-            _healthComponent = null;
+            if (_testObject != null)
+            {
+                Object.DestroyImmediate(_testObject);
+            }
         }
-
-        #region Registration Tests
-
+        
+        #region Basic Health Tests
+        
         [Test]
-        public void RegisterHealthComponent_AddsToSystem()
+        public void HealthComponent_InitialValues_AreCorrect()
         {
-            // Act
-            _healthSystem!.RegisterHealthComponent(_healthComponent!);
-
-            // Assert
-            var components = _healthSystem.GetAllHealthComponents();
-            Assert.AreEqual(1, components.Count);
-            Assert.IsTrue(components.Any(c => c == _healthComponent));
+            // Assuming default max health is 100
+            Assert.AreEqual(100, _healthComponent.MaxHealth);
+            Assert.AreEqual(100, _healthComponent.CurrentHealth);
+            Assert.IsTrue(_healthComponent.IsAlive);
+            Assert.AreEqual(1f, _healthComponent.HealthPercentage, 0.01f);
         }
-
+        
         [Test]
-        public void UnregisterHealthComponent_RemovesFromSystem()
+        public void TakeDamage_ValidAmount_ReducesHealth()
         {
-            // Arrange
-            _healthSystem!.RegisterHealthComponent(_healthComponent!);
-
-            // Act
-            _healthSystem.UnregisterHealthComponent(_healthComponent!);
-
-            // Assert
-            var components = _healthSystem.GetAllHealthComponents();
-            Assert.AreEqual(0, components.Count);
-        }
-
-        [Test]
-        public void RegisterHealthComponent_DuplicateComponent_DoesNotAddTwice()
-        {
-            // Act
-            _healthSystem!.RegisterHealthComponent(_healthComponent!);
-            _healthSystem.RegisterHealthComponent(_healthComponent!); // Add same component twice
-
-            // Assert
-            var components = _healthSystem.GetAllHealthComponents();
-            Assert.AreEqual(1, components.Count);
-        }
-
-        #endregion
-
-        #region Damage System Tests
-
-        [Test]
-        public void ApplyDamage_ValidTarget_ReturnsTrueAndAppliesDamage()
-        {
-            // Arrange
-            _healthSystem!.RegisterHealthComponent(_healthComponent!);
+            float damageAmount = 25f;
             var damageRequest = new DamageRequest
             {
-                Amount = 25f,
-                Type = DamageType.Normal,
-                Source = null
+                Amount = damageAmount,
+                Source = _testObject
             };
-
-            // Act
-            var result = _healthSystem.ApplyDamage(_healthComponent!, damageRequest);
-
-            // Assert
-            Assert.IsTrue(result);
-            Assert.AreEqual(75, _healthComponent!.CurrentHealth); // 100 - 25 = 75
+            
+            _healthComponent.TakeDamage(damageRequest);
+            
+            Assert.AreEqual(75, _healthComponent.CurrentHealth);
+            Assert.AreEqual(0.75f, _healthComponent.HealthPercentage, 0.01f);
+            Assert.IsTrue(_healthComponent.IsAlive);
         }
-
+        
         [Test]
-        public void ApplyDamage_UnregisteredTarget_ReturnsFalse()
+        public void TakeDamage_MoreThanCurrentHealth_SetsHealthToZero()
         {
-            // Arrange
             var damageRequest = new DamageRequest
             {
-                Amount = 25f,
-                Type = DamageType.Normal,
-                Source = null
+                Amount = 150f,
+                Source = _testObject
             };
-
-            // Act
-            var result = _healthSystem!.ApplyDamage(_healthComponent!, damageRequest);
-
-            // Assert
+            
+            _healthComponent.TakeDamage(damageRequest);
+            
+            Assert.AreEqual(0, _healthComponent.CurrentHealth);
+            Assert.AreEqual(0f, _healthComponent.HealthPercentage, 0.01f);
+            Assert.IsFalse(_healthComponent.IsAlive);
+        }
+        
+        [Test]
+        public void TakeDamage_NegativeAmount_DoesNothing()
+        {
+            int initialHealth = _healthComponent.CurrentHealth;
+            var damageRequest = new DamageRequest
+            {
+                Amount = -10f,
+                Source = _testObject
+            };
+            
+            bool result = _healthComponent.TakeDamage(damageRequest);
+            
             Assert.IsFalse(result);
-            Assert.AreEqual(100, _healthComponent!.CurrentHealth); // No damage applied
+            Assert.AreEqual(initialHealth, _healthComponent.CurrentHealth);
         }
-
+        
         [Test]
-        public void ApplyDamage_TriggersOnDamageAppliedEvent()
+        public void Heal_ValidAmount_IncreasesHealth()
         {
-            // Arrange
-            _healthSystem!.RegisterHealthComponent(_healthComponent!);
+            // First damage the object
+            var damageRequest = new DamageRequest
+            {
+                Amount = 50f,
+                Source = _testObject
+            };
+            _healthComponent.TakeDamage(damageRequest);
+            
+            // Then heal
+            _healthComponent.Heal(30);
+            
+            Assert.AreEqual(80, _healthComponent.CurrentHealth);
+            Assert.AreEqual(0.8f, _healthComponent.HealthPercentage, 0.01f);
+            Assert.IsTrue(_healthComponent.IsAlive);
+        }
+        
+        [Test]
+        public void Heal_MoreThanMaxHealth_ClampsToMaxHealth()
+        {
+            // Damage first
             var damageRequest = new DamageRequest
             {
                 Amount = 25f,
-                Type = DamageType.Normal,
-                Source = null
+                Source = _testObject
             };
-
-            var eventTriggered = false;
-            IHealthComponent? eventTarget = null;
-            DamageRequest? eventRequest = null;
-
-            _healthSystem.OnDamageApplied += (target, request) =>
-            {
-                eventTriggered = true;
-                eventTarget = target;
-                eventRequest = request;
-            };
-
-            // Act
-            _healthSystem.ApplyDamage(_healthComponent!, damageRequest);
-
-            // Assert
-            Assert.IsTrue(eventTriggered);
-            Assert.AreEqual(_healthComponent!, eventTarget);
-            Assert.AreEqual(25f, eventRequest?.Amount);
+            _healthComponent.TakeDamage(damageRequest);
+            
+            // Overheal
+            _healthComponent.Heal(50);
+            
+            Assert.AreEqual(100, _healthComponent.CurrentHealth);
+            Assert.AreEqual(1f, _healthComponent.HealthPercentage, 0.01f);
         }
-
-        #endregion
-
-        #region Healing System Tests
-
+        
         [Test]
-        public void ApplyHealing_ValidTarget_ReturnsTrueAndAppliesHealing()
+        public void Heal_WhenDead_DoesNothing()
         {
-            // Arrange
-            _healthSystem!.RegisterHealthComponent(_healthComponent!);
-            _healthComponent!.SetCurrentHealth(50); // Set to damaged state
-
-            // Act
-            var result = _healthSystem.ApplyHealing(_healthComponent!, 25);
-
-            // Assert
-            Assert.IsTrue(result);
-            Assert.AreEqual(75, _healthComponent!.CurrentHealth); // 50 + 25 = 75
-        }
-
-        [Test]
-        public void ApplyHealing_ExceedsMaxHealth_ClampsToMax()
-        {
-            // Arrange
-            _healthSystem!.RegisterHealthComponent(_healthComponent!);
-            _healthComponent!.SetCurrentHealth(90);
-
-            // Act
-            var result = _healthSystem.ApplyHealing(_healthComponent!, 25);
-
-            // Assert
-            Assert.IsTrue(result);
-            Assert.AreEqual(100, _healthComponent!.CurrentHealth); // Clamped to max
-        }
-
-        [Test]
-        public void ApplyHealing_TriggersOnHealingAppliedEvent()
-        {
-            // Arrange
-            _healthSystem!.RegisterHealthComponent(_healthComponent!);
-            _healthComponent!.SetCurrentHealth(50);
-
-            var eventTriggered = false;
-            IHealthComponent? eventTarget = null;
-            int eventAmount = 0;
-
-            _healthSystem.OnHealingApplied += (target, amount) =>
-            {
-                eventTriggered = true;
-                eventTarget = target;
-                eventAmount = amount;
-            };
-
-            // Act
-            _healthSystem.ApplyHealing(_healthComponent!, 25);
-
-            // Assert
-            Assert.IsTrue(eventTriggered);
-            Assert.AreEqual(_healthComponent!, eventTarget);
-            Assert.AreEqual(25, eventAmount);
-        }
-
-        #endregion
-
-        #region Death Tests
-
-        [Test]
-        public void ApplyDamage_CausesDeath_TriggersOnComponentDeathEvent()
-        {
-            // Arrange
-            _healthSystem!.RegisterHealthComponent(_healthComponent!);
+            // Kill the object
             var damageRequest = new DamageRequest
             {
-                Amount = 150f, // More than current health
-                Type = DamageType.Normal,
-                Source = null
+                Amount = 150f,
+                Source = _testObject
             };
-
-            var eventTriggered = false;
-            IHealthComponent? eventTarget = null;
-
-            _healthSystem.OnComponentDeath += (target) =>
-            {
-                eventTriggered = true;
-                eventTarget = target;
-            };
-
-            // Act
-            _healthSystem.ApplyDamage(_healthComponent!, damageRequest);
-
-            // Assert
-            Assert.IsTrue(eventTriggered);
-            Assert.AreEqual(_healthComponent!, eventTarget);
-            Assert.IsFalse(_healthComponent!.IsAlive);
+            _healthComponent.TakeDamage(damageRequest);
+            
+            // Try to heal
+            bool result = _healthComponent.Heal(50);
+            
+            Assert.IsFalse(result);
+            Assert.AreEqual(0, _healthComponent.CurrentHealth);
+            Assert.IsFalse(_healthComponent.IsAlive);
         }
-
+        
+        [Test]
+        public void ApplyDamage_ValidValue_UpdatesHealth()
+        {
+            _healthComponent.ApplyDamage(60);
+            
+            Assert.AreEqual(40, _healthComponent.CurrentHealth);
+            Assert.AreEqual(0.4f, _healthComponent.HealthPercentage, 0.01f);
+            Assert.IsTrue(_healthComponent.IsAlive);
+        }
+        
+        [Test]
+        public void ApplyDamage_NegativeValue_DoesNothing()
+        {
+            int initialHealth = _healthComponent.CurrentHealth;
+            
+            bool result = _healthComponent.ApplyDamage(-10);
+            
+            Assert.IsFalse(result);
+            Assert.AreEqual(initialHealth, _healthComponent.CurrentHealth);
+        }
+        
+        [Test]
+        public void ResetToMaxHealth_RestoresFullHealth()
+        {
+            // Damage first
+            var damageRequest = new DamageRequest
+            {
+                Amount = 40f,
+                Source = _testObject
+            };
+            _healthComponent.TakeDamage(damageRequest);
+            
+            // Reset to max
+            _healthComponent.ResetToMaxHealth();
+            
+            Assert.AreEqual(100, _healthComponent.CurrentHealth);
+            Assert.AreEqual(1f, _healthComponent.HealthPercentage, 0.01f);
+            Assert.IsTrue(_healthComponent.IsAlive);
+        }
+        
+        [Test]
+        public void SetMaxHealth_ValidValue_UpdatesMaxHealth()
+        {
+            _healthComponent.SetMaxHealth(150);
+            
+            Assert.AreEqual(150, _healthComponent.MaxHealth);
+            Assert.AreEqual(100, _healthComponent.CurrentHealth); // Should stay the same
+        }
+        
+        [Test]
+        public void SetMaxHealth_LowerThanCurrent_ClampsCurrentHealth()
+        {
+            _healthComponent.SetMaxHealth(50);
+            
+            Assert.AreEqual(50, _healthComponent.MaxHealth);
+            Assert.AreEqual(50, _healthComponent.CurrentHealth);
+            Assert.AreEqual(1f, _healthComponent.HealthPercentage, 0.01f);
+        }
+        
+        #endregion
+        
+        #region Death Tests
+        
+        [Test]
+        public void Death_TriggersDeathEvents()
+        {
+            bool deathEventFired = false;
+            _healthComponent.OnDeath += (args) => deathEventFired = true;
+            
+            var damageRequest = new DamageRequest
+            {
+                Amount = 150f,
+                Source = _testObject
+            };
+            _healthComponent.TakeDamage(damageRequest);
+            
+            Assert.IsTrue(deathEventFired);
+        }
+        
+        #endregion
+        
+        #region Health Change Events Tests
+        
+        [Test]
+        public void HealthChange_TriggersHealthChangedEvent()
+        {
+            bool eventFired = false;
+            int receivedOldHealth = 0;
+            int receivedNewHealth = 0;
+            
+            _healthComponent.OnHealthChanged += (args) => {
+                eventFired = true;
+                receivedOldHealth = args.OldHealth;
+                receivedNewHealth = args.NewHealth;
+            };
+            
+            var damageRequest = new DamageRequest
+            {
+                Amount = 25f,
+                Source = _testObject
+            };
+            _healthComponent.TakeDamage(damageRequest);
+            
+            Assert.IsTrue(eventFired);
+            Assert.AreEqual(100, receivedOldHealth);
+            Assert.AreEqual(75, receivedNewHealth);
+        }
+        
+        [Test]
+        public void Heal_TriggersHealthChangedEvent()
+        {
+            // Damage first
+            var damageRequest = new DamageRequest
+            {
+                Amount = 30f,
+                Source = _testObject
+            };
+            _healthComponent.TakeDamage(damageRequest);
+            
+            bool eventFired = false;
+            int receivedOldHealth = 0;
+            int receivedNewHealth = 0;
+            
+            _healthComponent.OnHealthChanged += (args) => {
+                eventFired = true;
+                receivedOldHealth = args.OldHealth;
+                receivedNewHealth = args.NewHealth;
+            };
+            
+            _healthComponent.Heal(20);
+            
+            Assert.IsTrue(eventFired);
+            Assert.AreEqual(70, receivedOldHealth);
+            Assert.AreEqual(90, receivedNewHealth);
+        }
+        
         #endregion
     }
-
-    #region Mock Implementations
-
-    /// <summary>
-    /// Mock implementation of IHealthSystem for testing.
-    /// </summary>
-    public class MockHealthSystem : IHealthSystem
-    {
-        private readonly System.Collections.Generic.List<IHealthComponent> _components = new();
-
-        public event Action<IHealthComponent, DamageRequest>? OnDamageApplied;
-        public event Action<IHealthComponent, int>? OnHealingApplied;
-        public event Action<IHealthComponent>? OnComponentDeath;
-
-        public void RegisterHealthComponent(IHealthComponent healthComponent)
-        {
-            if (!_components.Contains(healthComponent))
-            {
-                _components.Add(healthComponent);
-            }
-        }
-
-        public void UnregisterHealthComponent(IHealthComponent healthComponent)
-        {
-            _components.Remove(healthComponent);
-        }
-
-        public bool ApplyDamage(IHealthComponent target, DamageRequest damageRequest)
-        {
-            if (!_components.Contains(target))
-                return false;
-
-            var success = target.TakeDamage(damageRequest);
-            if (success)
-            {
-                OnDamageApplied?.Invoke(target, damageRequest);
-                
-                if (!target.IsAlive)
-                {
-                    OnComponentDeath?.Invoke(target);
-                }
-            }
-
-            return success;
-        }
-
-        public bool ApplyHealing(IHealthComponent target, int amount, object? source = null)
-        {
-            if (!_components.Contains(target))
-                return false;
-
-            var success = target.Heal(amount, source);
-            if (success)
-            {
-                OnHealingApplied?.Invoke(target, amount);
-            }
-
-            return success;
-        }
-
-        public System.Collections.Generic.IReadOnlyList<IHealthComponent> GetAllHealthComponents()
-        {
-            return _components.AsReadOnly();
-        }
-
-        public void Dispose()
-        {
-            _components.Clear();
-            OnDamageApplied = null;
-            OnHealingApplied = null;
-            OnComponentDeath = null;
-        }
-    }
-
-    /// <summary>
-    /// Mock implementation of IHealthComponent for testing.
-    /// </summary>
-    public class MockHealthComponent : IHealthComponent
-    {
-        public int CurrentHealth { get; private set; } = 100;
-        public int MaxHealth { get; private set; } = 100;
-        public bool IsAlive => CurrentHealth > 0;
-        public float HealthPercentage => MaxHealth > 0 ? (float)CurrentHealth / MaxHealth : 0f;
-        public GameObject? GameObject => null;
-
-        public event Action<HealthChangedEventArgs>? OnHealthChanged;
-        public event Action<DeathEventArgs>? OnDeath;
-
-        public void SetCurrentHealth(int health)
-        {
-            CurrentHealth = Mathf.Clamp(health, 0, MaxHealth);
-        }
-
-        public void SetMaxHealth(int maxHealth)
-        {
-            MaxHealth = maxHealth;
-            if (CurrentHealth > MaxHealth)
-                CurrentHealth = MaxHealth;
-        }
-
-        public void ResetToMaxHealth()
-        {
-            int oldHealth = CurrentHealth;
-            CurrentHealth = MaxHealth;
-            OnHealthChanged?.Invoke(new HealthChangedEventArgs(oldHealth, CurrentHealth, this));
-        }
-
-        public bool TakeDamage(DamageRequest damageRequest)
-        {
-            if (!IsAlive) return false;
-
-            int oldHealth = CurrentHealth;
-            CurrentHealth = Mathf.Max(0, CurrentHealth - (int)damageRequest.Amount);
-            
-            OnHealthChanged?.Invoke(new HealthChangedEventArgs(oldHealth, CurrentHealth, this));
-
-            if (!IsAlive)
-            {
-            OnDeath?.Invoke(new DeathEventArgs(this, damageRequest));
-            }
-
-            return true;
-        }
-
-        public bool Heal(int amount, object? source = null)
-        {
-            if (!IsAlive) return false;
-
-            int oldHealth = CurrentHealth;
-            CurrentHealth = Mathf.Min(MaxHealth, CurrentHealth + amount);
-            
-            OnHealthChanged?.Invoke(new HealthChangedEventArgs(oldHealth, CurrentHealth, this));
-
-            return CurrentHealth != oldHealth; // Return true if healing was applied
-        }
-
-        public bool CanTakeDamage(DamageRequest damageRequest)
-        {
-            return IsAlive && damageRequest.Amount > 0;
-        }
-
-        public bool CanHeal(int amount)
-        {
-            return IsAlive && CurrentHealth < MaxHealth && amount > 0;
-        }
-    }
-
-    #endregion
 }

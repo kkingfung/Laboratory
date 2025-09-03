@@ -1,0 +1,27 @@
+{
+  "resolution": {
+    "width": 1920,
+    "height": 1080,
+    "refreshRate": 60
+  },
+  "quality": {
+    "level": 3,
+    "vsyncEnabled": true,
+    "antiAliasing": 4,
+    "shadowQuality": 2,
+    "textureQuality": 2,
+    "anisotropicFiltering": 2
+  },
+  "postProcessing": {
+    "bloomEnabled": true,
+    "ambientOcclusionEnabled": true,
+    "motionBlurEnabled": false,
+    "depthOfFieldEnabled": false
+  },
+  "performance": {
+    "targetFrameRate": 60,
+    "renderScale": 1.0,
+    "lodBias": 1.0,
+    "maximumLODLevel": 0
+  }
+}
