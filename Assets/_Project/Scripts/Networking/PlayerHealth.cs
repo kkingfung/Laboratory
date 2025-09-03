@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -7,6 +8,7 @@ using Laboratory.Core.Events;
 using Laboratory.Core.DI;
 using Laboratory.Core.Systems;
 using Laboratory.Gameplay;
+using Laboratory.Gameplay.Respawn;
 
 namespace Laboratory.Infrastructure.Networking
 {
@@ -80,8 +82,8 @@ namespace Laboratory.Infrastructure.Networking
             // Get services from global service provider
             if (GlobalServiceProvider.IsInitialized)
             {
-                GlobalServiceProvider.Services?.TryResolve<IEventBus>(out _eventBus);
-                GlobalServiceProvider.Services?.TryResolve<IHealthSystem>(out _healthSystem);
+                GlobalServiceProvider.Instance?.TryResolve<IEventBus>(out _eventBus);
+                GlobalServiceProvider.Instance?.TryResolve<IHealthSystem>(out _healthSystem);
             }
             
             // Subscribe to health component events
@@ -187,7 +189,7 @@ namespace Laboratory.Infrastructure.Networking
                 OldHealth = args.OldHealth,
                 NewHealth = args.NewHealth,
                 MaxHealth = MaxHealth,
-                Player = this
+                PlayerGameObject = gameObject
             });
         }
         
@@ -197,7 +199,7 @@ namespace Laboratory.Infrastructure.Networking
             _eventBus?.Publish(new PlayerDeathEvent
             {
                 PlayerId = GetComponent<NetworkObject>().OwnerClientId,
-                Player = this,
+                PlayerGameObject = gameObject,
                 Source = args.Source,
                 FinalDamage = args.FinalDamage
             });
@@ -345,14 +347,14 @@ namespace Laboratory.Gameplay
             {
                 PlayerId = OwnerClientId,
                 RespawnPosition = spawnPos,
-                Player = GetComponent<PlayerHealth>()
+                PlayerGameObject = gameObject
             });
         }
         
         private Vector3 GetRespawnPosition()
         {
             // Try to get position from respawn manager
-            var respawnManager = FindObjectOfType<RespawnManager>();
+            var respawnManager = FindFirstObjectByType<RespawnManager>();
             if (respawnManager != null)
             {
                 Transform spawnPoint = respawnManager.GetRandomSpawnPoint();
@@ -407,51 +409,51 @@ namespace Laboratory.Gameplay
         
         #endregion
     }
+
+    #region Player Event Data Classes
+
+    /// <summary>
+    /// Player-specific health change event.
+    /// </summary>
+    public class PlayerHealthChangedEvent
+    {
+        public ulong PlayerId { get; set; }
+        public int OldHealth { get; set; }
+        public int NewHealth { get; set; }
+        public int MaxHealth { get; set; }
+        public GameObject PlayerGameObject { get; set; }
+    }
+
+    /// <summary>
+    /// Player death event with additional player context.
+    /// </summary>
+    public class PlayerDeathEvent
+    {
+        public ulong PlayerId { get; set; }
+        public GameObject PlayerGameObject { get; set; }
+        public object Source { get; set; }
+        public DamageRequest FinalDamage { get; set; }
+    }
+
+    /// <summary>
+    /// Player respawn event.
+    /// </summary>
+    public class PlayerRespawnEvent
+    {
+        public ulong PlayerId { get; set; }
+        public Vector3 RespawnPosition { get; set; }
+        public GameObject PlayerGameObject { get; set; }
+    }
+
+    /// <summary>
+    /// Player respawn timer update event.
+    /// </summary>
+    public class PlayerRespawnTimerEvent
+    {
+        public ulong PlayerId { get; set; }
+        public float TimeRemaining { get; set; }
+        public bool CanRespawn { get; set; }
+    }
+
+    #endregion
 }
-
-#region Player Event Data Classes
-
-/// <summary>
-/// Player-specific health change event.
-/// </summary>
-public class PlayerHealthChangedEvent
-{
-    public ulong PlayerId { get; set; }
-    public int OldHealth { get; set; }
-    public int NewHealth { get; set; }
-    public int MaxHealth { get; set; }
-    public PlayerHealth Player { get; set; }
-}
-
-/// <summary>
-/// Player death event with additional player context.
-/// </summary>
-public class PlayerDeathEvent
-{
-    public ulong PlayerId { get; set; }
-    public PlayerHealth Player { get; set; }
-    public object Source { get; set; }
-    public DamageRequest FinalDamage { get; set; }
-}
-
-/// <summary>
-/// Player respawn event.
-/// </summary>
-public class PlayerRespawnEvent
-{
-    public ulong PlayerId { get; set; }
-    public Vector3 RespawnPosition { get; set; }
-    public PlayerHealth Player { get; set; }
-}
-
-/// <summary>
-/// Player respawn timer update event.
-/// </summary>
-public class PlayerRespawnTimerEvent
-{
-    public ulong PlayerId { get; set; }
-    public float TimeRemaining { get; set; }
-    public bool CanRespawn { get; set; }
-}
-
-#endregion

@@ -44,7 +44,7 @@ namespace Laboratory.Core.Tests.Integration
             
             if (_bootstrapGameObject != null)
             {
-                Object.DestroyImmediate(_bootstrapGameObject);
+                UnityEngine.Object.DestroyImmediate(_bootstrapGameObject);
             }
             
             // Clean up global state
@@ -58,7 +58,6 @@ namespace Laboratory.Core.Tests.Integration
         {
             // Arrange
             bool initializationCompleted = false;
-            Exception? initializationError = null;
 
             // Act - trigger manual initialization to control timing
             _bootstrap!.InitializeManuallyAsync(_cancellationTokenSource!.Token)

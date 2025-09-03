@@ -59,7 +59,7 @@ namespace Laboratory.Infrastructure.Networking
             _networkClient.DataReceived += OnDataReceived;
 
             // Start processing incoming messages asynchronously
-            ProcessMessagesAsync(_cts.Token).Forget();
+            _ = ProcessMessagesAsync(_cts.Token);
         }
 
         #endregion

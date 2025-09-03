@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using NUnit.Framework;
 using Laboratory.Core.Systems;
@@ -44,7 +45,7 @@ namespace Laboratory.Tests.Unit.Core
             // Assert
             var managers = _abilitySystem.GetAllAbilityManagers();
             Assert.AreEqual(1, managers.Count);
-            Assert.Contains(_abilityManager, managers);
+            Assert.IsTrue(managers.Any(m => m == _abilityManager));
         }
 
         [Test]
@@ -54,7 +55,7 @@ namespace Laboratory.Tests.Unit.Core
             _abilitySystem!.RegisterAbilityManager(_abilityManager!);
 
             // Act
-            _abilitySystem.UnregisterAbilityManager(_abilityManager);
+            _abilitySystem.UnregisterAbilityManager(_abilityManager!);
 
             // Assert
             var managers = _abilitySystem.GetAllAbilityManagers();
@@ -66,14 +67,14 @@ namespace Laboratory.Tests.Unit.Core
         {
             // Arrange
             _abilitySystem!.RegisterAbilityManager(_abilityManager!);
-            _abilityManager.AddAbility(0); // Add ability at index 0
+            _abilityManager!.AddAbility(0); // Add ability at index 0
 
             // Act
-            var result = _abilitySystem.TryActivateAbility(_abilityManager, 0);
+            var result = _abilitySystem.TryActivateAbility(_abilityManager!, 0);
 
             // Assert
             Assert.IsTrue(result);
-            Assert.IsTrue(_abilityManager.IsAbilityActivated(0));
+            Assert.IsTrue(_abilityManager!.IsAbilityActivated(0));
         }
 
         [Test]
@@ -83,7 +84,7 @@ namespace Laboratory.Tests.Unit.Core
             _abilitySystem!.RegisterAbilityManager(_abilityManager!);
 
             // Act
-            var result = _abilitySystem.TryActivateAbility(_abilityManager, 0);
+            var result = _abilitySystem.TryActivateAbility(_abilityManager!, 0);
 
             // Assert
             Assert.IsFalse(result);
@@ -94,7 +95,7 @@ namespace Laboratory.Tests.Unit.Core
         {
             // Arrange
             _abilitySystem!.RegisterAbilityManager(_abilityManager!);
-            _abilityManager.AddAbility(0);
+            _abilityManager!.AddAbility(0);
 
             var eventTriggered = false;
             IAbilityManagerCore? eventManager = null;
@@ -108,11 +109,11 @@ namespace Laboratory.Tests.Unit.Core
             };
 
             // Act
-            _abilitySystem.TryActivateAbility(_abilityManager, 0);
+            _abilitySystem.TryActivateAbility(_abilityManager!, 0);
 
             // Assert
             Assert.IsTrue(eventTriggered);
-            Assert.AreEqual(_abilityManager, eventManager);
+            Assert.AreEqual(_abilityManager!, eventManager);
             Assert.AreEqual(0, eventAbilityIndex);
         }
 
@@ -121,10 +122,10 @@ namespace Laboratory.Tests.Unit.Core
         {
             // Arrange
             _abilitySystem!.RegisterAbilityManager(_abilityManager!);
-            _abilityManager.AddAbility(0, 5.0f); // 5 second cooldown
+            _abilityManager!.AddAbility(0, 5.0f); // 5 second cooldown
 
             // Act
-            var cooldown = _abilitySystem.GetAbilityCooldown(_abilityManager, 0);
+            var cooldown = _abilitySystem.GetAbilityCooldown(_abilityManager!, 0);
 
             // Assert
             Assert.AreEqual(5.0f, cooldown, 0.01f);
@@ -135,11 +136,11 @@ namespace Laboratory.Tests.Unit.Core
         {
             // Arrange
             _abilitySystem!.RegisterAbilityManager(_abilityManager!);
-            _abilityManager.AddAbility(0, 5.0f);
-            _abilitySystem.TryActivateAbility(_abilityManager, 0); // Trigger cooldown
+            _abilityManager!.AddAbility(0, 5.0f);
+            _abilitySystem.TryActivateAbility(_abilityManager!, 0); // Trigger cooldown
 
             // Act
-            var isOnCooldown = _abilitySystem.IsAbilityOnCooldown(_abilityManager, 0);
+            var isOnCooldown = _abilitySystem.IsAbilityOnCooldown(_abilityManager!, 0);
 
             // Assert
             Assert.IsTrue(isOnCooldown);
@@ -158,7 +159,9 @@ namespace Laboratory.Tests.Unit.Core
         private readonly List<IAbilityManagerCore> _abilityManagers = new();
 
         public event Action<IAbilityManagerCore, int>? OnAbilityActivated;
+#pragma warning disable 0414
         public event Action<IAbilityManagerCore, int>? OnAbilityCooldownComplete;
+#pragma warning restore 0414
         public event Action<IAbilityManagerCore, int, bool, float>? OnAbilityStateChanged;
 
         public void RegisterAbilityManager(IAbilityManagerCore abilityManager)
@@ -213,15 +216,12 @@ namespace Laboratory.Tests.Unit.Core
     }
 
     /// <summary>
-    /// Mock implementation of IAbilityManager for testing.
+    /// Mock implementation of IAbilityManagerCore for testing.
     /// </summary>
-    public class MockAbilityManager : IAbilityManager
+    public class MockAbilityManager : IAbilityManagerCore
     {
         private readonly Dictionary<int, MockAbility> _abilities = new();
         private GameObject? _gameObject;
-
-        public event Action<int>? OnAbilityActivated;
-        public event Action<int, bool>? OnAbilityStateChanged;
 
         public GameObject GameObject => _gameObject ?? (_gameObject = new GameObject("MockAbilityManager"));
         public int AbilityCount => _abilities.Count;
@@ -236,19 +236,9 @@ namespace Laboratory.Tests.Unit.Core
             if (_abilities.TryGetValue(index, out var ability))
             {
                 var result = ability.TryActivate();
-                if (result)
-                {
-                    OnAbilityActivated?.Invoke(index);
-                    OnAbilityStateChanged?.Invoke(index, ability.IsOnCooldown);
-                }
                 return result;
             }
             return false;
-        }
-
-        public bool TryActivateAbility(int index)
-        {
-            return ActivateAbility(index);
         }
 
         public float GetAbilityCooldown(int index)
@@ -293,15 +283,6 @@ namespace Laboratory.Tests.Unit.Core
             {
                 ability.Reset();
             }
-        }
-
-        public object GetAbilityData(int abilityIndex)
-        {
-            if (_abilities.TryGetValue(abilityIndex, out var ability))
-            {
-                return new { Index = abilityIndex, CooldownDuration = ability.CooldownDuration, IsOnCooldown = ability.IsOnCooldown };
-            }
-            return null!;
         }
     }
 

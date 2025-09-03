@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using NUnit.Framework;
 using Laboratory.Core.Health;
@@ -44,7 +45,7 @@ namespace Laboratory.Tests.Unit.Core
             // Assert
             var components = _healthSystem.GetAllHealthComponents();
             Assert.AreEqual(1, components.Count);
-            Assert.Contains(_healthComponent, components);
+            Assert.IsTrue(components.Any(c => c == _healthComponent));
         }
 
         [Test]
@@ -54,7 +55,7 @@ namespace Laboratory.Tests.Unit.Core
             _healthSystem!.RegisterHealthComponent(_healthComponent!);
 
             // Act
-            _healthSystem.UnregisterHealthComponent(_healthComponent);
+            _healthSystem.UnregisterHealthComponent(_healthComponent!);
 
             // Assert
             var components = _healthSystem.GetAllHealthComponents();
@@ -66,7 +67,7 @@ namespace Laboratory.Tests.Unit.Core
         {
             // Act
             _healthSystem!.RegisterHealthComponent(_healthComponent!);
-            _healthSystem.RegisterHealthComponent(_healthComponent); // Add same component twice
+            _healthSystem.RegisterHealthComponent(_healthComponent!); // Add same component twice
 
             // Assert
             var components = _healthSystem.GetAllHealthComponents();
@@ -84,17 +85,17 @@ namespace Laboratory.Tests.Unit.Core
             _healthSystem!.RegisterHealthComponent(_healthComponent!);
             var damageRequest = new DamageRequest
             {
-                Amount = 25,
+                Amount = 25f,
                 Type = DamageType.Normal,
                 Source = null
             };
 
             // Act
-            var result = _healthSystem.ApplyDamage(_healthComponent, damageRequest);
+            var result = _healthSystem.ApplyDamage(_healthComponent!, damageRequest);
 
             // Assert
             Assert.IsTrue(result);
-            Assert.AreEqual(75, _healthComponent.CurrentHealth); // 100 - 25 = 75
+            Assert.AreEqual(75, _healthComponent!.CurrentHealth); // 100 - 25 = 75
         }
 
         [Test]
@@ -103,7 +104,7 @@ namespace Laboratory.Tests.Unit.Core
             // Arrange
             var damageRequest = new DamageRequest
             {
-                Amount = 25,
+                Amount = 25f,
                 Type = DamageType.Normal,
                 Source = null
             };
@@ -113,7 +114,7 @@ namespace Laboratory.Tests.Unit.Core
 
             // Assert
             Assert.IsFalse(result);
-            Assert.AreEqual(100, _healthComponent.CurrentHealth); // No damage applied
+            Assert.AreEqual(100, _healthComponent!.CurrentHealth); // No damage applied
         }
 
         [Test]
@@ -123,7 +124,7 @@ namespace Laboratory.Tests.Unit.Core
             _healthSystem!.RegisterHealthComponent(_healthComponent!);
             var damageRequest = new DamageRequest
             {
-                Amount = 25,
+                Amount = 25f,
                 Type = DamageType.Normal,
                 Source = null
             };
@@ -140,12 +141,12 @@ namespace Laboratory.Tests.Unit.Core
             };
 
             // Act
-            _healthSystem.ApplyDamage(_healthComponent, damageRequest);
+            _healthSystem.ApplyDamage(_healthComponent!, damageRequest);
 
             // Assert
             Assert.IsTrue(eventTriggered);
-            Assert.AreEqual(_healthComponent, eventTarget);
-            Assert.AreEqual(25, eventRequest?.Amount);
+            Assert.AreEqual(_healthComponent!, eventTarget);
+            Assert.AreEqual(25f, eventRequest?.Amount);
         }
 
         #endregion
@@ -157,14 +158,14 @@ namespace Laboratory.Tests.Unit.Core
         {
             // Arrange
             _healthSystem!.RegisterHealthComponent(_healthComponent!);
-            _healthComponent.SetCurrentHealth(50); // Set to damaged state
+            _healthComponent!.SetCurrentHealth(50); // Set to damaged state
 
             // Act
-            var result = _healthSystem.ApplyHealing(_healthComponent, 25);
+            var result = _healthSystem.ApplyHealing(_healthComponent!, 25);
 
             // Assert
             Assert.IsTrue(result);
-            Assert.AreEqual(75, _healthComponent.CurrentHealth); // 50 + 25 = 75
+            Assert.AreEqual(75, _healthComponent!.CurrentHealth); // 50 + 25 = 75
         }
 
         [Test]
@@ -172,14 +173,14 @@ namespace Laboratory.Tests.Unit.Core
         {
             // Arrange
             _healthSystem!.RegisterHealthComponent(_healthComponent!);
-            _healthComponent.SetCurrentHealth(90);
+            _healthComponent!.SetCurrentHealth(90);
 
             // Act
-            var result = _healthSystem.ApplyHealing(_healthComponent, 25);
+            var result = _healthSystem.ApplyHealing(_healthComponent!, 25);
 
             // Assert
             Assert.IsTrue(result);
-            Assert.AreEqual(100, _healthComponent.CurrentHealth); // Clamped to max
+            Assert.AreEqual(100, _healthComponent!.CurrentHealth); // Clamped to max
         }
 
         [Test]
@@ -187,7 +188,7 @@ namespace Laboratory.Tests.Unit.Core
         {
             // Arrange
             _healthSystem!.RegisterHealthComponent(_healthComponent!);
-            _healthComponent.SetCurrentHealth(50);
+            _healthComponent!.SetCurrentHealth(50);
 
             var eventTriggered = false;
             IHealthComponent? eventTarget = null;
@@ -201,11 +202,11 @@ namespace Laboratory.Tests.Unit.Core
             };
 
             // Act
-            _healthSystem.ApplyHealing(_healthComponent, 25);
+            _healthSystem.ApplyHealing(_healthComponent!, 25);
 
             // Assert
             Assert.IsTrue(eventTriggered);
-            Assert.AreEqual(_healthComponent, eventTarget);
+            Assert.AreEqual(_healthComponent!, eventTarget);
             Assert.AreEqual(25, eventAmount);
         }
 
@@ -220,7 +221,7 @@ namespace Laboratory.Tests.Unit.Core
             _healthSystem!.RegisterHealthComponent(_healthComponent!);
             var damageRequest = new DamageRequest
             {
-                Amount = 150, // More than current health
+                Amount = 150f, // More than current health
                 Type = DamageType.Normal,
                 Source = null
             };
@@ -235,12 +236,12 @@ namespace Laboratory.Tests.Unit.Core
             };
 
             // Act
-            _healthSystem.ApplyDamage(_healthComponent, damageRequest);
+            _healthSystem.ApplyDamage(_healthComponent!, damageRequest);
 
             // Assert
             Assert.IsTrue(eventTriggered);
-            Assert.AreEqual(_healthComponent, eventTarget);
-            Assert.IsFalse(_healthComponent.IsAlive);
+            Assert.AreEqual(_healthComponent!, eventTarget);
+            Assert.IsFalse(_healthComponent!.IsAlive);
         }
 
         #endregion
@@ -357,13 +358,13 @@ namespace Laboratory.Tests.Unit.Core
             if (!IsAlive) return false;
 
             int oldHealth = CurrentHealth;
-            CurrentHealth = Mathf.Max(0, CurrentHealth - damageRequest.Amount);
+            CurrentHealth = Mathf.Max(0, CurrentHealth - (int)damageRequest.Amount);
             
             OnHealthChanged?.Invoke(new HealthChangedEventArgs(oldHealth, CurrentHealth, this));
 
             if (!IsAlive)
             {
-                OnDeath?.Invoke(new DeathEventArgs(this, damageRequest.Source));
+            OnDeath?.Invoke(new DeathEventArgs(this, damageRequest));
             }
 
             return true;
@@ -376,7 +377,7 @@ namespace Laboratory.Tests.Unit.Core
             int oldHealth = CurrentHealth;
             CurrentHealth = Mathf.Min(MaxHealth, CurrentHealth + amount);
             
-            OnHealthChanged?.Invoke(new HealthChangedEventArgs(oldHealth, CurrentHealth, source));
+            OnHealthChanged?.Invoke(new HealthChangedEventArgs(oldHealth, CurrentHealth, this));
 
             return CurrentHealth != oldHealth; // Return true if healing was applied
         }
