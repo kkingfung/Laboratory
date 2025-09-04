@@ -15,6 +15,9 @@ namespace Laboratory.Models.ECS.Components
         True, // True damage that ignores resistances
         Normal, // Standard physical damage
         Environmental, // Damage from environmental hazards
-        Critical // Critical damage multiplier
+        Critical, // Critical damage multiplier
+        InstantKill, // Instant death damage
+        Piercing, // Piercing damage that bypasses some armor
+        Explosive // Area damage from explosions
     }
 }

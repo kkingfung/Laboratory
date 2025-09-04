@@ -15,8 +15,48 @@ namespace Laboratory.UI.Helper
         public string name = "";
         public Sprite icon;
         public int quantity = 1;
+        public Laboratory.Gameplay.Inventory.ItemData itemData;
+        public int slotIndex = -1;
         
-        // Add other fields like item ID, description, effects, etc.
+        /// <summary>
+        /// Gets the item data associated with this inventory item.
+        /// </summary>
+        public Laboratory.Gameplay.Inventory.ItemData ItemData => itemData;
+        
+        /// <summary>
+        /// Gets the current quantity of this item.
+        /// </summary>
+        public int Quantity
+        {
+            get => quantity;
+            set => quantity = Mathf.Max(0, value);
+        }
+        
+        /// <summary>
+        /// Gets the slot index where this item is stored.
+        /// </summary>
+        public int SlotIndex
+        {
+            get => slotIndex;
+            set => slotIndex = value;
+        }
+        
+        /// <summary>
+        /// Constructor for creating an inventory item from item data.
+        /// </summary>
+        public InventoryItem(Laboratory.Gameplay.Inventory.ItemData data, int qty = 1, int slot = -1)
+        {
+            itemData = data;
+            name = data?.ItemName ?? "";
+            icon = data?.Icon;
+            quantity = qty;
+            slotIndex = slot;
+        }
+        
+        /// <summary>
+        /// Default constructor for serialization.
+        /// </summary>
+        public InventoryItem() { }
     }
 
     /// <summary>
@@ -80,6 +120,16 @@ namespace Laboratory.UI.Helper
             _selectedIndex = -1;
 
             RefreshAllSlots();
+        }
+
+        /// <summary>
+        /// Initialize the inventory UI with the inventory system.
+        /// </summary>
+        /// <param name="inventorySystem">The inventory system to connect to</param>
+        public void Initialize(object inventorySystem)
+        {
+            // Initialize connection to inventory system
+            // For now, this is a placeholder for the interface
         }
 
         /// <summary>

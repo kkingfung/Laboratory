@@ -3,7 +3,7 @@ using Unity.Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Laboratory.Core
+namespace Laboratory.Core.Camera
 {
     /// <summary>
     /// Manages player camera states and transitions between different camera modes.
@@ -197,6 +197,21 @@ namespace Laboratory.Core
         public void OnPlayerRespawn()
         {
             SetCameraMode(CameraMode.FollowPlayer);
+        }
+
+        /// <summary>
+        /// Set the player transform target for camera following
+        /// </summary>
+        /// <param name="playerTransform">Transform of the player to follow</param>
+        public void SetTarget(Transform playerTransform)
+        {
+            _player = playerTransform;
+            
+            // Update the current camera if it's following the player
+            if (_currentMode == CameraMode.FollowPlayer)
+            {
+                ActivateFollowPlayerCamera();
+            }
         }
 
         /// <summary>

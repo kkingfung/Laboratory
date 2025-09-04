@@ -76,7 +76,7 @@ namespace Laboratory.Editor
             }
 
             // Check for deprecated components in current scene
-            var deprecatedFound = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>()
+            var deprecatedFound = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
                 .Count(obj => obj.GetType().GetCustomAttribute<System.ObsoleteAttribute>() != null);
 
             if (deprecatedFound > 0)
@@ -120,7 +120,7 @@ namespace Laboratory.Editor
             Debug.Log(GlobalServiceProvider.GetDiagnosticInfo());
             
             // Scene analysis
-            var monoBehaviours = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
+            var monoBehaviours = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
             Debug.Log($"Scene Analysis:");
             Debug.Log($"- Total MonoBehaviours: {monoBehaviours.Length}");
             Debug.Log($"- Health Components: {monoBehaviours.Count(mb => mb.GetType().Name.Contains("Health"))}");
@@ -186,7 +186,7 @@ namespace Laboratory.Editor
         {
             Debug.Log("Checking for deprecated components...");
             
-            var sceneObjects = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
+            var sceneObjects = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
             int deprecatedFound = 0;
             
             foreach (var obj in sceneObjects)

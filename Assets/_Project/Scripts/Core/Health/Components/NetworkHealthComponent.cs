@@ -3,6 +3,11 @@ using Unity.Netcode;
 using UnityEngine;
 using Laboratory.Core.Events;
 using Laboratory.Core.DI;
+using Laboratory.Core.Health;
+
+// Use DamageType and DamageRequest from the Core.Health namespace to avoid ambiguity
+using DamageRequest = Laboratory.Core.Health.DamageRequest;
+using DamageType = Laboratory.Core.Health.DamageType;
 
 #nullable enable
 

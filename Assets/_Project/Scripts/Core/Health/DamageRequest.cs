@@ -114,6 +114,9 @@ namespace Laboratory.Core.Health
         Critical = 8,
         
         /// <summary>Healing (negative damage).</summary>
-        Healing = 9
+        Healing = 9,
+        
+        /// <summary>Instant kill that bypasses normal damage processing.</summary>
+        InstantKill = 10
     }
 }

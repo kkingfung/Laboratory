@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using Unity.Cinemachine;
-using Laboratory.Core;
+using Laboratory.Core.Camera;
 
 namespace Laboratory.Core.Camera.Tests
 {
