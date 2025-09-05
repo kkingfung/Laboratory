@@ -10,7 +10,7 @@ namespace Laboratory.Gameplay.Lobby
     /// <summary>
     /// Tracks and displays the match timer.
     /// </summary>
-    public class MatchTimer : MonoBehaviour
+    public class MatchTimer : MonoBehaviour, IMatchTimer
     {
         #region Fields
 

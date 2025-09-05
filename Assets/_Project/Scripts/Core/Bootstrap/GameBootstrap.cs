@@ -158,6 +158,9 @@ namespace Laboratory.Core.Bootstrap
             _services.Register<ISceneService, SceneService>();
             _services.Register<IConfigService, ConfigService>();
             
+            // Game systems
+            _services.Register<Laboratory.Core.Systems.IHealthSystem, Laboratory.Core.Health.Services.HealthSystemService>();
+            
             // Network services (register interface, implement later)
             // _services.Register<INetworkService, NetworkService>();
             

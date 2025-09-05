@@ -9,6 +9,8 @@ using Laboratory.Core.DI;
 using Laboratory.Core.Systems;
 using Laboratory.Gameplay;
 using Laboratory.Gameplay.Respawn;
+using HealthChangedEventArgs = Laboratory.Core.Health.HealthChangedEventArgs;
+using DeathEventArgs = Laboratory.Core.Health.DeathEventArgs;
 
 namespace Laboratory.Infrastructure.Networking
 {

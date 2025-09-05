@@ -104,6 +104,15 @@ namespace Laboratory.Core.DI
             return _instance?.IsRegistered<T>() ?? false;
         }
 
+        /// <summary>
+        /// Gets the container instance (for backward compatibility).
+        /// </summary>
+        /// <returns>The service container instance</returns>
+        public static IServiceContainer GetContainer()
+        {
+            return Instance;
+        }
+
 #if UNITY_EDITOR
         /// <summary>
         /// Validates that all core services are properly registered.

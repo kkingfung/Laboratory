@@ -2,6 +2,9 @@ using UnityEngine;
 using Unity.Netcode;
 using Laboratory.Models.ECS.Components;
 using Laboratory.Core.Health.Components;
+using Laboratory.Core.Health;
+using DamageRequest = Laboratory.Core.Health.DamageRequest;
+using DamageType = Laboratory.Core.Health.DamageType;
 
 namespace Laboratory.Models.ECS.Systems
 {
@@ -50,7 +53,18 @@ namespace Laboratory.Models.ECS.Systems
         {
             if (targetHealth != null)
             {
-                targetHealth.ApplyDamage((int)damageEvent.DamageAmount);
+                // Create a DamageRequest from the DamageEvent
+                var damageRequest = new DamageRequest
+                {
+                    Amount = damageEvent.DamageAmount,
+                    Type = DamageType.Normal, // Default to Normal damage
+                    Source = null, // Could be enhanced to include source GameObject
+                    Direction = Vector3.zero,
+                    CanBeBlocked = true,
+                    TriggerInvulnerability = true
+                };
+                
+                targetHealth.TakeDamage(damageRequest);
             }
         }
 

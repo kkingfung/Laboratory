@@ -2,6 +2,7 @@ using System;
 using Unity.Netcode;
 using UnityEngine;
 using Laboratory.Core.Events;
+using Laboratory.Core.Events.Messages;
 using Laboratory.Core.DI;
 using Laboratory.Core.Health;
 
@@ -46,6 +47,29 @@ namespace Laboratory.Core.Health.Components
 
         #endregion
 
+        #region Helper Methods
+
+        /// <summary>
+        /// Validates if damage can be applied
+        /// </summary>
+        private bool CanTakeDamage(DamageRequest damageRequest)
+        {
+            return damageRequest != null && 
+                   damageRequest.Amount > 0 && 
+                   NetworkIsAlive.Value;
+        }
+
+        /// <summary>
+        /// Processes damage before applying (for future extensions like armor, resistances)
+        /// </summary>
+        private int ProcessDamage(int damage, DamageRequest damageRequest)
+        {
+            // Future: Apply resistances, armor, etc.
+            return damage;
+        }
+
+        #endregion
+
         #region Properties
 
         /// <summary>Network object component cached for performance.</summary>
@@ -72,13 +96,13 @@ namespace Laboratory.Core.Health.Components
             // Initialize network variables with configured values
             if (IsServer)
             {
-                NetworkMaxHealth.Value = _maxHealth;
-                NetworkCurrentHealth.Value = _currentHealth;
+                NetworkMaxHealth.Value = maxHealth;
+                NetworkCurrentHealth.Value = currentHealth;
                 NetworkIsAlive.Value = IsAlive;
             }
         }
 
-        protected override void OnDestroy()
+        private void OnDestroy()
         {
             // Unsubscribe from network variable changes
             if (NetworkCurrentHealth != null)
@@ -87,8 +111,6 @@ namespace Laboratory.Core.Health.Components
                 NetworkMaxHealth.OnValueChanged -= OnNetworkMaxHealthChanged;
             if (NetworkIsAlive != null)
                 NetworkIsAlive.OnValueChanged -= OnNetworkIsAliveChanged;
-
-            base.OnDestroy();
         }
 
         #endregion
@@ -139,7 +161,7 @@ namespace Laboratory.Core.Health.Components
             int newHealth = Mathf.Max(0, oldHealth - damage);
             NetworkCurrentHealth.Value = newHealth;
             
-            _lastDamageTime = Time.time;
+            lastDamageTime = Time.time;
 
             // Publish network damage event
             PublishNetworkDamageEvent(damageRequest, oldHealth, newHealth);
@@ -204,20 +226,20 @@ namespace Laboratory.Core.Health.Components
         private void OnNetworkHealthChanged(int oldValue, int newValue)
         {
             // Update local cached values
-            _currentHealth = newValue;
+            currentHealth = newValue;
 
             // Fire local events for UI and other systems
             var healthChangedArgs = new HealthChangedEventArgs(oldValue, newValue, this);
-            TriggerHealthChangedEvent(healthChangedArgs);
+            TriggerOnHealthChanged(healthChangedArgs);
             
             // Publish to event bus for UI updates
             var eventBus = GlobalServiceProvider.Instance?.Resolve<IEventBus>();
-            eventBus?.Publish(new HealthChangedEvent(newValue, NetworkMaxHealth.Value, gameObject));
+            eventBus?.Publish(new HealthChangedEvent(gameObject, oldValue, newValue, NetworkMaxHealth.Value));
         }
 
         private void OnNetworkMaxHealthChanged(int oldValue, int newValue)
         {
-            _maxHealth = newValue;
+            maxHealth = newValue;
             
             // If current health exceeds new max, clamp it
             if (IsServer && NetworkCurrentHealth.Value > newValue)
@@ -231,7 +253,7 @@ namespace Laboratory.Core.Health.Components
             if (!newValue && oldValue) // Just died
             {
                 var deathArgs = new DeathEventArgs(this, null);
-                TriggerDeathEvent(deathArgs);
+                TriggerOnDeath(deathArgs);
                 
                 var eventBus = GlobalServiceProvider.Instance?.Resolve<IEventBus>();
                 eventBus?.Publish(new DeathEvent(gameObject, null));
@@ -261,7 +283,7 @@ namespace Laboratory.Core.Health.Components
         /// <summary>
         /// Sets maximum health. Server authority only.
         /// </summary>
-        public override void SetMaxHealth(int newMaxHealth)
+        public new void SetMaxHealth(int newMaxHealth)
         {
             if (!IsServer || newMaxHealth <= 0) return;
 
@@ -276,8 +298,8 @@ namespace Laboratory.Core.Health.Components
 
         private void SyncLocalValuesFromNetwork()
         {
-            _currentHealth = NetworkCurrentHealth.Value;
-            _maxHealth = NetworkMaxHealth.Value;
+            currentHealth = NetworkCurrentHealth.Value;
+            maxHealth = NetworkMaxHealth.Value;
         }
 
         private void PublishNetworkDamageEvent(DamageRequest damageRequest, int oldHealth, int newHealth)
@@ -301,7 +323,7 @@ namespace Laboratory.Core.Health.Components
             };
             
             // Set the target using a different approach since Target is readonly
-            var baseHealthEvent = new HealthChangedEvent(newHealth, NetworkMaxHealth.Value, gameObject);
+            var baseHealthEvent = new HealthChangedEvent(gameObject, oldHealth, newHealth, NetworkMaxHealth.Value);
             eventBus.Publish(baseHealthEvent);
         }
 
@@ -326,7 +348,7 @@ namespace Laboratory.Core.Health.Components
         private void HandleNetworkDeath(DamageRequest finalDamage)
         {
             // Server-side death handling
-            OnDeathBehavior();
+            OnEntityDied();
 
             // Trigger death effects on all clients
             TriggerDeathEffectsClientRpc();
@@ -348,7 +370,7 @@ namespace Laboratory.Core.Health.Components
 
         #region Protected Overrides
 
-        protected override void OnDeathBehavior()
+        protected override void OnEntityDied()
         {
             // Network-specific death behavior
             enabled = false;
@@ -369,16 +391,16 @@ namespace Laboratory.Core.Health.Components
     /// </summary>
     public class NetworkDamageEvent : HealthChangedEvent
     {
-        public GameObject? Source { get; set; }
+        public new GameObject? Source { get; set; }
         public float Amount { get; set; }
         public DamageType Type { get; set; }
         public Vector3 Direction { get; set; }
-        public ulong TargetClientId { get; set; }
+        public new ulong TargetClientId { get; set; }
         public ulong AttackerClientId { get; set; }
-        public int OldHealth { get; set; }
-        public int NewHealth { get; set; }
+        public new int OldHealth { get; set; }
+        public new int NewHealth { get; set; }
 
-        public NetworkDamageEvent() : base(0, 0, null!) { }
+        public NetworkDamageEvent() : base(null!, 0, 0, 0) { }
     }
 
     /// <summary>

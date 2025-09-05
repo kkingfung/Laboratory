@@ -7,6 +7,8 @@ using Laboratory.Core.Health;
 using Laboratory.Core.Health.Components;
 using Laboratory.Gameplay.Abilities;
 using Laboratory.Core.Systems;
+using HealthChangedEventArgs = Laboratory.Core.Health.HealthChangedEventArgs;
+using DeathEventArgs = Laboratory.Core.Health.DeathEventArgs;
 
 namespace Laboratory.Subsystems.Combat
 {

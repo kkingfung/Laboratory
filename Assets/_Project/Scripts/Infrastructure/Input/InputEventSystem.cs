@@ -16,7 +16,7 @@ namespace Laboratory.Infrastructure.Input
         
         public InputEventSystem(IEventBus eventBus)
         {
-            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+            _eventBus = eventBus; // Allow null for cases where no event bus is available
         }
         
         /// <summary>
@@ -40,7 +40,7 @@ namespace Laboratory.Infrastructure.Input
                 Source = "UnifiedInputManager"
             };
             
-            _eventBus.Publish(movementEvent);
+            _eventBus?.Publish(movementEvent);
         }
         
         /// <summary>
@@ -55,7 +55,7 @@ namespace Laboratory.Infrastructure.Input
                 Source = "UnifiedInputManager"
             };
             
-            _eventBus.Publish(lookEvent);
+            _eventBus?.Publish(lookEvent);
         }
         
         /// <summary>
@@ -72,7 +72,7 @@ namespace Laboratory.Infrastructure.Input
                 Source = "UnifiedInputManager"
             };
             
-            _eventBus.Publish(actionEvent);
+            _eventBus?.Publish(actionEvent);
         }
         
         /// <summary>
@@ -87,7 +87,7 @@ namespace Laboratory.Infrastructure.Input
                 Source = "UnifiedInputManager"
             };
             
-            _eventBus.Publish(scrollEvent);
+            _eventBus?.Publish(scrollEvent);
         }
         
         /// <summary>
@@ -103,7 +103,7 @@ namespace Laboratory.Infrastructure.Input
                 Source = "UnifiedInputManager"
             };
             
-            _eventBus.Publish(rawEvent);
+            _eventBus?.Publish(rawEvent);
         }
     }
 }

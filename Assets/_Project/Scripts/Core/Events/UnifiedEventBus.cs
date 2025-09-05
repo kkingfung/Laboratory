@@ -9,16 +9,15 @@ using Laboratory.Core.State;
 namespace Laboratory.Core.Events
 {
     /// <summary>
-    /// Enhanced implementation of IEventBus that removes MessagePipe dependencies
-    /// and provides a stable, Unity-optimized event system using R3.
+    /// Simple implementation of IEventBus without R3 dependencies.
     /// Thread-safe and performant for game development.
     /// </summary>
     public class UnifiedEventBus : IEventBus, IDisposable
     {
         #region Fields
         
-        private readonly Dictionary<Type, object> _subjects = new();
-        private readonly CompositeDisposable _disposables = new();
+        private readonly Dictionary<Type, List<object>> _handlers = new();
+        private readonly List<IDisposable> _subscriptions = new();
         private bool _disposed = false;
         
         #endregion
@@ -27,7 +26,7 @@ namespace Laboratory.Core.Events
         
         public UnifiedEventBus()
         {
-            Debug.Log("UnifiedEventBus: Initialized with R3 backend");
+            Debug.Log("UnifiedEventBus: Initialized with simple event system");
         }
         
         #endregion
@@ -44,14 +43,20 @@ namespace Laboratory.Core.Events
                 return;
             }
             
-            var subject = GetSubject<T>();
-            try
+            var eventType = typeof(T);
+            if (_handlers.TryGetValue(eventType, out var handlers))
             {
-                subject.OnNext(message);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"Error publishing event {typeof(T).Name}: {ex}");
+                foreach (var handler in handlers.ToArray()) // ToArray to avoid modification during iteration
+                {
+                    try
+                    {
+                        ((Action<T>)handler)(message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError($"Error executing handler for event {typeof(T).Name}: {ex}");
+                    }
+                }
             }
         }
         
@@ -62,40 +67,45 @@ namespace Laboratory.Core.Events
             if (handler == null) 
                 throw new ArgumentNullException(nameof(handler));
             
-            var subject = GetSubject<T>();
-            return subject
-                .Subscribe(handler);
+            var eventType = typeof(T);
+            if (!_handlers.ContainsKey(eventType))
+            {
+                _handlers[eventType] = new List<object>();
+            }
+            
+            _handlers[eventType].Add(handler);
+            
+            var subscription = new SimpleSubscription(() => {
+                if (_handlers.ContainsKey(eventType))
+                {
+                    _handlers[eventType].Remove(handler);
+                }
+            });
+            
+            _subscriptions.Add(subscription);
+            return subscription;
         }
         
-        public Observable<T> Observe<T>() where T : class
+        public object Observe<T>() where T : class
         {
             ThrowIfDisposed();
             
-            var subject = GetSubject<T>();
-            return subject.AsObservable();
+            // Return a simple observable mock
+            return new SimpleObservable<T>();
         }
         
         public IDisposable SubscribeOnMainThread<T>(Action<T> handler) where T : class
         {
             ThrowIfDisposed();
             
-            if (handler == null) 
-                throw new ArgumentNullException(nameof(handler));
-            
-            var subject = GetSubject<T>();
-            
-            // For now, just subscribe directly since we're already on the main thread in Unity
-            // TODO: Add proper main thread scheduling when R3 scheduler is available
-            return subject.Subscribe(handler);
+            // Since we're already on the main thread in Unity, just use regular subscribe
+            return Subscribe(handler);
         }
         
         #endregion
         
         #region Enhanced Features
         
-        /// <summary>
-        /// Subscribe with filtering predicate.
-        /// </summary>
         public IDisposable SubscribeWhere<T>(Func<T, bool> predicate, Action<T> handler) where T : class
         {
             ThrowIfDisposed();
@@ -103,94 +113,47 @@ namespace Laboratory.Core.Events
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
             if (handler == null) throw new ArgumentNullException(nameof(handler));
             
-            var subject = GetSubject<T>();
-            return subject
-                .Where(predicate)
-                .Subscribe(handler);
+            return Subscribe<T>(evt => {
+                if (predicate(evt))
+                {
+                    handler(evt);
+                }
+            });
         }
         
-        /// <summary>
-        /// Subscribe for only the first occurrence of an event.
-        /// </summary>
         public IDisposable SubscribeFirst<T>(Action<T> handler) where T : class
         {
             ThrowIfDisposed();
             
             if (handler == null) throw new ArgumentNullException(nameof(handler));
             
-            var subject = GetSubject<T>();
-            return subject
-                .Take(1)
-                .Subscribe(handler);
+            bool handled = false;
+            return Subscribe<T>(evt => {
+                if (!handled)
+                {
+                    handled = true;
+                    handler(evt);
+                }
+            });
         }
         
         public int GetSubscriberCount<T>() where T : class
         {
             ThrowIfDisposed();
             
-            if (_subjects.TryGetValue(typeof(T), out var subject))
-            {
-                // R3 doesn't expose exact subscriber count, so we return 1 if subject exists, 0 otherwise
-                return subject != null ? 1 : 0;
-            }
-            return 0;
+            var eventType = typeof(T);
+            return _handlers.ContainsKey(eventType) ? _handlers[eventType].Count : 0;
         }
         
-        /// <summary>
-        /// Get count of active subscribers for a specific event type.
-        /// Note: R3 doesn't expose exact subscriber count, so this returns whether there are any subscribers.
-        /// </summary>
-        public bool HasSubscribers<T>() where T : class
-        {
-            ThrowIfDisposed();
-            
-            if (_subjects.TryGetValue(typeof(T), out var subject))
-            {
-                return subject != null;
-            }
-            return false;
-        }
-        
-        /// <summary>
-        /// Get count of registered event types.
-        /// </summary>
-        public int GetEventTypeCount()
-        {
-            ThrowIfDisposed();
-            return _subjects.Count;
-        }
-        
-        /// <summary>
-        /// Clear all subjects and subscriptions for a specific type.
-        /// </summary>
         public void ClearSubscriptions<T>() where T : class
         {
             ThrowIfDisposed();
             
-            var type = typeof(T);
-            if (_subjects.TryGetValue(type, out var subject))
+            var eventType = typeof(T);
+            if (_handlers.ContainsKey(eventType))
             {
-                ((Subject<T>)subject)?.Dispose();
-                _subjects.Remove(type);
+                _handlers[eventType].Clear();
             }
-        }
-        
-        #endregion
-        
-        #region Private Methods
-        
-        private Subject<T> GetSubject<T>() where T : class
-        {
-            var type = typeof(T);
-            if (!_subjects.TryGetValue(type, out var subject))
-            {
-                subject = new Subject<T>();
-                _subjects[type] = subject;
-                
-                // Ensure subject gets disposed with the event bus
-                _disposables.Add((Subject<T>)subject);
-            }
-            return (Subject<T>)subject;
         }
         
         #endregion
@@ -203,17 +166,12 @@ namespace Laboratory.Core.Events
             
             try
             {
-                _disposables?.Dispose();
-                
-                // Dispose individual subjects
-                foreach (var subject in _subjects.Values)
+                foreach (var subscription in _subscriptions)
                 {
-                    if (subject is IDisposable disposable)
-                    {
-                        disposable.Dispose();
-                    }
+                    subscription?.Dispose();
                 }
-                _subjects.Clear();
+                _subscriptions.Clear();
+                _handlers.Clear();
                 
                 Debug.Log("UnifiedEventBus: Disposed successfully");
             }
@@ -235,6 +193,38 @@ namespace Laboratory.Core.Events
         
         #endregion
     }
+    
+    /// <summary>
+    /// Simple subscription implementation
+    /// </summary>
+    public class SimpleSubscription : IDisposable
+    {
+        private readonly Action _unsubscribeAction;
+        private bool _disposed = false;
+        
+        public SimpleSubscription(Action unsubscribeAction)
+        {
+            _unsubscribeAction = unsubscribeAction;
+        }
+        
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _unsubscribeAction?.Invoke();
+                _disposed = true;
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Simple observable mock
+    /// </summary>
+    public class SimpleObservable<T>
+    {
+        public SimpleObservable()
+        {
+            // Simple mock implementation
+        }
+    }
 }
-
-// Event messages are now organized in separate files under Events/Messages/

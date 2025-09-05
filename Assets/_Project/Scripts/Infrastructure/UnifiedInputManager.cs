@@ -39,7 +39,7 @@ namespace Laboratory.Infrastructure.Input
         
         private PlayerControls _controls;
         private InputConfiguration _configuration;
-        private Laboratory.Core.Input.Services.InputBuffer _inputBuffer;
+        private Laboratory.Infrastructure.Input.InputBuffer _inputBuffer;
         private InputValidator _inputValidator;
         private InputEventSystem _inputEventSystem;
         
@@ -133,11 +133,15 @@ namespace Laboratory.Infrastructure.Input
                 };
                 
                 // Initialize subsystems
-                _inputBuffer = new Laboratory.Core.Input.Services.InputBuffer(_configuration);
+                _inputBuffer = new Laboratory.Infrastructure.Input.InputBuffer(inputBufferTime);
                 _inputValidator = new InputValidator(_configuration);
                 
                 // Get or create event bus for InputEventSystem
                 var eventBus = GlobalServiceProvider.Instance?.Resolve<Laboratory.Core.Events.IEventBus>();
+                if (eventBus == null)
+                {
+                    LogWarning("No EventBus found, InputEventSystem will be created with null eventBus");
+                }
                 _inputEventSystem = new InputEventSystem(eventBus);
                 
                 // Initialize input controls
@@ -495,7 +499,7 @@ namespace Laboratory.Infrastructure.Input
                 var currentTime = Time.unscaledTimeAsDouble;
                 
                 // Update subsystems
-                _inputBuffer?.Update(currentTime);
+                _inputBuffer?.Update((float)currentTime);
                 
                 // Process input changes
                 ProcessMovementInput();
@@ -627,7 +631,7 @@ namespace Laboratory.Infrastructure.Input
                 // Buffer the input if enabled
                 if (_configuration.InputBufferingEnabled)
                 {
-                    _inputBuffer?.BufferInput(actionName, isPressed ? 1f : 0f, Time.unscaledTimeAsDouble, "UnifiedInputManager");
+                    _inputBuffer?.BufferInput(actionName, (float)Time.unscaledTimeAsDouble);
                 }
             }
         }

@@ -41,10 +41,8 @@ namespace Laboratory.Core.Health.Components
 
         #region Protected Overrides
 
-        protected override void OnDeathBehavior()
+        protected override void OnEntityDied()
         {
-            base.OnDeathBehavior();
-
             if (_notifyAIOnDeath)
             {
                 NotifyAIComponents("OnDeath", null);
@@ -113,15 +111,15 @@ namespace Laboratory.Core.Health.Components
         public void SetHealthPercentage(float percentage)
         {
             percentage = Mathf.Clamp01(percentage);
-            int newHealth = Mathf.RoundToInt(_maxHealth * percentage);
+            int newHealth = Mathf.RoundToInt(maxHealth * percentage);
             
-            int oldHealth = _currentHealth;
-            _currentHealth = newHealth;
+            int oldHealth = currentHealth;
+            currentHealth = newHealth;
 
             if (oldHealth != newHealth)
             {
                 var healthChangedArgs = new HealthChangedEventArgs(oldHealth, newHealth, this);
-                TriggerHealthChangedEvent(healthChangedArgs);
+                TriggerOnHealthChanged(healthChangedArgs);
             }
         }
 

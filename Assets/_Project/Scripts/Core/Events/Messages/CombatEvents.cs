@@ -7,6 +7,41 @@ namespace Laboratory.Core.Events.Messages
     #region Combat Events
     
     /// <summary>
+    /// Event fired when an entity's health changes.
+    /// </summary>
+    public class HealthChangedEvent
+    {
+        /// <summary>The GameObject whose health changed.</summary>
+        public GameObject Target { get; }
+        
+        /// <summary>Previous health value.</summary>
+        public int OldHealth { get; }
+        
+        /// <summary>New health value.</summary>
+        public int NewHealth { get; }
+        
+        /// <summary>Maximum health value.</summary>
+        public int MaxHealth { get; }
+        
+        /// <summary>The source of the health change (can be null).</summary>
+        public GameObject? Source { get; }
+        
+        /// <summary>Network client ID of the target (0 if not networked).</summary>
+        public ulong TargetClientId { get; }
+
+        public HealthChangedEvent(GameObject target, int oldHealth, int newHealth, int maxHealth, 
+            GameObject? source = null, ulong targetClientId = 0)
+        {
+            Target = target;
+            OldHealth = oldHealth;
+            NewHealth = newHealth;
+            MaxHealth = maxHealth;
+            Source = source;
+            TargetClientId = targetClientId;
+        }
+    }
+
+    /// <summary>
     /// Unified damage event that replaces fragmented damage events across the system.
     /// Contains comprehensive damage information for consistent damage handling.
     /// </summary>

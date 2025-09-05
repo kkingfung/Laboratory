@@ -8,6 +8,9 @@ namespace Laboratory.Models.ECS.Components
     /// ECS component representing a damage request that needs to be processed.
     /// This component is added to entities that should take damage and is consumed
     /// by the DamageSystem during processing.
+    /// 
+    /// Note: This is the high-performance ECS version of Laboratory.Core.Health.DamageRequest.
+    /// Use conversion methods to bridge between the two implementations.
     /// </summary>
     public struct DamageRequest : IComponentData
     {
@@ -186,6 +189,52 @@ namespace Laboratory.Models.ECS.Components
             }
             
             return result;
+        }
+
+        #endregion
+
+        #region Conversion Methods
+
+        /// <summary>
+        /// Converts a Core.Health.DamageRequest to this ECS component
+        /// </summary>
+        /// <param name="coreRequest">The core damage request to convert</param>
+        /// <param name="currentTime">Current game time for timestamp</param>
+        /// <returns>ECS damage request component</returns>
+        public static DamageRequest FromCore(Laboratory.Core.Health.DamageRequest coreRequest, float currentTime)
+        {
+            return new DamageRequest
+            {
+                Amount = coreRequest.Amount,
+                Type = (Laboratory.Models.ECS.Components.DamageType)coreRequest.Type,
+                Direction = new float3(coreRequest.Direction.x, coreRequest.Direction.y, coreRequest.Direction.z),
+                SourcePosition = new float3(coreRequest.SourcePosition.x, coreRequest.SourcePosition.y, coreRequest.SourcePosition.z),
+                CanBeBlocked = coreRequest.CanBeBlocked,
+                TriggerInvulnerability = coreRequest.TriggerInvulnerability,
+                SourceEntityId = 0, // Set by caller if available
+                TimeStamp = currentTime
+            };
+        }
+
+        /// <summary>
+        /// Converts this ECS component to a Core.Health.DamageRequest
+        /// </summary>
+        /// <returns>Core damage request</returns>
+        public readonly Laboratory.Core.Health.DamageRequest ToCore()
+        {
+            var coreRequest = new Laboratory.Core.Health.DamageRequest(Amount, Type)
+            {
+                Direction = new UnityEngine.Vector3(Direction.x, Direction.y, Direction.z),
+                SourcePosition = new UnityEngine.Vector3(SourcePosition.x, SourcePosition.y, SourcePosition.z),
+                CanBeBlocked = CanBeBlocked,
+                TriggerInvulnerability = TriggerInvulnerability
+            };
+
+            // Add ECS-specific metadata
+            coreRequest.Metadata["SourceEntityId"] = SourceEntityId;
+            coreRequest.Metadata["TimeStamp"] = TimeStamp;
+
+            return coreRequest;
         }
 
         #endregion

@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Laboratory.Infrastructure.Input
 {
     /// <summary>
-    /// Manages input buffering for the unified input system.
+    /// Input buffering for the unified input system.
     /// Stores recent inputs to allow for more forgiving input timing.
     /// </summary>
     public class InputBuffer
@@ -66,6 +66,14 @@ namespace Laboratory.Infrastructure.Input
             {
                 _bufferedInputs.Remove(key);
             }
+        }
+        
+        /// <summary>
+        /// Clears all buffered inputs.
+        /// </summary>
+        public void ClearBuffer()
+        {
+            _bufferedInputs.Clear();
         }
         
         private class BufferedInput

@@ -48,17 +48,15 @@ namespace Laboratory.Core.Health.Components
 
         #region Protected Overrides
 
-        protected override void OnDeathBehavior()
+        protected override void OnEntityDied()
         {
-            base.OnDeathBehavior();
-
             if (_enableDebugLogging)
             {
                 Debug.Log($"[LocalHealthComponent] {gameObject.name} has died");
             }
 
             // Local-specific death behavior can be added here
-            // For example: disable renderers, play death animation, etc.
+            // For example: trigger death animation, drop items, etc.
         }
 
         #endregion

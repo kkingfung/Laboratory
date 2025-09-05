@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Core.Health.Components;
-// using Laboratory.Infrastructure.Health; // Removed to break cyclic dependency
 using Laboratory.Core.Events;
+using Laboratory.Core.Events.Messages;
 using Laboratory.Core.DI;
 using Laboratory.Core.Systems;
 

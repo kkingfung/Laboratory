@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Laboratory.Infrastructure.Input
 {
     /// <summary>
-    /// Validates and processes input values for the unified input system.
+    /// Input validator for the unified input system.
     /// Applies deadzones, normalizes values, and filters invalid inputs.
     /// </summary>
     public class InputValidator

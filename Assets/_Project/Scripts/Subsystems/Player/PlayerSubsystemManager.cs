@@ -8,6 +8,8 @@ using Laboratory.Core.Character;
 using Laboratory.Core.Character.Controllers;
 using Laboratory.Core.Health.Components;
 using Laboratory.Core.Camera;
+using HealthChangedEventArgs = Laboratory.Core.Health.HealthChangedEventArgs;
+using DeathEventArgs = Laboratory.Core.Health.DeathEventArgs;
 
 namespace Laboratory.Subsystems.Player
 {

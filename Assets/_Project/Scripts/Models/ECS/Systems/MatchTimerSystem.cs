@@ -5,6 +5,7 @@ using Laboratory.Core;
 using Laboratory.Core.DI;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Models.ECS.Components;
+using Laboratory.Core.Timing;
 
 namespace Laboratory.Models.ECS.Systems
 {
@@ -21,7 +22,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <summary>
         /// Reference to the match timer component for tracking game duration and time-based events
         /// </summary>
-        private MatchTimer? _matchTimer;
+        private IMatchTimer? _matchTimer;
         
         /// <summary>
         /// Flag indicating whether the system is properly initialized
@@ -76,11 +77,11 @@ namespace Laboratory.Models.ECS.Systems
         {
             try
             {
-                _matchTimer = GlobalServiceProvider.Resolve<MatchTimer>();
+                _matchTimer = GlobalServiceProvider.Resolve<IMatchTimer>();
                 
                 if (_matchTimer == null)
                 {
-                    throw new System.InvalidOperationException("MatchTimer could not be resolved from ServiceLocator");
+                    throw new System.InvalidOperationException("IMatchTimer could not be resolved from ServiceLocator");
                 }
                 
                 _isInitialized = true;
@@ -143,7 +144,7 @@ namespace Laboratory.Models.ECS.Systems
         /// Gets the current match timer instance for external access
         /// </summary>
         /// <returns>The current match timer instance, or null if not initialized</returns>
-        public MatchTimer? GetMatchTimer()
+        public IMatchTimer? GetMatchTimer()
         {
             return _isInitialized ? _matchTimer : null;
         }

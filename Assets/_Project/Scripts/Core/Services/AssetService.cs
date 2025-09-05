@@ -103,16 +103,12 @@ namespace Laboratory.Core.Services
         {
             ThrowIfDisposed();
 
-            var coreAssets = new[]
-            {
-                "UI/MainMenuPrefab",
-                "UI/LoadingScreenPrefab", 
-                "UI/HUDPrefab",
-                "Audio/UIClickSound",
-                "Textures/DefaultTexture"
-            };
+            // Load core assets from a configurable list rather than hardcoded
+            var coreAssets = GetCoreAssetList();
 
             progress?.Report(0f);
+            
+            var loadedCount = 0;
             
             for (int i = 0; i < coreAssets.Length; i++)
             {
@@ -120,15 +116,26 @@ namespace Laboratory.Core.Services
                 
                 try
                 {
-                    await LoadAssetAsync<UnityEngine.Object>(coreAssets[i]);
+                    var asset = await LoadAssetAsync<UnityEngine.Object>(coreAssets[i]);
+                    if (asset != null)
+                    {
+                        loadedCount++;
+                        Debug.Log($"Successfully preloaded core asset: {coreAssets[i]}");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"Core asset '{coreAssets[i]}' not found - this is normal if the asset doesn't exist yet");
+                    }
+                    
                     progress?.Report((float)(i + 1) / coreAssets.Length);
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogWarning($"Failed to preload core asset '{coreAssets[i]}': {ex.Message}");
+                    Debug.LogWarning($"Unable to preload core asset '{coreAssets[i]}': {ex.Message}");
                 }
             }
 
+            Debug.Log($"Preloaded {loadedCount}/{coreAssets.Length} core assets");
             _eventBus.Publish(new LoadingCompletedEvent("CoreAssets", true));
         }
 
@@ -220,7 +227,20 @@ namespace Laboratory.Core.Services
         {
             try
             {
-                // Use UniTask integration with Addressables
+                // Check if the key exists first to avoid InvalidKeyException
+                var locationsHandle = Addressables.LoadResourceLocationsAsync(key);
+                await locationsHandle;
+                
+                if (locationsHandle.Result == null || locationsHandle.Result.Count == 0)
+                {
+                    // Key doesn't exist, release the handle and return null gracefully
+                    Addressables.Release(locationsHandle);
+                    return null;
+                }
+                
+                Addressables.Release(locationsHandle);
+                
+                // Now load the actual asset since we know the key exists
                 var handle = Addressables.LoadAssetAsync<T>(key);
                 await handle;
                 T asset = handle.Result;
@@ -243,7 +263,8 @@ namespace Laboratory.Core.Services
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"Failed to load addressable asset '{key}': {ex.Message}");
+                // Only log as warning instead of error for missing assets
+                Debug.LogWarning($"Addressable asset '{key}' not found or failed to load: {ex.Message}");
                 return null;
             }
         }
@@ -273,6 +294,16 @@ namespace Laboratory.Core.Services
                 asset = await LoadFromResourcesAsync<T>(key);
             }
             return asset;
+        }
+        
+        /// <summary>
+        /// Gets the list of core assets to preload. Override this for custom asset lists.
+        /// </summary>
+        protected virtual string[] GetCoreAssetList()
+        {
+            // Return an empty list by default - no hardcoded assets
+            // In the future, this could be loaded from a configuration file
+            return new string[0];
         }
 
         public void Dispose()
