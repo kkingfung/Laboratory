@@ -1,5 +1,4 @@
 using Unity.Entities;
-using Unity.Netcode;
 using UnityEngine;
 using Laboratory.Models.ECS.Components;
 
@@ -51,13 +50,25 @@ namespace Laboratory.Models.ECS.Systems
         /// <param name="entity">The entity to animate</param>
         private void TriggerDeathAnimation(Entity entity)
         {
-            if (!EntityManager.HasComponent<NetworkObject>(entity))
-                return;
-
-            var networkObject = EntityManager.GetComponentObject<NetworkObject>(entity);
-            var animator = networkObject.gameObject.GetComponent<Animator>();
-
-            animator?.SetTrigger("Die");
+            // Try to get game object reference through various means
+            GameObject gameObject = null;
+            
+            // Check if entity has a GameObject component or similar
+            if (EntityManager.HasComponent<Transform>(entity))
+            {
+                var transform = EntityManager.GetComponentObject<Transform>(entity);
+                gameObject = transform?.gameObject;
+            }
+            
+            if (gameObject != null)
+            {
+                var animator = gameObject.GetComponent<Animator>();
+                animator?.SetTrigger("Die");
+            }
+            else
+            {
+                Debug.LogWarning($"Could not find GameObject for entity {entity} to trigger death animation");
+            }
         }
 
         /// <summary>

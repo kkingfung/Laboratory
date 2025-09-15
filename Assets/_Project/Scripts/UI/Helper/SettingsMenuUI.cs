@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Linq;
 
 namespace Laboratory.UI.Helper
 {
@@ -215,15 +216,132 @@ namespace Laboratory.UI.Helper
 
         /// <summary>
         /// Notify other systems that settings have changed
-        /// This method can be extended to use events or dependency injection
+        /// This method uses dependency injection and events to notify other systems
         /// </summary>
         private void NotifySettingsChanged()
         {
-            // TODO: Implement notification system for audio manager, input manager, etc.
-            // Example: AudioManager.Instance?.ApplySettings();
-            // Example: InputManager.Instance?.ApplySettings();
+            // Apply audio settings to audio system
+            ApplyAudioSettings();
+            
+            // Apply input settings
+            ApplyInputSettings();
+            
+            // Publish settings changed events
+            PublishSettingsEvents();
+            
+            Debug.Log("[SettingsMenuUI] Settings applied and notifications sent");
+        }
+        
+        /// <summary>
+        /// Apply audio settings using available audio systems
+        /// </summary>
+        private void ApplyAudioSettings()
+        {
+            try
+            {
+                // Try to find AudioSystemManager in scene
+                var audioManager = FindFirstObjectByType<Laboratory.Audio.AudioSystemManager>();
+                if (audioManager != null)
+                {
+                    audioManager.SetMasterVolume(masterVolumeSlider.value);
+                    audioManager.SetCategoryVolume(Laboratory.Audio.AudioCategory.Music, musicVolumeSlider.value);
+                    audioManager.SetCategoryVolume(Laboratory.Audio.AudioCategory.SFX, sfxVolumeSlider.value);
+                    Debug.Log("[SettingsMenuUI] Audio settings applied via AudioSystemManager");
+                }
+                else
+                {
+                    // Fallback: Apply to Unity's global audio settings
+                    AudioListener.volume = masterVolumeSlider.value;
+                    Debug.Log("[SettingsMenuUI] Audio settings applied to AudioListener");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[SettingsMenuUI] Error applying audio settings: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Apply input settings to input systems
+        /// </summary>
+        private void ApplyInputSettings()
+        {
+            try
+            {
+                // Store sensitivity for input systems to read
+                PlayerPrefs.SetFloat("InputSensitivity", sensitivitySlider.value);
+                
+                // Try to notify input managers if they exist
+                var inputManagers = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
+                    .Where(mb => mb.GetType().Name.Contains("Input") && mb.GetType().Name.Contains("Manager"));
+                    
+                foreach (var inputManager in inputManagers)
+                {
+                    // Try to call ApplySettings if the method exists
+                    var applyMethod = inputManager.GetType().GetMethod("ApplySettings");
+                    if (applyMethod != null)
+                    {
+                        applyMethod.Invoke(inputManager, null);
+                        Debug.Log($"[SettingsMenuUI] Applied settings to {inputManager.GetType().Name}");
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[SettingsMenuUI] Error applying input settings: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// Publish settings changed events for other systems to listen to
+        /// </summary>
+        private void PublishSettingsEvents()
+        {
+            try
+            {
+                // Create a simple settings changed event
+                var settingsEvent = new SettingsChangedEventArgs
+                {
+                    MasterVolume = masterVolumeSlider.value,
+                    MusicVolume = musicVolumeSlider.value,
+                    SFXVolume = sfxVolumeSlider.value,
+                    GraphicsQuality = qualityDropdown.value,
+                    InputSensitivity = sensitivitySlider.value
+                };
+                
+                // Notify any listeners (this can be extended with proper event system)
+                OnSettingsApplied?.Invoke(settingsEvent);
+                
+                Debug.Log("[SettingsMenuUI] Settings changed events published");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"[SettingsMenuUI] Error publishing settings events: {ex.Message}");
+            }
         }
 
         #endregion
+        
+        #region Events
+        
+        /// <summary>
+        /// Event triggered when settings are applied
+        /// </summary>
+        public static event System.Action<SettingsChangedEventArgs> OnSettingsApplied;
+        
+        #endregion
+    }
+    
+    /// <summary>
+    /// Event arguments for settings changed events
+    /// </summary>
+    public class SettingsChangedEventArgs
+    {
+        public float MasterVolume { get; set; }
+        public float MusicVolume { get; set; }
+        public float SFXVolume { get; set; }
+        public int GraphicsQuality { get; set; }
+        public float InputSensitivity { get; set; }
+        public System.DateTime Timestamp { get; set; } = System.DateTime.Now;
     }
 }

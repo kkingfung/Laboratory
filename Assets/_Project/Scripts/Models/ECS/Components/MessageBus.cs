@@ -8,16 +8,16 @@ namespace Laboratory.Models.ECS.Components
     #region Event Structs
 
     /// <summary>
-    /// Represents a damage event between clients.
+    /// Represents a damage event between clients - renamed to avoid conflicts
     /// </summary>
-    public readonly struct DamageEvent
+    public readonly struct NetworkDamageEvent
     {
         public readonly ulong TargetClientId;
         public readonly ulong AttackerClientId;
         public readonly float DamageAmount;
         public readonly Vector3 HitDirection;
 
-        public DamageEvent(ulong targetClientId, ulong attackerClientId, float damageAmount, Vector3 hitDirection)
+        public NetworkDamageEvent(ulong targetClientId, ulong attackerClientId, float damageAmount, Vector3 hitDirection)
         {
             TargetClientId = targetClientId;
             AttackerClientId = attackerClientId;
@@ -50,11 +50,43 @@ namespace Laboratory.Models.ECS.Components
     /// </summary>
     public static class MessageBus
     {
+        public static event Action<NetworkDamageEvent>? OnDamageEvent;
+        public static event Action<DeathEvent>? OnDeathEvent;
+        
+        // Legacy compatibility events
         public static event Action<DamageEvent>? OnDamage;
         public static event Action<DeathEvent>? OnDeath;
 
-        public static void Publish(DamageEvent evt) => OnDamage?.Invoke(evt);
-        public static void Publish(DeathEvent evt) => OnDeath?.Invoke(evt);
+        public static void PublishDamage(NetworkDamageEvent damageEvent)
+        {
+            OnDamageEvent?.Invoke(damageEvent);
+        }
+
+        public static void PublishDeath(DeathEvent deathEvent)
+        {
+            OnDeathEvent?.Invoke(deathEvent);
+            OnDeath?.Invoke(deathEvent);
+        }
+        
+        /// <summary>
+        /// Generic publish method for backwards compatibility
+        /// </summary>
+        public static void Publish<T>(T eventData)
+        {
+            if (eventData is NetworkDamageEvent damage)
+            {
+                PublishDamage(damage);
+            }
+            else if (eventData is DeathEvent death)
+            {
+                PublishDeath(death);
+            }
+            else if (eventData is DamageEvent legacyDamage)
+            {
+                // Trigger the legacy OnDamage event for compatibility
+                OnDamage?.Invoke(legacyDamage);
+            }
+        }
     }
 
     #endregion

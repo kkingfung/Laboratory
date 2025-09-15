@@ -1,124 +1,215 @@
 using System;
 using UnityEngine;
 using UnityEngine.Events;
-using Laboratory.Core.Events;
-using Laboratory.Core.DI;
 
 namespace Laboratory.Core.Abilities.Events
 {
+
     /// <summary>
-    /// Centralized event bus for ability-related events.
-    /// Provides a unified way to publish and subscribe to ability events throughout the game.
+    /// Event fired when an ability execution fails
+    /// </summary>
+    [System.Serializable]
+    public class AbilityExecutionFailedEvent
+    {
+        public GameObject Source { get; }
+        public int AbilityIndex { get; }
+        public string FailureReason { get; }
+        public float Timestamp { get; }
+
+        public AbilityExecutionFailedEvent(GameObject source, int abilityIndex, string failureReason)
+        {
+            Source = source;
+            AbilityIndex = abilityIndex;
+            FailureReason = failureReason;
+            Timestamp = Time.time;
+        }
+    }
+
+    /// <summary>
+    /// Unity Events for ability system
+    /// </summary>
+    [System.Serializable] public class AbilityActivatedUnityEvent : UnityEvent<AbilityActivatedEvent> { }
+    [System.Serializable] public class AbilityStateChangedUnityEvent : UnityEvent<AbilityStateChangedEvent> { }
+    [System.Serializable] public class AbilityCooldownCompleteUnityEvent : UnityEvent<AbilityCooldownCompleteEvent> { }
+    [System.Serializable] public class AbilityExecutionFailedUnityEvent : UnityEvent<AbilityExecutionFailedEvent> { }
+
+    /// <summary>
+    /// Global event bus for ability system events.
+    /// Provides centralized event publishing and subscription for ability-related events.
     /// </summary>
     public static class AbilityEventBus
     {
-        #region Event Declarations
+        #region Events
 
         /// <summary>
-        /// Event fired when any ability is activated.
+        /// Event fired when any ability is activated
         /// </summary>
-        public static readonly UnityEvent<AbilityActivatedEvent> OnAbilityActivated = new();
+        public static AbilityActivatedUnityEvent OnAbilityActivated { get; } = new AbilityActivatedUnityEvent();
 
         /// <summary>
-        /// Event fired when any ability state changes (cooldown, etc.).
+        /// Event fired when any ability's state changes
         /// </summary>
-        public static readonly UnityEvent<AbilityStateChangedEvent> OnAbilityStateChanged = new();
+        public static AbilityStateChangedUnityEvent OnAbilityStateChanged { get; } = new AbilityStateChangedUnityEvent();
 
         /// <summary>
-        /// Event fired when any ability cooldown completes.
+        /// Event fired when any ability's cooldown completes
         /// </summary>
-        public static readonly UnityEvent<AbilityCooldownCompleteEvent> OnAbilityCooldownComplete = new();
+        public static AbilityCooldownCompleteUnityEvent OnAbilityCooldownComplete { get; } = new AbilityCooldownCompleteUnityEvent();
+
+        /// <summary>
+        /// Event fired when any ability execution fails
+        /// </summary>
+        public static AbilityExecutionFailedUnityEvent OnAbilityExecutionFailed { get; } = new AbilityExecutionFailedUnityEvent();
 
         #endregion
 
         #region Publishing Methods
 
         /// <summary>
-        /// Publishes an ability activated event.
+        /// Publishes an ability activated event
         /// </summary>
-        public static void PublishAbilityActivated(AbilityActivatedEvent evt)
+        public static void PublishAbilityActivated(GameObject source, int abilityIndex)
         {
+            var evt = new AbilityActivatedEvent(abilityIndex, source);
             OnAbilityActivated.Invoke(evt);
-            
-            // Also publish to global event bus if available
-            if (GlobalServiceProvider.IsInitialized)
-            {
-                var eventBus = GlobalServiceProvider.Instance.Resolve<IEventBus>();
-                eventBus?.Publish(evt);
-            }
         }
 
         /// <summary>
-        /// Publishes an ability state changed event.
+        /// Publishes an ability state changed event
         /// </summary>
-        public static void PublishAbilityStateChanged(AbilityStateChangedEvent evt)
+        public static void PublishAbilityStateChanged(GameObject source, int abilityIndex, bool isOnCooldown, float cooldownRemaining)
         {
+            var evt = new AbilityStateChangedEvent(abilityIndex, isOnCooldown, cooldownRemaining, source);
             OnAbilityStateChanged.Invoke(evt);
-            
-            if (GlobalServiceProvider.IsInitialized)
-            {
-                var eventBus = GlobalServiceProvider.Instance.Resolve<IEventBus>();
-                eventBus?.Publish(evt);
-            }
         }
 
         /// <summary>
-        /// Publishes an ability cooldown complete event.
+        /// Publishes an ability cooldown complete event
         /// </summary>
-        public static void PublishAbilityCooldownComplete(AbilityCooldownCompleteEvent evt)
+        public static void PublishAbilityCooldownComplete(GameObject source, int abilityIndex)
         {
+            var evt = new AbilityCooldownCompleteEvent(abilityIndex, source);
             OnAbilityCooldownComplete.Invoke(evt);
-            
-            if (GlobalServiceProvider.IsInitialized)
-            {
-                var eventBus = GlobalServiceProvider.Instance.Resolve<IEventBus>();
-                eventBus?.Publish(evt);
-            }
+        }
+
+        /// <summary>
+        /// Publishes an ability execution failed event
+        /// </summary>
+        public static void PublishAbilityExecutionFailed(GameObject source, int abilityIndex, string failureReason)
+        {
+            var evt = new AbilityExecutionFailedEvent(source, abilityIndex, failureReason);
+            OnAbilityExecutionFailed.Invoke(evt);
         }
 
         #endregion
 
-        #region Utility Methods
+        #region Subscription Helpers
 
         /// <summary>
-        /// Clears all event subscriptions. Should only be called during cleanup.
+        /// Subscribes to ability activated events from a specific source
+        /// </summary>
+        public static void SubscribeToAbilityActivated(GameObject source, Action<AbilityActivatedEvent> callback)
+        {
+            OnAbilityActivated.AddListener(evt =>
+            {
+                if (evt.Source == source)
+                    callback?.Invoke(evt);
+            });
+        }
+
+        /// <summary>
+        /// Subscribes to ability state changed events from a specific source
+        /// </summary>
+        public static void SubscribeToAbilityStateChanged(GameObject source, Action<AbilityStateChangedEvent> callback)
+        {
+            OnAbilityStateChanged.AddListener(evt =>
+            {
+                if (evt.Source == source)
+                    callback?.Invoke(evt);
+            });
+        }
+
+        /// <summary>
+        /// Subscribes to ability cooldown complete events from a specific source
+        /// </summary>
+        public static void SubscribeToAbilityCooldownComplete(GameObject source, Action<AbilityCooldownCompleteEvent> callback)
+        {
+            OnAbilityCooldownComplete.AddListener(evt =>
+            {
+                if (evt.Source == source)
+                    callback?.Invoke(evt);
+            });
+        }
+
+        /// <summary>
+        /// Subscribes to ability execution failed events from a specific source
+        /// </summary>
+        public static void SubscribeToAbilityExecutionFailed(GameObject source, Action<AbilityExecutionFailedEvent> callback)
+        {
+            OnAbilityExecutionFailed.AddListener(evt =>
+            {
+                if (evt.Source == source)
+                    callback?.Invoke(evt);
+            });
+        }
+
+        #endregion
+
+        #region Cleanup
+
+        /// <summary>
+        /// Clears all event subscriptions. Use with caution.
         /// </summary>
         public static void ClearAllSubscriptions()
         {
             OnAbilityActivated.RemoveAllListeners();
             OnAbilityStateChanged.RemoveAllListeners();
             OnAbilityCooldownComplete.RemoveAllListeners();
-        }
-
-        /// <summary>
-        /// Gets the total number of listeners across all events.
-        /// Useful for debugging and memory leak detection.
-        /// </summary>
-        public static int GetTotalListenerCount()
-        {
-            return OnAbilityActivated.GetPersistentEventCount() +
-                   OnAbilityStateChanged.GetPersistentEventCount() +
-                   OnAbilityCooldownComplete.GetPersistentEventCount();
+            OnAbilityExecutionFailed.RemoveAllListeners();
         }
 
         #endregion
 
-        #region Debug Methods
+        #region Statistics
 
-#if UNITY_EDITOR || DEBUG
         /// <summary>
-        /// Logs all active subscriptions for debugging.
-        /// Only available in editor or debug builds.
+        /// Gets the number of listeners for each event type
         /// </summary>
-        public static void LogActiveSubscriptions()
+        public static AbilityEventBusStats GetStats()
         {
-            Debug.Log($"[AbilityEventBus] Active Subscriptions:" +
-                     $"\n  OnAbilityActivated: {OnAbilityActivated.GetPersistentEventCount()}" +
-                     $"\n  OnAbilityStateChanged: {OnAbilityStateChanged.GetPersistentEventCount()}" +
-                     $"\n  OnAbilityCooldownComplete: {OnAbilityCooldownComplete.GetPersistentEventCount()}");
+            return new AbilityEventBusStats
+            {
+                AbilityActivatedListeners = OnAbilityActivated.GetPersistentEventCount(),
+                AbilityStateChangedListeners = OnAbilityStateChanged.GetPersistentEventCount(),
+                AbilityCooldownCompleteListeners = OnAbilityCooldownComplete.GetPersistentEventCount(),
+                AbilityExecutionFailedListeners = OnAbilityExecutionFailed.GetPersistentEventCount()
+            };
         }
-#endif
 
         #endregion
+    }
+
+    /// <summary>
+    /// Statistics for the ability event bus
+    /// </summary>
+    [System.Serializable]
+    public struct AbilityEventBusStats
+    {
+        public int AbilityActivatedListeners;
+        public int AbilityStateChangedListeners;
+        public int AbilityCooldownCompleteListeners;
+        public int AbilityExecutionFailedListeners;
+
+        public int TotalListeners => AbilityActivatedListeners + AbilityStateChangedListeners + 
+                                   AbilityCooldownCompleteListeners + AbilityExecutionFailedListeners;
+
+        public override string ToString()
+        {
+            return $"AbilityEventBus Stats - Total: {TotalListeners} " +
+                   $"(Activated: {AbilityActivatedListeners}, " +
+                   $"StateChanged: {AbilityStateChangedListeners}, " +
+                   $"CooldownComplete: {AbilityCooldownCompleteListeners}, " +
+                   $"ExecutionFailed: {AbilityExecutionFailedListeners})";
+        }
     }
 }

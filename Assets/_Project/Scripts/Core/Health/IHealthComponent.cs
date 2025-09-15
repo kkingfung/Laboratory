@@ -19,6 +19,9 @@ namespace Laboratory.Core.Health
         /// <summary>Whether this entity is currently alive (health > 0).</summary>
         bool IsAlive { get; }
         
+        /// <summary>Whether this entity is dead (health <= 0).</summary>
+        bool IsDead { get; }
+        
         /// <summary>Health as a normalized percentage (0.0 to 1.0).</summary>
         float HealthPercentage { get; }
         
@@ -27,6 +30,9 @@ namespace Laboratory.Core.Health
         
         /// <summary>Event fired when entity dies (health reaches 0).</summary>
         event Action<DeathEventArgs> OnDeath;
+        
+        /// <summary>Event fired when damage is taken.</summary>
+        event Action<DamageRequest> OnDamageTaken;
         
         /// <summary>Applies damage to this health component.</summary>
         bool TakeDamage(DamageRequest damageRequest);

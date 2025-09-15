@@ -9,6 +9,8 @@ using Laboratory.UI.Utils;
 using Laboratory.Models.ECS.Components;
 using Laboratory.Core.Health;
 using Laboratory.Core.Events.Messages;
+using Laboratory.Core.Events;
+using System;
 
 // Type aliases to resolve ambiguous references
 using ECSComponents = Laboratory.Models.ECS.Components;
@@ -42,6 +44,7 @@ namespace Laboratory.UI.Helper
         private readonly Queue<DamageIndicator> _indicatorPool = new();
         private readonly List<DamageIndicator> _activeIndicators = new();
         private Camera _mainCamera;
+        private IDisposable _damageIndicatorSubscription;
 
         #endregion
 
@@ -56,10 +59,14 @@ namespace Laboratory.UI.Helper
         }
 
         /// <summary>
-        /// Subscribe to damage events.
+        /// Subscribe to damage indicator events from the unified event bus.
         /// </summary>
         private void OnEnable()
         {
+            // Subscribe to new unified event bus damage indicator events
+            _damageIndicatorSubscription = EventBusService.Instance.Subscribe<DamageIndicatorRequestedEvent>(OnDamageIndicatorRequested);
+            
+            // Keep the old MessageBus subscription for backward compatibility
             MessageBus.OnDamage += OnDamageEvent;
         }
 
@@ -68,6 +75,11 @@ namespace Laboratory.UI.Helper
         /// </summary>
         private void OnDisable()
         {
+            // Dispose unified event bus subscription
+            _damageIndicatorSubscription?.Dispose();
+            _damageIndicatorSubscription = null;
+            
+            // Keep the old MessageBus unsubscription for backward compatibility
             MessageBus.OnDamage -= OnDamageEvent;
         }
 
@@ -139,7 +151,30 @@ namespace Laboratory.UI.Helper
         #region Private Methods
 
         /// <summary>
-        /// Handle damage event from message bus.
+        /// Handle damage indicator event from unified event bus.
+        /// </summary>
+        /// <param name="evt">Damage indicator event data</param>
+        private void OnDamageIndicatorRequested(DamageIndicatorRequestedEvent evt)
+        {
+            // Filter events for local client if network ID is specified
+            if (evt.TargetClientId != 0 && NetworkManager.Singleton != null && 
+                evt.TargetClientId != NetworkManager.Singleton.LocalClientId)
+                return;
+            
+            // Convert Core DamageType to ECS DamageType for UI compatibility
+            var ecsDamageType = ConvertCoreToECSDamageType(evt.DamageType);
+            
+            SpawnIndicator(
+                sourcePosition: evt.SourcePosition,
+                damageAmount: evt.DamageAmount,
+                damageType: ecsDamageType,
+                playSound: evt.PlaySound,
+                vibrate: evt.TriggerVibration
+            );
+        }
+        
+        /// <summary>
+        /// Handle damage event from message bus (backward compatibility).
         /// </summary>
         /// <param name="damageEvent">Damage event data</param>
         private void OnDamageEvent(ECSComponents.DamageEvent damageEvent)
@@ -199,7 +234,6 @@ namespace Laboratory.UI.Helper
 
                 var (color, fontStyle) = GetDamageTextStyle(damageType);
                 indicator.DamageText.color = color;
-                // Note: DamageText is a legacy UI Text component, so we can't use TMPro FontStyles
                 // Convert TMPro.FontStyles to UnityEngine.FontStyle
                 indicator.DamageText.fontStyle = fontStyle == TMPro.FontStyles.Bold ? FontStyle.Bold : FontStyle.Normal;
             }
@@ -309,6 +343,22 @@ namespace Laboratory.UI.Helper
         {
             if (vibrate && shakeEffect != null)
                 shakeEffect.Shake();
+        }
+        
+        /// <summary>
+        /// Converts Core DamageType to ECS DamageType for UI compatibility.
+        /// </summary>
+        /// <param name="coreDamageType">Core damage type</param>
+        /// <returns>Corresponding ECS damage type</returns>
+        private ECSComponents.DamageType ConvertCoreToECSDamageType(Laboratory.Core.Health.DamageType coreDamageType)
+        {
+            return coreDamageType switch
+            {
+                Laboratory.Core.Health.DamageType.Critical => ECSComponents.DamageType.Critical,
+                Laboratory.Core.Health.DamageType.Fire => ECSComponents.DamageType.Fire,
+                Laboratory.Core.Health.DamageType.Ice => ECSComponents.DamageType.Ice,
+                _ => ECSComponents.DamageType.Normal
+            };
         }
 
         #endregion

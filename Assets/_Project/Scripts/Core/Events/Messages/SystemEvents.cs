@@ -1,5 +1,7 @@
 using System;
 
+#nullable enable
+
 namespace Laboratory.Core.Events.Messages
 {
     #region System Events
@@ -37,6 +39,32 @@ namespace Laboratory.Core.Events.Messages
         {
             SystemName = systemName;
             ShutdownAt = DateTime.UtcNow;
+        }
+    }
+    
+    /// <summary>
+    /// Event fired when a system encounters an error.
+    /// </summary>
+    public class SystemErrorEvent
+    {
+        /// <summary>Name of the system that encountered an error.</summary>
+        public string SystemName { get; }
+        
+        /// <summary>Error message describing what went wrong.</summary>
+        public string ErrorMessage { get; }
+        
+        /// <summary>Exception that caused the error (if any).</summary>
+        public Exception? Exception { get; }
+        
+        /// <summary>Timestamp when the error occurred.</summary>
+        public DateTime ErrorAt { get; }
+        
+        public SystemErrorEvent(string systemName, string errorMessage, Exception? exception = null)
+        {
+            SystemName = systemName;
+            ErrorMessage = errorMessage;
+            Exception = exception;
+            ErrorAt = DateTime.UtcNow;
         }
     }
     

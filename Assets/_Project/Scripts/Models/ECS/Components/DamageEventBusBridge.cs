@@ -38,7 +38,7 @@ namespace Laboratory.Models.ECS.Components
             var events = buffer.ToNativeArray(Unity.Collections.Allocator.Temp);
             foreach (var evt in events)
             {
-                OnDamageTaken?.Invoke(evt.Value);
+                OnDamageTaken?.Invoke(evt.DamageEvent);
             }
             buffer.Clear();
             events.Dispose();

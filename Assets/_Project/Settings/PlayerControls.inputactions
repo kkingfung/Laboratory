@@ -105,6 +105,39 @@
                     "interactions": "",
                     "initialStateCheck": false
                 }
+            ]
+        },
+        {
+            "name": "MiniMap",
+            "id": "8e2ebc22-239b-4592-ae9d-e27159e330c6",
+            "actions": [
+                {
+                    "name": "Zoom",
+                    "type": "Value",
+                    "id": "7a072f49-1e54-4dfa-bdcc-2c4d7675d738",
+                    "expectedControlType": "Axis",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Pan",
+                    "type": "Value",
+                    "id": "f9cde908-fe32-4c34-a582-f94cfe5968df",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Click",
+                    "type": "Button",
+                    "id": "6cd2889f-4b4c-4f69-adfc-16255b36f574",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
             ],
             "bindings": [
                 {
@@ -379,6 +412,72 @@
                     "processors": "",
                     "groups": ";DefaultGamepad",
                     "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "aaa1a5a7-2261-4140-afb9-58c372070882",
+                    "path": "<Mouse>/scroll/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeybroadAndMouse",
+                    "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "bbb2b6b8-3362-4241-bfc0-69d483081993",
+                    "path": "<Gamepad>/rightStick/y",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "Zoom",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ccc3c7c9-4463-4342-cfd1-70e594092004",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeybroadAndMouse",
+                    "action": "Pan",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ddd4d8d0-5564-4443-dfe2-81f605103115",
+                    "path": "<Gamepad>/rightStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "Pan",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "eee5e9e1-6665-4544-efe3-92f716214226",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultKeybroadAndMouse",
+                    "action": "Click",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fff6f0f2-7776-4655-fff4-03f827325337",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";DefaultGamepad",
+                    "action": "Click",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

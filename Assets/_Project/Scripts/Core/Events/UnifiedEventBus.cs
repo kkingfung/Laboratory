@@ -86,6 +86,17 @@ namespace Laboratory.Core.Events
             return subscription;
         }
         
+        public Observable<T> AsObservable<T>() where T : class
+        {
+            ThrowIfDisposed();
+            
+            // Create a simple R3 Observable that emits when events are published
+            return Observable.Create<T>(observer =>
+            {
+                return Subscribe<T>(evt => observer.OnNext(evt));
+            });
+        }
+        
         public object Observe<T>() where T : class
         {
             ThrowIfDisposed();

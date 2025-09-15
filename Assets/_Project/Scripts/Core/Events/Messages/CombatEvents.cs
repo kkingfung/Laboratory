@@ -149,5 +149,73 @@ namespace Laboratory.Core.Events.Messages
         Regeneration
     }
     
+    /// <summary>
+    /// Event fired when a damage indicator should be displayed.
+    /// Used to decouple combat systems from UI systems.
+    /// </summary>
+    public class DamageIndicatorRequestedEvent
+    {
+        /// <summary>World position where the damage originated from.</summary>
+        public Vector3 SourcePosition { get; }
+        
+        /// <summary>Amount of damage to display (can be null to hide amount).</summary>
+        public int? DamageAmount { get; }
+        
+        /// <summary>Type of damage for visual styling.</summary>
+        public DamageType DamageType { get; }
+        
+        /// <summary>Whether to play sound effects.</summary>
+        public bool PlaySound { get; }
+        
+        /// <summary>Whether to trigger haptic feedback/vibration.</summary>
+        public bool TriggerVibration { get; }
+        
+        /// <summary>Network client ID of the target (for filtering local events).</summary>
+        public ulong TargetClientId { get; }
+
+        public DamageIndicatorRequestedEvent(Vector3 sourcePosition, int? damageAmount, 
+            DamageType damageType, bool playSound = true, bool triggerVibration = false, 
+            ulong targetClientId = 0)
+        {
+            SourcePosition = sourcePosition;
+            DamageAmount = damageAmount;
+            DamageType = damageType;
+            PlaySound = playSound;
+            TriggerVibration = triggerVibration;
+            TargetClientId = targetClientId;
+        }
+    }
+    
+    /// <summary>
+    /// Event fired when a player spawns or respawns.
+    /// Used to notify systems about player spawn events.
+    /// </summary>
+    public class PlayerSpawnedEvent
+    {
+        /// <summary>ID of the player that spawned.</summary>
+        public int PlayerId { get; }
+        
+        /// <summary>ID of the spawn point used.</summary>
+        public int SpawnPointId { get; }
+        
+        /// <summary>World position where the player spawned.</summary>
+        public Vector3 Position { get; }
+        
+        /// <summary>Team ID of the spawned player.</summary>
+        public int TeamId { get; }
+        
+        /// <summary>Timestamp when the spawn occurred.</summary>
+        public float SpawnTime { get; }
+
+        public PlayerSpawnedEvent(int playerId, int spawnPointId, Vector3 position, int teamId)
+        {
+            PlayerId = playerId;
+            SpawnPointId = spawnPointId;
+            Position = position;
+            TeamId = teamId;
+            SpawnTime = Time.time;
+        }
+    }
+    
     #endregion
 }

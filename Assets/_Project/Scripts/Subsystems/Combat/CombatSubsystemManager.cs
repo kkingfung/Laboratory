@@ -5,10 +5,15 @@ using Laboratory.Core.DI;
 using Laboratory.Core.Events;
 using Laboratory.Core.Health;
 using Laboratory.Core.Health.Components;
-using Laboratory.Gameplay.Abilities;
+using Laboratory.Models.ECS.Components;
+using Laboratory.Subsystems.Combat.Abilities;
 using Laboratory.Core.Systems;
+using Laboratory.Core.Abilities.Systems;
 using HealthChangedEventArgs = Laboratory.Core.Health.HealthChangedEventArgs;
 using DeathEventArgs = Laboratory.Core.Health.DeathEventArgs;
+using DamageType = Laboratory.Core.Health.DamageType;
+using CoreDamageRequest = Laboratory.Core.Health.DamageRequest;
+using EcsDamageRequest = Laboratory.Models.ECS.Components.DamageRequest;
 
 namespace Laboratory.Subsystems.Combat
 {
@@ -438,7 +443,7 @@ namespace Laboratory.Subsystems.Combat
         /// <summary>
         /// Deals damage to a target entity.
         /// </summary>
-        public bool DealDamage(GameObject target, float amount, DamageType damageType = DamageType.Normal, Vector3 direction = default)
+        public bool DealDamage(GameObject target, float amount, DamageType damageType = DamageType.Physical, Vector3 direction = default)
         {
             if (target == null || amount <= 0) return false;
 
@@ -452,7 +457,7 @@ namespace Laboratory.Subsystems.Combat
                 return false;
             }
 
-            var damageRequest = new DamageRequest
+            var damageRequest = new CoreDamageRequest
             {
                 Amount = amount,
                 Source = gameObject,
@@ -681,7 +686,7 @@ namespace Laboratory.Subsystems.Combat
             var targetHealth = dot.Target.GetComponent<HealthComponentBase>();
             if (targetHealth == null || !targetHealth.IsAlive) return;
 
-            var damageRequest = new DamageRequest
+            var damageRequest = new CoreDamageRequest
             {
                 Amount = dot.DamagePerSecond * dot.TickInterval,
                 Source = gameObject,

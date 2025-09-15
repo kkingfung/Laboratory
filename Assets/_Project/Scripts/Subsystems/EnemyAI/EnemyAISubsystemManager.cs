@@ -6,6 +6,7 @@ using Laboratory.Core.DI;
 using Laboratory.Core.Events;
 using Laboratory.Core.Health.Components;
 using Laboratory.Core.NPC;
+using Laboratory.Subsystems.EnemyAI.NPC;
 
 namespace Laboratory.Subsystems.EnemyAI
 {

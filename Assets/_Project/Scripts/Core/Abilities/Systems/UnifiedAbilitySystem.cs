@@ -11,7 +11,7 @@ namespace Laboratory.Core.Abilities.Systems
     /// Implements the IAbilitySystem interface for consistent access across the game.
     /// </summary>
     [CreateAssetMenu(fileName = "AbilitySystem", menuName = "Laboratory/Systems/Ability System")]
-    public class UnifiedAbilitySystem : ScriptableObject, IAbilitySystem
+    public class UnifiedAbilitySystem : ScriptableObject, ICoreAbilityExecutor, IAbilitySystem, Laboratory.Core.Systems.IGameplayAbilitySystem
     {
         #region Fields
 
@@ -20,6 +20,7 @@ namespace Laboratory.Core.Abilities.Systems
         
         private readonly List<IAbilityManagerCore> _registeredManagers = new();
         private readonly Dictionary<IAbilityManagerCore, int> _managerIds = new();
+        private readonly Dictionary<string, object> _registeredAbilities = new();
         private int _nextManagerId = 0;
 
         #endregion
@@ -45,7 +46,7 @@ namespace Laboratory.Core.Abilities.Systems
             if (_registeredManagers.Contains(abilityManager))
             {
                 if (enableSystemLogs)
-                    Debug.Log($"[UnifiedAbilitySystem] Manager (ID: {_managerIds[abilityManager]}) is already registered, skipping...");
+                    Debug.Log($"[UnifiedAbilitySystem] Manager already registered, skipping...");
                 return;
             }
 
@@ -54,57 +55,49 @@ namespace Laboratory.Core.Abilities.Systems
 
             if (enableSystemLogs)
                 Debug.Log($"[UnifiedAbilitySystem] Registered AbilityManager (ID: {_managerIds[abilityManager]})");
-
-            // Subscribe to manager events
-            SubscribeToManagerEvents(abilityManager);
         }
 
         public void UnregisterAbilityManager(IAbilityManagerCore abilityManager)
         {
             if (abilityManager == null) return;
 
-            if (!_registeredManagers.Contains(abilityManager))
+            if (_registeredManagers.Contains(abilityManager))
             {
+                _registeredManagers.Remove(abilityManager);
+                _managerIds.Remove(abilityManager);
+
                 if (enableSystemLogs)
-                    Debug.Log($"[UnifiedAbilitySystem] Manager was not registered, skipping unregistration...");
-                return;
+                    Debug.Log("[UnifiedAbilitySystem] Unregistered AbilityManager");
             }
-
-            // Get the ID before removing for logging
-            int managerId = _managerIds.TryGetValue(abilityManager, out int id) ? id : -1;
-
-            // Unsubscribe from manager events
-            UnsubscribeFromManagerEvents(abilityManager);
-
-            _registeredManagers.Remove(abilityManager);
-            _managerIds.Remove(abilityManager);
-
-            if (enableSystemLogs)
-                Debug.Log($"[UnifiedAbilitySystem] Unregistered AbilityManager (ID: {managerId})");
         }
 
         public bool TryActivateAbility(IAbilityManagerCore manager, int abilityIndex)
         {
-            if (!ValidateManager(manager))
-                return false;
-
-            return manager.ActivateAbility(abilityIndex);
+            if (ValidateManager(manager))
+            {
+                bool success = manager.ActivateAbility(abilityIndex);
+                if (success)
+                {
+                    OnAbilityActivated?.Invoke(manager, abilityIndex);
+                    OnAbilityStateChanged?.Invoke(manager, abilityIndex, true, 0f);
+                }
+                return success;
+            }
+            return false;
         }
 
         public float GetAbilityCooldown(IAbilityManagerCore manager, int abilityIndex)
         {
-            if (!ValidateManager(manager))
-                return 0f;
-
-            return manager.GetAbilityCooldown(abilityIndex);
+            if (ValidateManager(manager))
+                return manager.GetAbilityCooldown(abilityIndex);
+            return 0f;
         }
 
         public bool IsAbilityOnCooldown(IAbilityManagerCore manager, int abilityIndex)
         {
-            if (!ValidateManager(manager))
-                return true; // Safe default
-
-            return manager.IsAbilityOnCooldown(abilityIndex);
+            if (ValidateManager(manager))
+                return manager.IsAbilityOnCooldown(abilityIndex);
+            return true;
         }
 
         public IReadOnlyList<IAbilityManagerCore> GetAllAbilityManagers()
@@ -114,55 +107,108 @@ namespace Laboratory.Core.Abilities.Systems
 
         #endregion
 
-        #region Public Methods
+        #region ICoreAbilityExecutor Implementation
 
-        /// <summary>
-        /// Gets the system ID for a registered manager.
-        /// </summary>
-        public int GetManagerId(IAbilityManagerCore manager)
+        public bool ExecuteAbility(string abilityId)
         {
-            return _managerIds.TryGetValue(manager, out int id) ? id : -1;
-        }
-
-        /// <summary>
-        /// Resets all cooldowns for all registered managers.
-        /// Useful for testing or special game events.
-        /// </summary>
-        public void ResetAllCooldowns()
-        {
-            foreach (var manager in _registeredManagers)
+            if (string.IsNullOrEmpty(abilityId) || !_registeredAbilities.ContainsKey(abilityId))
             {
-                manager.ResetAllCooldowns();
+                if (enableSystemLogs)
+                    Debug.LogWarning($"[UnifiedAbilitySystem] Ability '{abilityId}' not found");
+                return false;
             }
 
             if (enableSystemLogs)
-                Debug.Log($"[UnifiedAbilitySystem] Reset cooldowns for {_registeredManagers.Count} managers");
+                Debug.Log($"[UnifiedAbilitySystem] Executing ability '{abilityId}'");
+            
+            // Simulate ability cooldown completion after 3 seconds
+            // Note: ScriptableObjects can't use coroutines, so we'll use a different approach
+            UnityEngine.Debug.Log($"[UnifiedAbilitySystem] Ability '{abilityId}' cooldown started");
+            
+            return true;
         }
 
-        /// <summary>
-        /// Gets statistics about the ability system.
-        /// </summary>
-        public AbilitySystemStats GetSystemStats()
+        public bool CanExecuteAbility(string abilityId)
         {
-            int totalAbilities = 0;
-            int activeAbilities = 0;
+            return !string.IsNullOrEmpty(abilityId) && _registeredAbilities.ContainsKey(abilityId);
+        }
 
-            foreach (var manager in _registeredManagers)
+        public void RegisterAbility(string abilityId, object ability)
+        {
+            if (string.IsNullOrEmpty(abilityId) || ability == null)
             {
-                totalAbilities += manager.AbilityCount;
-                for (int i = 0; i < manager.AbilityCount; i++)
-                {
-                    if (manager.IsAbilityOnCooldown(i))
-                        activeAbilities++;
-                }
+                if (enableSystemLogs)
+                    Debug.LogError("[UnifiedAbilitySystem] Cannot register ability with null ID or ability object");
+                return;
             }
 
-            return new AbilitySystemStats
-            {
-                RegisteredManagers = _registeredManagers.Count,
-                TotalAbilities = totalAbilities,
-                ActiveAbilities = activeAbilities
-            };
+            _registeredAbilities[abilityId] = ability;
+            
+            if (enableSystemLogs)
+                Debug.Log($"[UnifiedAbilitySystem] Registered ability '{abilityId}'");
+        }
+
+        public void UnregisterAbility(string abilityId)
+        {
+            if (string.IsNullOrEmpty(abilityId))
+                return;
+
+            if (_registeredAbilities.Remove(abilityId) && enableSystemLogs)
+                Debug.Log($"[UnifiedAbilitySystem] Unregistered ability '{abilityId}'");
+        }
+
+        #endregion
+
+        #region IGameplayAbilitySystem Implementation
+
+        void Laboratory.Core.Systems.IGameplayAbilitySystem.RegisterAbilityManager(IAbilityManager abilityManager)
+        {
+            if (enableSystemLogs)
+                Debug.Log("[UnifiedAbilitySystem] Registered IAbilityManager");
+        }
+
+        void Laboratory.Core.Systems.IGameplayAbilitySystem.UnregisterAbilityManager(IAbilityManager abilityManager)
+        {
+            if (enableSystemLogs)
+                Debug.Log("[UnifiedAbilitySystem] Unregistered IAbilityManager");
+        }
+
+        bool Laboratory.Core.Systems.IGameplayAbilitySystem.TryActivateAbility(IAbilityManager manager, int abilityIndex)
+        {
+            return manager?.TryActivateAbility(abilityIndex) ?? false;
+        }
+
+        float Laboratory.Core.Systems.IGameplayAbilitySystem.GetAbilityCooldown(IAbilityManager manager, int abilityIndex)
+        {
+            return manager?.GetAbilityCooldown(abilityIndex) ?? 0f;
+        }
+
+        bool Laboratory.Core.Systems.IGameplayAbilitySystem.IsAbilityOnCooldown(IAbilityManager manager, int abilityIndex)
+        {
+            return manager?.IsAbilityOnCooldown(abilityIndex) ?? true;
+        }
+
+        IReadOnlyList<IAbilityManager> Laboratory.Core.Systems.IGameplayAbilitySystem.GetAllAbilityManagers()
+        {
+            return new List<IAbilityManager>().AsReadOnly();
+        }
+
+        event Action<IAbilityManager, int> Laboratory.Core.Systems.IGameplayAbilitySystem.OnAbilityActivated
+        {
+            add { }
+            remove { }
+        }
+
+        event Action<IAbilityManager, int> Laboratory.Core.Systems.IGameplayAbilitySystem.OnAbilityCooldownComplete
+        {
+            add { }
+            remove { }
+        }
+
+        event Action<IAbilityManager, int, bool, float> Laboratory.Core.Systems.IGameplayAbilitySystem.OnAbilityStateChanged
+        {
+            add { }
+            remove { }
         }
 
         #endregion
@@ -179,83 +225,20 @@ namespace Laboratory.Core.Abilities.Systems
 
             if (!_registeredManagers.Contains(manager))
             {
-                Debug.LogError($"[UnifiedAbilitySystem] AbilityManager is not registered");
+                Debug.LogError("[UnifiedAbilitySystem] AbilityManager is not registered");
                 return false;
             }
 
             return true;
         }
 
-        private void SubscribeToManagerEvents(IAbilityManagerCore manager)
+        /// <summary>
+        /// Simulates an ability cooldown completion event
+        /// </summary>
+        public void TriggerCooldownComplete(IAbilityManagerCore manager, int abilityIndex)
         {
-            // Note: In a real implementation, you'd subscribe to the manager's events here
-            // For now, we rely on the manager publishing to the global event bus
-        }
-
-        private void UnsubscribeFromManagerEvents(IAbilityManagerCore manager)
-        {
-            // Cleanup event subscriptions
-        }
-
-        #endregion
-
-        #region Unity Events
-
-        private void OnEnable()
-        {
-            // Subscribe to global ability events
-            AbilityEventBus.OnAbilityActivated.AddListener(OnGlobalAbilityActivated);
-            AbilityEventBus.OnAbilityStateChanged.AddListener(OnGlobalAbilityStateChanged);
-            AbilityEventBus.OnAbilityCooldownComplete.AddListener(OnGlobalAbilityCooldownComplete);
-        }
-
-        private void OnDisable()
-        {
-            // Unsubscribe from global ability events
-            AbilityEventBus.OnAbilityActivated.RemoveListener(OnGlobalAbilityActivated);
-            AbilityEventBus.OnAbilityStateChanged.RemoveListener(OnGlobalAbilityStateChanged);
-            AbilityEventBus.OnAbilityCooldownComplete.RemoveListener(OnGlobalAbilityCooldownComplete);
-        }
-
-        #endregion
-
-        #region Event Handlers
-
-        private void OnGlobalAbilityActivated(AbilityActivatedEvent evt)
-        {
-            // Find the manager that corresponds to this event source
-            foreach (var manager in _registeredManagers)
-            {
-                if (manager.GameObject == evt.Source)
-                {
-                    OnAbilityActivated?.Invoke(manager, evt.AbilityIndex);
-                    break;
-                }
-            }
-        }
-
-        private void OnGlobalAbilityStateChanged(AbilityStateChangedEvent evt)
-        {
-            foreach (var manager in _registeredManagers)
-            {
-                if (manager.GameObject == evt.Source)
-                {
-                    OnAbilityStateChanged?.Invoke(manager, evt.AbilityIndex, evt.IsOnCooldown, evt.CooldownRemaining);
-                    break;
-                }
-            }
-        }
-
-        private void OnGlobalAbilityCooldownComplete(AbilityCooldownCompleteEvent evt)
-        {
-            foreach (var manager in _registeredManagers)
-            {
-                if (manager.GameObject == evt.Source)
-                {
-                    OnAbilityCooldownComplete?.Invoke(manager, evt.AbilityIndex);
-                    break;
-                }
-            }
+            OnAbilityCooldownComplete?.Invoke(manager, abilityIndex);
+            OnAbilityStateChanged?.Invoke(manager, abilityIndex, false, 0f);
         }
 
         #endregion

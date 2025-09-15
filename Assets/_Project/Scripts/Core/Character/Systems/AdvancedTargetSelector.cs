@@ -1,637 +1,389 @@
-using System;
-using System.Collections.Generic;
 using UnityEngine;
-using Laboratory.Core.DI;
-using Laboratory.Core.Events;
-using Laboratory.Core.Character.Events;
+using System.Collections.Generic;
+using System.Linq;
+using Laboratory.Core.Health;
 
 namespace Laboratory.Core.Character.Systems
 {
     /// <summary>
-    /// Advanced target selection system with multiple detection modes and intelligent scoring.
-    /// Replaces the old TargetSelector with enhanced features and event integration.
+    /// Advanced target selection system for AI and player targeting
     /// </summary>
-    public class AdvancedTargetSelector : MonoBehaviour, ITargetSelector
+    public class AdvancedTargetSelector : MonoBehaviour
     {
-        #region Nested Types
-
-        private class TargetInfo
-        {
-            public float Distance { get; set; }
-            public float Angle { get; set; }
-            public Vector3 LastKnownPosition { get; set; }
-            public float LastUpdateTime { get; set; }
-        }
-
-        #endregion
-
-        #region Fields
-
         [Header("Detection Settings")]
-        [SerializeField, Range(0.5f, 20f)]
-        private float _detectionRadius = 10f;
+        [SerializeField] private float detectionRange = 15f;
+        [SerializeField] private float fieldOfViewAngle = 120f;
+        [SerializeField] private LayerMask targetLayerMask = -1;
+        [SerializeField] private LayerMask obstacleLayerMask = -1;
+        [SerializeField] private bool requireLineOfSight = true;
 
-        [SerializeField, Range(1f, 50f)]
-        private float _maxDetectionDistance = 15f;
+        [Header("Targeting Priorities")]
+        [SerializeField] private TargetingPriority primaryPriority = TargetingPriority.Closest;
+        [SerializeField] private TargetingPriority secondaryPriority = TargetingPriority.LowestHealth;
 
-        [SerializeField]
-        private LayerMask _targetLayers = -1;
+        private Transform currentTarget;
+        private List<Transform> availableTargets = new List<Transform>();
+        private float lastScanTime;
+        private float scanInterval = 0.1f;
 
-        [SerializeField]
-        private bool _useProximityDetection = true;
-
-        [SerializeField]
-        private bool _useRaycastDetection = true;
-
-        [SerializeField]
-        private bool _validateLineOfSight = true;
-
-        [Header("Target Prioritization")]
-        [SerializeField, Range(0f, 2f)]
-        private float _distanceWeight = 1f;
-
-        [SerializeField, Range(0f, 2f)]
-        private float _angleWeight = 0.5f;
-
-        [SerializeField, Range(0f, 2f)]
-        private float _visibilityWeight = 0.8f;
-
-        [SerializeField]
-        private bool _prioritizeClosest = true;
-
-        [Header("Camera Integration")]
-        [SerializeField]
-        private UnityEngine.Camera _playerCamera;
-
-        [SerializeField, Range(0f, 1f)]
-        private float _screenCenterWeight = 0.3f;
-
-        [SerializeField]
-        private bool _useCameraCenterBias = true;
-
-        [Header("Performance")]
-        [SerializeField, Range(0.05f, 1f)]
-        private float _updateInterval = 0.1f;
-
-        [SerializeField, Range(1, 50)]
-        private int _maxTargetsPerFrame = 10;
-
-        [SerializeField]
-        private LayerMask _obstacleLayers = -1;
-
-        [SerializeField, Range(0.1f, 2f)]
-        private float _minTargetSize = 0.5f;
-
-        // Runtime state
-        private bool _isActive = true;
-        private bool _isInitialized = false;
-        private Transform _currentTarget;
-        private List<Transform> _detectedTargets = new List<Transform>();
-        private Dictionary<Transform, float> _targetScores = new Dictionary<Transform, float>();
-        private Dictionary<Transform, TargetInfo> _targetInfoCache = new Dictionary<Transform, TargetInfo>();
-
-        // Services
-        private IServiceContainer _services;
-        private IEventBus _eventBus;
-
-        // Performance tracking
-        private float _lastUpdateTime;
-        private List<Transform> _targetsToRemove = new List<Transform>();
-
-        #endregion
-
-        #region Properties
-
-        public bool IsActive => _isActive;
-        public Transform CurrentTarget => _currentTarget;
-        public IReadOnlyList<Transform> DetectedTargets => _detectedTargets.AsReadOnly();
-        public int TargetCount => _detectedTargets.Count;
-        public bool HasTargets => _detectedTargets.Count > 0;
-
-        public float DetectionRadius
-        {
-            get => _detectionRadius;
-            set => _detectionRadius = Mathf.Max(0.1f, value);
+        public Transform CurrentTarget => currentTarget;
+        public List<Transform> AvailableTargets => availableTargets;
+        public float DetectionRange => detectionRange;
+        public float MaxDetectionDistance => detectionRange;
+        public List<Transform> DetectedTargets => availableTargets;
+        public int TargetCount => availableTargets.Count;
+        public bool HasTargets => availableTargets.Count > 0;
+        public bool IsActive { get; private set; } = true;
+        
+        // Property for testing support
+        public float DetectionRadius 
+        { 
+            get => detectionRange; 
+            set => detectionRange = value; 
         }
 
-        public float MaxDetectionDistance
+        public System.Action<Transform> OnTargetAcquired;
+        public System.Action<Transform> OnTargetLost;
+
+        /// <summary>
+        /// Initializes the target selector with service dependencies
+        /// </summary>
+        public void Initialize(object services = null)
         {
-            get => _maxDetectionDistance;
-            set => _maxDetectionDistance = Mathf.Max(0.1f, value);
-        }
-
-        public LayerMask TargetLayers
-        {
-            get => _targetLayers;
-            set => _targetLayers = value;
-        }
-
-        #endregion
-
-        #region Events
-
-        public event Action<Transform> OnTargetChanged;
-        public event Action<Transform> OnTargetDetected;
-        public event Action<Transform> OnTargetLost;
-
-        #endregion
-
-        #region Unity Lifecycle
-
-        private void Awake()
-        {
-            if (_playerCamera == null)
-                _playerCamera = UnityEngine.Camera.main;
-
-            _detectedTargets = new List<Transform>();
-            _targetScores = new Dictionary<Transform, float>();
-            _targetInfoCache = new Dictionary<Transform, TargetInfo>();
-            _targetsToRemove = new List<Transform>();
+            IsActive = true;
+            // Additional initialization logic can be added here
         }
 
         private void Update()
         {
-            if (!_isActive || !_isInitialized) return;
-
-            if (Time.time - _lastUpdateTime >= _updateInterval)
+            if (Time.time - lastScanTime >= scanInterval)
             {
-                UpdateTargetDetection();
-                UpdateTargetSelection();
-                _lastUpdateTime = Time.time;
+                ScanForTargets();
+                UpdateCurrentTarget();
+                lastScanTime = Time.time;
             }
         }
 
-        private void OnDestroy()
+        /// <summary>
+        /// Scans for available targets within range
+        /// </summary>
+        private void ScanForTargets()
         {
-            Dispose();
-        }
-
-        #endregion
-
-        #region ICharacterController Implementation
-
-        public void SetActive(bool active)
-        {
-            if (_isActive == active) return;
-
-            _isActive = active;
-
-            if (!_isActive)
-            {
-                ClearAllTargets();
-            }
-        }
-
-        public void Initialize(IServiceContainer services)
-        {
-            _services = services ?? throw new ArgumentNullException(nameof(services));
-
-            if (_services.TryResolve<IEventBus>(out _eventBus))
-            {
-                // Successfully resolved event bus
-            }
-
-            _isInitialized = true;
-        }
-
-        public void UpdateController()
-        {
-            // Update logic is handled in Update()
-        }
-
-        public void Dispose()
-        {
-            ClearAllTargets();
+            availableTargets.Clear();
             
-            OnTargetChanged = null;
-            OnTargetDetected = null;
-            OnTargetLost = null;
-
-            _detectedTargets?.Clear();
-            _targetScores?.Clear();
-            _targetInfoCache?.Clear();
-            _targetsToRemove?.Clear();
-        }
-
-        #endregion
-
-        #region ITargetSelector Implementation
-
-        public void ForceTargetUpdate()
-        {
-            _lastUpdateTime = 0f;
-            UpdateTargetDetection();
-            UpdateTargetSelection();
-        }
-
-        public void SetCurrentTarget(Transform target)
-        {
-            if (_currentTarget == target) return;
-
-            if (target != null && !_detectedTargets.Contains(target))
-            {
-                Debug.LogWarning($"[AdvancedTargetSelector] Attempted to set target {target.name} that is not detected");
-                return;
-            }
-
-            var previousTarget = _currentTarget;
-            _currentTarget = target;
-
-            OnTargetChanged?.Invoke(_currentTarget);
+            Collider[] colliders = Physics.OverlapSphere(transform.position, detectionRange, targetLayerMask);
             
-            if (previousTarget != null && target != null)
+            foreach (var collider in colliders)
             {
-                PublishTargetSelectedEvent(target, previousTarget);
-            }
-        }
-
-        public void ClearCurrentTarget()
-        {
-            SetCurrentTarget(null);
-        }
-
-        public Transform GetClosestTarget()
-        {
-            if (_detectedTargets.Count == 0) return null;
-
-            Transform closestTarget = null;
-            float closestDistance = float.MaxValue;
-
-            foreach (var target in _detectedTargets)
-            {
-                if (target == null) continue;
-
-                float distance = Vector3.Distance(transform.position, target.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestTarget = target;
-                }
-            }
-
-            return closestTarget;
-        }
-
-        public Transform GetHighestPriorityTarget()
-        {
-            if (_detectedTargets.Count == 0) return null;
-
-            if (_prioritizeClosest)
-            {
-                return GetClosestTarget();
-            }
-
-            Transform bestTarget = null;
-            float bestScore = float.MinValue;
-
-            foreach (var target in _detectedTargets)
-            {
-                if (target == null) continue;
-
-                if (_targetScores.TryGetValue(target, out float score) && score > bestScore)
-                {
-                    bestScore = score;
-                    bestTarget = target;
-                }
-            }
-
-            return bestTarget;
-        }
-
-        public List<Transform> GetTargetsWithinDistance(float distance)
-        {
-            var targets = new List<Transform>();
-            
-            foreach (var target in _detectedTargets)
-            {
-                if (target == null) continue;
-
-                if (Vector3.Distance(transform.position, target.position) <= distance)
-                {
-                    targets.Add(target);
-                }
-            }
-
-            return targets;
-        }
-
-        public bool ValidateTarget(Transform target)
-        {
-            if (target == null || target == transform) return false;
-
-            // Check distance
-            float distance = Vector3.Distance(transform.position, target.position);
-            if (distance > _maxDetectionDistance) return false;
-
-            // Check layer
-            if ((_targetLayers.value & (1 << target.gameObject.layer)) == 0) return false;
-
-            // Check minimum size
-            if (_minTargetSize > 0f)
-            {
-                var renderer = target.GetComponent<Renderer>();
-                if (renderer != null)
-                {
-                    float size = renderer.bounds.size.magnitude;
-                    if (size < _minTargetSize) return false;
-                }
-            }
-
-            // Check line of sight
-            if (_validateLineOfSight)
-            {
-                Vector3 direction = (target.position - transform.position).normalized;
+                if (collider.transform == transform) continue;
                 
-                if (Physics.Raycast(transform.position, direction, distance, _obstacleLayers))
+                if (IsValidTarget(collider.transform))
                 {
-                    return false;
+                    availableTargets.Add(collider.transform);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Validates if a target is selectable
+        /// </summary>
+        private bool IsValidTarget(Transform target)
+        {
+            if (target == null) return false;
+
+            Vector3 directionToTarget = (target.position - transform.position).normalized;
+            float angle = Vector3.Angle(transform.forward, directionToTarget);
+            
+            if (angle > fieldOfViewAngle / 2f) return false;
+
+            if (requireLineOfSight)
+            {
+                if (Physics.Linecast(transform.position, target.position, obstacleLayerMask))
+                    return false;
             }
 
             return true;
         }
 
+        /// <summary>
+        /// Updates the current target based on priority
+        /// </summary>
+        private void UpdateCurrentTarget()
+        {
+            Transform previousTarget = currentTarget;
+            
+            if (availableTargets.Count == 0)
+            {
+                currentTarget = null;
+            }
+            else
+            {
+                currentTarget = SelectBestTarget(availableTargets);
+            }
+
+            if (previousTarget != currentTarget)
+            {
+                if (previousTarget != null)
+                    OnTargetLost?.Invoke(previousTarget);
+                    
+                if (currentTarget != null)
+                    OnTargetAcquired?.Invoke(currentTarget);
+            }
+        }
+
+        /// <summary>
+        /// Selects the best target based on priority settings
+        /// </summary>
+        private Transform SelectBestTarget(List<Transform> targets)
+        {
+            if (targets.Count == 0) return null;
+            if (targets.Count == 1) return targets[0];
+
+            var sortedTargets = SortTargetsByPriority(targets, primaryPriority);
+            
+            // Use secondary priority if multiple targets have same primary priority score
+            if (sortedTargets.Count > 1)
+            {
+                var topPriorityTargets = GetTopPriorityTargets(sortedTargets, primaryPriority);
+                if (topPriorityTargets.Count > 1)
+                {
+                    sortedTargets = SortTargetsByPriority(topPriorityTargets, secondaryPriority);
+                }
+            }
+            
+            return sortedTargets[0];
+        }
+
+        /// <summary>
+        /// Sorts targets by the specified priority
+        /// </summary>
+        private List<Transform> SortTargetsByPriority(List<Transform> targets, TargetingPriority priority)
+        {
+            switch (priority)
+            {
+                case TargetingPriority.Closest:
+                    return targets.OrderBy(t => Vector3.Distance(transform.position, t.position)).ToList();
+                    
+                case TargetingPriority.Furthest:
+                    return targets.OrderByDescending(t => Vector3.Distance(transform.position, t.position)).ToList();
+                    
+                case TargetingPriority.LowestHealth:
+                    return targets.OrderBy(GetTargetHealth).ToList();
+                    
+                case TargetingPriority.HighestHealth:
+                    return targets.OrderByDescending(GetTargetHealth).ToList();
+                    
+                default:
+                    return targets;
+            }
+        }
+
+        /// <summary>
+        /// Gets targets that share the top priority value
+        /// </summary>
+        private List<Transform> GetTopPriorityTargets(List<Transform> sortedTargets, TargetingPriority priority)
+        {
+            var result = new List<Transform> { sortedTargets[0] };
+            float topValue = GetPriorityValue(sortedTargets[0], priority);
+
+            for (int i = 1; i < sortedTargets.Count; i++)
+            {
+                float value = GetPriorityValue(sortedTargets[i], priority);
+                if (Mathf.Approximately(value, topValue))
+                {
+                    result.Add(sortedTargets[i]);
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the priority value for a target
+        /// </summary>
+        private float GetPriorityValue(Transform target, TargetingPriority priority)
+        {
+            switch (priority)
+            {
+                case TargetingPriority.Closest:
+                case TargetingPriority.Furthest:
+                    return Vector3.Distance(transform.position, target.position);
+                    
+                case TargetingPriority.LowestHealth:
+                case TargetingPriority.HighestHealth:
+                    return GetTargetHealth(target);
+                    
+                default:
+                    return 0f;
+            }
+        }
+
+        /// <summary>
+        /// Gets the health value of a target
+        /// </summary>
+        private float GetTargetHealth(Transform target)
+        {
+            var healthComponent = target.GetComponent<IHealthComponent>();
+            if (healthComponent != null)
+                return healthComponent.CurrentHealth;
+
+            return 100f;
+        }
+
+        /// <summary>
+        /// Forces a target selection update
+        /// </summary>
+        public void ForceTargetUpdate()
+        {
+            ScanForTargets();
+            UpdateCurrentTarget();
+        }
+
+        /// <summary>
+        /// Manually sets a specific target
+        /// </summary>
+        public void SetTarget(Transform target)
+        {
+            Transform previousTarget = currentTarget;
+            currentTarget = target;
+
+            if (previousTarget != currentTarget)
+            {
+                if (previousTarget != null)
+                    OnTargetLost?.Invoke(previousTarget);
+                    
+                if (currentTarget != null)
+                    OnTargetAcquired?.Invoke(currentTarget);
+            }
+        }
+        
+        /// <summary>
+        /// Initialize the target selector with settings
+        /// </summary>
+        public void Initialize(float range, bool lineOfSight = true)
+        {
+            detectionRange = range;
+            requireLineOfSight = lineOfSight;
+            IsActive = true;
+        }
+        
+        /// <summary>
+        /// Validates a specific target
+        /// </summary>
+        public bool ValidateTarget(Transform target)
+        {
+            return IsValidTarget(target);
+        }
+        
+        /// <summary>
+        /// Calculate target score for prioritization
+        /// </summary>
         public float CalculateTargetScore(Transform target)
         {
             if (target == null) return 0f;
-
-            float score = 0f;
-            var targetInfo = GetOrCreateTargetInfo(target);
-
-            // Distance score (closer is better)
-            float distanceScore = 1f - (targetInfo.Distance / _maxDetectionDistance);
-            score += distanceScore * _distanceWeight;
-
-            // Angle score (more forward-facing is better)
-            float angleScore = 1f - (targetInfo.Angle / 180f);
-            score += angleScore * _angleWeight;
-
-            // Visibility score (more visible is better)
-            if (_playerCamera != null && _useCameraCenterBias)
-            {
-                Vector3 screenPoint = _playerCamera.WorldToViewportPoint(target.position);
-                float screenCenterDistance = Vector2.Distance(new Vector2(screenPoint.x, screenPoint.y), Vector2.one * 0.5f);
-                float visibilityScore = 1f - screenCenterDistance;
-                score += visibilityScore * _visibilityWeight * _screenCenterWeight;
-            }
-
-            return score;
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private void UpdateTargetDetection()
-        {
-            _targetsToRemove.Clear();
-
-            // Remove invalid targets
-            for (int i = _detectedTargets.Count - 1; i >= 0; i--)
-            {
-                var target = _detectedTargets[i];
-                if (target == null || !ValidateTarget(target))
-                {
-                    _targetsToRemove.Add(target);
-                }
-            }
-
-            foreach (var target in _targetsToRemove)
-            {
-                RemoveTarget(target);
-            }
-
-            // Detect new targets
-            if (_useProximityDetection)
-            {
-                DetectTargetsByProximity();
-            }
-
-            if (_useRaycastDetection)
-            {
-                DetectTargetsByRaycast();
-            }
-
-            // Update target scores
-            UpdateTargetScores();
-        }
-
-        private void DetectTargetsByProximity()
-        {
-            Collider[] hits = Physics.OverlapSphere(transform.position, _detectionRadius, _targetLayers);
-            int processed = 0;
-
-            foreach (var hit in hits)
-            {
-                if (processed >= _maxTargetsPerFrame) break;
-
-                if (hit.transform == transform) continue;
-                if (_detectedTargets.Contains(hit.transform)) continue;
-
-                if (ValidateTarget(hit.transform))
-                {
-                    AddTarget(hit.transform);
-                    processed++;
-                }
-            }
-        }
-
-        private void DetectTargetsByRaycast()
-        {
-            if (_playerCamera == null) return;
-
-            // Cast rays from camera center and nearby points
-            Vector3[] rayDirections = {
-                _playerCamera.transform.forward,
-                _playerCamera.ViewportPointToRay(new Vector3(0.3f, 0.5f, 0f)).direction,
-                _playerCamera.ViewportPointToRay(new Vector3(0.7f, 0.5f, 0f)).direction,
-                _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.3f, 0f)).direction,
-                _playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.7f, 0f)).direction,
-            };
-
-            int processed = 0;
-            foreach (var direction in rayDirections)
-            {
-                if (processed >= _maxTargetsPerFrame) break;
-
-                RaycastHit[] hits = Physics.RaycastAll(_playerCamera.transform.position, 
-                    direction, _maxDetectionDistance, _targetLayers);
-
-                foreach (var hit in hits)
-                {
-                    if (processed >= _maxTargetsPerFrame) break;
-
-                    if (hit.transform == transform) continue;
-                    if (_detectedTargets.Contains(hit.transform)) continue;
-
-                    if (ValidateTarget(hit.transform))
-                    {
-                        AddTarget(hit.transform);
-                        processed++;
-                    }
-                }
-            }
-        }
-
-        private void UpdateTargetScores()
-        {
-            foreach (var target in _detectedTargets)
-            {
-                if (target == null) continue;
-
-                float score = CalculateTargetScore(target);
-                _targetScores[target] = score;
-            }
-        }
-
-        private void UpdateTargetSelection()
-        {
-            if (_detectedTargets.Count == 0)
-            {
-                if (_currentTarget != null)
-                {
-                    SetCurrentTarget(null);
-                }
-                return;
-            }
-
-            // Auto-select best target if none is currently selected
-            if (_currentTarget == null || !_detectedTargets.Contains(_currentTarget))
-            {
-                var bestTarget = GetHighestPriorityTarget();
-                SetCurrentTarget(bestTarget);
-            }
-        }
-
-        private void AddTarget(Transform target)
-        {
-            if (target == null || _detectedTargets.Contains(target)) return;
-
-            _detectedTargets.Add(target);
-            _targetInfoCache[target] = CreateTargetInfo(target);
-
-            OnTargetDetected?.Invoke(target);
             
-            var detectedEvent = new TargetDetectedEvent(transform, target, 
-                Vector3.Distance(transform.position, target.position), 
-                CalculateTargetScore(target));
-            _eventBus?.Publish(detectedEvent);
+            float distance = Vector3.Distance(transform.position, target.position);
+            float health = GetTargetHealth(target);
+            
+            // Simple scoring: closer targets with lower health get higher scores
+            return (detectionRange - distance) + (100f - health);
         }
-
-        private void RemoveTarget(Transform target)
+        
+        /// <summary>
+        /// Set the active state of the selector
+        /// </summary>
+        public void SetActive(bool active)
         {
-            if (target == null || !_detectedTargets.Contains(target)) return;
-
-            _detectedTargets.Remove(target);
-            _targetScores.Remove(target);
-            _targetInfoCache.Remove(target);
-
-            if (_currentTarget == target)
+            IsActive = active;
+            if (!active)
             {
-                SetCurrentTarget(null);
-            }
-
-            OnTargetLost?.Invoke(target);
-
-            var lostEvent = new TargetLostEvent(transform, target, "Out of range or occluded");
-            _eventBus?.Publish(lostEvent);
-        }
-
-        private void ClearAllTargets()
-        {
-            var targetsToRemove = new List<Transform>(_detectedTargets);
-            foreach (var target in targetsToRemove)
-            {
-                RemoveTarget(target);
+                ClearCurrentTarget();
             }
         }
-
-        private TargetInfo CreateTargetInfo(Transform target)
+        
+        /// <summary>
+        /// Clear the current target
+        /// </summary>
+        public void ClearCurrentTarget()
         {
-            return new TargetInfo
+            if (currentTarget != null)
             {
-                Distance = Vector3.Distance(transform.position, target.position),
-                Angle = Vector3.Angle(transform.forward, (target.position - transform.position).normalized),
-                LastKnownPosition = target.position,
-                LastUpdateTime = Time.time
-            };
+                Transform previousTarget = currentTarget;
+                currentTarget = null;
+                OnTargetLost?.Invoke(previousTarget);
+            }
         }
-
-        private TargetInfo GetOrCreateTargetInfo(Transform target)
+        
+        /// <summary>
+        /// Get the closest target from available targets
+        /// </summary>
+        public Transform GetClosestTarget()
         {
-            if (_targetInfoCache.TryGetValue(target, out TargetInfo info))
+            if (availableTargets.Count == 0) return null;
+            
+            Transform closest = null;
+            float closestDistance = float.MaxValue;
+            
+            foreach (var target in availableTargets)
             {
-                // Update info if it's stale
-                if (Time.time - info.LastUpdateTime > _updateInterval)
+                float distance = Vector3.Distance(transform.position, target.position);
+                if (distance < closestDistance)
                 {
-                    info.Distance = Vector3.Distance(transform.position, target.position);
-                    info.Angle = Vector3.Angle(transform.forward, (target.position - transform.position).normalized);
-                    info.LastKnownPosition = target.position;
-                    info.LastUpdateTime = Time.time;
+                    closestDistance = distance;
+                    closest = target;
                 }
-                return info;
             }
-
-            return CreateTargetInfo(target);
+            
+            return closest;
         }
-
-        private void PublishTargetSelectedEvent(Transform newTarget, Transform previousTarget)
+        
+        /// <summary>
+        /// Event subscription for target changes
+        /// </summary>
+        public System.Action<Transform> OnTargetChanged
         {
-            float distance = newTarget != null ? Vector3.Distance(transform.position, newTarget.position) : 0f;
-            var selectedEvent = new TargetSelectedEvent(transform, newTarget, previousTarget, distance);
-            _eventBus?.Publish(selectedEvent);
+            get => OnTargetAcquired;
+            set => OnTargetAcquired = value;
         }
-
-        #endregion
-
-        #region Gizmos
+        
+        /// <summary>
+        /// Cleanup resources
+        /// </summary>
+        public void Dispose()
+        {
+            availableTargets.Clear();
+            currentTarget = null;
+            OnTargetAcquired = null;
+            OnTargetLost = null;
+            IsActive = false;
+        }
 
         private void OnDrawGizmosSelected()
         {
-            // Draw detection radius
             Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(transform.position, _detectionRadius);
+            Gizmos.DrawWireSphere(transform.position, detectionRange);
 
-            // Draw max detection distance
-            Gizmos.color = Color.blue;
-            Gizmos.DrawWireSphere(transform.position, _maxDetectionDistance);
-
-            // Draw current target line
-            if (_currentTarget != null)
+            if (currentTarget != null)
             {
-                Gizmos.color = Color.red;
-                Gizmos.DrawLine(transform.position, _currentTarget.position);
-                
                 Gizmos.color = Color.green;
-                Gizmos.DrawWireSphere(_currentTarget.position, 0.3f);
-            }
-
-            // Draw detected targets
-            Gizmos.color = Color.cyan;
-            foreach (var target in _detectedTargets)
-            {
-                if (target != _currentTarget && target != null)
-                {
-                    Gizmos.DrawWireSphere(target.position, 0.2f);
-                }
+                Gizmos.DrawLine(transform.position, currentTarget.position);
             }
         }
+    }
 
-        #endregion
-
-        #region Editor Support
-
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            _detectionRadius = Mathf.Max(0.1f, _detectionRadius);
-            _maxDetectionDistance = Mathf.Max(0.1f, _maxDetectionDistance);
-            _updateInterval = Mathf.Max(0.05f, _updateInterval);
-            _maxTargetsPerFrame = Mathf.Max(1, _maxTargetsPerFrame);
-            _minTargetSize = Mathf.Max(0.1f, _minTargetSize);
-        }
-#endif
-
-        #endregion
+    /// <summary>
+    /// Targeting priority options
+    /// </summary>
+    public enum TargetingPriority
+    {
+        Closest,
+        Furthest,
+        LowestHealth,
+        HighestHealth,
+        Random
     }
 }

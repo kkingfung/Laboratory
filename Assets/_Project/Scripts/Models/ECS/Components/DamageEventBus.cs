@@ -26,7 +26,7 @@ namespace Laboratory.Models.ECS.Components
             if (!entityManager.Exists(busEntity)) return;
             
             var buffer = entityManager.GetBuffer<DamageTakenEventBufferElement>(busEntity);
-            buffer.Add(new DamageTakenEventBufferElement { Value = damageEvent });
+            buffer.Add(new DamageTakenEventBufferElement { DamageEvent = damageEvent, IsProcessed = false });
         }
     }
 }

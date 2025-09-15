@@ -94,7 +94,7 @@ namespace Laboratory.UI.Helper
     /// UI component for managing lobby player list and game start functionality.
     /// Handles player join/leave events, ready status, and game start conditions.
     /// </summary>
-    public class LobbyUI : MonoBehaviour
+    public class LobbyUI : NetworkBehaviour
     {
         #region Fields
 
@@ -262,10 +262,15 @@ namespace Laboratory.UI.Helper
         /// <param name="isReady">New ready status</param>
         private void HandleLocalPlayerReadyChange(bool isReady)
         {
-            // TODO: Send ready status to server via LobbyManager
+            // Send ready status to server via LobbyManager
             if (LobbyManager.Instance != null)
             {
                 LobbyManager.Instance.RequestReadyStatusServerRpc(isReady);
+                Debug.Log($"[LobbyUI] Sent ready status to server: {isReady}");
+            }
+            else
+            {
+                Debug.LogError("[LobbyUI] LobbyManager.Instance is null. Cannot send ready status to server.");
             }
         }
 
@@ -307,10 +312,15 @@ namespace Laboratory.UI.Helper
         {
             ClearPlayerList();
 
-            // TODO: Get current lobby players from LobbyManager
+            // Get current lobby players from LobbyManager
             if (LobbyManager.Instance != null)
             {
                 PopulatePlayerListFromLobbyManager();
+                Debug.Log($"[LobbyUI] Player list refreshed with {_playerEntries.Count} players");
+            }
+            else
+            {
+                Debug.LogWarning("[LobbyUI] LobbyManager.Instance is null. Cannot refresh player list.");
             }
         }
 
@@ -348,8 +358,23 @@ namespace Laboratory.UI.Helper
         /// <param name="visible">Whether button should be visible</param>
         private void UpdateStartGameButtonVisibility(bool visible)
         {
-            // TODO: Add host check here to enable/disable button
-            startGameButton.gameObject.SetActive(visible);
+            // Add host check here to enable/disable button
+            bool isHost = NetworkManager.Singleton != null && 
+                         NetworkManager.Singleton.IsHost;
+            
+            // Only show start game button to host when all players are ready
+            bool shouldShowButton = visible && isHost;
+            
+            startGameButton.gameObject.SetActive(shouldShowButton);
+            
+            if (visible && !isHost)
+            {
+                Debug.Log("[LobbyUI] All players ready, but local client is not the host. Start button hidden.");
+            }
+            else if (shouldShowButton)
+            {
+                Debug.Log("[LobbyUI] All players ready and local client is host. Start button visible.");
+            }
         }
 
         /// <summary>
@@ -357,8 +382,35 @@ namespace Laboratory.UI.Helper
         /// </summary>
         private void OnReadyButtonClicked()
         {
-            // TODO: Toggle local player ready status
-            Debug.Log("Ready button clicked - implement ready status toggle");
+            // Toggle local player ready status
+            if (NetworkManager.Singleton == null)
+            {
+                Debug.LogError("[LobbyUI] NetworkManager.Singleton is null. Cannot toggle ready status.");
+                return;
+            }
+            
+            var localClientId = NetworkManager.Singleton.LocalClientId;
+            
+            // Find local player entry and toggle ready status
+            if (_playerEntries.TryGetValue(localClientId, out var localPlayerEntry))
+            {
+                bool newReadyStatus = !localPlayerEntry.IsReady;
+                
+                // Send the new ready status to server
+                if (LobbyManager.Instance != null)
+                {
+                    LobbyManager.Instance.RequestReadyStatusServerRpc(newReadyStatus);
+                    Debug.Log($"[LobbyUI] Local player ready status toggled to: {newReadyStatus}");
+                }
+                else
+                {
+                    Debug.LogError("[LobbyUI] LobbyManager.Instance is null. Cannot toggle ready status.");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"[LobbyUI] Local player entry not found for client ID: {localClientId}");
+            }
         }
 
         /// <summary>
@@ -366,8 +418,100 @@ namespace Laboratory.UI.Helper
         /// </summary>
         private void OnStartGameButtonClicked()
         {
-            // TODO: Notify server to start the game
-            Debug.Log("Start game button clicked - implement game start");
+            // Notify server to start the game
+            if (!NetworkManager.Singleton.IsHost)
+            {
+                Debug.LogError("[LobbyUI] Only the host can start the game.");
+                return;
+            }
+            
+            if (!AreAllPlayersReady())
+            {
+                Debug.LogWarning("[LobbyUI] Cannot start game - not all players are ready.");
+                return;
+            }
+            
+            if (LobbyManager.Instance != null)
+            {
+                // For now, we'll implement a simple game start mechanism
+                // In a more complex system, this would trigger scene loading or game state change
+                StartGameServerRpc();
+                Debug.Log("[LobbyUI] Game start requested by host.");
+            }
+            else
+            {
+                Debug.LogError("[LobbyUI] LobbyManager.Instance is null. Cannot start game.");
+            }
+        }
+        
+        /// <summary>
+        /// ServerRpc to handle game start from the host.
+        /// </summary>
+        [ServerRpc(RequireOwnership = false)]
+        private void StartGameServerRpc()
+        {
+            if (!NetworkManager.Singleton.IsHost)
+            {
+                Debug.LogError("[LobbyUI] StartGameServerRpc called by non-host client.");
+                return;
+            }
+            
+            // Notify all clients that the game is starting
+            NotifyGameStartClientRpc();
+            
+            // Here you would typically:
+            // 1. Load the game scene
+            // 2. Initialize game state
+            // 3. Spawn player objects
+            // 4. Start the game timer
+            
+            Debug.Log("[LobbyUI] Game started by host. Notifying all clients.");
+            
+            // For demonstration, let's log the current players
+            if (LobbyManager.Instance != null)
+            {
+                var playerCount = 0;
+                foreach (var (clientId, playerData) in LobbyManager.Instance.GetAllPlayers())
+                {
+                    playerCount++;
+                    Debug.Log($"[LobbyUI] Starting game with player: {playerData.PlayerName} (ID: {clientId})");
+                }
+                Debug.Log($"[LobbyUI] Total players starting game: {playerCount}");
+            }
+        }
+        
+        /// <summary>
+        /// ClientRpc to notify all clients that the game is starting.
+        /// </summary>
+        [ClientRpc]
+        private void NotifyGameStartClientRpc()
+        {
+            Debug.Log("[LobbyUI] Game is starting! Preparing for gameplay...");
+            
+            // Update UI to show game starting state
+            statusText.text = "Game Starting...";
+            
+            // Disable lobby UI elements
+            readyButton.interactable = false;
+            startGameButton.interactable = false;
+            
+            // Here you would typically:
+            // 1. Show loading screen
+            // 2. Prepare player for scene transition
+            // 3. Initialize client-side game state
+            
+            // For demonstration, we'll just update the status
+            Invoke(nameof(SimulateGameStart), 2f);
+        }
+        
+        /// <summary>
+        /// Simulates the game start process for demonstration purposes.
+        /// In a real implementation, this would be replaced with actual scene loading.
+        /// </summary>
+        private void SimulateGameStart()
+        {
+            statusText.text = "Game Started! (This is a simulation)";
+            Debug.Log("[LobbyUI] Game start simulation complete. In a real game, players would now be in the gameplay scene.");
         }
 
         /// <summary>

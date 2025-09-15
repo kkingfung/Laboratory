@@ -2,9 +2,79 @@ using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Core.Health.Components;
 using Laboratory.Core.Health;
+using Laboratory.Subsystems.EnemyAI.NPC;
+using Laboratory.EnemyAI;
+using Laboratory.Subsystems.EnemyAI;
 
-namespace Laboratory.EnemyAI
+namespace Laboratory.Subsystems.EnemyAI
 {
+    #region Behavior Tree Action Nodes
+
+    /// <summary>
+    /// Behavior tree node for NPC attacks
+    /// </summary>
+    public class AttackActionNode : ActionNode
+    {
+        private UnifiedNPCBehavior npc;
+
+        public AttackActionNode(UnifiedNPCBehavior owner)
+        {
+            npc = owner;
+        }
+
+        public override BehaviorTreeStatus Execute()
+        {
+            if (npc != null && npc.TryAttack())
+            {
+                return BehaviorTreeStatus.Success;
+            }
+            return BehaviorTreeStatus.Failure;
+        }
+    }
+
+    /// <summary>
+    /// Behavior tree node for NPC patrol behavior
+    /// </summary>
+    public class PatrolActionNode : ActionNode
+    {
+        private UnifiedNPCBehavior npc;
+        private Vector3 currentTarget;
+        private bool hasTarget;
+
+        public PatrolActionNode(UnifiedNPCBehavior owner)
+        {
+            npc = owner;
+        }
+
+        public override BehaviorTreeStatus Execute()
+        {
+            if (npc == null) return BehaviorTreeStatus.Failure;
+
+            if (!hasTarget)
+            {
+                currentTarget = npc.GetNextPatrolPoint();
+                hasTarget = true;
+            }
+
+            // Move towards patrol point
+            float distance = Vector3.Distance(npc.transform.position, currentTarget);
+            if (distance <= 0.5f)
+            {
+                hasTarget = false;
+                return BehaviorTreeStatus.Success;
+            }
+
+            // Move towards target
+            Vector3 direction = (currentTarget - npc.transform.position).normalized;
+            npc.transform.position += direction * npc.MovementSpeed * Time.deltaTime;
+            npc.transform.rotation = Quaternion.LookRotation(direction);
+
+            return BehaviorTreeStatus.Running;
+        }
+    }
+
+    #endregion
+
     #region AI States
 
     /// <summary>
@@ -28,7 +98,7 @@ namespace Laboratory.EnemyAI
             {
                 if (Random.value < 0.1f) // 10% chance per frame to exit idle
                 {
-                    var npcBehavior = GetOwnerComponent<EnhancedNPCBehavior>();
+                    var npcBehavior = GetOwnerComponent<UnifiedNPCBehavior>();
                     if (npcBehavior?.PatrolPoints?.Count > 0)
                     {
                         RequestStateChange<PatrolState>();
@@ -47,13 +117,13 @@ namespace Laboratory.EnemyAI
         private bool hasReachedTarget;
         private float waitStartTime;
         private bool isWaiting;
-        private EnhancedNPCBehavior npcBehavior;
+        private UnifiedNPCBehavior npcBehavior;
 
         public override float MinDuration => 1f;
 
         protected override void OnEnter()
         {
-            npcBehavior = GetOwnerComponent<EnhancedNPCBehavior>();
+            npcBehavior = GetOwnerComponent<UnifiedNPCBehavior>();
             currentPatrolTarget = npcBehavior.GetNextPatrolPoint();
             hasReachedTarget = false;
             isWaiting = false;
@@ -116,13 +186,13 @@ namespace Laboratory.EnemyAI
     /// </summary>
     public class ChaseState : AIState
     {
-        private EnhancedNPCBehavior npcBehavior;
+        private UnifiedNPCBehavior npcBehavior;
         private float lastTargetSeen;
         private float maxChaseTime = 15f;
 
         protected override void OnEnter()
         {
-            npcBehavior = GetOwnerComponent<EnhancedNPCBehavior>();
+            npcBehavior = GetOwnerComponent<UnifiedNPCBehavior>();
             lastTargetSeen = Time.time;
             LogState("Starting chase");
         }
@@ -143,7 +213,7 @@ namespace Laboratory.EnemyAI
             float distance = Vector3.Distance(transform.position, target.position);
 
             // Check if close enough to attack
-            if (distance <= npcBehavior.AttackRange)
+            if (distance <= npcBehavior.Stats.attackRange)
             {
                 RequestStateChange<AttackState>();
                 return;
@@ -179,7 +249,7 @@ namespace Laboratory.EnemyAI
     /// </summary>
     public class AttackState : AIState
     {
-        private EnhancedNPCBehavior npcBehavior;
+        private UnifiedNPCBehavior npcBehavior;
         private float attackStartTime;
         private bool hasAttacked;
 
@@ -187,7 +257,7 @@ namespace Laboratory.EnemyAI
 
         protected override void OnEnter()
         {
-            npcBehavior = GetOwnerComponent<EnhancedNPCBehavior>();
+            npcBehavior = GetOwnerComponent<UnifiedNPCBehavior>();
             attackStartTime = Time.time;
             hasAttacked = false;
             LogState("Initiating attack");
@@ -212,7 +282,7 @@ namespace Laboratory.EnemyAI
             transform.rotation = Quaternion.LookRotation(direction);
 
             // Check if target moved out of range
-            if (distance > npcBehavior.AttackRange * 1.2f)
+            if (distance > npcBehavior.Stats.attackRange * 1.2f)
             {
                 RequestStateChange<ChaseState>();
                 return;
@@ -233,7 +303,7 @@ namespace Laboratory.EnemyAI
             // Exit attack state after animation completes
             if (hasAttacked && Time.time - attackStartTime >= 1.5f)
             {
-                if (distance <= npcBehavior.AttackRange)
+                if (distance <= npcBehavior.Stats.attackRange)
                 {
                     // Stay in attack state for continuous attacks
                     hasAttacked = false;
@@ -268,7 +338,7 @@ namespace Laboratory.EnemyAI
 
         protected override void OnEnter()
         {
-            var npcBehavior = GetOwnerComponent<EnhancedNPCBehavior>();
+            var npcBehavior = GetOwnerComponent<UnifiedNPCBehavior>();
             searchCenter = npcBehavior?.LastKnownTargetPosition ?? GetOwnerTransform().position;
             searchStartTime = Time.time;
             searchPointsChecked = 0;
@@ -309,7 +379,7 @@ namespace Laboratory.EnemyAI
             {
                 // Move towards search point
                 Vector3 direction = (currentSearchPoint - transform.position).normalized;
-                var npcBehavior = GetOwnerComponent<EnhancedNPCBehavior>();
+                var npcBehavior = GetOwnerComponent<UnifiedNPCBehavior>();
                 float moveSpeed = npcBehavior?.MovementSpeed ?? 5f;
                 transform.position += direction * moveSpeed * Time.deltaTime;
                 transform.rotation = Quaternion.LookRotation(direction);
@@ -329,407 +399,23 @@ namespace Laboratory.EnemyAI
         }
     }
 
-    /// <summary>
-    /// Alert state - NPC is aware something is wrong but hasn't found target
-    /// </summary>
-    public class AlertState : AIState
-    {
-        private float alertStartTime;
-        private float alertDuration = 5f;
-        private Vector3 alertPosition;
-
-        protected override void OnEnter()
-        {
-            alertStartTime = Time.time;
-            alertPosition = GetOwnerTransform().position;
-            LogState("Entering alert state");
-        }
-
-        protected override void OnUpdate()
-        {
-            // Look around while alert
-            var transform = GetOwnerTransform();
-            if (transform != null)
-            {
-                // Slowly rotate to scan area
-                float rotationSpeed = 45f; // degrees per second
-                transform.Rotate(0, rotationSpeed * Time.deltaTime, 0);
-            }
-
-            // Exit alert after duration
-            if (Time.time - alertStartTime > alertDuration)
-            {
-                var npcBehavior = GetOwnerComponent<EnhancedNPCBehavior>();
-                npcBehavior?.ClearAlert();
-                RequestStateChange<PatrolState>();
-            }
-        }
-
-        protected override void OnExit()
-        {
-            LogState("Alert state ended");
-        }
-    }
-
-    /// <summary>
-    /// Flee state - NPC runs away from danger
-    /// </summary>
-    public class FleeState : AIState
-    {
-        private Vector3 fleeDirection;
-        private float fleeStartTime;
-        private float fleeDuration = 8f;
-
-        protected override void OnEnter()
-        {
-            var npcBehavior = GetOwnerComponent<EnhancedNPCBehavior>();
-            var transform = GetOwnerTransform();
-            
-            if (npcBehavior?.CurrentTarget != null && transform != null)
-            {
-                // Flee in opposite direction from target
-                fleeDirection = (transform.position - npcBehavior.CurrentTarget.position).normalized;
-            }
-            else
-            {
-                // Flee in random direction
-                fleeDirection = Random.insideUnitSphere.normalized;
-                fleeDirection.y = 0; // Keep on ground
-            }
-
-            fleeStartTime = Time.time;
-            LogState("Fleeing from danger");
-        }
-
-        protected override void OnUpdate()
-        {
-            var transform = GetOwnerTransform();
-            if (transform == null) return;
-
-            // Move away from danger
-            var npcBehavior = GetOwnerComponent<EnhancedNPCBehavior>();
-            float moveSpeed = (npcBehavior?.MovementSpeed ?? 5f) * 1.5f; // Move faster when fleeing
-            transform.position += fleeDirection * moveSpeed * Time.deltaTime;
-            transform.rotation = Quaternion.LookRotation(fleeDirection);
-
-            // Stop fleeing after duration or if health is better
-            if (Time.time - fleeStartTime > fleeDuration)
-            {
-                var healthComponent = GetOwnerComponent<HealthComponentBase>();
-                if (healthComponent?.HealthPercentage > 0.5f)
-                {
-                    RequestStateChange<PatrolState>();
-                }
-            }
-        }
-
-        protected override void OnExit()
-        {
-            LogState("Stopped fleeing");
-        }
-    }
-
-    /// <summary>
-    /// Dead state - NPC has died
-    /// </summary>
-    public class DeadState : AIState
-    {
-        public override bool CanBeInterrupted => false;
-
-        protected override void OnEnter()
-        {
-            LogState("NPC has died");
-            
-            // Disable further AI processing
-            var npcBehavior = GetOwnerComponent<EnhancedNPCBehavior>();
-            if (npcBehavior != null)
-            {
-                npcBehavior.enabled = false;
-            }
-
-            // Play death animation if available
-            var animator = GetOwnerComponent<Animator>();
-            if (animator != null)
-            {
-                animator.SetTrigger("Die");
-            }
-
-            // Disable colliders to prevent further interactions
-            var colliders = GetOwnerGameObject().GetComponents<Collider>();
-            foreach (var collider in colliders)
-            {
-                collider.enabled = false;
-            }
-        }
-
-        protected override void OnUpdate()
-        {
-            // Dead NPCs don't update
-        }
-    }
-
     #endregion
 
-    #region Support Systems
+    #region Support Classes
 
     /// <summary>
-    /// Handles NPC perception and target detection
+    /// NPC difficulty scaling data
     /// </summary>
-    public class NPCPerceptionSystem
+    [System.Serializable]
+    public class NPCDifficultyScaling
     {
-        private EnhancedNPCBehavior npc;
-        private float lastPerceptionUpdate;
-        private float perceptionInterval = 0.2f;
-
-        public NPCPerceptionSystem(EnhancedNPCBehavior owner)
-        {
-            npc = owner;
-        }
-
-        public void UpdatePerception()
-        {
-            if (Time.time - lastPerceptionUpdate < perceptionInterval) return;
-            lastPerceptionUpdate = Time.time;
-
-            DetectTargets();
-        }
-
-        private void DetectTargets()
-        {
-            var detectionCenter = npc.DetectionCenter ? npc.DetectionCenter : npc.transform;
-            var colliders = Physics.OverlapSphere(detectionCenter.position, npc.DetectionRange, npc.TargetLayers);
-
-            Transform bestTarget = null;
-            float closestDistance = float.MaxValue;
-
-            foreach (var collider in colliders)
-            {
-                if (collider.transform == npc.transform) continue;
-
-                // Check line of sight
-                Vector3 directionToTarget = collider.transform.position - detectionCenter.position;
-                if (Physics.Raycast(detectionCenter.position, directionToTarget.normalized, 
-                    directionToTarget.magnitude, npc.ObstacleLayers))
-                {
-                    continue; // Line of sight blocked
-                }
-
-                // Find closest target
-                float distance = directionToTarget.magnitude;
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    bestTarget = collider.transform;
-                }
-            }
-
-            if (bestTarget != npc.CurrentTarget)
-            {
-                npc.SetTarget(bestTarget);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Handles NPC combat mechanics
-    /// </summary>
-    public class NPCCombatSystem
-    {
-        private EnhancedNPCBehavior npc;
-        private bool shouldTriggerAttackAnimation;
-
-        public NPCCombatSystem(EnhancedNPCBehavior owner)
-        {
-            npc = owner;
-        }
-
-        public void PerformAttack(Transform target, float damage)
-        {
-            if (target == null) return;
-
-            // Apply damage if target has health component
-            var healthComponent = target.GetComponent<HealthComponentBase>();
-            if (healthComponent != null)
-            {
-                var damageRequest = new DamageRequest(damage, npc.gameObject);
-                healthComponent.TakeDamage(damageRequest);
-            }
-
-            shouldTriggerAttackAnimation = true;
-        }
-
-        public bool ShouldTriggerAttackAnimation()
-        {
-            if (shouldTriggerAttackAnimation)
-            {
-                shouldTriggerAttackAnimation = false;
-                return true;
-            }
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Handles NPC movement mechanics
-    /// </summary>
-    public class NPCMovementSystem
-    {
-        private EnhancedNPCBehavior npc;
-        private Vector3 lastPosition;
-        private float currentSpeed;
-
-        public bool IsMoving { get; private set; }
-        public float CurrentSpeed => currentSpeed;
-
-        public NPCMovementSystem(EnhancedNPCBehavior owner)
-        {
-            npc = owner;
-            lastPosition = npc.transform.position;
-        }
-
-        public void UpdateMovement()
-        {
-            Vector3 currentPosition = npc.transform.position;
-            Vector3 movement = currentPosition - lastPosition;
-            currentSpeed = movement.magnitude / Time.deltaTime;
-            IsMoving = currentSpeed > 0.1f;
-            lastPosition = currentPosition;
-        }
-    }
-
-    /// <summary>
-    /// Scales NPC attributes based on difficulty
-    /// </summary>
-    public class NPCDifficultyScaler
-    {
-        private readonly Dictionary<NPCDifficulty, NPCDifficultyScaling> difficultyScalings = new()
-        {
-            [NPCDifficulty.Easy] = new NPCDifficultyScaling
-            {
-                HealthMultiplier = 0.7f,
-                DamageMultiplier = 0.7f,
-                SpeedMultiplier = 0.8f,
-                DetectionRangeMultiplier = 0.8f,
-                AttackSpeedMultiplier = 0.8f,
-                PerceptionSpeedMultiplier = 0.7f,
-                AccuracyMultiplier = 0.7f
-            },
-            [NPCDifficulty.Normal] = new NPCDifficultyScaling
-            {
-                HealthMultiplier = 1.0f,
-                DamageMultiplier = 1.0f,
-                SpeedMultiplier = 1.0f,
-                DetectionRangeMultiplier = 1.0f,
-                AttackSpeedMultiplier = 1.0f,
-                PerceptionSpeedMultiplier = 1.0f,
-                AccuracyMultiplier = 1.0f
-            },
-            [NPCDifficulty.Hard] = new NPCDifficultyScaling
-            {
-                HealthMultiplier = 1.3f,
-                DamageMultiplier = 1.2f,
-                SpeedMultiplier = 1.1f,
-                DetectionRangeMultiplier = 1.2f,
-                AttackSpeedMultiplier = 1.2f,
-                PerceptionSpeedMultiplier = 1.3f,
-                AccuracyMultiplier = 1.2f
-            },
-            [NPCDifficulty.Expert] = new NPCDifficultyScaling
-            {
-                HealthMultiplier = 1.6f,
-                DamageMultiplier = 1.4f,
-                SpeedMultiplier = 1.2f,
-                DetectionRangeMultiplier = 1.4f,
-                AttackSpeedMultiplier = 1.4f,
-                PerceptionSpeedMultiplier = 1.5f,
-                AccuracyMultiplier = 1.4f
-            },
-            [NPCDifficulty.Nightmare] = new NPCDifficultyScaling
-            {
-                HealthMultiplier = 2.0f,
-                DamageMultiplier = 1.7f,
-                SpeedMultiplier = 1.4f,
-                DetectionRangeMultiplier = 1.6f,
-                AttackSpeedMultiplier = 1.6f,
-                PerceptionSpeedMultiplier = 2.0f,
-                AccuracyMultiplier = 1.6f
-            }
-        };
-
-        public NPCDifficultyScaling GetScalingForDifficulty(NPCDifficulty difficulty)
-        {
-            return difficultyScalings.TryGetValue(difficulty, out var scaling) ? 
-                scaling : difficultyScalings[NPCDifficulty.Normal];
-        }
-    }
-
-    #endregion
-
-    #region Behavior Tree Action Nodes
-
-    /// <summary>
-    /// Behavior tree node for NPC attacks
-    /// </summary>
-    public class AttackActionNode : ActionNode
-    {
-        private EnhancedNPCBehavior npc;
-
-        public AttackActionNode(EnhancedNPCBehavior owner)
-        {
-            npc = owner;
-        }
-
-        protected override void OnActionStart()
-        {
-            // Prepare for attack
-        }
-
-        protected override BehaviorTreeStatus OnActionUpdate()
-        {
-            if (npc.TryAttack())
-            {
-                return BehaviorTreeStatus.Success;
-            }
-            return BehaviorTreeStatus.Failure;
-        }
-    }
-
-    /// <summary>
-    /// Behavior tree node for NPC patrol
-    /// </summary>
-    public class PatrolActionNode : ActionNode
-    {
-        private EnhancedNPCBehavior npc;
-        private Vector3 targetPatrolPoint;
-        private bool hasTarget;
-
-        public PatrolActionNode(EnhancedNPCBehavior owner)
-        {
-            npc = owner;
-        }
-
-        protected override void OnActionStart()
-        {
-            targetPatrolPoint = npc.GetNextPatrolPoint();
-            hasTarget = true;
-        }
-
-        protected override BehaviorTreeStatus OnActionUpdate()
-        {
-            if (!hasTarget) return BehaviorTreeStatus.Failure;
-
-            float distance = Vector3.Distance(npc.transform.position, targetPatrolPoint);
-            if (distance <= 0.5f)
-            {
-                return BehaviorTreeStatus.Success;
-            }
-
-            // Move towards patrol point
-            Vector3 direction = (targetPatrolPoint - npc.transform.position).normalized;
-            npc.transform.position += direction * npc.MovementSpeed * Time.deltaTime;
-
-            return BehaviorTreeStatus.Running;
-        }
+        public float HealthMultiplier = 1.0f;
+        public float DamageMultiplier = 1.0f;
+        public float SpeedMultiplier = 1.0f;
+        public float DetectionRangeMultiplier = 1.0f;
+        public float AttackSpeedMultiplier = 1.0f;
+        public float PerceptionSpeedMultiplier = 1.0f;
+        public float AccuracyMultiplier = 1.0f;
     }
 
     #endregion

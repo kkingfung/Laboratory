@@ -144,8 +144,7 @@ namespace Laboratory.Core.Abilities.Components
                 Debug.Log($"[{DisplayName}] Cooldown completed");
                 
             // Publish cooldown complete event
-            var evt = new AbilityCooldownCompleteEvent(GetAbilityIndex(), GetOwner());
-            AbilityEventBus.PublishAbilityCooldownComplete(evt);
+            AbilityEventBus.PublishAbilityCooldownComplete(GetOwner(), GetAbilityIndex());
         }
         
         /// <summary>
@@ -185,8 +184,7 @@ namespace Laboratory.Core.Abilities.Components
                 OnAbilityExecuted();
                 
                 // Publish activation event
-                var evt = new AbilityActivatedEvent(GetAbilityIndex(), GetOwner());
-                AbilityEventBus.PublishAbilityActivated(evt);
+                AbilityEventBus.PublishAbilityActivated(GetOwner(), GetAbilityIndex());
                 
                 return true;
             }
@@ -208,8 +206,7 @@ namespace Laboratory.Core.Abilities.Components
                     Debug.Log($"[{DisplayName}] Cooldown started: {cooldownTime}s");
                     
                 // Publish state change event
-                var evt = new AbilityStateChangedEvent(GetAbilityIndex(), true, cooldownTime, GetOwner());
-                AbilityEventBus.PublishAbilityStateChanged(evt);
+                AbilityEventBus.PublishAbilityStateChanged(GetOwner(), GetAbilityIndex(), true, cooldownTime);
             }
         }
         

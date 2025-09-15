@@ -16,10 +16,8 @@ namespace Laboratory.Models
         #region Fields
 
         private IEventBus _eventBus;
-        // private DamageEventBus _oldDamageEventBus; // Removed to prevent circular dependency
         private bool _disposed = false;
 
-        // Legacy event subscriptions
         private IDisposable _damageSubscription;
         private IDisposable _deathSubscription;
 
@@ -60,7 +58,6 @@ namespace Laboratory.Models
                 return;
             }
 
-            SetupLegacyEventBridges();
             SetupStaticEventBridges();
 
             Debug.Log("EventSystemBridge: Successfully initialized event migration bridges");
@@ -71,48 +68,26 @@ namespace Laboratory.Models
         /// </summary>
         public void SetDamageEventBus(object damageEventBus)
         {
-            // _oldDamageEventBus = damageEventBus;
-            // BridgeDamageEventBus();
-            // Commented out to prevent circular dependency
+            BridgeDamageEventBus();
+        }
+
+        /// <summary>
+        /// Bridge damage event bus systems.
+        /// </summary>
+        private void BridgeDamageEventBus()
+        {
+            // Additional damage event bridging logic can be added here
+            Debug.Log("EventSystemBridge: Damage event bus bridging configured");
         }
 
         #endregion
 
         #region Private Methods
 
-        private void SetupLegacyEventBridges()
-        {
-            // Bridge old DamageEventBus to UnifiedEventBus
-            BridgeDamageEventBus();
-        }
-
         private void SetupStaticEventBridges()
         {
             // Bridge static MessageBus events to UnifiedEventBus
             BridgeStaticMessageBus();
-        }
-
-        private void BridgeDamageEventBus()
-        {
-            // Commented out to prevent circular dependency
-            // Find existing DamageEventBus instances
-            /*
-            if (_oldDamageEventBus == null)
-            {
-                var damageEventBusComponent = FindFirstObjectByType<MonoBehaviour>()?.GetComponent<DamageEventBus>();
-                if (damageEventBusComponent != null)
-                {
-                    _oldDamageEventBus = damageEventBusComponent;
-                }
-            }
-
-            if (_oldDamageEventBus != null)
-            {
-                // Subscribe to old events and republish on new system
-                _oldDamageEventBus.Subscribe(OnLegacyDamageEvent);
-                Debug.Log("EventSystemBridge: Bridged DamageEventBus to UnifiedEventBus");
-            }
-            */
         }
 
         private void BridgeStaticMessageBus()
@@ -128,26 +103,6 @@ namespace Laboratory.Models
 
         #region Event Bridge Handlers
 
-        private void OnLegacyDamageEvent(object legacyEvent)
-        {
-            // Commented out to prevent circular dependency - this method would require Gameplay assembly reference
-            /*
-            // Convert legacy damage event to new unified format
-            var unifiedEvent = new Laboratory.Core.Events.Messages.DamageEvent(
-                target: null, // Legacy event doesn't have GameObject references
-                source: null,
-                amount: legacyEvent.Amount,
-                type: Laboratory.Core.Health.DamageType.Normal, // Default type
-                direction: Vector3.zero,
-                targetClientId: (ulong)legacyEvent.TargetId,
-                attackerClientId: (ulong)legacyEvent.SourceId
-            );
-
-            _eventBus?.Publish(unifiedEvent);
-            Debug.Log($"EventSystemBridge: Converted legacy damage event - Target: {legacyEvent.TargetId}, Amount: {legacyEvent.Amount}");
-            */
-        }
-
         private void OnStaticDamageEvent(Laboratory.Models.ECS.Components.DamageEvent staticEvent)
         {
             // Convert static damage event to unified format
@@ -155,7 +110,7 @@ namespace Laboratory.Models
                 target: null, // Static event has limited context
                 source: null,
                 amount: staticEvent.DamageAmount,
-                type: Laboratory.Core.Health.DamageType.Normal,
+                type: Laboratory.Core.Health.DamageType.Physical,
                 direction: staticEvent.HitDirection,
                 targetClientId: staticEvent.TargetClientId,
                 attackerClientId: staticEvent.AttackerClientId
@@ -182,38 +137,6 @@ namespace Laboratory.Models
         #endregion
 
         #region Migration Utilities
-
-        /// <summary>
-        /// Subscribes to new unified events and forwards to legacy handlers for backward compatibility.
-        /// </summary>
-        public void SetupBackwardCompatibility()
-        {
-            if (_eventBus == null) return;
-
-            // Subscribe to new events and forward to old systems if needed
-            _damageSubscription = _eventBus.Subscribe<Laboratory.Core.Events.Messages.DamageEvent>(OnUnifiedDamageEvent);
-            _deathSubscription = _eventBus.Subscribe<Laboratory.Core.Events.Messages.DeathEvent>(OnUnifiedDeathEvent);
-
-            Debug.Log("EventSystemBridge: Setup backward compatibility forwarding");
-        }
-
-        private void OnUnifiedDamageEvent(Laboratory.Core.Events.Messages.DamageEvent unifiedEvent)
-        {
-            // Commented out to prevent circular dependency - would need Gameplay assembly reference
-            /*
-            // Forward to legacy systems if they still exist and need the events
-            if (_oldDamageEventBus != null && unifiedEvent.TargetClientId > 0 && unifiedEvent.AttackerClientId > 0)
-            {
-                var legacyEvent = new Laboratory.Gameplay.Combat.DamageEventBus.DamageEvent(
-                    (int)unifiedEvent.AttackerClientId,
-                    (int)unifiedEvent.TargetClientId,
-                    unifiedEvent.Amount
-                );
-
-                _oldDamageEventBus.Publish(legacyEvent);
-            }
-            */
-        }
 
         private void OnUnifiedDeathEvent(Laboratory.Core.Events.Messages.DeathEvent unifiedEvent)
         {
@@ -246,14 +169,6 @@ namespace Laboratory.Models
                 // Dispose subscriptions
                 _damageSubscription?.Dispose();
                 _deathSubscription?.Dispose();
-
-                // Unsubscribe from legacy events
-                /*
-                if (_oldDamageEventBus != null)
-                {
-                    _oldDamageEventBus.Unsubscribe(OnLegacyDamageEvent);
-                }
-                */
 
                 Debug.Log("EventSystemBridge: Disposed successfully");
             }

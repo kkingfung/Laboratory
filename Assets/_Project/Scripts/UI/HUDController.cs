@@ -26,7 +26,6 @@ namespace Laboratory.UI
         [SerializeField] private MiniMapUI _miniMapUI = null!;
         [SerializeField] private DamageIndicatorUI _damageIndicatorUI = null!;
         [SerializeField] private CrosshairUI _crosshairUI = null!;
-        [SerializeField] private AbilityBarUI _abilityBarUI = null!;
         [SerializeField] private ScoreboardUI _scoreboardUI = null!;
         
         #endregion
@@ -161,6 +160,7 @@ namespace Laboratory.UI
         
         /// <summary>
         /// Binds ability system to ability buttons and cooldown displays.
+        /// Note: AbilityBarUI temporarily disabled due to compilation issues.
         /// </summary>
         private void BindAbilitySystem()
         {
@@ -183,7 +183,7 @@ namespace Laboratory.UI
                 .Subscribe(cooldown =>
                 {
                     button.interactable = cooldown <= 0f;
-                    _abilityBarUI.UpdateCooldown(abilityIndex, cooldown);
+                    // _abilityBarUI.UpdateCooldown(abilityIndex, cooldown); // Temporarily disabled
                 })
                 .AddTo(_disposables);
 

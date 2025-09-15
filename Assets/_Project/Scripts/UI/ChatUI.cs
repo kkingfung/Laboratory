@@ -4,6 +4,7 @@ using MessagePipe;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
+using Laboratory.Core.DI;
 
 namespace Laboratory.UI
 {
@@ -167,12 +168,67 @@ namespace Laboratory.UI
             var message = _chatInputField.text.Trim();
             if (string.IsNullOrEmpty(message)) return;
 
-            var sender = "You"; // TODO: Get from player info system
+            var sender = GetPlayerName();
 
             // Publish outgoing chat message event
             _messageBroker.Publish(new ChatMessageEvent(sender, message));
 
             ClearInput();
+        }
+        
+        /// <summary>
+        /// Gets the current player's name from available player information systems.
+        /// Attempts to retrieve from NetworkPlayerData, fallback to Unity username, then default.
+        /// </summary>
+        /// <returns>The player's display name</returns>
+        private string GetPlayerName()
+        {
+            try
+            {
+                // Method 1: Try to get from NetworkPlayerData if available
+                var networkPlayerData = UnityEngine.Object.FindFirstObjectByType<Laboratory.Infrastructure.Networking.NetworkPlayerData>();
+                if (networkPlayerData != null && !networkPlayerData.PlayerName.Value.IsEmpty)
+                {
+                    return networkPlayerData.PlayerName.Value.ToString();
+                }
+                
+                // Method 2: Try to get from GlobalServiceProvider if a player service exists
+                if (GlobalServiceProvider.IsInitialized)
+                {
+                    // Check if there's a config service that might have player info
+                    if (GlobalServiceProvider.TryResolve<Laboratory.Core.Services.IConfigService>(out var configService))
+                    {
+                        // Try to get player name from config
+                        // Note: GetConfig method may not exist in current IConfigService implementation
+                        // var playerName = configService.GetConfig<string>("Player.Name");
+                        // if (!string.IsNullOrEmpty(playerName))
+                        // {
+                        //     return playerName;
+                        // }
+                    }
+                }
+                
+                // Method 3: Try to get system username
+                var systemUsername = System.Environment.UserName;
+                if (!string.IsNullOrEmpty(systemUsername))
+                {
+                    return systemUsername;
+                }
+                
+                // Method 4: Try Unity's Cloud Build username (if available)
+                var unityUsername = SystemInfo.deviceName;
+                if (!string.IsNullOrEmpty(unityUsername) && unityUsername != "Unknown")
+                {
+                    return unityUsername;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[ChatUI] Failed to get player name: {ex.Message}");
+            }
+            
+            // Fallback: Default name with random ID to avoid conflicts
+            return $"Player{UnityEngine.Random.Range(1000, 9999)}";
         }
         
         /// <summary>

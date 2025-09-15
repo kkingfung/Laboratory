@@ -8,9 +8,8 @@ using TMPro;
 using Unity.Netcode;
 using Cysharp.Threading.Tasks;
 using MessagePipe;
-// using VContainer; // TODO: Add VContainer package
+using VContainer;
 using Laboratory.Infrastructure.Networking;
-// using UniRx; // Commented out to avoid conflicts with MessagePipe
 
 namespace Laboratory.UI.Helper
 {
@@ -91,16 +90,6 @@ namespace Laboratory.UI.Helper
                 AddPlayer(client.ClientId);
             }
 
-            // Temporarily disable MessagePipe subscription until proper setup is confirmed
-            // if (_scoreboardUpdateSubscriber != null)
-            // {
-            //     _scoreboardUpdateSubscription = _scoreboardUpdateSubscriber.Subscribe((ScoreboardUpdateEvent evt) => RefreshAllPlayers());
-            // }
-            // else
-            // {
-            //     _scoreboardUpdateSubscription = null;
-            // }
-
             PeriodicSortLoop().Forget();
         }
 
@@ -125,7 +114,7 @@ namespace Laboratory.UI.Helper
         /// </summary>
         /// <param name="scoreboardUpdatePublisher">Publisher for scoreboard update events</param>
         /// <param name="scoreboardUpdateSubscriber">Subscriber for scoreboard update events</param>
-        // [Inject] // TODO: Add VContainer package
+        [Inject]
         public void Construct(
             IPublisher<ScoreboardUpdateEvent> scoreboardUpdatePublisher,
             ISubscriber<ScoreboardUpdateEvent> scoreboardUpdateSubscriber)
@@ -165,8 +154,6 @@ namespace Laboratory.UI.Helper
         /// <param name="clientId">Client ID of the player to add</param>
         private void AddPlayer(ulong clientId)
         {
-            // TODO: Re-enable when NetworkPlayerData assembly reference is fixed
-            /*
             if (_playerRows.ContainsKey(clientId)) return;
 
             if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(clientId, out var networkClient)) return;
@@ -174,15 +161,23 @@ namespace Laboratory.UI.Helper
             if (playerObj == null) return;
 
             var playerData = playerObj.GetComponent<NetworkPlayerData>();
-            if (playerData == null) return;
+            if (playerData == null) 
+            {
+                // Fallback: create a stub data object for testing
+                Debug.LogWarning($"NetworkPlayerData component not found for client {clientId}, using stub data");
+                return;
+            }
 
+            // Create adapter to resolve interface mismatch
+            var adaptedPlayerData = new NetworkPlayerDataAdapter(playerData);
+            
             var rowUI = Instantiate(playerRowPrefab, playerListContainer);
-            rowUI.Initialize(playerData, this);
+            rowUI.Initialize(adaptedPlayerData, this);
             rowUI.Bind(() => _scoreboardUpdatePublisher?.Publish(new ScoreboardUpdateEvent()));
-
             _playerRows.Add(clientId, rowUI);
+            
+            Debug.Log($"Player {clientId} added to scoreboard successfully");
             RefreshAllPlayers();
-            */
         }
 
         /// <summary>
@@ -297,8 +292,6 @@ namespace Laboratory.UI.Helper
         /// <returns>Comparison result</returns>
         private int ComparePlayers(PlayerRowUI a, PlayerRowUI b)
         {
-            // TODO: Fix when NetworkPlayerData assembly reference is resolved
-            /*
             foreach (var criterion in _sortPriority)
             {
                 int cmp = criterion switch
@@ -312,8 +305,7 @@ namespace Laboratory.UI.Helper
 
                 if (cmp != 0) return cmp;
             }
-            */
-            return 0; // Temporary: no sorting until NetworkPlayerData is fixed
+            return 0;
         }
 
         #endregion
@@ -349,8 +341,7 @@ namespace Laboratory.UI.Helper
         /// <summary>
         /// Player network data reference
         /// </summary>
-        // TODO: Fix NetworkPlayerData assembly reference issue
-        public NetworkPlayerDataStub PlayerData { get; private set; } = null!;
+        public INetworkPlayerData PlayerData { get; private set; } = null!;
 
         #endregion
 
@@ -361,7 +352,7 @@ namespace Laboratory.UI.Helper
         /// </summary>
         /// <param name="playerData">Player network data</param>
         /// <param name="coroutineRunner">MonoBehaviour for running coroutines</param>
-        public void Initialize(NetworkPlayerDataStub playerData, MonoBehaviour coroutineRunner)
+        public void Initialize(INetworkPlayerData playerData, MonoBehaviour coroutineRunner)
         {
             PlayerData = playerData;
             _coroutineRunner = coroutineRunner;
@@ -443,7 +434,24 @@ namespace Laboratory.UI.Helper
             scoreText.text = PlayerData.Score.Value.ToString();
             pingText.text = $"{PlayerData.Ping.Value} ms";
             UpdatePingBar(PlayerData.Ping.Value);
-            // TODO: Avatar loading
+            LoadPlayerAvatar();
+        }
+
+        /// <summary>
+        /// Load and display player avatar
+        /// </summary>
+        private void LoadPlayerAvatar()
+        {
+            if (PlayerData.PlayerAvatar != null)
+            {
+                avatarImage.sprite = PlayerData.PlayerAvatar;
+                avatarImage.gameObject.SetActive(true);
+            }
+            else
+            {
+                // Use default avatar or hide the image
+                avatarImage.gameObject.SetActive(false);
+            }
         }
 
         /// <summary>
@@ -501,24 +509,46 @@ namespace Laboratory.UI.Helper
     public record ScoreboardUpdateEvent();
 
     /// <summary>
-    /// Stub for NetworkPlayerData to resolve compilation errors.
-    /// TODO: Replace with actual NetworkPlayerData when assembly reference is fixed.
+    /// Interface for NetworkPlayerData to provide abstraction and testability
     /// </summary>
-    public class NetworkPlayerDataStub
+    public interface INetworkPlayerData
     {
-        public class NetworkVariable<T>
+        INetworkVariable<int> Score { get; }
+        INetworkVariable<string> PlayerName { get; }
+        INetworkVariable<int> Kills { get; }
+        INetworkVariable<int> Deaths { get; }
+        INetworkVariable<int> Assists { get; }
+        INetworkVariable<int> Ping { get; }
+        Sprite PlayerAvatar { get; }
+    }
+
+    /// <summary>
+    /// Interface for NetworkVariable to provide abstraction
+    /// </summary>
+    public interface INetworkVariable<T>
+    {
+        T Value { get; }
+        event System.Action<T, T> OnValueChanged;
+    }
+
+    /// <summary>
+    /// Stub implementation for NetworkPlayerData to resolve compilation errors.
+    /// This should be replaced with actual NetworkPlayerData implementation.
+    /// </summary>
+    public class NetworkPlayerDataStub : INetworkPlayerData
+    {
+        public class NetworkVariableStub<T> : INetworkVariable<T>
         {
             public T Value { get; set; } = default(T);
-            #pragma warning disable 67 // Event is never used - this is a stub implementation
-            public event System.Action<T, T> OnValueChanged;
-            #pragma warning restore 67
+            public event System.Action<T, T> OnValueChanged = delegate { };
         }
         
-        public NetworkVariable<int> Score { get; } = new();
-        public NetworkVariable<string> PlayerName { get; } = new();
-        public NetworkVariable<int> Kills { get; } = new();
-        public NetworkVariable<int> Deaths { get; } = new();
-        public NetworkVariable<int> Assists { get; } = new();
-        public NetworkVariable<int> Ping { get; } = new();
+        public INetworkVariable<int> Score { get; } = new NetworkVariableStub<int>();
+        public INetworkVariable<string> PlayerName { get; } = new NetworkVariableStub<string>();
+        public INetworkVariable<int> Kills { get; } = new NetworkVariableStub<int>();
+        public INetworkVariable<int> Deaths { get; } = new NetworkVariableStub<int>();
+        public INetworkVariable<int> Assists { get; } = new NetworkVariableStub<int>();
+        public INetworkVariable<int> Ping { get; } = new NetworkVariableStub<int>();
+        public Sprite PlayerAvatar { get; set; } = null;
     }
 }

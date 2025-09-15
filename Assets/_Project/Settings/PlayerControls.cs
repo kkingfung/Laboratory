@@ -192,6 +192,40 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 }
             ],
+            ""bindings"": []
+        },
+        {
+            ""name"": ""MiniMap"",
+            ""id"": ""8e2ebc22-239b-4592-ae9d-e27159e330c6"",
+            ""actions"": [
+                {
+                    ""name"": ""Zoom"",
+                    ""type"": ""Value"",
+                    ""id"": ""7a072f49-1e54-4dfa-bdcc-2c4d7675d738"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Pan"",
+                    ""type"": ""Value"",
+                    ""id"": ""f9cde908-fe32-4c34-a582-f94cfe5968df"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Click"",
+                    ""type"": ""Button"",
+                    ""id"": ""6cd2889f-4b4c-4f69-adfc-16255b36f574"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
             ""bindings"": [
                 {
                     ""name"": """",
@@ -465,6 +499,72 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";DefaultGamepad"",
                     ""action"": ""Pause"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""aaa1a5a7-2261-4140-afb9-58c372070882"",
+                    ""path"": ""<Mouse>/scroll/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeybroadAndMouse"",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""bbb2b6b8-3362-4241-bfc0-69d483081993"",
+                    ""path"": ""<Gamepad>/rightStick/y"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""Zoom"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ccc3c7c9-4463-4342-cfd1-70e594092004"",
+                    ""path"": ""<Mouse>/position"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeybroadAndMouse"",
+                    ""action"": ""Pan"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ddd4d8d0-5564-4443-dfe2-81f605103115"",
+                    ""path"": ""<Gamepad>/rightStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""Pan"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""eee5e9e1-6665-4544-efe3-92f716214226"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultKeybroadAndMouse"",
+                    ""action"": ""Click"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""fff6f0f2-7776-4655-fff4-03f827325337"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";DefaultGamepad"",
+                    ""action"": ""Click"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -752,6 +852,11 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_InGame_CharSkill = m_InGame.FindAction("CharSkill", throwIfNotFound: true);
         m_InGame_WeaponSkill = m_InGame.FindAction("WeaponSkill", throwIfNotFound: true);
         m_InGame_Pause = m_InGame.FindAction("Pause", throwIfNotFound: true);
+        // MiniMap
+        m_MiniMap = asset.FindActionMap("MiniMap", throwIfNotFound: true);
+        m_MiniMap_Zoom = m_MiniMap.FindAction("Zoom", throwIfNotFound: true);
+        m_MiniMap_Pan = m_MiniMap.FindAction("Pan", throwIfNotFound: true);
+        m_MiniMap_Click = m_MiniMap.FindAction("Click", throwIfNotFound: true);
         // OutGame
         m_OutGame = asset.FindActionMap("OutGame", throwIfNotFound: true);
         m_OutGame_Up = m_OutGame.FindAction("Up", throwIfNotFound: true);
@@ -765,6 +870,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     ~@PlayerControls()
     {
         UnityEngine.Debug.Assert(!m_InGame.enabled, "This will cause a leak and performance issues, PlayerControls.InGame.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_MiniMap.enabled, "This will cause a leak and performance issues, PlayerControls.MiniMap.Disable() has not been called.");
         UnityEngine.Debug.Assert(!m_OutGame.enabled, "This will cause a leak and performance issues, PlayerControls.OutGame.Disable() has not been called.");
     }
 
@@ -1044,6 +1150,124 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     /// </summary>
     public InGameActions @InGame => new InGameActions(this);
 
+    // MiniMap
+    private readonly InputActionMap m_MiniMap;
+    private List<IMiniMapActions> m_MiniMapActionsCallbackInterfaces = new List<IMiniMapActions>();
+    private readonly InputAction m_MiniMap_Zoom;
+    private readonly InputAction m_MiniMap_Pan;
+    private readonly InputAction m_MiniMap_Click;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "MiniMap".
+    /// </summary>
+    public struct MiniMapActions
+    {
+        private @PlayerControls m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public MiniMapActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "MiniMap/Zoom".
+        /// </summary>
+        public InputAction @Zoom => m_Wrapper.m_MiniMap_Zoom;
+        /// <summary>
+        /// Provides access to the underlying input action "MiniMap/Pan".
+        /// </summary>
+        public InputAction @Pan => m_Wrapper.m_MiniMap_Pan;
+        /// <summary>
+        /// Provides access to the underlying input action "MiniMap/Click".
+        /// </summary>
+        public InputAction @Click => m_Wrapper.m_MiniMap_Click;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_MiniMap; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="MiniMapActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(MiniMapActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="MiniMapActions" />
+        public void AddCallbacks(IMiniMapActions instance)
+        {
+            if (instance == null || m_Wrapper.m_MiniMapActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_MiniMapActionsCallbackInterfaces.Add(instance);
+            @Zoom.started += instance.OnZoom;
+            @Zoom.performed += instance.OnZoom;
+            @Zoom.canceled += instance.OnZoom;
+            @Pan.started += instance.OnPan;
+            @Pan.performed += instance.OnPan;
+            @Pan.canceled += instance.OnPan;
+            @Click.started += instance.OnClick;
+            @Click.performed += instance.OnClick;
+            @Click.canceled += instance.OnClick;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="MiniMapActions" />
+        private void UnregisterCallbacks(IMiniMapActions instance)
+        {
+            @Zoom.started -= instance.OnZoom;
+            @Zoom.performed -= instance.OnZoom;
+            @Zoom.canceled -= instance.OnZoom;
+            @Pan.started -= instance.OnPan;
+            @Pan.performed -= instance.OnPan;
+            @Pan.canceled -= instance.OnPan;
+            @Click.started -= instance.OnClick;
+            @Click.performed -= instance.OnClick;
+            @Click.canceled -= instance.OnClick;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="MiniMapActions.UnregisterCallbacks(IMiniMapActions)" />.
+        /// </summary>
+        /// <seealso cref="MiniMapActions.UnregisterCallbacks(IMiniMapActions)" />
+        public void RemoveCallbacks(IMiniMapActions instance)
+        {
+            if (m_Wrapper.m_MiniMapActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="MiniMapActions.AddCallbacks(IMiniMapActions)" />
+        /// <seealso cref="MiniMapActions.RemoveCallbacks(IMiniMapActions)" />
+        /// <seealso cref="MiniMapActions.UnregisterCallbacks(IMiniMapActions)" />
+        public void SetCallbacks(IMiniMapActions instance)
+        {
+            foreach (var item in m_Wrapper.m_MiniMapActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_MiniMapActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="MiniMapActions" /> instance referencing this action map.
+    /// </summary>
+    public MiniMapActions @MiniMap => new MiniMapActions(this);
+
     // OutGame
     private readonly InputActionMap m_OutGame;
     private List<IOutGameActions> m_OutGameActionsCallbackInterfaces = new List<IOutGameActions>();
@@ -1317,6 +1541,35 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnPause(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "MiniMap" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="MiniMapActions.AddCallbacks(IMiniMapActions)" />
+    /// <seealso cref="MiniMapActions.RemoveCallbacks(IMiniMapActions)" />
+    public interface IMiniMapActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Zoom" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnZoom(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Pan" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnPan(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Click" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnClick(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "OutGame" which allows adding and removing callbacks.

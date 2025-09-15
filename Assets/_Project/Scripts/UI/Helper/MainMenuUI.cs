@@ -83,8 +83,21 @@ namespace Laboratory.UI.Helper
         /// </summary>
         private void OnSettingsClicked()
         {
-            // TODO: Open settings menu UI
-            Debug.Log("Settings button clicked - implement settings menu navigation");
+            // Try to find settings menu in the scene
+            var settingsMenu = FindFirstObjectByType<SettingsMenuUI>();
+            if (settingsMenu != null)
+            {
+                // Hide main menu and show settings
+                mainMenuPanel.SetActive(false);
+                settingsMenu.gameObject.SetActive(true);
+                Debug.Log("Settings menu opened");
+            }
+            else
+            {
+                Debug.LogWarning("Settings menu not found in scene!");
+                // Fallback: could load settings scene or create settings UI
+                Debug.Log("Settings button clicked - settings menu will be implemented");
+            }
         }
 
         /// <summary>

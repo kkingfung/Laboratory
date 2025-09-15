@@ -1,7 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using UnityEngine;
 
 #nullable enable
 
@@ -29,6 +26,7 @@ namespace Laboratory.Core.DI
         /// Registers a service implementation for an interface.
         /// </summary>
         void Register<TInterface, TImplementation>(ServiceLifetime lifetime = ServiceLifetime.Singleton)
+            where TInterface : class
             where TImplementation : class, TInterface;
 
         /// <summary>
@@ -66,6 +64,11 @@ namespace Laboratory.Core.DI
         /// Checks if a service type is registered.
         /// </summary>
         bool IsRegistered<T>() where T : class;
+        
+        /// <summary>
+        /// Gets the number of registered services.
+        /// </summary>
+        int GetRegisteredServiceCount();
     }
 
     /// <summary>

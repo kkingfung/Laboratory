@@ -2,8 +2,6 @@
     "name": "Laboratory.Infrastructure",
     "rootNamespace": "Laboratory.Infrastructure",
     "references": [
-        "Laboratory.Core",
-        "Laboratory.Settings",
         "UniTask",
         "Unity.Addressables",
         "UnityEngine.UI",

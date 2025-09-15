@@ -3,19 +3,13 @@
     "rootNamespace": "Laboratory.Tools",
     "references": [
         "Laboratory.Core",
-        "Laboratory.Infrastructure",
-        "Unity.InputSystem",
-        "Unity.Mathematics",
-        "UnityEngine.UI",
-        "UniTask"
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
-    "precompiledReferences": [
-        "UniRx.dll"
-    ],
+    "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],

@@ -1,25 +1,29 @@
-using System;
+using Unity.Collections;
+using Unity.Entities;
 
 namespace Laboratory.Models.ECS.Components
 {
     /// <summary>
-    /// Temporary stub for ChatMessageEvent.
-    /// TODO: Move this to the appropriate assembly or implement properly.
+    /// Component that contains chat message event data
     /// </summary>
-    [Serializable]
-    public struct ChatMessageEvent
+    public struct ChatMessageEvent : IComponentData
     {
-        public string Message { get; set; }
-        public string Sender { get; set; }
-        public ulong senderClientId;
-        public float timestamp;
+        public FixedString128Bytes Message;
+        public FixedString64Bytes SenderName;
+        public Entity Sender;
+        public float Timestamp;
+        public int MessageType; // 0 = Normal, 1 = System, 2 = Warning, etc.
         
-        public ChatMessageEvent(string message, string sender)
+        public static ChatMessageEvent Create(string message, string senderName, Entity sender)
         {
-            Message = message;
-            Sender = sender;
-            senderClientId = 0;
-            timestamp = 0f;
+            return new ChatMessageEvent
+            {
+                Message = new FixedString128Bytes(message),
+                SenderName = new FixedString64Bytes(senderName),
+                Sender = sender,
+                Timestamp = UnityEngine.Time.time,
+                MessageType = 0
+            };
         }
     }
 }

@@ -3,9 +3,11 @@ using Unity.Physics;
 using Unity.Physics.Systems;
 using Unity.Transforms;
 using Unity.Mathematics;
+using Unity.Burst;
+using Unity.Collections;
 using UnityEngine;
-using Laboratory.Core;
-using Laboratory.Infrastructure.AsyncUtils;
+// using Laboratory.Core; // Core classes not needed for this system
+// using Laboratory.Infrastructure.AsyncUtils; // AsyncUtils not needed for this system
 using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models.ECS.Systems
@@ -16,7 +18,7 @@ namespace Laboratory.Models.ECS.Systems
     /// physics movement logic that runs before the Unity Physics simulation group.
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateBefore(typeof(PhysicsSimulationGroup))]
+    [UpdateBefore(typeof(PhysicsSystemGroup))]
     public partial struct PhysicsMovementSystem : ISystem
     {
         #region Constants
@@ -140,7 +142,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <summary>
         /// Burst-compiled job for processing physics movement calculations in parallel
         /// </summary>
-        [Unity.Burst.BurstCompile]
+        [BurstCompile]
         private partial struct PhysicsMovementJob : IJobEntity
         {
             /// <summary>
@@ -159,10 +161,10 @@ namespace Laboratory.Models.ECS.Systems
             /// <param name="transform">The entity's transform component (position/rotation)</param>
             /// <param name="velocity">The entity's physics velocity component</param>
             /// <param name="playerTag">The player tag component for filtering</param>
-            public void Execute(ref LocalTransform transform, in PhysicsVelocity velocity, in PlayerTag playerTag)
+            public void Execute(ref LocalTransform transform, ref MovementComponent movement, in PlayerTag playerTag)
             {
                 // Validate velocity to prevent physics instability
-                var clampedVelocity = ValidateVelocity(velocity.Linear);
+                var clampedVelocity = ValidateVelocity(movement.Velocity);
                 
                 // Apply physics-based movement by integrating velocity over time
                 var deltaPosition = clampedVelocity * DeltaTime;
@@ -203,21 +205,41 @@ namespace Laboratory.Models.ECS.Systems
             /// <param name="velocity">The validated velocity vector</param>
             private void ApplyCustomMovementLogic(ref LocalTransform transform, float3 velocity)
             {
-                // TODO: Add custom physics or movement logic here
-                // Examples:
-                // - Ground clamping: keep entities on ground surface
-                // - Gravity application: apply downward force
-                // - Movement constraints: limit movement to certain areas
-                // - Animation blending: update animation states based on movement
+                // Ground clamping: keep entities on ground surface
+                const float groundLevel = 0f;
+                if (transform.Position.y < groundLevel)
+                {
+                    var position = transform.Position;
+                    position.y = groundLevel;
+                    transform.Position = position;
+                }
                 
-                // Example: Simple ground clamping (optional)
-                // const float groundLevel = 0f;
-                // if (transform.Position.y < groundLevel)
-                // {
-                //     var position = transform.Position;
-                //     position.y = groundLevel;
-                //     transform.Position = position;
-                // }
+                // Simple gravity application for entities without physics bodies
+                const float gravityStrength = -9.81f;
+                if (transform.Position.y > groundLevel)
+                {
+                    var position = transform.Position;
+                    position.y += gravityStrength * DeltaTime;
+                    transform.Position = position;
+                }
+                
+                // Movement constraints: prevent movement outside world bounds
+                const float worldBounds = 100f;
+                if (math.abs(transform.Position.x) > worldBounds || math.abs(transform.Position.z) > worldBounds)
+                {
+                    var position = transform.Position;
+                    position.x = math.clamp(position.x, -worldBounds, worldBounds);
+                    position.z = math.clamp(position.z, -worldBounds, worldBounds);
+                    transform.Position = position;
+                }
+                
+                // Velocity-based rotation for entities moving horizontally
+                float horizontalSpeed = math.length(new float2(velocity.x, velocity.z));
+                if (horizontalSpeed > 0.1f)
+                {
+                    float3 forward = math.normalize(new float3(velocity.x, 0f, velocity.z));
+                    transform.Rotation = quaternion.LookRotationSafe(forward, math.up());
+                }
             }
         }
 

@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
@@ -77,7 +77,6 @@ namespace Laboratory.UI.Helper
         [SerializeField] private Vector2 minBoundary = new(-50, -50);
         [SerializeField] private Vector2 maxBoundary = new(50, 50);
 
-        // private PlayerControls _controls; // TODO: Create PlayerControls class or use Unity Input System
         private Laboratory.UI.Input.PlayerControls _controls;
         private Vector3 _panOrigin;
         private bool _isPanning;
@@ -103,12 +102,17 @@ namespace Laboratory.UI.Helper
         /// <summary>
         /// Enable input controls.
         /// </summary>
-        private void OnEnable() => _controls.Enable();
+        private void OnEnable() => _controls?.Enable();
 
         /// <summary>
         /// Disable input controls.
         /// </summary>
-        private void OnDisable() => _controls.Disable();
+        private void OnDisable() => _controls?.Disable();
+
+        /// <summary>
+        /// Cleanup input controls when destroyed.
+        /// </summary>
+        private void OnDestroy() => _controls?.Dispose();
 
         /// <summary>
         /// Update marker positions and rotations.
@@ -133,7 +137,7 @@ namespace Laboratory.UI.Helper
             ConfigureMarker(marker, worldTransform, isPlayer);
 
             _activeMarkers.Add(worldTransform, marker);
-            FadeMarker(marker, true).Forget();
+            _ = FadeMarker(marker, true);
         }
 
         /// <summary>
@@ -144,11 +148,7 @@ namespace Laboratory.UI.Helper
         {
             if (!_activeMarkers.TryGetValue(worldTransform, out var marker)) return;
 
-            FadeMarker(marker, false).ContinueWith(() =>
-            {
-                marker.GameObject.SetActive(false);
-                ReturnMarkerToPool(marker);
-            }).Forget();
+            FadeMarker(marker, false).ConfigureAwait(false);
 
             _activeMarkers.Remove(worldTransform);
         }
@@ -219,17 +219,32 @@ namespace Laboratory.UI.Helper
         /// </summary>
         private void SetupInputControls()
         {
-            // Initialize the controls with the stub implementation
-            _controls = new Laboratory.UI.Input.PlayerControls();
-            
-            // TODO: Implement proper input bindings when Unity Input System is properly integrated
-            /* 
-            _controls.MiniMap.Zoom.performed += ctx => OnZoomInput(ctx.ReadValue<float>());
-            _controls.MiniMap.Pan.started += ctx => StartPan(ctx.ReadValue<Vector2>());
-            _controls.MiniMap.Pan.canceled += ctx => EndPan();
-            _controls.MiniMap.Pan.performed += ctx => OnPanInput(ctx.ReadValue<Vector2>());
-            _controls.MiniMap.Click.performed += ctx => OnMiniMapClick(ctx.ReadValue<Vector2>());
-            */
+            try
+            {
+                // Initialize the controls with the UI Input wrapper
+                _controls = new Laboratory.UI.Input.PlayerControls();
+                
+                // Bind minimap input actions with null checks
+                if (_controls.MiniMap.Zoom != null)
+                    _controls.MiniMap.Zoom.performed += ctx => OnZoomInput(ctx.ReadValue<float>());
+                    
+                if (_controls.MiniMap.Pan != null)
+                {
+                    _controls.MiniMap.Pan.started += ctx => StartPan(ctx.ReadValue<Vector2>());
+                    _controls.MiniMap.Pan.canceled += ctx => EndPan();
+                    _controls.MiniMap.Pan.performed += ctx => OnPanInput(ctx.ReadValue<Vector2>());
+                }
+                
+                if (_controls.MiniMap.Click != null)
+                    _controls.MiniMap.Click.performed += ctx => OnMiniMapClick(ctx.ReadValue<Vector2>());
+                
+                UnityEngine.Debug.Log("[MiniMapUI] Input controls successfully initialized");
+            }
+            catch (System.Exception ex)
+            {
+                UnityEngine.Debug.LogWarning($"[MiniMapUI] Failed to initialize input controls: {ex.Message}");
+                _controls = null;
+            }
         }
 
         #endregion
@@ -249,14 +264,14 @@ namespace Laboratory.UI.Helper
                 minZoom, 
                 maxZoom);
                 
-            SmoothZoom(targetZoom).Forget();
+            _ = SmoothZoom(targetZoom);
         }
 
         /// <summary>
         /// Smoothly zoom the camera to target zoom level.
         /// </summary>
         /// <param name="targetZoom">Target orthographic size</param>
-        private async UniTask SmoothZoom(float targetZoom)
+        private async Task SmoothZoom(float targetZoom)
         {
             float startZoom = miniMapCamera.orthographicSize;
             float elapsed = 0f;
@@ -265,7 +280,7 @@ namespace Laboratory.UI.Helper
             {
                 elapsed += Time.unscaledDeltaTime;
                 miniMapCamera.orthographicSize = Mathf.SmoothStep(startZoom, targetZoom, elapsed / smoothTime);
-                await UniTask.Yield(PlayerLoopTiming.Update);
+                await Task.Yield();
             }
 
             miniMapCamera.orthographicSize = targetZoom;
@@ -301,14 +316,14 @@ namespace Laboratory.UI.Helper
             Vector3 targetPos = miniMapCamera.transform.position + (panDelta * panSpeed * Time.unscaledDeltaTime);
             targetPos = ClampPositionToBounds(targetPos);
 
-            SmoothPan(targetPos).Forget();
+            _ = SmoothPan(targetPos);
         }
 
         /// <summary>
         /// Smoothly pan camera to target position.
         /// </summary>
         /// <param name="targetPos">Target world position</param>
-        private async UniTask SmoothPan(Vector3 targetPos)
+        private async Task SmoothPan(Vector3 targetPos)
         {
             while ((miniMapCamera.transform.position - targetPos).sqrMagnitude > 0.001f)
             {
@@ -318,7 +333,7 @@ namespace Laboratory.UI.Helper
                     ref _panVelocity,
                     smoothTime
                 );
-                await UniTask.Yield(PlayerLoopTiming.Update);
+                await Task.Yield();
             }
 
             miniMapCamera.transform.position = targetPos;
@@ -462,7 +477,7 @@ namespace Laboratory.UI.Helper
         /// </summary>
         /// <param name="marker">Marker to fade</param>
         /// <param name="fadeIn">True to fade in, false to fade out</param>
-        private async UniTask FadeMarker(MarkerInstance marker, bool fadeIn)
+        private async Task FadeMarker(MarkerInstance marker, bool fadeIn)
         {
             CanvasGroup cg = marker.CanvasGroup;
             cg.alpha = fadeIn ? 0f : 1f;
@@ -474,7 +489,7 @@ namespace Laboratory.UI.Helper
             {
                 elapsed += Time.unscaledDeltaTime;
                 cg.alpha = Mathf.Lerp(fadeIn ? 0f : 1f, fadeIn ? 1f : 0f, elapsed / duration);
-                await UniTask.DelayFrame(1);
+                await Task.Delay(16); // ~60fps frame delay
             }
 
             cg.alpha = fadeIn ? 1f : 0f;

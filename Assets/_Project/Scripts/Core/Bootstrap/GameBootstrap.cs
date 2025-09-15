@@ -1,14 +1,12 @@
 using UnityEngine;
 using Unity.Entities;
 using Cysharp.Threading.Tasks;
-// MessagePipe removed - using pure UniRx implementation
 using Laboratory.Core.DI;
 using Laboratory.Core.Events;
 using Laboratory.Core.Services;
 using Laboratory.Core.State;
 using Laboratory.Core.Bootstrap;
 using Laboratory.Core.Bootstrap.StartupTasks;
-// using Laboratory.Infrastructure.AsyncUtils; // Removed due to cyclic dependency
 using System.Threading;
 using System;
 
@@ -138,10 +136,11 @@ namespace Laboratory.Core.Bootstrap
 
         private void CreateServiceContainer()
         {
-            _services = new ServiceContainer();
+            var container = new ServiceContainer();
+            _services = container;
             
             // Register the container itself so services can access it
-            _services.RegisterInstance<IServiceContainer>(_services);
+            container.RegisterInstance<IServiceContainer>(_services);
             
             // Initialize the global service provider for ECS systems
             GlobalServiceProvider.Initialize(_services);
@@ -159,10 +158,10 @@ namespace Laboratory.Core.Bootstrap
             _services.Register<IConfigService, ConfigService>();
             
             // Game systems
-            _services.Register<Laboratory.Core.Systems.IHealthSystem, Laboratory.Core.Health.Services.HealthSystemService>();
+            _services.Register<Laboratory.Core.Systems.IHealthSystem>();
             
-            // Network services (register interface, implement later)
-            // _services.Register<INetworkService, NetworkService>();
+            // Network services
+            _services.Register<INetworkService, NetworkService>();
             
             Debug.Log("GameBootstrap: Core services registered");
         }

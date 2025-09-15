@@ -1,6 +1,6 @@
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,9 +23,9 @@ namespace Laboratory.UI.Utils
         /// <param name="duration">Animation duration in seconds</param>
         /// <param name="easing">Optional easing function. Uses linear if null</param>
         /// <param name="cancellationToken">Cancellation token for early termination</param>
-        /// <returns>UniTask that completes when animation finishes</returns>
+        /// <returns>Task that completes when animation finishes</returns>
         /// <exception cref="ArgumentNullException">Thrown when canvasGroup is null</exception>
-        public static async UniTask TweenAlphaAsync(
+        public static async Task TweenAlphaAsync(
             CanvasGroup canvasGroup,
             float startAlpha,
             float endAlpha,
@@ -68,9 +68,9 @@ namespace Laboratory.UI.Utils
         /// <param name="duration">Animation duration in seconds</param>
         /// <param name="easing">Optional easing function. Uses linear if null</param>
         /// <param name="cancellationToken">Cancellation token for early termination</param>
-        /// <returns>UniTask that completes when animation finishes</returns>
+        /// <returns>Task that completes when animation finishes</returns>
         /// <exception cref="ArgumentNullException">Thrown when rectTransform is null</exception>
-        public static async UniTask TweenPositionAsync(
+        public static async Task TweenPositionAsync(
             RectTransform rectTransform,
             Vector2 start,
             Vector2 end,
@@ -113,9 +113,9 @@ namespace Laboratory.UI.Utils
         /// <param name="duration">Animation duration in seconds</param>
         /// <param name="easing">Optional easing function. Uses linear if null</param>
         /// <param name="cancellationToken">Cancellation token for early termination</param>
-        /// <returns>UniTask that completes when animation finishes</returns>
+        /// <returns>Task that completes when animation finishes</returns>
         /// <exception cref="ArgumentNullException">Thrown when transform is null</exception>
-        public static async UniTask TweenScaleAsync(
+        public static async Task TweenScaleAsync(
             Transform transform,
             Vector3 start,
             Vector3 end,
@@ -158,9 +158,9 @@ namespace Laboratory.UI.Utils
         /// <param name="duration">Animation duration in seconds</param>
         /// <param name="easing">Optional easing function. Uses linear if null</param>
         /// <param name="cancellationToken">Cancellation token for early termination</param>
-        /// <returns>UniTask that completes when animation finishes</returns>
+        /// <returns>Task that completes when animation finishes</returns>
         /// <exception cref="ArgumentNullException">Thrown when setter is null</exception>
-        public static async UniTask TweenFloatAsync(
+        public static async Task TweenFloatAsync(
             Action<float> setter,
             float start,
             float end,
@@ -196,8 +196,8 @@ namespace Laboratory.UI.Utils
         /// <param name="duration">Animation duration</param>
         /// <param name="easing">Easing function</param>
         /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>UniTask for the animation</returns>
-        private static async UniTask TweenValueAsync(
+        /// <returns>Task for the animation</returns>
+        private static async Task TweenValueAsync(
             Action<float> setter,
             float start,
             float end,
@@ -210,7 +210,7 @@ namespace Laboratory.UI.Utils
             while (elapsed < duration)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+                await Task.Yield();
 
                 elapsed += Time.deltaTime;
                 float t = Mathf.Clamp01(elapsed / duration);
@@ -231,8 +231,8 @@ namespace Laboratory.UI.Utils
         /// <param name="duration">Animation duration</param>
         /// <param name="easing">Easing function</param>
         /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>UniTask for the animation</returns>
-        private static async UniTask TweenVector2Async(
+        /// <returns>Task for the animation</returns>
+        private static async Task TweenVector2Async(
             Action<Vector2> setter,
             Vector2 start,
             Vector2 end,
@@ -245,7 +245,7 @@ namespace Laboratory.UI.Utils
             while (elapsed < duration)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+                await Task.Yield();
 
                 elapsed += Time.deltaTime;
                 float t = Mathf.Clamp01(elapsed / duration);
@@ -266,8 +266,8 @@ namespace Laboratory.UI.Utils
         /// <param name="duration">Animation duration</param>
         /// <param name="easing">Easing function</param>
         /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>UniTask for the animation</returns>
-        private static async UniTask TweenVector3Async(
+        /// <returns>Task for the animation</returns>
+        private static async Task TweenVector3Async(
             Action<Vector3> setter,
             Vector3 start,
             Vector3 end,
@@ -280,7 +280,7 @@ namespace Laboratory.UI.Utils
             while (elapsed < duration)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken);
+                await Task.Yield();
 
                 elapsed += Time.deltaTime;
                 float t = Mathf.Clamp01(elapsed / duration);

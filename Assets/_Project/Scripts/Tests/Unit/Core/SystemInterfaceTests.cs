@@ -5,6 +5,8 @@ using UnityEngine;
 using NUnit.Framework;
 using Laboratory.Core.Systems;
 using Laboratory.Gameplay.Abilities;
+using Laboratory.Core.Abilities;
+using Laboratory.Core.Abilities.Systems;
 
 #nullable enable
 
@@ -226,6 +228,12 @@ namespace Laboratory.Tests.Unit.Core
         public GameObject GameObject => _gameObject ?? (_gameObject = new GameObject("MockAbilityManager"));
         public int AbilityCount => _abilities.Count;
 
+#pragma warning disable CS0067 // Events are required by interface but not used in mock
+        public event Action<int>? OnAbilityActivated;
+        public event Action<int>? OnAbilityCooldownComplete;
+        public event Action<int, bool, float>? OnAbilityStateChanged;
+#pragma warning restore CS0067
+
         public void AddAbility(int index, float cooldown = 0f)
         {
             _abilities[index] = new MockAbility(cooldown);
@@ -284,6 +292,18 @@ namespace Laboratory.Tests.Unit.Core
                 ability.Reset();
             }
         }
+
+        public AbilityBase GetAbility(int abilityIndex)
+        {
+            // Mock implementation - return null since we're testing manager functionality
+            return null!;
+        }
+
+        public IReadOnlyList<AbilityBase> GetAllAbilities()
+        {
+            // Mock implementation - return empty list for testing
+            return new List<AbilityBase>().AsReadOnly();
+        }
     }
 
     /// <summary>
@@ -315,6 +335,8 @@ namespace Laboratory.Tests.Unit.Core
             IsActivated = false;
         }
     }
+
+
 
     #endregion
 }

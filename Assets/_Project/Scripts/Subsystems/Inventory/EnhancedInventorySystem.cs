@@ -4,7 +4,6 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Core.Events;
 using Laboratory.Core.DI;
-using Laboratory.Gameplay.Inventory;
 
 namespace Laboratory.Subsystems.Inventory
 {
@@ -102,12 +101,7 @@ namespace Laboratory.Subsystems.Inventory
                     return false;
                 }
 
-                var slot = new InventorySlot
-                {
-                    SlotIndex = emptySlot,
-                    Item = item,
-                    Quantity = quantity
-                };
+                var slot = new InventorySlot(item, quantity, emptySlot);
 
                 _slots[emptySlot] = slot;
                 UpdateItemCount(item.ItemID, quantity);
@@ -218,6 +212,39 @@ namespace Laboratory.Subsystems.Inventory
         {
             return GetAllSlots().Where(slot => slot.Item != null).ToList();
         }
+        
+        /// <summary>
+        /// Removes an item from the inventory (interface implementation)
+        /// </summary>
+        public bool RemoveItem(ItemData item, int quantity = 1)
+        {
+            if (item == null || string.IsNullOrEmpty(item.ItemID))
+            {
+                Debug.LogWarning("[InventorySystem] Cannot remove null item or item with empty ID");
+                return false;
+            }
+            
+            return RemoveItem(item.ItemID, quantity);
+        }
+        
+        /// <summary>
+        /// Clears all items from the inventory (interface implementation)
+        /// </summary>
+        public void ClearInventory()
+        {
+            var allSlots = GetAllSlots().ToList();
+            
+            _slots.Clear();
+            _itemCounts.Clear();
+            
+            foreach (var slot in allSlots)
+            {
+                OnItemRemoved?.Invoke(slot);
+            }
+            
+            OnInventoryChanged?.Invoke();
+            Debug.Log("[InventorySystem] Inventory cleared");
+        }
 
         #endregion
 
@@ -309,27 +336,4 @@ namespace Laboratory.Subsystems.Inventory
 
         #endregion
     }
-
-    #region Supporting Classes
-
-    [Serializable]
-    public class InventorySlot
-    {
-        public int SlotIndex;
-        public ItemData Item;
-        public int Quantity;
-        public DateTime AcquiredTime;
-        public DateTime LastUsedTime;
-        
-        public InventorySlot()
-        {
-            AcquiredTime = DateTime.Now;
-            LastUsedTime = DateTime.MinValue;
-        }
-        
-        // Properties for save system compatibility
-        public ItemData ItemData => Item;
-    }
-
-    #endregion
 }

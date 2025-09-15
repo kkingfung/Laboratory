@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using Laboratory.Gameplay.Audio;
+using Laboratory.Audio;
 
 namespace Laboratory.UI.Utils
 {

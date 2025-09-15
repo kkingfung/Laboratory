@@ -1,72 +1,30 @@
-using System;
-using UnityEngine;
+using Unity.Netcode;
+using Unity.Collections;
 
-namespace Laboratory.Networking
+namespace Laboratory.Subsystems.Networking
 {
     /// <summary>
-    /// Network player data for multiplayer functionality
+    /// Network data structure for player information
     /// </summary>
-    [Serializable]
-    public class NetworkPlayerData
+    public struct NetworkPlayerData : INetworkSerializable
     {
-        public string PlayerId { get; set; }
-        public string PlayerName { get; set; }
-        public Vector3 Position { get; set; }
-        public Quaternion Rotation { get; set; }
-        public float Health { get; set; }
-        public int Level { get; set; }
-        public bool IsAlive { get; set; }
-        public float LastUpdateTime { get; set; }
-
-        public NetworkPlayerData()
+        public ulong ClientId;
+        public FixedString64Bytes PlayerName;
+        public int PlayerId;
+        public int TeamId;
+        public bool IsReady;
+        public float Health;
+        public float MaxHealth;
+        
+        public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
-            PlayerId = Guid.NewGuid().ToString();
-            PlayerName = "Player";
-            Position = Vector3.zero;
-            Rotation = Quaternion.identity;
-            Health = 100f;
-            Level = 1;
-            IsAlive = true;
-            LastUpdateTime = Time.time;
-        }
-
-        public NetworkPlayerData(string playerId, string playerName)
-        {
-            PlayerId = playerId;
-            PlayerName = playerName;
-            Position = Vector3.zero;
-            Rotation = Quaternion.identity;
-            Health = 100f;
-            Level = 1;
-            IsAlive = true;
-            LastUpdateTime = Time.time;
-        }
-
-        public void UpdatePosition(Vector3 newPosition, Quaternion newRotation)
-        {
-            Position = newPosition;
-            Rotation = newRotation;
-            LastUpdateTime = Time.time;
-        }
-
-        public void UpdateHealth(float newHealth)
-        {
-            Health = Mathf.Clamp(newHealth, 0f, 100f);
-            IsAlive = Health > 0f;
-            LastUpdateTime = Time.time;
-        }
-
-        public byte[] Serialize()
-        {
-            // Simple serialization - in a real implementation, use a proper serializer
-            var json = JsonUtility.ToJson(this);
-            return System.Text.Encoding.UTF8.GetBytes(json);
-        }
-
-        public static NetworkPlayerData Deserialize(byte[] data)
-        {
-            var json = System.Text.Encoding.UTF8.GetString(data);
-            return JsonUtility.FromJson<NetworkPlayerData>(json);
+            serializer.SerializeValue(ref ClientId);
+            serializer.SerializeValue(ref PlayerName);
+            serializer.SerializeValue(ref PlayerId);
+            serializer.SerializeValue(ref TeamId);
+            serializer.SerializeValue(ref IsReady);
+            serializer.SerializeValue(ref Health);
+            serializer.SerializeValue(ref MaxHealth);
         }
     }
 }

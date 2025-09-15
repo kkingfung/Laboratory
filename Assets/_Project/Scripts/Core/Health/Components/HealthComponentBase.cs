@@ -41,6 +41,14 @@ namespace Laboratory.Core.Health.Components
             OnDeath?.Invoke(args);
         }
 
+        /// <summary>
+        /// Triggers the OnDamageTaken event
+        /// </summary>
+        protected virtual void TriggerOnDamageTaken(DamageRequest damageRequest)
+        {
+            OnDamageTaken?.Invoke(damageRequest);
+        }
+
         #endregion
 
         #region Properties
@@ -49,6 +57,7 @@ namespace Laboratory.Core.Health.Components
         public int CurrentHealth => currentHealth;
         public float HealthPercentage => maxHealth > 0 ? (float)currentHealth / maxHealth : 0f;
         public bool IsAlive => isAlive && currentHealth > 0f;
+        public bool IsDead => !IsAlive;
         public bool CanRegenerate => canRegenerate;
 
         #endregion
@@ -57,6 +66,7 @@ namespace Laboratory.Core.Health.Components
 
         public event Action<HealthChangedEventArgs> OnHealthChanged;
         public event Action<DeathEventArgs> OnDeath;
+        public event Action<DamageRequest> OnDamageTaken;
 
         #endregion
 
@@ -97,6 +107,9 @@ namespace Laboratory.Core.Health.Components
             int oldHealth = currentHealth;
             currentHealth = Mathf.Max(0, currentHealth - Mathf.RoundToInt(damageRequest.Amount));
             lastDamageTime = Time.time;
+
+            // Trigger damage taken event
+            TriggerOnDamageTaken(damageRequest);
 
             var eventArgs = new HealthChangedEventArgs(oldHealth, currentHealth, damageRequest.Source);
             TriggerOnHealthChanged(eventArgs);
@@ -174,7 +187,7 @@ namespace Laboratory.Core.Health.Components
             {
                 Amount = oldHealth,
                 Source = killer,
-                Type = DamageType.Normal
+                Type = DamageType.Physical
             };
 
             Die(killer, deathDamage);

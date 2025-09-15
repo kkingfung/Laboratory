@@ -24,11 +24,12 @@ namespace Laboratory.Models.ECS.Systems
             var ecbSingleton = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>();
             var ecb = ecbSingleton.CreateCommandBuffer(World.Unmanaged);
 
+            // Query for entities with PlayerStateComponent and check if they're dead
             Entities
                 .WithAll<PlayerStateComponent>()
                 .ForEach((Entity entity, in PlayerStateComponent state) =>
                 {
-                    // Inline the despawn logic to avoid capturing 'this'
+                    // Check if player is dead and schedule for destruction
                     if (!state.IsAlive)
                     {
                         ecb.DestroyEntity(entity);

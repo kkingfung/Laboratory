@@ -3,24 +3,19 @@
     "rootNamespace": "Laboratory.Gameplay",
     "references": [
         "Laboratory.Core",
-        "Laboratory.Core.Abilities",
         "Laboratory.Models",
-        "Laboratory.Infrastructure",
-        "Unity.Entities",
-        "Unity.Mathematics",
-        "Unity.Collections",
-        "Unity.Netcode.Runtime",
+        "Laboratory.Subsystems",
         "Unity.InputSystem",
-        "Unity.Burst",
-        "UniTask"
+        "Unity.Mathematics",
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Transforms"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
-    "precompiledReferences": [
-        "UniRx.dll"
-    ],
+    "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
