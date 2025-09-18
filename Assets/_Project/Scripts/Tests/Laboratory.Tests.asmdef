@@ -3,14 +3,14 @@
     "rootNamespace": "Laboratory.Tests",
     "references": [
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner", 
+        "UnityEditor.TestRunner",
         "Laboratory.Core",
-        "Laboratory.Subsystems",
-        "Laboratory.Models",
-        "Unity.Entities",
-        "Unity.Collections"
+        "Laboratory.Chimera",
+        "UniTask"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
