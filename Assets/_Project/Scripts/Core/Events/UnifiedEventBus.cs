@@ -2,22 +2,22 @@ using System;
 using System.Collections.Generic;
 using R3;
 using UnityEngine;
-using Laboratory.Core.State;
 
 #nullable enable
 
 namespace Laboratory.Core.Events
 {
     /// <summary>
-    /// Simple implementation of IEventBus without R3 dependencies.
-    /// Thread-safe and performant for game development.
+    /// Unified event bus implementation using R3 for reactive programming.
+    /// Provides thread-safe, performant event handling with advanced reactive features.
     /// </summary>
     public class UnifiedEventBus : IEventBus, IDisposable
     {
         #region Fields
         
-        private readonly Dictionary<Type, List<object>> _handlers = new();
-        private readonly List<IDisposable> _subscriptions = new();
+        private readonly Dictionary<Type, Subject<object>> _subjects = new();
+        private readonly Dictionary<Type, int> _subscriberCounts = new();
+        private readonly CompositeDisposable _disposables = new();
         private bool _disposed = false;
         
         #endregion
@@ -26,7 +26,7 @@ namespace Laboratory.Core.Events
         
         public UnifiedEventBus()
         {
-            Debug.Log("UnifiedEventBus: Initialized with simple event system");
+            Debug.Log("UnifiedEventBus: Initialized with R3 reactive system");
         }
         
         #endregion
@@ -44,18 +44,15 @@ namespace Laboratory.Core.Events
             }
             
             var eventType = typeof(T);
-            if (_handlers.TryGetValue(eventType, out var handlers))
+            if (_subjects.TryGetValue(eventType, out var subject))
             {
-                foreach (var handler in handlers.ToArray()) // ToArray to avoid modification during iteration
+                try
                 {
-                    try
-                    {
-                        ((Action<T>)handler)(message);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogError($"Error executing handler for event {typeof(T).Name}: {ex}");
-                    }
+                    subject.OnNext(message);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Error publishing event {typeof(T).Name}: {ex}");
                 }
             }
         }
@@ -67,55 +64,44 @@ namespace Laboratory.Core.Events
             if (handler == null) 
                 throw new ArgumentNullException(nameof(handler));
             
-            var eventType = typeof(T);
-            if (!_handlers.ContainsKey(eventType))
-            {
-                _handlers[eventType] = new List<object>();
-            }
+            var observable = GetOrCreateObservable<T>();
+            var subscription = observable
+                .Subscribe(evt => handler((T)evt));
             
-            _handlers[eventType].Add(handler);
+            // Track subscriber count
+            IncrementSubscriberCount<T>();
             
-            var subscription = new SimpleSubscription(() => {
-                if (_handlers.ContainsKey(eventType))
-                {
-                    _handlers[eventType].Remove(handler);
-                }
-            });
+            // Wrap subscription to handle unsubscribe
+            var wrappedSubscription = new WrappedSubscription(subscription, () => DecrementSubscriberCount<T>());
+            wrappedSubscription.AddTo(_disposables);
             
-            _subscriptions.Add(subscription);
-            return subscription;
+            return wrappedSubscription;
         }
         
         public Observable<T> AsObservable<T>() where T : class
         {
             ThrowIfDisposed();
             
-            // Create a simple R3 Observable that emits when events are published
-            return Observable.Create<T>(observer =>
-            {
-                return Subscribe<T>(evt => observer.OnNext(evt));
-            });
+            var observable = GetOrCreateObservable<T>();
+            return observable.Cast<object, T>();
         }
         
         public object Observe<T>() where T : class
         {
-            ThrowIfDisposed();
-            
-            // Return a simple observable mock
-            return new SimpleObservable<T>();
+            return AsObservable<T>();
         }
         
         public IDisposable SubscribeOnMainThread<T>(Action<T> handler) where T : class
         {
             ThrowIfDisposed();
             
-            // Since we're already on the main thread in Unity, just use regular subscribe
-            return Subscribe(handler);
+            if (handler == null) 
+                throw new ArgumentNullException(nameof(handler));
+            
+            // In Unity, we're typically already on the main thread, but we'll use the Subscribe method
+            // and rely on Unity's main thread execution
+            return Subscribe<T>(handler);
         }
-        
-        #endregion
-        
-        #region Enhanced Features
         
         public IDisposable SubscribeWhere<T>(Func<T, bool> predicate, Action<T> handler) where T : class
         {
@@ -124,12 +110,20 @@ namespace Laboratory.Core.Events
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
             if (handler == null) throw new ArgumentNullException(nameof(handler));
             
-            return Subscribe<T>(evt => {
-                if (predicate(evt))
-                {
-                    handler(evt);
-                }
-            });
+            var observable = GetOrCreateObservable<T>();
+            var subscription = observable
+                .Cast<object, T>()
+                .Where(predicate)
+                .Subscribe(handler);
+            
+            // Track subscriber count
+            IncrementSubscriberCount<T>();
+            
+            // Wrap subscription to handle unsubscribe
+            var wrappedSubscription = new WrappedSubscription(subscription, () => DecrementSubscriberCount<T>());
+            wrappedSubscription.AddTo(_disposables);
+            
+            return wrappedSubscription;
         }
         
         public IDisposable SubscribeFirst<T>(Action<T> handler) where T : class
@@ -138,14 +132,20 @@ namespace Laboratory.Core.Events
             
             if (handler == null) throw new ArgumentNullException(nameof(handler));
             
-            bool handled = false;
-            return Subscribe<T>(evt => {
-                if (!handled)
-                {
-                    handled = true;
-                    handler(evt);
-                }
-            });
+            var observable = GetOrCreateObservable<T>();
+            var subscription = observable
+                .Cast<object, T>()
+                .Take(1)
+                .Subscribe(handler);
+            
+            // Track subscriber count (will auto-decrement after first event)
+            IncrementSubscriberCount<T>();
+            
+            // Wrap subscription to handle unsubscribe
+            var wrappedSubscription = new WrappedSubscription(subscription, () => DecrementSubscriberCount<T>());
+            wrappedSubscription.AddTo(_disposables);
+            
+            return wrappedSubscription;
         }
         
         public int GetSubscriberCount<T>() where T : class
@@ -153,7 +153,7 @@ namespace Laboratory.Core.Events
             ThrowIfDisposed();
             
             var eventType = typeof(T);
-            return _handlers.ContainsKey(eventType) ? _handlers[eventType].Count : 0;
+            return _subscriberCounts.TryGetValue(eventType, out var count) ? count : 0;
         }
         
         public void ClearSubscriptions<T>() where T : class
@@ -161,10 +161,50 @@ namespace Laboratory.Core.Events
             ThrowIfDisposed();
             
             var eventType = typeof(T);
-            if (_handlers.ContainsKey(eventType))
+            if (_subjects.TryGetValue(eventType, out var subject))
             {
-                _handlers[eventType].Clear();
+                subject.Dispose();
+                _subjects.Remove(eventType);
+                _subscriberCounts.Remove(eventType);
             }
+        }
+        
+        #endregion
+        
+        #region Private Methods
+        
+        private Observable<object> GetOrCreateObservable<T>() where T : class
+        {
+            var eventType = typeof(T);
+            if (!_subjects.TryGetValue(eventType, out var subject))
+            {
+                subject = new Subject<object>();
+                _subjects[eventType] = subject;
+                _subscriberCounts[eventType] = 0;
+                subject.AddTo(_disposables);
+            }
+            return subject.AsObservable();
+        }
+        
+        private void IncrementSubscriberCount<T>() where T : class
+        {
+            var eventType = typeof(T);
+            _subscriberCounts[eventType] = _subscriberCounts.TryGetValue(eventType, out var count) ? count + 1 : 1;
+        }
+        
+        private void DecrementSubscriberCount<T>() where T : class
+        {
+            var eventType = typeof(T);
+            if (_subscriberCounts.TryGetValue(eventType, out var count) && count > 0)
+            {
+                _subscriberCounts[eventType] = count - 1;
+            }
+        }
+        
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(UnifiedEventBus));
         }
         
         #endregion
@@ -177,12 +217,9 @@ namespace Laboratory.Core.Events
             
             try
             {
-                foreach (var subscription in _subscriptions)
-                {
-                    subscription?.Dispose();
-                }
-                _subscriptions.Clear();
-                _handlers.Clear();
+                _disposables.Dispose();
+                _subjects.Clear();
+                _subscriberCounts.Clear();
                 
                 Debug.Log("UnifiedEventBus: Disposed successfully");
             }
@@ -196,46 +233,41 @@ namespace Laboratory.Core.Events
             }
         }
         
-        private void ThrowIfDisposed()
-        {
-            if (_disposed)
-                throw new ObjectDisposedException(nameof(UnifiedEventBus));
-        }
-        
         #endregion
     }
     
     /// <summary>
-    /// Simple subscription implementation
+    /// Wrapper for subscriptions that handles cleanup callbacks
     /// </summary>
-    public class SimpleSubscription : IDisposable
+    internal class WrappedSubscription : IDisposable
     {
-        private readonly Action _unsubscribeAction;
+        private readonly IDisposable _innerSubscription;
+        private readonly Action _onDispose;
         private bool _disposed = false;
         
-        public SimpleSubscription(Action unsubscribeAction)
+        public WrappedSubscription(IDisposable innerSubscription, Action onDispose)
         {
-            _unsubscribeAction = unsubscribeAction;
+            _innerSubscription = innerSubscription ?? throw new ArgumentNullException(nameof(innerSubscription));
+            _onDispose = onDispose;
         }
         
         public void Dispose()
         {
-            if (!_disposed)
+            if (_disposed) return;
+            
+            try
             {
-                _unsubscribeAction?.Invoke();
+                _innerSubscription?.Dispose();
+                _onDispose?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Error disposing WrappedSubscription: {ex}");
+            }
+            finally
+            {
                 _disposed = true;
             }
-        }
-    }
-    
-    /// <summary>
-    /// Simple observable mock
-    /// </summary>
-    public class SimpleObservable<T>
-    {
-        public SimpleObservable()
-        {
-            // Simple mock implementation
         }
     }
 }

@@ -181,6 +181,17 @@ namespace Laboratory.Subsystems.Inventory
             
             return GetItemCount(itemId) >= quantity;
         }
+        
+        public bool HasItem(ItemData item, int quantity = 1)
+        {
+            if (item == null || string.IsNullOrEmpty(item.ItemID))
+            {
+                Debug.LogWarning("[InventorySystem] Cannot check for null item or item with empty ID");
+                return false;
+            }
+            
+            return GetItemCount(item.ItemID) >= quantity;
+        }
 
         public InventorySlot GetSlot(int index)
         {

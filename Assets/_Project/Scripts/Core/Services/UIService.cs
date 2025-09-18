@@ -2,39 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Laboratory.Core.Events;
-using Laboratory.Core.Events.Messages;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 #nullable enable
 
 namespace Laboratory.Core.Services
 {
     /// <summary>
-    /// Implementation of IUIService that provides UI system management and operations.
-    /// Integrates with the unified event system and service architecture.
+    /// Basic implementation of the UI service for managing UI screens and canvases.
     /// </summary>
-    public class UIService : IUIService, IDisposable
+    public class UIService : IUIService
     {
         #region Fields
         
-        private readonly IEventBus _eventBus;
-        private readonly Dictionary<string, GameObject> _openScreens = new();
-        private readonly Dictionary<string, GameObject> _cachedPrefabs = new();
-        private UIConfiguration _configuration = new();
+        private UIConfiguration? _config;
         private Canvas? _mainCanvas;
-        private UIStatistics _statistics = new();
+        private readonly Dictionary<string, GameObject> _openScreens = new();
+        private readonly Dictionary<string, GameObject> _prefabCache = new();
         private bool _isInitialized = false;
-        private bool _disposed = false;
-        
-        #endregion
-        
-        #region Properties
-        
-        public bool IsInitialized => _isInitialized;
-        public Canvas? MainCanvas => _mainCanvas;
+        private int _totalScreensOpened = 0;
+        private float _totalOpenTime = 0f;
         
         #endregion
         
@@ -46,82 +33,76 @@ namespace Laboratory.Core.Services
         
         #endregion
         
-        #region Constructor
+        #region Properties
         
-        public UIService(IEventBus eventBus)
-        {
-            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
-        }
+        public bool IsInitialized => _isInitialized;
+        public Canvas? MainCanvas => _mainCanvas;
         
         #endregion
         
-        #region IUIService Implementation
+        #region Public Methods
         
         public async UniTask InitializeAsync(UIConfiguration config, CancellationToken cancellation = default)
         {
-            ThrowIfDisposed();
-            
-            _configuration = config ?? new UIConfiguration();
-            
-            Debug.Log("[UIService] Initializing UI service");
-            
-            // Setup main canvas
-            await SetupMainCanvasAsync();
-            
-            // Setup event system
-            await SetupEventSystemAsync();
-            
-            // Preload common prefabs if specified
-            if (_configuration.CommonPrefabPaths.Length > 0)
+            if (_isInitialized)
             {
-                await PreloadCommonUIPrefabsAsync(cancellation);
+                Debug.LogWarning("[UIService] Already initialized");
+                return;
             }
+            
+            _config = config ?? throw new ArgumentNullException(nameof(config));
+            
+            Debug.Log("[UIService] Initializing UI service...");
+            
+            // Find or create main canvas
+            await SetupMainCanvas();
+            
+            // Setup UI hierarchy if needed
+            SetupUIHierarchy();
             
             _isInitialized = true;
             
             Debug.Log("[UIService] UI service initialized successfully");
             OnUIServiceInitialized?.Invoke();
-            _eventBus.Publish(new SystemInitializedEvent("UIService"));
         }
         
         public async UniTask PreloadCommonUIPrefabsAsync(CancellationToken cancellation = default)
         {
-            ThrowIfDisposed();
+            if (_config?.CommonPrefabPaths == null) return;
             
-            Debug.Log("[UIService] Preloading common UI prefabs");
+            Debug.Log($"[UIService] Preloading {_config.CommonPrefabPaths.Length} UI prefabs...");
             
-            for (int i = 0; i < _configuration.CommonPrefabPaths.Length; i++)
+            foreach (var prefabPath in _config.CommonPrefabPaths)
             {
-                cancellation.ThrowIfCancellationRequested();
-                
-                var prefabPath = _configuration.CommonPrefabPaths[i];
+                if (cancellation.IsCancellationRequested) break;
                 
                 try
                 {
                     var prefab = await LoadPrefabAsync(prefabPath);
                     if (prefab != null)
                     {
-                        _cachedPrefabs[prefabPath] = prefab;
+                        _prefabCache[prefabPath] = prefab;
                         Debug.Log($"[UIService] Preloaded prefab: {prefabPath}");
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"[UIService] Failed to preload prefab: {prefabPath}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[UIService] Error preloading prefab '{prefabPath}': {ex.Message}");
+                    Debug.LogWarning($"[UIService] Failed to preload prefab {prefabPath}: {ex.Message}");
                 }
+                
+                await UniTask.Yield();
             }
             
-            _statistics.CachedPrefabCount = _cachedPrefabs.Count;
-            Debug.Log($"[UIService] Preloaded {_cachedPrefabs.Count} UI prefabs");
+            Debug.Log($"[UIService] Prefab preloading complete. Cached: {_prefabCache.Count}");
         }
         
         public async UniTask<GameObject?> OpenScreenAsync(string screenName, object? data = null)
         {
-            ThrowIfDisposed();
+            if (!_isInitialized)
+            {
+                Debug.LogError("[UIService] Cannot open screen - service not initialized");
+                return null;
+            }
             
             if (_openScreens.ContainsKey(screenName))
             {
@@ -129,63 +110,59 @@ namespace Laboratory.Core.Services
                 return _openScreens[screenName];
             }
             
+            var startTime = Time.realtimeSinceStartup;
+            
             try
             {
-                var startTime = Time.realtimeSinceStartup;
-                
-                // Try to get cached prefab first
+                // Try to find prefab in cache first
                 GameObject? prefab = null;
-                if (_cachedPrefabs.TryGetValue($"UI/{screenName}", out var cachedPrefab))
+                if (_prefabCache.ContainsKey($"UI/{screenName}"))
                 {
-                    prefab = cachedPrefab;
+                    prefab = _prefabCache[$"UI/{screenName}"];
                 }
                 else
                 {
-                    // Load prefab from resources
                     prefab = await LoadPrefabAsync($"UI/{screenName}");
                 }
                 
                 if (prefab == null)
                 {
-                    Debug.LogError($"[UIService] Failed to load screen prefab: {screenName}");
+                    Debug.LogError($"[UIService] Failed to load prefab for screen '{screenName}'");
                     return null;
                 }
                 
                 // Instantiate the screen
-                var screenInstance = UnityEngine.Object.Instantiate(prefab, _mainCanvas?.transform);
+                var screenInstance = UnityEngine.Object.Instantiate(prefab, GetScreenParent(screenName));
                 screenInstance.name = screenName;
                 
-                // Setup screen if it has initialization interface
-                if (screenInstance.TryGetComponent<IUIScreen>(out var uiScreen))
+                // Pass data to screen if it has a data receiver
+                if (data != null)
                 {
-                    await uiScreen.InitializeAsync(data);
+                    var dataReceiver = screenInstance.GetComponent<IUIDataReceiver>();
+                    dataReceiver?.ReceiveData(data);
                 }
                 
                 _openScreens[screenName] = screenInstance;
+                _totalScreensOpened++;
                 
                 var openTime = Time.realtimeSinceStartup - startTime;
-                UpdateAverageOpenTime(openTime);
-                _statistics.TotalScreensOpened++;
-                _statistics.OpenScreenCount = _openScreens.Count;
+                _totalOpenTime += openTime;
                 
-                Debug.Log($"[UIService] Opened screen '{screenName}' in {openTime:F2}s");
+                Debug.Log($"[UIService] Opened screen '{screenName}' in {openTime:F3}s");
                 OnScreenOpened?.Invoke(screenName);
-                _eventBus.Publish(new UIScreenOpenedEvent(screenName));
                 
                 return screenInstance;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[UIService] Error opening screen '{screenName}': {ex.Message}");
+                Debug.LogError($"[UIService] Failed to open screen '{screenName}': {ex}");
                 return null;
             }
         }
         
         public async UniTask CloseScreenAsync(string screenName)
         {
-            ThrowIfDisposed();
-            
-            if (!_openScreens.TryGetValue(screenName, out var screenInstance))
+            if (!_openScreens.TryGetValue(screenName, out var screen))
             {
                 Debug.LogWarning($"[UIService] Screen '{screenName}' is not open");
                 return;
@@ -193,248 +170,220 @@ namespace Laboratory.Core.Services
             
             try
             {
-                // Cleanup screen if it has cleanup interface
-                if (screenInstance.TryGetComponent<IUIScreen>(out var uiScreen))
+                // Notify screen it's closing
+                var closable = screen.GetComponent<IUIClosable>();
+                if (closable != null)
                 {
-                    await uiScreen.CleanupAsync();
+                    await closable.OnCloseAsync();
                 }
                 
-                UnityEngine.Object.Destroy(screenInstance);
+                UnityEngine.Object.Destroy(screen);
                 _openScreens.Remove(screenName);
-                
-                _statistics.OpenScreenCount = _openScreens.Count;
                 
                 Debug.Log($"[UIService] Closed screen '{screenName}'");
                 OnScreenClosed?.Invoke(screenName);
-                _eventBus.Publish(new UIScreenClosedEvent(screenName));
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[UIService] Error closing screen '{screenName}': {ex.Message}");
+                Debug.LogError($"[UIService] Failed to close screen '{screenName}': {ex}");
             }
         }
         
         public async UniTask CloseAllScreensAsync()
         {
-            ThrowIfDisposed();
-            
             var screenNames = new List<string>(_openScreens.Keys);
             
             foreach (var screenName in screenNames)
             {
                 await CloseScreenAsync(screenName);
             }
-            
-            Debug.Log("[UIService] Closed all open screens");
         }
         
         public bool IsScreenOpen(string screenName)
         {
-            ThrowIfDisposed();
             return _openScreens.ContainsKey(screenName);
         }
         
         public GameObject? GetOpenScreen(string screenName)
         {
-            ThrowIfDisposed();
             return _openScreens.TryGetValue(screenName, out var screen) ? screen : null;
         }
         
         public void SetMainCanvas(Canvas canvas)
         {
-            ThrowIfDisposed();
-            
             _mainCanvas = canvas;
-            Debug.Log($"[UIService] Main canvas set: {canvas?.name}");
+            Debug.Log($"[UIService] Main canvas set to '{canvas.name}'");
         }
         
         public UIStatistics GetStatistics()
         {
-            ThrowIfDisposed();
-            
-            // Update memory usage estimate
-            long memoryEstimate = 0;
-            foreach (var screen in _openScreens.Values)
+            return new UIStatistics
             {
-                if (screen != null)
-                {
-                    memoryEstimate += EstimateGameObjectMemory(screen);
-                }
-            }
-            _statistics.MemoryUsage = memoryEstimate;
+                OpenScreenCount = _openScreens.Count,
+                CachedPrefabCount = _prefabCache.Count,
+                TotalScreensOpened = _totalScreensOpened,
+                AverageOpenTime = _totalScreensOpened > 0 ? _totalOpenTime / _totalScreensOpened : 0f,
+                MemoryUsage = GC.GetTotalMemory(false)
+            };
+        }
+        
+        public void Dispose()
+        {
+            if (!_isInitialized) return;
             
-            return _statistics;
+            Debug.Log("[UIService] Disposing UI service...");
+            
+            // Close all screens
+            CloseAllScreensAsync().Forget();
+            
+            // Clear caches
+            _prefabCache.Clear();
+            _openScreens.Clear();
+            
+            // Clear events
+            OnUIServiceInitialized = null;
+            OnScreenOpened = null;
+            OnScreenClosed = null;
+            
+            _isInitialized = false;
+            
+            Debug.Log("[UIService] UI service disposed");
         }
         
         #endregion
         
         #region Private Methods
         
-        private async UniTask SetupMainCanvasAsync()
+        private async UniTask SetupMainCanvas()
         {
-            // Try to find existing main canvas
-            var existingCanvas = UnityEngine.Object.FindFirstObjectByType<Canvas>();
+            // Try to find existing canvas
+            _mainCanvas = UnityEngine.Object.FindFirstObjectByType<Canvas>();
             
-            if (existingCanvas != null)
+            if (_mainCanvas == null && _config!.CreateCanvasIfMissing)
             {
-                _mainCanvas = existingCanvas;
-                Debug.Log($"[UIService] Using existing canvas: {existingCanvas.name}");
-            }
-            else if (_configuration.CreateCanvasIfMissing)
-            {
-                // Create new main canvas
-                var canvasGO = new GameObject(_configuration.MainCanvasName);
+                Debug.Log("[UIService] Creating main canvas...");
+                
+                var canvasGO = new GameObject(_config.MainCanvasName);
                 _mainCanvas = canvasGO.AddComponent<Canvas>();
                 _mainCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
                 _mainCanvas.sortingOrder = 0;
                 
                 // Add canvas scaler
-                var scaler = canvasGO.AddComponent<CanvasScaler>();
-                scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                var scaler = canvasGO.AddComponent<UnityEngine.UI.CanvasScaler>();
+                scaler.uiScaleMode = UnityEngine.UI.CanvasScaler.ScaleMode.ScaleWithScreenSize;
                 scaler.referenceResolution = new Vector2(1920, 1080);
-                scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+                scaler.screenMatchMode = UnityEngine.UI.CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
                 scaler.matchWidthOrHeight = 0.5f;
                 
                 // Add graphic raycaster
-                canvasGO.AddComponent<GraphicRaycaster>();
+                canvasGO.AddComponent<UnityEngine.UI.GraphicRaycaster>();
                 
-                if (_configuration.DontDestroyOnLoad)
+                if (_config.DontDestroyOnLoad)
                 {
                     UnityEngine.Object.DontDestroyOnLoad(canvasGO);
                 }
                 
-                Debug.Log($"[UIService] Created main canvas: {_configuration.MainCanvasName}");
+                Debug.Log("[UIService] Main canvas created successfully");
+            }
+            else if (_mainCanvas != null)
+            {
+                Debug.Log($"[UIService] Using existing canvas '{_mainCanvas.name}'");
+            }
+            else
+            {
+                Debug.LogError("[UIService] No main canvas found and creation is disabled");
             }
             
             await UniTask.Yield();
         }
         
-        private async UniTask SetupEventSystemAsync()
+        private void SetupUIHierarchy()
         {
-            // Ensure event system exists
-            var eventSystem = UnityEngine.Object.FindFirstObjectByType<EventSystem>();
-            if (eventSystem == null)
-            {
-                var eventSystemGO = new GameObject("EventSystem");
-                eventSystem = eventSystemGO.AddComponent<EventSystem>();
-                eventSystemGO.AddComponent<StandaloneInputModule>();
-                
-                if (_configuration.DontDestroyOnLoad)
-                {
-                    UnityEngine.Object.DontDestroyOnLoad(eventSystemGO);
-                }
-                
-                Debug.Log("[UIService] Created EventSystem");
-            }
+            if (_mainCanvas == null) return;
             
-            await UniTask.Yield();
+            var layers = new string[]
+            {
+                "BackgroundLayer",
+                "GameplayLayer",
+                "MenuLayer",
+                "OverlayLayer",
+                "ModalLayer"
+            };
+            
+            foreach (var layerName in layers)
+            {
+                if (_mainCanvas.transform.Find(layerName) == null)
+                {
+                    var layerGO = new GameObject(layerName);
+                    layerGO.transform.SetParent(_mainCanvas.transform, false);
+                    
+                    var rectTransform = layerGO.AddComponent<RectTransform>();
+                    rectTransform.anchorMin = Vector2.zero;
+                    rectTransform.anchorMax = Vector2.one;
+                    rectTransform.sizeDelta = Vector2.zero;
+                    rectTransform.anchoredPosition = Vector2.zero;
+                }
+            }
+        }
+        
+        private Transform GetScreenParent(string screenName)
+        {
+            if (_mainCanvas == null) return null!;
+            
+            // Determine appropriate layer based on screen name
+            string layerName = screenName.ToLower() switch
+            {
+                var name when name.Contains("background") => "BackgroundLayer",
+                var name when name.Contains("gameplay") || name.Contains("hud") => "GameplayLayer",
+                var name when name.Contains("menu") => "MenuLayer",
+                var name when name.Contains("modal") || name.Contains("dialog") => "ModalLayer",
+                _ => "OverlayLayer"
+            };
+            
+            var layer = _mainCanvas.transform.Find(layerName);
+            return layer ?? _mainCanvas.transform;
         }
         
         private async UniTask<GameObject?> LoadPrefabAsync(string prefabPath)
         {
             try
             {
-                // Try to load from Resources
-                var request = Resources.LoadAsync<GameObject>(prefabPath);
-                await request;
+                // Try Resources.Load first
+                var prefab = Resources.Load<GameObject>(prefabPath);
+                if (prefab != null)
+                {
+                    return prefab;
+                }
                 
-                return request.asset as GameObject;
+                // Try Addressables if available (placeholder for now)
+                Debug.LogWarning($"[UIService] Could not load prefab at path '{prefabPath}' - implement Addressable loading if needed");
+                
+                await UniTask.Yield();
+                return null;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[UIService] Failed to load prefab '{prefabPath}': {ex.Message}");
+                Debug.LogError($"[UIService] Error loading prefab '{prefabPath}': {ex}");
                 return null;
             }
         }
         
-        private void UpdateAverageOpenTime(float newTime)
-        {
-            if (_statistics.TotalScreensOpened == 0)
-            {
-                _statistics.AverageOpenTime = newTime;
-            }
-            else
-            {
-                _statistics.AverageOpenTime = (_statistics.AverageOpenTime * (_statistics.TotalScreensOpened - 1) + newTime) / _statistics.TotalScreensOpened;
-            }
-        }
-        
-        private long EstimateGameObjectMemory(GameObject obj)
-        {
-            // Rough estimate based on components
-            long estimate = 1024; // Base object overhead
-            
-            var components = obj.GetComponentsInChildren<Component>();
-            estimate += components.Length * 512; // Rough component overhead
-            
-            return estimate;
-        }
-        
-        private void ThrowIfDisposed()
-        {
-            if (_disposed)
-                throw new ObjectDisposedException(nameof(UIService));
-        }
-        
-        #endregion
-        
-        #region IDisposable Implementation
-        
-        public void Dispose()
-        {
-            if (_disposed) return;
-            
-            try
-            {
-                CloseAllScreensAsync().Forget();
-                _cachedPrefabs.Clear();
-                _openScreens.Clear();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[UIService] Error during disposal: {ex.Message}");
-            }
-            
-            _disposed = true;
-        }
-        
         #endregion
     }
-    
-    #region Supporting Interfaces and Classes
     
     /// <summary>
-    /// Interface for UI screens that need initialization and cleanup.
+    /// Interface for UI components that can receive data when opened.
     /// </summary>
-    public interface IUIScreen
+    public interface IUIDataReceiver
     {
-        UniTask InitializeAsync(object? data = null);
-        UniTask CleanupAsync();
+        void ReceiveData(object data);
     }
     
-    /// <summary>Event fired when a UI screen is opened.</summary>
-    public class UIScreenOpenedEvent
+    /// <summary>
+    /// Interface for UI components that need custom close handling.
+    /// </summary>
+    public interface IUIClosable
     {
-        public string ScreenName { get; }
-        public DateTime Timestamp { get; } = DateTime.UtcNow;
-        
-        public UIScreenOpenedEvent(string screenName)
-        {
-            ScreenName = screenName;
-        }
+        UniTask OnCloseAsync();
     }
-    
-    /// <summary>Event fired when a UI screen is closed.</summary>
-    public class UIScreenClosedEvent
-    {
-        public string ScreenName { get; }
-        public DateTime Timestamp { get; } = DateTime.UtcNow;
-        
-        public UIScreenClosedEvent(string screenName)
-        {
-            ScreenName = screenName;
-        }
-    }
-    
-    #endregion
 }

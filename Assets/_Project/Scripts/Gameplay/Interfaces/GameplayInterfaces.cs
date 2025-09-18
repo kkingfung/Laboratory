@@ -1,4 +1,5 @@
 using UnityEngine;
+using Laboratory.Subsystems.Player;
 
 namespace Laboratory.Gameplay
 {
@@ -7,8 +8,8 @@ namespace Laboratory.Gameplay
     /// </summary>
     public interface IInteractable
     {
-        void Interact(Laboratory.Subsystems.Player.PlayerController player);
+        void Interact(PlayerController player);
         string GetInteractionPrompt();
-        bool CanInteract(Laboratory.Subsystems.Player.PlayerController player);
+        bool CanInteract(PlayerController player);
     }
 }

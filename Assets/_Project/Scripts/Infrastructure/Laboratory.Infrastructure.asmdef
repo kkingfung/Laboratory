@@ -7,7 +7,11 @@
         "UnityEngine.UI",
         "Unity.Netcode.Runtime",
         "Unity.Mathematics",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Laboratory.Core",
+        "Unity.Collections",
+        "Unity.Entities",
+        "R3"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

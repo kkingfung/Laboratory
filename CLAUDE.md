@@ -45,6 +45,10 @@ If a request is unclear, **check the README first before making assumptions**.
 - Profile regularly with Unity Profiler and Frame Debugger.  
 - Use object pooling for frequently spawned objects (bullets, enemies, VFX).  
 - Avoid GC allocations in gameplay loops.  
+- Never create God classes or 1000+ line scripts; split responsibilities into components or systems.  
+- Assume multiplayer synchronization and determinism where relevant.  
+- Expose ScriptableObjects or config files for designers instead of hardcoding values.  
+- Avoid excessive branching; extend systems cleanly instead of piling if-statements.  
 
 ---
 

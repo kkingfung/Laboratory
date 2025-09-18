@@ -8,6 +8,7 @@ using Laboratory.Core.Input.Interfaces;
 using Laboratory.Core.Input.Events;
 using Laboratory.Core.DI;
 using Laboratory.Infrastructure.Input;
+using Laboratory.Models.Input; // For PlayerControls
 
 namespace Laboratory.Infrastructure.Input
 {

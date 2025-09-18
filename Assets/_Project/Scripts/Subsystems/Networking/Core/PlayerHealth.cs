@@ -12,6 +12,9 @@ using Laboratory.Gameplay.Respawn;
 using HealthChangedEventArgs = Laboratory.Core.Health.HealthChangedEventArgs;
 using DeathEventArgs = Laboratory.Core.Health.DeathEventArgs;
 
+// Resolve NetworkHealthComponent ambiguity - use the Core version
+using CoreNetworkHealthComponent = Laboratory.Core.Health.Components.NetworkHealthComponent;
+
 namespace Laboratory.Infrastructure.Networking
 {
     /// <summary>
@@ -20,13 +23,13 @@ namespace Laboratory.Infrastructure.Networking
     /// Uses the unified NetworkHealthComponent and adds player-specific respawn functionality.
     /// Integrates with the unified health system service for centralized management.
     /// </summary>
-    [RequireComponent(typeof(NetworkHealthComponent))]
+    [RequireComponent(typeof(CoreNetworkHealthComponent))]
     [RequireComponent(typeof(PlayerRespawnComponent))]
     public class PlayerHealth : MonoBehaviour, IDisposable
     {
         #region Components
         
-        private NetworkHealthComponent _healthComponent;
+        private CoreNetworkHealthComponent _healthComponent;
         private PlayerRespawnComponent _respawnComponent;
         private IEventBus _eventBus;
         private IHealthSystem _healthSystem;
@@ -37,7 +40,7 @@ namespace Laboratory.Infrastructure.Networking
         #region Properties
         
         /// <summary>Network health component handling the health logic.</summary>
-        public NetworkHealthComponent HealthComponent => _healthComponent;
+        public CoreNetworkHealthComponent HealthComponent => _healthComponent;
         
         /// <summary>Respawn component handling player respawn logic.</summary>
         public PlayerRespawnComponent RespawnComponent => _respawnComponent;
@@ -61,12 +64,12 @@ namespace Laboratory.Infrastructure.Networking
         private void Awake()
         {
             // Get required components
-            _healthComponent = GetComponent<NetworkHealthComponent>();
+            _healthComponent = GetComponent<CoreNetworkHealthComponent>();
             _respawnComponent = GetComponent<PlayerRespawnComponent>();
             
             if (_healthComponent == null)
             {
-                Debug.LogError($"PlayerHealth on {gameObject.name} requires NetworkHealthComponent!");
+                Debug.LogError($"PlayerHealth on {gameObject.name} requires CoreNetworkHealthComponent!");
                 enabled = false;
                 return;
             }
@@ -117,14 +120,19 @@ namespace Laboratory.Infrastructure.Networking
         
         /// <summary>
         /// Applies damage from a specific client. Server authority only.
+        /// This method adds client metadata and delegates to TakeDamage.
         /// </summary>
         /// <param name="damageRequest">Damage request with all damage information.</param>
         /// <param name="attackerClientId">Client ID of the attacker.</param>
         /// <returns>True if damage was applied.</returns>
         public bool TakeDamageFromClient(DamageRequest damageRequest, ulong attackerClientId)
         {
-            var networkHealthComp = _healthComponent as NetworkHealthComponent;
-            return networkHealthComp?.TakeDamageFromClient(damageRequest, attackerClientId) ?? false;
+            // Add client metadata to damage request
+            damageRequest.Metadata ??= new System.Collections.Generic.Dictionary<string, object>();
+            damageRequest.Metadata["AttackerClientId"] = attackerClientId;
+            damageRequest.Metadata["VictimClientId"] = GetComponent<NetworkObject>()?.NetworkObjectId ?? 0;
+            
+            return _healthComponent.TakeDamage(damageRequest);
         }
         
         /// <summary>
@@ -328,7 +336,7 @@ namespace Laboratory.Gameplay
             if (!IsServer) return;
             
             // Get health component and reset health
-            var healthComponent = GetComponent<NetworkHealthComponent>();
+            var healthComponent = GetComponent<CoreNetworkHealthComponent>();
             healthComponent?.ResetToMaxHealth();
             
             // Reset respawn timer

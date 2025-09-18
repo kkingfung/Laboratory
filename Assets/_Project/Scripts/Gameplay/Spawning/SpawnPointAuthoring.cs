@@ -207,12 +207,14 @@ namespace Laboratory.Gameplay.Spawning
                 LastCheckedTime = 0f
             });
             
-            // Add transform component
-            entityManager.AddComponentData(_spawnPointEntity, new Unity.Transforms.LocalTransform
+            // Add transform components
+            entityManager.AddComponentData(_spawnPointEntity, new Unity.Transforms.LocalToWorld
             {
-                Position = transform.position,
-                Rotation = transform.rotation,
-                Scale = 1f
+                Value = Unity.Mathematics.float4x4.TRS(
+                    transform.position,
+                    transform.rotation,
+                    new Unity.Mathematics.float3(1f, 1f, 1f)
+                )
             });
 
             _isRegistered = true;
@@ -285,11 +287,15 @@ namespace Laboratory.Gameplay.Spawning
             var entityManager = world.EntityManager;
             if (!entityManager.Exists(_spawnPointEntity)) return;
 
-            if (entityManager.HasComponent<Unity.Transforms.LocalTransform>(_spawnPointEntity))
+            if (entityManager.HasComponent<Unity.Transforms.LocalToWorld>(_spawnPointEntity))
             {
-                var localTransform = entityManager.GetComponentData<Unity.Transforms.LocalTransform>(_spawnPointEntity);
-                localTransform.Position = transform.position;
-                entityManager.SetComponentData(_spawnPointEntity, localTransform);
+                var localToWorld = entityManager.GetComponentData<Unity.Transforms.LocalToWorld>(_spawnPointEntity);
+                localToWorld.Value = Unity.Mathematics.float4x4.TRS(
+                    transform.position,
+                    transform.rotation,
+                    new Unity.Mathematics.float3(1f, 1f, 1f)
+                );
+                entityManager.SetComponentData(_spawnPointEntity, localToWorld);
             }
         }
 

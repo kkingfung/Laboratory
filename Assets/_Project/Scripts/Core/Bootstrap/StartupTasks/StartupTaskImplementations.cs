@@ -411,15 +411,30 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
                 eventSystem = eventSystemGO.AddComponent<UnityEngine.EventSystems.EventSystem>();
                 
                 // Add appropriate input module based on available input systems
-                if (UnityEngine.Object.FindFirstObjectByType<UnityEngine.InputSystem.PlayerInput>() != null)
+                // Try to detect if new Input System is available via reflection to avoid compilation errors
+                var inputSystemDetected = System.Type.GetType("UnityEngine.InputSystem.PlayerInput, Unity.InputSystem") != null;
+                
+                if (inputSystemDetected)
                 {
-                    // New Input System detected
-                    eventSystemGO.AddComponent<UnityEngine.InputSystem.UI.InputSystemUIInputModule>();
+                    // Try to add InputSystem UI module via reflection
+                    var inputModuleType = System.Type.GetType("UnityEngine.InputSystem.UI.InputSystemUIInputModule, Unity.InputSystem");
+                    if (inputModuleType != null)
+                    {
+                        eventSystemGO.AddComponent(inputModuleType);
+                        LogInfo("Added InputSystem UI module");
+                    }
+                    else
+                    {
+                        // Fallback to legacy input module
+                        eventSystemGO.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+                        LogInfo("Fallback to legacy input module (InputSystem UI module not found)");
+                    }
                 }
                 else
                 {
                     // Fallback to legacy input module
                     eventSystemGO.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+                    LogInfo("Using legacy input module (InputSystem not detected)");
                 }
                 
                 UnityEngine.Object.DontDestroyOnLoad(eventSystemGO);

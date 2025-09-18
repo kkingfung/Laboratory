@@ -2,7 +2,9 @@ using System;
 using System.Net.Sockets;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using MessagePipe;
+using UnityEngine;
+using Laboratory.Core.Events;
+using Laboratory.Core.DI;
 
 #nullable enable
 
@@ -10,7 +12,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
 {
     /// <summary>
     /// Asynchronous TCP network client using UniTask for high-performance networking.
-    /// Publishes network events through MessagePipe publishers.
+    /// Publishes network events through the UnifiedEventBus system.
     /// </summary>
     public class NetworkClient : IDisposable
     {
@@ -20,11 +22,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
         private NetworkStream? _networkStream;
         private CancellationTokenSource? _cts;
         private bool _isConnected = false;
-
-        private readonly IPublisher<NetworkConnectedMessage> _connectedPublisher;
-        private readonly IPublisher<NetworkDisconnectedMessage> _disconnectedPublisher;
-        private readonly IPublisher<NetworkDataReceivedMessage> _dataPublisher;
-        private readonly IPublisher<NetworkErrorMessage> _errorPublisher;
+        private IEventBus? _eventBus;
 
         #endregion
 
@@ -38,16 +36,13 @@ namespace Laboratory.Infrastructure.AsyncUtils
 
         #region Constructor
 
-        public NetworkClient(
-            IPublisher<NetworkConnectedMessage> connectedPublisher,
-            IPublisher<NetworkDisconnectedMessage> disconnectedPublisher,
-            IPublisher<NetworkDataReceivedMessage> dataPublisher,
-            IPublisher<NetworkErrorMessage> errorPublisher)
+        public NetworkClient()
         {
-            _connectedPublisher = connectedPublisher;
-            _disconnectedPublisher = disconnectedPublisher;
-            _dataPublisher = dataPublisher;
-            _errorPublisher = errorPublisher;
+            // Initialize event bus
+            if (GlobalServiceProvider.IsInitialized)
+            {
+                _eventBus = GlobalServiceProvider.Resolve<IEventBus>();
+            }
         }
 
         #endregion
@@ -60,106 +55,162 @@ namespace Laboratory.Infrastructure.AsyncUtils
 
         #region Public Methods
 
-        public async UniTask ConnectAsync(string host, int port, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Connect to the specified host and port asynchronously.
+        /// </summary>
+        public async UniTask<bool> ConnectAsync(string host, int port, CancellationToken cancellationToken = default)
         {
-            if (_isConnected) return;
-
-            _tcpClient = new TcpClient();
-            _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            if (_isConnected) return true;
 
             try
             {
-                await _tcpClient.ConnectAsync(host, port).AsUniTask();
+                _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                _tcpClient = new TcpClient();
+
+                await _tcpClient.ConnectAsync(host, port);
                 _networkStream = _tcpClient.GetStream();
                 _isConnected = true;
 
-                Connected?.Invoke();
-                _connectedPublisher.Publish(new NetworkConnectedMessage());
+                // Start receiving data
+                _ = ReceiveDataAsync(_cts.Token);
 
-                ReceiveLoopAsync(_cts.Token).Forget();
+                // Notify connection
+                Connected?.Invoke();
+                _eventBus?.Publish(new NetworkConnectedMessage { Host = host, Port = port });
+
+                Debug.Log($"[NetworkClient] Connected to {host}:{port}");
+                return true;
             }
             catch (Exception ex)
             {
-                _isConnected = false;
-                _errorPublisher.Publish(new NetworkErrorMessage(ex));
-                throw;
+                Debug.LogError($"[NetworkClient] Connection failed: {ex.Message}");
+                _eventBus?.Publish(new NetworkErrorMessage { Error = ex.Message, Exception = ex });
+                await DisconnectAsync();
+                return false;
             }
         }
 
-        public void Disconnect()
+        /// <summary>
+        /// Disconnect from the server asynchronously.
+        /// </summary>
+        public async UniTask DisconnectAsync()
         {
             if (!_isConnected) return;
 
-            _cts?.Cancel();
+            try
+            {
+                _isConnected = false;
+                _cts?.Cancel();
 
-            _networkStream?.Close();
-            _tcpClient?.Close();
+                _networkStream?.Close();
+                _tcpClient?.Close();
 
-            _isConnected = false;
-            Disconnected?.Invoke();
-            _disconnectedPublisher.Publish(new NetworkDisconnectedMessage());
+                await UniTask.Delay(100); // Small delay for cleanup
+
+                // Notify disconnection
+                Disconnected?.Invoke();
+                _eventBus?.Publish(new NetworkDisconnectedMessage());
+
+                Debug.Log("[NetworkClient] Disconnected");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[NetworkClient] Disconnection error: {ex.Message}");
+                _eventBus?.Publish(new NetworkErrorMessage { Error = ex.Message, Exception = ex });
+            }
         }
 
-        public async UniTask SendAsync(byte[] data, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Send data to the server asynchronously.
+        /// </summary>
+        public async UniTask<bool> SendDataAsync(byte[] data, CancellationToken cancellationToken = default)
         {
-            if (!_isConnected || _networkStream == null)
-            {
-                throw new InvalidOperationException("Not connected to server.");
-            }
+            if (!_isConnected || _networkStream == null) return false;
 
-            await _networkStream.WriteAsync(data, 0, data.Length, cancellationToken);
-            await _networkStream.FlushAsync(cancellationToken);
+            try
+            {
+                await _networkStream.WriteAsync(data, 0, data.Length, cancellationToken);
+                await _networkStream.FlushAsync(cancellationToken);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[NetworkClient] Send data error: {ex.Message}");
+                _eventBus?.Publish(new NetworkErrorMessage { Error = ex.Message, Exception = ex });
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Send string data to the server asynchronously.
+        /// </summary>
+        public async UniTask<bool> SendStringAsync(string message, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrEmpty(message)) return false;
+
+            var data = System.Text.Encoding.UTF8.GetBytes(message);
+            return await SendDataAsync(data, cancellationToken);
         }
 
         #endregion
 
         #region Private Methods
 
-        private async UniTaskVoid ReceiveLoopAsync(CancellationToken token)
+        private async UniTask ReceiveDataAsync(CancellationToken cancellationToken)
         {
             var buffer = new byte[4096];
+
             try
             {
-                while (!token.IsCancellationRequested && _networkStream != null)
+                while (_isConnected && !cancellationToken.IsCancellationRequested)
                 {
-                    int bytesRead = await _networkStream.ReadAsync(buffer, 0, buffer.Length, token);
+                    if (_networkStream == null) break;
+
+                    var bytesRead = await _networkStream.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+
                     if (bytesRead == 0)
                     {
-                        Disconnect();
+                        // Server closed connection
                         break;
                     }
 
-                    var data = new byte[bytesRead];
-                    Array.Copy(buffer, data, bytesRead);
+                    var receivedData = new byte[bytesRead];
+                    Array.Copy(buffer, receivedData, bytesRead);
 
-                    DataReceived?.Invoke(data);
-                    _dataPublisher.Publish(new NetworkDataReceivedMessage(data));
+                    // Notify data received
+                    DataReceived?.Invoke(receivedData);
+                    _eventBus?.Publish(new NetworkDataReceivedMessage { Data = receivedData });
                 }
+            }
+            catch (ObjectDisposedException)
+            {
+                // Expected when disposing
             }
             catch (OperationCanceledException)
             {
-                // expected on cancellation
+                // Expected when cancelling
             }
             catch (Exception ex)
             {
-                _errorPublisher.Publish(new NetworkErrorMessage(ex));
-                Disconnect();
+                Debug.LogError($"[NetworkClient] Receive data error: {ex.Message}");
+                _eventBus?.Publish(new NetworkErrorMessage { Error = ex.Message, Exception = ex });
+            }
+            finally
+            {
+                if (_isConnected)
+                {
+                    await DisconnectAsync();
+                }
             }
         }
 
         #endregion
 
-        #region IDisposable
-
-        private bool _disposed = false;
+        #region IDisposable Implementation
 
         public void Dispose()
         {
-            if (_disposed) return;
-            _disposed = true;
-
-            Disconnect();
-
+            _ = DisconnectAsync();
             _cts?.Dispose();
             _networkStream?.Dispose();
             _tcpClient?.Dispose();
@@ -168,19 +219,45 @@ namespace Laboratory.Infrastructure.AsyncUtils
         #endregion
     }
 
-    #region MessagePipe Events
+    #region Network Event Messages
 
-    public class NetworkConnectedMessage { }
-    public class NetworkDisconnectedMessage { }
-    public class NetworkDataReceivedMessage 
-    { 
-        public byte[] Data { get; }
-        public NetworkDataReceivedMessage(byte[] data) => Data = data;
+    /// <summary>
+    /// Message published when network connection is established
+    /// </summary>
+    public class NetworkConnectedMessage
+    {
+        public string Host { get; set; } = string.Empty;
+        public int Port { get; set; }
+        public DateTime ConnectedAt { get; set; } = DateTime.Now;
     }
-    public class NetworkErrorMessage 
-    { 
-        public Exception Exception { get; }
-        public NetworkErrorMessage(Exception exception) => Exception = exception;
+
+    /// <summary>
+    /// Message published when network connection is lost
+    /// </summary>
+    public class NetworkDisconnectedMessage
+    {
+        public DateTime DisconnectedAt { get; set; } = DateTime.Now;
+        public string? Reason { get; set; }
+    }
+
+    /// <summary>
+    /// Message published when data is received from network
+    /// </summary>
+    public class NetworkDataReceivedMessage
+    {
+        public byte[] Data { get; set; } = Array.Empty<byte>();
+        public DateTime ReceivedAt { get; set; } = DateTime.Now;
+        public int Size => Data.Length;
+    }
+
+    /// <summary>
+    /// Message published when network error occurs
+    /// </summary>
+    public class NetworkErrorMessage
+    {
+        public string Error { get; set; } = string.Empty;
+        public Exception? Exception { get; set; }
+        public DateTime ErrorTime { get; set; } = DateTime.Now;
     }
 
     #endregion

@@ -6,6 +6,9 @@ using Laboratory.Core.Health;
 using DamageRequest = Laboratory.Core.Health.DamageRequest;
 using DamageType = Laboratory.Core.Health.DamageType;
 
+// Resolve DamageEvent ambiguity - use the ECS version in this context
+using DamageEvent = Laboratory.Models.ECS.Components.DamageEvent;
+
 namespace Laboratory.Models.ECS.Systems
 {
     /// <summary>
@@ -20,7 +23,7 @@ namespace Laboratory.Models.ECS.Systems
         /// Applies damage to a target entity and publishes associated events.
         /// </summary>
         /// <param name="damageEvent">The damage event containing target and damage information</param>
-        public void ApplyDamage(DamageEvent damageEvent)
+        public void ApplyDamage(Laboratory.Models.ECS.Components.DamageEvent damageEvent)
         {
             var targetHealth = GetTargetHealthComponent(damageEvent.TargetClientId);
             ProcessDamageApplication(targetHealth, damageEvent);
@@ -49,7 +52,7 @@ namespace Laboratory.Models.ECS.Systems
         /// </summary>
         /// <param name="targetHealth">The health component to modify</param>
         /// <param name="damageEvent">The damage event data</param>
-        private void ProcessDamageApplication(HealthComponentBase targetHealth, DamageEvent damageEvent)
+        private void ProcessDamageApplication(HealthComponentBase targetHealth, Laboratory.Models.ECS.Components.DamageEvent damageEvent)
         {
             if (targetHealth != null)
             {
@@ -72,7 +75,7 @@ namespace Laboratory.Models.ECS.Systems
         /// Publishes the damage event to the message bus for other systems to process.
         /// </summary>
         /// <param name="damageEvent">The damage event to publish</param>
-        private void PublishDamageEvent(DamageEvent damageEvent)
+        private void PublishDamageEvent(Laboratory.Models.ECS.Components.DamageEvent damageEvent)
         {
             MessageBus.Publish(damageEvent);
         }
@@ -82,7 +85,7 @@ namespace Laboratory.Models.ECS.Systems
         /// </summary>
         /// <param name="targetHealth">The target's health component</param>
         /// <param name="damageEvent">The original damage event</param>
-        private void CheckForDeath(HealthComponentBase targetHealth, DamageEvent damageEvent)
+        private void CheckForDeath(HealthComponentBase targetHealth, Laboratory.Models.ECS.Components.DamageEvent damageEvent)
         {
             if (targetHealth != null && targetHealth.CurrentHealth <= 0)
             {
@@ -94,7 +97,7 @@ namespace Laboratory.Models.ECS.Systems
         /// Creates and publishes a death event when an entity dies.
         /// </summary>
         /// <param name="damageEvent">The damage event that caused the death</param>
-        private void PublishDeathEvent(DamageEvent damageEvent)
+        private void PublishDeathEvent(Laboratory.Models.ECS.Components.DamageEvent damageEvent)
         {
             var deathEvent = new Laboratory.Models.ECS.Components.DeathEvent
             (

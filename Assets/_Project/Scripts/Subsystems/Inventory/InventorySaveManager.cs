@@ -45,7 +45,7 @@ namespace Laboratory.Subsystems.Inventory
             // Fallback: find inventory system in scene
             if (_inventorySystem == null)
             {
-                _inventorySystem = FindObjectOfType<EnhancedInventorySystem>();
+                _inventorySystem = FindFirstObjectByType<EnhancedInventorySystem>();
             }
             
             if (_inventorySystem == null)
@@ -278,10 +278,37 @@ namespace Laboratory.Subsystems.Inventory
                 return itemData;
             }
             
-            // TODO: Add Addressables support if using Addressable Assets
-            // This would require async loading, so consider implementing async save/load methods
+            // Try alternative Resources paths
+            itemData = Resources.Load<ItemData>($"ItemData/{itemId}");
+            if (itemData != null)
+            {
+                return itemData;
+            }
             
-            Debug.LogWarning($"[InventorySaveManager] ItemData not found in Resources/Items/ for ID: {itemId}");
+            itemData = Resources.Load<ItemData>(itemId);
+            if (itemData != null)
+            {
+                return itemData;
+            }
+            
+            // Addressables support (requires Unity Addressables package)
+            #if UNITY_ADDRESSABLES
+            try
+            {
+                var handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<ItemData>(itemId);
+                var result = handle.WaitForCompletion();
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[InventorySaveManager] Failed to load from Addressables: {ex.Message}");
+            }
+            #endif
+            
+            Debug.LogWarning($"[InventorySaveManager] ItemData not found for ID: {itemId}. Searched in Resources/Items/, Resources/ItemData/, and Resources root.");
             return null;
         }
         

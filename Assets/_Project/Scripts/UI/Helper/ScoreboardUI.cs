@@ -7,9 +7,10 @@ using UnityEngine.UI;
 using TMPro;
 using Unity.Netcode;
 using Cysharp.Threading.Tasks;
-using MessagePipe;
 using VContainer;
 using Laboratory.Infrastructure.Networking;
+using Laboratory.Core.Events;
+using Laboratory.UI.Helper;
 
 namespace Laboratory.UI.Helper
 {
@@ -37,8 +38,7 @@ namespace Laboratory.UI.Helper
         private int _totalPages = 1;
 
         private IDisposable _scoreboardUpdateSubscription;
-        private IPublisher<ScoreboardUpdateEvent> _scoreboardUpdatePublisher;
-        private ISubscriber<ScoreboardUpdateEvent> _scoreboardUpdateSubscriber;
+        private IEventBus _eventBus;
 
         private readonly SortCriterion[] _sortPriority =
         {
@@ -112,15 +112,14 @@ namespace Laboratory.UI.Helper
         /// <summary>
         /// Inject dependencies for scoreboard messaging system
         /// </summary>
-        /// <param name="scoreboardUpdatePublisher">Publisher for scoreboard update events</param>
-        /// <param name="scoreboardUpdateSubscriber">Subscriber for scoreboard update events</param>
+        /// <param name="eventBus">Event bus for publishing and subscribing to scoreboard events</param>
         [Inject]
-        public void Construct(
-            IPublisher<ScoreboardUpdateEvent> scoreboardUpdatePublisher,
-            ISubscriber<ScoreboardUpdateEvent> scoreboardUpdateSubscriber)
+        public void Construct(IEventBus eventBus)
         {
-            _scoreboardUpdatePublisher = scoreboardUpdatePublisher;
-            _scoreboardUpdateSubscriber = scoreboardUpdateSubscriber;
+            _eventBus = eventBus;
+            
+            // Subscribe to scoreboard update events
+            _scoreboardUpdateSubscription = _eventBus.Subscribe<ScoreboardUpdateEvent>(OnScoreboardUpdateReceived);
         }
 
         /// <summary>
@@ -173,7 +172,7 @@ namespace Laboratory.UI.Helper
             
             var rowUI = Instantiate(playerRowPrefab, playerListContainer);
             rowUI.Initialize(adaptedPlayerData, this);
-            rowUI.Bind(() => _scoreboardUpdatePublisher?.Publish(new ScoreboardUpdateEvent()));
+            rowUI.Bind(() => _eventBus?.Publish(new ScoreboardUpdateEvent()));
             _playerRows.Add(clientId, rowUI);
             
             Debug.Log($"Player {clientId} added to scoreboard successfully");
@@ -207,6 +206,19 @@ namespace Laboratory.UI.Helper
             }
             _playerRows.Clear();
             _sortedPlayers.Clear();
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        /// <summary>
+        /// Handle scoreboard update events
+        /// </summary>
+        /// <param name="updateEvent">The scoreboard update event</param>
+        private void OnScoreboardUpdateReceived(ScoreboardUpdateEvent updateEvent)
+        {
+            RefreshAllPlayers();
         }
 
         #endregion

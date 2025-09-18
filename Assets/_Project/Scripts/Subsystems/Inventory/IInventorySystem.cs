@@ -1,11 +1,14 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Laboratory.Subsystems.Inventory
 {
     /// <summary>
-    /// Core interface for inventory system implementations.
-    /// Provides standard inventory operations for item management.
+    /// Unified inventory system interface that combines functionality from both
+    /// previous implementations. Provides comprehensive item management with
+    /// proper event handling and validation.
     /// </summary>
     public interface IInventorySystem
     {
@@ -13,6 +16,7 @@ namespace Laboratory.Subsystems.Inventory
         /// Maximum number of slots in the inventory
         /// </summary>
         int MaxSlots { get; }
+
 
         /// <summary>
         /// Number of currently used slots
@@ -74,6 +78,14 @@ namespace Laboratory.Subsystems.Inventory
         bool HasItem(string itemId, int quantity = 1);
 
         /// <summary>
+        /// Checks if the inventory contains the specified quantity of an item
+        /// </summary>
+        /// <param name="item">Item to check</param>
+        /// <param name="quantity">Required quantity</param>
+        /// <returns>True if the inventory contains enough of the item</returns>
+        bool HasItem(ItemData item, int quantity = 1);
+
+        /// <summary>
         /// Gets a specific inventory slot by index
         /// </summary>
         /// <param name="index">Slot index</param>
@@ -132,5 +144,190 @@ namespace Laboratory.Subsystems.Inventory
         /// Event fired when the inventory state changes
         /// </summary>
         event Action OnInventoryChanged;
+    }
+
+    /// <summary>
+    /// Unified item data structure that combines features from both previous implementations
+    /// </summary>
+    [System.Serializable]
+    [CreateAssetMenu(fileName = "New Item", menuName = "Laboratory/Item Data")]
+    public class ItemData : ScriptableObject
+    {
+        [Header("Basic Information")]
+        [SerializeField] private string id;
+        [SerializeField] private string itemName;
+        [SerializeField] private string description;
+        [SerializeField] private Sprite icon;
+        [SerializeField] private ItemType type;
+        
+        [Header("Properties")]
+        [SerializeField] private int maxStackSize = 1;
+        [SerializeField] private bool isConsumable;
+        [SerializeField] private float value = 0f;
+        [SerializeField] private int rarity = 0;
+        [SerializeField] private bool isStackable = true;
+        [SerializeField] private bool isUsable = false;
+        [SerializeField] private ItemStats stats;
+
+        // Primary accessors
+        public string Id => id;
+        public string Name => itemName;
+        public string Description => description;
+        public Sprite Icon => icon;
+        public ItemType Type => type;
+        public int MaxStackSize => maxStackSize;
+        public bool IsConsumable => isConsumable;
+        public bool IsStackable => isStackable;
+        public bool IsUsable => isUsable;
+        public float Value => value;
+        public int Rarity => rarity;
+        public ItemStats Stats => stats;
+        
+        // Compatibility aliases
+        public string ItemID => id;
+        public string ItemName => itemName;
+        
+        // Validation
+        public bool IsValid => !string.IsNullOrEmpty(id) && !string.IsNullOrEmpty(itemName);
+
+        public ItemData()
+        {
+            // Default constructor for ScriptableObject
+        }
+
+        public ItemData(string itemId, string itemName)
+        {
+            this.id = itemId;
+            this.itemName = itemName;
+        }
+    }
+
+    /// <summary>
+    /// Represents the different types of items
+    /// </summary>
+    public enum ItemType
+    {
+        Consumable,
+        Equipment,
+        Resource,
+        Quest,
+        Misc
+    }
+
+    /// <summary>
+    /// Item statistics structure
+    /// </summary>
+    [System.Serializable]
+    public struct ItemStats : System.Collections.Generic.IEnumerable<StatEntry>
+    {
+        public int damage;
+        public int defense;
+        public int healing;
+        // Add more stats as needed
+        // Force recompilation
+
+        public System.Collections.Generic.IEnumerator<StatEntry> GetEnumerator()
+        {
+            if (damage != 0) yield return new StatEntry("Damage", damage.ToString(), null);
+            if (defense != 0) yield return new StatEntry("Defense", defense.ToString(), null);
+            if (healing != 0) yield return new StatEntry("Healing", healing.ToString(), null);
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+    }
+
+    /// <summary>
+    /// Represents a single stat entry for display
+    /// </summary>
+    [System.Serializable]
+    public struct StatEntry
+    {
+        public string StatName { get; }
+        public string StatValue { get; }
+        public Sprite StatIcon { get; }
+
+        public StatEntry(string name, string value, Sprite icon)
+        {
+            StatName = name;
+            StatValue = value;
+            StatIcon = icon;
+        }
+    }
+
+    /// <summary>
+    /// Represents a slot in the inventory
+    /// </summary>
+    [System.Serializable]
+    public class InventorySlot
+    {
+        [SerializeField] private ItemData item;
+        [SerializeField] private int quantity;
+        [SerializeField] private int slotIndex;
+
+        public ItemData Item => item;
+        public int Quantity { get => quantity; set => quantity = value; }
+        public int SlotIndex => slotIndex;
+        public bool IsEmpty => item == null || quantity <= 0;
+        public bool HasItem => !IsEmpty;
+
+        public InventorySlot(int index)
+        {
+            slotIndex = index;
+            item = null;
+            quantity = 0;
+        }
+
+        public InventorySlot(ItemData itemData, int amount, int index)
+        {
+            item = itemData;
+            quantity = amount;
+            slotIndex = index;
+        }
+
+        public void SetItem(ItemData itemData, int amount)
+        {
+            item = itemData;
+            quantity = amount;
+        }
+
+        public void AddQuantity(int amount)
+        {
+            quantity += amount;
+        }
+
+        public bool RemoveQuantity(int amount)
+        {
+            if (quantity >= amount)
+            {
+                quantity -= amount;
+                if (quantity <= 0)
+                {
+                    Clear();
+                }
+                return true;
+            }
+            return false;
+        }
+
+        public void Clear()
+        {
+            item = null;
+            quantity = 0;
+        }
+
+        public bool CanStackWith(ItemData otherItem)
+        {
+            return HasItem && item == otherItem && item.IsStackable && quantity < item.MaxStackSize;
+        }
+
+        public int GetAvailableStackSpace()
+        {
+            if (!HasItem || !item.IsStackable)
+                return 0;
+            return item.MaxStackSize - quantity;
+        }
     }
 }

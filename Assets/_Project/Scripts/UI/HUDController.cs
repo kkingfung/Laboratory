@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
-using Laboratory.Gameplay.Abilities;
+using Laboratory.Subsystems.Combat.Abilities;
 using Laboratory.UI.Helper;
 
 namespace Laboratory.UI

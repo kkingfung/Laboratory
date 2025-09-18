@@ -8,6 +8,9 @@ using Laboratory.Core.Events.Messages;
 using Laboratory.Core.DI;
 using Laboratory.Core.Systems;
 
+// Resolve DeathEvent ambiguity - use the one from Events.Messages
+using DeathEvent = Laboratory.Core.Events.Messages.DeathEvent;
+
 namespace Laboratory.Core.Health.Services
 {
     /// <summary>
@@ -78,7 +81,7 @@ namespace Laboratory.Core.Health.Services
             {
                 // Subscribe to system-wide health events
                 var damageEventSub = _eventBus.Subscribe<DamageAppliedEvent>(OnGlobalDamageEvent);
-                var deathEventSub = _eventBus.Subscribe<DeathEvent>(OnGlobalDeathEvent);
+                var deathEventSub = _eventBus.Subscribe<Laboratory.Core.Events.Messages.DeathEvent>(OnGlobalDeathEvent);
                 
                 _subscriptions.Add(damageEventSub);
                 _subscriptions.Add(deathEventSub);
@@ -297,7 +300,7 @@ namespace Laboratory.Core.Health.Services
             Statistics.LastSystemDamageTime = Time.time;
         }
 
-        private void OnGlobalDeathEvent(DeathEvent deathEvent)
+        private void OnGlobalDeathEvent(Laboratory.Core.Events.Messages.DeathEvent deathEvent)
         {
             // Track system-wide death events
             Statistics.LastSystemDeathTime = Time.time;

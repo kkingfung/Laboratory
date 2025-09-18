@@ -77,10 +77,11 @@ namespace Laboratory.UI.Helper
         [SerializeField] private Vector2 minBoundary = new(-50, -50);
         [SerializeField] private Vector2 maxBoundary = new(50, 50);
 
-        private Laboratory.UI.Input.PlayerControls _controls;
+        // Input handling variables
         private Vector3 _panOrigin;
         private bool _isPanning;
         private Vector3 _panVelocity;
+        private Vector2 _lastMousePosition;
 
         private readonly Dictionary<Transform, MarkerInstance> _activeMarkers = new();
         private readonly Queue<MarkerInstance> _playerMarkerPool = new();
@@ -102,22 +103,35 @@ namespace Laboratory.UI.Helper
         /// <summary>
         /// Enable input controls.
         /// </summary>
-        private void OnEnable() => _controls?.Enable();
+        private void OnEnable() 
+        {
+            // Input system is handled in Update method
+        }
 
         /// <summary>
         /// Disable input controls.
         /// </summary>
-        private void OnDisable() => _controls?.Disable();
+        private void OnDisable() 
+        {
+            _isPanning = false;
+        }
 
         /// <summary>
         /// Cleanup input controls when destroyed.
         /// </summary>
-        private void OnDestroy() => _controls?.Dispose();
+        private void OnDestroy() 
+        {
+            _isPanning = false;
+        }
 
         /// <summary>
-        /// Update marker positions and rotations.
+        /// Update marker positions, rotations, and handle input.
         /// </summary>
-        private void Update() => UpdateMarkers();
+        private void Update() 
+        {
+            UpdateMarkers();
+            HandleInput();
+        }
 
         #endregion
 
@@ -219,32 +233,69 @@ namespace Laboratory.UI.Helper
         /// </summary>
         private void SetupInputControls()
         {
-            try
+            _isPanning = false;
+            _lastMousePosition = Vector2.zero;
+        }
+
+        /// <summary>
+        /// Handle all input processing for the minimap.
+        /// </summary>
+        private void HandleInput()
+        {
+            if (!miniMapCamera) return;
+
+            Vector2 mousePosition = Mouse.current.position.ReadValue();
+            bool isMouseOverUI = IsMouseOverMinimap(mousePosition);
+            
+            // Handle zoom input (mouse wheel)
+            if (isMouseOverUI && Mouse.current.scroll.ReadValue().y != 0)
             {
-                // Initialize the controls with the UI Input wrapper
-                _controls = new Laboratory.UI.Input.PlayerControls();
-                
-                // Bind minimap input actions with null checks
-                if (_controls.MiniMap.Zoom != null)
-                    _controls.MiniMap.Zoom.performed += ctx => OnZoomInput(ctx.ReadValue<float>());
-                    
-                if (_controls.MiniMap.Pan != null)
+                float scrollDelta = Mouse.current.scroll.ReadValue().y / 120f; // Normalize scroll wheel delta
+                OnZoomInput(scrollDelta);
+            }
+
+            // Handle pan input (middle mouse button or right mouse button)
+            if (Mouse.current.middleButton.wasPressedThisFrame || 
+                (Mouse.current.rightButton.wasPressedThisFrame && isMouseOverUI))
+            {
+                StartPan(mousePosition);
+            }
+            
+            if (_isPanning)
+            {
+                if (Mouse.current.middleButton.isPressed || Mouse.current.rightButton.isPressed)
                 {
-                    _controls.MiniMap.Pan.started += ctx => StartPan(ctx.ReadValue<Vector2>());
-                    _controls.MiniMap.Pan.canceled += ctx => EndPan();
-                    _controls.MiniMap.Pan.performed += ctx => OnPanInput(ctx.ReadValue<Vector2>());
+                    OnPanInput(mousePosition);
                 }
-                
-                if (_controls.MiniMap.Click != null)
-                    _controls.MiniMap.Click.performed += ctx => OnMiniMapClick(ctx.ReadValue<Vector2>());
-                
-                UnityEngine.Debug.Log("[MiniMapUI] Input controls successfully initialized");
+                else
+                {
+                    EndPan();
+                }
             }
-            catch (System.Exception ex)
+
+            // Handle click-to-move (left mouse button)
+            if (isMouseOverUI && Mouse.current.leftButton.wasPressedThisFrame)
             {
-                UnityEngine.Debug.LogWarning($"[MiniMapUI] Failed to initialize input controls: {ex.Message}");
-                _controls = null;
+                OnMiniMapClick(mousePosition);
             }
+
+            _lastMousePosition = mousePosition;
+        }
+
+        /// <summary>
+        /// Check if mouse position is over the minimap UI element.
+        /// </summary>
+        /// <param name="mousePosition">Current mouse screen position</param>
+        /// <returns>True if mouse is over minimap</returns>
+        private bool IsMouseOverMinimap(Vector2 mousePosition)
+        {
+            if (!minimapCanvasGroup || !minimapCanvasGroup.gameObject.activeInHierarchy)
+                return false;
+
+            RectTransform minimapRect = minimapCanvasGroup.GetComponent<RectTransform>();
+            if (!minimapRect) return false;
+
+            return RectTransformUtility.RectangleContainsScreenPoint(minimapRect, mousePosition);
         }
 
         #endregion

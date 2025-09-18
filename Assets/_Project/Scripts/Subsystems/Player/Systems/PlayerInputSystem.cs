@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 using Laboratory.Core;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Models.ECS.Components;
-using Laboratory.Models.Input;
+using Laboratory.Models.Input; // For PlayerControls
 using Laboratory.Infrastructure.Networking;
 
 namespace Laboratory.Models.ECS.Systems

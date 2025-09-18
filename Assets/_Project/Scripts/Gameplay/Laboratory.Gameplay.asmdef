@@ -5,11 +5,13 @@
         "Laboratory.Core",
         "Laboratory.Models",
         "Laboratory.Subsystems",
-        "Unity.InputSystem",
+        "UniTask",
         "Unity.Mathematics",
-        "Unity.Entities",
         "Unity.Collections",
-        "Unity.Transforms"
+        "Unity.Entities",
+        "Unity.Transforms",
+        "Unity.InputSystem",
+        "R3"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

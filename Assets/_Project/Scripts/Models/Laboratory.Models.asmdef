@@ -3,18 +3,17 @@
     "rootNamespace": "Laboratory.Models",
     "references": [
         "Laboratory.Core",
-        "Laboratory.Tools",
         "Unity.Entities",
         "Unity.Mathematics",
         "Unity.Collections",
-        "Unity.Transforms",
-        "Unity.Physics",
+        "Unity.InputSystem",
         "Unity.Burst",
-        "Unity.InputSystem"
+        "Unity.Physics",
+        "Unity.Transforms"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

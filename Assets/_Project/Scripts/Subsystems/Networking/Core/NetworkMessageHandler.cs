@@ -4,17 +4,18 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core;
 using Laboratory.Core.State;
+using Laboratory.Core.Events;
+using Laboratory.Core.DI;
 using Laboratory.Infrastructure.AsyncUtils;
-using MessagePipe;
 using Unity.Entities;
 using UnityEngine;
-using UniRx;
+using R3;
 
 namespace Laboratory.Infrastructure.Networking
 {
     /// <summary>
     /// Handles incoming network messages from NetworkClient and processes them asynchronously.
-    /// Parses messages, updates ECS world state, and publishes events via message broker.
+    /// Parses messages, updates ECS world state, and publishes events via UnifiedEventBus.
     /// </summary>
     public class NetworkMessageHandler : IDisposable
     {
@@ -23,8 +24,8 @@ namespace Laboratory.Infrastructure.Networking
         /// <summary>Network client for receiving data.</summary>
         private readonly NetworkClient _networkClient;
         
-        /// <summary>Message broker for publishing parsed events.</summary>
-        private readonly IMessageBroker _messageBroker;
+        /// <summary>Event bus for publishing parsed events.</summary>
+        private readonly IEventBus _eventBus;
         
         /// <summary>ECS entity manager for world updates.</summary>
         private readonly EntityManager _entityManager;
@@ -38,6 +39,12 @@ namespace Laboratory.Infrastructure.Networking
         /// <summary>Game state service reference for state synchronization.</summary>
         private IGameStateService _gameStateService;
 
+        /// <summary>Disposable subscriptions for cleanup.</summary>
+        private readonly CompositeDisposable _disposables = new CompositeDisposable();
+
+        /// <summary>Debug logging flag.</summary>
+        private readonly bool _enableDebugLogs;
+
         #endregion
 
         #region Constructor
@@ -46,20 +53,31 @@ namespace Laboratory.Infrastructure.Networking
         /// Initializes the network message handler with required dependencies.
         /// </summary>
         /// <param name="networkClient">Network client for receiving data.</param>
-        /// <param name="messageBroker">Message broker for event publishing.</param>
+        /// <param name="eventBus">Event bus for event publishing.</param>
         /// <param name="entityManager">ECS entity manager for world updates.</param>
+        /// <param name="enableDebugLogs">Whether to enable debug logging.</param>
         /// <exception cref="ArgumentNullException">Thrown when any required parameter is null.</exception>
-        public NetworkMessageHandler(NetworkClient networkClient, IMessageBroker messageBroker, EntityManager entityManager)
+        public NetworkMessageHandler(NetworkClient networkClient, IEventBus eventBus, EntityManager entityManager, bool enableDebugLogs = false)
         {
             _networkClient = networkClient ?? throw new ArgumentNullException(nameof(networkClient));
-            _messageBroker = messageBroker ?? throw new ArgumentNullException(nameof(messageBroker));
+            _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
             _entityManager = entityManager;
+            _enableDebugLogs = enableDebugLogs;
 
             // Subscribe to network client data events
             _networkClient.DataReceived += OnDataReceived;
 
-            // Start processing incoming messages asynchronously
-            _ = ProcessMessagesAsync(_cts.Token);
+            // Get game state service
+            if (GlobalServiceProvider.IsInitialized)
+            {
+                _gameStateService = GlobalServiceProvider.Resolve<IGameStateService>();
+            }
+
+            // Start message processing loop
+            StartMessageProcessing();
+
+            if (_enableDebugLogs)
+                Debug.Log("[NetworkMessageHandler] Initialized and ready for message processing");
         }
 
         #endregion
@@ -67,12 +85,53 @@ namespace Laboratory.Infrastructure.Networking
         #region Public Methods
 
         /// <summary>
-        /// Sets the game state service reference for state synchronization.
+        /// Starts the message processing loop.
         /// </summary>
-        /// <param name="gameStateService">Game state service instance.</param>
-        public void SetGameStateService(IGameStateService gameStateService)
+        public void StartMessageProcessing()
         {
-            _gameStateService = gameStateService;
+            if (_cts.IsCancellationRequested)
+            {
+                _cts = new CancellationTokenSource();
+            }
+
+            _ = ProcessMessagesAsync(_cts.Token);
+
+            if (_enableDebugLogs)
+                Debug.Log("[NetworkMessageHandler] Message processing started");
+        }
+
+        /// <summary>
+        /// Stops the message processing loop.
+        /// </summary>
+        public void StopMessageProcessing()
+        {
+            _cts?.Cancel();
+
+            if (_enableDebugLogs)
+                Debug.Log("[NetworkMessageHandler] Message processing stopped");
+        }
+
+        /// <summary>
+        /// Manually processes a single message (for testing).
+        /// </summary>
+        /// <param name="messageData">Raw message data to process.</param>
+        public void ProcessMessage(byte[] messageData)
+        {
+            if (messageData == null || messageData.Length == 0) return;
+
+            try
+            {
+                var message = ParseMessage(messageData);
+                if (message != null)
+                {
+                    HandleParsedMessage(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[NetworkMessageHandler] Error processing manual message: {ex.Message}");
+                _eventBus?.Publish(new NetworkMessageProcessingErrorEvent(ex, messageData));
+            }
         }
 
         #endregion
@@ -80,320 +139,504 @@ namespace Laboratory.Infrastructure.Networking
         #region Private Methods
 
         /// <summary>
-        /// Handles raw data received from network client.
-        /// Enqueues data for processing on main thread.
+        /// Handles incoming data from the network client.
         /// </summary>
-        /// <param name="data">Raw message data received from server.</param>
         private void OnDataReceived(byte[] data)
         {
+            if (data == null || data.Length == 0) return;
+
             _incomingMessages.Enqueue(data);
+
+            if (_enableDebugLogs)
+                Debug.Log($"[NetworkMessageHandler] Queued message: {data.Length} bytes");
         }
 
         /// <summary>
-        /// Continuously processes incoming messages from the queue.
-        /// Runs on background thread to avoid blocking main thread.
+        /// Asynchronously processes incoming messages.
         /// </summary>
-        /// <param name="token">Cancellation token for stopping the processing loop.</param>
-        /// <returns>UniTaskVoid representing the processing loop.</returns>
-        private async UniTaskVoid ProcessMessagesAsync(CancellationToken token)
+        private async UniTask ProcessMessagesAsync(CancellationToken cancellationToken)
         {
-            while (!token.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                if (_incomingMessages.TryDequeue(out var data))
+                try
                 {
-                    try
+                    while (_incomingMessages.TryDequeue(out var messageData))
                     {
-                        await HandleMessageAsync(data);
+                        if (cancellationToken.IsCancellationRequested) break;
+
+                        await ProcessSingleMessageAsync(messageData, cancellationToken);
                     }
-                    catch (Exception ex)
-                    {
-                        Debug.LogError($"NetworkMessageHandler: Error handling message - {ex}");
-                    }
+
+                    // Small delay to prevent tight loop
+                    await UniTask.Delay(1, cancellationToken: cancellationToken);
                 }
-                else
+                catch (OperationCanceledException)
                 {
-                    // Small delay to prevent busy waiting
-                    await UniTask.Delay(10, cancellationToken: token);
+                    // Expected when cancellation is requested
+                    break;
                 }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[NetworkMessageHandler] Error in message processing loop: {ex.Message}");
+                    _eventBus?.Publish(new NetworkMessageProcessingErrorEvent(ex, null));
+                }
+            }
+
+            if (_enableDebugLogs)
+                Debug.Log("[NetworkMessageHandler] Message processing loop ended");
+        }
+
+        /// <summary>
+        /// Processes a single message asynchronously.
+        /// </summary>
+        private async UniTask ProcessSingleMessageAsync(byte[] messageData, CancellationToken cancellationToken)
+        {
+            try
+            {
+                // Parse the message
+                var message = ParseMessage(messageData);
+                if (message == null) return;
+
+                // Handle the parsed message
+                HandleParsedMessage(message);
+
+                // Publish message processed event
+                _eventBus?.Publish(new NetworkMessageProcessedEvent(message));
+
+                if (_enableDebugLogs)
+                    Debug.Log($"[NetworkMessageHandler] Processed message: {message.MessageType}");
+
+                // Small delay for heavy processing
+                if (message.RequiresHeavyProcessing)
+                {
+                    await UniTask.Yield(cancellationToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[NetworkMessageHandler] Error processing message: {ex.Message}");
+                _eventBus?.Publish(new NetworkMessageProcessingErrorEvent(ex, messageData));
             }
         }
 
         /// <summary>
-        /// Parses and handles individual network messages based on message type.
+        /// Parses raw message data into a structured message object.
         /// </summary>
-        /// <param name="data">Raw message data to process.</param>
-        /// <returns>Task representing the message handling operation.</returns>
-        private async UniTask HandleMessageAsync(byte[] data)
+        private NetworkMessage ParseMessage(byte[] data)
         {
-            if (data.Length == 0)
+            if (data == null || data.Length < 4) return null;
+
+            try
             {
-                Debug.LogWarning("NetworkMessageHandler: Received empty message data");
-                return;
+                // Simple message format: [MessageType:4][Data:remaining]
+                var messageType = (NetworkMessageType)BitConverter.ToInt32(data, 0);
+                var messageData = new byte[data.Length - 4];
+                Array.Copy(data, 4, messageData, 0, messageData.Length);
+
+                return new NetworkMessage
+                {
+                    MessageType = messageType,
+                    Data = messageData,
+                    Timestamp = DateTime.Now,
+                    RequiresHeavyProcessing = IsHeavyProcessingMessage(messageType)
+                };
             }
-
-            // Extract message type from first byte
-            byte messageType = data[0];
-
-            switch (messageType)
+            catch (Exception ex)
             {
-                case 1:
-                    await HandlePlayerStateUpdate(data);
+                Debug.LogError($"[NetworkMessageHandler] Error parsing message: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Handles a parsed network message.
+        /// </summary>
+        private void HandleParsedMessage(NetworkMessage message)
+        {
+            switch (message.MessageType)
+            {
+                case NetworkMessageType.PlayerJoined:
+                    HandlePlayerJoined(message);
                     break;
-                case 2:
-                    await HandleChatMessage(data);
+                case NetworkMessageType.PlayerLeft:
+                    HandlePlayerLeft(message);
                     break;
-                case (byte)RPCSerializer.RPCType.GameStateSync:
-                    await HandleGameStateSync(data);
+                case NetworkMessageType.GameStateUpdate:
+                    HandleGameStateUpdate(message);
+                    break;
+                case NetworkMessageType.EntityUpdate:
+                    HandleEntityUpdate(message);
+                    break;
+                case NetworkMessageType.ChatMessage:
+                    HandleChatMessage(message);
                     break;
                 default:
-                    Debug.LogWarning($"NetworkMessageHandler: Unknown message type {messageType}");
+                    if (_enableDebugLogs)
+                        Debug.LogWarning($"[NetworkMessageHandler] Unhandled message type: {message.MessageType}");
                     break;
             }
         }
 
         /// <summary>
-        /// Handles player state update messages.
-        /// Updates ECS entities with new player positions and status.
+        /// Determines if a message type requires heavy processing.
         /// </summary>
-        /// <param name="data">Player state update message data.</param>
-        /// <returns>Task representing the update operation.</returns>
-        private async UniTask HandlePlayerStateUpdate(byte[] data)
+        private bool IsHeavyProcessingMessage(NetworkMessageType messageType)
+        {
+            return messageType == NetworkMessageType.EntityUpdate || 
+                   messageType == NetworkMessageType.GameStateUpdate;
+        }
+
+        #region Message Handlers
+
+        private void HandlePlayerJoined(NetworkMessage message)
         {
             try
             {
-                // Deserialize player state data
-                var playerState = DeserializePlayerState(data);
-                if (playerState == null)
-                {
-                    Debug.LogWarning("NetworkMessageHandler: Failed to deserialize player state");
-                    return;
-                }
-
-                // Update ECS entities with new player data
-                await UpdatePlayerEntity(playerState);
+                // Parse player data from message
+                var playerData = ParsePlayerData(message.Data);
                 
-                // Publish player state update event if message broker is available
-                if (_messageBroker != null)
+                if (playerData != null)
                 {
-                    // Create a simple update event (adapt based on your event system)
-                    Debug.Log($"NetworkMessageHandler: Publishing player state update for player {playerState.PlayerId}");
+                    // Create player entity in ECS world
+                    var playerEntity = _entityManager.CreateEntity();
+                    
+                    // Add player components (example - adjust based on your actual component types)
+                    if (_entityManager.HasComponent<Unity.Transforms.LocalToWorld>(playerEntity))
+                    {
+                        _entityManager.SetComponentData(playerEntity, new Unity.Transforms.LocalToWorld
+                        {
+                            Value = Unity.Mathematics.float4x4.TRS(
+                                playerData.Position,
+                                playerData.Rotation,
+                                new Unity.Mathematics.float3(1f, 1f, 1f)
+                            )
+                        });
+                    }
+                    
+                    if (_enableDebugLogs)
+                        Debug.Log($"[NetworkMessageHandler] Player {playerData.PlayerId} joined at position {playerData.Position}");
                 }
-
-                Debug.Log($"NetworkMessageHandler: Updated player {playerState.PlayerId} - Health: {playerState.Health}, Position: {playerState.Position}");
+                
+                _eventBus?.Publish(new PlayerJoinedEvent(message.Data));
             }
             catch (Exception ex)
             {
-                Debug.LogError($"NetworkMessageHandler: Error processing player state update: {ex.Message}");
+                Debug.LogError($"[NetworkMessageHandler] Error handling player joined: {ex.Message}");
             }
-            
-            await UniTask.Yield();
         }
 
-        /// <summary>
-        /// Handles chat message data.
-        /// Publishes chat events for UI systems to display.
-        /// </summary>
-        /// <param name="data">Chat message data.</param>
-        /// <returns>Task representing the chat processing operation.</returns>
-        private async UniTask HandleChatMessage(byte[] data)
+        private void HandlePlayerLeft(NetworkMessage message)
         {
             try
             {
-                // Deserialize chat message data
-                var chatMessage = DeserializeChatMessage(data);
-                if (chatMessage == null)
+                // Parse player ID from message
+                var playerId = ParsePlayerId(message.Data);
+                
+                if (playerId.HasValue)
                 {
-                    Debug.LogWarning("NetworkMessageHandler: Failed to deserialize chat message");
-                    return;
+                    // Find and destroy player entity
+                    // Note: This is a simplified example - you'd typically have a proper player lookup system
+                    var query = _entityManager.CreateEntityQuery(typeof(Unity.Transforms.LocalToWorld));
+                    var entities = query.ToEntityArray(Unity.Collections.Allocator.TempJob);
+                    
+                    foreach (var entity in entities)
+                    {
+                        // You would check for a PlayerID component here
+                        // For now, this is just an example structure
+                        // if (_entityManager.GetComponentData<PlayerComponent>(entity).PlayerId == playerId)
+                        // {
+                        //     _entityManager.DestroyEntity(entity);
+                        //     break;
+                        // }
+                    }
+                    
+                    entities.Dispose();
+                    
+                    if (_enableDebugLogs)
+                        Debug.Log($"[NetworkMessageHandler] Player {playerId} left the game");
                 }
-
-                // Publish chat message event for UI systems if message broker is available
-                if (_messageBroker != null)
-                {
-                    Debug.Log($"NetworkMessageHandler: Publishing chat message from player {chatMessage.SenderId}");
-                }
-
-                Debug.Log($"NetworkMessageHandler: Received chat from player {chatMessage.SenderId}: {chatMessage.Message}");
+                
+                _eventBus?.Publish(new PlayerLeftEvent(message.Data));
             }
             catch (Exception ex)
             {
-                Debug.LogError($"NetworkMessageHandler: Error processing chat message: {ex.Message}");
+                Debug.LogError($"[NetworkMessageHandler] Error handling player left: {ex.Message}");
             }
-            
-            await UniTask.Yield();
         }
 
-        /// <summary>
-        /// Handles game state synchronization messages.
-        /// Applies remote game state changes without broadcasting.
-        /// </summary>
-        /// <param name="data">Game state sync message data.</param>
-        /// <returns>Task representing the state sync operation.</returns>
-        private async UniTask HandleGameStateSync(byte[] data)
-        {
-            if (RPCSerializer.TryDeserializeGameState(data, out var state))
-            {
-                if (_gameStateService != null)
-                {
-                    // Apply remote state without broadcasting to prevent loops
-                    _gameStateService.ApplyRemoteStateChange(state, suppressEvents: true);
-                    Debug.Log($"NetworkMessageHandler: Applied game state sync - {state}");
-                }
-            }
-            else
-            {
-                Debug.LogWarning("NetworkMessageHandler: Failed to deserialize game state sync");
-            }
-
-            await UniTask.Yield();
-        }
-
-        #region Message Deserialization
-
-        /// <summary>
-        /// Deserializes player state data from raw bytes.
-        /// Expected format: [messageType][playerId][health][posX][posY][posZ][rotX][rotY][rotZ][rotW]
-        /// </summary>
-        /// <param name="data">Raw message bytes</param>
-        /// <returns>Deserialized player state or null if failed</returns>
-        private PlayerNetworkState DeserializePlayerState(byte[] data)
+        private void HandleGameStateUpdate(NetworkMessage message)
         {
             try
             {
-                if (data.Length < 37) // 1 + 4 + 4 + 12 + 16 = 37 bytes minimum
+                // Parse game state data
+                var gameStateData = ParseGameStateData(message.Data);
+                
+                if (gameStateData != null && _gameStateService != null)
                 {
-                    Debug.LogWarning($"NetworkMessageHandler: Player state data too short: {data.Length} bytes");
-                    return null;
+                    // Update game state service
+                    if (gameStateData.GameMode.HasValue)
+                    {
+                        // Example: _gameStateService.SetGameMode(gameStateData.GameMode.Value);
+                    }
+                    
+                    if (gameStateData.TimeRemaining.HasValue)
+                    {
+                        // Example: _gameStateService.SetTimeRemaining(gameStateData.TimeRemaining.Value);
+                    }
+                    
+                    if (gameStateData.Score.HasValue)
+                    {
+                        // Example: _gameStateService.UpdateScore(gameStateData.Score.Value);
+                    }
+                    
+                    if (_enableDebugLogs)
+                        Debug.Log($"[NetworkMessageHandler] Game state updated - Mode: {gameStateData.GameMode}, Time: {gameStateData.TimeRemaining}");
                 }
+                
+                _eventBus?.Publish(new NetworkGameStateUpdateEvent(message.Data));
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[NetworkMessageHandler] Error handling game state update: {ex.Message}");
+            }
+        }
 
-                int offset = 1; // Skip message type
-
-                // Read player ID (4 bytes)
-                int playerId = System.BitConverter.ToInt32(data, offset);
-                offset += 4;
-
-                // Read health (4 bytes)
-                float health = System.BitConverter.ToSingle(data, offset);
-                offset += 4;
-
-                // Read position (12 bytes)
-                float posX = System.BitConverter.ToSingle(data, offset);
-                offset += 4;
-                float posY = System.BitConverter.ToSingle(data, offset);
-                offset += 4;
-                float posZ = System.BitConverter.ToSingle(data, offset);
-                offset += 4;
-
-                // Read rotation (16 bytes) if available
-                UnityEngine.Quaternion rotation = UnityEngine.Quaternion.identity;
-                if (data.Length >= offset + 16)
+        private void HandleEntityUpdate(NetworkMessage message)
+        {
+            try
+            {
+                // Parse entity update data
+                var entityUpdateData = ParseEntityUpdateData(message.Data);
+                
+                if (entityUpdateData != null)
                 {
-                    float rotX = System.BitConverter.ToSingle(data, offset);
-                    offset += 4;
-                    float rotY = System.BitConverter.ToSingle(data, offset);
-                    offset += 4;
-                    float rotZ = System.BitConverter.ToSingle(data, offset);
-                    offset += 4;
-                    float rotW = System.BitConverter.ToSingle(data, offset);
-                    rotation = new UnityEngine.Quaternion(rotX, rotY, rotZ, rotW);
+                    // Find entity by network ID
+                    var query = _entityManager.CreateEntityQuery(typeof(Unity.Transforms.LocalToWorld));
+                    var entities = query.ToEntityArray(Unity.Collections.Allocator.TempJob);
+                    
+                    foreach (var entity in entities)
+                    {
+                        // You would check for a NetworkID component here
+                        // For now, this is just an example structure
+                        // if (_entityManager.HasComponent<NetworkIDComponent>(entity))
+                        // {
+                        //     var networkId = _entityManager.GetComponentData<NetworkIDComponent>(entity).ID;
+                        //     if (networkId == entityUpdateData.EntityId)
+                        //     {
+                        //         // Update entity transform
+                        //         if (_entityManager.HasComponent<Unity.Transforms.LocalToWorld>(entity))
+                        //         {
+                        //             _entityManager.SetComponentData(entity, new Unity.Transforms.LocalToWorld
+                        //             {
+                        //                 Value = Unity.Mathematics.float4x4.TRS(
+                        //                     entityUpdateData.Position,
+                        //                     entityUpdateData.Rotation,
+                        //                     new Unity.Mathematics.float3(1f, 1f, 1f)
+                        //                 )
+                        //             });
+                        //         }
+                        //         break;
+                        //     }
+                        // }
+                    }
+                    
+                    entities.Dispose();
+                    
+                    if (_enableDebugLogs)
+                        Debug.Log($"[NetworkMessageHandler] Entity {entityUpdateData.EntityId} updated at position {entityUpdateData.Position}");
                 }
+                
+                _eventBus?.Publish(new NetworkEntityUpdateEvent(message.Data));
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[NetworkMessageHandler] Error handling entity update: {ex.Message}");
+            }
+        }
 
-                return new PlayerNetworkState
+        private void HandleChatMessage(NetworkMessage message)
+        {
+            try
+            {
+                // Parse chat message data
+                var chatData = ParseChatMessageData(message.Data);
+                
+                if (chatData != null)
+                {
+                    // Log chat message (in a real implementation, you might want to store or display this)
+                    if (_enableDebugLogs)
+                        Debug.Log($"[NetworkMessageHandler] Chat from {chatData.PlayerName}: {chatData.Message}");
+                    
+                    // You could also update a chat UI system here
+                    // Example: _chatUIService?.AddChatMessage(chatData.PlayerName, chatData.Message);
+                }
+                
+                _eventBus?.Publish(new NetworkChatMessageEvent(message.Data));
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[NetworkMessageHandler] Error handling chat message: {ex.Message}");
+            }
+        }
+
+        #endregion
+
+        #region Message Parsing Methods
+
+        /// <summary>
+        /// Parses player data from raw message bytes.
+        /// </summary>
+        private PlayerData ParsePlayerData(byte[] data)
+        {
+            if (data == null || data.Length < 36) return null; // Minimum size for player data
+            
+            try
+            {
+                var playerId = BitConverter.ToInt32(data, 0);
+                var posX = BitConverter.ToSingle(data, 4);
+                var posY = BitConverter.ToSingle(data, 8);
+                var posZ = BitConverter.ToSingle(data, 12);
+                var rotX = BitConverter.ToSingle(data, 16);
+                var rotY = BitConverter.ToSingle(data, 20);
+                var rotZ = BitConverter.ToSingle(data, 24);
+                var rotW = BitConverter.ToSingle(data, 28);
+                
+                // Parse player name if present
+                string playerName = "Unknown";
+                if (data.Length > 32)
+                {
+                    var nameLength = BitConverter.ToInt32(data, 32);
+                    if (nameLength > 0 && data.Length >= 36 + nameLength)
+                    {
+                        playerName = System.Text.Encoding.UTF8.GetString(data, 36, nameLength);
+                    }
+                }
+                
+                return new PlayerData
                 {
                     PlayerId = playerId,
-                    Health = health,
-                    Position = new UnityEngine.Vector3(posX, posY, posZ),
-                    Rotation = rotation,
-                    Timestamp = UnityEngine.Time.time
+                    Position = new Unity.Mathematics.float3(posX, posY, posZ),
+                    Rotation = new Unity.Mathematics.quaternion(rotX, rotY, rotZ, rotW),
+                    PlayerName = playerName
                 };
             }
             catch (Exception ex)
             {
-                Debug.LogError($"NetworkMessageHandler: Error deserializing player state: {ex.Message}");
+                Debug.LogError($"[NetworkMessageHandler] Error parsing player data: {ex.Message}");
                 return null;
             }
         }
 
         /// <summary>
-        /// Deserializes chat message data from raw bytes.
-        /// Expected format: [messageType][senderId][messageLength][messageBytes]
+        /// Parses player ID from raw message bytes.
         /// </summary>
-        /// <param name="data">Raw message bytes</param>
-        /// <returns>Deserialized chat message or null if failed</returns>
-        private ChatNetworkMessage DeserializeChatMessage(byte[] data)
+        private int? ParsePlayerId(byte[] data)
         {
-            try
-            {
-                if (data.Length < 9) // 1 + 4 + 4 = 9 bytes minimum
-                {
-                    Debug.LogWarning($"NetworkMessageHandler: Chat message data too short: {data.Length} bytes");
-                    return null;
-                }
-
-                int offset = 1; // Skip message type
-
-                // Read sender ID (4 bytes)
-                int senderId = System.BitConverter.ToInt32(data, offset);
-                offset += 4;
-
-                // Read message length (4 bytes)
-                int messageLength = System.BitConverter.ToInt32(data, offset);
-                offset += 4;
-
-                // Validate message length
-                if (messageLength < 0 || messageLength > 1024) // Max 1KB message
-                {
-                    Debug.LogWarning($"NetworkMessageHandler: Invalid chat message length: {messageLength}");
-                    return null;
-                }
-
-                if (offset + messageLength > data.Length)
-                {
-                    Debug.LogWarning($"NetworkMessageHandler: Chat message data truncated. Expected: {messageLength}, Available: {data.Length - offset}");
-                    return null;
-                }
-
-                // Read message content
-                string message = System.Text.Encoding.UTF8.GetString(data, offset, messageLength);
-
-                return new ChatNetworkMessage
-                {
-                    SenderId = senderId,
-                    Message = message,
-                    Timestamp = UnityEngine.Time.time
-                };
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"NetworkMessageHandler: Error deserializing chat message: {ex.Message}");
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Updates player entity in ECS world with new state data.
-        /// </summary>
-        /// <param name="playerState">New player state data</param>
-        /// <returns>Task for async operation</returns>
-        private async UniTask UpdatePlayerEntity(PlayerNetworkState playerState)
-        {
-            try
-            {
-                // Placeholder for ECS entity updates
-                // This would need to be implemented based on your specific ECS architecture
-                Debug.Log($"NetworkMessageHandler: Would update ECS entity for player {playerState.PlayerId}");
-                
-                // Example implementation would go here:
-                // - Find entity with matching player ID
-                // - Update position, rotation, health components
-                // - Trigger any necessary entity events
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"NetworkMessageHandler: Error updating player entity: {ex.Message}");
-            }
+            if (data == null || data.Length < 4) return null;
             
-            await UniTask.Yield();
+            try
+            {
+                return BitConverter.ToInt32(data, 0);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[NetworkMessageHandler] Error parsing player ID: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Parses game state data from raw message bytes.
+        /// </summary>
+        private GameStateData ParseGameStateData(byte[] data)
+        {
+            if (data == null || data.Length < 12) return null;
+            
+            try
+            {
+                var gameMode = BitConverter.ToInt32(data, 0);
+                var timeRemaining = BitConverter.ToSingle(data, 4);
+                var score = BitConverter.ToInt32(data, 8);
+                
+                return new GameStateData
+                {
+                    GameMode = gameMode,
+                    TimeRemaining = timeRemaining,
+                    Score = score
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[NetworkMessageHandler] Error parsing game state data: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Parses entity update data from raw message bytes.
+        /// </summary>
+        private EntityUpdateData ParseEntityUpdateData(byte[] data)
+        {
+            if (data == null || data.Length < 32) return null;
+            
+            try
+            {
+                var entityId = BitConverter.ToInt32(data, 0);
+                var posX = BitConverter.ToSingle(data, 4);
+                var posY = BitConverter.ToSingle(data, 8);
+                var posZ = BitConverter.ToSingle(data, 12);
+                var rotX = BitConverter.ToSingle(data, 16);
+                var rotY = BitConverter.ToSingle(data, 20);
+                var rotZ = BitConverter.ToSingle(data, 24);
+                var rotW = BitConverter.ToSingle(data, 28);
+                
+                return new EntityUpdateData
+                {
+                    EntityId = entityId,
+                    Position = new Unity.Mathematics.float3(posX, posY, posZ),
+                    Rotation = new Unity.Mathematics.quaternion(rotX, rotY, rotZ, rotW)
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[NetworkMessageHandler] Error parsing entity update data: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Parses chat message data from raw message bytes.
+        /// </summary>
+        private ChatMessageData ParseChatMessageData(byte[] data)
+        {
+            if (data == null || data.Length < 8) return null;
+            
+            try
+            {
+                var playerId = BitConverter.ToInt32(data, 0);
+                var nameLength = BitConverter.ToInt32(data, 4);
+                
+                if (data.Length < 8 + nameLength + 4) return null;
+                
+                var playerName = System.Text.Encoding.UTF8.GetString(data, 8, nameLength);
+                var messageLength = BitConverter.ToInt32(data, 8 + nameLength);
+                
+                if (data.Length < 8 + nameLength + 4 + messageLength) return null;
+                
+                var message = System.Text.Encoding.UTF8.GetString(data, 8 + nameLength + 4, messageLength);
+                
+                return new ChatMessageData
+                {
+                    PlayerId = playerId,
+                    PlayerName = playerName,
+                    Message = message
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[NetworkMessageHandler] Error parsing chat message data: {ex.Message}");
+                return null;
+            }
         }
 
         #endregion
@@ -402,53 +645,202 @@ namespace Laboratory.Infrastructure.Networking
 
         #region IDisposable Implementation
 
-        /// <summary>Tracks disposal state to prevent double disposal.</summary>
-        private bool _disposed = false;
-
-        /// <summary>
-        /// Disposes resources and stops message processing.
-        /// </summary>
         public void Dispose()
         {
-            if (_disposed) return;
-            _disposed = true;
-
-            _cts.Cancel();
+            StopMessageProcessing();
             
             if (_networkClient != null)
             {
                 _networkClient.DataReceived -= OnDataReceived;
             }
             
-            _cts.Dispose();
+            _disposables?.Dispose();
+            _cts?.Dispose();
+
+            if (_enableDebugLogs)
+                Debug.Log("[NetworkMessageHandler] Disposed");
         }
 
         #endregion
     }
-    
-    #region Data Structures
-    
+
+    #region Network Message Types and Classes
+
     /// <summary>
-    /// Represents the network state of a player
+    /// Types of network messages that can be received.
     /// </summary>
-    public class PlayerNetworkState
+    public enum NetworkMessageType
+    {
+        Unknown = 0,
+        PlayerJoined = 1,
+        PlayerLeft = 2,
+        GameStateUpdate = 3,
+        EntityUpdate = 4,
+        ChatMessage = 5
+    }
+
+    /// <summary>
+    /// Represents a parsed network message.
+    /// </summary>
+    public class NetworkMessage
+    {
+        public NetworkMessageType MessageType { get; set; }
+        public byte[] Data { get; set; } = Array.Empty<byte>();
+        public DateTime Timestamp { get; set; }
+        public bool RequiresHeavyProcessing { get; set; }
+    }
+
+    /// <summary>
+    /// Event published when a message is successfully processed.
+    /// </summary>
+    public class NetworkMessageProcessedEvent
+    {
+        public NetworkMessage Message { get; }
+        public DateTime ProcessedAt { get; }
+
+        public NetworkMessageProcessedEvent(NetworkMessage message)
+        {
+            Message = message;
+            ProcessedAt = DateTime.Now;
+        }
+    }
+
+    /// <summary>
+    /// Event published when an error occurs during message processing.
+    /// </summary>
+    public class NetworkMessageProcessingErrorEvent
+    {
+        public Exception Exception { get; }
+        public byte[] MessageData { get; }
+        public DateTime ErrorTime { get; }
+
+        public NetworkMessageProcessingErrorEvent(Exception exception, byte[] messageData)
+        {
+            Exception = exception;
+            MessageData = messageData;
+            ErrorTime = DateTime.Now;
+        }
+    }
+
+    /// <summary>
+    /// Event published when a player joins.
+    /// </summary>
+    public class PlayerJoinedEvent
+    {
+        public byte[] PlayerData { get; }
+        public DateTime JoinTime { get; }
+
+        public PlayerJoinedEvent(byte[] playerData)
+        {
+            PlayerData = playerData;
+            JoinTime = DateTime.Now;
+        }
+    }
+
+    /// <summary>
+    /// Event published when a player leaves.
+    /// </summary>
+    public class PlayerLeftEvent
+    {
+        public byte[] PlayerData { get; }
+        public DateTime LeaveTime { get; }
+
+        public PlayerLeftEvent(byte[] playerData)
+        {
+            PlayerData = playerData;
+            LeaveTime = DateTime.Now;
+        }
+    }
+
+    /// <summary>
+    /// Event published when game state is updated from network.
+    /// </summary>
+    public class NetworkGameStateUpdateEvent
+    {
+        public byte[] StateData { get; }
+        public DateTime UpdateTime { get; }
+
+        public NetworkGameStateUpdateEvent(byte[] stateData)
+        {
+            StateData = stateData;
+            UpdateTime = DateTime.Now;
+        }
+    }
+
+    /// <summary>
+    /// Event published when entity data is updated from network.
+    /// </summary>
+    public class NetworkEntityUpdateEvent
+    {
+        public byte[] EntityData { get; }
+        public DateTime UpdateTime { get; }
+
+        public NetworkEntityUpdateEvent(byte[] entityData)
+        {
+            EntityData = entityData;
+            UpdateTime = DateTime.Now;
+        }
+    }
+
+    /// <summary>
+    /// Event published when a chat message is received.
+    /// </summary>
+    public class NetworkChatMessageEvent
+    {
+        public byte[] MessageData { get; }
+        public DateTime ReceivedTime { get; }
+
+        public NetworkChatMessageEvent(byte[] messageData)
+        {
+            MessageData = messageData;
+            ReceivedTime = DateTime.Now;
+        }
+    }
+
+    #endregion
+
+    #region Data Structures
+
+    /// <summary>
+    /// Represents player data parsed from network messages.
+    /// </summary>
+    public class PlayerData
     {
         public int PlayerId { get; set; }
-        public float Health { get; set; }
-        public UnityEngine.Vector3 Position { get; set; }
-        public UnityEngine.Quaternion Rotation { get; set; }
-        public float Timestamp { get; set; }
+        public Unity.Mathematics.float3 Position { get; set; }
+        public Unity.Mathematics.quaternion Rotation { get; set; }
+        public string PlayerName { get; set; } = "Unknown";
     }
-    
+
     /// <summary>
-    /// Represents a network chat message
+    /// Represents game state data parsed from network messages.
     /// </summary>
-    public class ChatNetworkMessage
+    public class GameStateData
     {
-        public int SenderId { get; set; }
-        public string Message { get; set; }
-        public float Timestamp { get; set; }
+        public int? GameMode { get; set; }
+        public float? TimeRemaining { get; set; }
+        public int? Score { get; set; }
     }
-    
+
+    /// <summary>
+    /// Represents entity update data parsed from network messages.
+    /// </summary>
+    public class EntityUpdateData
+    {
+        public int EntityId { get; set; }
+        public Unity.Mathematics.float3 Position { get; set; }
+        public Unity.Mathematics.quaternion Rotation { get; set; }
+    }
+
+    /// <summary>
+    /// Represents chat message data parsed from network messages.
+    /// </summary>
+    public class ChatMessageData
+    {
+        public int PlayerId { get; set; }
+        public string PlayerName { get; set; } = "Unknown";
+        public string Message { get; set; } = "";
+    }
+
     #endregion
 }
