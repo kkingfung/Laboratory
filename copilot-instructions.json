@@ -1,5 +1,5 @@
 {
-  "name": "Unity 3D Action Game Copilot Ruleset",
+  "name": "Project Chimera - Unity Monster Breeding RPG Copilot Ruleset",
   "enforcement": "active",
   "conditions": {
     "include": ["refs/heads/main", "refs/heads/develop", "refs/heads/feature/*"],
@@ -16,6 +16,121 @@
         "require_pull_request_review": true,
         "request_copilot_review": true
       }
+    },
+    {
+      "type": "code_quality",
+      "parameters": {
+        "enforce_naming_conventions": true,
+        "require_xml_documentation": true,
+        "max_method_length": 50,
+        "require_interface_implementation": true,
+        "enforce_dependency_injection": true
+      }
+    },
+    {
+      "type": "architecture_compliance",
+      "parameters": {
+        "enforce_subsystem_separation": true,
+        "require_event_driven_communication": true,
+        "enforce_ecs_patterns": true,
+        "require_network_awareness": true,
+        "validate_genetic_system_integration": true
+      }
+    },
+    {
+      "type": "performance_guidelines",
+      "parameters": {
+        "minimize_update_usage": true,
+        "require_object_pooling": true,
+        "enforce_memory_management": true,
+        "require_profiling_considerations": true
+      }
+    },
+    {
+      "type": "testing_requirements",
+      "parameters": {
+        "minimum_test_coverage": 85,
+        "require_unit_tests": true,
+        "require_integration_tests": true,
+        "require_network_tests": true
+      }
     }
-  ]
+  ],
+  "project_specific_rules": {
+    "monster_breeding_system": {
+      "description": "All monster-related code must integrate with the genetic breeding system",
+      "requirements": [
+        "Use ECS components for monster data",
+        "Implement genetic trait inheritance",
+        "Follow AI behavior type patterns",
+        "Integrate with creature instance system"
+      ]
+    },
+    "multiplayer_synchronization": {
+      "description": "All gameplay systems must be network-aware",
+      "requirements": [
+        "Use Netcode for GameObjects patterns",
+        "Implement server-authoritative logic",
+        "Handle client prediction appropriately",
+        "Validate network inputs"
+      ]
+    },
+    "subsystem_architecture": {
+      "description": "Code must follow the established 12-subsystem architecture",
+      "requirements": [
+        "Place code in appropriate subsystem folders",
+        "Use dependency injection for service access",
+        "Communicate through event bus",
+        "Follow interface-based design patterns"
+      ]
+    },
+    "event_driven_communication": {
+      "description": "Systems must communicate through events, not direct calls",
+      "requirements": [
+        "Use IEventBus for system communication",
+        "Publish events for state changes",
+        "Subscribe to relevant events",
+        "Implement proper event cleanup"
+      ]
+    }
+  },
+  "code_generation_guidelines": {
+    "always_include": [
+      "XML documentation for public members",
+      "Proper namespace organization",
+      "Event integration where applicable",
+      "Network synchronization considerations",
+      "Genetic system integration for monster code"
+    ],
+    "never_include": [
+      "Direct GameObject.Find() calls",
+      "Hardcoded values without configuration",
+      "Update() methods without performance justification",
+      "Direct component references without interfaces",
+      "Synchronous network operations"
+    ],
+    "preferred_patterns": [
+      "Composition over inheritance",
+      "Interface-based design",
+      "Service container usage",
+      "Reactive programming with R3",
+      "ECS for high-performance systems"
+    ]
+  },
+  "validation_checks": {
+    "before_code_generation": [
+      "Check README.md for game design context",
+      "Verify subsystem placement is correct",
+      "Ensure network implications are considered",
+      "Validate genetic system integration for monster code",
+      "Confirm event-driven communication patterns"
+    ],
+    "after_code_generation": [
+      "Verify XML documentation is complete",
+      "Check interface implementations",
+      "Validate event publishing/subscription",
+      "Confirm proper disposal patterns",
+      "Ensure test coverage requirements"
+    ]
+  }
 }

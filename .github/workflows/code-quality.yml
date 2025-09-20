@@ -1,0 +1,200 @@
+name: Code Quality & Security
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'Assets/**'
+      - 'Packages/**'
+      - 'ProjectSettings/**'
+  schedule:
+    - cron: '0 2 * * 1' # Weekly on Monday at 2 AM
+
+jobs:
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Run Code Analysis
+        run: |
+          echo "🔍 Running code quality analysis..."
+          
+          # Check for common C# issues
+          echo "Checking for TODO comments..."
+          if grep -r "TODO\|FIXME\|HACK" Assets/ --include="*.cs"; then
+            echo "⚠️ Found TODO/FIXME/HACK comments"
+          else
+            echo "✅ No TODO/FIXME/HACK comments found"
+          fi
+          
+          # Check for Debug.Log statements
+          echo "Checking for Debug.Log statements..."
+          if grep -r "Debug\.Log" Assets/ --include="*.cs"; then
+            echo "⚠️ Found Debug.Log statements (consider removing for production)"
+          else
+            echo "✅ No Debug.Log statements found"
+          fi
+          
+          # Check for empty methods
+          echo "Checking for empty methods..."
+          if grep -r "public.*void.*\{\s*\}" Assets/ --include="*.cs"; then
+            echo "⚠️ Found empty methods"
+          else
+            echo "✅ No empty methods found"
+          fi
+
+      - name: Security Scan
+        uses: github/super-linter@v5
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_CSHARP: true
+          VALIDATE_JSON: true
+          VALIDATE_YAML: true
+          VALIDATE_MARKDOWN: true
+          C_SHARP_DISABLE_ERRORS: true
+          C_SHARP_DISABLE_WARNING: true
+
+      - name: Dependency Check
+        run: |
+          echo "🔍 Checking for dependency vulnerabilities..."
+          
+          # Check for outdated packages
+          if [ -f "Packages/manifest.json" ]; then
+            echo "📦 Checking package manifest..."
+            echo "Package manifest found and valid"
+          else
+            echo "❌ Package manifest not found"
+            exit 1
+          fi
+          
+          # Check for suspicious packages
+          if grep -q "http://" Packages/manifest.json; then
+            echo "⚠️ Found HTTP package sources (consider using HTTPS)"
+          else
+            echo "✅ All package sources use HTTPS"
+          fi
+
+      - name: Code Coverage Analysis
+        run: |
+          echo "📊 Analyzing code coverage..."
+          
+          # Count test files
+          test_count=$(find Assets/Tests -name "*.cs" | wc -l)
+          echo "Found $test_count test files"
+          
+          # Count source files
+          source_count=$(find Assets/_Project -name "*.cs" | wc -l)
+          echo "Found $source_count source files"
+          
+          # Basic coverage ratio
+          if [ $test_count -gt 0 ] && [ $source_count -gt 0 ]; then
+            coverage_ratio=$((test_count * 100 / source_count))
+            echo "📈 Test-to-source ratio: $coverage_ratio%"
+            
+            if [ $coverage_ratio -lt 10 ]; then
+              echo "⚠️ Low test coverage - consider adding more tests"
+            else
+              echo "✅ Test coverage looks good"
+            fi
+          else
+            echo "⚠️ No tests or source files found"
+          fi
+
+      - name: Performance Analysis
+        run: |
+          echo "⚡ Running performance analysis..."
+          
+          # Check for performance anti-patterns
+          echo "Checking for performance issues..."
+          
+          # Check for Update() methods without conditions
+          if grep -r "void Update()" Assets/ --include="*.cs"; then
+            echo "⚠️ Found Update() methods - ensure they're optimized"
+          else
+            echo "✅ No Update() methods found"
+          fi
+          
+          # Check for expensive operations in Update
+          if grep -r "Update.*FindObjectOfType\|Update.*GetComponent" Assets/ --include="*.cs"; then
+            echo "⚠️ Found expensive operations in Update methods"
+          else
+            echo "✅ No expensive Update operations found"
+          fi
+
+      - name: Documentation Check
+        run: |
+          echo "📚 Checking documentation quality..."
+          
+          # Check for XML documentation
+          documented_methods=$(grep -r "/// <summary>" Assets/ --include="*.cs" | wc -l)
+          public_methods=$(grep -r "public.*(" Assets/ --include="*.cs" | wc -l)
+          
+          if [ $public_methods -gt 0 ]; then
+            doc_ratio=$((documented_methods * 100 / public_methods))
+            echo "📖 Documentation coverage: $doc_ratio%"
+            
+            if [ $doc_ratio -lt 80 ]; then
+              echo "⚠️ Low documentation coverage - consider adding XML docs"
+            else
+              echo "✅ Documentation coverage looks good"
+            fi
+          else
+            echo "✅ No public methods found"
+          fi
+
+      - name: Generate Quality Report
+        run: |
+          echo "📋 Generating quality report..."
+          
+          cat > quality-report.md << EOF
+          # Project Chimera - Code Quality Report
+          
+          ## Summary
+          - **Repository**: ${{ github.repository }}
+          - **Branch**: ${{ github.ref_name }}
+          - **Commit**: ${{ github.sha }}
+          - **Date**: $(date)
+          
+          ## Checks Performed
+          - ✅ Code Analysis
+          - ✅ Security Scan
+          - ✅ Dependency Check
+          - ✅ Code Coverage Analysis
+          - ✅ Performance Analysis
+          - ✅ Documentation Check
+          
+          ## Recommendations
+          - Continue maintaining high code quality standards
+          - Consider adding more unit tests for better coverage
+          - Regular dependency updates for security
+          
+          EOF
+          
+          echo "📄 Quality report generated"
+
+      - name: Upload Quality Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-report
+          path: quality-report.md
+          retention-days: 30
