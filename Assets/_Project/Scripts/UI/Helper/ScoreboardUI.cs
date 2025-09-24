@@ -23,10 +23,8 @@ namespace Laboratory.UI.Helper
         #region Fields
 
         [Header("UI References")]
-        #pragma warning disable 0414 // Field assigned but never used - intended for future use
         [SerializeField] private Transform playerListContainer = null!;
         [SerializeField] private PlayerRowUI playerRowPrefab = null!;
-        #pragma warning restore 0414
         [SerializeField] private int itemsPerPage = 10;
         [SerializeField] private Button nextPageButton = null!;
         [SerializeField] private Button prevPageButton = null!;
@@ -335,9 +333,7 @@ namespace Laboratory.UI.Helper
         [SerializeField] private TextMeshProUGUI nameText = null!;
         [SerializeField] private TextMeshProUGUI scoreText = null!;
         [SerializeField] private TextMeshProUGUI rankText = null!;
-        #pragma warning disable 0414 // Field assigned but never used - intended for future avatar display
         [SerializeField] private Image avatarImage = null!;
-        #pragma warning restore 0414
         [SerializeField] private TextMeshProUGUI pingText = null!;
         [SerializeField] private Image pingBar = null!;
 

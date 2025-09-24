@@ -26,9 +26,7 @@ namespace Laboratory.Core.Input.Components
         [SerializeField] private float longPressRepeatRate = 0.1f;
         
         [Tooltip("Whether to use input buffering for this action")]
-        #pragma warning disable CS0414 // Field assigned but never used - reserved for future input buffering feature
         [SerializeField] private bool useInputBuffering = true;
-        #pragma warning restore CS0414
 
         [Header("Debug")]
         [SerializeField] private bool debugLogging = false;
@@ -146,6 +144,25 @@ namespace Laboratory.Core.Input.Components
         public bool WasPerformed()
         {
             return _inputService?.WasActionPerformed(actionName) ?? false;
+        }
+
+        /// <summary>
+        /// Gets whether input buffering is enabled for this action.
+        /// </summary>
+        /// <returns>True if input buffering is enabled</returns>
+        public bool IsInputBufferingEnabled()
+        {
+            return useInputBuffering;
+        }
+
+        /// <summary>
+        /// Sets whether input buffering should be used for this action.
+        /// </summary>
+        /// <param name="enabled">Whether to enable input buffering</param>
+        public void SetInputBuffering(bool enabled)
+        {
+            useInputBuffering = enabled;
+            LogDebug($"Input buffering set to: {useInputBuffering}");
         }
 
         /// <summary>

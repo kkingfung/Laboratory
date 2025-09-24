@@ -29,9 +29,7 @@ namespace Laboratory.Core.Replay
 
         [Header("Recording Settings")]
         [SerializeField] private float _recordingInterval = 0.016f; // 60 FPS default
-        #pragma warning disable 0414 // Field assigned but never used - planned for future data compression
         [SerializeField] private bool _useCompression = true;
-        #pragma warning restore 0414
         [SerializeField] private float _positionPrecision = 0.001f;
         [SerializeField] private float _rotationPrecision = 0.1f;
 
@@ -78,6 +76,11 @@ namespace Laboratory.Core.Replay
         /// Recording interval between frames
         /// </summary>
         public float RecordingInterval => _recordingInterval;
+
+        /// <summary>
+        /// Whether compression is enabled for recording
+        /// </summary>
+        public bool UseCompression => _useCompression;
 
         #endregion
 

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Laboratory.Chimera.Core;
+using Laboratory.Chimera.Configuration;
 using Random = UnityEngine.Random;
 
 namespace Laboratory.Chimera.Genetics
@@ -36,9 +38,44 @@ namespace Laboratory.Chimera.Genetics
         public int Generation => generationNumber;
         
         /// <summary>
+        /// Generation number for compatibility
+        /// </summary>
+        public int GenerationNumber => generationNumber;
+        
+        /// <summary>
         /// Unique lineage identifier for tracking breeding lines
         /// </summary>
         public string LineageId => lineageId;
+        
+        /// <summary>
+        /// Profile ID for compatibility
+        /// </summary>
+        public string ProfileId => lineageId;
+        
+        /// <summary>
+        /// Trait expressions for compatibility
+        /// </summary>
+        public Dictionary<string, TraitExpression> TraitExpressions
+        {
+            get
+            {
+                var expressions = new Dictionary<string, TraitExpression>();
+                foreach (var gene in genes)
+                {
+                    if (gene.value.HasValue)
+                    {
+                        expressions[gene.traitName] = new TraitExpression(
+                            gene.traitName, 
+                            gene.value.Value, 
+                            gene.traitType)
+                        {
+                            dominanceStrength = gene.dominance
+                        };
+                    }
+                }
+                return expressions;
+            }
+        }
         
         public GeneticProfile()
         {
@@ -52,6 +89,47 @@ namespace Laboratory.Chimera.Genetics
             lineageId = string.IsNullOrEmpty(parentLineage) ? 
                 Guid.NewGuid().ToString("N")[..8] : 
                 $"{parentLineage}-{generation:D2}";
+        }
+        
+        /// <summary>
+        /// Creates a random genetic profile with basic traits
+        /// </summary>
+        public static GeneticProfile CreateRandom(Laboratory.Chimera.Creatures.CreatureStats baseStats)
+        {
+            var traits = new[]
+            {
+                "Strength", "Agility", "Intelligence", "Constitution", "Charisma", 
+                "Size", "Speed", "Color", "Pattern", "Aggression", "Curiosity", "Loyalty"
+            };
+            
+            var genes = new List<Gene>();
+            foreach (var trait in traits)
+            {
+                genes.Add(new Gene
+                {
+                    traitName = trait,
+                    traitType = GetTraitTypeForName(trait),
+                    dominance = Random.Range(0.3f, 0.8f),
+                    value = Random.Range(0.2f, 0.9f),
+                    expression = GeneExpression.Normal,
+                    isActive = true
+                });
+            }
+            
+            return new GeneticProfile(genes.ToArray());
+        }
+        
+        private static TraitType GetTraitTypeForName(string traitName)
+        {
+            return traitName switch
+            {
+                "Strength" or "Agility" or "Constitution" or "Size" or "Speed" => TraitType.Physical,
+                "Intelligence" or "Curiosity" => TraitType.Mental,
+                "Charisma" or "Loyalty" => TraitType.Social,
+                "Color" or "Pattern" => TraitType.Physical,
+                "Aggression" => TraitType.Behavioral,
+                _ => TraitType.Physical
+            };
         }
         
         /// <summary>
@@ -352,6 +430,78 @@ namespace Laboratory.Chimera.Genetics
         }
         
         /// <summary>
+        /// Calculate genetic similarity between two profiles
+        /// </summary>
+        public float GetGeneticSimilarity(GeneticProfile other)
+        {
+            if (other?.Genes == null || genes == null) return 0f;
+            
+            var commonTraits = genes.Where(g1 => 
+                other.Genes.Any(g2 => g2.traitName == g1.traitName))
+                .ToArray();
+                
+            if (commonTraits.Length == 0) return 0f;
+            
+            float totalSimilarity = 0f;
+            foreach (var gene1 in commonTraits)
+            {
+                var gene2 = other.Genes.FirstOrDefault(g => g.traitName == gene1.traitName);
+                if (!string.IsNullOrEmpty(gene2.traitName) && gene2.value.HasValue && gene1.value.HasValue)
+                {
+                    float similarity = 1f - Mathf.Abs(gene1.value.Value - gene2.value.Value);
+                    totalSimilarity += similarity;
+                }
+            }
+            
+            return totalSimilarity / commonTraits.Length;
+        }
+        
+        /// <summary>
+        /// Trigger a mutation for environmental adaptation
+        /// </summary>
+        public void TriggerMutation(string adaptationType)
+        {
+            var mutation = new Mutation
+            {
+                mutationType = MutationType.NewTrait,
+                affectedTrait = adaptationType,
+                severity = UnityEngine.Random.Range(0.1f, 0.3f),
+                generation = generationNumber,
+                isHarmful = false // Environmental adaptations are beneficial
+            };
+            
+            var mutationsList = mutations.ToList();
+            mutationsList.Add(mutation);
+            mutations = mutationsList.ToArray();
+            
+            // Add or modify the corresponding gene
+            var existingGene = genes.FirstOrDefault(g => g.traitName == adaptationType);
+            if (!string.IsNullOrEmpty(existingGene.traitName))
+            {
+                // Enhance existing gene
+                existingGene.value = Mathf.Min(1f, (existingGene.value ?? 0.5f) + mutation.severity);
+                existingGene.expression = GeneExpression.Enhanced;
+            }
+            else
+            {
+                // Create new gene
+                var newGene = new Gene
+                {
+                    traitName = adaptationType,
+                    traitType = TraitType.Physical,
+                    dominance = 0.7f,
+                    value = 0.5f + mutation.severity,
+                    expression = GeneExpression.Normal,
+                    isActive = true
+                };
+                
+                var genesList = genes.ToList();
+                genesList.Add(newGene);
+                genes = genesList.ToArray();
+            }
+        }
+        
+        /// <summary>
         /// Gets a string representation of the most significant traits
         /// </summary>
         public string GetTraitSummary(int maxTraits = 5)
@@ -364,68 +514,14 @@ namespace Laboratory.Chimera.Genetics
                 
             return string.Join(", ", significantGenes);
         }
-    }
-    
-    [Serializable]
-    public class Gene
-    {
-        public string traitName = "";
-        public TraitType traitType = TraitType.Physical;
-        [Range(0f, 1f)]
-        public float dominance = 0.5f; // How dominant this version of the gene is
-        public float? value = null; // Numerical value for the trait (0-1 range)
-        public GeneExpression expression = GeneExpression.Normal;
-        public bool isActive = true;
         
-        public Gene() { }
-        
-        public Gene(Gene original)
+        /// <summary>
+        /// Gets trait names for compatibility
+        /// </summary>
+        public List<string> GetTraitNames()
         {
-            traitName = original.traitName;
-            traitType = original.traitType;
-            dominance = original.dominance;
-            value = original.value;
-            expression = original.expression;
-            isActive = original.isActive;
+            return genes.Where(g => g.isActive).Select(g => g.traitName).ToList();
         }
-    }
-    
-    [Serializable]
-    public struct Mutation
-    {
-        public MutationType mutationType;
-        public string affectedTrait;
-        public float severity; // 0-1, how much the mutation affects the trait
-        public int generation; // When this mutation occurred
-        public bool isHarmful; // Whether this mutation is beneficial or harmful
-    }
-    
-    public enum TraitType
-    {
-        Physical,   // Size, color, physical features
-        Mental,     // Intelligence, memory, learning
-        Magical,    // Magical abilities and resistances
-        Social,     // Pack behavior, communication
-        Combat,     // Fighting abilities, aggression
-        Utility,    // Special abilities like flight, camouflage
-        Metabolic,  // Digestion, energy efficiency
-        Sensory,    // Vision, hearing, smell
-        Reproductive // Fertility, parental care
-    }
-    
-    public enum GeneExpression
-    {
-        Suppressed, // Gene is present but not fully expressed
-        Normal,     // Standard expression level
-        Enhanced    // Gene is over-expressed
-    }
-    
-    public enum MutationType
-    {
-        ValueShift,      // Changes the numerical value of a trait
-        DominanceChange, // Changes how dominant the gene is
-        ExpressionChange, // Changes how the gene is expressed
-        NewTrait        // Creates a completely new trait (very rare)
     }
     
     /// <summary>
@@ -459,15 +555,30 @@ namespace Laboratory.Chimera.Genetics
         }
         
         /// <summary>
+        /// Creates default environmental factors
+        /// </summary>
+        public static EnvironmentalFactors CreateDefault()
+        {
+            return new EnvironmentalFactors()
+            {
+                temperature = 22f,
+                humidity = 60f,
+                foodAvailability = 0.8f,
+                predatorPressure = 0.3f,
+                socialDensity = 0.5f
+            };
+        }
+        
+        /// <summary>
         /// Creates environmental factors based on biome conditions
         /// </summary>
-        public static EnvironmentalFactors FromBiome(Creatures.BiomeType biome)
+        public static EnvironmentalFactors FromBiome(Laboratory.Chimera.Core.BiomeType biome)
         {
             var factors = new EnvironmentalFactors();
             
             switch (biome)
             {
-                case Creatures.BiomeType.Desert:
+                case Laboratory.Chimera.Core.BiomeType.Desert:
                     factors.temperature = 45f;
                     factors.humidity = 15f;
                     factors.foodAvailability = 0.3f;
@@ -475,7 +586,7 @@ namespace Laboratory.Chimera.Genetics
                     factors.SetTraitBias("Water Conservation", 0.4f);
                     break;
                     
-                case Creatures.BiomeType.Arctic:
+                case Laboratory.Chimera.Core.BiomeType.Arctic:
                     factors.temperature = -10f;
                     factors.humidity = 40f;
                     factors.foodAvailability = 0.4f;
@@ -483,7 +594,7 @@ namespace Laboratory.Chimera.Genetics
                     factors.SetTraitBias("Thick Fur", 0.3f);
                     break;
                     
-                case Creatures.BiomeType.Ocean:
+                case Laboratory.Chimera.Core.BiomeType.Ocean:
                     factors.temperature = 15f;
                     factors.humidity = 100f;
                     factors.foodAvailability = 0.7f;
@@ -491,7 +602,7 @@ namespace Laboratory.Chimera.Genetics
                     factors.SetTraitBias("Pressure Resistance", 0.2f);
                     break;
                     
-                case Creatures.BiomeType.Forest:
+                case Laboratory.Chimera.Core.BiomeType.Forest:
                     factors.temperature = 22f;
                     factors.humidity = 65f;
                     factors.foodAvailability = 0.8f;
@@ -499,7 +610,7 @@ namespace Laboratory.Chimera.Genetics
                     factors.SetTraitBias("Camouflage", 0.2f);
                     break;
                     
-                case Creatures.BiomeType.Mountain:
+                case Laboratory.Chimera.Core.BiomeType.Mountain:
                     factors.temperature = 5f;
                     factors.humidity = 45f;
                     factors.foodAvailability = 0.5f;

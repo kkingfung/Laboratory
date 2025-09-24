@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__mcp-unity__get_console_logs",
+      "mcp__mcp-unity__send_console_log",
+      "Bash(grep:*)",
+      "mcp__mcp-unity__run_tests",
+      "Bash(cat:*)",
+      "Bash(awk:*)",
+      "mcp__mcp-unity__execute_menu_item",
+      "Bash(find:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

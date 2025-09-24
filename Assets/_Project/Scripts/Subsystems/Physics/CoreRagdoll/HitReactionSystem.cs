@@ -37,9 +37,7 @@ namespace Laboratory.Core.Ragdoll
         [SerializeField] private float _animationBlendWeight = 0.7f;
         [SerializeField] private bool _playHitAnimation = true;
         [SerializeField] private string _hitAnimationTrigger = "Hit";
-        #pragma warning disable 0414 // Field assigned but never used - reserved for future animation blending
         [SerializeField] private float _animationBlendDuration = 0.3f;
-        #pragma warning restore 0414
 
         [Header("Visual Effects")]
         [SerializeField] private bool _enableHitEffects = true;
@@ -343,10 +341,16 @@ namespace Laboratory.Core.Ragdoll
                 ApplyForceToBones();
             }
 
-            // Play hit animation
+            // Play hit animation with blending
             if (_playHitAnimation && _targetAnimator != null)
             {
                 _targetAnimator.SetTrigger(_hitAnimationTrigger);
+
+                // Start animation blending coroutine if blend duration is set
+                if (_animationBlendDuration > 0f)
+                {
+                    StartCoroutine(BlendHitAnimationCoroutine());
+                }
             }
 
             // Start reaction coroutine
@@ -382,6 +386,40 @@ namespace Laboratory.Core.Ragdoll
 
             // Complete the reaction
             CompleteHitReaction();
+        }
+
+        /// <summary>
+        /// Coroutine to handle smooth animation blending over time
+        /// </summary>
+        /// <returns></returns>
+        private System.Collections.IEnumerator BlendHitAnimationCoroutine()
+        {
+            float elapsed = 0f;
+            float initialWeight = _animationBlendWeight;
+
+            while (elapsed < _animationBlendDuration)
+            {
+                elapsed += Time.deltaTime;
+                float progress = elapsed / _animationBlendDuration;
+
+                // Smooth blend curve (ease out)
+                float easedProgress = 1f - Mathf.Pow(1f - progress, 2f);
+                float currentWeight = Mathf.Lerp(initialWeight, 0f, easedProgress);
+
+                // Apply the blended weight to animator if we have layer control
+                if (_targetAnimator.layerCount > 1)
+                {
+                    _targetAnimator.SetLayerWeight(1, currentWeight); // Assume hit animations on layer 1
+                }
+
+                yield return null;
+            }
+
+            // Ensure final weight is set
+            if (_targetAnimator.layerCount > 1)
+            {
+                _targetAnimator.SetLayerWeight(1, 0f);
+            }
         }
 
         private void ApplyForceToBones()

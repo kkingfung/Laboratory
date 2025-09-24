@@ -1,8 +1,8 @@
 {
     "Port": 8090,
-    "RequestTimeoutSeconds": 10,
+    "RequestTimeoutSeconds": 1000,
     "AutoStartServer": true,
     "EnableInfoLogs": true,
     "NpmExecutablePath": "C:\\Users\\sun\\AppData\\Roaming\\npm",
-    "AllowRemoteConnections": false
+    "AllowRemoteConnections": true
 }

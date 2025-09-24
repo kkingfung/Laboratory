@@ -13,9 +13,6 @@ namespace Laboratory.Models.ECS.Systems
     {
         #region Constants
 
-        /// <summary>
-        /// Fixed damage amount applied per successful attack
-        /// </summary>
         private const int AttackDamage = 10;
 
         #endregion

@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🧬 Project Chimera Community
+    url: https://github.com/YOUR_USERNAME/Laboratory/discussions
+    about: Ask questions, share ideas, and discuss Project Chimera with the community
+  - name: 📚 Documentation
+    url: https://github.com/YOUR_USERNAME/Laboratory/wiki
+    about: Browse our comprehensive documentation and guides
+  - name: 💬 Discord Server
+    url: https://discord.gg/YOUR_DISCORD_INVITE
+    about: Join our Discord community for real-time chat and support

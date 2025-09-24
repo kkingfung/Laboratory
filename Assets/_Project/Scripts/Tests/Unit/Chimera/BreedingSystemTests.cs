@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using Cysharp.Threading.Tasks;
 using Laboratory.Chimera.Breeding;
+using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Core.Events;
@@ -43,7 +44,7 @@ namespace Laboratory.Tests.Unit.Chimera
         }
         
         [Test]
-        public async UniTask BreedCreatures_ValidParents_ProducesOffspring()
+        public void BreedCreatures_ValidParents_ProducesOffspring()
         {
             // Arrange
             var parent1 = CreateTestCreatureInstance(_testSpecies1);
@@ -51,17 +52,16 @@ namespace Laboratory.Tests.Unit.Chimera
             var environment = CreateTestEnvironment();
             
             // Act
-            var result = await _breedingSystem.BreedCreaturesAsync(parent1, parent2, environment);
+            var result = _breedingSystem.AttemptBreeding(parent1, parent2, environment);
             
             // Assert
             Assert.IsTrue(result.Success, "Breeding should succeed with compatible parents");
             Assert.IsNotNull(result.Offspring, "Offspring should not be null");
-            Assert.Greater(result.Offspring.Length, 0, "Should produce at least one offspring");
-            Assert.IsNotNull(result.Offspring[0].GeneticProfile, "Offspring should have genetic profile");
+            Assert.IsNotNull(result.Offspring.GeneticProfile, "Offspring should have genetic profile");
         }
         
         [Test]
-        public async UniTask BreedCreatures_IncompatibleSpecies_FailsBreeding()
+        public void BreedCreatures_IncompatibleSpecies_FailsBreeding()
         {
             // Arrange
             var incompatibleSpecies = CreateTestCreatureDefinition("Water Spirit", 2); // Different compatibility group
@@ -70,11 +70,11 @@ namespace Laboratory.Tests.Unit.Chimera
             var environment = CreateTestEnvironment();
             
             // Act
-            var result = await _breedingSystem.BreedCreaturesAsync(parent1, parent2, environment);
+            var result = _breedingSystem.AttemptBreeding(parent1, parent2, environment);
             
             // Assert
             Assert.IsFalse(result.Success, "Breeding should fail with incompatible species");
-            Assert.IsTrue(result.FailureReason.Contains("not genetically compatible"), "Should specify compatibility issue");
+            Assert.IsTrue(result.ErrorMessage.Contains("not genetically compatible"), "Should specify compatibility issue");
         }
         
         [Test]

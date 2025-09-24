@@ -11,7 +11,7 @@ namespace Laboratory.Chimera.Breeding
         public BreedingResult Result { get; }
         public CreatureInstance Parent1 { get; }
         public CreatureInstance Parent2 { get; }
-        public CreatureInstance[] Offspring { get; }
+        public CreatureInstance Offspring { get; }
         public float Timestamp { get; }
 
         public BreedingSuccessfulEvent(BreedingResult result)

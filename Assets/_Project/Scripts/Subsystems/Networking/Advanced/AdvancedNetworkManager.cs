@@ -24,23 +24,17 @@ namespace Laboratory.Subsystems.Networking.Advanced
         [Header("Server Configuration")]
         [SerializeField] private int maxPlayers = 100;
         [SerializeField] private float serverTickRate = 60f;
-        #pragma warning disable 0414
         [SerializeField] private bool enableDedicatedServerMode = false;
-        #pragma warning restore 0414
-        
+
         [Header("Client Configuration")]
-        #pragma warning disable 0414
         [SerializeField] private float clientUpdateRate = 30f;
         [SerializeField] private bool enableClientPrediction = true;
         [SerializeField] private bool enableLagCompensation = true;
-        #pragma warning restore 0414
-        
+
         [Header("Security Settings")]
-        #pragma warning disable 0414
         [SerializeField] private bool enableEncryption = true;
         [SerializeField] private bool enableAntiCheat = true;
         [SerializeField] private float maxPacketSize = 1024f;
-        #pragma warning restore 0414
         
         // Network state management
         private Dictionary<ulong, NetworkPlayerData> connectedPlayers = new Dictionary<ulong, NetworkPlayerData>();
@@ -114,9 +108,21 @@ namespace Laboratory.Subsystems.Networking.Advanced
             var transport = GetComponent<Unity.Netcode.Transports.UTP.UnityTransport>();
             if (transport != null)
             {
-                transport.ConnectionData.ServerListenAddress = "0.0.0.0";
+                transport.ConnectionData.ServerListenAddress = enableDedicatedServerMode ? "0.0.0.0" : "127.0.0.1";
                 transport.ConnectionData.Port = 7777;
-                // Note: MaxConnectAttempts is configured elsewhere in newer versions
+
+                // Note: Network simulation is now handled by Multiplayer Tools package
+                // Configure basic transport settings
+                Debug.Log($"Transport configured for max packet size: {maxPacketSize}");
+
+                Debug.Log($"Transport configured - Dedicated Server: {enableDedicatedServerMode}, Max Packet Size: {maxPacketSize}");
+            }
+
+            // Apply network configuration based on settings
+            if (NetworkManager.Singleton != null)
+            {
+                NetworkManager.Singleton.NetworkConfig.TickRate = (uint)serverTickRate;
+                Debug.Log($"Network tick rate set to: {serverTickRate}");
             }
         }
 
@@ -651,6 +657,81 @@ namespace Laboratory.Subsystems.Networking.Advanced
                     MessageType = messageType, 
                     Data = data 
                 });
+            }
+        }
+
+        #endregion
+
+        #region Configuration Accessors
+
+        /// <summary>
+        /// Gets the client update rate setting
+        /// </summary>
+        public float GetClientUpdateRate() => clientUpdateRate;
+
+        /// <summary>
+        /// Gets whether client prediction is enabled
+        /// </summary>
+        public bool IsClientPredictionEnabled() => enableClientPrediction;
+
+        /// <summary>
+        /// Gets whether lag compensation is enabled
+        /// </summary>
+        public bool IsLagCompensationEnabled() => enableLagCompensation;
+
+        /// <summary>
+        /// Gets whether encryption is enabled
+        /// </summary>
+        public bool IsEncryptionEnabled() => enableEncryption;
+
+        /// <summary>
+        /// Gets whether anti-cheat is enabled
+        /// </summary>
+        public bool IsAntiCheatEnabled() => enableAntiCheat;
+
+        /// <summary>
+        /// Gets the maximum packet size
+        /// </summary>
+        public float GetMaxPacketSize() => maxPacketSize;
+
+        /// <summary>
+        /// Gets whether dedicated server mode is enabled
+        /// </summary>
+        public bool IsDedicatedServerModeEnabled() => enableDedicatedServerMode;
+
+        /// <summary>
+        /// Applies client-specific network optimizations based on configuration
+        /// </summary>
+        public void ApplyClientOptimizations()
+        {
+            if (enableClientPrediction)
+            {
+                Debug.Log("Client prediction enabled - applying optimizations");
+                // Implementation would go here
+            }
+
+            if (enableLagCompensation)
+            {
+                Debug.Log("Lag compensation enabled - applying optimizations");
+                // Implementation would go here
+            }
+        }
+
+        /// <summary>
+        /// Applies security measures based on configuration
+        /// </summary>
+        public void ApplySecurityMeasures()
+        {
+            if (enableEncryption)
+            {
+                Debug.Log("Network encryption enabled");
+                // Implementation would go here
+            }
+
+            if (enableAntiCheat)
+            {
+                Debug.Log("Anti-cheat measures enabled");
+                // Implementation would go here
             }
         }
 

@@ -4,6 +4,8 @@
     "references": [
         "Laboratory.Core",
         "Laboratory.Models",
+        "Laboratory.AI.Pathfinding",
+        "Laboratory.AI.Agents",
         "Laboratory.Tools",
         "Unity.Entities",
         "Unity.Mathematics",

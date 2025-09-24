@@ -140,7 +140,6 @@ namespace Laboratory.Audio
             if (GlobalServiceProvider.IsInitialized)
             {
                 var container = GlobalServiceProvider.GetContainer();
-                // Fix: Use RegisterInstance for existing instance
                 container?.RegisterInstance<IAudioService>(this);
             }
         }

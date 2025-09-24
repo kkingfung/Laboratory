@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Collections;
 // using Unity.Entities; // Commented out for now - add back if using ECS
 using Laboratory.Chimera.Genetics;
+using CoreBiomeType = Laboratory.Chimera.Core.BiomeType;
 
 namespace Laboratory.Chimera.Creatures
 {
@@ -47,7 +48,7 @@ namespace Laboratory.Chimera.Creatures
         public int maxLifespan = 365 * 5; // days
         
         [Header("Environmental Preferences")]
-        public BiomeType[] preferredBiomes = { BiomeType.Forest };
+        public CoreBiomeType[] preferredBiomes = { CoreBiomeType.Forest };
         public float[] biomeCompatibility = { 1.0f }; // matches preferredBiomes array
         public TemperatureRange temperatureRange = TemperatureRange.Temperate;
         public HumidityRange humidityRange = HumidityRange.Moderate;
@@ -109,7 +110,7 @@ namespace Laboratory.Chimera.Creatures
         /// <summary>
         /// Gets the compatibility rating with a specific biome
         /// </summary>
-        public float GetBiomeCompatibility(BiomeType biome)
+        public float GetBiomeCompatibility(CoreBiomeType biome)
         {
             for (int i = 0; i < preferredBiomes.Length && i < biomeCompatibility.Length; i++)
             {
@@ -130,6 +131,12 @@ namespace Laboratory.Chimera.Creatures
         public int intelligence;
         public int charisma;
         
+        // Additional properties for compatibility
+        public int Strength => attack;
+        public int Agility => speed;
+        public int Endurance => defense;
+        public int Intelligence => intelligence;
+        
         public static CreatureStats operator *(CreatureStats stats, float multiplier)
         {
             return new CreatureStats
@@ -146,6 +153,19 @@ namespace Laboratory.Chimera.Creatures
         public int GetTotalPower()
         {
             return health + attack + defense + speed + intelligence + charisma;
+        }
+        
+        /// <summary>
+        /// Constructor for creating stats with all values
+        /// </summary>
+        public CreatureStats(int health, int attack, int defense, int speed, int intelligence, int charisma)
+        {
+            this.health = health;
+            this.attack = attack;
+            this.defense = defense;
+            this.speed = speed;
+            this.intelligence = intelligence;
+            this.charisma = charisma;
         }
     }
     
@@ -197,7 +217,7 @@ namespace Laboratory.Chimera.Creatures
     [Serializable]
     public class DiscoveryRequirement
     {
-        public BiomeType requiredBiome = BiomeType.Any;
+        public CoreBiomeType requiredBiome = CoreBiomeType.Grassland;
         public TimeOfDay requiredTimeOfDay = TimeOfDay.Any;
         public WeatherCondition requiredWeather = WeatherCondition.Any;
         public int minimumPlayerLevel = 1;
@@ -230,23 +250,7 @@ namespace Laboratory.Chimera.Creatures
         Hybrid      // Mixed types
     }
     
-    public enum BiomeType
-    {
-        Any,
-        Forest,
-        Desert,
-        Arctic,
-        Ocean,
-        Mountain,
-        Plains,
-        Swamp,
-        Volcano,
-        Cave,
-        Sky,
-        Underground,
-        Magical,
-        Urban
-    }
+    // BiomeType enum moved to Laboratory.Chimera.Core namespace
     
     public enum TemperatureRange
     {

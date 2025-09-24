@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
+using Laboratory.Chimera.Core;
 using Laboratory.Core.DI;
 using Laboratory.Core.Events;
 using System;
@@ -22,7 +23,7 @@ namespace Laboratory.Chimera
         [SerializeField] private bool autoStartDemo = false;
         [SerializeField] private float demoInterval = 2f;
         [SerializeField] private int maxGenerations = 3;
-        [SerializeField] private BiomeType demoBiome = BiomeType.Forest;
+        [SerializeField] private Laboratory.Chimera.Core.BiomeType demoBiome = Laboratory.Chimera.Core.BiomeType.Forest;
         [SerializeField] private bool enableDetailedLogging = true;
         
         private IBreedingSystem _breedingSystem;
@@ -43,7 +44,7 @@ namespace Laboratory.Chimera
                 await StartBreedingDemo();
             }
             
-            LogDemo("🎮 Project Chimera Demo Ready!");
+            LogDemo(" Project Chimera Demo Ready!");
             LogDemo("Use the context menu to start breeding demonstrations.");
         }
         
@@ -65,7 +66,7 @@ namespace Laboratory.Chimera
         [ContextMenu("Show Population Stats")]
         public void ShowPopulationStats()
         {
-            LogDemo($"\n📊 POPULATION STATISTICS (Generation {_currentGeneration})");
+            LogDemo($"\n POPULATION STATISTICS (Generation {_currentGeneration})");
             LogDemo($"Total Creatures: {_currentPopulation.Count}");
             
             if (_currentPopulation.Count > 0)
@@ -114,7 +115,7 @@ namespace Laboratory.Chimera
                     var result = await DemonstrateBreeding(pair.Item1, pair.Item2);
                     if (result.Success)
                     {
-                        newOffspring.AddRange(result.Offspring);
+                        newOffspring.Add(result.Offspring);
                     }
                     
                     await UniTask.Delay((int)(demoInterval * 1000));
@@ -127,13 +128,13 @@ namespace Laboratory.Chimera
                 await UniTask.Delay((int)(demoInterval * 2000));
             }
             
-            LogDemo("\n🎉 BREEDING DEMO COMPLETE!");
+            LogDemo("\n BREEDING DEMO COMPLETE!");
             ShowPopulationStats();
         }
         
         private async UniTask<BreedingResult> DemonstrateBreeding(CreatureInstance parent1, CreatureInstance parent2)
         {
-            LogDemo($"\n🔬 Breeding: {parent1.Definition.speciesName} × {parent2.Definition.speciesName}");
+            LogDemo($"\n Breeding: {parent1.Definition.speciesName} × {parent2.Definition.speciesName}");
             
             var environment = new BreedingEnvironment
             {
@@ -144,21 +145,21 @@ namespace Laboratory.Chimera
                 PopulationDensity = Mathf.Clamp01(_currentPopulation.Count / 20f)
             };
             
-            var result = await _breedingSystem.BreedCreaturesAsync(parent1, parent2, environment);
+            var result = await _breedingSystem.BreedCreaturesAsync(parent1, parent2);
             
             if (result.Success)
             {
-                LogDemo($"  ✅ Success! {result.Offspring.Length} offspring produced");
-                LogDemo($"  Breeding chance: {result.BreedingChance:P1}");
+                LogDemo($"  Success! 1 offspring produced");
+                LogDemo($"  Compatibility: {result.CompatibilityScore:P1}");
                 
-                foreach (var offspring in result.Offspring)
+                var offspring = result.Offspring;
                 {
                     AnalyzeOffspring(offspring);
                 }
             }
             else
             {
-                LogDemo($"  ❌ Failed: {result.FailureReason}");
+                LogDemo($" Failed: {result.ErrorMessage}");
             }
             
             return result;
@@ -169,20 +170,20 @@ namespace Laboratory.Chimera
             if (!enableDetailedLogging) return;
             
             var genetics = offspring.GeneticProfile;
-            LogDemo($"    👶 Offspring: Gen-{genetics.Generation}");
+            LogDemo($"     Offspring: Gen-{genetics.Generation}");
             
             var traitSummary = genetics.GetTraitSummary(3);
             if (!string.IsNullOrEmpty(traitSummary))
             {
-                LogDemo($"    📊 Strong Traits: {traitSummary}");
+                LogDemo($"     Strong Traits: {traitSummary}");
             }
             
             if (genetics.Mutations.Count > 0)
             {
-                LogDemo($"    🧬 Mutations: {genetics.Mutations.Count} detected");
+                LogDemo($"     Mutations: {genetics.Mutations.Count} detected");
             }
             
-            LogDemo($"    🧪 Genetic Purity: {genetics.GetGeneticPurity():P1}");
+            LogDemo($"     Genetic Purity: {genetics.GetGeneticPurity():P1}");
         }
         
         #endregion
@@ -216,12 +217,12 @@ namespace Laboratory.Chimera
         
         private async UniTask CreateInitialPopulation()
         {
-            LogDemo("\n🌟 Creating initial creature population...");
+            LogDemo("\n Creating initial creature population...");
             
             _currentPopulation.Clear();
             await CreateDefaultCreatures();
             
-            LogDemo($"✅ Created {_currentPopulation.Count} creatures");
+            LogDemo($" Created {_currentPopulation.Count} creatures");
         }
         
         private async UniTask CreateDefaultCreatures()
@@ -263,7 +264,7 @@ namespace Laboratory.Chimera
                 intelligence = UnityEngine.Random.Range(3, 10),
                 charisma = UnityEngine.Random.Range(3, 10)
             };
-            definition.preferredBiomes = new BiomeType[] { BiomeType.Forest };
+            definition.preferredBiomes = new Laboratory.Chimera.Core.BiomeType[] { Laboratory.Chimera.Core.BiomeType.Forest };
             definition.biomeCompatibility = new float[] { 1.0f };
             
             return definition;
@@ -321,15 +322,15 @@ namespace Laboratory.Chimera
             return pairs;
         }
         
-        private float GetBiomeTemperature(BiomeType biome)
+        private float GetBiomeTemperature(Laboratory.Chimera.Core.BiomeType biome)
         {
             return biome switch
             {
-                BiomeType.Desert => UnityEngine.Random.Range(35f, 50f),
-                BiomeType.Arctic => UnityEngine.Random.Range(-20f, 5f),
-                BiomeType.Forest => UnityEngine.Random.Range(15f, 25f),
-                BiomeType.Mountain => UnityEngine.Random.Range(0f, 15f),
-                BiomeType.Ocean => UnityEngine.Random.Range(10f, 20f),
+                Laboratory.Chimera.Core.BiomeType.Desert => UnityEngine.Random.Range(35f, 50f),
+                Laboratory.Chimera.Core.BiomeType.Arctic => UnityEngine.Random.Range(-20f, 5f),
+                Laboratory.Chimera.Core.BiomeType.Forest => UnityEngine.Random.Range(15f, 25f),
+                Laboratory.Chimera.Core.BiomeType.Mountain => UnityEngine.Random.Range(0f, 15f),
+                Laboratory.Chimera.Core.BiomeType.Ocean => UnityEngine.Random.Range(10f, 20f),
                 _ => UnityEngine.Random.Range(18f, 25f)
             };
         }
@@ -348,12 +349,12 @@ namespace Laboratory.Chimera
         
         private void OnBreedingSuccess(BreedingSuccessfulEvent evt)
         {
-            LogDemo($"🎉 Breeding event: Success with {evt.Result.Offspring.Length} offspring");
+            LogDemo($" Breeding event: Success with {evt.Result.Offspring.Length} offspring");
         }
         
         private void OnBreedingFailure(BreedingFailedEvent evt)
         {
-            LogDemo($"💔 Breeding failed: {evt.Reason}");
+            LogDemo($" Breeding failed: {evt.Reason}");
         }
         
         #endregion

@@ -1,0 +1,26 @@
+{
+    "name": "Laboratory.Chimera.ECS",
+    "rootNamespace": "Laboratory.Chimera.ECS",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Unity.NetCode",
+        "Unity.Burst",
+        "UniTask",
+        "Laboratory.Core",
+        "Laboratory.Chimera",
+        "Laboratory.Chimera.AI",
+        "Laboratory.Models"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

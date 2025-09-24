@@ -57,10 +57,8 @@ namespace Laboratory.Gameplay.Character
         [SerializeField, Tooltip("Project feet forward vector onto ground to maintain natural twist")]
         private bool projectFootForwardOnGround = true;
 
-        #pragma warning disable 0414 // Field assigned but never used - planned for future airborne detection
         [SerializeField, Tooltip("Fade out IK when character is airborne")]
         private bool autoDisableWhenAirborne = true;
-        #pragma warning restore 0414
 
         [SerializeField, Tooltip("Animator parameter (float) representing locomotion speed for high-speed IK damping")]
         private string speedParameter = "Speed";
@@ -326,6 +324,12 @@ namespace Laboratory.Gameplay.Character
         {
             float effectiveWeight = ikWeight;
 
+            // Apply airborne detection damping if enabled
+            if (autoDisableWhenAirborne && IsCharacterAirborne())
+            {
+                effectiveWeight = 0f;
+            }
+
             // Apply speed-based damping if speed parameter is configured
             if (speedParameterHash != -1)
             {
@@ -339,6 +343,19 @@ namespace Laboratory.Gameplay.Character
             }
 
             return effectiveWeight;
+        }
+
+        /// <summary>
+        /// Checks if the character is currently airborne using ground detection
+        /// </summary>
+        /// <returns>True if character is airborne</returns>
+        private bool IsCharacterAirborne()
+        {
+            // Cast a ray downward from the character's center to detect ground
+            Vector3 raycastOrigin = transform.position + Vector3.up * 0.1f;
+            float raycastDistance = 0.2f; // Small distance to detect ground contact
+
+            return !Physics.Raycast(raycastOrigin, Vector3.down, raycastDistance, groundLayers);
         }
 
         /// <summary>

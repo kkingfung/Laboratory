@@ -1,0 +1,24 @@
+{
+    "name": "Laboratory.Chimera.UI",
+    "rootNamespace": "Laboratory.Chimera.UI",
+    "references": [
+        "Unity.Collections",
+        "Unity.Mathematics", 
+        "Unity.Entities",
+        "Unity.Transforms",
+        "Unity.TextMeshPro",
+        "Unity.ugui",
+        "Laboratory.Core",
+        "Laboratory.Chimera",
+        "Laboratory.Chimera.ECS"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

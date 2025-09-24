@@ -1,0 +1,16 @@
+{
+    "name": "Laboratory.AI.Agents",
+    "rootNamespace": "Laboratory.AI.Agents",
+    "references": [
+        "Laboratory.AI.Pathfinding"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -16,10 +16,8 @@ namespace Laboratory.Subsystems.Combat.CoreAbilities
         {
             if (attacker == null || target == null) return;
 
-            // Get health component from target
-            #pragma warning disable CS0436 // Type conflicts with imported type - using local combat implementation
+            // Get health component from target - use fully qualified name to avoid conflicts
             var healthComponent = target.GetComponent<Laboratory.Core.Health.Components.LocalHealthComponent>();
-            #pragma warning restore CS0436
             if (healthComponent != null)
             {
                 var damageRequest = new Laboratory.Core.Health.DamageRequest(damage, attacker);

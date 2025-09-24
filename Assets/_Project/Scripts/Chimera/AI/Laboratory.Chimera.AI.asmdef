@@ -1,0 +1,22 @@
+{
+    "name": "Laboratory.Chimera.AI",
+    "rootNamespace": "Laboratory.Chimera.AI",
+    "references": [
+        "Laboratory.Core",
+        "Laboratory.Chimera",
+        "Laboratory.AI.Pathfinding",
+        "Laboratory.AI.Agents",
+        "Unity.AI.Navigation",
+        "Unity.Entities",
+        "Unity.Collections"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Chimera.Core;
 using Laboratory.Core.Events;
 
 namespace Laboratory.Chimera.Testing
@@ -129,7 +130,7 @@ namespace Laboratory.Chimera.Testing
                 PopulationDensity = 0.4f
             };
             
-            var result = await breedingSystem.BreedCreaturesAsync(parent1, parent2, environment);
+            var result = await breedingSystem.BreedCreaturesAsync(parent1, parent2);
             
             Assert(result != null, "Breeding result should not be null");
             Assert(result.Parent1 == parent1, "Result should reference correct parent1");
@@ -137,20 +138,18 @@ namespace Laboratory.Chimera.Testing
             
             if (result.Success)
             {
-                Log($"✅ Breeding successful! {result.Offspring.Length} offspring produced");
-                Assert(result.Offspring.Length > 0, "Successful breeding should produce offspring");
-                
-                foreach (var offspring in result.Offspring)
-                {
-                    Assert(offspring != null, "Offspring should not be null");
-                    Assert(offspring.GeneticProfile != null, "Offspring should have genetic profile");
-                    Assert(offspring.AgeInDays == 0, "Newborn should have age 0");
-                }
+                Log($"✅ Breeding successful! Offspring produced");
+                Assert(result.Offspring != null, "Successful breeding should produce offspring");
+
+                var offspring = result.Offspring;
+                Assert(offspring != null, "Offspring should not be null");
+                Assert(offspring.GeneticProfile != null, "Offspring should have genetic profile");
+                Assert(offspring.AgeInDays == 0, "Newborn should have age 0");
             }
             else
             {
-                Log($"ℹ️ Breeding failed: {result.FailureReason}");
-                Assert(!string.IsNullOrEmpty(result.FailureReason), "Failed breeding should have reason");
+                Log($"ℹ️ Breeding failed: {result.ErrorMessage}");
+                Assert(!string.IsNullOrEmpty(result.ErrorMessage), "Failed breeding should have reason");
             }
             
             Log("✅ Breeding system test completed");
@@ -204,7 +203,7 @@ namespace Laboratory.Chimera.Testing
             var mockResult = new BreedingResult
             {
                 Success = true,
-                Offspring = new[] { CreateTestCreatureInstance(CreateTestCreatureDefinition("Mock Offspring", 1)) }
+                Offspring = CreateTestCreatureInstance(CreateTestCreatureDefinition("Mock Offspring", 1))
             };
             
             eventBus.Publish(new BreedingSuccessfulEvent(mockResult));

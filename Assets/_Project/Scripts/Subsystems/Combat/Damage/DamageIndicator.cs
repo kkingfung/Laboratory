@@ -15,9 +15,7 @@ namespace Laboratory.Gameplay.UI
         [SerializeField] private Text damageText;
         [SerializeField] private Image image;
         [SerializeField] private float floatSpeed = 1.5f;
-        #pragma warning disable 0414 // Field assigned but never used - reserved for future fade configuration
         [SerializeField] private float fadeDuration = 0.75f;
-        #pragma warning restore 0414
 
         private Color _originalColor;
         private float _timer;
@@ -115,11 +113,11 @@ namespace Laboratory.Gameplay.UI
         /// Start the indicator's lifecycle.
         /// </summary>
         /// <param name="lifeTime">Total lifetime of the indicator</param>
-        /// <param name="fadeTime">Time to fade out</param>
-        public void StartLife(float lifeTime, float fadeTime)
+        /// <param name="fadeTime">Time to fade out (if 0, uses the configured fadeDuration)</param>
+        public void StartLife(float lifeTime, float fadeTime = 0f)
         {
             _lifeTime = lifeTime;
-            _fadeTime = fadeTime;
+            _fadeTime = fadeTime > 0f ? fadeTime : fadeDuration;
             _timer = 0f;
             _isExpired = false;
         }

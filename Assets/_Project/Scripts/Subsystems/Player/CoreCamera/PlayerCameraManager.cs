@@ -69,15 +69,14 @@ namespace Laboratory.Core.Camera
         [Tooltip("Delay before switching to death camera")]
         private float _blendDelay = 0.5f;
         
-        #pragma warning disable 0414 // Field assigned but never used - planned for future teammate switching feature
         [SerializeField]
         [Tooltip("Delay when switching between teammates")]
         private float _teammateSwitchDelay = 1.0f;
-        #pragma warning restore 0414
 
         // Runtime state
         private List<Transform> _teammates = new List<Transform>();
         private int _currentTeammateIndex = 0;
+        private float _lastTeammateSwitchTime = 0f;
         private CameraMode _currentMode = CameraMode.FollowPlayer;
 
         #endregion
@@ -219,10 +218,15 @@ namespace Laboratory.Core.Camera
         /// </summary>
         public void CycleToNextTeammate()
         {
-            if (_teammates.Count <= 1) 
+            if (_teammates.Count <= 1)
+                return;
+
+            // Check if enough time has passed since last switch
+            if (Time.time - _lastTeammateSwitchTime < _teammateSwitchDelay)
                 return;
 
             _currentTeammateIndex = (_currentTeammateIndex + 1) % _teammates.Count;
+            _lastTeammateSwitchTime = Time.time;
             UpdateTeammateCamera();
         }
 
@@ -231,10 +235,15 @@ namespace Laboratory.Core.Camera
         /// </summary>
         public void CycleToPreviousTeammate()
         {
-            if (_teammates.Count <= 1) 
+            if (_teammates.Count <= 1)
+                return;
+
+            // Check if enough time has passed since last switch
+            if (Time.time - _lastTeammateSwitchTime < _teammateSwitchDelay)
                 return;
 
             _currentTeammateIndex = (_currentTeammateIndex - 1 + _teammates.Count) % _teammates.Count;
+            _lastTeammateSwitchTime = Time.time;
             UpdateTeammateCamera();
         }
 
