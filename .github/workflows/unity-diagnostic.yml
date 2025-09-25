@@ -24,16 +24,30 @@ jobs:
       - name: Check Secrets Configuration
         run: |
           echo "🔍 Checking Unity secrets configuration..."
+          echo "=================================================="
 
+          # Check licensing method
+          license_method=""
           if [ -n "${{ secrets.UNITY_LICENSE }}" ]; then
-            echo "✅ UNITY_LICENSE secret is configured"
-          elif [ -n "${{ secrets.UNITY_SERIAL }}" ]; then
-            echo "✅ UNITY_SERIAL secret is configured"
-          else
-            echo "❌ Neither UNITY_LICENSE nor UNITY_SERIAL is configured"
-            echo "Please set up Unity licensing secrets in GitHub repository settings"
+            echo "✅ UNITY_LICENSE secret is configured (Personal License method)"
+            license_method="personal"
           fi
 
+          if [ -n "${{ secrets.UNITY_SERIAL }}" ]; then
+            echo "✅ UNITY_SERIAL secret is configured (Professional License method)"
+            if [ -n "$license_method" ]; then
+              echo "⚠️  WARNING: Both UNITY_LICENSE and UNITY_SERIAL are set - use only one method"
+            fi
+            license_method="professional"
+          fi
+
+          if [ -z "$license_method" ]; then
+            echo "❌ CRITICAL: No Unity license configured"
+            echo "   You must set either UNITY_LICENSE or UNITY_SERIAL"
+            echo "   See .github/SETUP-UNITY-SECRETS.md for instructions"
+          fi
+
+          # Check credentials
           if [ -n "${{ secrets.UNITY_EMAIL }}" ]; then
             echo "✅ UNITY_EMAIL secret is configured"
           else
@@ -44,6 +58,28 @@ jobs:
             echo "✅ UNITY_PASSWORD secret is configured"
           else
             echo "❌ UNITY_PASSWORD secret is missing"
+          fi
+
+          echo "=================================================="
+
+          # Setup instructions based on what's missing
+          if [ -z "$license_method" ]; then
+            echo ""
+            echo "🚨 SETUP REQUIRED:"
+            echo "1. Choose your license type (Personal or Professional)"
+            echo "2. Follow instructions in .github/SETUP-UNITY-SECRETS.md"
+            echo "3. Add the required secrets to GitHub repository settings"
+            echo "4. Re-run this diagnostic to verify setup"
+          elif [ -z "${{ secrets.UNITY_EMAIL }}" ] || [ -z "${{ secrets.UNITY_PASSWORD }}" ]; then
+            echo ""
+            echo "🚨 CREDENTIALS MISSING:"
+            echo "Add UNITY_EMAIL and UNITY_PASSWORD secrets to complete setup"
+          else
+            echo ""
+            echo "✅ All Unity secrets appear to be configured!"
+            echo "If you still get licensing errors, verify:"
+            echo "- Your Unity account credentials are correct"
+            echo "- Your license is active and properly formatted"
           fi
 
       - name: Enhanced Unity Library Cache
