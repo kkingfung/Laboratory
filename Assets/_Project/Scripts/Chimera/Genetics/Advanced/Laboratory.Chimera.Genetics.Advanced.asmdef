@@ -1,0 +1,19 @@
+{
+    "name": "Laboratory.Chimera.Genetics.Advanced",
+    "rootNamespace": "Laboratory.Chimera.Genetics.Advanced",
+    "references": [
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Entities",
+        "Laboratory.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

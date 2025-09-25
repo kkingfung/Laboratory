@@ -1,0 +1,21 @@
+{
+    "name": "Laboratory.Core.Debug",
+    "rootNamespace": "Laboratory.Core.Debug",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.TextMeshPro",
+        "Unity.InputSystem",
+        "Laboratory.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -12,6 +12,7 @@
         "Unity.Jobs",
         "Laboratory.Core",
         "Laboratory.Chimera",
+        "Laboratory.Chimera.Genetics.Advanced",
         "Laboratory.AI.Pathfinding"
     ],
     "includePlatforms": [],
