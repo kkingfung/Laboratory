@@ -193,10 +193,10 @@ jobs:
         include:
           - platform: StandaloneWindows64
             buildName: ProjectChimera-Windows
-            buildPath: Builds/Windows
+            buildsPath: Builds/Windows
           - platform: StandaloneLinux64
             buildName: ProjectChimera-Linux
-            buildPath: Builds/Linux
+            buildsPath: Builds/Linux
 
     steps:
       - name: Checkout repository
@@ -272,10 +272,10 @@ jobs:
           unityVersion: ${{ env.UNITY_VERSION }}
           targetPlatform: ${{ matrix.platform }}
           buildName: ${{ matrix.buildName }}
-          buildPath: ${{ matrix.buildPath }}
+          buildsPath: ${{ matrix.buildsPath }}
           buildMethod: BuildScript.BuildProject
           versioning: Custom
-          customVersion: ${{ github.sha }}
+          version: ${{ github.sha }}
 
       - name: Performance Report Generation
         run: |
@@ -310,7 +310,7 @@ jobs:
         with:
           name: ${{ matrix.buildName }}-enhanced-${{ github.sha }}
           path: |
-            ${{ matrix.buildPath }}
+            ${{ matrix.buildsPath }}
             performance-build-report.md
           retention-days: 90
 
