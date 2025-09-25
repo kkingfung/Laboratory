@@ -10,7 +10,9 @@
       "mcp__mcp-unity__execute_menu_item",
       "Bash(find:*)",
       "Bash(del:*)",
-      "Bash(dotnet build)"
+      "Bash(dotnet build)",
+      "WebSearch",
+      "WebFetch(domain:game.ci)"
     ],
     "deny": [],
     "ask": []

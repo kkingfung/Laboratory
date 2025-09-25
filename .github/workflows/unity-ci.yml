@@ -109,19 +109,7 @@ jobs:
           restore-keys: |
             Packages-
 
-      # 4. Setup Unity
-      - name: Setup Unity
-        uses: game-ci/unity-installer@v2
-        with:
-          version: ${{ env.UNITY_VERSION }}
-
-      # 5. Activate Unity
-      - name: Activate Unity
-        uses: game-ci/unity-activate@v2
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      # Unity is automatically installed by unity-test-runner and unity-builder actions
 
       # 6. Run Edit Mode Tests (only if test files exist)
       - name: Run Edit Mode Tests
