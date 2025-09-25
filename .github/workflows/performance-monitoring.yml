@@ -1,0 +1,183 @@
+name: Performance Monitoring & Optimization
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'Assets/**/*.cs'
+  push:
+    branches: [ main ]
+    paths:
+      - 'Assets/**/*.cs'
+  schedule:
+    - cron: '0 6 * * *' # Daily at 6 AM
+
+jobs:
+  performance-audit:
+    name: Automated Performance Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Unity Hub
+        uses: game-ci/unity-request-activation-file@v2
+        id: getManualLicenseFile
+        with:
+          unityVersion: 6000.2.0b7
+
+      - name: Performance Anti-Pattern Detection
+        run: |
+          echo "🔍 Scanning for performance anti-patterns..."
+
+          # Track performance issues
+          performance_issues=0
+
+          # Check for expensive operations in Update methods
+          echo "Checking for expensive Update operations..."
+          expensive_updates=$(grep -rn "Update.*\(Physics\.\|GameObject\.Find\|FindObjectOfType\|GetComponent\)" Assets/ --include="*.cs" | wc -l)
+          if [ $expensive_updates -gt 0 ]; then
+            echo "⚠️ Found $expensive_updates expensive operations in Update methods"
+            grep -rn "Update.*\(Physics\.\|GameObject\.Find\|FindObjectOfType\|GetComponent\)" Assets/ --include="*.cs" || true
+            performance_issues=$((performance_issues + expensive_updates))
+          else
+            echo "✅ No expensive Update operations found"
+          fi
+
+          # Check for LINQ in hot paths
+          echo "Checking for LINQ operations..."
+          linq_count=$(grep -rn "\.Where\|\.Select\|\.OrderBy\|\.ToList" Assets/ --include="*.cs" | wc -l)
+          if [ $linq_count -gt 10 ]; then
+            echo "⚠️ Found $linq_count LINQ operations - verify they're not in hot paths"
+            performance_issues=$((performance_issues + 1))
+          else
+            echo "✅ LINQ usage appears reasonable"
+          fi
+
+          # Check for string concatenation
+          echo "Checking for string concatenation..."
+          string_concat=$(grep -rn '"\s*+\s*"' Assets/ --include="*.cs" | wc -l)
+          if [ $string_concat -gt 5 ]; then
+            echo "⚠️ Found $string_concat string concatenations - consider StringBuilder"
+            performance_issues=$((performance_issues + 1))
+          else
+            echo "✅ String concatenation usage appears reasonable"
+          fi
+
+          # Check for Instantiate without pooling
+          echo "Checking for object instantiation..."
+          instantiate_count=$(grep -rn "Instantiate\(" Assets/ --include="*.cs" | wc -l)
+          if [ $instantiate_count -gt 20 ]; then
+            echo "⚠️ Found $instantiate_count Instantiate calls - consider object pooling"
+            performance_issues=$((performance_issues + 1))
+          else
+            echo "✅ Instantiate usage appears reasonable"
+          fi
+
+          # Check for allocation in Update
+          echo "Checking for allocations in Update methods..."
+          update_allocs=$(grep -rn "Update.*new\s\+" Assets/ --include="*.cs" | wc -l)
+          if [ $update_allocs -gt 0 ]; then
+            echo "⚠️ Found $update_allocs allocations in Update methods"
+            grep -rn "Update.*new\s\+" Assets/ --include="*.cs" || true
+            performance_issues=$((performance_issues + update_allocs))
+          else
+            echo "✅ No allocations in Update methods found"
+          fi
+
+          # Summary
+          echo "📊 Performance Audit Summary:"
+          echo "- Total performance issues found: $performance_issues"
+
+          if [ $performance_issues -gt 10 ]; then
+            echo "🔴 CRITICAL: High number of performance issues detected"
+            echo "performance_status=critical" >> $GITHUB_ENV
+          elif [ $performance_issues -gt 5 ]; then
+            echo "🟠 WARNING: Moderate performance issues detected"
+            echo "performance_status=warning" >> $GITHUB_ENV
+          else
+            echo "✅ GOOD: Performance looks healthy"
+            echo "performance_status=good" >> $GITHUB_ENV
+          fi
+
+      - name: Generate Performance Report
+        run: |
+          cat > performance-report.md << EOF
+          # 🚀 Performance Monitoring Report
+
+          **Repository**: ${{ github.repository }}
+          **Branch**: ${{ github.ref_name }}
+          **Commit**: ${{ github.sha }}
+          **Date**: $(date)
+          **Status**: ${{ env.performance_status }}
+
+          ## 📊 Performance Metrics
+
+          ### Anti-Pattern Detection Results
+          - **Expensive Update Operations**: Found issues requiring review
+          - **LINQ Usage**: Analyzed for hot path usage
+          - **String Concatenation**: Checked for GC pressure
+          - **Object Instantiation**: Verified pooling opportunities
+          - **Memory Allocations**: Scanned Update methods
+
+          ### Recommendations
+          - Cache component references instead of GetComponent in Update
+          - Use object pooling for frequently instantiated objects
+          - Prefer StringBuilder for string operations
+          - Consider ECS for performance-critical systems
+          - Profile using Unity Profiler for detailed analysis
+
+          ### Performance Tools Available
+          - 🚀 Performance Auditor Tool (Unity Editor)
+          - 🛠️ QA Automation Tool (Unity Editor)
+          - ⚡ GameDev Workflow Tool (Unity Editor)
+
+          EOF
+
+      - name: Upload Performance Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report-${{ github.sha }}
+          path: performance-report.md
+          retention-days: 30
+
+      - name: Comment PR with Performance Status
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = process.env.performance_status;
+            let emoji = '✅';
+            let message = 'Performance audit passed!';
+
+            if (status === 'critical') {
+              emoji = '🔴';
+              message = 'Critical performance issues detected! Please review and optimize.';
+            } else if (status === 'warning') {
+              emoji = '🟠';
+              message = 'Performance issues detected. Consider optimizing before merge.';
+            }
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `${emoji} **Performance Audit Results**
+
+              ${message}
+
+              📊 View detailed performance report in the workflow artifacts.
+              🛠️ Use the Performance Auditor Tool in Unity Editor for detailed analysis.`
+            });
+
+      - name: Performance Gate Check
+        run: |
+          if [ "${{ env.performance_status }}" = "critical" ]; then
+            echo "🚨 Performance gate failed - critical issues must be addressed"
+            exit 1
+          else
+            echo "✅ Performance gate passed"
+          fi

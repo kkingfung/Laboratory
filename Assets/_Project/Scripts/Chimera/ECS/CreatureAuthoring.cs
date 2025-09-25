@@ -22,7 +22,7 @@ namespace Laboratory.Chimera.ECS
         [SerializeField] private CreatureDefinition creatureDefinition;
         [SerializeField] private bool convertToECS = true;
         [SerializeField] private bool isWild = true;
-        [SerializeField] private BiomeType startingBiome = BiomeType.Forest;
+        [SerializeField] private Laboratory.Chimera.Core.BiomeType startingBiome = Laboratory.Chimera.Core.BiomeType.Forest;
         
         [Header("Initial Stats Override (Optional)")]
         [SerializeField] private bool overrideStats = false;
@@ -346,19 +346,19 @@ namespace Laboratory.Chimera.ECS
         /// <summary>
         /// Create biome-specific adaptation gene
         /// </summary>
-        private Gene CreateBiomeAdaptationGene(BiomeType biome)
+        private Gene CreateBiomeAdaptationGene(Laboratory.Chimera.Core.BiomeType biome)
         {
             string traitName = biome switch
             {
-                BiomeType.Desert => "Heat Resistance",
-                BiomeType.Tundra => "Cold Resistance",
-                BiomeType.Ocean => "Swimming",
-                BiomeType.Mountain => "Climbing",
-                BiomeType.Forest => "Camouflage",
-                BiomeType.Volcanic => "Fire Resistance",
-                BiomeType.Swamp => "Poison Resistance",
-                BiomeType.Underground => "Dark Vision",
-                BiomeType.Sky => "Flight",
+                Laboratory.Chimera.Core.BiomeType.Desert => "Heat Resistance",
+                Laboratory.Chimera.Core.BiomeType.Tundra => "Cold Resistance",
+                Laboratory.Chimera.Core.BiomeType.Ocean => "Swimming",
+                Laboratory.Chimera.Core.BiomeType.Mountain => "Climbing",
+                Laboratory.Chimera.Core.BiomeType.Forest => "Camouflage",
+                Laboratory.Chimera.Core.BiomeType.Volcanic => "Fire Resistance",
+                Laboratory.Chimera.Core.BiomeType.Swamp => "Poison Resistance",
+                Laboratory.Chimera.Core.BiomeType.Underground => "Dark Vision",
+                Laboratory.Chimera.Core.BiomeType.Sky => "Flight",
                 _ => "Adaptability"
             };
             

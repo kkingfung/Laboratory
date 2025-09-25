@@ -970,12 +970,15 @@ namespace Laboratory.Chimera.Visuals
         
         private string GetPaletteHash(Color[] palette)
         {
-            string hash = "";
+            // PERFORMANCE OPTIMIZED: Use hash code directly instead of string concatenation
+            int hash = 17; // Prime number for hash calculation
             foreach (var color in palette)
             {
-                hash += $"{color.r:F2}{color.g:F2}{color.b:F2}";
+                hash = hash * 31 + ((int)(color.r * 100)).GetHashCode();
+                hash = hash * 31 + ((int)(color.g * 100)).GetHashCode();
+                hash = hash * 31 + ((int)(color.b * 100)).GetHashCode();
             }
-            return hash.GetHashCode().ToString();
+            return hash.ToString(); // Only one ToString() call
         }
         
         public string GetCurrentPattern()

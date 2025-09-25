@@ -16,14 +16,18 @@ If a request is unclear, **check the README first before making assumptions**.
 ---
 
 ## Technical Stack
-- Unity 6  
-- C# (Unity coding conventions)  
-- DOTS (ECS) for performance-critical systems  
-- Netcode for Entities (multiplayer prototypes)  
-- Compute Shaders (advanced visual effects, HLSL only, no pseudo-code)  
-- Cinemachine & Timeline (cutscenes and cameras)  
-- Unity Input System (cross-platform controls)  
-- NavMesh or custom pathfinding (enemy AI)
+- Unity 6
+- C# (Unity coding conventions)
+- DOTS (ECS) for performance-critical systems
+- Netcode for Entities (multiplayer prototypes)
+- Compute Shaders (advanced visual effects, HLSL only, no pseudo-code)
+- Cinemachine & Timeline (cutscenes and cameras)
+- Unity Input System (cross-platform controls)
+- Custom ECS pathfinding with spatial optimization (high-performance AI)
+- Service abstraction layer for system decoupling
+- Advanced behavior tree system for sophisticated AI decisions
+- Environmental genetic expression system for dynamic creature adaptation
+- Centralized error handling and recovery system
 
 ---
 
@@ -52,11 +56,18 @@ If a request is unclear, **check the README first before making assumptions**.
 
 ---
 
-## AI & Gameplay
-- Implement AI with **state machines or behavior trees**.  
-- Support difficulty scaling via AI decision speed, damage, and reaction time.  
-- Keep **gameplay logic decoupled** from rendering and input for easier testing.  
-- For combat: focus on **camera placement, animation blending, hit detection accuracy, and player feedback** (sound, VFX, camera shake).  
+## AI & Gameplay Architecture
+- **Unified AI State System**: Synchronizes MonoBehaviour and ECS AI states with master-slave pattern
+- **Advanced Behavior Trees**: Hierarchical AI decision-making with runtime modification and visual authoring
+- **ECS Pathfinding Integration**: High-performance pathfinding bridged with ECS for thousands of entities
+- **Spatial Flow Fields**: Group pathfinding with dynamic field generation and local avoidance
+- **Environmental Genetic Adaptation**: Creatures dynamically express traits based on environmental conditions
+- **Service Abstraction Layer**: Clean interfaces between AI subsystems for testability and maintainability
+- **Network Synchronization**: Multiplayer AI and breeding with client prediction and server authority
+- **Centralized Error Handling**: Automatic error recovery, system health monitoring, and diagnostics
+- Support difficulty scaling via AI decision speed, damage, and reaction time
+- Keep **gameplay logic decoupled** from rendering and input for easier testing
+- For combat: focus on **camera placement, animation blending, hit detection accuracy, and player feedback** (sound, VFX, camera shake)  
 
 ---
 
@@ -127,5 +138,39 @@ If a request is unclear, **check the README first before making assumptions**.
 
 ---
 
-⚔️ In short: You are a **disciplined Unity ECS co-developer**, not a demo generator.  
+---
+
+## Project Chimera Architecture Overview
+This project implements a sophisticated AI and creature breeding system with the following major architectural components:
+
+### Core Systems
+1. **UnifiedECSPathfindingSystem** - High-performance pathfinding bridged with ECS (`Assets/_Project/Scripts/AI/ECS/`)
+2. **SpatialOptimizedFlowFieldSystem** - Advanced group pathfinding with spatial optimization
+3. **UnifiedAIStateSystem** - Synchronizes MonoBehaviour and ECS AI states
+4. **BehaviorTreeSystem** - Sophisticated AI decision-making framework (`Assets/_Project/Scripts/AI/BehaviorTrees/`)
+5. **EnvironmentalGeneticSystem** - Dynamic trait expression based on environment (`Assets/_Project/Scripts/Chimera/Genetics/Environmental/`)
+6. **NetworkingSystems** - Multiplayer synchronization for AI and breeding (`Assets/_Project/Scripts/Networking/`)
+7. **CentralizedErrorSystem** - Comprehensive error management and recovery (`Assets/_Project/Scripts/Core/ErrorHandling/`)
+
+### Service Layer
+- **AIServiceManager** - Dependency injection container and service locator (`Assets/_Project/Scripts/AI/Services/`)
+- **Service Interfaces** - Clean abstractions for AI subsystems (IPathfindingService, IAIBehaviorService, etc.)
+
+### Performance Optimizations
+- ECS job system with burst compilation
+- Spatial hashing for O(1) entity lookups
+- Batched pathfinding requests
+- Flow field reuse for group movement
+- Network bandwidth optimization with client prediction
+
+### Key Architectural Benefits
+- **Scalability**: Handles thousands of entities with minimal overhead
+- **Maintainability**: Clean separation of concerns with service interfaces
+- **Performance**: ECS-optimized with job parallelization
+- **Reliability**: Automated error recovery and system health monitoring
+- **Multiplayer Ready**: Network synchronization with lag compensation
+
+---
+
+⚔️ In short: You are a **disciplined Unity ECS co-developer**, not a demo generator.
 Focus on **real code, real fixes, no duplicates, no stubs, no warning suppression, no TODOs**.  

@@ -1,0 +1,328 @@
+name: Developer Experience & Automation
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  developer-tools-validation:
+    name: Validate Developer Tools
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Unity Editor Tools
+        run: |
+          echo "🛠️ Validating Unity Editor Tools..."
+
+          # Check if our custom editor tools exist
+          tools=(
+            "Assets/Editor/PerformanceAuditorTool.cs"
+            "Assets/Editor/QAAutomationTool.cs"
+            "Assets/Editor/GameDevWorkflowTool.cs"
+          )
+
+          missing_tools=0
+          for tool in "${tools[@]}"; do
+            if [ -f "$tool" ]; then
+              echo "✅ Found: $tool"
+            else
+              echo "❌ Missing: $tool"
+              missing_tools=$((missing_tools + 1))
+            fi
+          done
+
+          if [ $missing_tools -gt 0 ]; then
+            echo "⚠️ $missing_tools developer tools are missing"
+          else
+            echo "✅ All developer tools are present"
+          fi
+
+      - name: Check Code Standards Compliance
+        run: |
+          echo "📋 Checking code standards compliance..."
+
+          # Check for proper namespace usage
+          echo "Checking namespace compliance..."
+          namespace_issues=$(grep -r "namespace.*{" Assets/ --include="*.cs" | grep -v "Laboratory\." | wc -l)
+          if [ $namespace_issues -gt 0 ]; then
+            echo "⚠️ Found $namespace_issues files not using Laboratory namespace"
+          else
+            echo "✅ Namespace compliance looks good"
+          fi
+
+          # Check for proper header comments
+          echo "Checking for XML documentation..."
+          total_classes=$(grep -r "public class\|public interface" Assets/_Project --include="*.cs" | wc -l)
+          documented_classes=$(grep -r "/// <summary>" Assets/_Project --include="*.cs" -A1 | grep "public class\|public interface" | wc -l)
+
+          if [ $total_classes -gt 0 ]; then
+            doc_percentage=$((documented_classes * 100 / total_classes))
+            echo "📖 Documentation coverage: $doc_percentage% ($documented_classes/$total_classes)"
+
+            if [ $doc_percentage -lt 70 ]; then
+              echo "⚠️ Low documentation coverage - aim for 80%+"
+            else
+              echo "✅ Good documentation coverage"
+            fi
+          fi
+
+          # Check for proper error handling
+          echo "Checking error handling patterns..."
+          try_blocks=$(grep -r "try\s*{" Assets/ --include="*.cs" | wc -l)
+          catch_blocks=$(grep -r "catch\s*(" Assets/ --include="*.cs" | wc -l)
+
+          if [ $try_blocks -ne $catch_blocks ]; then
+            echo "⚠️ Mismatched try/catch blocks detected"
+          else
+            echo "✅ Try/catch blocks are balanced"
+          fi
+
+      - name: Generate Developer Guidelines
+        run: |
+          cat > developer-guidelines.md << 'EOF'
+          # 🚀 Developer Guidelines - Project Chimera
+
+          ## 🛠️ Available Tools
+
+          ### Unity Editor Tools
+          - **🚀 Performance Auditor Tool** - Menu: `🚀 Laboratory/Performance Auditor`
+            - Automated performance pattern detection
+            - Real-time code scanning for bottlenecks
+            - One-click navigation to issues
+
+          - **🛠️ QA Automation Tool** - Menu: `🛠️ Laboratory/QA Automation`
+            - Comprehensive automated testing
+            - Scene, Asset, Performance, and Build validation
+            - Pre-build quality gates
+
+          - **⚡ GameDev Workflow Tool** - Menu: `⚡ Laboratory/GameDev Workflow`
+            - Quick development actions
+            - Scene management utilities
+            - Asset organization tools
+
+          ## 📋 Coding Standards
+
+          ### Namespace Convention
+          ```csharp
+          namespace Laboratory.Subsystems.AI
+          {
+              // Your code here
+          }
+          ```
+
+          ### Documentation Requirements
+          ```csharp
+          /// <summary>
+          /// Description of what this class does
+          /// </summary>
+          public class MyClass : MonoBehaviour
+          {
+              /// <summary>
+              /// Description of what this method does
+              /// </summary>
+              /// <param name="parameter">What this parameter is for</param>
+              /// <returns>What this method returns</returns>
+              public bool MyMethod(string parameter)
+              {
+                  // Implementation
+              }
+          }
+          ```
+
+          ### Performance Best Practices
+          - ✅ Cache component references in Awake/Start
+          - ✅ Use object pooling for frequently spawned objects
+          - ✅ Avoid expensive operations in Update loops
+          - ✅ Use StringBuilder for string concatenation
+          - ❌ Don't use FindObjectOfType in Update
+          - ❌ Don't use GetComponent repeatedly
+          - ❌ Don't allocate memory in Update loops
+
+          ### Error Handling
+          ```csharp
+          try
+          {
+              // Risky operation
+          }
+          catch (SpecificException e)
+          {
+              Debug.LogError($"Specific error: {e.Message}");
+              // Handle specific case
+          }
+          catch (System.Exception e)
+          {
+              Debug.LogError($"Unexpected error: {e.Message}");
+              // Handle general case
+          }
+          ```
+
+          ## 🚀 Workflow
+
+          ### Before Coding
+          1. Run **QA Automation Tool** to check project health
+          2. Use **Performance Auditor Tool** to check current state
+          3. Create feature branch from develop
+
+          ### During Development
+          1. Use **GameDev Workflow Tool** for common tasks
+          2. Run tests frequently with QA tool
+          3. Monitor performance with auditor tool
+
+          ### Before PR
+          1. Run full QA automation suite
+          2. Check performance audit results
+          3. Ensure all tools validate successfully
+          4. Update documentation as needed
+
+          ## 🔧 Troubleshooting
+
+          ### Common Issues
+          - **Performance Issues**: Use Performance Auditor Tool
+          - **Build Failures**: Use QA Automation Tool
+          - **Missing Components**: Use GameDev Workflow health check
+          - **Test Failures**: Check QA tool for detailed reports
+
+          ### Getting Help
+          - Check tool outputs and recommendations
+          - Review CI/CD pipeline results
+          - Consult team in PR reviews
+
+          EOF
+
+      - name: Upload Developer Guidelines
+        uses: actions/upload-artifact@v4
+        with:
+          name: developer-guidelines
+          path: developer-guidelines.md
+          retention-days: 90
+
+  automated-onboarding:
+    name: Automated Developer Onboarding
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate Project Overview
+        run: |
+          cat > project-overview.md << 'EOF'
+          # 🧬 Project Chimera - Developer Onboarding
+
+          ## 🎮 Project Overview
+          Project Chimera is a Unity 6 3D action game featuring:
+          - **Monster Breeding System** - Create unique creatures through genetics
+          - **Advanced AI Behavior** - Monsters with evolving personalities
+          - **Multiplayer Support** - Breed and battle with friends
+          - **Performance-Optimized** - Built for scalability and smooth gameplay
+
+          ## 🏗️ Architecture
+          - **Unity 6** - Latest Unity LTS for cutting-edge features
+          - **ECS (Entities)** - High-performance systems for monsters and AI
+          - **Netcode for Entities** - Robust multiplayer networking
+          - **Custom Tools** - Built-in developer productivity tools
+
+          ## 📁 Project Structure
+          ```
+          Assets/
+          ├── _Project/           # Main project code
+          │   ├── Scripts/        # C# scripts organized by subsystem
+          │   ├── Art/           # 3D models, textures, materials
+          │   ├── Audio/         # Sound effects and music
+          │   └── Scenes/        # Game scenes
+          ├── Editor/            # Custom Unity editor tools
+          ├── Tests/             # Automated tests
+          └── StreamingAssets/   # Runtime-loaded assets
+          ```
+
+          ## 🚀 Quick Start
+          1. **Clone Repository**: `git clone [repo-url]`
+          2. **Open in Unity 6**: Version 6000.2.0b7 or later
+          3. **Install Tools**: Editor tools auto-install on first load
+          4. **Run Tests**: Use QA Automation Tool
+          5. **Start Coding**: Follow developer guidelines
+
+          ## 🛠️ Development Workflow
+          1. **Feature Branch**: Create from `develop`
+          2. **Code & Test**: Use built-in tools for quality assurance
+          3. **Performance Check**: Run Performance Auditor Tool
+          4. **Pull Request**: Detailed template guides review
+          5. **CI/CD**: Automated testing and deployment
+
+          ## 🔧 Essential Tools Usage
+
+          ### Performance Auditor Tool
+          - **When to use**: Before committing performance-critical code
+          - **How to use**: Menu → `🚀 Laboratory/Performance Auditor`
+          - **What it does**: Scans code for performance anti-patterns
+
+          ### QA Automation Tool
+          - **When to use**: Before submitting PR, daily development
+          - **How to use**: Menu → `🛠️ Laboratory/QA Automation`
+          - **What it does**: Comprehensive project health checks
+
+          ### GameDev Workflow Tool
+          - **When to use**: Daily development tasks
+          - **How to use**: Menu → `⚡ Laboratory/GameDev Workflow`
+          - **What it does**: Streamlines common development actions
+
+          ## 📞 Support
+          - **Issues**: Use GitHub issue templates
+          - **Questions**: Check existing documentation
+          - **Bugs**: Detailed bug report template available
+          - **Features**: Feature request template guides requirements
+
+          ## 🎯 Success Metrics
+          - **Code Quality**: Automated analysis in CI/CD
+          - **Performance**: Built-in monitoring and alerting
+          - **Test Coverage**: Tracked in quality reports
+          - **Build Health**: Continuous integration validation
+
+          EOF
+
+      - name: Update README with Tool Information
+        run: |
+          # Create or update a section in README about developer tools
+          if [ -f "README.md" ]; then
+            if ! grep -q "## 🛠️ Developer Tools" README.md; then
+              cat >> README.md << 'EOF'
+
+          ## 🛠️ Developer Tools
+
+          This project includes custom Unity editor tools to enhance developer productivity:
+
+          - **🚀 Performance Auditor Tool** - Automated performance analysis
+          - **🛠️ QA Automation Tool** - Comprehensive quality assurance testing
+          - **⚡ GameDev Workflow Tool** - Development workflow utilities
+
+          Access these tools through the Unity Editor menu under `Laboratory/`.
+
+          ### Quick Start
+          1. Open project in Unity 6
+          2. Tools auto-install on first load
+          3. Access via Unity menu: `Laboratory/[Tool Name]`
+          4. Follow in-tool guidance for usage
+
+          For detailed usage instructions, see the developer guidelines in CI artifacts.
+          EOF
+              echo "✅ Updated README.md with developer tools information"
+            else
+              echo "ℹ️ README.md already contains developer tools section"
+            fi
+          else
+            echo "⚠️ README.md not found"
+          fi
+
+      - name: Upload Project Overview
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-overview
+          path: project-overview.md
+          retention-days: 365

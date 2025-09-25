@@ -1,0 +1,374 @@
+name: Issue & PR Automation
+
+on:
+  issues:
+    types: [opened, labeled, assigned]
+  pull_request:
+    types: [opened, labeled, assigned, ready_for_review]
+  issue_comment:
+    types: [created]
+
+jobs:
+  issue-triage:
+    name: Automatic Issue Triage
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+
+    steps:
+      - name: Auto-label Performance Issues
+        if: contains(github.event.issue.title, '[PERFORMANCE]') || contains(github.event.issue.body, 'Performance Auditor Tool')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['performance', 'needs-investigation', 'high-priority']
+            });
+
+            // Add automated comment with tool guidance
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🚀 **Performance Issue Detected**
+
+              Thank you for reporting a performance issue! To help us investigate:
+
+              ## 📊 Required Information
+              Please ensure you've included:
+              - Performance Auditor Tool output from Unity Editor
+              - Unity Profiler screenshots or data
+              - Specific performance metrics (FPS, memory usage)
+              - Reproduction steps
+
+              ## 🛠️ Next Steps
+              1. **Performance Auditor Tool**: Unity Editor → Menu → \`🚀 Laboratory/Performance Auditor\`
+              2. **QA Automation Tool**: Run performance checks → \`🛠️ Laboratory/QA Automation\`
+              3. **Unity Profiler**: Capture performance data for analysis
+
+              ## ⚡ Priority
+              This issue has been automatically labeled as high-priority due to performance impact.
+
+              *This is an automated response to help streamline performance issue resolution.*`
+            });
+
+      - name: Auto-label Developer Experience Issues
+        if: contains(github.event.issue.title, '[DEV-EX]') || contains(github.event.issue.labels.*.name, 'developer-experience')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['developer-experience', 'workflow', 'tooling']
+            });
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🛠️ **Developer Experience Issue**
+
+              Thank you for helping improve our development workflow!
+
+              ## 🔍 Investigation Tools
+              - **GameDev Workflow Tool**: \`⚡ Laboratory/GameDev Workflow\`
+              - **QA Automation Tool**: \`🛠️ Laboratory/QA Automation\`
+              - **Performance Auditor Tool**: \`🚀 Laboratory/Performance Auditor\`
+
+              ## 📋 Assessment
+              This issue will be evaluated for:
+              - Impact on developer productivity
+              - Tool enhancement opportunities
+              - Workflow optimization potential
+              - Documentation improvements
+
+              A team member will review and prioritize this issue based on developer impact.`
+            });
+
+      - name: Auto-label Bug Reports
+        if: contains(github.event.issue.title, '[BUG]') || contains(github.event.issue.labels.*.name, 'bug')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: ['bug', 'needs-triage']
+            });
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🐛 **Bug Report Received**
+
+              Thank you for the bug report! To help us resolve this quickly:
+
+              ## 🔍 Quality Assurance
+              Please run our QA tools to gather additional information:
+              - **QA Automation Tool**: \`🛠️ Laboratory/QA Automation\` → Run relevant validation checks
+              - **GameDev Workflow Tool**: \`⚡ Laboratory/GameDev Workflow\` → Perform health check
+
+              ## 📊 Additional Data
+              If performance-related, also run:
+              - **Performance Auditor Tool**: \`🚀 Laboratory/Performance Auditor\`
+
+              ## 🎯 Next Steps
+              1. Issue will be triaged by the team
+              2. Priority assigned based on severity and impact
+              3. Developer assigned for investigation and resolution
+
+              *Tools are available in Unity Editor → Menu → Laboratory → [Tool Name]*`
+            });
+
+  stale-issue-management:
+    name: Stale Issue Management
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' # This would need to be triggered by a schedule
+
+    steps:
+      - name: Mark Stale Issues
+        uses: actions/stale@v9
+        with:
+          stale-issue-message: |
+            🕒 **Stale Issue Notice**
+
+            This issue has been automatically marked as stale because it has not had recent activity.
+
+            ## 🔄 To Keep This Issue Active:
+            - Add a comment with updates or additional information
+            - Run our Unity Editor tools for updated analysis:
+              - 🚀 Performance Auditor Tool
+              - 🛠️ QA Automation Tool
+              - ⚡ GameDev Workflow Tool
+            - Provide additional reproduction steps or context
+
+            ## ⏰ Timeline:
+            - **7 days**: This issue will be automatically closed if no activity
+            - **Activity**: Any comment or update will remove the stale label
+
+            Thank you for helping maintain Project Chimera! 🧬
+          stale-issue-label: 'stale'
+          exempt-issue-labels: 'pinned,security,critical,high-priority'
+          days-before-stale: 30
+          days-before-close: 7
+
+  pr-automation:
+    name: PR Workflow Automation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Welcome First-Time Contributors
+        if: github.event.action == 'opened'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Check if this is a first-time contributor
+            const { data: pullRequests } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'all',
+              creator: context.payload.pull_request.user.login
+            });
+
+            if (pullRequests.length === 1) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `🎉 **Welcome to Project Chimera!**
+
+                Thank you for your first contribution to our Unity 6 monster breeding game!
+
+                ## 🛠️ Development Tools Available
+                Before your PR is reviewed, please ensure you've used our development tools:
+
+                ### 🚀 Performance Auditor Tool
+                - **Purpose**: Automated performance pattern detection
+                - **Access**: Unity Editor → Menu → \`🚀 Laboratory/Performance Auditor\`
+                - **When**: Run before committing code changes
+
+                ### 🛠️ QA Automation Tool
+                - **Purpose**: Comprehensive project validation
+                - **Access**: Unity Editor → Menu → \`🛠️ Laboratory/QA Automation\`
+                - **When**: Run before submitting PR
+
+                ### ⚡ GameDev Workflow Tool
+                - **Purpose**: Development workflow utilities
+                - **Access**: Unity Editor → Menu → \`⚡ Laboratory/GameDev Workflow\`
+                - **When**: Use for daily development tasks
+
+                ## 📋 Pre-Review Checklist
+                - [ ] Code compiles without warnings
+                - [ ] Performance Auditor Tool run (if code changes)
+                - [ ] QA Automation Tool validation passed
+                - [ ] Tests added for new functionality
+                - [ ] Documentation updated as needed
+
+                ## 🤝 Review Process
+                1. Automated CI/CD checks will run
+                2. Team member will review your code
+                3. Address any feedback or requested changes
+                4. Once approved, your PR will be merged!
+
+                Welcome to the team! 🧬✨`
+              });
+
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: ['first-time-contributor']
+              });
+            }
+
+      - name: Tool Usage Reminder
+        if: github.event.action == 'ready_for_review'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🔍 **PR Ready for Review - Tool Usage Reminder**
+
+              Your PR has been marked as ready for review. Before the review begins:
+
+              ## ✅ Required Tool Checks
+              Please confirm you've run the following Unity Editor tools:
+
+              ### 🚀 Performance Auditor Tool
+              - [ ] Run automated performance analysis
+              - [ ] Address any critical performance issues found
+              - [ ] Include results in PR description if performance-critical changes
+
+              ### 🛠️ QA Automation Tool
+              - [ ] Run comprehensive validation checks
+              - [ ] Ensure all quality gates pass
+              - [ ] Fix any issues identified
+
+              ### ⚡ GameDev Workflow Tool
+              - [ ] Use health check functionality
+              - [ ] Verify project structure and organization
+
+              ## 📊 CI/CD Pipeline
+              The automated pipeline will also run:
+              - Performance risk assessment
+              - Code quality analysis
+              - Build verification
+              - Test execution
+
+              ## 🎯 Review Priority
+              PRs with proper tool usage and passing CI checks will be prioritized for review.
+
+              *Access tools: Unity Editor → Menu → Laboratory → [Tool Name]*`
+            });
+
+  comment-automation:
+    name: Comment-based Automation
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issue_comment' && github.event.action == 'created'
+
+    steps:
+      - name: Tool Usage Commands
+        if: contains(github.event.comment.body, '/run-tools')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🛠️ **Unity Editor Tools - Usage Instructions**
+
+              Here's how to run our development tools:
+
+              ## 🚀 Performance Auditor Tool
+              \`\`\`
+              1. Unity Editor → Menu → 🚀 Laboratory/Performance Auditor
+              2. Click "Scan All Scripts" for comprehensive analysis
+              3. Review issues by severity (Critical → High → Medium → Low)
+              4. Click "Open File" to navigate to problematic code
+              5. Apply suggested optimizations
+              \`\`\`
+
+              ## 🛠️ QA Automation Tool
+              \`\`\`
+              1. Unity Editor → Menu → 🛠️ Laboratory/QA Automation
+              2. Click "Run All QA Checks" for full validation
+              3. Review results by category (Scene, Asset, Performance, Build)
+              4. Address any failed checks before submitting PR
+              5. Use "Quick Validation" for rapid checks
+              \`\`\`
+
+              ## ⚡ GameDev Workflow Tool
+              \`\`\`
+              1. Unity Editor → Menu → ⚡ Laboratory/GameDev Workflow
+              2. Use Quick Actions for common tasks
+              3. Scene Management for scene operations
+              4. Asset Tools for project organization
+              5. Debug Tools for project health checks
+              \`\`\`
+
+              ## 📊 Reporting Results
+              When reporting issues, include:
+              - Tool output screenshots or text
+              - Performance metrics from Unity Profiler
+              - Specific error messages or warnings
+              - System specifications if performance-related
+
+              These tools are designed to catch issues early and improve code quality!`
+            });
+
+      - name: Performance Analysis Command
+        if: contains(github.event.comment.body, '/analyze-performance')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `⚡ **Performance Analysis Guide**
+
+              For comprehensive performance analysis:
+
+              ## 🔍 Step-by-Step Analysis
+              1. **Performance Auditor Tool**
+                 - Unity Editor → Menu → 🚀 Laboratory/Performance Auditor
+                 - Run "Scan All Scripts" or "Quick Scan (Update methods only)"
+                 - Focus on Critical and High severity issues first
+
+              2. **Unity Profiler**
+                 - Window → Analysis → Profiler
+                 - Capture performance data during problematic scenarios
+                 - Focus on CPU, Memory, and Rendering modules
+
+              3. **QA Automation Performance Checks**
+                 - Unity Editor → Menu → 🛠️ Laboratory/QA Automation
+                 - Expand "Performance Checks" section
+                 - Run individual performance validation tests
+
+              ## 📊 Key Metrics to Monitor
+              - **FPS**: Target 60+ FPS for smooth gameplay
+              - **Memory**: Monitor GC allocations and leaks
+              - **Draw Calls**: Keep reasonable for target platform
+              - **Physics**: Check collision detection costs
+              - **AI/Pathfinding**: Monitor monster behavior performance
+
+              ## 🎯 Common Performance Issues
+              - FindObjectOfType/GameObject.Find in Update methods
+              - Repeated GetComponent calls without caching
+              - LINQ operations in hot paths
+              - String concatenation causing GC pressure
+              - Missing object pooling for frequent instantiation
+
+              Include tool outputs and profiler data in your issue for best support!`
+            });`

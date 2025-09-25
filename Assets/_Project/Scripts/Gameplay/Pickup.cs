@@ -25,6 +25,10 @@ namespace Laboratory.Gameplay
         protected AudioSource audioSource;
         protected bool isCollected = false;
 
+        // Performance optimization: cache player detection to reduce Physics calls
+        private float lastPlayerCheckTime;
+        private float playerCheckInterval = 0.2f; // Check for players 5 times per second instead of every frame
+
         protected virtual void Awake()
         {
             startPosition = transform.position;
@@ -55,8 +59,14 @@ namespace Laboratory.Gameplay
 
         protected virtual void CheckForPlayerInRange()
         {
+            // Performance optimized player check - only check every playerCheckInterval seconds
+            if (Time.time - lastPlayerCheckTime < playerCheckInterval)
+                return;
+
+            lastPlayerCheckTime = Time.time;
+
             Collider[] playersInRange = Physics.OverlapSphere(transform.position, pickupRange, LayerMask.GetMask("Player"));
-            
+
             if (playersInRange.Length > 0)
             {
                 PlayerController player = playersInRange[0].GetComponent<PlayerController>();

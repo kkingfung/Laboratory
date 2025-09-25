@@ -434,14 +434,19 @@ namespace Laboratory.UI.Helper
         }
 
         /// <summary>
-        /// Update all UI elements with current player data
+        /// Update all UI elements with current player data - PERFORMANCE OPTIMIZED (avoid ToString allocations)
         /// </summary>
         public void UpdateUI()
         {
-            nameText.text = PlayerData.PlayerName.Value.ToString();
-            scoreText.text = PlayerData.Score.Value.ToString();
-            pingText.text = $"{PlayerData.Ping.Value} ms";
-            UpdatePingBar(PlayerData.Ping.Value);
+            // Cache ToString() results to avoid repeated allocations in frequent updates
+            var name = PlayerData.PlayerName.Value;
+            var score = PlayerData.Score.Value;
+            var ping = PlayerData.Ping.Value;
+
+            nameText.text = name; // String is already a string, no ToString() needed
+            scoreText.text = score.ToString(); // Only convert once per update
+            pingText.text = $"{ping} ms";
+            UpdatePingBar(ping);
             LoadPlayerAvatar();
         }
 
@@ -485,7 +490,7 @@ namespace Laboratory.UI.Helper
         #region Rank Animation
 
         /// <summary>
-        /// Animate rank number transition
+        /// Animate rank number transition - PERFORMANCE OPTIMIZED (reduced ToString calls)
         /// </summary>
         /// <param name="newRank">Target rank</param>
         /// <returns>Coroutine enumerator</returns>
@@ -494,17 +499,29 @@ namespace Laboratory.UI.Helper
             const float duration = 0.5f;
             float elapsed = 0f;
             int startRank = _currentRank == 0 ? newRank : _currentRank;
+            int lastDisplayRank = startRank;
 
             while (elapsed < duration)
             {
                 elapsed += Time.deltaTime;
                 float t = Mathf.Clamp01(elapsed / duration);
                 int displayRank = Mathf.RoundToInt(Mathf.Lerp(startRank, newRank, t));
-                rankText.text = displayRank.ToString();
+
+                // Only update text when rank actually changes to avoid unnecessary ToString() calls
+                if (displayRank != lastDisplayRank)
+                {
+                    rankText.text = displayRank.ToString();
+                    lastDisplayRank = displayRank;
+                }
+
                 yield return null;
             }
 
-            rankText.text = newRank.ToString();
+            // Final update
+            if (newRank != lastDisplayRank)
+            {
+                rankText.text = newRank.ToString();
+            }
             _currentRank = newRank;
         }
 

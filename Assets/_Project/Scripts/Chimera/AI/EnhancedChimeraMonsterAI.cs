@@ -51,6 +51,10 @@ namespace Laboratory.Chimera.AI
         private Vector3 patrolCenter;
         private Vector3 currentDestination;
 
+        // Cached components for performance
+        private Rigidbody playerRigidbody;
+        private Rigidbody currentTargetRigidbody;
+
         // Timers
         private float lastAttackTime;
         private float combatStartTime;
@@ -189,7 +193,12 @@ namespace Laboratory.Chimera.AI
             // Combat check
             if (detectedEnemies.Count > 0 && ShouldEngageInCombat())
             {
-                currentTarget = GetBestTarget();
+                var newTarget = GetBestTarget();
+                if (newTarget != currentTarget)
+                {
+                    currentTarget = newTarget;
+                    CacheTargetComponents(); // Cache components when target changes
+                }
                 if (currentTarget != null)
                 {
                     float distanceToTarget = Vector3.Distance(transform.position, currentTarget.position);
@@ -430,6 +439,7 @@ namespace Laboratory.Chimera.AI
                 if (playerGO != null)
                 {
                     player = playerGO.transform;
+                    CachePlayerComponents(); // Cache components when player is found
                 }
             }
         }
@@ -455,12 +465,11 @@ namespace Laboratory.Chimera.AI
         {
             if (player == null) return lastKnownPlayerPosition;
 
-            // Simple prediction based on player velocity
-            Rigidbody playerRb = player.GetComponent<Rigidbody>();
-            if (playerRb != null)
+            // Use cached Rigidbody for performance
+            if (playerRigidbody != null)
             {
                 float predictionTime = Vector3.Distance(transform.position, player.position) / aiAgent.CurrentSpeed;
-                return player.position + playerRb.linearVelocity * predictionTime;
+                return player.position + playerRigidbody.linearVelocity * predictionTime;
             }
 
             return player.position;
@@ -470,14 +479,36 @@ namespace Laboratory.Chimera.AI
         {
             if (currentTarget == null) return Vector3.zero;
 
-            Rigidbody targetRb = currentTarget.GetComponent<Rigidbody>();
-            if (targetRb != null)
+            // Use cached Rigidbody for performance
+            if (currentTargetRigidbody != null)
             {
                 float predictionTime = Vector3.Distance(transform.position, currentTarget.position) / aiAgent.CurrentSpeed;
-                return currentTarget.position + targetRb.linearVelocity * predictionTime;
+                return currentTarget.position + currentTargetRigidbody.linearVelocity * predictionTime;
             }
 
             return currentTarget.position;
+        }
+
+        /// <summary>
+        /// Cache player Rigidbody for performance when player changes
+        /// </summary>
+        private void CachePlayerComponents()
+        {
+            if (player != null)
+                playerRigidbody = player.GetComponent<Rigidbody>();
+            else
+                playerRigidbody = null;
+        }
+
+        /// <summary>
+        /// Cache target Rigidbody for performance when target changes
+        /// </summary>
+        private void CacheTargetComponents()
+        {
+            if (currentTarget != null)
+                currentTargetRigidbody = currentTarget.GetComponent<Rigidbody>();
+            else
+                currentTargetRigidbody = null;
         }
 
         private void LookAtTarget(Transform target)

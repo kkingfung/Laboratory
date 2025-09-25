@@ -21,6 +21,7 @@ namespace Laboratory.AI.Utilities
         [SerializeField] private bool trackPathRequests = true;
         [SerializeField] private bool trackPathCalculations = true;
         [SerializeField] private bool trackMemoryUsage = true;
+        [SerializeField] private bool enablePerformanceLogging = false;
         
         // Performance tracking
         private List<float> pathCalculationTimes = new List<float>();
@@ -40,6 +41,7 @@ namespace Laboratory.AI.Utilities
         {
             if (enableProfiling)
             {
+                lastUpdateTime = Time.time; // Initialize timing
                 InvokeRepeating(nameof(UpdateStatistics), 0f, updateInterval);
                 Debug.Log("✅ PathfindingProfiler started monitoring performance");
             }
@@ -52,14 +54,22 @@ namespace Laboratory.AI.Utilities
                 CollectFrameData();
             }
         }
-        
+
+        // Cache for performance - only update periodically, not every frame
+        private static readonly List<IPathfindingAgent> _cachedAgents = new List<IPathfindingAgent>();
+        private float _lastAgentCacheUpdate = 0f;
+        private const float AGENT_CACHE_UPDATE_INTERVAL = 1f; // Update once per second
+
         private void CollectFrameData()
         {
-            var potentialAgents = FindObjectsOfType<MonoBehaviour>()
-                .Where(mb => mb is IPathfindingAgent)
-                .Count();
-                
-            totalActiveAgents = potentialAgents;
+            // Update agent cache periodically instead of every frame
+            if (Time.time - _lastAgentCacheUpdate > AGENT_CACHE_UPDATE_INTERVAL)
+            {
+                UpdateAgentCache();
+                _lastAgentCacheUpdate = Time.time;
+            }
+
+            totalActiveAgents = _cachedAgents.Count;
             
             // Track memory usage
             if (trackMemoryUsage)
@@ -73,22 +83,49 @@ namespace Laboratory.AI.Utilities
                 }
             }
         }
-        
+
+        private void UpdateAgentCache()
+        {
+            _cachedAgents.Clear();
+            var potentialAgents = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
+                .Where(mb => mb is IPathfindingAgent)
+                .Cast<IPathfindingAgent>();
+
+            _cachedAgents.AddRange(potentialAgents);
+        }
+
         private void UpdateStatistics()
         {
+            // Track timing for performance analysis
+            float currentTime = Time.time;
+            float deltaTime = currentTime - lastUpdateTime;
+            lastUpdateTime = currentTime;
+
             // Calculate averages
             if (pathCalculationTimes.Count > 0)
             {
                 averagePathTime = pathCalculationTimes.Average();
             }
-            
+
             // Store active agent count
             activeAgentCounts.Add(totalActiveAgents);
             if (activeAgentCounts.Count > maxRecordedFrames)
             {
                 activeAgentCounts.RemoveAt(0);
             }
-            
+
+            // Log performance summary periodically
+            if (enablePerformanceLogging && deltaTime > 0f)
+            {
+                float requestsPerSecond = pathRequestsThisFrame / deltaTime;
+                float calculationsPerSecond = pathsCalculatedThisFrame / deltaTime;
+
+                if (requestsPerSecond > 0 || calculationsPerSecond > 0)
+                {
+                    Debug.Log($"📊 Pathfinding Performance - Requests/sec: {requestsPerSecond:F1}, Calculations/sec: {calculationsPerSecond:F1}, Avg Time: {averagePathTime:F2}ms");
+                }
+            }
+
             // Reset frame counters
             pathRequestsThisFrame = 0;
             pathsCalculatedThisFrame = 0;
@@ -97,20 +134,20 @@ namespace Laboratory.AI.Utilities
         // Public methods for external systems to report performance data
         public void ReportPathCalculationTime(float timeMs)
         {
-            if (!enableProfiling) return;
-            
+            if (!enableProfiling || !trackPathCalculations) return;
+
             pathCalculationTimes.Add(timeMs);
             if (pathCalculationTimes.Count > maxRecordedFrames)
             {
                 pathCalculationTimes.RemoveAt(0);
             }
-            
+
             pathsCalculatedThisFrame++;
         }
         
         public void ReportPathRequest()
         {
-            if (!enableProfiling) return;
+            if (!enableProfiling || !trackPathRequests) return;
             pathRequestsThisFrame++;
         }
         

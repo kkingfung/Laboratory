@@ -1,0 +1,278 @@
+name: PR Automation & Quality Gates
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [ main, develop ]
+
+jobs:
+  pr-validation:
+    name: PR Quality Validation
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Analyze PR Changes
+        run: |
+          echo "🔍 Analyzing PR changes..."
+
+          # Get list of changed files
+          git diff --name-only origin/${{ github.base_ref }}...HEAD > changed_files.txt
+
+          # Count changes by type
+          cs_files=$(grep "\.cs$" changed_files.txt | wc -l)
+          scene_files=$(grep "\.unity$" changed_files.txt | wc -l)
+          prefab_files=$(grep "\.prefab$" changed_files.txt | wc -l)
+          asset_files=$(grep -E "\.(png|jpg|fbx|wav|mp3)$" changed_files.txt | wc -l)
+
+          echo "📊 Change Summary:"
+          echo "- C# Scripts: $cs_files"
+          echo "- Scene Files: $scene_files"
+          echo "- Prefabs: $prefab_files"
+          echo "- Assets: $asset_files"
+
+          # Store for later use
+          echo "cs_files=$cs_files" >> $GITHUB_ENV
+          echo "scene_files=$scene_files" >> $GITHUB_ENV
+          echo "prefab_files=$prefab_files" >> $GITHUB_ENV
+          echo "asset_files=$asset_files" >> $GITHUB_ENV
+
+      - name: PR Size Analysis
+        run: |
+          # Calculate PR size and complexity
+          total_files=$(cat changed_files.txt | wc -l)
+
+          # Get line changes
+          additions=$(git diff --numstat origin/${{ github.base_ref }}...HEAD | awk '{sum+=$1} END {print sum}')
+          deletions=$(git diff --numstat origin/${{ github.base_ref }}...HEAD | awk '{sum+=$2} END {print sum}')
+
+          echo "📏 PR Size Analysis:"
+          echo "- Total Files: $total_files"
+          echo "- Lines Added: $additions"
+          echo "- Lines Deleted: $deletions"
+
+          # Determine PR size
+          if [ $total_files -gt 50 ] || [ $additions -gt 1000 ]; then
+            pr_size="large"
+            echo "🔴 Large PR detected - consider breaking into smaller PRs"
+          elif [ $total_files -gt 20 ] || [ $additions -gt 500 ]; then
+            pr_size="medium"
+            echo "🟡 Medium PR size - ensure good test coverage"
+          else
+            pr_size="small"
+            echo "✅ Good PR size for review"
+          fi
+
+          echo "pr_size=$pr_size" >> $GITHUB_ENV
+
+      - name: Auto-Label PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { cs_files, scene_files, prefab_files, asset_files, pr_size } = process.env;
+
+            let labels = [];
+
+            // Size labels
+            labels.push(`size/${pr_size}`);
+
+            // Content type labels
+            if (cs_files > 0) labels.push('code-changes');
+            if (scene_files > 0) labels.push('scene-changes');
+            if (prefab_files > 0) labels.push('prefab-changes');
+            if (asset_files > 0) labels.push('asset-changes');
+
+            // Add performance label if many code changes
+            if (cs_files > 10) labels.push('needs-performance-review');
+
+            // Add QA label if scene/prefab changes
+            if (scene_files > 0 || prefab_files > 0) labels.push('needs-qa-testing');
+
+            // Apply labels
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: labels
+            });
+
+      - name: PR Readiness Check
+        run: |
+          echo "🔍 Checking PR readiness..."
+
+          # Check PR title format
+          pr_title="${{ github.event.pull_request.title }}"
+          if [[ ! $pr_title =~ ^(\[.*\]|feat|fix|docs|style|refactor|perf|test|build|ci|chore): ]]; then
+            echo "⚠️ PR title should follow conventional commits format"
+            echo "pr_title_valid=false" >> $GITHUB_ENV
+          else
+            echo "✅ PR title follows conventional format"
+            echo "pr_title_valid=true" >> $GITHUB_ENV
+          fi
+
+          # Check if PR description is substantial
+          pr_body="${{ github.event.pull_request.body }}"
+          if [ ${#pr_body} -lt 100 ]; then
+            echo "⚠️ PR description is too short - please provide more details"
+            echo "pr_description_valid=false" >> $GITHUB_ENV
+          else
+            echo "✅ PR description is substantial"
+            echo "pr_description_valid=true" >> $GITHUB_ENV
+          fi
+
+      - name: Suggest Reviewers
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { cs_files, scene_files, asset_files } = process.env;
+
+            let suggestedReviewers = [];
+            let comment = "🔍 **Suggested Reviewers Based on Changes:**\n\n";
+
+            if (cs_files > 0) {
+              comment += "- **Code Changes**: Consider requesting review from developers familiar with the affected systems\n";
+            }
+
+            if (scene_files > 0) {
+              comment += "- **Scene Changes**: Consider requesting review from level designers or technical artists\n";
+            }
+
+            if (asset_files > 0) {
+              comment += "- **Asset Changes**: Consider requesting review from artists or technical artists\n";
+            }
+
+            // Add performance review suggestion for large code changes
+            if (cs_files > 10) {
+              comment += "- **Performance Review**: Large code changes detected - performance review recommended\n";
+            }
+
+            comment += "\n💡 Use the Performance Auditor Tool in Unity Editor to check for performance issues before requesting review.";
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+
+      - name: Generate PR Checklist
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { cs_files, scene_files, pr_size } = process.env;
+
+            let checklist = "## 📋 PR Review Checklist\n\n";
+            checklist += "Please ensure the following items are completed before merging:\n\n";
+
+            // Always include these
+            checklist += "- [ ] Code compiles without errors or warnings\n";
+            checklist += "- [ ] All tests pass (use QA Automation Tool)\n";
+            checklist += "- [ ] Code follows project conventions and style\n";
+            checklist += "- [ ] Documentation updated (if applicable)\n";
+
+            // Code-specific checks
+            if (cs_files > 0) {
+              checklist += "- [ ] Performance impact assessed (use Performance Auditor Tool)\n";
+              checklist += "- [ ] Error handling implemented appropriately\n";
+              checklist += "- [ ] Unit tests added for new functionality\n";
+            }
+
+            // Scene-specific checks
+            if (scene_files > 0) {
+              checklist += "- [ ] Scene validated with QA Automation Tool\n";
+              checklist += "- [ ] Lighting and camera setup verified\n";
+              checklist += "- [ ] Performance impact of scene changes assessed\n";
+            }
+
+            // Size-specific checks
+            if (pr_size === 'large') {
+              checklist += "- [ ] Large PR justified - could not be broken into smaller PRs\n";
+              checklist += "- [ ] Extra testing performed due to PR size\n";
+              checklist += "- [ ] Multiple reviewers assigned\n";
+            }
+
+            checklist += "\n### 🛠️ Tool Usage\n";
+            checklist += "- [ ] Performance Auditor Tool run (if code changes)\n";
+            checklist += "- [ ] QA Automation Tool run (all changes)\n";
+            checklist += "- [ ] GameDev Workflow Tool used for validation\n";
+
+            checklist += "\n*This checklist was automatically generated based on the changes in this PR.*";
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: checklist
+            });
+
+      - name: Performance Warning
+        if: env.cs_files > 15
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `⚡ **Performance Review Required**
+
+              This PR modifies ${process.env.cs_files} C# files, which may impact performance.
+
+              **Required Actions:**
+              1. 🚀 Run the **Performance Auditor Tool** in Unity Editor
+              2. 🛠️ Use **QA Automation Tool** for comprehensive validation
+              3. 📊 Include performance test results in PR description
+              4. 🎯 Consider performance implications in code review
+
+              **Tools Access:** Unity Editor → Menu → Laboratory → [Tool Name]`
+            });
+
+  auto-merge-check:
+    name: Auto-merge Eligibility
+    runs-on: ubuntu-latest
+    needs: pr-validation
+    if: github.event.pull_request.draft == false
+
+    steps:
+      - name: Check Auto-merge Eligibility
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+
+            // Criteria for auto-merge eligibility
+            const criteria = {
+              isSmallPR: pr.additions < 100 && pr.deletions < 50,
+              hasGoodTitle: pr.title.match(/^(feat|fix|docs|style|refactor|perf|test|build|ci|chore):/),
+              hasDescription: pr.body && pr.body.length > 50,
+              authorIsContributor: ['dependabot[bot]', 'github-actions[bot]'].includes(pr.user.login) === false
+            };
+
+            const isEligible = Object.values(criteria).every(v => v);
+
+            if (isEligible && pr.user.login === 'dependabot[bot]') {
+              // Auto-approve dependabot PRs if they meet criteria
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                event: 'APPROVE',
+                body: '✅ Auto-approved: Dependency update meets quality criteria'
+              });
+            }
+
+            let comment = isEligible
+              ? "✅ This PR is eligible for expedited review based on size and quality criteria."
+              : "ℹ️ This PR requires standard review process.";
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });

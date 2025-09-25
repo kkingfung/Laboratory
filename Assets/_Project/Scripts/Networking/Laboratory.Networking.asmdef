@@ -1,0 +1,29 @@
+{
+    "name": "Laboratory.Networking",
+    "rootNamespace": "Laboratory.Networking",
+    "references": [
+        "GUID:734d92eba21c94caba915361bd5ac177",
+        "GUID:e0cd26848372d4e5c891c569017e11f1",
+        "GUID:d8b63aba1907145bea998dd612889d6b",
+        "GUID:2665a8d13d1b3f18800f46e256720795",
+        "GUID:8819f35a0fc84499b990e90a4ca1911f",
+        "GUID:a5baed0c9693541a5bd947d336ec7659",
+        "GUID:d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9",
+        "GUID:8b5f6e9d2e3f4a7b8c9d0e1f2a3b4c5d",
+        "GUID:n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9",
+        "GUID:027a272e9c053054b9368bf7aab2e578",
+        "GUID:d23e45155f1935d488cc49677f37c236",
+        "GUID:26c858a044ea8e443864d1208306534e",
+        "GUID:fa2a79bed461fcd448fdb5f8f676936f",
+        "GUID:e1ef05ed32952634ca48b0aefb1becfc"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

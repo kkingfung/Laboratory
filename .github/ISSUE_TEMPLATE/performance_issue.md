@@ -2,7 +2,7 @@
 name: ⚡ Performance Issue
 about: Report performance problems or optimization suggestions
 title: '[PERFORMANCE] '
-labels: ['performance', 'optimization']
+labels: ['performance', 'optimization', 'needs-investigation']
 assignees: ''
 ---
 
@@ -14,21 +14,43 @@ assignees: ''
 ## 🎯 Performance Problem
 <!-- What specific performance issue are you experiencing? -->
 - [ ] **Frame Rate** - Low FPS or stuttering
-- [ ] **Memory Usage** - High memory consumption
+- [ ] **Memory Usage** - High memory consumption or leaks
 - [ ] **Loading Times** - Slow scene/asset loading
+- [ ] **GC Pressure** - Frequent garbage collection spikes
+- [ ] **Draw Calls** - Too many render operations
+- [ ] **Physics** - Expensive collision detection
+- [ ] **AI/Pathfinding** - Slow monster behavior calculations
 - [ ] **Network Performance** - Multiplayer lag or sync issues
 - [ ] **Build Performance** - Slow compilation or building
 - [ ] **Editor Performance** - Slow Unity Editor performance
-- [ ] **Other**: 
+- [ ] **Other**:
 
-## 📊 Current Performance
-<!-- Provide specific performance metrics if available -->
-- **FPS**: 
-- **Memory Usage**: 
-- **CPU Usage**: 
-- **GPU Usage**: 
-- **Loading Time**: 
-- **Build Time**: 
+## 📊 Performance Metrics
+<!-- Provide specific data - use Unity Profiler and our Performance Auditor Tool -->
+- **Current FPS**:
+- **Target FPS**:
+- **Memory Usage**:
+- **GC Alloc/Frame**:
+- **Draw Calls**:
+- **Triangles**:
+- **CPU Usage**:
+- **GPU Usage**:
+- **Loading Time**:
+- **Build Time**:
+
+## 🛠️ Performance Tool Results
+<!-- IMPORTANT: Run our Performance Auditor Tool and include results -->
+### Performance Auditor Tool Output:
+```
+// Unity Editor → Menu → 🚀 Laboratory/Performance Auditor → Scan All Scripts
+// Paste the results here
+```
+
+### QA Automation Tool Results:
+```
+// Unity Editor → Menu → 🛠️ Laboratory/QA Automation → Performance Checks
+// Paste relevant performance check results here
+```
 
 ## 🎮 Reproduction Steps
 <!-- Steps to reproduce the performance issue -->

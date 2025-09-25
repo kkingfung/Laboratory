@@ -72,44 +72,6 @@ namespace Laboratory.Chimera.AI
         Guard = 21
     }
 
-    /// <summary>
-    /// Defines different behavior types that determine the overall personality and role of the creature
-    /// </summary>
-    public enum AIBehaviorType
-    {
-        /// <summary>Friendly companion that follows and helps the player</summary>
-        Companion = 0,
-
-        /// <summary>Aggressive hostile creature that attacks on sight</summary>
-        Aggressive = 1,
-
-        /// <summary>Neutral creature that defends itself when threatened</summary>
-        Neutral = 2,
-
-        /// <summary>Passive creature that avoids conflict</summary>
-        Passive = 3,
-
-        /// <summary>Territorial creature that defends a specific area</summary>
-        Territorial = 4,
-
-        /// <summary>Predator that hunts other creatures</summary>
-        Predator = 5,
-
-        /// <summary>Guard creature that protects a location or other creatures</summary>
-        Guardian = 6,
-
-        /// <summary>Defensive creature that reacts to threats but doesn't initiate combat</summary>
-        Defensive = 7,
-
-        /// <summary>Guard creature that protects a location (alias for Guardian)</summary>
-        Guard = 6, // Same as Guardian
-
-        /// <summary>Herbivore creature that primarily eats plants and avoids meat</summary>
-        Herbivore = 8,
-
-        /// <summary>Wild untamed creature with unpredictable behavior</summary>
-        Wild = 9
-    }
 
     /// <summary>
     /// Helper methods for AI behavior state management

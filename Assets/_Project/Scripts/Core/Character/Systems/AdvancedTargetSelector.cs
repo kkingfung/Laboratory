@@ -26,6 +26,9 @@ namespace Laboratory.Core.Character.Systems
         private float lastScanTime;
         private float scanInterval = 0.1f;
 
+        // Performance optimization: cache health components to avoid repeated GetComponent calls
+        private Dictionary<Transform, IHealthComponent> healthComponentCache = new Dictionary<Transform, IHealthComponent>();
+
         public Transform CurrentTarget => currentTarget;
         public List<Transform> AvailableTargets => availableTargets;
         public float DetectionRange => detectionRange;
@@ -65,22 +68,45 @@ namespace Laboratory.Core.Character.Systems
         }
 
         /// <summary>
-        /// Scans for available targets within range
+        /// Scans for available targets within range - PERFORMANCE OPTIMIZED (cache cleanup)
         /// </summary>
         private void ScanForTargets()
         {
             availableTargets.Clear();
-            
+
             Collider[] colliders = Physics.OverlapSphere(transform.position, detectionRange, targetLayerMask);
-            
+
             foreach (var collider in colliders)
             {
                 if (collider.transform == transform) continue;
-                
+
                 if (IsValidTarget(collider.transform))
                 {
                     availableTargets.Add(collider.transform);
                 }
+            }
+
+            // Clean up destroyed objects from health cache
+            CleanupHealthCache();
+        }
+
+        /// <summary>
+        /// Cleanup null references from health component cache
+        /// </summary>
+        private void CleanupHealthCache()
+        {
+            var keysToRemove = new List<Transform>();
+            foreach (var kvp in healthComponentCache)
+            {
+                if (kvp.Key == null)
+                {
+                    keysToRemove.Add(kvp.Key);
+                }
+            }
+
+            foreach (var key in keysToRemove)
+            {
+                healthComponentCache.Remove(key);
             }
         }
 
@@ -155,27 +181,51 @@ namespace Laboratory.Core.Character.Systems
         }
 
         /// <summary>
-        /// Sorts targets by the specified priority
+        /// Sorts targets by the specified priority - PERFORMANCE OPTIMIZED (no LINQ allocations)
         /// </summary>
         private List<Transform> SortTargetsByPriority(List<Transform> targets, TargetingPriority priority)
         {
+            if (targets.Count <= 1) return targets;
+
+            // Create a copy to avoid modifying the original list
+            var sortedTargets = new List<Transform>(targets);
+
             switch (priority)
             {
                 case TargetingPriority.Closest:
-                    return targets.OrderBy(t => Vector3.Distance(transform.position, t.position)).ToList();
-                    
+                    sortedTargets.Sort((t1, t2) => {
+                        float dist1 = Vector3.Distance(transform.position, t1.position);
+                        float dist2 = Vector3.Distance(transform.position, t2.position);
+                        return dist1.CompareTo(dist2);
+                    });
+                    break;
+
                 case TargetingPriority.Furthest:
-                    return targets.OrderByDescending(t => Vector3.Distance(transform.position, t.position)).ToList();
-                    
+                    sortedTargets.Sort((t1, t2) => {
+                        float dist1 = Vector3.Distance(transform.position, t1.position);
+                        float dist2 = Vector3.Distance(transform.position, t2.position);
+                        return dist2.CompareTo(dist1);
+                    });
+                    break;
+
                 case TargetingPriority.LowestHealth:
-                    return targets.OrderBy(GetTargetHealth).ToList();
-                    
+                    sortedTargets.Sort((t1, t2) => {
+                        float health1 = GetTargetHealth(t1);
+                        float health2 = GetTargetHealth(t2);
+                        return health1.CompareTo(health2);
+                    });
+                    break;
+
                 case TargetingPriority.HighestHealth:
-                    return targets.OrderByDescending(GetTargetHealth).ToList();
-                    
-                default:
-                    return targets;
+                    sortedTargets.Sort((t1, t2) => {
+                        float health1 = GetTargetHealth(t1);
+                        float health2 = GetTargetHealth(t2);
+                        return health2.CompareTo(health1);
+                    });
+                    break;
             }
+
+            return sortedTargets;
         }
 
         /// <summary>
@@ -223,11 +273,20 @@ namespace Laboratory.Core.Character.Systems
         }
 
         /// <summary>
-        /// Gets the health value of a target
+        /// Gets the health value of a target - PERFORMANCE OPTIMIZED (cached GetComponent)
         /// </summary>
         private float GetTargetHealth(Transform target)
         {
-            var healthComponent = target.GetComponent<IHealthComponent>();
+            if (target == null) return 100f;
+
+            // Check cache first to avoid expensive GetComponent calls
+            if (!healthComponentCache.TryGetValue(target, out IHealthComponent healthComponent))
+            {
+                // Cache miss - get component and cache it
+                healthComponent = target.GetComponent<IHealthComponent>();
+                healthComponentCache[target] = healthComponent; // Cache even if null
+            }
+
             if (healthComponent != null)
                 return healthComponent.CurrentHealth;
 
@@ -351,11 +410,12 @@ namespace Laboratory.Core.Character.Systems
         }
         
         /// <summary>
-        /// Cleanup resources
+        /// Cleanup resources - PERFORMANCE OPTIMIZED (clear caches)
         /// </summary>
         public void Dispose()
         {
             availableTargets.Clear();
+            healthComponentCache.Clear();
             currentTarget = null;
             OnTargetAcquired = null;
             OnTargetLost = null;

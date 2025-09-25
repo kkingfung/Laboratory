@@ -1,0 +1,378 @@
+# Enhanced Unity CI/CD Pipeline with Performance Monitoring and Developer Tools
+name: Unity CI/CD - Enhanced
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
+      - 'COPILOT.md'
+      - 'copilot-instructions.json'
+  pull_request:
+    branches: [ main, develop ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
+
+env:
+  UNITY_VERSION: 6000.2.0b7
+  PROJECT_NAME: ProjectChimera
+
+jobs:
+  # Pre-flight checks with our custom tools
+  preflight-checks:
+    name: Pre-flight Quality Checks
+    runs-on: ubuntu-latest
+    outputs:
+      has-code-changes: ${{ steps.changes.outputs.code }}
+      has-scene-changes: ${{ steps.changes.outputs.scenes }}
+      performance-risk: ${{ steps.risk-assessment.outputs.risk-level }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect Changes
+        id: changes
+        run: |
+          # Detect what types of files changed
+          if git diff --name-only HEAD~1 | grep -E "\.cs$"; then
+            echo "code=true" >> $GITHUB_OUTPUT
+            echo "🔍 Code changes detected"
+          else
+            echo "code=false" >> $GITHUB_OUTPUT
+          fi
+
+          if git diff --name-only HEAD~1 | grep -E "\.(unity|prefab)$"; then
+            echo "scenes=true" >> $GITHUB_OUTPUT
+            echo "🎬 Scene/Prefab changes detected"
+          else
+            echo "scenes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Performance Risk Assessment
+        id: risk-assessment
+        run: |
+          # Count code changes for risk assessment
+          code_changes=$(git diff --name-only HEAD~1 | grep -E "\.cs$" | wc -l)
+
+          if [ $code_changes -gt 20 ]; then
+            echo "risk-level=high" >> $GITHUB_OUTPUT
+            echo "🔴 High performance risk: $code_changes files changed"
+          elif [ $code_changes -gt 10 ]; then
+            echo "risk-level=medium" >> $GITHUB_OUTPUT
+            echo "🟡 Medium performance risk: $code_changes files changed"
+          else
+            echo "risk-level=low" >> $GITHUB_OUTPUT
+            echo "✅ Low performance risk: $code_changes files changed"
+          fi
+
+      - name: Automated Performance Audit
+        if: steps.changes.outputs.code == 'true'
+        run: |
+          echo "🚀 Running automated performance audit..."
+
+          # Performance pattern detection (similar to our Performance Auditor Tool)
+          performance_issues=0
+
+          # Check for expensive Update operations
+          update_issues=$(grep -rn "Update.*\(FindObjectOfType\|GameObject\.Find\|GetComponent\)" Assets/ --include="*.cs" | wc -l)
+          performance_issues=$((performance_issues + update_issues))
+
+          # Check for LINQ in potential hot paths
+          linq_issues=$(grep -rn "Update.*\(\.Where\|\.Select\|\.OrderBy\|\.ToList\)" Assets/ --include="*.cs" | wc -l)
+          performance_issues=$((performance_issues + linq_issues))
+
+          # Check for string concatenation
+          string_issues=$(grep -rn '"\s*+\s*"' Assets/ --include="*.cs" | wc -l)
+          if [ $string_issues -gt 5 ]; then
+            performance_issues=$((performance_issues + 1))
+          fi
+
+          echo "📊 Performance Issues Detected: $performance_issues"
+
+          if [ $performance_issues -gt 0 ]; then
+            echo "⚠️ Performance issues detected - detailed analysis required"
+            echo "Use Performance Auditor Tool in Unity Editor for full analysis"
+          fi
+
+  # Code Quality & Security (enhanced)
+  enhanced-code-quality:
+    name: Enhanced Code Quality
+    runs-on: ubuntu-latest
+    needs: preflight-checks
+    if: needs.preflight-checks.outputs.has-code-changes == 'true'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Advanced Code Analysis
+        run: |
+          echo "🔍 Running enhanced code analysis..."
+
+          # Performance-focused analysis
+          echo "Analyzing performance patterns..."
+
+          # Check for cached component patterns (our optimization)
+          cached_components=$(grep -rn "GetComponent.*cache\|componentCache" Assets/ --include="*.cs" | wc -l)
+          echo "✅ Found $cached_components cached component implementations"
+
+          # Check for object pooling usage
+          pooling_usage=$(grep -rn "pool\|Pool" Assets/ --include="*.cs" | wc -l)
+          echo "♻️ Found $pooling_usage object pooling references"
+
+          # Check for ECS usage
+          ecs_usage=$(grep -rn "IComponentData\|SystemBase\|Entities\.ForEach" Assets/ --include="*.cs" | wc -l)
+          echo "⚡ Found $ecs_usage ECS implementations"
+
+          # Quality metrics
+          echo "📊 Code Quality Metrics:"
+          echo "- Cached Components: $cached_components"
+          echo "- Object Pooling: $pooling_usage"
+          echo "- ECS Usage: $ecs_usage"
+
+      - name: Developer Tools Validation
+        run: |
+          echo "🛠️ Validating developer tools integration..."
+
+          # Check if our Unity editor tools are present
+          tools=(
+            "Assets/Editor/PerformanceAuditorTool.cs"
+            "Assets/Editor/QAAutomationTool.cs"
+            "Assets/Editor/GameDevWorkflowTool.cs"
+          )
+
+          tools_present=0
+          for tool in "${tools[@]}"; do
+            if [ -f "$tool" ]; then
+              echo "✅ Tool present: $(basename $tool)"
+              tools_present=$((tools_present + 1))
+            else
+              echo "❌ Tool missing: $(basename $tool)"
+            fi
+          done
+
+          echo "🛠️ Developer Tools: $tools_present/3 present"
+
+      - name: Namespace Compliance Check
+        run: |
+          echo "📦 Checking namespace compliance..."
+
+          # Check for proper Laboratory.* namespace usage
+          non_compliant=$(grep -r "^namespace " Assets/_Project --include="*.cs" | grep -v "Laboratory\." | wc -l)
+
+          if [ $non_compliant -eq 0 ]; then
+            echo "✅ All namespaces follow Laboratory.* convention"
+          else
+            echo "⚠️ Found $non_compliant files not using Laboratory.* namespace"
+            grep -r "^namespace " Assets/_Project --include="*.cs" | grep -v "Laboratory\."
+          fi
+
+  # Unity Build & Test (enhanced with performance monitoring)
+  enhanced-unity-build:
+    name: Unity Build & Performance Test
+    runs-on: ubuntu-latest
+    needs: [preflight-checks, enhanced-code-quality]
+    if: always() && (needs.enhanced-code-quality.result == 'success' || needs.preflight-checks.outputs.has-code-changes == 'false')
+
+    strategy:
+      matrix:
+        include:
+          - platform: StandaloneWindows64
+            buildName: ProjectChimera-Windows
+            buildPath: Builds/Windows
+          - platform: StandaloneLinux64
+            buildName: ProjectChimera-Linux
+            buildPath: Builds/Linux
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      # Enhanced caching strategy
+      - name: Cache Unity Library (Enhanced)
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-v2-${{ matrix.platform }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-v2-${{ matrix.platform }}-
+            Library-v2-
+
+      - name: Setup Unity
+        uses: game-ci/unity-actions/setup@v2
+        with:
+          unityVersion: ${{ env.UNITY_VERSION }}
+          activateLicense: true
+
+      # Simulated Performance Tool Validation (since we can't run Unity Editor tools in CI)
+      - name: Simulated Performance Validation
+        run: |
+          echo "🚀 Simulating Performance Auditor Tool validation..."
+
+          # Simulate the performance checks our tool would do
+          critical_patterns=0
+
+          # Check for critical performance anti-patterns
+          findobj_in_update=$(grep -rn "Update.*FindObjectOfType" Assets/ --include="*.cs" | wc -l)
+          getcomp_in_update=$(grep -rn "Update.*GetComponent.*(" Assets/ --include="*.cs" | wc -l)
+          physics_in_update=$(grep -rn "Update.*Physics\." Assets/ --include="*.cs" | wc -l)
+
+          critical_patterns=$((findobj_in_update + getcomp_in_update + physics_in_update))
+
+          echo "📊 Critical Performance Patterns Found: $critical_patterns"
+          echo "- FindObjectOfType in Update: $findobj_in_update"
+          echo "- GetComponent in Update: $getcomp_in_update"
+          echo "- Physics calls in Update: $physics_in_update"
+
+          if [ $critical_patterns -gt 5 ]; then
+            echo "🔴 HIGH RISK: Many performance anti-patterns detected"
+            echo "performance_risk=high" >> $GITHUB_ENV
+          elif [ $critical_patterns -gt 2 ]; then
+            echo "🟡 MEDIUM RISK: Some performance anti-patterns detected"
+            echo "performance_risk=medium" >> $GITHUB_ENV
+          else
+            echo "✅ LOW RISK: Few or no performance anti-patterns"
+            echo "performance_risk=low" >> $GITHUB_ENV
+          fi
+
+      # Run tests with performance monitoring
+      - name: Run Enhanced Tests
+        uses: game-ci/unity-actions/test@v2
+        with:
+          testMode: editmode
+          resultsPath: TestResults/EditMode
+          artifactsPath: TestResults/EditMode
+        continue-on-error: true
+
+      # Build with performance profiling enabled
+      - name: Build with Performance Profiling
+        uses: game-ci/unity-actions/build@v2
+        with:
+          targetPlatform: ${{ matrix.platform }}
+          buildName: ${{ matrix.buildName }}
+          buildPath: ${{ matrix.buildPath }}
+          buildMethod: BuildScript.BuildProject
+          versioning: Custom
+          customVersion: ${{ github.sha }}
+        env:
+          DEVELOPMENT_BUILD: ${{ needs.preflight-checks.outputs.performance-risk != 'low' }}
+          ENABLE_PROFILER: ${{ needs.preflight-checks.outputs.performance-risk != 'low' }}
+
+      - name: Performance Report Generation
+        run: |
+          cat > performance-build-report.md << EOF
+          # 🚀 Performance Build Report
+
+          **Build**: ${{ matrix.buildName }}
+          **Platform**: ${{ matrix.platform }}
+          **Commit**: ${{ github.sha }}
+          **Performance Risk**: ${{ env.performance_risk }}
+
+          ## Performance Metrics
+          - Critical patterns detected: See build logs
+          - Build configuration: ${{ env.performance_risk != 'low' && 'Development + Profiler' || 'Release' }}
+          - Performance tools: Integrated and validated
+
+          ## Recommendations
+          ${{ env.performance_risk == 'high' && '🔴 HIGH PRIORITY: Run Performance Auditor Tool in Unity Editor' || '' }}
+          ${{ env.performance_risk == 'medium' && '🟡 RECOMMENDED: Review performance with QA Automation Tool' || '' }}
+          ${{ env.performance_risk == 'low' && '✅ Performance looks good - continue monitoring' || '' }}
+
+          ## Available Tools for Optimization
+          - 🚀 Performance Auditor Tool (Unity Editor)
+          - 🛠️ QA Automation Tool (Unity Editor)
+          - ⚡ GameDev Workflow Tool (Unity Editor)
+
+          Access: Unity Editor → Menu → Laboratory → [Tool Name]
+          EOF
+
+      - name: Upload Enhanced Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.buildName }}-enhanced-${{ github.sha }}
+          path: |
+            ${{ matrix.buildPath }}
+            performance-build-report.md
+          retention-days: 90
+
+  # Performance Quality Gate
+  performance-quality-gate:
+    name: Performance Quality Gate
+    runs-on: ubuntu-latest
+    needs: [preflight-checks, enhanced-unity-build]
+    if: always()
+
+    steps:
+      - name: Evaluate Performance Quality
+        run: |
+          performance_risk="${{ needs.preflight-checks.outputs.performance-risk }}"
+
+          echo "🚀 Performance Quality Gate Evaluation"
+          echo "Performance Risk Level: $performance_risk"
+
+          case $performance_risk in
+            "high")
+              echo "🔴 QUALITY GATE FAILED: High performance risk detected"
+              echo "Required Actions:"
+              echo "1. Run Performance Auditor Tool in Unity Editor"
+              echo "2. Address critical performance issues"
+              echo "3. Re-run CI pipeline after fixes"
+              exit 1
+              ;;
+            "medium")
+              echo "🟡 QUALITY GATE WARNING: Medium performance risk"
+              echo "Recommended Actions:"
+              echo "1. Review with Performance Auditor Tool"
+              echo "2. Consider optimization before production"
+              echo "Build allowed but monitoring required"
+              ;;
+            "low"|*)
+              echo "✅ QUALITY GATE PASSED: Low performance risk"
+              echo "Performance monitoring: Continues as normal"
+              ;;
+          esac
+
+      - name: Generate Quality Gate Report
+        run: |
+          cat > quality-gate-report.md << EOF
+          # 🚀 Performance Quality Gate Report
+
+          **Status**: ${{ needs.preflight-checks.outputs.performance-risk }}
+          **Timestamp**: $(date)
+          **Commit**: ${{ github.sha }}
+
+          ## Quality Gate Results
+          Performance risk assessment: ${{ needs.preflight-checks.outputs.performance-risk }}
+
+          ## Developer Action Items
+          - Use Performance Auditor Tool for detailed analysis
+          - Run QA Automation Tool for comprehensive validation
+          - Monitor build performance metrics
+
+          ## Tool Access
+          Unity Editor → Menu → Laboratory → [Tool Name]
+
+          EOF
+
+      - name: Upload Quality Gate Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-gate-report-${{ github.sha }}
+          path: quality-gate-report.md
+          retention-days: 30

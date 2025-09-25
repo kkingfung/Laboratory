@@ -766,7 +766,7 @@ namespace Laboratory.Chimera.ECS
     // Additional ECS Components needed for the bootstrap
     public struct ChimeraBiomeComponent : IComponentData
     {
-        public BiomeType biomeType;
+        public Laboratory.Chimera.Core.BiomeType biomeType;
         public float temperature;
         public float humidity;
         public float foodAvailability;

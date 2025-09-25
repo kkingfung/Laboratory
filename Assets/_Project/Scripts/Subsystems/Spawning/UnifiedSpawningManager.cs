@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 using Laboratory.Core.Events;
 using Laboratory.Core.DI;
 
@@ -19,6 +20,7 @@ namespace Laboratory.Subsystems.Spawning
         [SerializeField] private float spawnCooldown = 1f;
         
         private Dictionary<string, SpawnConfig> spawnConfigs = new Dictionary<string, SpawnConfig>();
+        private Dictionary<string, List<GameObject>> spawnedObjectsByTag = new Dictionary<string, List<GameObject>>();
         private float lastSpawnTime;
 
         private void Awake()
@@ -58,7 +60,10 @@ namespace Laboratory.Subsystems.Spawning
             
             // Spawn the object
             GameObject spawnedObject = Instantiate(prefab, spawnPoint.transform.position, spawnPoint.transform.rotation);
-            
+
+            // Track spawned object by tag for performance-optimized cleanup
+            TrackSpawnedObject(spawnedObject, spawnPointTag);
+
             // Apply spawn configuration
             ApplySpawnConfig(spawnedObject, config);
             
@@ -186,17 +191,46 @@ namespace Laboratory.Subsystems.Spawning
         }
 
         /// <summary>
-        /// Clear all spawned objects with a specific tag
+        /// Track spawned object by tag for performance-optimized cleanup
+        /// </summary>
+        private void TrackSpawnedObject(GameObject obj, string tag)
+        {
+            if (!spawnedObjectsByTag.ContainsKey(tag))
+            {
+                spawnedObjectsByTag[tag] = new List<GameObject>();
+            }
+            spawnedObjectsByTag[tag].Add(obj);
+        }
+
+        /// <summary>
+        /// Clear all spawned objects with a specific tag - PERFORMANCE OPTIMIZED
         /// </summary>
         public void ClearSpawnedObjects(string tag)
         {
-            GameObject[] objectsWithTag = GameObject.FindGameObjectsWithTag(tag);
-            foreach (var obj in objectsWithTag)
+            if (spawnedObjectsByTag.ContainsKey(tag))
             {
-                if (obj != null)
+                var objectsToDestroy = spawnedObjectsByTag[tag];
+                for (int i = objectsToDestroy.Count - 1; i >= 0; i--)
                 {
-                    Destroy(obj);
+                    if (objectsToDestroy[i] != null)
+                    {
+                        Destroy(objectsToDestroy[i]);
+                    }
                 }
+                spawnedObjectsByTag[tag].Clear();
+
+                Debug.Log($"[UnifiedSpawningManager] Cleared {objectsToDestroy.Count} objects with tag '{tag}' - NO scene scan required!");
+            }
+        }
+
+        /// <summary>
+        /// Clean up null references in tracked objects - call this periodically
+        /// </summary>
+        public void CleanupNullReferences()
+        {
+            foreach (var tag in spawnedObjectsByTag.Keys.ToList())
+            {
+                spawnedObjectsByTag[tag].RemoveAll(obj => obj == null);
             }
         }
     }

@@ -18,6 +18,9 @@ namespace Laboratory.Chimera.World
     /// </summary>
     public class EcosystemManager : MonoBehaviour
     {
+        // Singleton instance for performance-optimized creature registration
+        public static EcosystemManager Instance { get; private set; }
+
         [Header("Ecosystem Configuration")]
         [SerializeField] private float updateInterval = 30f; // Real-time seconds per ecosystem update
         [SerializeField] private float seasonLength = 300f; // Real-time seconds per season
@@ -57,6 +60,18 @@ namespace Laboratory.Chimera.World
 
         private void Awake()
         {
+            // Set singleton instance for performance-optimized creature registration
+            if (Instance == null)
+            {
+                Instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             InitializeEventBus();
             InitializeBiomes();
         }
@@ -167,10 +182,35 @@ namespace Laboratory.Chimera.World
             InvokeRepeating(nameof(PerformEcosystemUpdate), updateInterval, updateInterval);
         }
 
+        /// <summary>
+        /// Register a creature with the ecosystem manager - call this when creatures spawn
+        /// </summary>
+        public static void RegisterCreature(CreatureInstanceComponent creature)
+        {
+            if (Instance != null && creature != null)
+            {
+                Instance.trackedCreatures.Add(creature);
+                Instance.Log($"Registered creature - now tracking {Instance.trackedCreatures.Count} creatures");
+            }
+        }
+
+        /// <summary>
+        /// Unregister a creature from the ecosystem manager - call this when creatures despawn
+        /// </summary>
+        public static void UnregisterCreature(CreatureInstanceComponent creature)
+        {
+            if (Instance != null && creature != null)
+            {
+                Instance.trackedCreatures.Remove(creature);
+                Instance.Log($"Unregistered creature - now tracking {Instance.trackedCreatures.Count} creatures");
+            }
+        }
+
         private void RefreshCreatureTracking()
         {
-            trackedCreatures = FindObjectsByType<CreatureInstanceComponent>(FindObjectsSortMode.None).ToList();
-            Log($"Now tracking {trackedCreatures.Count} creatures");
+            // Clean up any null references (creatures that were destroyed without proper unregistration)
+            trackedCreatures.RemoveAll(creature => creature == null);
+            Log($"Cleaned up creature tracking - now tracking {trackedCreatures.Count} valid creatures");
         }
 
         private void PerformEcosystemUpdate()

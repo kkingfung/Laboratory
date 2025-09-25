@@ -8,7 +8,9 @@
       "Bash(cat:*)",
       "Bash(awk:*)",
       "mcp__mcp-unity__execute_menu_item",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(del:*)",
+      "Bash(dotnet build)"
     ],
     "deny": [],
     "ask": []

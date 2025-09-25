@@ -13,7 +13,7 @@ namespace Laboratory.Chimera.Examples
     /// </summary>
     public static class ChimeraConfigurationFactory
     {
-        [MenuItem("Chimera/Create Example Configurations/Complete Ecosystem")]
+        [MenuItem("🐲 Chimera/Create Example Configurations/Complete Ecosystem")]
         public static void CreateCompleteEcosystem()
         {
             CreateForestBiome();
@@ -24,7 +24,7 @@ namespace Laboratory.Chimera.Examples
             Debug.Log("✅ Created complete forest ecosystem with 3 species!");
         }
         
-        [MenuItem("Chimera/Create Example Configurations/Forest Biome")]
+        [MenuItem("🐲 Chimera/Create Example Configurations/Forest Biome")]
         public static void CreateForestBiome()
         {
             var biome = ScriptableObject.CreateInstance<ChimeraBiomeConfig>();
@@ -76,7 +76,7 @@ namespace Laboratory.Chimera.Examples
             SaveAsset(biome, "ForestBiome_Config");
         }
         
-        [MenuItem("Chimera/Create Example Configurations/Forest Dragon")]
+        [MenuItem("🐲 Chimera/Create Example Configurations/Forest Dragon")]
         public static void CreateForestDragon()
         {
             var dragon = ScriptableObject.CreateInstance<ChimeraSpeciesConfig>();
@@ -151,7 +151,7 @@ namespace Laboratory.Chimera.Examples
             SaveAsset(dragon, "ForestDragon_Species");
         }
         
-        [MenuItem("Chimera/Create Example Configurations/Companion Wolf")]
+        [MenuItem("🐲 Chimera/Create Example Configurations/Companion Wolf")]
         public static void CreateCompanionWolf()
         {
             var wolf = ScriptableObject.CreateInstance<ChimeraSpeciesConfig>();
@@ -226,7 +226,7 @@ namespace Laboratory.Chimera.Examples
             SaveAsset(wolf, "CompanionWolf_Species");
         }
         
-        [MenuItem("Chimera/Create Example Configurations/Wild Rabbit")]
+        [MenuItem("🐲 Chimera/Create Example Configurations/Wild Rabbit")]
         public static void CreateWildRabbit()
         {
             var rabbit = ScriptableObject.CreateInstance<ChimeraSpeciesConfig>();
@@ -301,7 +301,7 @@ namespace Laboratory.Chimera.Examples
             SaveAsset(rabbit, "ForestRabbit_Species");
         }
         
-        [MenuItem("Chimera/Create Example Configurations/Desert Biome")]
+        [MenuItem("🐲 Chimera/Create Example Configurations/Desert Biome")]
         public static void CreateDesertBiome()
         {
             var biome = ScriptableObject.CreateInstance<ChimeraBiomeConfig>();

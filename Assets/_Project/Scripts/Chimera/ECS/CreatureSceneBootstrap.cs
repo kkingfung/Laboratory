@@ -26,7 +26,7 @@ namespace Laboratory.Chimera.ECS
         [SerializeField] private bool mixWildAndDomestic = true;
         
         [Header("Environment")]
-        [SerializeField] private BiomeType sceneBiome = BiomeType.Forest;
+        [SerializeField] private Laboratory.Chimera.Core.BiomeType sceneBiome = Laboratory.Chimera.Core.BiomeType.Forest;
         [SerializeField] private bool enableECSSimulation = true;
         
         [Header("Debug")]
@@ -283,19 +283,19 @@ namespace Laboratory.Chimera.ECS
             Gizmos.DrawWireCube(spawnCenter + Vector3.up * 5f, Vector3.one);
         }
         
-        private Color GetBiomeColor(BiomeType biome)
+        private Color GetBiomeColor(Laboratory.Chimera.Core.BiomeType biome)
         {
             return biome switch
             {
-                BiomeType.Forest => Color.green,
-                BiomeType.Desert => Color.yellow,
-                BiomeType.Ocean => Color.blue,
-                BiomeType.Mountain => Color.gray,
-                BiomeType.Tundra => Color.white,
-                BiomeType.Swamp => new Color(0.4f, 0.6f, 0.3f),
-                BiomeType.Volcanic => Color.red,
-                BiomeType.Underground => Color.black,
-                BiomeType.Sky => Color.cyan,
+                Laboratory.Chimera.Core.BiomeType.Forest => Color.green,
+                Laboratory.Chimera.Core.BiomeType.Desert => Color.yellow,
+                Laboratory.Chimera.Core.BiomeType.Ocean => Color.blue,
+                Laboratory.Chimera.Core.BiomeType.Mountain => Color.gray,
+                Laboratory.Chimera.Core.BiomeType.Tundra => Color.white,
+                Laboratory.Chimera.Core.BiomeType.Swamp => new Color(0.4f, 0.6f, 0.3f),
+                Laboratory.Chimera.Core.BiomeType.Volcanic => Color.red,
+                Laboratory.Chimera.Core.BiomeType.Underground => Color.black,
+                Laboratory.Chimera.Core.BiomeType.Sky => Color.cyan,
                 _ => Color.magenta
             };
         }

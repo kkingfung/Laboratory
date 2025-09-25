@@ -62,7 +62,8 @@ namespace Laboratory.AI
             
             // Add a generic component to track the system
             var systemTracker = systemGO.AddComponent<PathfindingSystemTracker>();
-            systemTracker.Configure(defaultMode, maxAgentsPerFrame, pathUpdateInterval, enableFlowFields);
+            systemTracker.Configure(defaultMode, maxAgentsPerFrame, pathUpdateInterval, enableFlowFields,
+                                   enableGroupPathfinding, pathCacheLifetime, maxCachedPaths, showDebugPaths, maxPathRequestsPerFrame);
 
             Debug.Log("✅ Enhanced Pathfinding System created and configured!");
         }
@@ -72,7 +73,7 @@ namespace Laboratory.AI
         {
             int upgradedCount = 0;
 
-            var allNavAgents = FindObjectsOfType<UnityEngine.AI.NavMeshAgent>();
+            var allNavAgents = FindObjectsByType<UnityEngine.AI.NavMeshAgent>(FindObjectsSortMode.None);
             
             foreach (var navAgent in allNavAgents)
             {
@@ -200,8 +201,8 @@ namespace Laboratory.AI
             Debug.Log("📊 === Enhanced Pathfinding System Status ===");
             
             // Find all pathfinding agents in scene
-            var allAgents = FindObjectsOfType<GenericPathfindingAgent>();
-            var pathfindingAgents = FindObjectsOfType<MonoBehaviour>()
+            var allAgents = FindObjectsByType<GenericPathfindingAgent>(FindObjectsSortMode.None);
+            var pathfindingAgents = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
                 .Where(mb => mb is IPathfindingAgent)
                 .ToArray();
                 
@@ -226,7 +227,7 @@ namespace Laboratory.AI
             var systemGO = GameObject.Find("Enhanced Pathfinding System");
             if (systemGO != null)
             {
-                var allAgents = FindObjectsOfType<GenericPathfindingAgent>();
+                var allAgents = FindObjectsByType<GenericPathfindingAgent>(FindObjectsSortMode.None);
                 GUILayout.Label($"Agents: {allAgents.Length}");
                 GUILayout.Label($"FPS: {1f / Time.deltaTime:F1}");
                 
@@ -260,15 +261,32 @@ namespace Laboratory.AI
         public int maxAgentsPerFrame = 10;
         public float pathUpdateInterval = 0.2f;
         public bool enableFlowFields = true;
+        public bool enableGroupPathfinding = true;
 
-        public void Configure(PathfindingMode defaultMode, int maxAgents, float updateInterval, bool flowFields)
+        [Header("Performance Settings")]
+        public float pathCacheLifetime = 5f;
+        public int maxCachedPaths = 100;
+
+        [Header("Debug")]
+        public bool showDebugPaths = true;
+
+        [Header("Request Limiting")]
+        public int maxPathRequestsPerFrame = 5;
+
+        public void Configure(PathfindingMode defaultMode, int maxAgents, float updateInterval, bool flowFields,
+                            bool groupPathfinding, float cacheLifetime, int cachedPaths, bool debugPaths, int maxRequests)
         {
             mode = defaultMode;
             maxAgentsPerFrame = maxAgents;
             pathUpdateInterval = updateInterval;
             enableFlowFields = flowFields;
-            
-            Debug.Log($"📝 Pathfinding system configured - Mode: {mode}, Max Agents: {maxAgents}");
+            enableGroupPathfinding = groupPathfinding;
+            pathCacheLifetime = cacheLifetime;
+            maxCachedPaths = cachedPaths;
+            showDebugPaths = debugPaths;
+            maxPathRequestsPerFrame = maxRequests;
+
+            Debug.Log($"📝 Pathfinding system configured - Mode: {mode}, Max Agents: {maxAgents}, Max Requests/Frame: {maxRequests}");
         }
     }
 

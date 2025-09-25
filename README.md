@@ -18,11 +18,11 @@ Project Chimera is a **persistent online monster breeding RPG** where every mons
 
 This project leverages Unity's **latest ECS, AI, and Multiplayer packages** with third-party tools for scalability and modularity.  
 
-### Core Framework  
-- [Unity ECS (Entities, Physics, Collections)](https://docs.unity3d.com/Packages/com.unity.entities@latest/) – Scalable AI & DNA simulations.  
-- [Netcode for GameObjects](https://docs-multiplayer.unity3d.com/) + Unity Transport – Multiplayer backbone.  
-- [UniTask](https://github.com/Cysharp/UniTask), [R3](https://github.com/Cysharp/R3), [MessagePipe](https://github.com/Cysharp/MessagePipe) – Async, reactive, event-driven systems.  
-- [VContainer](https://github.com/hadashiA/VContainer) – Dependency injection for modular architecture.  
+### Core Framework
+- [Unity ECS (Entities, Physics, Collections)](https://docs.unity3d.com/Packages/com.unity.entities@latest/) – Scalable AI & DNA simulations.
+- [Netcode for Entities](https://docs.unity3d.com/Packages/com.unity.netcode@latest/) + Unity Transport – Multiplayer backbone.
+- Unity's built-in async/await patterns – Async operations and reactive systems.
+- Custom dependency injection – Modular architecture with service containers.  
 
 ### World & Visuals  
 - [URP](https://docs.unity3d.com/Packages/com.unity.render-pipelines.universal@latest/) + PostProcessing – Optimized rendering across platforms.  
@@ -136,24 +136,22 @@ Project Chimera implements a **12-subsystem architecture** designed for scalabil
 **Responsibility:** Multiplayer synchronization, network communication, ECS integration
 
 **Core Components:**
-- **`AdvancedNetworkManager`** - Unity Netcode integration with advanced features
-- **`NetworkMessageHandler`** - Asynchronous message processing with UniTask
-- **`NetworkClient`** - TCP client with reactive programming (R3)
-- **`UnifiedNetworkPlayerData`** - Network serializable player data structure
+- **`ChimeraNetworkManager`** - Unity Netcode integration for monster breeding
+- **`NetworkSyncSystemSimple`** - ECS network synchronization system
+- **Custom networking components** - Optimized for Unity 6 architecture
 
 **Key Features:**
-- ✅ Client-server architecture with Netcode for GameObjects
+- ✅ Client-server architecture with Netcode for Entities
 - ✅ ECS synchronization for high-performance networking
-- ✅ Asynchronous message processing with UniTask
-- ✅ Reactive programming integration with R3
-- ✅ Network analytics and performance monitoring
-- ✅ Security features (encryption, anti-cheat)
+- ✅ Custom async patterns optimized for Unity 6
+- ✅ Performance monitoring and analytics
+- ✅ Security features and validation
 
 **Network Architecture:**
 - Server-authoritative gameplay with client prediction
 - Event-driven network communication
-- Thread-safe message processing
-- Comprehensive connection management
+- ECS-based multiplayer synchronization
+- Unity 6 optimized networking patterns
 
 ---
 
@@ -185,23 +183,23 @@ Project Chimera implements a **12-subsystem architecture** designed for scalabil
 **Responsibility:** User interface, HUD, menus, notifications
 
 **Core Components:**
-- **`HUDController`** - Central HUD management with reactive programming
-- **`ScoreboardUI`** - Player scoring and leaderboard display
-- **`MiniMapUI`** - Minimap functionality and navigation
-- **`UIController`** - Base UI controller utilities
+- **`BreedingInterfaceUI`** - Monster breeding interface and genetics display
+- **`CreatureManagementUI`** - Creature collection and management
+- **`AdvancedBreedingUI`** - Advanced breeding features and prediction
+- **`VisualGeneticsInspectorUI`** - Genetic trait visualization
 
 **Key Features:**
-- ✅ Reactive programming with UniRx for UI updates
-- ✅ MVVM pattern implementation
-- ✅ Centralized HUD state management
-- ✅ Integration with ability systems and player status
-- ✅ Damage indicators and crosshair systems
+- ✅ Unity UI system with event-driven updates
+- ✅ Custom UI patterns for breeding systems
+- ✅ Creature visualization and genetic displays
+- ✅ Integration with breeding and genetics systems
+- ✅ Responsive UI design for multiple screen sizes
 
 **UI Architecture:**
-- Event-driven UI updates through reactive streams
-- ViewModel pattern for data binding
-- Modular UI component system
-- Integration with game state and player systems
+- Event-driven UI updates through Unity events
+- Component-based UI architecture
+- Modular breeding and genetics interfaces
+- Integration with monster genetics and breeding systems
 
 ---
 
@@ -209,23 +207,23 @@ Project Chimera implements a **12-subsystem architecture** designed for scalabil
 **Responsibility:** Dependency injection, event system, service container, bootstrap
 
 **Core Components:**
-- **`GameManager`** - Central game state management and coordination
-- **`GlobalServiceProvider`** - Dependency injection container
-- **`EventSystemBridge`** - Event system integration and legacy bridging
-- **`Bootstrap`** - Game initialization and system startup
+- **`ChimeraManager`** - Central Chimera system management and coordination
+- **`SafeComponentManager`** - Safe component handling and validation
+- **`ChimeraErrorMonitor`** - Error monitoring and system health
+- **System Bootstrap scripts** - Game initialization and system startup
 
 **Key Features:**
-- ✅ Dependency injection with VContainer integration
-- ✅ Global event bus with R3 reactive extensions
+- ✅ Custom dependency management system
+- ✅ Event-driven communication patterns
 - ✅ Service container for system registration
 - ✅ Bootstrap system for proper initialization order
-- ✅ State management and game flow control
+- ✅ Error monitoring and recovery systems
 
 **Infrastructure Architecture:**
-- Service-oriented architecture with dependency injection
+- Service-oriented architecture with custom management
 - Event-driven communication between systems
-- Centralized configuration management
-- Proper disposal patterns and resource cleanup
+- Centralized error monitoring and recovery
+- Safe component handling and resource management
 
 ---
 
@@ -283,7 +281,7 @@ struct MonsterVisualDNA : IComponentData {
 ## 🚀 Quick Start
 
 ### **Requirements**
-- Unity 2022.3 LTS or newer
+- Unity 6 (6000.2.0b7 or later)
 - Visual Studio 2022 or JetBrains Rider
 - 8GB RAM (16GB recommended for large worlds)
 - DirectX 11/12 or Vulkan compatible GPU

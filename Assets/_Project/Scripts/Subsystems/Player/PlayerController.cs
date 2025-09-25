@@ -47,6 +47,10 @@ namespace Laboratory.Subsystems.Player
         private float lastAttackTime;
         private bool isRunning;
 
+        // Performance optimization: cache ground check to reduce Physics calls
+        private float lastGroundCheckTime;
+        private float groundCheckInterval = 0.1f; // Check ground 10 times per second instead of every frame
+
         #region IHealthComponent Implementation
 
         public int CurrentHealth => currentHealth;
@@ -140,8 +144,12 @@ namespace Laboratory.Subsystems.Player
 
         private void HandleMovement()
         {
-            // Ground check
-            isGrounded = Physics.CheckSphere(transform.position, groundCheckDistance, groundMask);
+            // Performance optimized ground check - only check every groundCheckInterval seconds
+            if (Time.time - lastGroundCheckTime >= groundCheckInterval)
+            {
+                isGrounded = Physics.CheckSphere(transform.position, groundCheckDistance, groundMask);
+                lastGroundCheckTime = Time.time;
+            }
 
             if (isGrounded && velocity.y < 0)
             {

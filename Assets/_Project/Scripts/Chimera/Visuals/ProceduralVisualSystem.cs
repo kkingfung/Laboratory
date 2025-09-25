@@ -1403,14 +1403,26 @@ namespace Laboratory.Chimera.Visuals
         private string GenerateGeneticHash(GeneticProfile genetics)
         {
             if (genetics == null) return "";
-            
-            string hashSource = $"{genetics.Generation}_{genetics.Genes.Count}_{genetics.Mutations.Count}";
-            foreach (var gene in genetics.Genes.Take(10)) // First 10 genes for performance
+
+            // PERFORMANCE OPTIMIZED: Use hash code directly instead of string concatenation
+            int hash = genetics.Generation.GetHashCode();
+            hash = hash * 31 + genetics.Genes.Count.GetHashCode();
+            hash = hash * 31 + genetics.Mutations.Count.GetHashCode();
+
+            // Process first 10 genes without LINQ.Take() allocation
+            int geneCount = 0;
+            foreach (var gene in genetics.Genes)
             {
-                hashSource += $"_{gene.traitName}_{gene.value:F2}";
+                if (geneCount >= 10) break;
+                if (!string.IsNullOrEmpty(gene.traitName) && gene.value.HasValue)
+                {
+                    hash = hash * 31 + gene.traitName.GetHashCode();
+                    hash = hash * 31 + ((int)(gene.value.Value * 100)).GetHashCode(); // Avoid float precision issues
+                }
+                geneCount++;
             }
-            
-            return hashSource.GetHashCode().ToString();
+
+            return hash.ToString(); // Only one ToString() call
         }
         
         private void CheckForGeneticUpdates()
