@@ -10,10 +10,10 @@
         "Unity.Mathematics",
         "Unity.Burst",
         "Unity.Jobs",
-        "Laboratory.Core",
-        "Laboratory.Chimera",
-        "Laboratory.Chimera.Genetics.Advanced",
-        "Laboratory.AI.Pathfinding"
+        "GUID:26c858a044ea8e443864d1208306534e",
+        "GUID:027a272e9c053054b9368bf7aab2e578",
+        "GUID:ffcee7f4abd9f1f489e66cd3ab459cd2",
+        "GUID:060b960b2d5f21443b98de7fcb5be9b7"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

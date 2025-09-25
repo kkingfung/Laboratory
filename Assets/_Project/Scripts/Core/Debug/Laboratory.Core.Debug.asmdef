@@ -7,7 +7,7 @@
         "Unity.Mathematics",
         "Unity.TextMeshPro",
         "Unity.InputSystem",
-        "Laboratory.Core"
+        "GUID:26c858a044ea8e443864d1208306534e"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
