@@ -215,10 +215,16 @@ jobs:
             Library-v2-
 
       - name: Setup Unity
-        uses: game-ci/unity-actions/setup@v2
+        uses: game-ci/unity-installer@v2
         with:
-          unityVersion: ${{ env.UNITY_VERSION }}
-          activateLicense: true
+          version: ${{ env.UNITY_VERSION }}
+
+      - name: Activate Unity
+        uses: game-ci/unity-activate@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
 
       # Simulated Performance Tool Validation (since we can't run Unity Editor tools in CI)
       - name: Simulated Performance Validation
@@ -253,26 +259,33 @@ jobs:
 
       # Run tests with performance monitoring
       - name: Run Enhanced Tests
-        uses: game-ci/unity-actions/test@v2
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          unityVersion: ${{ env.UNITY_VERSION }}
           testMode: editmode
-          resultsPath: TestResults/EditMode
-          artifactsPath: TestResults/EditMode
         continue-on-error: true
 
       # Build with performance profiling enabled
       - name: Build with Performance Profiling
-        uses: game-ci/unity-actions/build@v2
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          DEVELOPMENT_BUILD: ${{ needs.preflight-checks.outputs.performance-risk != 'low' }}
+          ENABLE_PROFILER: ${{ needs.preflight-checks.outputs.performance-risk != 'low' }}
         with:
+          unityVersion: ${{ env.UNITY_VERSION }}
           targetPlatform: ${{ matrix.platform }}
           buildName: ${{ matrix.buildName }}
           buildPath: ${{ matrix.buildPath }}
           buildMethod: BuildScript.BuildProject
           versioning: Custom
           customVersion: ${{ github.sha }}
-        env:
-          DEVELOPMENT_BUILD: ${{ needs.preflight-checks.outputs.performance-risk != 'low' }}
-          ENABLE_PROFILER: ${{ needs.preflight-checks.outputs.performance-risk != 'low' }}
 
       - name: Performance Report Generation
         run: |

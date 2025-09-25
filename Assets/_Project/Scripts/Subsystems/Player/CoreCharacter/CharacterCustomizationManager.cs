@@ -1,13 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Laboratory.Core.Customization;
+using Laboratory.Core.Character.Configuration;
 
 namespace Laboratory.Core.Character
 {
     /// <summary>
     /// Manages character customization including appearance, equipment, and visual modifications.
     /// Handles dynamic loading of customization assets and maintains character state.
+    /// Implements ICustomizationSystem for standardized interface.
     /// </summary>
-    public class CharacterCustomizationManager : MonoBehaviour
+    public class CharacterCustomizationManager : MonoBehaviour, ICustomizationSystem
     {
         #region Fields
 
@@ -27,18 +30,19 @@ namespace Laboratory.Core.Character
         [SerializeField] private GameObject _defaultClothing;
         [SerializeField] private GameObject _defaultAccessories;
 
+        [Header("Configuration")]
+        [SerializeField] private CustomizationSettings _customizationSettings;
+
         // Runtime state
         private Dictionary<string, GameObject> _activeCustomizations = new Dictionary<string, GameObject>();
+        private Dictionary<string, GameObject> _assetCache = new Dictionary<string, GameObject>();
         private CharacterCustomizationData _currentCustomization;
         private bool _isInitialized = false;
+        private bool _isActive = true;
         
         // Navigation indices for cycling through options
         private int _currentHairIndex = 0;
         private int _currentArmorIndex = 0;
-        
-        // Available options (would typically be loaded from data or resources)
-        private readonly string[] _availableHairIds = { "default_hair", "hair_style_1", "hair_style_2", "hair_style_3" };
-        private readonly string[] _availableArmorIds = { "default_armor", "armor_set_1", "armor_set_2", "armor_set_3" };
 
         #endregion
 
@@ -58,6 +62,34 @@ namespace Laboratory.Core.Character
         /// Character's skinned mesh renderer for material modifications
         /// </summary>
         public SkinnedMeshRenderer CharacterMeshRenderer => _characterMeshRenderer;
+
+        /// <summary>
+        /// Gets whether the customization system is currently active
+        /// </summary>
+        public bool IsActive => _isActive;
+
+        /// <summary>
+        /// Current customization settings configuration
+        /// </summary>
+        public CustomizationSettings Settings => _customizationSettings;
+
+        #endregion
+
+        #region ICustomizationSystem Implementation
+
+        /// <summary>
+        /// Sets the active state of the customization system
+        /// </summary>
+        /// <param name="active">Whether the system should be active</param>
+        public void SetActive(bool active)
+        {
+            _isActive = active;
+
+            if (_customizationSettings != null && _customizationSettings.logChanges)
+            {
+                Debug.Log($"CharacterCustomizationManager: Active state changed to {active}");
+            }
+        }
 
         #endregion
 
@@ -249,15 +281,15 @@ namespace Laboratory.Core.Character
         /// </summary>
         public void NextHair()
         {
-            if (_availableHairIds.Length == 0) return;
-            
-            _currentHairIndex = (_currentHairIndex + 1) % _availableHairIds.Length;
-            ApplyHairCustomization(_availableHairIds[_currentHairIndex]);
-            
+            if (_customizationSettings == null || _customizationSettings.availableHairIds.Length == 0) return;
+
+            _currentHairIndex = (_currentHairIndex + 1) % _customizationSettings.availableHairIds.Length;
+            ApplyHairCustomization(_customizationSettings.availableHairIds[_currentHairIndex]);
+
             // Update current customization data
             if (_currentCustomization == null)
                 _currentCustomization = new CharacterCustomizationData();
-            _currentCustomization.HairId = _availableHairIds[_currentHairIndex];
+            _currentCustomization.HairId = _customizationSettings.availableHairIds[_currentHairIndex];
         }
         
         /// <summary>
@@ -265,15 +297,15 @@ namespace Laboratory.Core.Character
         /// </summary>
         public void PreviousHair()
         {
-            if (_availableHairIds.Length == 0) return;
-            
-            _currentHairIndex = (_currentHairIndex - 1 + _availableHairIds.Length) % _availableHairIds.Length;
-            ApplyHairCustomization(_availableHairIds[_currentHairIndex]);
-            
+            if (_customizationSettings == null || _customizationSettings.availableHairIds.Length == 0) return;
+
+            _currentHairIndex = (_currentHairIndex - 1 + _customizationSettings.availableHairIds.Length) % _customizationSettings.availableHairIds.Length;
+            ApplyHairCustomization(_customizationSettings.availableHairIds[_currentHairIndex]);
+
             // Update current customization data
             if (_currentCustomization == null)
                 _currentCustomization = new CharacterCustomizationData();
-            _currentCustomization.HairId = _availableHairIds[_currentHairIndex];
+            _currentCustomization.HairId = _customizationSettings.availableHairIds[_currentHairIndex];
         }
         
         /// <summary>
@@ -281,15 +313,15 @@ namespace Laboratory.Core.Character
         /// </summary>
         public void NextArmor()
         {
-            if (_availableArmorIds.Length == 0) return;
-            
-            _currentArmorIndex = (_currentArmorIndex + 1) % _availableArmorIds.Length;
-            ApplyClothingCustomization(_availableArmorIds[_currentArmorIndex]);
-            
+            if (_customizationSettings == null || _customizationSettings.availableClothingIds.Length == 0) return;
+
+            _currentArmorIndex = (_currentArmorIndex + 1) % _customizationSettings.availableClothingIds.Length;
+            ApplyClothingCustomization(_customizationSettings.availableClothingIds[_currentArmorIndex]);
+
             // Update current customization data
             if (_currentCustomization == null)
                 _currentCustomization = new CharacterCustomizationData();
-            _currentCustomization.ClothingId = _availableArmorIds[_currentArmorIndex];
+            _currentCustomization.ClothingId = _customizationSettings.availableClothingIds[_currentArmorIndex];
         }
         
         /// <summary>
@@ -297,15 +329,15 @@ namespace Laboratory.Core.Character
         /// </summary>
         public void PreviousArmor()
         {
-            if (_availableArmorIds.Length == 0) return;
-            
-            _currentArmorIndex = (_currentArmorIndex - 1 + _availableArmorIds.Length) % _availableArmorIds.Length;
-            ApplyClothingCustomization(_availableArmorIds[_currentArmorIndex]);
-            
+            if (_customizationSettings == null || _customizationSettings.availableClothingIds.Length == 0) return;
+
+            _currentArmorIndex = (_currentArmorIndex - 1 + _customizationSettings.availableClothingIds.Length) % _customizationSettings.availableClothingIds.Length;
+            ApplyClothingCustomization(_customizationSettings.availableClothingIds[_currentArmorIndex]);
+
             // Update current customization data
             if (_currentCustomization == null)
                 _currentCustomization = new CharacterCustomizationData();
-            _currentCustomization.ClothingId = _availableArmorIds[_currentArmorIndex];
+            _currentCustomization.ClothingId = _customizationSettings.availableClothingIds[_currentArmorIndex];
         }
         
         /// <summary>
@@ -435,10 +467,85 @@ namespace Laboratory.Core.Character
 
         private GameObject LoadCustomizationAsset(string assetId, string category)
         {
-            // This would typically load from Resources, Addressables, or asset bundles
-            // For now, return null to indicate asset not found
-            Debug.Log($"Loading {category} asset: {assetId}");
-            return null;
+            if (!_isActive)
+                return null;
+
+            // Check cache first if caching is enabled
+            if (_customizationSettings != null && _customizationSettings.cacheAssets)
+            {
+                string cacheKey = $"{category}_{assetId}";
+                if (_assetCache.TryGetValue(cacheKey, out GameObject cachedAsset))
+                {
+                    return cachedAsset;
+                }
+            }
+
+            // Get asset path from settings
+            string assetPath = _customizationSettings?.GetAssetPath(category, assetId) ?? $"Character/Customization/{category}/{assetId}";
+
+            // Try to load from Resources
+            GameObject loadedAsset = Resources.Load<GameObject>(assetPath);
+
+            // Log if configured
+            if (_customizationSettings != null && _customizationSettings.logChanges)
+            {
+                Debug.Log($"Loading {category} asset: {assetId} from path: {assetPath} - {(loadedAsset != null ? "Success" : "Failed")}");
+            }
+
+            // Cache the asset if successful and caching is enabled
+            if (loadedAsset != null && _customizationSettings != null && _customizationSettings.cacheAssets)
+            {
+                string cacheKey = $"{category}_{assetId}";
+
+                // Check cache size limit
+                if (_assetCache.Count < _customizationSettings.maxCachedAssets)
+                {
+                    _assetCache[cacheKey] = loadedAsset;
+                }
+                else if (_customizationSettings.logChanges)
+                {
+                    Debug.LogWarning($"Asset cache full ({_customizationSettings.maxCachedAssets}), not caching {cacheKey}");
+                }
+            }
+
+            return loadedAsset;
+        }
+
+        /// <summary>
+        /// Clears the asset cache to free memory
+        /// </summary>
+        public void ClearAssetCache()
+        {
+            _assetCache.Clear();
+
+            if (_customizationSettings != null && _customizationSettings.logChanges)
+            {
+                Debug.Log("Character customization asset cache cleared");
+            }
+        }
+
+        /// <summary>
+        /// Preloads commonly used customization assets
+        /// </summary>
+        public void PreloadAssets()
+        {
+            if (_customizationSettings == null || !_customizationSettings.cacheAssets)
+                return;
+
+            // Preload default assets
+            if (!string.IsNullOrEmpty(_customizationSettings.defaultHairId))
+                LoadCustomizationAsset(_customizationSettings.defaultHairId, "Hair");
+
+            if (!string.IsNullOrEmpty(_customizationSettings.defaultClothingId))
+                LoadCustomizationAsset(_customizationSettings.defaultClothingId, "Clothing");
+
+            if (!string.IsNullOrEmpty(_customizationSettings.defaultWeaponId))
+                LoadCustomizationAsset(_customizationSettings.defaultWeaponId, "Weapons");
+
+            if (_customizationSettings.logChanges)
+            {
+                Debug.Log($"Preloaded {_assetCache.Count} customization assets");
+            }
         }
 
         #endregion

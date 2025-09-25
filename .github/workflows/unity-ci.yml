@@ -111,34 +111,51 @@ jobs:
 
       # 4. Setup Unity
       - name: Setup Unity
-        uses: game-ci/unity-actions/setup@v2
+        uses: game-ci/unity-installer@v2
+        with:
+          version: ${{ env.UNITY_VERSION }}
+
+      # 5. Activate Unity
+      - name: Activate Unity
+        uses: game-ci/unity-activate@v2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+
+      # 6. Run Edit Mode Tests (only if test files exist)
+      - name: Run Edit Mode Tests
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
-          activateLicense: true
-          unityCacheServer: true
-
-      # 5. Run Edit Mode Tests (only if test files exist)
-      - name: Run Edit Mode Tests
-        uses: game-ci/unity-actions/test@v2
-        with:
           testMode: editmode
-          resultsPath: TestResults/EditMode
-          artifactsPath: TestResults/EditMode
         continue-on-error: true
 
       # 6. Run Play Mode Tests (only if test files exist)
       - name: Run Play Mode Tests
-        uses: game-ci/unity-actions/test@v2
+        uses: game-ci/unity-test-runner@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          unityVersion: ${{ env.UNITY_VERSION }}
           testMode: playmode
-          resultsPath: TestResults/PlayMode
-          artifactsPath: TestResults/PlayMode
         continue-on-error: true
 
       # 7. Build Project
       - name: Build ${{ matrix.platform }}
-        uses: game-ci/unity-actions/build@v2
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          unityVersion: ${{ env.UNITY_VERSION }}
           targetPlatform: ${{ matrix.platform }}
           buildName: ${{ matrix.buildName }}
           buildPath: ${{ matrix.buildPath }}
