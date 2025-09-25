@@ -16,7 +16,8 @@
       "Bash(powershell:*)",
       "Read(//c/ProgramData/Unity/**)",
       "WebFetch(domain:hub.docker.com)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
