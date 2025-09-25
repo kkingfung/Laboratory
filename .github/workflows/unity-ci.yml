@@ -115,35 +115,40 @@ jobs:
 
       # Unity is automatically installed by unity-test-runner and unity-builder actions
 
-      # 6. Run Edit Mode Tests (only if test files exist)
+      # 4. Run Edit Mode Tests (only if test files exist)
       - name: Run Edit Mode Tests
         uses: game-ci/unity-test-runner@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
           testMode: editmode
         continue-on-error: true
+        id: editmode-tests
 
-      # 6. Run Play Mode Tests (only if test files exist)
+      # 5. Run Play Mode Tests (only if test files exist)
       - name: Run Play Mode Tests
         uses: game-ci/unity-test-runner@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           unityVersion: ${{ env.UNITY_VERSION }}
           testMode: playmode
         continue-on-error: true
+        id: playmode-tests
 
-      # 7. Build Project
+      # 6. Build Project
       - name: Build ${{ matrix.platform }}
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
@@ -154,11 +159,12 @@ jobs:
           buildMethod: BuildScript.BuildProject
           versioning: Semantic
           version: 1.0.${{ github.run_number }}
+        id: unity-build
 
-      # 8. Upload Test Results
+      # 7. Upload Test Results (only if tests ran)
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && (steps.editmode-tests.outcome != 'skipped' || steps.playmode-tests.outcome != 'skipped')
         with:
           name: TestResults-${{ matrix.platform }}
           path: TestResults/
@@ -198,18 +204,62 @@ jobs:
         with:
           name: TestResults-StandaloneWindows64
           path: TestResults/
+        continue-on-error: true
+        id: download-tests
 
       - name: Check Test Results
         run: |
-          echo "Checking test results..."
-          # Add test result validation logic here
-          # Example: Check if test coverage meets minimum threshold
+          if [ "${{ steps.download-tests.outcome }}" == "success" ]; then
+            echo "✅ Test results downloaded successfully"
+            echo "Checking test results..."
+
+            # Check if test results directory exists and has content
+            if [ -d "TestResults" ] && [ "$(ls -A TestResults)" ]; then
+              echo "📊 Test results found:"
+              ls -la TestResults/
+            else
+              echo "⚠️ Test results directory is empty"
+            fi
+
+            # Add test result validation logic here
+            # Example: Check if test coverage meets minimum threshold
+          else
+            echo "⚠️ No test results available (tests may have been skipped or failed)"
+            echo "This can happen if:"
+            echo "- Unity licensing issues prevented tests from running"
+            echo "- No test files exist in the project"
+            echo "- Tests failed to complete due to build errors"
+          fi
 
       - name: Quality Gate Status
         run: |
-          echo "✅ Quality gates passed"
-          echo "Build artifacts uploaded successfully"
-          echo "Test results processed"
+          echo "🚀 Quality Gates Summary"
+          echo "=========================="
+
+          # Check overall pipeline status
+          if [ "${{ needs.unity-ci.result }}" == "success" ]; then
+            echo "✅ Unity build and test pipeline: SUCCESS"
+          else
+            echo "❌ Unity build and test pipeline: ${{ needs.unity-ci.result }}"
+          fi
+
+          # Check test results availability
+          if [ "${{ steps.download-tests.outcome }}" == "success" ]; then
+            echo "✅ Test results: Available"
+          else
+            echo "⚠️ Test results: Not available (possibly due to licensing or no tests)"
+          fi
+
+          echo "=========================="
+          echo "📋 Next Steps:"
+
+          if [ "${{ needs.unity-ci.result }}" != "success" ]; then
+            echo "1. 🔑 Fix Unity licensing issues (see SETUP-UNITY-SECRETS.md)"
+            echo "2. 🔧 Resolve any build errors"
+            echo "3. 🧪 Ensure test files exist in Assets/Tests/"
+          else
+            echo "✅ Pipeline is healthy - no action required"
+          fi
 
   # Deployment (only on main branch)
   deploy:
