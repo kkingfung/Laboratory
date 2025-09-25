@@ -32,13 +32,38 @@ This directory contains automated workflows for the Project Chimera Unity 6 deve
 
 ## 🔑 Required Secrets
 
-To use Unity workflows, configure these repository secrets:
+To use Unity workflows, configure these repository secrets in GitHub Settings → Secrets and variables → Actions:
 
+### For Personal (Free) License:
 ```
-UNITY_LICENSE    # Unity Pro/Personal license (base64 encoded)
-UNITY_EMAIL      # Unity account email
-UNITY_PASSWORD   # Unity account password
+UNITY_LICENSE    # Contents of your .ulf license file (NOT base64 encoded)
+UNITY_EMAIL      # Your Unity account email
+UNITY_PASSWORD   # Your Unity account password
 ```
+
+### For Professional License:
+```
+UNITY_SERIAL     # Your Unity serial number/key
+UNITY_EMAIL      # Your Unity account email
+UNITY_PASSWORD   # Your Unity account password
+```
+
+### 📋 Setup Instructions:
+
+**Personal License Setup:**
+1. Install Unity Hub and log in to your Unity account
+2. Activate a Personal license in Unity Hub
+3. Find your license file (.ulf) in:
+   - **Windows**: `%PROGRAMDATA%\Unity\Unity_lic.ulf`
+   - **macOS**: `/Library/Application Support/Unity/Unity_lic.ulf`
+   - **Linux**: `~/.local/share/unity3d/Unity/Unity_lic.ulf`
+4. Copy the **entire contents** of the .ulf file (not base64 encoded)
+5. Add as `UNITY_LICENSE` secret in GitHub
+
+**Professional License Setup:**
+1. Get your serial key from Unity Dashboard → Organizations → Subscriptions
+2. Add the serial key as `UNITY_SERIAL` secret in GitHub
+3. Add your Unity email and password as secrets
 
 ## 📋 Unity Version
 

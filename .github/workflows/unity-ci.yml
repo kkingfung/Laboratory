@@ -94,11 +94,15 @@ jobs:
       - name: Cache Unity Library
         uses: actions/cache@v4
         with:
-          path: Library
-          key: Library-${{ matrix.platform }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          path: |
+            Library
+            obj
+            Temp
+          key: Library-${{ runner.os }}-${{ matrix.platform }}-${{ env.UNITY_VERSION }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
-            Library-${{ matrix.platform }}-
-            Library-
+            Library-${{ runner.os }}-${{ matrix.platform }}-${{ env.UNITY_VERSION }}-
+            Library-${{ runner.os }}-${{ matrix.platform }}-
+            Library-${{ runner.os }}-
 
       # 3. Cache Unity Packages
       - name: Cache Unity Packages
@@ -148,8 +152,8 @@ jobs:
           buildName: ${{ matrix.buildName }}
           buildsPath: ${{ matrix.buildsPath }}
           buildMethod: BuildScript.BuildProject
-          versioning: Custom
-          version: ${{ github.sha }}
+          versioning: Semantic
+          version: 1.0.${{ github.run_number }}
 
       # 8. Upload Test Results
       - name: Upload Test Results

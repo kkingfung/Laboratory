@@ -208,11 +208,16 @@ jobs:
       - name: Cache Unity Library (Enhanced)
         uses: actions/cache@v4
         with:
-          path: Library
-          key: Library-v2-${{ matrix.platform }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          path: |
+            Library
+            obj
+            Temp
+            UserSettings
+          key: Library-v2-${{ runner.os }}-${{ matrix.platform }}-${{ env.UNITY_VERSION }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
           restore-keys: |
-            Library-v2-${{ matrix.platform }}-
-            Library-v2-
+            Library-v2-${{ runner.os }}-${{ matrix.platform }}-${{ env.UNITY_VERSION }}-
+            Library-v2-${{ runner.os }}-${{ matrix.platform }}-
+            Library-v2-${{ runner.os }}-
 
       # Unity is automatically installed by unity-test-runner and unity-builder actions
 
@@ -274,8 +279,8 @@ jobs:
           buildName: ${{ matrix.buildName }}
           buildsPath: ${{ matrix.buildsPath }}
           buildMethod: BuildScript.BuildProject
-          versioning: Custom
-          version: ${{ github.sha }}
+          versioning: Semantic
+          version: 1.0.${{ github.run_number }}
 
       - name: Performance Report Generation
         run: |
