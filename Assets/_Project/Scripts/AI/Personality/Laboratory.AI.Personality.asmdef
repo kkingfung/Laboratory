@@ -2,15 +2,13 @@
     "name": "Laboratory.AI.Personality",
     "rootNamespace": "Laboratory.AI.Personality",
     "references": [
-        "GUID:c6e6c5a2dd17e4c00a5d99e77e92b24f",
-        "GUID:d8b63aba1907145bea998dd612889d6b",
-        "GUID:6055be8ebefd69e48b49212b09b47b2f",
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",
         "Unity.Burst",
         "Unity.Jobs",
         "GUID:26c858a044ea8e443864d1208306534e",
+        "GUID:29d681e95dcd18a469a9c88d73838e72",
         "GUID:027a272e9c053054b9368bf7aab2e578",
         "GUID:ffcee7f4abd9f1f489e66cd3ab459cd2",
         "GUID:060b960b2d5f21443b98de7fcb5be9b7"
