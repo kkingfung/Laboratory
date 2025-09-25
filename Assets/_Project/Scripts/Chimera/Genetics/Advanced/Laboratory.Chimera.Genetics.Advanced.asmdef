@@ -5,7 +5,8 @@
         "Unity.Collections",
         "Unity.Mathematics",
         "Unity.Entities",
-        "GUID:26c858a044ea8e443864d1208306534e"
+        "GUID:26c858a044ea8e443864d1208306534e",
+        "GUID:29d681e95dcd18a469a9c88d73838e72"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
