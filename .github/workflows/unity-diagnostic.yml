@@ -1,0 +1,101 @@
+name: Unity CI Diagnostic
+
+on:
+  workflow_dispatch:  # Allow manual trigger
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/**'
+
+env:
+  UNITY_VERSION: 6000.2.0b7
+
+jobs:
+  diagnostic:
+    name: Unity CI Diagnostic
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Check Secrets Configuration
+        run: |
+          echo "🔍 Checking Unity secrets configuration..."
+
+          if [ -n "${{ secrets.UNITY_LICENSE }}" ]; then
+            echo "✅ UNITY_LICENSE secret is configured"
+          elif [ -n "${{ secrets.UNITY_SERIAL }}" ]; then
+            echo "✅ UNITY_SERIAL secret is configured"
+          else
+            echo "❌ Neither UNITY_LICENSE nor UNITY_SERIAL is configured"
+            echo "Please set up Unity licensing secrets in GitHub repository settings"
+          fi
+
+          if [ -n "${{ secrets.UNITY_EMAIL }}" ]; then
+            echo "✅ UNITY_EMAIL secret is configured"
+          else
+            echo "❌ UNITY_EMAIL secret is missing"
+          fi
+
+          if [ -n "${{ secrets.UNITY_PASSWORD }}" ]; then
+            echo "✅ UNITY_PASSWORD secret is configured"
+          else
+            echo "❌ UNITY_PASSWORD secret is missing"
+          fi
+
+      - name: Enhanced Unity Library Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            Library
+            obj
+            Temp
+            UserSettings
+            Logs
+          key: Library-diagnostic-${{ runner.os }}-${{ env.UNITY_VERSION }}-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-diagnostic-${{ runner.os }}-${{ env.UNITY_VERSION }}-
+            Library-diagnostic-${{ runner.os }}-
+
+      - name: Test Unity Build with Proper Configuration
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          unityVersion: ${{ env.UNITY_VERSION }}
+          targetPlatform: StandaloneWindows64
+          buildName: DiagnosticBuild
+          buildsPath: Builds/Diagnostic
+          buildMethod: BuildScript.BuildProject
+          versioning: Semantic
+          version: 1.0.${{ github.run_number }}
+        continue-on-error: true
+
+      - name: Diagnostic Results
+        run: |
+          echo "🚀 Unity CI Diagnostic Complete"
+          echo "Check the logs above for:"
+          echo "1. ✅/❌ Unity secrets configuration status"
+          echo "2. 📦 Library caching effectiveness"
+          echo "3. 🔧 Build process success/failure details"
+          echo ""
+          echo "If build failed, common issues:"
+          echo "- Missing Unity license secrets (see README.md for setup)"
+          echo "- Incorrect Unity version specification"
+          echo "- Missing BuildScript.BuildProject method"
+
+      - name: Upload Diagnostic Build (if successful)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: diagnostic-build-${{ github.run_number }}
+          path: |
+            Builds/Diagnostic
+            Logs
+          retention-days: 7

@@ -65,6 +65,26 @@ UNITY_PASSWORD   # Your Unity account password
 2. Add the serial key as `UNITY_SERIAL` secret in GitHub
 3. Add your Unity email and password as secrets
 
+### 🚨 Troubleshooting Common Issues:
+
+**❌ "Missing Unity License File and no Serial was found"**
+- **Fix**: Set up one of the secret configurations above
+- **Check**: Go to GitHub repo → Settings → Secrets and variables → Actions
+- **Verify**: Ensure you have either `UNITY_LICENSE` OR `UNITY_SERIAL` (not both)
+
+**⚠️ "Library folder does not exist"**
+- **Fix**: This is normal for first builds - caching will improve subsequent builds
+- **Note**: The enhanced caching in our workflows will resolve this after the first successful build
+
+**❌ "Could not parse [git-sha] to semver"**
+- **Fix**: Updated workflows now use semantic versioning (`1.0.{run_number}`)
+- **Note**: This error should be resolved in the latest workflow versions
+
+**🔍 Testing Your Setup:**
+1. Trigger the new `unity-diagnostic.yml` workflow manually
+2. Check the diagnostic results to identify specific issues
+3. The diagnostic will show exactly which secrets are missing
+
 ## 📋 Unity Version
 
 Current project uses: **Unity 6000.2.0b7**
