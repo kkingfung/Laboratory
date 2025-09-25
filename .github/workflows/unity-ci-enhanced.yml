@@ -18,7 +18,7 @@ on:
       - '.gitignore'
 
 env:
-  UNITY_VERSION: 6000.2.0b7
+  UNITY_VERSION: 6000.2.0f1
   PROJECT_NAME: ProjectChimera
 
 jobs:

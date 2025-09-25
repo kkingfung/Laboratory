@@ -12,7 +12,10 @@
       "Bash(del:*)",
       "Bash(dotnet build)",
       "WebSearch",
-      "WebFetch(domain:game.ci)"
+      "WebFetch(domain:game.ci)",
+      "Bash(powershell:*)",
+      "Read(//c/ProgramData/Unity/**)",
+      "WebFetch(domain:hub.docker.com)"
     ],
     "deny": [],
     "ask": []

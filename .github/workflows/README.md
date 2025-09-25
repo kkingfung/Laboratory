@@ -87,7 +87,9 @@ UNITY_PASSWORD   # Your Unity account password
 
 ## 📋 Unity Version
 
-Current project uses: **Unity 6000.2.0b7**
+Current project uses: **Unity 6000.2.0f1** (Updated from beta to stable release)
+
+**Note**: Beta versions (like 6000.2.0b7) don't have Docker images available for CI/CD. Always use final release versions (f1, f2, etc.) for reliable CI/CD pipelines.
 
 ## 🚨 Migration Notes
 

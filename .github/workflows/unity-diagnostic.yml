@@ -8,7 +8,7 @@ on:
       - '.github/workflows/**'
 
 env:
-  UNITY_VERSION: 6000.2.0b7
+  UNITY_VERSION: 6000.2.0f1
 
 jobs:
   diagnostic:
