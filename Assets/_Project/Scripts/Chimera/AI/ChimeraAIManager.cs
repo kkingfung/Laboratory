@@ -79,7 +79,7 @@ namespace Laboratory.Chimera.AI
             // Set group behavior
             monster.SetBehaviorType(groupBehaviorType);
 
-            Debug.Log($"[AIManager] Registered monster: {monster.name} (Total: {managedMonsters.Count})");
+            UnityEngine.Debug.Log($"[AIManager] Registered monster: {monster.name} (Total: {managedMonsters.Count})");
 
             // Publish event
             eventBus?.Publish(new MonsterRegisteredEvent
@@ -99,7 +99,7 @@ namespace Laboratory.Chimera.AI
             if (managedMonsters.Remove(monster))
             {
                 RecalculateFormations();
-                Debug.Log($"[AIManager] Unregistered monster: {monster.name} (Total: {managedMonsters.Count})");
+                UnityEngine.Debug.Log($"[AIManager] Unregistered monster: {monster.name} (Total: {managedMonsters.Count})");
 
                 // Publish event
                 eventBus?.Publish(new MonsterUnregisteredEvent
@@ -274,7 +274,7 @@ namespace Laboratory.Chimera.AI
                     monster.CancelCombat();
                 }
             }
-            Debug.Log("[AIManager] All monsters commanded to follow player");
+            UnityEngine.Debug.Log("[AIManager] All monsters commanded to follow player");
         }
 
         /// <summary>
@@ -290,7 +290,7 @@ namespace Laboratory.Chimera.AI
                     monster.SetBehaviorType(AIBehaviorType.Aggressive);
                 }
             }
-            Debug.Log("[AIManager] All monsters set to aggressive mode");
+            UnityEngine.Debug.Log("[AIManager] All monsters set to aggressive mode");
         }
 
         /// <summary>
@@ -307,7 +307,7 @@ namespace Laboratory.Chimera.AI
                     monster.CancelCombat();
                 }
             }
-            Debug.Log("[AIManager] All monsters set to passive mode");
+            UnityEngine.Debug.Log("[AIManager] All monsters set to passive mode");
         }
 
         /// <summary>
@@ -323,7 +323,7 @@ namespace Laboratory.Chimera.AI
                     monster.SetBehaviorType(AIBehaviorType.Guardian);
                 }
             }
-            Debug.Log("[AIManager] All monsters set to guard current area");
+            UnityEngine.Debug.Log("[AIManager] All monsters set to guard current area");
         }
 
         /// <summary>
@@ -333,7 +333,7 @@ namespace Laboratory.Chimera.AI
         {
             defaultFormation = newFormation;
             CalculateFormationPositions();
-            Debug.Log($"[AIManager] Formation changed to: {newFormation}");
+            UnityEngine.Debug.Log($"[AIManager] Formation changed to: {newFormation}");
         }
 
         #endregion

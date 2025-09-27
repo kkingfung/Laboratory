@@ -26,7 +26,7 @@ namespace Laboratory.Chimera.Testing
         [ContextMenu("Run Compilation Test")]
         public void RunCompilationTest()
         {
-            Debug.Log("🧬 Project Chimera - Compilation Test Starting...");
+            UnityEngine.Debug.Log("🧬 Project Chimera - Compilation Test Starting...");
             
             // Test genetic system
             TestGeneticSystem();
@@ -40,12 +40,12 @@ namespace Laboratory.Chimera.Testing
             // Test life stages
             TestLifeStages();
             
-            Debug.Log("✅ Project Chimera - All systems compiled successfully!");
+            UnityEngine.Debug.Log("✅ Project Chimera - All systems compiled successfully!");
         }
         
         private void TestGeneticSystem()
         {
-            if (verboseLogging) Debug.Log("Testing Genetic System...");
+            if (verboseLogging) UnityEngine.Debug.Log("Testing Genetic System...");
             
             // Create a test gene
             var allele1 = new Allele("Red", 1.0f, true, true);
@@ -54,18 +54,18 @@ namespace Laboratory.Chimera.Testing
             
             // Test gene expression
             var expressed = gene.GetExpressedAllele();
-            Debug.Log($"Gene {gene.traitName} expresses: {expressed.value}");
+            UnityEngine.Debug.Log($"Gene {gene.traitName} expresses: {expressed.value}");
             
             // Create a mutation
             var mutation = new Mutation("mut_01", "color_01", MutationType.Enhancement, 1.2f);
-            Debug.Log($"Created mutation: {mutation.mutationId}");
+            UnityEngine.Debug.Log($"Created mutation: {mutation.mutationId}");
             
-            if (verboseLogging) Debug.Log("✅ Genetic System - OK");
+            if (verboseLogging) UnityEngine.Debug.Log("✅ Genetic System - OK");
         }
         
         private void TestAISystem()
         {
-            if (verboseLogging) Debug.Log("Testing AI System...");
+            if (verboseLogging) UnityEngine.Debug.Log("Testing AI System...");
             
             // Test AI behavior states
             var idleState = AIBehaviorState.Idle;
@@ -76,67 +76,67 @@ namespace Laboratory.Chimera.Testing
             bool isAggressive = combatState.IsAggressive();
             int priority = combatState.GetPriority();
             
-            Debug.Log($"Idle allows movement: {canMove}, Combat is aggressive: {isAggressive}, Priority: {priority}");
+            UnityEngine.Debug.Log($"Idle allows movement: {canMove}, Combat is aggressive: {isAggressive}, Priority: {priority}");
             
             // Test state transitions
             bool canTransition = idleState.CanTransitionTo(combatState);
-            Debug.Log($"Can transition from Idle to Combat: {canTransition}");
+            UnityEngine.Debug.Log($"Can transition from Idle to Combat: {canTransition}");
             
-            if (verboseLogging) Debug.Log("✅ AI System - OK");
+            if (verboseLogging) UnityEngine.Debug.Log("✅ AI System - OK");
         }
         
         private void TestPathfindingSystem()
         {
-            if (verboseLogging) Debug.Log("Testing Pathfinding System...");
+            if (verboseLogging) UnityEngine.Debug.Log("Testing Pathfinding System...");
             
             // Test pathfinding modes
             var mode = PathfindingMode.Hybrid;
-            Debug.Log($"Using pathfinding mode: {mode}");
+            UnityEngine.Debug.Log($"Using pathfinding mode: {mode}");
             
             // Test flow field creation
             var generator = new FlowFieldGenerator();
             var flowField = generator.GenerateFlowField(Vector3.zero, 10f);
-            Debug.Log($"Created flow field with {flowField.gridWidth}x{flowField.gridHeight} grid");
+            UnityEngine.Debug.Log($"Created flow field with {flowField.gridWidth}x{flowField.gridHeight} grid");
             
-            if (verboseLogging) Debug.Log("✅ Pathfinding System - OK");
+            if (verboseLogging) UnityEngine.Debug.Log("✅ Pathfinding System - OK");
         }
         
         private void TestLifeStages()
         {
-            if (verboseLogging) Debug.Log("Testing Life Stages...");
+            if (verboseLogging) UnityEngine.Debug.Log("Testing Life Stages...");
             
             // Test life stage calculations
             var infantStage = LifeStageExtensions.CalculateLifeStage(5, 365); // 5 days old out of 365 day lifespan
             var adultStage = LifeStageExtensions.CalculateLifeStage(200, 365); // 200 days old
             
-            Debug.Log($"5 days old = {infantStage}, 200 days old = {adultStage}");
+            UnityEngine.Debug.Log($"5 days old = {infantStage}, 200 days old = {adultStage}");
             
             // Test breeding capability
             bool infantCanBreed = infantStage.CanBreed();
             bool adultCanBreed = adultStage.CanBreed();
             
-            Debug.Log($"Infant can breed: {infantCanBreed}, Adult can breed: {adultCanBreed}");
+            UnityEngine.Debug.Log($"Infant can breed: {infantCanBreed}, Adult can breed: {adultCanBreed}");
             
             // Test stat modifiers
             var (health, attack, defense, speed, intelligence) = adultStage.GetStatModifiers();
-            Debug.Log($"Adult stat modifiers - H:{health}, A:{attack}, D:{defense}, S:{speed}, I:{intelligence}");
+            UnityEngine.Debug.Log($"Adult stat modifiers - H:{health}, A:{attack}, D:{defense}, S:{speed}, I:{intelligence}");
             
-            if (verboseLogging) Debug.Log("✅ Life Stages - OK");
+            if (verboseLogging) UnityEngine.Debug.Log("✅ Life Stages - OK");
         }
         
         [ContextMenu("Test Monster Creation")]
         public void TestMonsterCreation()
         {
-            Debug.Log("🐉 Testing Monster Creation...");
+            UnityEngine.Debug.Log("🐉 Testing Monster Creation...");
             
             // This would test the full creature creation pipeline
             // For now, just log that the systems are ready
-            Debug.Log("All systems ready for monster breeding!");
-            Debug.Log("- Genetic inheritance system ✓");
-            Debug.Log("- AI behavior system ✓");
-            Debug.Log("- Pathfinding system ✓");
-            Debug.Log("- Life stage management ✓");
-            Debug.Log("🔥 Project Chimera is ready to BREED SOME MONSTERS!");
+            UnityEngine.Debug.Log("All systems ready for monster breeding!");
+            UnityEngine.Debug.Log("- Genetic inheritance system ✓");
+            UnityEngine.Debug.Log("- AI behavior system ✓");
+            UnityEngine.Debug.Log("- Pathfinding system ✓");
+            UnityEngine.Debug.Log("- Life stage management ✓");
+            UnityEngine.Debug.Log("🔥 Project Chimera is ready to BREED SOME MONSTERS!");
         }
     }
 }

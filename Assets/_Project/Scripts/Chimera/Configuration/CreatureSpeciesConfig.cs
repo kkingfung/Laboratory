@@ -287,7 +287,7 @@ namespace Laboratory.Chimera.Configuration
         public void ApplySettings()
         {
             Time.timeScale = timeScale;
-            Debug.Log($"Applied Chimera game settings: timeScale={timeScale}, maxPop={maxWorldPopulation}");
+            UnityEngine.Debug.Log($"Applied Chimera game settings: timeScale={timeScale}, maxPop={maxWorldPopulation}");
         }
         
         /// <summary>
@@ -302,7 +302,7 @@ namespace Laboratory.Chimera.Configuration
             globalMutationRate = 0.02f;
             enableDebugMode = false;
             
-            Debug.Log("Configuration reset to defaults");
+            UnityEngine.Debug.Log("Configuration reset to defaults");
         }
     }
     

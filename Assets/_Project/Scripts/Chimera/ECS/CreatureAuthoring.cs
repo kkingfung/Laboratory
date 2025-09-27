@@ -2,7 +2,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Mathematics;
 using System.Collections.Generic;
-using Laboratory.Chimera.ECS.Components;
+using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Creatures;
@@ -183,10 +183,10 @@ namespace Laboratory.Chimera.ECS
             // Note: ECS component creation temporarily disabled due to Unity.Entities compatibility issues
             // Components don't have Create() methods - they should be initialized directly
 
-            Debug.Log($"[CreatureAuthoring] Would create ECS entity for {creatureInstance.Definition?.speciesName ?? "Unknown"}");
-            Debug.Log($"- Health: {creatureInstance.CurrentHealth}");
-            Debug.Log($"- Age: {creatureInstance.AgeInDays} days");
-            Debug.Log($"- Level: {creatureInstance.Level}");
+            UnityEngine.Debug.Log($"[CreatureAuthoring] Would create ECS entity for {creatureInstance.Definition?.speciesName ?? "Unknown"}");
+            UnityEngine.Debug.Log($"- Health: {creatureInstance.CurrentHealth}");
+            UnityEngine.Debug.Log($"- Age: {creatureInstance.AgeInDays} days");
+            UnityEngine.Debug.Log($"- Level: {creatureInstance.Level}");
         }
         
         /// <summary>
@@ -197,12 +197,12 @@ namespace Laboratory.Chimera.ECS
             var geneticsComponent = entityManager.GetComponentData<CreatureGeneticsComponent>(creatureEntity);
             
             // Note: Behavior component creation disabled - Create() methods don't exist
-            Debug.Log($"[CreatureAuthoring] Would create behavior components at position {transform.position}");
+            UnityEngine.Debug.Log($"[CreatureAuthoring] Would create behavior components at position {transform.position}");
             
             // Bonding component (if not wild)
             if (!isWild)
             {
-                Debug.Log("[CreatureAuthoring] Would create bonding component for non-wild creature");
+                UnityEngine.Debug.Log("[CreatureAuthoring] Would create bonding component for non-wild creature");
             }
         }
         
@@ -216,10 +216,10 @@ namespace Laboratory.Chimera.ECS
             var personalityComponent = entityManager.GetComponentData<CreaturePersonalityComponent>(creatureEntity);
             
             // Note: Lifecycle component creation disabled
-            Debug.Log("[CreatureAuthoring] Would create lifecycle component");
+            UnityEngine.Debug.Log("[CreatureAuthoring] Would create lifecycle component");
             
             // Note: Breeding component creation disabled
-            Debug.Log("[CreatureAuthoring] Would create breeding component if adult");
+            UnityEngine.Debug.Log("[CreatureAuthoring] Would create breeding component if adult");
         }
         
         /// <summary>
@@ -230,7 +230,7 @@ namespace Laboratory.Chimera.ECS
             var geneticsComponent = entityManager.GetComponentData<CreatureGeneticsComponent>(creatureEntity);
             
             // Note: Environmental component creation disabled
-            Debug.Log($"[CreatureAuthoring] Would create biome component for {startingBiome}");
+            UnityEngine.Debug.Log($"[CreatureAuthoring] Would create biome component for {startingBiome}");
         }
         
         /// <summary>
@@ -456,13 +456,13 @@ namespace Laboratory.Chimera.ECS
         {
             if (enableDebugLogging)
             {
-                Debug.Log($"[CreatureAuthoring:{name}] {message}");
+                UnityEngine.Debug.Log($"[CreatureAuthoring:{name}] {message}");
             }
         }
         
         private void LogError(string message)
         {
-            Debug.LogError($"[CreatureAuthoring:{name}] {message}");
+            UnityEngine.Debug.LogError($"[CreatureAuthoring:{name}] {message}");
         }
         
         private void OnDrawGizmos()

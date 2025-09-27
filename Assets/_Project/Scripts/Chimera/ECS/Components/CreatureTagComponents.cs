@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-namespace Laboratory.Chimera.ECS.Components
+namespace Laboratory.Core.ECS.Components
 {
     /// <summary>
     /// Tag components for categorizing creatures in the ECS system

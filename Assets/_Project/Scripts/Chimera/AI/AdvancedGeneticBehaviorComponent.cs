@@ -110,7 +110,7 @@ namespace Laboratory.Chimera.AI
             
             if (showPersonalityDebug)
             {
-                Debug.Log($"[{gameObject.name}] Personality: {personalityDescription}");
+                UnityEngine.Debug.Log($"[{gameObject.name}] Personality: {personalityDescription}");
             }
         }
         

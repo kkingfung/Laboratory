@@ -149,7 +149,7 @@ namespace Laboratory.Chimera.Configuration
             float totalWeight = survivalWeight + reproductionWeight + resourceEfficiencyWeight + adaptabilityWeight;
             if (Mathf.Abs(totalWeight - 1f) > 0.1f)
             {
-                Debug.LogWarning("Fitness weights should sum to 1.0 for balanced selection");
+                UnityEngine.Debug.LogWarning("Fitness weights should sum to 1.0 for balanced selection");
             }
         }
 

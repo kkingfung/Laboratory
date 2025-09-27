@@ -103,7 +103,7 @@ namespace Laboratory.Chimera.AI
 
             if (monsterAI == null)
             {
-                Debug.LogError($"[GeneticBehaviorAdapter] ChimeraMonsterAI not found on {gameObject.name}");
+                UnityEngine.Debug.LogError($"[GeneticBehaviorAdapter] ChimeraMonsterAI not found on {gameObject.name}");
                 enabled = false;
             }
         }
@@ -112,14 +112,14 @@ namespace Laboratory.Chimera.AI
         {
             if (creatureInstance?.GeneticProfile == null)
             {
-                Debug.LogWarning($"[GeneticBehaviorAdapter] No genetic profile found for {gameObject.name}. Creating default genetics.");
+                UnityEngine.Debug.LogWarning($"[GeneticBehaviorAdapter] No genetic profile found for {gameObject.name}. Creating default genetics.");
                 CreateDefaultGenetics();
             }
 
             UpdateGeneticTraits();
             ApplyGeneticBehavior();
             
-            Debug.Log($"[GeneticBehaviorAdapter] Initialized genetic behavior for {gameObject.name}");
+            UnityEngine.Debug.Log($"[GeneticBehaviorAdapter] Initialized genetic behavior for {gameObject.name}");
         }
 
         private void CreateDefaultGenetics()
@@ -182,7 +182,7 @@ namespace Laboratory.Chimera.AI
             // Apply playfulness to idle behavior
             ApplyPlayfulnessGenetics();
             
-            Debug.Log($"[GeneticBehavior] Applied genetics to {gameObject.name}: Aggr={cachedAggression:F2}, Cur={cachedCuriosity:F2}, Int={cachedIntelligence:F2}");
+            UnityEngine.Debug.Log($"[GeneticBehavior] Applied genetics to {gameObject.name}: Aggr={cachedAggression:F2}, Cur={cachedCuriosity:F2}, Int={cachedIntelligence:F2}");
         }
 
         private void ApplyAggressionGenetics()
@@ -315,7 +315,7 @@ namespace Laboratory.Chimera.AI
 
         private void OnBiomeChanged(BiomeType oldBiome, BiomeType newBiome)
         {
-            Debug.Log($"[GeneticBehavior] {gameObject.name} moved from {oldBiome} to {newBiome}");
+            UnityEngine.Debug.Log($"[GeneticBehavior] {gameObject.name} moved from {oldBiome} to {newBiome}");
             
             // Publish environmental change event
             if (eventBus != null && creatureInstance != null)
@@ -334,7 +334,7 @@ namespace Laboratory.Chimera.AI
 
         private void OnEnvironmentalAdaptationComplete()
         {
-            Debug.Log($"[GeneticBehavior] {gameObject.name} has adapted to {currentBiome}");
+            UnityEngine.Debug.Log($"[GeneticBehavior] {gameObject.name} has adapted to {currentBiome}");
             
             // Apply biome-specific behavioral changes
             ApplyBiomeAdaptation(currentBiome);
@@ -407,7 +407,7 @@ namespace Laboratory.Chimera.AI
             if (evt.Creature == creatureInstance)
             {
                 // Creature matured - might unlock new behaviors
-                Debug.Log($"[GeneticBehavior] {gameObject.name} has reached maturity");
+                UnityEngine.Debug.Log($"[GeneticBehavior] {gameObject.name} has reached maturity");
                 
                 // Mature creatures might become more independent
                 cachedLoyalty = Mathf.Max(0f, cachedLoyalty - 0.1f);
@@ -419,7 +419,7 @@ namespace Laboratory.Chimera.AI
         {
             if (evt.Creature == creatureInstance)
             {
-                Debug.Log($"[GeneticBehavior] Mutation occurred in {gameObject.name}: {evt.Mutation.affectedTrait}");
+                UnityEngine.Debug.Log($"[GeneticBehavior] Mutation occurred in {gameObject.name}: {evt.Mutation.affectedTrait}");
                 
                 // Mutation occurred - update genetic traits and behavior
                 UpdateGeneticTraits();
@@ -439,7 +439,7 @@ namespace Laboratory.Chimera.AI
 
         private void LogGeneticState()
         {
-            Debug.Log($"[GeneticDebug] {gameObject.name} - " +
+            UnityEngine.Debug.Log($"[GeneticDebug] {gameObject.name} - " +
                      $"Aggr: {cachedAggression:F2}, " +
                      $"Cur: {cachedCuriosity:F2}, " +
                      $"Int: {cachedIntelligence:F2}, " +

@@ -93,7 +93,7 @@ namespace Laboratory.Chimera.Breeding
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Breeding system error: {ex.Message}");
+                UnityEngine.Debug.LogError($"Breeding system error: {ex.Message}");
                 return BreedingResult.CreateFailure($"Internal breeding error: {ex.Message}");
             }
         }
@@ -116,7 +116,7 @@ namespace Laboratory.Chimera.Breeding
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Async breeding system error: {ex.Message}");
+                UnityEngine.Debug.LogError($"Async breeding system error: {ex.Message}");
                 return BreedingResult.CreateFailure($"Internal breeding error: {ex.Message}");
             }
         }

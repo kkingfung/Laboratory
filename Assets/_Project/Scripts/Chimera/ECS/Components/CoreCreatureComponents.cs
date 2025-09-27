@@ -2,7 +2,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 
-namespace Laboratory.Chimera.ECS.Components
+namespace Laboratory.Core.ECS.Components
 {
     /// <summary>
     /// UNIFIED creature identity - consolidates scattered identity data

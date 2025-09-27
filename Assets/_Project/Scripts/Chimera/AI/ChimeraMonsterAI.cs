@@ -566,6 +566,51 @@ namespace Laboratory.Chimera.AI
         public Transform CurrentTarget => currentTarget;
         public bool IsInCombat => currentState == AIBehaviorState.Combat || currentState == AIBehaviorState.Hunt;
 
+        // Properties from commented extensions
+        public AIBehaviorType CurrentBehaviorType => behaviorType;
+        public float FollowDistance => followDistance;
+        public float PatrolRadius => patrolRadius;
+
+        public void SetDestination(Vector3 destination)
+        {
+            if (navAgent != null && navAgent.isActiveAndEnabled)
+            {
+                navAgent.SetDestination(destination);
+            }
+        }
+
+        public void ForceRefreshBehavior()
+        {
+            // Force refresh of all genetic behaviors
+            var geneticAdapter = GetComponent<GeneticBehaviorAdapter>();
+            geneticAdapter?.RefreshGeneticBehavior();
+
+            // AdvancedGeneticBehaviorExtensions is static and provides extension methods
+            // They are automatically available and don't need component reference
+            var creatureComponent = GetComponent<CreatureInstanceComponent>();
+            if (creatureComponent?.Instance?.GeneticProfile != null)
+            {
+                // Apply genetic behaviors using extension methods
+                this.ApplyGeneticBehavior(creatureComponent.Instance.GeneticProfile);
+            }
+        }
+
+        public string GetComprehensiveAIStatus()
+        {
+            var status = $"🤖 AI State: {currentState}\n";
+            status += $"🎯 Behavior: {behaviorType}\n";
+
+            if (currentTarget != null)
+                status += $"🎯 Target: {currentTarget.name}\n";
+
+            status += $"⚡ Aggression Level: {geneticAggressionModifier:P0}\n";
+
+            // Add genetic info if available
+            status += this.GetGeneticBehaviorSummary();
+
+            return status;
+        }
+
         public void CancelCombat()
         {
             if (IsInCombat)

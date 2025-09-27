@@ -21,7 +21,7 @@ namespace Laboratory.Chimera.Examples
             CreateCompanionWolf();
             CreateWildRabbit();
             
-            Debug.Log("✅ Created complete forest ecosystem with 3 species!");
+            UnityEngine.Debug.Log("✅ Created complete forest ecosystem with 3 species!");
         }
         
         [MenuItem("🐲 Chimera/Create Example Configurations/Forest Biome")]
@@ -350,7 +350,7 @@ namespace Laboratory.Chimera.Examples
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
             
-            Debug.Log($"✅ Created {asset.GetType().Name}: {filename} at {path}");
+            UnityEngine.Debug.Log($"✅ Created {asset.GetType().Name}: {filename} at {path}");
         }
     }
 }

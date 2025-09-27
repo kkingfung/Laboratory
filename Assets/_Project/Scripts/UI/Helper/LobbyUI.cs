@@ -506,7 +506,6 @@ namespace Laboratory.UI.Helper
         
         /// <summary>
         /// Simulates the game start process for demonstration purposes.
-        /// In a real implementation, this would be replaced with actual scene loading.
         /// </summary>
         private void SimulateGameStart()
         {

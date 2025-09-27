@@ -23,7 +23,7 @@ namespace Laboratory.Chimera.Visuals
             var genetics = creature.CreatureData.GeneticProfile;
             var renderers = creature.GetComponentsInChildren<Renderer>();
             
-            Debug.Log($"🎨 Applying enhanced visual genetics to {creature.name}");
+            UnityEngine.Debug.Log($"🎨 Applying enhanced visual genetics to {creature.name}");
             
             // 1. Enhanced Size System (replaces basic size)
             ApplyAdvancedSizing(creature, genetics);
@@ -43,7 +43,7 @@ namespace Laboratory.Chimera.Visuals
             // 6. NEW: Mutation Visuals
             ApplyMutationVisuals(creature, genetics, renderers);
             
-            Debug.Log($"✅ Enhanced visual genetics applied to {creature.name}");
+            UnityEngine.Debug.Log($"✅ Enhanced visual genetics applied to {creature.name}");
         }
         
         #region Advanced Sizing
@@ -507,7 +507,7 @@ namespace Laboratory.Chimera.Visuals
                 ApplyMutationVisualEffect(renderers, mutation);
             }
             
-            Debug.Log($"🧬 Applied {genetics.Mutations.Count} mutation visual effects to {creature.name}");
+            UnityEngine.Debug.Log($"🧬 Applied {genetics.Mutations.Count} mutation visual effects to {creature.name}");
         }
         
         private static void ApplyMutationVisualEffect(Renderer[] renderers, Mutation mutation)

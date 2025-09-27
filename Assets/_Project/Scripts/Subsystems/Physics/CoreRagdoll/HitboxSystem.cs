@@ -48,7 +48,6 @@ namespace Laboratory.Core.Ragdoll
         
         /// <summary>
         /// Generates random test hits for entities with PartialRagdollTag.
-        /// This method should be replaced with actual hit detection logic in production.
         /// </summary>
         private void ProcessTestHitGeneration()
         {

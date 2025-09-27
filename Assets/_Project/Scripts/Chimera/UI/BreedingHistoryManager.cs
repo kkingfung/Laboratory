@@ -173,7 +173,7 @@ namespace Laboratory.Chimera.UI
             RefreshHistoryDisplay();
             UpdateAnalytics();
             
-            Debug.Log("📚 Breeding history UI opened");
+            UnityEngine.Debug.Log("📚 Breeding history UI opened");
         }
         
         /// <summary>
@@ -185,7 +185,7 @@ namespace Laboratory.Chimera.UI
                 historyPanel.SetActive(false);
             isHistoryVisible = false;
             
-            Debug.Log("📚 Breeding history UI closed");
+            UnityEngine.Debug.Log("📚 Breeding history UI closed");
         }
         
         /// <summary>
@@ -239,7 +239,7 @@ namespace Laboratory.Chimera.UI
             
             AddHistoryEntry(entry);
             
-            Debug.Log($"📝 Recorded successful breeding: {parent1.name} + {parent2.name} = {offspring.name}");
+            UnityEngine.Debug.Log($"📝 Recorded successful breeding: {parent1.name} + {parent2.name} = {offspring.name}");
         }
         
         /// <summary>
@@ -267,7 +267,7 @@ namespace Laboratory.Chimera.UI
             
             AddHistoryEntry(entry);
             
-            Debug.Log($"❌ Recorded failed breeding: {parent1.name} + {parent2.name} - {failureReason}");
+            UnityEngine.Debug.Log($"❌ Recorded failed breeding: {parent1.name} + {parent2.name} - {failureReason}");
         }
         
         /// <summary>
@@ -591,7 +591,7 @@ namespace Laboratory.Chimera.UI
         {
             if (selectedEntry == null)
             {
-                Debug.LogWarning("No history entry selected for lineage tree");
+                UnityEngine.Debug.LogWarning("No history entry selected for lineage tree");
                 return;
             }
             
@@ -600,7 +600,7 @@ namespace Laboratory.Chimera.UI
                 
             GenerateLineageTree(selectedEntry);
             
-            Debug.Log($"🌳 Showing lineage tree for {selectedEntry.OffspringName}");
+            UnityEngine.Debug.Log($"🌳 Showing lineage tree for {selectedEntry.OffspringName}");
         }
         
         private void GenerateLineageTree(BreedingHistoryEntry rootEntry)
@@ -659,7 +659,7 @@ namespace Laboratory.Chimera.UI
         private void LoadBreedingHistory()
         {
             // Load breeding history from persistent data
-            Debug.Log("📂 Loading breeding history...");
+            UnityEngine.Debug.Log("📂 Loading breeding history...");
             
             // For now, just create some sample data
             CreateSampleHistoryData();
@@ -669,7 +669,7 @@ namespace Laboratory.Chimera.UI
         {
             if (!autoSaveHistory) return;
             
-            Debug.Log("💾 Saving breeding history...");
+            UnityEngine.Debug.Log("💾 Saving breeding history...");
             
             // Save history data to persistent storage
             // Implementation would depend on your save system
@@ -725,7 +725,7 @@ namespace Laboratory.Chimera.UI
         private void UpdateHistoryStats()
         {
             // Update the filtered history count display
-            Debug.Log($"📊 Showing {filteredHistory.Count} of {breedingHistory.Count} breeding records");
+            UnityEngine.Debug.Log($"📊 Showing {filteredHistory.Count} of {breedingHistory.Count} breeding records");
         }
         
         private Laboratory.Chimera.Core.BiomeType GetCurrentBiome()
@@ -742,7 +742,7 @@ namespace Laboratory.Chimera.UI
             selectedEntry = entry;
             
             // Update UI to show selection
-            Debug.Log($"📋 Selected history entry: {entry.OffspringName}");
+            UnityEngine.Debug.Log($"📋 Selected history entry: {entry.OffspringName}");
         }
         
         /// <summary>
@@ -757,23 +757,23 @@ namespace Laboratory.Chimera.UI
                 RefreshHistoryDisplay();
             }
             
-            Debug.Log($"⭐ History entry {entry.OffspringName} favorite: {entry.IsFavorite}");
+            UnityEngine.Debug.Log($"⭐ History entry {entry.OffspringName} favorite: {entry.IsFavorite}");
         }
 
         // Missing methods that are referenced
         public void RecordBreedingAttempt(CreatureInstanceComponent parent1, CreatureInstanceComponent parent2, float breedingTime, bool success)
         {
-            Debug.Log($"Recording breeding attempt: {parent1.name} + {parent2.name}, Success: {success}");
+            UnityEngine.Debug.Log($"Recording breeding attempt: {parent1.name} + {parent2.name}, Success: {success}");
             // Placeholder implementation - would record the actual breeding attempt
             if (success)
             {
                 // Would call RecordBreeding with actual offspring
-                Debug.Log("Breeding was successful - offspring would be recorded");
+                UnityEngine.Debug.Log("Breeding was successful - offspring would be recorded");
             }
             else
             {
                 // Would call RecordFailedBreeding
-                Debug.Log("Breeding failed - failure would be recorded");
+                UnityEngine.Debug.Log("Breeding failed - failure would be recorded");
             }
         }
 

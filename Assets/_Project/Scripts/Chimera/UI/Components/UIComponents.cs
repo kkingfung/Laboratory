@@ -901,7 +901,7 @@ namespace Laboratory.Chimera.UI.Components
     {
         public void ShowCreatureDetails(CreatureInstanceComponent creature)
         {
-            Debug.Log($"Showing details for creature: {creature.name}");
+            UnityEngine.Debug.Log($"Showing details for creature: {creature.name}");
             // Placeholder implementation
         }
     }
@@ -913,7 +913,7 @@ namespace Laboratory.Chimera.UI.Components
     {
         public void ShowAchievements()
         {
-            Debug.Log("Showing achievements");
+            UnityEngine.Debug.Log("Showing achievements");
             // Placeholder implementation
         }
     }

@@ -6,6 +6,7 @@ using Laboratory.AI.ECS;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.AI;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.ECS;
 using Laboratory.Chimera.ECS;
 
 namespace Laboratory.Networking
@@ -55,7 +56,7 @@ namespace Laboratory.Networking
     // Network components for AI synchronization
     public struct NetworkedAIStateComponent : IComponentData
     {
-        public AIBehaviorType currentBehavior;
+        public Laboratory.Core.ECS.AIBehaviorType currentBehavior;
         public float behaviorIntensity;
         public float3 targetPosition;
         public Entity currentTarget;
@@ -79,7 +80,7 @@ namespace Laboratory.Networking
     {
         public uint geneticHash;
         public float adaptationLevel;
-        public BiomeType currentBiome;
+        public Laboratory.Core.ECS.BiomeType currentBiome;
         public float environmentalStress;
         public uint geneticVersion;
         public bool isBreeding;
@@ -237,7 +238,7 @@ namespace Laboratory.Networking
         {
             _networkedGeneticsQuery = GetEntityQuery(
                 ComponentType.ReadWrite<NetworkedGeneticsComponent>(),
-                ComponentType.ReadOnly<CreatureGeneticsComponent>()
+                ComponentType.ReadOnly<Laboratory.Chimera.ECS.CreatureGeneticsComponent>()
             );
 
             RequireForUpdate(_networkedGeneticsQuery);
@@ -259,7 +260,7 @@ namespace Laboratory.Networking
                 }).WithoutBurst().Run();
         }
 
-        private uint CalculateGeneticHash(CreatureGeneticsComponent genetics)
+        private uint CalculateGeneticHash(Laboratory.Chimera.ECS.CreatureGeneticsComponent genetics)
         {
             // Simple hash calculation for genetic component
             return (uint)(genetics.Generation * 1000 + (int)(genetics.GeneticPurity * 100) + genetics.ActiveGeneCount);
@@ -271,7 +272,6 @@ namespace Laboratory.Networking
     public partial class NetworkBreedingSyncSystem : SystemBase
     {
         private EntityQuery _breedingRequestQuery;
-        private uint _nextRequestId = 1;
 
         protected override void OnCreate()
         {
@@ -299,8 +299,8 @@ namespace Laboratory.Networking
             }
 
             // Check if parents have genetic components
-            if (!EntityManager.HasComponent<CreatureGeneticsComponent>(request.parent1) ||
-                !EntityManager.HasComponent<CreatureGeneticsComponent>(request.parent2))
+            if (!EntityManager.HasComponent<Laboratory.Chimera.ECS.CreatureGeneticsComponent>(request.parent1) ||
+                !EntityManager.HasComponent<Laboratory.Chimera.ECS.CreatureGeneticsComponent>(request.parent2))
             {
                 return;
             }
@@ -316,7 +316,7 @@ namespace Laboratory.Networking
                     geneticHash = (uint)UnityEngine.Random.Range(1000, 9999),
                     geneticVersion = 1,
                     adaptationLevel = 0f,
-                    currentBiome = BiomeType.Temperate,
+                    currentBiome = Laboratory.Core.ECS.BiomeType.Forest,
                     environmentalStress = 0f,
                     isBreeding = false
                 });
@@ -334,10 +334,10 @@ namespace Laboratory.Networking
             EntityManager.AddComponentData(offspring, Unity.Transforms.LocalTransform.FromPosition(location));
 
             // Add genetic component (simplified combination)
-            var parent1Genetics = EntityManager.GetComponentData<CreatureGeneticsComponent>(parent1);
-            var parent2Genetics = EntityManager.GetComponentData<CreatureGeneticsComponent>(parent2);
+            var parent1Genetics = EntityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureGeneticsComponent>(parent1);
+            var parent2Genetics = EntityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureGeneticsComponent>(parent2);
 
-            var offspringGenetics = new CreatureGeneticsComponent
+            var offspringGenetics = new Laboratory.Chimera.ECS.CreatureGeneticsComponent
             {
                 Generation = math.max(parent1Genetics.Generation, parent2Genetics.Generation) + 1,
                 GeneticPurity = (parent1Genetics.GeneticPurity + parent2Genetics.GeneticPurity) / 2f,

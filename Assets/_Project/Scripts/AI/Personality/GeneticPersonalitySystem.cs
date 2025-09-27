@@ -1,8 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using Laboratory.Chimera.Genetics.Advanced;
-using Laboratory.Core.Debug;
+using Laboratory.Chimera.Genetics;
 
 namespace Laboratory.AI.Personality
 {
@@ -64,23 +63,23 @@ namespace Laboratory.AI.Personality
             emotionalEngine = new EmotionalResponseEngine();
 
             InitializeBaseMood();
-            DebugManager.LogInfo("Genetic Personality System initialized");
+            UnityEngine.Debug.Log("Genetic Personality System initialized");
         }
 
         /// <summary>
         /// Generates personality from genetic traits
         /// </summary>
-        public void GeneratePersonalityFromGenetics(CreatureGenome genome)
+        public void GeneratePersonalityFromGenetics(GeneticProfile genome)
         {
-            DebugManager.LogInfo($"Generating personality for creature {genome.id}");
+            UnityEngine.Debug.Log($"Generating personality for creature {genome.ProfileId}");
 
             // Clear previous data
             baseTraits.Clear();
             personalityProfile = new PersonalityProfile
             {
-                creatureId = genome.id,
-                generation = genome.generation,
-                speciesName = genome.species
+                creatureId = (uint)genome.ProfileId.GetHashCode(), // Convert string ID to uint
+                generation = (uint)genome.Generation,
+                speciesName = "Unknown" // Species info not available in GeneticProfile
             };
 
             // Extract personality-relevant genetic traits
@@ -98,10 +97,10 @@ namespace Laboratory.AI.Personality
             // Initialize social preferences
             InitializeSocialPreferences(genome);
 
-            DebugManager.LogInfo($"Personality generated: {GetPersonalityDescription()}");
+            UnityEngine.Debug.Log($"Personality generated: {GetPersonalityDescription()}");
         }
 
-        private void ExtractPersonalityTraits(CreatureGenome genome)
+        private void ExtractPersonalityTraits(GeneticProfile genome)
         {
             // Map genetic traits to personality traits
             var traitMappings = new Dictionary<string, string[]>
@@ -119,13 +118,14 @@ namespace Laboratory.AI.Personality
                 string geneticTrait = kvp.Key;
                 string[] personalityTraits = kvp.Value;
 
-                if (genome.traits.TryGetValue(geneticTrait, out var geneValue))
+                if (genome.TraitExpressions.TryGetValue(geneticTrait, out var geneValue))
                 {
                     foreach (string personalityTrait in personalityTraits)
                     {
-                        // Add some variation while maintaining genetic influence
-                        float variation = UnityEngine.Random.Range(-0.1f, 0.1f);
-                        float traitValue = Mathf.Clamp01(geneValue.value + variation);
+                        // Balance genetic influence with environmental factors
+                        float geneticComponent = geneValue.Value * geneticInfluenceStrength;
+                        float environmentalComponent = UnityEngine.Random.Range(0f, 1f) * environmentalInfluence;
+                        float traitValue = Mathf.Clamp01(geneticComponent + environmentalComponent);
                         baseTraits[personalityTrait] = traitValue;
                     }
                 }
@@ -135,28 +135,34 @@ namespace Laboratory.AI.Personality
             GenerateEmergentTraits(genome);
         }
 
-        private void GenerateEmergentTraits(CreatureGenome genome)
+        private void GenerateEmergentTraits(GeneticProfile genome)
         {
             // Emergent traits from genetic combinations
-            if (genome.traits.TryGetValue("Intelligence", out var intel) &&
-                genome.traits.TryGetValue("Curiosity", out var curiosity))
+            if (genome.TraitExpressions.TryGetValue("Intelligence", out var intel) &&
+                genome.TraitExpressions.TryGetValue("Curiosity", out var curiosity))
             {
-                float creativity = (intel.value + curiosity.value) * 0.5f;
-                baseTraits["Creativity"] = Mathf.Clamp01(creativity + UnityEngine.Random.Range(-0.05f, 0.05f));
+                float creativity = (intel.Value + curiosity.Value) * 0.5f;
+                float geneticCreativity = creativity * geneticInfluenceStrength;
+                float environmentalCreativity = UnityEngine.Random.Range(0f, 0.5f) * environmentalInfluence;
+                baseTraits["Creativity"] = Mathf.Clamp01(geneticCreativity + environmentalCreativity);
             }
 
-            if (genome.traits.TryGetValue("Aggression", out var aggr) &&
-                genome.traits.TryGetValue("Fear", out var fear))
+            if (genome.TraitExpressions.TryGetValue("Aggression", out var aggr) &&
+                genome.TraitExpressions.TryGetValue("Fear", out var fear))
             {
-                float boldness = Mathf.Clamp01(aggr.value - fear.value + 0.5f);
-                baseTraits["Boldness"] = boldness;
+                float boldness = Mathf.Clamp01(aggr.Value - fear.Value + 0.5f);
+                float geneticBoldness = boldness * geneticInfluenceStrength;
+                float environmentalBoldness = UnityEngine.Random.Range(0f, 0.3f) * environmentalInfluence;
+                baseTraits["Boldness"] = Mathf.Clamp01(geneticBoldness + environmentalBoldness);
             }
 
-            if (genome.traits.TryGetValue("Social", out var social) &&
-                genome.traits.TryGetValue("Intelligence", out var intel2))
+            if (genome.TraitExpressions.TryGetValue("Social", out var social) &&
+                genome.TraitExpressions.TryGetValue("Intelligence", out var intel2))
             {
-                float leadership = (social.value + intel2.value) * 0.4f;
-                baseTraits["Leadership"] = Mathf.Clamp01(leadership + UnityEngine.Random.Range(-0.1f, 0.1f));
+                float leadership = (social.Value + intel2.Value) * 0.4f;
+                float geneticLeadership = leadership * geneticInfluenceStrength;
+                float environmentalLeadership = UnityEngine.Random.Range(0f, 0.4f) * environmentalInfluence;
+                baseTraits["Leadership"] = Mathf.Clamp01(geneticLeadership + environmentalLeadership);
             }
         }
 
@@ -238,7 +244,7 @@ namespace Laboratory.AI.Personality
             });
         }
 
-        private void InitializeSocialPreferences(CreatureGenome genome)
+        private void InitializeSocialPreferences(GeneticProfile genome)
         {
             personalityProfile.socialPreferences = new SocialPreferences
             {
@@ -386,7 +392,7 @@ namespace Laboratory.AI.Personality
             if (Mathf.Abs(change) > 0.01f) // Significant change
             {
                 OnTraitLearned?.Invoke(behaviorName, learnedBehaviors[behaviorName]);
-                DebugManager.LogInfo($"Learned behavior updated: {behaviorName} = {learnedBehaviors[behaviorName]:F3}");
+                UnityEngine.Debug.Log($"Learned behavior updated: {behaviorName} = {learnedBehaviors[behaviorName]:F3}");
             }
         }
 
@@ -499,7 +505,7 @@ namespace Laboratory.AI.Personality
             // Affect current mood immediately
             AffectMoodFromMemory(memory);
 
-            DebugManager.LogInfo($"Memory recorded: {type} - {description} (Intensity: {emotionalIntensity:F2})");
+            UnityEngine.Debug.Log($"Memory recorded: {type} - {description} (Intensity: {emotionalIntensity:F2})");
         }
 
         private void AffectMoodFromMemory(PersonalityMemory memory)
@@ -609,7 +615,7 @@ namespace Laboratory.AI.Personality
         public void ApplyTemporaryTraitModifier(string traitName, float modifier)
         {
             temporaryTraitModifiers[traitName] = modifier;
-            DebugManager.LogInfo($"Temporary trait modifier applied: {traitName} += {modifier:F2}");
+            UnityEngine.Debug.Log($"Temporary trait modifier applied: {traitName} += {modifier:F2}");
         }
     }
 

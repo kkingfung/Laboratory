@@ -104,7 +104,7 @@ namespace Laboratory.Chimera.AI
 
             if (aiAgent == null)
             {
-                Debug.LogError("EnhancedAIAgent not found!", this);
+                UnityEngine.Debug.LogError("EnhancedAIAgent not found!", this);
                 enabled = false;
                 return;
             }
@@ -116,7 +116,7 @@ namespace Laboratory.Chimera.AI
             if (useSmartPathing)
             {
                 // Store pathfinding preferences for internal use
-                Debug.Log($"[EnhancedChimeraMonsterAI] Using smart pathing with mode: {preferredPathfindingMode}");
+                UnityEngine.Debug.Log($"[EnhancedChimeraMonsterAI] Using smart pathing with mode: {preferredPathfindingMode}");
             }
         }
 
@@ -243,7 +243,7 @@ namespace Laboratory.Chimera.AI
         {
             if (enableDetailedLogging)
             {
-                Debug.Log($"{gameObject.name}: {currentState} -> {newState}");
+                UnityEngine.Debug.Log($"{gameObject.name}: {currentState} -> {newState}");
             }
 
             currentState = newState;
@@ -421,7 +421,7 @@ namespace Laboratory.Chimera.AI
 
             // Deal damage (simplified)
             int damage = Random.Range(maxAttackDamage / 2, maxAttackDamage);
-            Debug.Log($"{gameObject.name} attacks {currentTarget.name} for {damage} damage!");
+            UnityEngine.Debug.Log($"{gameObject.name} attacks {currentTarget.name} for {damage} damage!");
 
             // Add your damage dealing logic here
             // Example: currentTarget.GetComponent<HealthComponent>()?.TakeDamage(damage);

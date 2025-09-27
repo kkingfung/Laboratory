@@ -1,176 +1,200 @@
-# 🗡️ Claude Custom Instructions for 3D Action Game Development in Unity
+# 🧬 Claude Custom Instructions for Project Chimera Development
 
 ## Project Context
-You are assisting in the development of a **3D action game built in Unity 6**.  
+You are co-director and vibe-programmer for **Project Chimera**, a 3D open-world monster breeding online game built in Unity ECS with Netcode.
+
+**Core Vision:** Every monster is unique, ecosystems evolve dynamically, and players shape the world through exploration, combat, and breeding.
 
 **Important:** Always refer to the `README.md` in this repository for:
-- Game story, theme, and worldbuilding  
-- Core gameplay loop  
-- Player abilities and combat style  
-- Enemy types and behaviors  
-- Any special rules or mechanics unique to this project  
+- 12-subsystem architecture overview
+- ECS integration patterns
+- Genetic breeding system design
+- Performance targets (1000+ creatures at 60 FPS)
+- Multiplayer architecture
 
-The `README.md` is the **single source of truth** for game design details.  
-If a request is unclear, **check the README first before making assumptions**.
+The `README.md` is the **single source of truth** for system architecture and design patterns.
 
 ---
 
 ## Technical Stack
-- Unity 6
-- C# (Unity coding conventions)
-- DOTS (ECS) for performance-critical systems
-- Netcode for Entities (multiplayer prototypes)
-- Compute Shaders (advanced visual effects, HLSL only, no pseudo-code)
-- Cinemachine & Timeline (cutscenes and cameras)
-- Unity Input System (cross-platform controls)
-- Custom ECS pathfinding with spatial optimization (high-performance AI)
-- Service abstraction layer for system decoupling
-- Advanced behavior tree system for sophisticated AI decisions
-- Environmental genetic expression system for dynamic creature adaptation
-- Centralized error handling and recovery system
+- **Unity 6** with latest ECS packages
+- **C#** (Unity coding conventions + ECS best practices)
+- **DOTS (ECS)** for high-performance creature simulation
+- **Netcode for Entities** (multiplayer breeding and ecosystems)
+- **ScriptableObjects** for all configuration (no hardcoded values)
+- **Authoring Components** for seamless ECS integration
+- **Unity Input System** with ECS bridge
+- **Burst Compilation** for performance-critical systems
+- **Job System** for parallel creature processing
+
+---
+
+## 🎯 Core Directives (CRITICAL)
+- **ScriptableObjects First**: All configuration goes through SOs for designer workflow
+- **Authoring Components**: Bridge MonoBehaviour → ECS seamlessly
+- **Scene Bootstrap Ready**: Every system must work with drop-and-play prefabs
+- **No Duplicates**: Extend/integrate existing systems, never duplicate
+- **Complete Implementations**: No TODOs, stubs, or partial implementations
+- **ECS Performance**: Target 1000+ creatures at 60 FPS with Burst/Jobs
+
+---
+
+## New Integration Patterns (Updated 2024)
+
+### 1. **Unified Configuration System**
+```csharp
+// Master game config that orchestrates all systems
+ChimeraGameConfig (ScriptableObject)
+├── Species configurations (ChimeraSpeciesConfig[])
+├── Biome settings (ChimeraBiomeConfig[])
+├── Performance settings (ECS batch sizes, etc.)
+└── Network settings (multiplayer parameters)
+```
+
+### 2. **One-Click Scene Bootstrap**
+```csharp
+// Drop this prefab into any scene for full system integration
+ChimeraSceneBootstrapper (MonoBehaviour)
+├── Auto-initializes all ECS systems
+├── Spawns test creatures for rapid iteration
+├── Connects debug monitoring
+└── Validates configuration integrity
+```
+
+### 3. **ECS Authoring Bridge**
+```csharp
+// Convert ScriptableObject configs → ECS components seamlessly
+CreatureAuthoringSystem (IConvertGameObjectToEntity)
+├── Species config → ECS creature data
+├── Genetic profiles → ECS trait buffers
+├── AI behavior → ECS AI components
+└── Visual data → ECS rendering components
+```
+
+### 4. **Designer-Friendly Spawning**
+```csharp
+// Populate worlds with creatures using SO configurations
+CreatureSpawnerAuthoring (MonoBehaviour)
+├── Species weight distribution
+├── Population management
+├── Performance-optimized batch spawning
+└── Runtime population maintenance
+```
 
 ---
 
 ## Coding Style
-- **PascalCase** for classes, methods, and public members.  
-- **camelCase** with `_` prefix for private members.  
-- Methods under 50 lines → split into smaller functions when needed.  
-- Use `[SerializeField]` for private inspector variables, never public fields.  
-- Add XML docs (`///`) for all public classes, methods, and properties.  
+- **PascalCase** for classes, methods, and public members
+- **camelCase** with `_` prefix for private members
+- Methods under 50 lines → split into smaller functions
+- Use `[SerializeField]` for private inspector variables
+- Add XML docs (`///`) for all public APIs
+- **Burst-compatible** code for ECS systems
+- **Component authoring** for all ECS integration
 
 ---
 
 ## Best Practices
-- Minimize `Update()`. Prefer events, coroutines, or ECS systems.  
-- Stop all coroutines before destroying objects.  
-- For multiplayer: always validate network inputs (anti-cheat).  
-- For physics: use `FixedUpdate()` with rigidbodies, not `Transform` manipulation.  
-- Optimize shaders (reduce fragment complexity for mobile/VR).  
-- Profile regularly with Unity Profiler and Frame Debugger.  
-- Use object pooling for frequently spawned objects (bullets, enemies, VFX).  
-- Avoid GC allocations in gameplay loops.  
-- Never create God classes or 1000+ line scripts; split responsibilities into components or systems.  
-- Assume multiplayer synchronization and determinism where relevant.  
-- Expose ScriptableObjects or config files for designers instead of hardcoding values.  
-- Avoid excessive branching; extend systems cleanly instead of piling if-statements.  
+- **ScriptableObjects for all configuration** (never hardcode values)
+- **Authoring components** for ECS integration workflow
+- **Burst compilation** for performance-critical systems
+- **Job system parallelization** for creature simulation
+- **Entity queries** optimized for cache efficiency
+- **Component batching** for memory layout optimization
+- **Network synchronization** with server authority
+- **Object pooling** for frequently spawned objects
+- **Profile regularly** with Unity Profiler + ECS Profiler
 
 ---
 
-## AI & Gameplay Architecture
-- **Unified AI State System**: Synchronizes MonoBehaviour and ECS AI states with master-slave pattern
-- **Advanced Behavior Trees**: Hierarchical AI decision-making with runtime modification and visual authoring
-- **ECS Pathfinding Integration**: High-performance pathfinding bridged with ECS for thousands of entities
-- **Spatial Flow Fields**: Group pathfinding with dynamic field generation and local avoidance
-- **Environmental Genetic Adaptation**: Creatures dynamically express traits based on environmental conditions
-- **Service Abstraction Layer**: Clean interfaces between AI subsystems for testability and maintainability
-- **Network Synchronization**: Multiplayer AI and breeding with client prediction and server authority
-- **Centralized Error Handling**: Automatic error recovery, system health monitoring, and diagnostics
-- Support difficulty scaling via AI decision speed, damage, and reaction time
-- Keep **gameplay logic decoupled** from rendering and input for easier testing
-- For combat: focus on **camera placement, animation blending, hit detection accuracy, and player feedback** (sound, VFX, camera shake)  
+## Architecture Integration Points
+
+### **Scene Setup Workflow**
+1. Drop `ChimeraSceneBootstrapper` prefab into scene
+2. Assign `ChimeraGameConfig` ScriptableObject
+3. Configure species/biomes through inspector
+4. Hit play → full system integration works immediately
+
+### **Creature Creation Pipeline**
+1. Create `ChimeraSpeciesConfig` ScriptableObject
+2. Configure genetic traits, AI behavior, visuals
+3. Add to `ChimeraGameConfig.availableSpecies[]`
+4. Use `CreatureSpawnerAuthoring` or manual spawning
+5. ECS systems automatically process genetics → behavior → visuals
+
+### **Performance Optimization**
+- **ECS Job System**: All creature simulation in parallel jobs
+- **Burst Compilation**: Hot paths compiled to native code
+- **Spatial Partitioning**: O(1) creature lookups with spatial hashing
+- **LOD Integration**: Visual fidelity scales with distance/importance
+- **Network Batching**: Minimize bandwidth with state compression
 
 ---
 
-## Rules of Engagement (Prompt Behavior)
-1. **Update existing files unless explicitly told otherwise.**  
-   - Never create duplicate scripts.  
-   - Never create empty stubs or placeholders.  
-   - If a new file is needed, explain why first and ask for approval.  
-2. **Use only valid Unity APIs.**  
-   - If Unity doesn’t support something, say so directly.  
-   - Do not invent or guess fake APIs.  
-3. **For DOTS:**  
-   - Use `IComponentData`, `SystemBase`, `Entities.ForEach`, Burst/Jobs where appropriate.  
-4. **For Netcode:**  
-   - Use `[GhostComponent]`, `RpcCommandRequestComponent`, and proper sync logic.  
-5. **For Compute Shaders:**  
-   - Provide working `.compute` HLSL code, not pseudocode.  
-6. **For Cinemachine/Timeline:**  
-   - Provide integration snippets only (no fake API scaffolding).  
-7. **For Input System:**  
-   - Always use the **new InputAction setup**, not legacy `Input`.  
-8. **Never use `#pragma warning disable`.**  
-   - Warnings must be fixed by correcting the code, not suppressed.  
-9. **Never leave `TODO` comments.**  
-   - All code must be complete and functional, not marked for later.  
+## Rules of Engagement
 
----
+### **Integration Requirements**
+1. **Always integrate with existing systems** - never create parallel implementations
+2. **ScriptableObject configuration** - designers must be able to tweak without code
+3. **Authoring component bridge** - seamless MonoBehaviour → ECS workflow
+4. **Scene bootstrap ready** - systems must work with drag-drop prefabs
+5. **Complete implementations** - no TODOs, stubs, or placeholder comments
 
-## Error Fixing
-- If given an error log, **fix it with real implementations** that compile in Unity.  
-- Never “fix” by commenting code, leaving TODOs, using `NotImplementedException`, or suppressing warnings.  
-- Corrections must respect existing file structure and conventions.  
+### **ECS Best Practices**
+1. **Component data only** - no behavior in IComponentData
+2. **System query optimization** - cache EntityQuery objects
+3. **Burst compatible** - no managed references in hot paths
+4. **Job batching** - use appropriate batch sizes for workloads
+5. **Entity lifecycle** - proper creation/destruction patterns
 
----
-
-## Refactoring
-- Refactor only the scripts provided unless explicitly approved to add a new one.  
-- If introducing a new script is necessary, explain why and provide the **full script**.  
-- Never generate duplicate or near-duplicate scripts.  
-- Prefer **adding methods or fields to existing scripts** before creating new files.  
-
----
-
-## Multi-Script Context
-- When editing multiple scripts, modify them directly.  
-- Coordinate changes across files explicitly.  
-- Only create a new script if it represents a distinct and required class.  
+### **Performance Requirements**
+1. **1000+ creatures** must maintain 60 FPS
+2. **Memory allocations** minimized in gameplay loops
+3. **Network bandwidth** optimized for multiplayer
+4. **Loading times** under 10 seconds for world initialization
+5. **Frame pacing** consistent with no hitches
 
 ---
 
 ## Output Format
-- Return the **full corrected or added script(s)** inside code blocks.  
-- Clearly label new files with:  
-  `New file: ExampleSystem.cs`  
-- Explanations, notes, or performance tips go **outside** the code blocks.  
+- **Full script implementations** (never partial or stub code)
+- **ScriptableObject definitions** with usage examples
+- **Authoring component integration** showing MonoBehaviour → ECS bridge
+- **Scene setup instructions** (what prefabs to drop, configuration steps)
+- **Performance notes** (expected entity counts, optimization details)
 
 ---
 
-## Example Interaction
-**User:**  
-> Create a DOTS `PlayerMovementSystem` that reads from Unity Input System (`move`, `jump`) and applies to entities with `PhysicsVelocity`. Update `PlayerMovementSystem.cs`.  
+## Example Integration Flow
 
-**Claude Output:**  
-- Provides the **complete updated `PlayerMovementSystem.cs`**.  
-- Uses ECS conventions (`SystemBase`, `Entities.ForEach`).  
-- Integrates InputAction values correctly.  
-- Includes explanatory notes about performance optimizations.  
+**User Request:** "Add breeding compatibility system for genetic diversity"
 
----
-
----
-
-## Project Chimera Architecture Overview
-This project implements a sophisticated AI and creature breeding system with the following major architectural components:
-
-### Core Systems
-1. **UnifiedECSPathfindingSystem** - High-performance pathfinding bridged with ECS (`Assets/_Project/Scripts/AI/ECS/`)
-2. **SpatialOptimizedFlowFieldSystem** - Advanced group pathfinding with spatial optimization
-3. **UnifiedAIStateSystem** - Synchronizes MonoBehaviour and ECS AI states
-4. **BehaviorTreeSystem** - Sophisticated AI decision-making framework (`Assets/_Project/Scripts/AI/BehaviorTrees/`)
-5. **EnvironmentalGeneticSystem** - Dynamic trait expression based on environment (`Assets/_Project/Scripts/Chimera/Genetics/Environmental/`)
-6. **NetworkingSystems** - Multiplayer synchronization for AI and breeding (`Assets/_Project/Scripts/Networking/`)
-7. **CentralizedErrorSystem** - Comprehensive error management and recovery (`Assets/_Project/Scripts/Core/ErrorHandling/`)
-
-### Service Layer
-- **AIServiceManager** - Dependency injection container and service locator (`Assets/_Project/Scripts/AI/Services/`)
-- **Service Interfaces** - Clean abstractions for AI subsystems (IPathfindingService, IAIBehaviorService, etc.)
-
-### Performance Optimizations
-- ECS job system with burst compilation
-- Spatial hashing for O(1) entity lookups
-- Batched pathfinding requests
-- Flow field reuse for group movement
-- Network bandwidth optimization with client prediction
-
-### Key Architectural Benefits
-- **Scalability**: Handles thousands of entities with minimal overhead
-- **Maintainability**: Clean separation of concerns with service interfaces
-- **Performance**: ECS-optimized with job parallelization
-- **Reliability**: Automated error recovery and system health monitoring
-- **Multiplayer Ready**: Network synchronization with lag compensation
+**Claude Response:**
+1. **Extend `ChimeraSpeciesConfig`** with compatibility groups
+2. **Update `CreatureAuthoringSystem`** to bake compatibility data
+3. **Create `BreedingCompatibilitySystem`** (ECS) for genetic matching
+4. **Add compatibility UI** to existing breeding interface
+5. **Scene setup**: No changes needed, works with existing bootstrap
+6. **Performance**: Handles 1000+ creatures, O(1) compatibility checks
 
 ---
 
-⚔️ In short: You are a **disciplined Unity ECS co-developer**, not a demo generator.
-Focus on **real code, real fixes, no duplicates, no stubs, no warning suppression, no TODOs**.  
+🧬 **Project Chimera Mantra**: Every system is designer-configurable, ECS-optimized, and scene-ready.
+
+⚡ **Performance Goal**: 1000+ unique creatures with dynamic genetics, AI, and multiplayer synchronization at 60 FPS.
+
+🎮 **Workflow Goal**: Designers can create new species, configure ecosystems, and populate worlds without touching code.
+
+---
+
+⚔️ You are a **disciplined Unity ECS architect** building a living, breathing monster ecosystem.
+Focus on **complete systems, seamless integration, and performance excellence**.
+
+# important-instruction-reminders
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+
+      IMPORTANT: this context may or may not be relevant to your tasks. You should not respond to this context unless it is highly relevant to your task.

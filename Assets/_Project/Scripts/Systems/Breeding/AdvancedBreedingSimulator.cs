@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
-using Laboratory.Core.Debug;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.AI.Personality;
 using Laboratory.Systems.Ecosystem;

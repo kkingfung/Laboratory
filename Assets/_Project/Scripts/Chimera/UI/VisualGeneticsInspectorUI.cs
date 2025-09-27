@@ -123,7 +123,7 @@ namespace Laboratory.Chimera.UI
             ShowInspector();
             UpdateDisplay();
             
-            Debug.Log($"🔍 Inspecting creature: {creature.name}");
+            UnityEngine.Debug.Log($"🔍 Inspecting creature: {creature.name}");
         }
         
         /// <summary>
@@ -152,7 +152,7 @@ namespace Laboratory.Chimera.UI
             }
             else
             {
-                Debug.LogWarning("No creatures found to inspect!");
+                UnityEngine.Debug.LogWarning("No creatures found to inspect!");
             }
         }
         
@@ -473,7 +473,7 @@ namespace Laboratory.Chimera.UI
         {
             if (currentCreature?.CreatureData?.GeneticProfile == null)
             {
-                Debug.LogWarning("No creature selected for export");
+                UnityEngine.Debug.LogWarning("No creature selected for export");
                 return;
             }
             
@@ -502,11 +502,11 @@ namespace Laboratory.Chimera.UI
             
             export.AppendLine("=== END EXPORT ===");
             
-            Debug.Log(export.ToString());
+            UnityEngine.Debug.Log(export.ToString());
             
             // Copy to clipboard if possible
             GUIUtility.systemCopyBuffer = export.ToString();
-            Debug.Log("✅ Genetic data copied to clipboard!");
+            UnityEngine.Debug.Log("✅ Genetic data copied to clipboard!");
         }
         
         /// <summary>
@@ -517,13 +517,13 @@ namespace Laboratory.Chimera.UI
         {
             if (previewCamera == null)
             {
-                Debug.LogWarning("No preview camera available for screenshot");
+                UnityEngine.Debug.LogWarning("No preview camera available for screenshot");
                 return;
             }
             
             string filename = $"CreaturePreview_{currentCreature.name}_{System.DateTime.Now:yyyyMMdd_HHmmss}.png";
             ScreenCapture.CaptureScreenshot(filename);
-            Debug.Log($"📸 Screenshot saved: {filename}");
+            UnityEngine.Debug.Log($"📸 Screenshot saved: {filename}");
         }
         
         #endregion

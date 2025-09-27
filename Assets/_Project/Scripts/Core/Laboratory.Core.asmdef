@@ -5,6 +5,7 @@
         "R3",
         "UniTask",
         "Unity.Entities",
+        "Unity.Transforms",
         "Unity.Mathematics",
         "Unity.Collections",
         "Unity.Netcode.Runtime",

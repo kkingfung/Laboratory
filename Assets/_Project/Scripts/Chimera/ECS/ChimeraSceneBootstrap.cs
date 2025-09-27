@@ -2,7 +2,7 @@ using UnityEngine;
 using Unity.Entities;
 using Cysharp.Threading.Tasks;
 using Laboratory.Chimera.Configuration;
-using Laboratory.Chimera.ECS.Components;
+using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Core;
@@ -162,7 +162,7 @@ namespace Laboratory.Chimera.ECS
         {
             if (isInitialized)
             {
-                Debug.LogWarning("[ChimeraBootstrap] Scene already initialized!");
+                UnityEngine.Debug.LogWarning("[ChimeraBootstrap] Scene already initialized!");
                 return;
             }
             
@@ -199,7 +199,7 @@ namespace Laboratory.Chimera.ECS
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"Failed to initialize Chimera scene: {ex}");
+                UnityEngine.Debug.LogError($"Failed to initialize Chimera scene: {ex}");
                 throw;
             }
         }
@@ -212,7 +212,7 @@ namespace Laboratory.Chimera.ECS
         {
             if (!isInitialized || availableSpecies.Length == 0)
             {
-                Debug.LogWarning("[ChimeraBootstrap] Cannot spawn creature - scene not initialized or no species configured");
+                UnityEngine.Debug.LogWarning("[ChimeraBootstrap] Cannot spawn creature - scene not initialized or no species configured");
                 return;
             }
             
@@ -301,13 +301,13 @@ namespace Laboratory.Chimera.ECS
             
             if (biomeConfig == null)
             {
-                Debug.LogError("[ChimeraBootstrap] No biome configuration assigned!");
+                UnityEngine.Debug.LogError("[ChimeraBootstrap] No biome configuration assigned!");
                 throw new System.InvalidOperationException("Biome configuration is required");
             }
             
             if (availableSpecies.Length == 0)
             {
-                Debug.LogWarning("[ChimeraBootstrap] No species configured - using default species");
+                UnityEngine.Debug.LogWarning("[ChimeraBootstrap] No species configured - using default species");
                 // Could create a default species here if needed
             }
             
@@ -443,7 +443,7 @@ namespace Laboratory.Chimera.ECS
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"Failed to spawn creature {species.speciesName}: {ex}");
+                UnityEngine.Debug.LogError($"Failed to spawn creature {species.speciesName}: {ex}");
                 return Entity.Null;
             }
         }
@@ -734,7 +734,7 @@ namespace Laboratory.Chimera.ECS
         {
             if (enableDebugLogging)
             {
-                Debug.Log($"[ChimeraBootstrap] {message}");
+                UnityEngine.Debug.Log($"[ChimeraBootstrap] {message}");
             }
         }
         

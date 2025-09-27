@@ -94,7 +94,7 @@ namespace Laboratory.Chimera
             
             if (!isInitialized)
             {
-                Debug.LogWarning($"{name}: CreatureInstanceComponent not initialized! Call Initialize() or assign speciesConfig.");
+                UnityEngine.Debug.LogWarning($"{name}: CreatureInstanceComponent not initialized! Call Initialize() or assign speciesConfig.");
             }
         }
         
@@ -135,7 +135,7 @@ namespace Laboratory.Chimera
             
             isInitialized = true;
             
-            Debug.Log($"✅ Initialized creature: {name} (ID: {creatureData.UniqueId})");
+            UnityEngine.Debug.Log($"✅ Initialized creature: {name} (ID: {creatureData.UniqueId})");
         }
         
         /// <summary>
@@ -160,7 +160,7 @@ namespace Laboratory.Chimera
             Initialize(instance);
             
             if (enableDetailedLogging)
-                Debug.Log($"Initialized {name} from CreatureInstance data: Age {instance.AgeInDays} days, Health {instance.CurrentHealth}");
+                UnityEngine.Debug.Log($"Initialized {name} from CreatureInstance data: Age {instance.AgeInDays} days, Health {instance.CurrentHealth}");
         }
         
         private void CacheComponents()
@@ -197,7 +197,7 @@ namespace Laboratory.Chimera
                 creatureData.Definition.baseStats = modifiedStats;
             }
             
-            Debug.Log($"Applied genetic modifiers to {name}: Attack={modifiedStats.attack}, Health={modifiedStats.health}");
+            UnityEngine.Debug.Log($"Applied genetic modifiers to {name}: Attack={modifiedStats.attack}, Health={modifiedStats.health}");
         }
         
         private void ConfigureAI()
@@ -234,7 +234,7 @@ namespace Laboratory.Chimera
                 }
             }
             
-            Debug.Log($"Applied genetic AI modifiers to {name}");
+            UnityEngine.Debug.Log($"Applied genetic AI modifiers to {name}");
         }
         
         private void InvokeAIMethod(Component component, string methodName, float parameter)
@@ -247,7 +247,7 @@ namespace Laboratory.Chimera
             catch (System.Exception e)
             {
                 if (enableDetailedLogging)
-                    Debug.LogWarning($"Could not invoke AI method {methodName}: {e.Message}");
+                    UnityEngine.Debug.LogWarning($"Could not invoke AI method {methodName}: {e.Message}");
             }
         }
         
@@ -276,7 +276,7 @@ namespace Laboratory.Chimera
                 }
             }
             
-            Debug.Log($"Applied visual genetics to {name}");
+            UnityEngine.Debug.Log($"Applied visual genetics to {name}");
         }
         
         private void CheckShinyVariant()
@@ -322,7 +322,7 @@ namespace Laboratory.Chimera
                 }
             }
             
-            Debug.Log($"✨ {name} is SHINY!");
+            UnityEngine.Debug.Log($"✨ {name} is SHINY!");
         }
         
         private void ApplyShinyEffect()
@@ -479,7 +479,7 @@ namespace Laboratory.Chimera
                 healthComponent.TakeDamage(damageRequest);
                 
                 if (enableDetailedLogging)
-                    Debug.Log($"{name} took {damage} damage from environmental stress");
+                    UnityEngine.Debug.Log($"{name} took {damage} damage from environmental stress");
             }
             else
             {
@@ -490,7 +490,7 @@ namespace Laboratory.Chimera
                     creatureData.Happiness = Mathf.Clamp01(creatureData.Happiness - happinessLoss);
                     
                     if (enableDetailedLogging)
-                        Debug.Log($"{name} lost {happinessLoss:P1} happiness due to environmental stress (no health component)");
+                        UnityEngine.Debug.Log($"{name} lost {happinessLoss:P1} happiness due to environmental stress (no health component)");
                 }
             }
         }

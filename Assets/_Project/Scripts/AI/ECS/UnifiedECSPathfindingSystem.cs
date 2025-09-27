@@ -6,7 +6,7 @@ using Unity.Jobs;
 using Unity.Burst;
 using UnityEngine;
 using Laboratory.AI.Pathfinding;
-using Laboratory.Chimera.ECS.Components;
+using Laboratory.Core.ECS.Components;
 
 namespace Laboratory.AI.ECS
 {

@@ -40,7 +40,7 @@ namespace Laboratory.Chimera.AI
         [ContextMenu("Setup Monster AI")]
         public void SetupMonsterAI()
         {
-            Debug.Log($"[MonsterSetup] Setting up AI for {gameObject.name}");
+            UnityEngine.Debug.Log($"[MonsterSetup] Setting up AI for {gameObject.name}");
 
             // Ensure NavMeshAgent exists
             SetupNavMeshAgent();
@@ -66,7 +66,7 @@ namespace Laboratory.Chimera.AI
                 RegisterWithAIManager();
             }
 
-            Debug.Log($"[MonsterSetup] ✅ AI setup complete for {gameObject.name}");
+            UnityEngine.Debug.Log($"[MonsterSetup] ✅ AI setup complete for {gameObject.name}");
         }
 
         private void SetupNavMeshAgent()
@@ -75,7 +75,7 @@ namespace Laboratory.Chimera.AI
             if (navAgent == null)
             {
                 navAgent = gameObject.AddComponent<NavMeshAgent>();
-                Debug.Log("[MonsterSetup] Added NavMeshAgent component");
+                UnityEngine.Debug.Log("[MonsterSetup] Added NavMeshAgent component");
             }
 
             // Configure NavMeshAgent with reasonable defaults
@@ -93,7 +93,7 @@ namespace Laboratory.Chimera.AI
             if (animator == null)
             {
                 animator = gameObject.AddComponent<Animator>();
-                Debug.Log("[MonsterSetup] Added Animator component");
+                UnityEngine.Debug.Log("[MonsterSetup] Added Animator component");
             }
 
             if (animatorController != null && animator.runtimeAnimatorController == null)
@@ -108,7 +108,7 @@ namespace Laboratory.Chimera.AI
             if (aiController == null)
             {
                 aiController = gameObject.AddComponent<ChimeraMonsterAI>();
-                Debug.Log("[MonsterSetup] Added ChimeraMonsterAI component");
+                UnityEngine.Debug.Log("[MonsterSetup] Added ChimeraMonsterAI component");
 
                 // Configure AI parameters using reflection since the fields are private
                 var aiType = typeof(ChimeraMonsterAI);
@@ -134,7 +134,7 @@ namespace Laboratory.Chimera.AI
             if (detectionSystem == null)
             {
                 detectionSystem = gameObject.AddComponent<EnemyDetectionSystem>();
-                Debug.Log("[MonsterSetup] Added EnemyDetectionSystem component");
+                UnityEngine.Debug.Log("[MonsterSetup] Added EnemyDetectionSystem component");
 
                 // Configure detection parameters using reflection
                 var detectionType = typeof(EnemyDetectionSystem);
@@ -157,13 +157,13 @@ namespace Laboratory.Chimera.AI
             var existingComponent = GetComponent<CreatureInstanceComponent>();
             if (existingComponent != null)
             {
-                Debug.Log("[MonsterSetup] CreatureInstanceComponent already exists");
+                UnityEngine.Debug.Log("[MonsterSetup] CreatureInstanceComponent already exists");
                 return;
             }
             
             // Add CreatureInstanceComponent for breeding system integration
             var creatureComponent = gameObject.AddComponent<CreatureInstanceComponent>();
-            Debug.Log("[MonsterSetup] Added CreatureInstanceComponent");
+            UnityEngine.Debug.Log("[MonsterSetup] Added CreatureInstanceComponent");
             
             // Create a basic creature definition if none exists
             var creatureDefinition = CreateBasicCreatureDefinition();
@@ -185,7 +185,7 @@ namespace Laboratory.Chimera.AI
             // Initialize the component with the creature data
             creatureComponent.InitializeFromInstance(creatureInstance);
             
-            Debug.Log("[MonsterSetup] Integrated with breeding system successfully");
+            UnityEngine.Debug.Log("[MonsterSetup] Integrated with breeding system successfully");
         }
         
         private Laboratory.Chimera.Genetics.GeneticProfile CreateBasicGeneticProfile()
@@ -292,7 +292,7 @@ namespace Laboratory.Chimera.AI
                 // Create AI Manager if it doesn't exist
                 var managerGO = new GameObject("Chimera AI Manager");
                 aiManager = managerGO.AddComponent<ChimeraAIManager>();
-                Debug.Log("[MonsterSetup] Created ChimeraAIManager");
+                UnityEngine.Debug.Log("[MonsterSetup] Created ChimeraAIManager");
             }
 
             var monsterAI = GetComponent<ChimeraMonsterAI>();
@@ -315,7 +315,7 @@ namespace Laboratory.Chimera.AI
             {
                 setup.SetupMonsterAI();
             }
-            Debug.Log($"[MonsterSetup] Setup complete for {allSetupScripts.Length} monsters");
+            UnityEngine.Debug.Log($"[MonsterSetup] Setup complete for {allSetupScripts.Length} monsters");
         }
 
         /// <summary>
@@ -344,7 +344,7 @@ namespace Laboratory.Chimera.AI
                 }
             }
 
-            Debug.Log($"[MonsterSetup] Removed AI components from {gameObject.name}");
+            UnityEngine.Debug.Log($"[MonsterSetup] Removed AI components from {gameObject.name}");
         }
 
         /// <summary>
@@ -369,11 +369,11 @@ namespace Laboratory.Chimera.AI
 
             if (issues.Count == 0)
             {
-                Debug.Log($"[MonsterSetup] ✅ {gameObject.name} setup is valid");
+                UnityEngine.Debug.Log($"[MonsterSetup] ✅ {gameObject.name} setup is valid");
             }
             else
             {
-                Debug.LogWarning($"[MonsterSetup] ⚠️ {gameObject.name} has issues: {string.Join(", ", issues)}");
+                UnityEngine.Debug.LogWarning($"[MonsterSetup] ⚠️ {gameObject.name} has issues: {string.Join(", ", issues)}");
             }
         }
 

@@ -3,9 +3,9 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using Laboratory.Chimera.ECS.Components;
+using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
-using Laboratory.Chimera.ECS.Systems;
+using Laboratory.Core.ECS.Systems;
 
 namespace Laboratory.Chimera.ECS
 {
@@ -76,13 +76,13 @@ namespace Laboratory.Chimera.ECS
             if (universeConfig == null)
             {
                 if (logBootstrapProcess)
-                    Debug.LogWarning("No ChimeraUniverseConfiguration assigned! Loading default from Resources...");
+                    UnityEngine.Debug.LogWarning("No ChimeraUniverseConfiguration assigned! Loading default from Resources...");
 
                 universeConfig = Resources.Load<ChimeraUniverseConfiguration>("Configs/ChimeraUniverse");
 
                 if (universeConfig == null)
                 {
-                    Debug.LogError("No configuration found! Creating temporary default configuration.");
+                    UnityEngine.Debug.LogError("No configuration found! Creating temporary default configuration.");
                     universeConfig = ChimeraUniverseConfiguration.CreateDefault();
                 }
             }
@@ -96,7 +96,7 @@ namespace Laboratory.Chimera.ECS
 
             if (_entityManager == null)
             {
-                Debug.LogError("Failed to get EntityManager! ECS world not initialized.");
+                UnityEngine.Debug.LogError("Failed to get EntityManager! ECS world not initialized.");
                 enabled = false;
                 return;
             }
@@ -118,12 +118,12 @@ namespace Laboratory.Chimera.ECS
         {
             if (_entityManager == null)
             {
-                Debug.LogError("EntityManager not available for world initialization!");
+                UnityEngine.Debug.LogError("EntityManager not available for world initialization!");
                 return;
             }
 
             if (logBootstrapProcess)
-                Debug.Log("🚀 Starting Chimera World Bootstrap...");
+                UnityEngine.Debug.Log("🚀 Starting Chimera World Bootstrap...");
 
             var startTime = Time.realtimeSinceStartup;
 
@@ -149,7 +149,7 @@ namespace Laboratory.Chimera.ECS
 
             if (logBootstrapProcess)
             {
-                Debug.Log($"✅ Chimera World Bootstrap Complete! " +
+                UnityEngine.Debug.Log($"✅ Chimera World Bootstrap Complete! " +
                          $"Created {_createdCreatures} creatures, {_createdBiomes} biomes, {_createdResources} resources in {(endTime - startTime):F2}s");
             }
 
@@ -180,7 +180,7 @@ namespace Laboratory.Chimera.ECS
                 StartPerformanceMonitoring();
 
             if (logBootstrapProcess)
-                Debug.Log($"✅ Chimera World Bootstrap Complete! Created {_createdCreatures} creatures, {_createdBiomes} biomes, {_createdResources} resources");
+                UnityEngine.Debug.Log($"✅ Chimera World Bootstrap Complete! Created {_createdCreatures} creatures, {_createdBiomes} biomes, {_createdResources} resources");
         }
 
         private void CreateWorldEntity()
@@ -197,7 +197,7 @@ namespace Laboratory.Chimera.ECS
             });
 
             if (logBootstrapProcess)
-                Debug.Log("🌍 World entity created with global settings");
+                UnityEngine.Debug.Log("🌍 World entity created with global settings");
         }
 
         private void CreateBiomes()
@@ -212,7 +212,7 @@ namespace Laboratory.Chimera.ECS
             }
 
             if (logBootstrapProcess)
-                Debug.Log($"🗺️ Created {_createdBiomes} biomes with {_createdResources} resource nodes");
+                UnityEngine.Debug.Log($"🗺️ Created {_createdBiomes} biomes with {_createdResources} resource nodes");
         }
 
         private void CreateBiome(BiomeType biomeType, float radius, Vector3 offset, int index)
@@ -297,7 +297,7 @@ namespace Laboratory.Chimera.ECS
             }
 
             if (logBootstrapProcess)
-                Debug.Log($"🧬 Spawned {_createdCreatures} initial creatures");
+                UnityEngine.Debug.Log($"🧬 Spawned {_createdCreatures} initial creatures");
         }
 
         private CreatureSpawnProfile SelectSpawnProfile(float totalWeight)
@@ -469,7 +469,7 @@ namespace Laboratory.Chimera.ECS
         {
             _behaviorSystem = _defaultWorld?.GetOrCreateSystemManaged<ChimeraBehaviorSystem>();
             if (_behaviorSystem != null && logBootstrapProcess)
-                Debug.Log("🧠 Behavior system initialized and running");
+                UnityEngine.Debug.Log("🧠 Behavior system initialized and running");
         }
 
         private void StartPerformanceMonitoring()
@@ -482,7 +482,7 @@ namespace Laboratory.Chimera.ECS
             var entityCount = _entityManager.GetAllEntities().Length;
             var frameRate = 1f / Time.unscaledDeltaTime;
 
-            Debug.Log($"📊 Performance: {entityCount} entities, {frameRate:F1} FPS, {_createdCreatures} creatures active");
+            UnityEngine.Debug.Log($"📊 Performance: {entityCount} entities, {frameRate:F1} FPS, {_createdCreatures} creatures active");
         }
 
         private void CreateBiomeVisualization(Vector3 center, float radius, BiomeType biomeType)
@@ -601,7 +601,7 @@ namespace Laboratory.Chimera.ECS
                 }
 
                 if (logBootstrapProcess)
-                    Debug.Log("🔗 Integrated existing ChimeraAIManager with unified configuration");
+                    UnityEngine.Debug.Log("🔗 Integrated existing ChimeraAIManager with unified configuration");
             }
 
             // Bridge existing MonoBehaviour creatures with ECS
@@ -611,7 +611,7 @@ namespace Laboratory.Chimera.ECS
             SetupEnhancedConfiguration();
 
             if (logBootstrapProcess)
-                Debug.Log($"🔗 System integration complete - bridged systems working together");
+                UnityEngine.Debug.Log($"🔗 System integration complete - bridged systems working together");
         }
 
         private void BridgeExistingCreatures()
@@ -626,14 +626,14 @@ namespace Laboratory.Chimera.ECS
                     var ecsEntity = _systemBridge.CreateECSBridge(creature);
                     if (ecsEntity != Entity.Null && logBootstrapProcess)
                     {
-                        Debug.Log($"🔗 Created ECS bridge for existing creature: {creature.name}");
+                        UnityEngine.Debug.Log($"🔗 Created ECS bridge for existing creature: {creature.name}");
                     }
                 }
             }
 
             if (existingCreatures.Length > 0 && logBootstrapProcess)
             {
-                Debug.Log($"🔗 Bridged {existingCreatures.Length} existing MonoBehaviour creatures with ECS");
+                UnityEngine.Debug.Log($"🔗 Bridged {existingCreatures.Length} existing MonoBehaviour creatures with ECS");
             }
         }
 
@@ -651,19 +651,19 @@ namespace Laboratory.Chimera.ECS
             if (traitLibrary != null)
             {
                 if (logBootstrapProcess)
-                    Debug.Log("🔗 Integrated genetic trait library with unified configuration");
+                    UnityEngine.Debug.Log("🔗 Integrated genetic trait library with unified configuration");
             }
 
             if (biomeConfig != null)
             {
                 if (logBootstrapProcess)
-                    Debug.Log("🔗 Integrated biome configuration with unified settings");
+                    UnityEngine.Debug.Log("🔗 Integrated biome configuration with unified settings");
             }
 
             if (speciesConfig != null)
             {
                 if (logBootstrapProcess)
-                    Debug.Log("🔗 Integrated species configuration with unified system");
+                    UnityEngine.Debug.Log("🔗 Integrated species configuration with unified system");
             }
         }
 
@@ -683,7 +683,7 @@ namespace Laboratory.Chimera.ECS
                 var spawnPosition = GetSpawnPositionForBiome(selectedProfile.preferredBiome);
                 CreateCreature(selectedProfile, spawnPosition);
             }
-            Debug.Log($"🧬 Spawned 50 additional creatures. Total: {_createdCreatures}");
+            UnityEngine.Debug.Log($"🧬 Spawned 50 additional creatures. Total: {_createdCreatures}");
         }
 
         private void OnDrawGizmos()

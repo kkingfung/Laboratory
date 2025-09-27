@@ -47,13 +47,13 @@ namespace Laboratory.Chimera.Testing
         {
             if (creaturePrefab == null)
             {
-                Debug.LogError("VisualGeneticsTestingTool: No creature prefab assigned!");
+                UnityEngine.Debug.LogError("VisualGeneticsTestingTool: No creature prefab assigned!");
                 return;
             }
             
             if (traitLibrary == null)
             {
-                Debug.LogError("VisualGeneticsTestingTool: No trait library assigned!");
+                UnityEngine.Debug.LogError("VisualGeneticsTestingTool: No trait library assigned!");
                 return;
             }
         }
@@ -70,7 +70,7 @@ namespace Laboratory.Chimera.Testing
         {
             ClearPreviousSpawns();
             
-            Debug.Log($"🧬 Spawning {numberOfCreatures} genetically diverse creatures...");
+            UnityEngine.Debug.Log($"🧬 Spawning {numberOfCreatures} genetically diverse creatures...");
             
             spawnedCreatures = new GameObject[numberOfCreatures];
             Vector3 basePosition = transform.position;
@@ -84,11 +84,11 @@ namespace Laboratory.Chimera.Testing
                 if (showDebugInfo)
                 {
                     var creatureComponent = creature.GetComponent<CreatureInstanceComponent>();
-                    Debug.Log($"✅ Spawned creature {i + 1}: {creatureComponent.GetInfoText()}");
+                    UnityEngine.Debug.Log($"✅ Spawned creature {i + 1}: {creatureComponent.GetInfoText()}");
                 }
             }
             
-            Debug.Log($"🎉 Spawned {numberOfCreatures} creatures successfully!");
+            UnityEngine.Debug.Log($"🎉 Spawned {numberOfCreatures} creatures successfully!");
         }
         
         /// <summary>
@@ -99,7 +99,7 @@ namespace Laboratory.Chimera.Testing
         {
             ClearPreviousSpawns();
             
-            Debug.Log("🎨 Testing specific genetic trait visuals...");
+            UnityEngine.Debug.Log("🎨 Testing specific genetic trait visuals...");
             
             var testCases = new[]
             {
@@ -120,7 +120,7 @@ namespace Laboratory.Chimera.Testing
                 spawnedCreatures[i] = creature;
             }
             
-            Debug.Log($"✅ Spawned {testCases.Length} test case creatures!");
+            UnityEngine.Debug.Log($"✅ Spawned {testCases.Length} test case creatures!");
         }
         
         /// <summary>
@@ -131,7 +131,7 @@ namespace Laboratory.Chimera.Testing
         {
             ClearPreviousSpawns();
             
-            Debug.Log("👨‍👩‍👧‍👦 Testing breeding combinations...");
+            UnityEngine.Debug.Log("👨‍👩‍👧‍👦 Testing breeding combinations...");
             
             // Create two diverse parent genetics
             var parent1Genetics = traitLibrary.CreateRichGeneticProfile(BiomeType.Desert, 1);
@@ -158,7 +158,7 @@ namespace Laboratory.Chimera.Testing
                 spawnedCreatures[i] = creature;
             }
             
-            Debug.Log("🧬 Breeding test complete - compare parent vs offspring visuals!");
+            UnityEngine.Debug.Log("🧬 Breeding test complete - compare parent vs offspring visuals!");
         }
         
         /// <summary>
@@ -169,13 +169,13 @@ namespace Laboratory.Chimera.Testing
         {
             if (!enablePerformanceMetrics)
             {
-                Debug.LogWarning("Performance metrics disabled - enable in inspector");
+                UnityEngine.Debug.LogWarning("Performance metrics disabled - enable in inspector");
                 return;
             }
             
             ClearPreviousSpawns();
             
-            Debug.Log($"⚡ Starting performance test - spawning {massSpawnCount} creatures...");
+            UnityEngine.Debug.Log($"⚡ Starting performance test - spawning {massSpawnCount} creatures...");
             
             float startTime = Time.realtimeSinceStartup;
             
@@ -199,9 +199,9 @@ namespace Laboratory.Chimera.Testing
             float endTime = Time.realtimeSinceStartup;
             float totalTime = endTime - startTime;
             
-            Debug.Log($"⚡ Performance test complete!");
-            Debug.Log($"📊 Spawned {massSpawnCount} creatures in {totalTime:F2} seconds");
-            Debug.Log($"📊 Average time per creature: {(totalTime / massSpawnCount) * 1000:F2}ms");
+            UnityEngine.Debug.Log($"⚡ Performance test complete!");
+            UnityEngine.Debug.Log($"📊 Spawned {massSpawnCount} creatures in {totalTime:F2} seconds");
+            UnityEngine.Debug.Log($"📊 Average time per creature: {(totalTime / massSpawnCount) * 1000:F2}ms");
         }
         
         /// <summary>
@@ -212,7 +212,7 @@ namespace Laboratory.Chimera.Testing
         {
             ClearPreviousSpawns();
             
-            Debug.Log("📈 Testing generation progression visuals...");
+            UnityEngine.Debug.Log("📈 Testing generation progression visuals...");
             
             // Create base genetics
             var baseGenetics = traitLibrary.CreateRichGeneticProfile(testBiome, 1);
@@ -237,7 +237,7 @@ namespace Laboratory.Chimera.Testing
                 spawnedCreatures[i] = creature;
             }
             
-            Debug.Log("📈 Generation progression test complete!");
+            UnityEngine.Debug.Log("📈 Generation progression test complete!");
         }
         
         #endregion

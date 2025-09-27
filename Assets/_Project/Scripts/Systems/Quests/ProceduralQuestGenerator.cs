@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using Laboratory.Core.Debug;
 using Laboratory.Core.Events;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.AI.Personality;

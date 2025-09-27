@@ -4,12 +4,12 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Burst;
-using Laboratory.Chimera.ECS.Components;
+using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
 using UnityEngine;
 
-namespace Laboratory.Chimera.ECS.Systems
+namespace Laboratory.Core.ECS.Systems
 {
     /// <summary>
     /// ECS BREEDING SYSTEM - Integrates with unified Chimera architecture
@@ -37,7 +37,7 @@ namespace Laboratory.Chimera.ECS.Systems
             _config = Resources.Load<ChimeraUniverseConfiguration>("Configs/ChimeraUniverse");
             if (_config == null)
             {
-                Debug.LogError("ChimeraUniverseConfiguration not found! Using defaults.");
+                UnityEngine.Debug.LogError("ChimeraUniverseConfiguration not found! Using defaults.");
                 _config = ChimeraUniverseConfiguration.CreateDefault();
             }
 

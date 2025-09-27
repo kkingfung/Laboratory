@@ -270,7 +270,7 @@ namespace Laboratory.Chimera.Testing
         {
             if (!condition)
             {
-                Debug.LogError($"❌ ASSERTION FAILED: {message}");
+                UnityEngine.Debug.LogError($"❌ ASSERTION FAILED: {message}");
                 throw new System.Exception($"Test assertion failed: {message}");
             }
         }
@@ -279,7 +279,7 @@ namespace Laboratory.Chimera.Testing
         {
             if (enableDetailedLogging)
             {
-                Debug.Log($"[Chimera Test] {message}");
+                UnityEngine.Debug.Log($"[Chimera Test] {message}");
             }
         }
 

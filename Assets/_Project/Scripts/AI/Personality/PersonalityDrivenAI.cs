@@ -1,7 +1,6 @@
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.AI;
-using Laboratory.Core.Debug;
 
 namespace Laboratory.AI.Personality
 {

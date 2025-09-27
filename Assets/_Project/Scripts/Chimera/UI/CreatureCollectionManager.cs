@@ -17,23 +17,23 @@ namespace Laboratory.Chimera.UI
         
         private void Start()
         {
-            Debug.Log("Collection Manager initialized");
+            UnityEngine.Debug.Log("Collection Manager initialized");
         }
         
         public void ShowCollectionUI()
         {
-            Debug.Log("Showing collection UI");
+            UnityEngine.Debug.Log("Showing collection UI");
         }
         
         public void HideCollectionUI()
         {
-            Debug.Log("Hiding collection UI");
+            UnityEngine.Debug.Log("Hiding collection UI");
         }
 
         // Missing methods that are referenced in UI
         public void OpenCreatureSelection(System.Action<CreatureInstanceComponent> onCreatureSelected)
         {
-            Debug.Log("Opening creature selection dialog");
+            UnityEngine.Debug.Log("Opening creature selection dialog");
             // Placeholder implementation - would show a creature selection UI
             // For now, just call the callback with null
             onCreatureSelected?.Invoke(null);
@@ -41,14 +41,14 @@ namespace Laboratory.Chimera.UI
 
         public List<CreatureInstanceComponent> GetCreatures()
         {
-            Debug.Log("Getting creatures from collection");
+            UnityEngine.Debug.Log("Getting creatures from collection");
             // Placeholder - would return actual creature collection
             return new List<CreatureInstanceComponent>();
         }
 
         public void AddCreatureToCollection(CreatureInstanceComponent creature)
         {
-            Debug.Log($"Adding creature {creature.name} to collection");
+            UnityEngine.Debug.Log($"Adding creature {creature.name} to collection");
             // Placeholder - would add creature to the actual collection
         }
     }

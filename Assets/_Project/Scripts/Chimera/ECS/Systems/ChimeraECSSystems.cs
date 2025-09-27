@@ -2,7 +2,9 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Collections;
+using Laboratory.Core.ECS;
 using Laboratory.Chimera.ECS;
+using Laboratory.Chimera.Core;
 using UnityEngine;
 using System.Linq;
 
@@ -41,38 +43,20 @@ namespace Laboratory.Chimera.ECS.Systems
             // Accelerated time for development - 30x real time (30 seconds = 1 day)
             float ageIncrement = deltaTime / 2880f; // 86400 / 30 = 2880 seconds per day
             
-            Entities
-                .ForEach((Entity entity, ref CreatureAgeComponent age, ref CreatureLifecycleComponent lifecycle) =>
+            foreach (var (age, lifecycle, entity) in SystemAPI.Query<RefRW<Laboratory.Chimera.ECS.CreatureAgeComponent>, RefRW<Laboratory.Chimera.ECS.CreatureLifecycleComponent>>().WithEntityAccess())
+            {
+                // Age the creature
+                age.ValueRW.AgeInDays += (int)ageIncrement;
+
+                // Check for life stage transitions
+                var newLifeStage = CalculateLifeStage(age.ValueRO.AgeInDays, 365f);
+
+                if (newLifeStage != lifecycle.ValueRO.CurrentStage)
                 {
-                    // Age the creature
-                    age.AgeInDays += (int)ageIncrement;
-
-                    // Update adult status - simplified without non-existent properties
-                    age.IsAdult = age.AgeInDays >= 30f; // Adult at 30 days
-
-                    // Check for life stage transitions
-                    var newLifeStage = CalculateLifeStage(age.AgeInDays, 365f); // Assume 1 year lifespan
-
-                    if (newLifeStage != age.LifeStage)
-                    {
-                        age.LifeStage = newLifeStage;
-                        lifecycle.StageProgress = age.AgeInDays / 365f;
-
-                        // Fire maturation event through event bus if available
-                        // Note: This would need to be done in main thread for event bus
-                    }
-
-                    // Update evolution capability
-                    lifecycle.CanEvolve = age.IsAdult && age.AgeInDays > 100f;
-
-                    // Apply aging effects to health
-                    if (age.LifeStage >= LifeStage.Elder)
-                    {
-                        // Elderly creatures slowly lose health
-                        // This would require access to health component
-                    }
-                    
-                }).ScheduleParallel();
+                    lifecycle.ValueRW.CurrentStage = newLifeStage;
+                    lifecycle.ValueRW.StageProgress = age.ValueRO.AgeInDays / 365f;
+                }
+            }
         }
         
         private static LifeStage CalculateLifeStage(float ageInDays, float lifeExpectancy)
@@ -133,30 +117,25 @@ namespace Laboratory.Chimera.ECS.Systems
             lastUpdateTime = currentTime;
             float hourlyDecay = deltaTime / 3600f; // Convert to hours
             
-            Entities
-                .ForEach((ref CreatureNeedsComponent needs, in CreaturePersonalityComponent personality) =>
-                {
-                    // Decay needs over time using actual component properties
-                    needs.Hunger = math.max(0f, needs.Hunger - 0.1f * hourlyDecay);
-                    needs.Thirst = math.max(0f, needs.Thirst - 0.15f * hourlyDecay);
-                    needs.Energy = math.max(0f, needs.Energy - 0.08f * hourlyDecay);
-                    needs.Social = math.max(0f, needs.Social - 0.05f * hourlyDecay);
+            foreach (var (needs, personality) in SystemAPI.Query<RefRW<Laboratory.Chimera.ECS.CreatureNeedsComponent>, RefRO<Laboratory.Chimera.ECS.CreaturePersonalityComponent>>())
+            {
+                // Decay needs over time using actual component properties
+                var currentNeeds = needs.ValueRO;
+                currentNeeds.Hunger = math.max(0f, currentNeeds.Hunger - 0.1f * hourlyDecay);
+                currentNeeds.Thirst = math.max(0f, currentNeeds.Thirst - 0.15f * hourlyDecay);
+                currentNeeds.Rest = math.max(0f, currentNeeds.Rest - 0.08f * hourlyDecay);
+                currentNeeds.Social = math.max(0f, currentNeeds.Social - 0.05f * hourlyDecay);
+                currentNeeds.Exercise = math.max(0f, currentNeeds.Exercise - 0.03f * hourlyDecay);
 
-                    // Calculate overall happiness based on needs satisfaction
-                    float needsSatisfaction = (needs.Hunger + needs.Thirst + needs.Energy + needs.Social + needs.Comfort) / 5f;
+                // Clamp all values to valid ranges
+                currentNeeds.Hunger = math.clamp(currentNeeds.Hunger, 0f, 1f);
+                currentNeeds.Thirst = math.clamp(currentNeeds.Thirst, 0f, 1f);
+                currentNeeds.Rest = math.clamp(currentNeeds.Rest, 0f, 1f);
+                currentNeeds.Social = math.clamp(currentNeeds.Social, 0f, 1f);
+                currentNeeds.Exercise = math.clamp(currentNeeds.Exercise, 0f, 1f);
 
-                    // Happiness trends toward needs satisfaction but changes slowly
-                    needs.Happiness = math.lerp(needs.Happiness, needsSatisfaction, 0.1f * deltaTime);
-
-                    // Clamp all values to valid ranges
-                    needs.Hunger = math.clamp(needs.Hunger, 0f, 1f);
-                    needs.Thirst = math.clamp(needs.Thirst, 0f, 1f);
-                    needs.Energy = math.clamp(needs.Energy, 0f, 1f);
-                    needs.Social = math.clamp(needs.Social, 0f, 1f);
-                    needs.Comfort = math.clamp(needs.Comfort, 0f, 1f);
-                    needs.Happiness = math.clamp(needs.Happiness, 0f, 1f);
-                    
-                }).ScheduleParallel();
+                needs.ValueRW = currentNeeds;
+            }
         }
     }
     
@@ -187,61 +166,54 @@ namespace Laboratory.Chimera.ECS.Systems
             
             lastUpdateTime = currentTime;
             
-            Entities
-                .ForEach((ref CreatureBehaviorComponent behavior,
-                         in CreaturePersonalityComponent personality,
-                         in CreatureNeedsComponent needs,
-                         in CreatureGeneticsComponent genetics) =>
+            foreach (var (behavior, personality, needs, genetics) in SystemAPI.Query<RefRW<Laboratory.Chimera.ECS.CreatureBehaviorComponent>, RefRO<Laboratory.Chimera.ECS.CreaturePersonalityComponent>, RefRO<Laboratory.Chimera.ECS.CreatureNeedsComponent>, RefRO<Laboratory.Chimera.ECS.CreatureGeneticsComponent>>())
+            {
+                // Determine appropriate behavior based on needs and personality
+                Laboratory.Chimera.ECS.AIState newState = DetermineBehaviorState(behavior.ValueRO, personality.ValueRO, needs.ValueRO, currentTime);
+
+                if (newState != behavior.ValueRO.currentState)
                 {
-                    // Update behavior based on genetics - simplified without non-existent properties
+                    behavior.ValueRW.currentState = newState;
+                    behavior.ValueRW.stateChangeTime = currentTime;
+                }
 
-                    // Determine appropriate behavior based on needs and personality
-                    AIState newState = DetermineBehaviorState(behavior, personality, needs, currentTime);
-
-                    if (newState != behavior.currentState)
-                    {
-                        behavior.currentState = newState;
-                        behavior.stateChangeTime = currentTime;
-                    }
-
-                    // Update behavior type based on personality
-                    behavior.behaviorType = DetermineBehaviorType(personality, genetics);
-                    
-                }).ScheduleParallel();
+                // Update behavior type based on personality
+                behavior.ValueRW.behaviorType = DetermineBehaviorType(personality.ValueRO, genetics.ValueRO);
+            }
         }
         
-        private static AIState DetermineBehaviorState(CreatureBehaviorComponent behavior, 
-                                                     CreaturePersonalityComponent personality, 
-                                                     CreatureNeedsComponent needs, 
+        private static Laboratory.Chimera.ECS.AIState DetermineBehaviorState(Laboratory.Chimera.ECS.CreatureBehaviorComponent behavior,
+                                                     Laboratory.Chimera.ECS.CreaturePersonalityComponent personality,
+                                                     Laboratory.Chimera.ECS.CreatureNeedsComponent needs,
                                                      float currentTime)
         {
             // Behavior based on actual component properties
             if (needs.Hunger < 0.3f || needs.Thirst < 0.3f)
             {
-                return AIState.Search; // Search for resources
+                return Laboratory.Chimera.ECS.AIState.Feed; // Search for resources
             }
 
-            if (needs.Social < 0.4f && personality.Sociability > 0.6f)
+            if (needs.Social < 0.4f && personality.Loyalty > 0.6f)
             {
-                return AIState.Follow; // Seek companionship
+                return Laboratory.Chimera.ECS.AIState.Follow; // Seek companionship
             }
 
-            if (needs.Energy < 0.3f)
+            if (needs.Rest < 0.3f)
             {
-                return AIState.Rest; // Need to rest
+                return Laboratory.Chimera.ECS.AIState.Rest; // Need to rest
             }
 
             if (personality.Curiosity > 0.5f)
             {
-                return AIState.Patrol; // Explore
+                return Laboratory.Chimera.ECS.AIState.Patrol; // Explore
             }
 
             // Default to idle if needs are met
-            return AIState.Idle;
+            return Laboratory.Chimera.ECS.AIState.Idle;
         }
         
-        private static int DetermineBehaviorType(CreaturePersonalityComponent personality,
-                                                           CreatureGeneticsComponent genetics)
+        private static int DetermineBehaviorType(Laboratory.Chimera.ECS.CreaturePersonalityComponent personality,
+                                                           Laboratory.Chimera.ECS.CreatureGeneticsComponent genetics)
         {
             // Simplified behavior type determination using actual properties
             if (personality.Aggression > 0.7f)
@@ -254,17 +226,17 @@ namespace Laboratory.Chimera.ECS.Systems
                 return 0; // Companion
             }
 
-            if (personality.Fearfulness > 0.6f)
+            if (personality.Curiosity > 0.8f)
+            {
+                return 2; // Defensive
+            }
+
+            if (personality.Fearfulness > 0.7f)
             {
                 return 3; // Passive
             }
 
-            if (personality.Independence > 0.6f)
-            {
-                return 6; // Guardian
-            }
-
-            return 2; // Default neutral behavior
+            return 5; // Wild - Default behavior
         }
     }
     
@@ -295,24 +267,23 @@ namespace Laboratory.Chimera.ECS.Systems
             
             lastUpdateTime = currentTime;
             
-            Entities
-                .ForEach((ref CreatureEnvironmentalComponent environmental,
-                         ref CreatureBiomeComponent biome,
-                         ref CreatureNeedsComponent needs) =>
-                {
-                    // Simplified environmental adaptation using actual component properties
-                    float adaptationSpeed = 0.01f * deltaTime;
+            foreach (var (environmental, biome) in SystemAPI.Query<RefRW<Laboratory.Chimera.ECS.CreatureEnvironmentalComponent>, RefRW<Laboratory.Chimera.ECS.CreatureBiomeComponent>>())
+            {
+                // Simplified environmental adaptation using actual component properties
+                float adaptationSpeed = 0.01f * deltaTime;
 
-                    // Calculate basic environmental stress
-                    environmental.EnvironmentalStress = math.clamp(environmental.EnvironmentalStress, 0f, 1f);
+                // Calculate basic environmental stress
+                var envData = environmental.ValueRO;
+                envData.TemperatureTolerance = math.clamp(envData.TemperatureTolerance, 0f, 1f);
+                envData.HumidityTolerance = math.clamp(envData.HumidityTolerance, 0f, 1f);
+                envData.AltitudeTolerance = math.clamp(envData.AltitudeTolerance, 0f, 1f);
+                environmental.ValueRW = envData;
 
-                    // Update biome comfort level
-                    biome.BiomeComfort = 1f - environmental.EnvironmentalStress;
-
-                    // Apply environmental effects to creature needs
-                    needs.Comfort = math.max(0.2f, biome.BiomeComfort);
-                    
-                }).ScheduleParallel();
+                // Update biome comfort level
+                var biomeData = biome.ValueRO;
+                biomeData.BiomeComfortLevel = math.lerp(biomeData.BiomeComfortLevel, biomeData.AdaptationLevel, adaptationSpeed);
+                biome.ValueRW = biomeData;
+            }
         }
     }
     
@@ -328,13 +299,14 @@ namespace Laboratory.Chimera.ECS.Systems
             // Update environmental conditions directly
             float deltaTime = SystemAPI.Time.DeltaTime;
             
-            Entities
-                .ForEach((ref CreatureEnvironmentalComponent environmental) =>
-                {
-                    // Update basic environmental stress
-                    environmental.EnvironmentalStress = math.clamp(environmental.EnvironmentalStress + deltaTime * 0.001f, 0f, 0.3f);
-                    
-                }).ScheduleParallel();
+            foreach (var environmental in SystemAPI.Query<RefRW<Laboratory.Chimera.ECS.CreatureEnvironmentalComponent>>())
+            {
+                // Update basic environmental conditions
+                var envData = environmental.ValueRO;
+                envData.TemperatureTolerance = math.clamp(envData.TemperatureTolerance + deltaTime * 0.01f, 0.4f, 0.8f);
+                envData.HumidityTolerance = math.clamp(envData.HumidityTolerance + deltaTime * 0.01f, 0.4f, 0.7f);
+                environmental.ValueRW = envData;
+            }
         }
     }
     
@@ -365,47 +337,34 @@ namespace Laboratory.Chimera.ECS.Systems
             
             lastUpdateTime = currentTime;
             
-            Entities
-                .ForEach((ref CreatureBreedingComponent breeding,
-                         in CreatureAgeComponent age,
-                         in CreatureNeedsComponent needs,
-                         in CreaturePersonalityComponent personality) =>
+            foreach (var (breeding, age, needs, personality) in SystemAPI.Query<RefRW<Laboratory.Chimera.ECS.CreatureBreedingComponent>, RefRO<Laboratory.Chimera.ECS.CreatureAgeComponent>, RefRO<Laboratory.Chimera.ECS.CreatureNeedsComponent>, RefRO<Laboratory.Chimera.ECS.CreaturePersonalityComponent>>())
+            {
+                // Update breeding readiness using actual component properties
+                var breedingData = breeding.ValueRO;
+                breedingData.IsReadyToBreed = age.ValueRO.AgeInDays >= 100; // Adult at 100 days
+
+                // Update breeding based on needs and personality
+                if (breedingData.IsReadyToBreed)
                 {
-                    // Update breeding readiness using actual component properties
-                    breeding.IsReadyToBreed = age.LifeStage >= LifeStage.Adult;
+                    float baseDesire = 0.3f;
 
-                    // Update breeding based on needs and personality
-                    if (breeding.IsReadyToBreed)
-                    {
-                        float baseDesire = 0.3f;
+                    // Social creatures are more interested in breeding
+                    float socialBonus = personality.ValueRO.Loyalty * 0.2f;
 
-                        // Happy, well-fed creatures are more interested in breeding
-                        float needsBonus = needs.Happiness * 0.3f;
-                        float socialBonus = personality.Sociability * 0.2f;
+                    // Reduce desire if recently bred
+                    float timeSinceLastBreeding = currentTime - breedingData.LastBreedTime;
+                    float cooldownPenalty = math.max(0f, (86400f - timeSinceLastBreeding) / 86400f) * 0.4f; // 1 day cooldown
 
-                        // Reduce desire if recently bred
-                        float timeSinceLastBreeding = currentTime - breeding.LastBreedTime;
-                        float cooldownPenalty = math.max(0f, (86400f - timeSinceLastBreeding) / 86400f) * 0.4f; // 1 day cooldown
+                    float totalDesire = math.clamp(baseDesire + socialBonus - cooldownPenalty, 0f, 1f);
+                }
 
-                        float totalDesire = math.clamp(baseDesire + needsBonus + socialBonus - cooldownPenalty, 0f, 1f);
-                    }
-
-                    // Handle pregnancy progression
-                    if (breeding.IsPregnant && breeding.PregnancyProgress < 1f)
-                    {
-                        breeding.PregnancyProgress += deltaTime / 86400f; // 1 day gestation
-
-                        if (breeding.PregnancyProgress >= 1f)
-                        {
-                            // Give birth - this would trigger offspring creation
-                            breeding.IsPregnant = false;
-                            breeding.PregnancyProgress = 0f;
-                            breeding.OffspringCount += 1;
-                            breeding.LastBreedTime = currentTime;
-                        }
-                    }
-                    
-                }).ScheduleParallel();
+                // Handle offspring count updates
+                if (breedingData.OffspringCount < 10) // Maximum offspring limit
+                {
+                    breedingData.FertilityScore = math.clamp(breedingData.FertilityScore, 0.1f, 1f);
+                }
+                breeding.ValueRW = breedingData;
+            }
         }
     }
     
@@ -436,28 +395,20 @@ namespace Laboratory.Chimera.ECS.Systems
             
             lastUpdateTime = currentTime;
             
-            Entities
-                .ForEach((ref CreatureBondingComponent bonding,
-                         in CreaturePersonalityComponent personality) =>
+            foreach (var (bonding, personality) in SystemAPI.Query<RefRW<Laboratory.Chimera.ECS.CreatureBondingComponent>, RefRO<Laboratory.Chimera.ECS.CreaturePersonalityComponent>>())
+            {
+                // Bond strength naturally increases over time with loyal creatures
+                var bondingData = bonding.ValueRO;
+                if (personality.ValueRO.Loyalty > 0.5f)
                 {
-                    // Bond strength naturally increases over time with loyal creatures
-                    if (personality.Loyalty > 0.5f)
-                    {
-                        float bondGrowthRate = personality.Loyalty * 0.01f * deltaTime;
-                        bonding.BondStrength = math.min(1f, bonding.BondStrength + bondGrowthRate);
-                    }
+                    float bondGrowthRate = personality.ValueRO.Loyalty * 0.01f * deltaTime;
+                    bondingData.BondStrength = math.min(1f, bondingData.BondStrength + bondGrowthRate);
+                }
 
-                    // Trust increases with positive interactions
-                    float timeSinceInteraction = currentTime - bonding.LastInteraction;
-                    if (timeSinceInteraction > 3600f) // 1 hour without interaction
-                    {
-                        // Trust decreases without interaction
-                        bonding.BondStrength = math.max(0f, bonding.BondStrength - 0.01f * deltaTime);
-                    }
-
-                    // Bonding system completed - needs updates would require separate system
-                    
-                }).ScheduleParallel();
+                // Update social need based on personality
+                bondingData.SocialNeed = personality.ValueRO.SocialNeed;
+                bonding.ValueRW = bondingData;
+            }
         }
     }
     
@@ -473,34 +424,26 @@ namespace Laboratory.Chimera.ECS.Systems
     {
         protected override void OnUpdate()
         {
-            Entities
-                .ForEach((ref CreatureStatsComponent stats,
-                         in CreatureGeneticsComponent genetics,
-                         in CreatureAgeComponent age,
-                         in CreatureNeedsComponent needs) =>
-                {
-                    // Simplified genetics modifiers
-                    float geneticModifier = genetics.GeneticPurity;
+            foreach (var (stats, genetics, age, needs) in SystemAPI.Query<RefRW<Laboratory.Chimera.ECS.CreatureStatsComponent>, RefRO<Laboratory.Chimera.ECS.CreatureGeneticsComponent>, RefRO<Laboratory.Chimera.ECS.CreatureAgeComponent>, RefRO<Laboratory.Chimera.ECS.CreatureNeedsComponent>>())
+            {
+                // Simplified genetics modifiers
+                float geneticModifier = (genetics.ValueRO.GeneticPurity + 0.5f) * 0.5f; // 0.25 - 0.75 range
 
-                    // Age affects stats
-                    float ageModifier = age.LifeStage switch
-                    {
-                        LifeStage.Egg => 0.1f,
-                        LifeStage.Juvenile => 0.7f,
-                        LifeStage.Adult => 1.0f,
-                        LifeStage.Elder => 0.9f,
-                        _ => 1.0f
-                    };
+                // Age affects stats
+                float ageRatio = age.ValueRO.AgeInDays / 365f;
+                float ageModifier = ageRatio < 0.3f ? 0.7f : (ageRatio < 0.8f ? 1.0f : 0.9f);
 
-                    // Health regeneration based on energy
-                    if (needs.Energy > 0.8f && stats.CurrentHealth < stats.BaseStats.health)
-                    {
-                        float regenRate = geneticModifier * 0.05f;
-                        int healthGain = (int)(stats.BaseStats.health * regenRate);
-                        stats.CurrentHealth = math.min(stats.BaseStats.health, stats.CurrentHealth + healthGain);
-                    }
-
-                }).ScheduleParallel();
+                // Update base stats with genetic and age modifiers (using base stats from component)
+                var statsData = stats.ValueRO;
+                var baseStats = statsData.BaseStats;
+                baseStats.attack = (int)math.clamp(baseStats.attack * geneticModifier * ageModifier, 10f, 100f);
+                baseStats.defense = (int)math.clamp(baseStats.defense * geneticModifier * ageModifier, 10f, 100f);
+                baseStats.speed = (int)math.clamp(baseStats.speed * geneticModifier, 10f, 100f);
+                baseStats.intelligence = (int)math.clamp(baseStats.intelligence * geneticModifier, 10f, 100f);
+                baseStats.charisma = (int)math.clamp(baseStats.charisma * ageModifier, 10f, 100f);
+                statsData.BaseStats = baseStats;
+                stats.ValueRW = statsData;
+            }
         }
     }
     
@@ -545,41 +488,35 @@ namespace Laboratory.Chimera.ECS.Systems
         {
             float deltaTime = SystemAPI.Time.DeltaTime;
 
-            Entities
-                .ForEach((ref LocalTransform transform,
-                         ref CreatureMovementComponent movement,
-                         in CreatureStatsComponent stats,
-                         in CreaturePersonalityComponent personality) =>
+            foreach (var (transform, movement, stats, personality) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<Laboratory.Chimera.ECS.CreatureMovementComponent>, RefRO<Laboratory.Chimera.ECS.CreatureStatsComponent>, RefRO<Laboratory.Chimera.ECS.CreaturePersonalityComponent>>())
+            {
+                if (!movement.ValueRO.IsMoving)
+                    continue;
+
+                // Update movement speed based on stats
+                float currentSpeed = movement.ValueRO.BaseSpeed * (stats.ValueRO.BaseStats.speed / 100f);
+                var movementData = movement.ValueRO;
+                movementData.CurrentSpeed = currentSpeed;
+                movement.ValueRW = movementData;
+
+                // Simple random movement for now
+                float3 randomDirection = new float3(
+                    UnityEngine.Random.Range(-1f, 1f),
+                    0f,
+                    UnityEngine.Random.Range(-1f, 1f)
+                );
+                randomDirection = math.normalize(randomDirection);
+                float3 moveStep = randomDirection * currentSpeed * deltaTime;
+                transform.ValueRW.Position += moveStep;
+
+                // Rotate towards movement direction
+                if (math.lengthsq(randomDirection) > 0.001f)
                 {
-                    if (!movement.IsMoving || !movement.HasDestination)
-                        return;
-
-                    // Calculate movement towards target
-                    float3 direction = math.normalize(movement.TargetPosition - transform.Position);
-                    float3 moveStep = direction * movement.CurrentSpeed * deltaTime;
-
-                    // Check if we've reached the destination
-                    float distanceToTarget = math.distance(transform.Position, movement.TargetPosition);
-                    if (distanceToTarget <= 0.1f)
-                    {
-                        movement.IsMoving = false;
-                        movement.HasDestination = false;
-                        transform.Position = movement.TargetPosition;
-                    }
-                    else
-                    {
-                        transform.Position += moveStep;
-
-                        // Rotate towards movement direction
-                        if (math.lengthsq(direction) > 0.001f)
-                        {
-                            quaternion targetRotation = quaternion.LookRotationSafe(direction, math.up());
-                            transform.Rotation = math.slerp(transform.Rotation, targetRotation,
-                                                          movement.RotationSpeed * deltaTime);
-                        }
-                    }
-
-                }).ScheduleParallel();
+                    quaternion targetRotation = quaternion.LookRotationSafe(randomDirection, math.up());
+                    transform.ValueRW.Rotation = math.slerp(transform.ValueRO.Rotation, targetRotation,
+                                                          movement.ValueRO.RotationSpeed * deltaTime);
+                }
+            }
         }
     }
 
@@ -607,17 +544,17 @@ namespace Laboratory.Chimera.ECS.Systems
             var ecb = ecbSystem.CreateCommandBuffer();
 
             // Handle health regeneration and death checks
-            foreach (var (health, needs, genetics, entity) in SystemAPI.Query<RefRW<CreatureHealthComponent>, RefRO<CreatureNeedsComponent>, RefRO<CreatureGeneticsComponent>>().WithEntityAccess())
+            foreach (var (health, needs, genetics, entity) in SystemAPI.Query<RefRW<Laboratory.Chimera.ECS.CreatureHealthComponent>, RefRO<Laboratory.Chimera.ECS.CreatureNeedsComponent>, RefRO<Laboratory.Chimera.ECS.CreatureGeneticsComponent>>().WithEntityAccess())
             {
                 if (!health.ValueRO.IsAlive)
                     continue;
 
-                var healthComp = health.ValueRW;
+                var healthComp = health.ValueRO;
 
                 // Natural health regeneration when well-fed and rested
-                if (needs.ValueRO.Energy > 0.7f && needs.ValueRO.Hunger > 0.6f && healthComp.CurrentHealth < healthComp.MaxHealth)
+                if (needs.ValueRO.Rest > 0.7f && needs.ValueRO.Hunger > 0.6f && healthComp.CurrentHealth < healthComp.MaxHealth)
                 {
-                    float regenRate = healthComp.RegenerationRate * genetics.ValueRO.GeneticPurity;
+                    float regenRate = healthComp.RegenerationRate * (genetics.ValueRO.GeneticPurity + 0.5f);
                     healthComp.CurrentHealth = math.min(healthComp.MaxHealth,
                                                        healthComp.CurrentHealth + (int)(regenRate * deltaTime));
                 }
@@ -630,10 +567,10 @@ namespace Laboratory.Chimera.ECS.Systems
                 }
 
                 // Update last damage time tracking
-                if (healthComp.DamageTaken > 0)
+                // Track damage (simplified without DamageTaken field)
+                if (healthComp.CurrentHealth < healthComp.MaxHealth * 0.9f)
                 {
                     healthComp.LastDamageTime = currentTime;
-                    healthComp.DamageTaken = 0; // Reset damage counter
                 }
 
                 health.ValueRW = healthComp;

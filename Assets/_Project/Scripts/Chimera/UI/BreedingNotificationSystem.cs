@@ -89,7 +89,7 @@ namespace Laboratory.Chimera.UI
         
         private void SetupEventListeners()
         {
-            Debug.Log("BreedingNotificationSystem: Setting up event listeners");
+            UnityEngine.Debug.Log("BreedingNotificationSystem: Setting up event listeners");
 
             // Subscribe to breeding events
             GameEvents.OnBreedingStarted += HandleBreedingStarted;
@@ -107,7 +107,7 @@ namespace Laboratory.Chimera.UI
             GameEvents.OnAchievementUnlocked += HandleAchievementUnlocked;
             GameEvents.OnMilestoneReached += HandleMilestoneReached;
 
-            Debug.Log("BreedingNotificationSystem: All event listeners registered");
+            UnityEngine.Debug.Log("BreedingNotificationSystem: All event listeners registered");
         }
         
         #endregion
@@ -694,7 +694,7 @@ namespace Laboratory.Chimera.UI
         
         private void OnDestroy()
         {
-            Debug.Log("BreedingNotificationSystem: Cleaning up and unsubscribing from events");
+            UnityEngine.Debug.Log("BreedingNotificationSystem: Cleaning up and unsubscribing from events");
 
             // Unsubscribe from breeding events
             GameEvents.OnBreedingStarted -= HandleBreedingStarted;
@@ -715,7 +715,7 @@ namespace Laboratory.Chimera.UI
             // Clear any remaining notifications
             ClearAllNotifications();
 
-            Debug.Log("BreedingNotificationSystem: Cleanup complete");
+            UnityEngine.Debug.Log("BreedingNotificationSystem: Cleanup complete");
         }
     }
     

@@ -1,5 +1,5 @@
 using UnityEngine;
-using Laboratory.Chimera.ECS.Components;
+using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Creatures;
@@ -51,7 +51,7 @@ namespace Laboratory.Chimera.ECS
         {
             if (availableSpecies == null || availableSpecies.Length == 0)
             {
-                Debug.LogError("[CreatureSceneBootstrap] No available species configured!");
+                UnityEngine.Debug.LogError("[CreatureSceneBootstrap] No available species configured!");
                 return;
             }
             
@@ -66,7 +66,7 @@ namespace Laboratory.Chimera.ECS
                 spawnedCreatures[i] = creature;
             }
             
-            Debug.Log($"[CreatureSceneBootstrap] Spawned {creatureCount} creatures");
+            UnityEngine.Debug.Log($"[CreatureSceneBootstrap] Spawned {creatureCount} creatures");
         }
         
         /// <summary>
@@ -233,7 +233,7 @@ namespace Laboratory.Chimera.ECS
                 }
             }
             
-            Debug.Log("[CreatureSceneBootstrap] Cleared all creatures");
+            UnityEngine.Debug.Log("[CreatureSceneBootstrap] Cleared all creatures");
         }
         
         /// <summary>

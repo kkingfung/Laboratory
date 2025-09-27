@@ -2,9 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Unity.Entities;
-using Laboratory.Chimera.ECS;
+using Laboratory.Core.ECS;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Configuration;
+using Laboratory.Chimera.ECS;
 using System.Collections;
 
 namespace Laboratory.Chimera.UI
@@ -170,7 +171,7 @@ namespace Laboratory.Chimera.UI
             
             if (enableDebugInfo)
             {
-                Debug.Log($"[CreatureInspector] Set target: {creature.name}");
+                UnityEngine.Debug.Log($"[CreatureInspector] Set target: {creature.name}");
             }
         }
         
@@ -263,7 +264,7 @@ namespace Laboratory.Chimera.UI
             {
                 if (enableDebugInfo)
                 {
-                    Debug.LogWarning($"[CreatureInspector] Update error: {ex.Message}");
+                    UnityEngine.Debug.LogWarning($"[CreatureInspector] Update error: {ex.Message}");
                 }
             }
         }
@@ -283,9 +284,9 @@ namespace Laboratory.Chimera.UI
         
         private void UpdateGeneticsDisplay()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<CreatureGeneticsComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureGeneticsComponent>(targetEntity))
             {
-                var genetics = entityManager.GetComponentData<CreatureGeneticsComponent>(targetEntity);
+                var genetics = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureGeneticsComponent>(targetEntity);
                 
                 SetSlider(strengthSlider, genetics.strengthTrait);
                 SetSlider(vitalitySlider, genetics.vitalityTrait);
@@ -307,9 +308,9 @@ namespace Laboratory.Chimera.UI
         
         private void UpdatePersonalityDisplay()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<CreaturePersonalityComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreaturePersonalityComponent>(targetEntity))
             {
-                var personality = entityManager.GetComponentData<CreaturePersonalityComponent>(targetEntity);
+                var personality = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreaturePersonalityComponent>(targetEntity);
                 
                 SetSlider(braverySlider, personality.bravery);
                 SetSlider(loyaltySlider, personality.loyalty);
@@ -329,9 +330,9 @@ namespace Laboratory.Chimera.UI
         
         private void UpdateNeedsDisplay()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<CreatureNeedsComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureNeedsComponent>(targetEntity))
             {
-                var needs = entityManager.GetComponentData<CreatureNeedsComponent>(targetEntity);
+                var needs = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureNeedsComponent>(targetEntity);
                 
                 SetSlider(hungerSlider, needs.hunger);
                 SetSlider(thirstSlider, needs.thirst);
@@ -349,9 +350,9 @@ namespace Laboratory.Chimera.UI
         
         private void UpdateBondingDisplay()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<CreatureBondingComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureBondingComponent>(targetEntity))
             {
-                var bonding = entityManager.GetComponentData<CreatureBondingComponent>(targetEntity);
+                var bonding = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureBondingComponent>(targetEntity);
                 
                 SetSlider(bondStrengthSlider, bonding.bondStrength);
                 SetSlider(trustSlider, bonding.trustLevel);
@@ -369,17 +370,17 @@ namespace Laboratory.Chimera.UI
         {
             if (entityManager.Exists(targetEntity))
             {
-                if (entityManager.HasComponent<CreatureBiomeComponent>(targetEntity))
+                if (entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureBiomeComponent>(targetEntity))
                 {
-                    var biome = entityManager.GetComponentData<CreatureBiomeComponent>(targetEntity);
+                    var biome = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureBiomeComponent>(targetEntity);
                     SetText(currentBiomeText, biome.currentBiome.ToString());
                     SetSlider(biomeComfortSlider, biome.biomeComfortLevel);
                     SetSlider(adaptationSlider, biome.adaptationLevel);
                 }
                 
-                if (entityManager.HasComponent<CreatureEnvironmentalComponent>(targetEntity))
+                if (entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureEnvironmentalComponent>(targetEntity))
                 {
-                    var env = entityManager.GetComponentData<CreatureEnvironmentalComponent>(targetEntity);
+                    var env = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureEnvironmentalComponent>(targetEntity);
                     SetText(environmentalStressText, $"Environmental Stress: {env.environmentalStress:P0}");
                 }
             }
@@ -444,9 +445,9 @@ namespace Laboratory.Chimera.UI
         
         private string GetAgeString()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<CreatureAgeComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureAgeComponent>(targetEntity))
             {
-                var age = entityManager.GetComponentData<CreatureAgeComponent>(targetEntity);
+                var age = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureAgeComponent>(targetEntity);
                 return $"{age.ageInDays:F1} days ({age.maturationProgress:P0} mature)";
             }
             return "Unknown age";
@@ -454,9 +455,9 @@ namespace Laboratory.Chimera.UI
         
         private string GetLifeStageString()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<CreatureAgeComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureAgeComponent>(targetEntity))
             {
-                var age = entityManager.GetComponentData<CreatureAgeComponent>(targetEntity);
+                var age = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureAgeComponent>(targetEntity);
                 return age.currentLifeStage.ToString();
             }
             return "Unknown";
@@ -464,9 +465,9 @@ namespace Laboratory.Chimera.UI
         
         private string GetHealthString()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<CreatureStatsComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureStatsComponent>(targetEntity))
             {
-                var stats = entityManager.GetComponentData<CreatureStatsComponent>(targetEntity);
+                var stats = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureStatsComponent>(targetEntity);
                 return $"{stats.currentHealth}/{stats.maxHealth} HP";
             }
             return "Unknown";
@@ -474,15 +475,15 @@ namespace Laboratory.Chimera.UI
         
         private string GetBehaviorStateString()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<CreatureBehaviorComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureBehaviorComponent>(targetEntity))
             {
-                var behavior = entityManager.GetComponentData<CreatureBehaviorComponent>(targetEntity);
+                var behavior = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureBehaviorComponent>(targetEntity);
                 return $"{behavior.currentState} ({behavior.behaviorType})";
             }
             return "Unknown";
         }
         
-        private string GetGeneticSummary(CreatureGeneticsComponent genetics)
+        private string GetGeneticSummary(Laboratory.Chimera.ECS.CreatureGeneticsComponent genetics)
         {
             var dominant = new[]
             {
@@ -499,7 +500,7 @@ namespace Laboratory.Chimera.UI
             return $"Dominant: {dominant[0].Item1} ({dominant[0].Item2:P0}), {dominant[1].Item1} ({dominant[1].Item2:P0})";
         }
         
-        private string GetPersonalityDescription(CreaturePersonalityComponent personality)
+        private string GetPersonalityDescription(Laboratory.Chimera.ECS.CreaturePersonalityComponent personality)
         {
             string desc = "";
             
@@ -516,7 +517,7 @@ namespace Laboratory.Chimera.UI
             return string.IsNullOrEmpty(desc) ? "Balanced personality" : desc.Trim();
         }
         
-        private string GetBondingStatus(CreatureBondingComponent bonding)
+        private string GetBondingStatus(Laboratory.Chimera.ECS.CreatureBondingComponent bonding)
         {
             if (bonding.bondStrength > 0.8f)
                 return "Deeply bonded";
@@ -528,7 +529,7 @@ namespace Laboratory.Chimera.UI
                 return "No bond yet";
         }
         
-        private void UpdateNeedsColors(CreatureNeedsComponent needs)
+        private void UpdateNeedsColors(Laboratory.Chimera.ECS.CreatureNeedsComponent needs)
         {
             // Color sliders based on need levels
             UpdateSliderColor(hungerSlider, needs.Hunger);
@@ -579,20 +580,20 @@ namespace Laboratory.Chimera.UI
         {
             if (targetCreature == null)
             {
-                Debug.Log("[CreatureInspector] No target creature");
+                UnityEngine.Debug.Log("[CreatureInspector] No target creature");
                 return;
             }
             
-            Debug.Log($"[CreatureInspector] Target: {targetCreature.name}");
-            Debug.Log($"  - Has Authoring: {targetAuthoring != null}");
-            Debug.Log($"  - ECS Entity: {targetEntity}");
-            Debug.Log($"  - Entity Exists: {entityManager.Exists(targetEntity)}");
+            UnityEngine.Debug.Log($"[CreatureInspector] Target: {targetCreature.name}");
+            UnityEngine.Debug.Log($"  - Has Authoring: {targetAuthoring != null}");
+            UnityEngine.Debug.Log($"  - ECS Entity: {targetEntity}");
+            UnityEngine.Debug.Log($"  - Entity Exists: {entityManager.Exists(targetEntity)}");
             
             if (entityManager.Exists(targetEntity))
             {
-                Debug.Log($"  - Has Genetics: {entityManager.HasComponent<CreatureGeneticsComponent>(targetEntity)}");
-                Debug.Log($"  - Has Personality: {entityManager.HasComponent<CreaturePersonalityComponent>(targetEntity)}");
-                Debug.Log($"  - Has Needs: {entityManager.HasComponent<CreatureNeedsComponent>(targetEntity)}");
+                UnityEngine.Debug.Log($"  - Has Genetics: {entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureGeneticsComponent>(targetEntity)}");
+                UnityEngine.Debug.Log($"  - Has Personality: {entityManager.HasComponent<Laboratory.Chimera.ECS.CreaturePersonalityComponent>(targetEntity)}");
+                UnityEngine.Debug.Log($"  - Has Needs: {entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureNeedsComponent>(targetEntity)}");
             }
         }
         

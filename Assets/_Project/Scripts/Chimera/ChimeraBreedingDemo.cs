@@ -339,7 +339,7 @@ namespace Laboratory.Chimera
         {
             if (enableDetailedLogging)
             {
-                Debug.Log($"[Chimera Demo] {message}");
+                UnityEngine.Debug.Log($"[Chimera Demo] {message}");
             }
         }
         

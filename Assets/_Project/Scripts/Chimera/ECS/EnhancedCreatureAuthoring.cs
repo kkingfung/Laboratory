@@ -5,7 +5,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Core;
-using Laboratory.Chimera.ECS.Components;
+using Laboratory.Core.ECS.Components;
 
 namespace Laboratory.Chimera.ECS
 {
@@ -41,7 +41,7 @@ namespace Laboratory.Chimera.ECS
         /// </summary>
         public void ConvertToEntityManual()
         {
-            Debug.Log($"Enhanced Creature Authoring: Converting {gameObject.name} to ECS entity");
+            UnityEngine.Debug.Log($"Enhanced Creature Authoring: Converting {gameObject.name} to ECS entity");
 
             try
             {
@@ -49,14 +49,14 @@ namespace Laboratory.Chimera.ECS
                 var worldType = System.Type.GetType("Unity.Entities.World, Unity.Entities");
                 if (worldType == null)
                 {
-                    Debug.LogWarning("Unity.Entities package not available. Cannot create ECS entity.");
+                    UnityEngine.Debug.LogWarning("Unity.Entities package not available. Cannot create ECS entity.");
                     return;
                 }
 
                 var world = Unity.Entities.World.DefaultGameObjectInjectionWorld;
                 if (world == null)
                 {
-                    Debug.LogError("No default ECS world available for entity creation.");
+                    UnityEngine.Debug.LogError("No default ECS world available for entity creation.");
                     return;
                 }
 
@@ -69,12 +69,12 @@ namespace Laboratory.Chimera.ECS
                 // Add core components based on configuration
                 AddCoreComponents(entityManager, entity);
 
-                Debug.Log($"Successfully created ECS entity for {gameObject.name} with ID: {entity}");
-                Debug.Log($"Configuration: {GetConfigurationSummary()}");
+                UnityEngine.Debug.Log($"Successfully created ECS entity for {gameObject.name} with ID: {entity}");
+                UnityEngine.Debug.Log($"Configuration: {GetConfigurationSummary()}");
             }
             catch (System.Exception ex)
             {
-                Debug.LogError($"Failed to create ECS entity for {gameObject.name}: {ex.Message}");
+                UnityEngine.Debug.LogError($"Failed to create ECS entity for {gameObject.name}: {ex.Message}");
             }
         }
 
@@ -219,7 +219,7 @@ namespace Laboratory.Chimera.ECS
             };
             entityManager.AddComponentData(entity, statsComponent);
 
-            Debug.Log($"Added {GetComponentCount()} components to entity");
+            UnityEngine.Debug.Log($"Added {GetComponentCount()} components to entity");
         }
 
         /// <summary>

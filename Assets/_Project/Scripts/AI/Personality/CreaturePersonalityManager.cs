@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.AI;
-using Laboratory.Core.Debug;
 using Laboratory.Core.Events;
 
 namespace Laboratory.AI.Personality

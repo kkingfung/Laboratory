@@ -2,7 +2,7 @@ using UnityEngine;
 using Unity.Entities;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.AI;
-using Laboratory.Chimera.ECS.Components;
+using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
 using System.Collections.Generic;

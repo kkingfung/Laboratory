@@ -753,7 +753,7 @@ namespace Laboratory.Chimera.World
         {
             if (enableDetailedLogging)
             {
-                Debug.Log($"[EcosystemManager] {message}");
+                UnityEngine.Debug.Log($"[EcosystemManager] {message}");
             }
         }
 

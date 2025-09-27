@@ -114,7 +114,7 @@ namespace Laboratory.Chimera.UI
             advancedModeToggle.onValueChanged.AddListener(ToggleAdvancedMode);
             
             // Listen for creature selection events
-            Debug.Log("AdvancedBreedingUI: Event listeners setup (GameEvents system not implemented)");
+            UnityEngine.Debug.Log("AdvancedBreedingUI: Event listeners setup (GameEvents system not implemented)");
         }
         
         #endregion
@@ -618,7 +618,7 @@ namespace Laboratory.Chimera.UI
         {
             if (parent1 == null || parent2 == null)
             {
-                Debug.LogWarning("Quick Breed: One or both parents are null");
+                UnityEngine.Debug.LogWarning("Quick Breed: One or both parents are null");
                 return;
             }
 
@@ -755,27 +755,27 @@ namespace Laboratory.Chimera.UI
         // Missing methods that are referenced by other UI components
         public void SelectCreatureAsParent(CreatureInstanceComponent creature, int parentSlot = 0)
         {
-            Debug.Log($"Selecting creature {creature.name} as parent {parentSlot}");
+            UnityEngine.Debug.Log($"Selecting creature {creature.name} as parent {parentSlot}");
             if (parentSlot == 1 || selectedParent1 == null)
             {
                 selectedParent1 = creature;
-                Debug.Log($"Set as parent 1: {creature.name}");
+                UnityEngine.Debug.Log($"Set as parent 1: {creature.name}");
             }
             else if (parentSlot == 2 || selectedParent2 == null)
             {
                 selectedParent2 = creature;
-                Debug.Log($"Set as parent 2: {creature.name}");
+                UnityEngine.Debug.Log($"Set as parent 2: {creature.name}");
                 UpdateBreedingPreview();
             }
             else
             {
-                Debug.Log("Both parent slots are full");
+                UnityEngine.Debug.Log("Both parent slots are full");
             }
         }
 
         public void ShowBreedingUI()
         {
-            Debug.Log("Showing breeding UI");
+            UnityEngine.Debug.Log("Showing breeding UI");
             gameObject.SetActive(true);
         }
 
@@ -819,7 +819,7 @@ namespace Laboratory.Chimera.UI
     {
         public void StartBreeding(CreatureInstanceComponent parent1, CreatureInstanceComponent parent2, System.Action<CreatureInstanceComponent> onComplete)
         {
-            Debug.Log($"Starting breeding operation between {parent1.name} and {parent2.name}");
+            UnityEngine.Debug.Log($"Starting breeding operation between {parent1.name} and {parent2.name}");
 
             // Simulate breeding delay
             StartCoroutine(SimulateBreeding(parent1, parent2, onComplete));

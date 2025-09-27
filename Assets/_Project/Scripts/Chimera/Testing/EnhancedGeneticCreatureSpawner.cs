@@ -7,6 +7,7 @@ using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.AI;
 using GeneticsTraitType = Laboratory.Chimera.Genetics.TraitType;
+using CreatureArchetype = Laboratory.Chimera.Configuration.CreatureAIBehaviorType;
 
 namespace Laboratory.Chimera.Testing
 {
@@ -22,7 +23,7 @@ namespace Laboratory.Chimera.Testing
         [SerializeField] private GeneticTraitLibrary traitLibrary;
         [SerializeField] private int spawnCount = 1;
         [SerializeField] private float spawnRadius = 5f;
-        [SerializeField] private CreatureArchetype selectedArchetype = CreatureArchetype.AlphaWolf;
+        [SerializeField] private CreatureArchetype selectedArchetype = CreatureArchetype.Predator;
         [SerializeField] private Laboratory.Chimera.Core.BiomeType currentBiome = Laboratory.Chimera.Core.BiomeType.Temperate;
         
         [Header("🎨 Visual Enhancement Settings")]
@@ -180,11 +181,11 @@ namespace Laboratory.Chimera.Testing
         [ContextMenu("Spawn Breeding Pair")]
         public void SpawnBreedingPair()
         {
-            Debug.Log("🧬 Spawning breeding pair for genetic diversity testing...");
+            UnityEngine.Debug.Log("🧬 Spawning breeding pair for genetic diversity testing...");
             
             // Create two different archetypes
-            var archetype1 = CreatureArchetype.AlphaWolf;
-            var archetype2 = CreatureArchetype.CuriousCat;
+            var archetype1 = CreatureArchetype.Predator;
+            var archetype2 = CreatureArchetype.Companion;
             
             var parent1Genetics = CreateEnhancedGeneticArchetype(archetype1);
             var parent2Genetics = CreateEnhancedGeneticArchetype(archetype2);
@@ -202,7 +203,7 @@ namespace Laboratory.Chimera.Testing
             Vector3 offspringPos = basePos + Vector3.forward * 3f;
             var offspring = SpawnCreatureWithGenetics(offspringGenetics, "Offspring_Hybrid", offspringPos);
             
-            Debug.Log($"✅ Spawned breeding family - compare the visual differences!");
+            UnityEngine.Debug.Log($"✅ Spawned breeding family - compare the visual differences!");
             LogBreedingInfo(parent1, parent2, offspring);
         }
 
@@ -366,7 +367,7 @@ namespace Laboratory.Chimera.Testing
             }
             catch (System.Exception)
             {
-                Debug.LogWarning("AI components not found - creature will have visuals only");
+                UnityEngine.Debug.LogWarning("AI components not found - creature will have visuals only");
             }
         }
 
@@ -399,7 +400,7 @@ namespace Laboratory.Chimera.Testing
                 var visualIntegration = creature.GetComponent<GeneticVisualIntegration>();
                 if (visualIntegration != null)
                 {
-                    Debug.Log($"🎨 {visualIntegration.GetVisualDebugInfo()}");
+                    UnityEngine.Debug.Log($"🎨 {visualIntegration.GetVisualDebugInfo()}");
                 }
             }
         }
@@ -418,39 +419,33 @@ namespace Laboratory.Chimera.Testing
 
         private Gene[] CreateArchetypeGenes(CreatureArchetype archetype)
         {
-            // Use the existing archetype creation logic from the original spawner
+            // Map behavior types to appropriate genetic traits
             switch (archetype)
             {
-                case CreatureArchetype.AlphaWolf:
-                    return CreateGenes(aggression: 0.9f, dominance: 0.9f, packInstinct: 0.8f, territoriality: 0.7f, courage: 0.8f);
-                    
-                case CreatureArchetype.CuriousCat:
-                    return CreateGenes(curiosity: 0.9f, playfulness: 0.8f, intelligence: 0.7f, packInstinct: 0.2f);
-                    
-                case CreatureArchetype.LoyalDog:
+                case CreatureArchetype.Companion:
                     return CreateGenes(loyalty: 0.9f, social: 0.8f, aggression: 0.3f, packInstinct: 0.7f);
-                    
-                case CreatureArchetype.NightHunter:
-                    return CreateGenes(huntingDrive: 0.9f, nightVision: 0.9f, courage: 0.8f, territoriality: 0.6f, aggression: 0.7f);
-                    
-                case CreatureArchetype.PeacefulHerbivore:
-                    return CreateGenes(aggression: 0.1f, social: 0.7f, playfulness: 0.6f);
-                    
-                case CreatureArchetype.TerritorialGuardian:
+
+                case CreatureArchetype.Aggressive:
+                    return CreateGenes(aggression: 0.9f, courage: 0.8f, territoriality: 0.7f, huntingDrive: 0.8f);
+
+                case CreatureArchetype.Defensive:
                     return CreateGenes(territoriality: 0.9f, courage: 0.9f, size: 0.8f, dominance: 0.7f);
-                    
-                case CreatureArchetype.SmartTrickster:
-                    return CreateGenes(intelligence: 0.9f, curiosity: 0.8f, playfulness: 0.7f, aggression: 0.4f);
-                    
-                case CreatureArchetype.SocialHerdAnimal:
-                    return CreateGenes(social: 0.9f, packInstinct: 0.8f, loyalty: 0.6f, aggression: 0.3f);
-                    
-                case CreatureArchetype.WiseElder:
-                    return CreateGenes(intelligence: 0.9f, nightVision: 0.8f);
-                    
-                case CreatureArchetype.ApexPredator:
-                    return CreateGenes(huntingDrive: 0.9f, aggression: 0.8f, courage: 0.9f, size: 0.9f, packInstinct: 0.2f);
-                    
+
+                case CreatureArchetype.Passive:
+                    return CreateGenes(aggression: 0.1f, social: 0.7f, playfulness: 0.6f);
+
+                case CreatureArchetype.Guard:
+                    return CreateGenes(territoriality: 0.9f, courage: 0.8f, intelligence: 0.7f, aggression: 0.6f);
+
+                case CreatureArchetype.Wild:
+                    return CreateGenes(huntingDrive: 0.7f, courage: 0.6f, territoriality: 0.5f, intelligence: 0.6f);
+
+                case CreatureArchetype.Predator:
+                    return CreateGenes(huntingDrive: 0.9f, aggression: 0.8f, courage: 0.9f, size: 0.8f, packInstinct: 0.3f);
+
+                case CreatureArchetype.Herbivore:
+                    return CreateGenes(aggression: 0.2f, social: 0.8f, playfulness: 0.7f, packInstinct: 0.8f);
+
                 default:
                     return CreateRandomGenes();
             }
@@ -595,7 +590,7 @@ namespace Laboratory.Chimera.Testing
             
             // Fallback random genetics
             var randomGenes = CreateRandomGenes();
-            var enhancedGenes = AddEnhancedVisualGenes(randomGenes, CreatureArchetype.AlphaWolf);
+            var enhancedGenes = AddEnhancedVisualGenes(randomGenes, CreatureArchetype.Wild);
             return new GeneticProfile(enhancedGenes, 1);
         }
 
@@ -607,16 +602,14 @@ namespace Laboratory.Chimera.Testing
         {
             switch (archetype)
             {
-                case CreatureArchetype.AlphaWolf: return Color.grey;
-                case CreatureArchetype.CuriousCat: return new Color(1f, 0.5f, 0f); // Orange
-                case CreatureArchetype.LoyalDog: return new Color(0.6f, 0.4f, 0.2f); // Brown
-                case CreatureArchetype.NightHunter: return Color.black;
-                case CreatureArchetype.PeacefulHerbivore: return Color.green;
-                case CreatureArchetype.TerritorialGuardian: return Color.red;
-                case CreatureArchetype.SmartTrickster: return Color.blue;
-                case CreatureArchetype.SocialHerdAnimal: return Color.white;
-                case CreatureArchetype.WiseElder: return new Color(0.5f, 0.5f, 0.8f); // Wise purple
-                case CreatureArchetype.ApexPredator: return Color.red;
+                case CreatureArchetype.Companion: return new Color(0.6f, 0.4f, 0.2f); // Brown
+                case CreatureArchetype.Aggressive: return Color.red;
+                case CreatureArchetype.Defensive: return new Color(0.8f, 0.8f, 0.2f); // Yellow
+                case CreatureArchetype.Passive: return Color.green;
+                case CreatureArchetype.Guard: return Color.blue;
+                case CreatureArchetype.Wild: return Color.grey;
+                case CreatureArchetype.Predator: return new Color(0.8f, 0.2f, 0.2f); // Dark red
+                case CreatureArchetype.Herbivore: return new Color(0.2f, 0.8f, 0.2f); // Light green
                 default: return Color.white;
             }
         }
@@ -625,9 +618,9 @@ namespace Laboratory.Chimera.Testing
         {
             switch (archetype)
             {
-                case CreatureArchetype.CuriousCat:
-                case CreatureArchetype.NightHunter:
-                case CreatureArchetype.ApexPredator:
+                case CreatureArchetype.Predator:
+                case CreatureArchetype.Aggressive:
+                case CreatureArchetype.Wild:
                     return Random.value > 0.4f; // 60% chance
                 default:
                     return Random.value > 0.7f; // 30% chance
@@ -655,7 +648,7 @@ namespace Laboratory.Chimera.Testing
             int nextIndex = (currentIndex + 1) % biomes.Length;
             currentBiome = (BiomeType)biomes.GetValue(nextIndex);
             
-            Debug.Log($"🌍 Switched to biome: {currentBiome}");
+            UnityEngine.Debug.Log($"🌍 Switched to biome: {currentBiome}");
         }
 
         private void CycleArchetype()
@@ -665,7 +658,7 @@ namespace Laboratory.Chimera.Testing
             int nextIndex = (currentIndex + 1) % archetypes.Length;
             selectedArchetype = (CreatureArchetype)archetypes.GetValue(nextIndex);
             
-            Debug.Log($"🧬 Switched to archetype: {selectedArchetype}");
+            UnityEngine.Debug.Log($"🧬 Switched to archetype: {selectedArchetype}");
         }
 
         [ContextMenu("Clear All Spawned Creatures")]
@@ -678,7 +671,7 @@ namespace Laboratory.Chimera.Testing
             }
             
             totalSpawnedCreatures = 0;
-            Debug.Log($"🧹 Cleared {spawnedCreatures.Length} spawned creatures");
+            UnityEngine.Debug.Log($"🧹 Cleared {spawnedCreatures.Length} spawned creatures");
         }
 
         #endregion
@@ -692,17 +685,17 @@ namespace Laboratory.Chimera.Testing
             var creatureInstance = creature.GetComponent<CreatureInstanceComponent>();
             if (creatureInstance != null)
             {
-                Debug.Log($"✅ Spawned {type}: {creature.name}");
-                Debug.Log($"📊 {creatureInstance.GetInfoText()}");
+                UnityEngine.Debug.Log($"✅ Spawned {type}: {creature.name}");
+                UnityEngine.Debug.Log($"📊 {creatureInstance.GetInfoText()}");
                 
                 if (showVisualDebug)
                 {
                     var genetics = creatureInstance.CreatureData?.GeneticProfile;
                     if (genetics != null)
                     {
-                        Debug.Log($"🎨 Visual traits: {genetics.GetTraitSummary(5)}");
-                        Debug.Log($"🧬 Genetic purity: {genetics.GetGeneticPurity():P1}");
-                        Debug.Log($"🔀 Mutations: {genetics.Mutations.Count}");
+                        UnityEngine.Debug.Log($"🎨 Visual traits: {genetics.GetTraitSummary(5)}");
+                        UnityEngine.Debug.Log($"🧬 Genetic purity: {genetics.GetGeneticPurity():P1}");
+                        UnityEngine.Debug.Log($"🔀 Mutations: {genetics.Mutations.Count}");
                     }
                 }
             }
@@ -710,11 +703,11 @@ namespace Laboratory.Chimera.Testing
 
         private void LogBreedingInfo(GameObject parent1, GameObject parent2, GameObject offspring)
         {
-            Debug.Log("👨‍👩‍👧‍👦 === BREEDING RESULTS ===");
+            UnityEngine.Debug.Log("👨‍👩‍👧‍👦 === BREEDING RESULTS ===");
             LogCreatureGenetics(parent1, "Parent 1");
             LogCreatureGenetics(parent2, "Parent 2");
             LogCreatureGenetics(offspring, "Offspring");
-            Debug.Log("=== END BREEDING RESULTS ===");
+            UnityEngine.Debug.Log("=== END BREEDING RESULTS ===");
         }
 
         private void LogCreatureGenetics(GameObject creature, string role)
@@ -723,7 +716,7 @@ namespace Laboratory.Chimera.Testing
             if (creatureInstance?.CreatureData?.GeneticProfile != null)
             {
                 var genetics = creatureInstance.CreatureData.GeneticProfile;
-                Debug.Log($"{role}: Traits={genetics.GetTraitSummary(3)}, Purity={genetics.GetGeneticPurity():P1}, Gen={genetics.Generation}");
+                UnityEngine.Debug.Log($"{role}: Traits={genetics.GetTraitSummary(3)}, Purity={genetics.GetGeneticPurity():P1}, Gen={genetics.Generation}");
             }
         }
 

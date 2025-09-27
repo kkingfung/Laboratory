@@ -293,7 +293,7 @@ namespace Laboratory.Chimera.Genetics
         {
             if (possibleAlleles.Length < 2) 
             {
-                Debug.LogWarning($"Trait {traitId} needs at least 2 possible alleles");
+                UnityEngine.Debug.LogWarning($"Trait {traitId} needs at least 2 possible alleles");
                 return default;
             }
             

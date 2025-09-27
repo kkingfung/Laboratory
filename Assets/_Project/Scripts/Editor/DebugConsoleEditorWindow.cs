@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEditor;
-using Laboratory.Core.Debug;
 
 namespace Laboratory.Editor.Debug
 {

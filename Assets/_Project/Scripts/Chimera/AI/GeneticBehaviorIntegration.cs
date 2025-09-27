@@ -48,7 +48,7 @@ namespace Laboratory.Chimera.AI
 
             if (basicAdapter == null || monsterAI == null)
             {
-                Debug.LogError($"[GeneticIntegration] Missing required components on {gameObject.name}");
+                UnityEngine.Debug.LogError($"[GeneticIntegration] Missing required components on {gameObject.name}");
                 enabled = false;
             }
         }
@@ -68,11 +68,11 @@ namespace Laboratory.Chimera.AI
                     navAgent.ApplyMovementGenetics(creatureInstanceComponent.Instance.GeneticProfile);
                 }
 
-                Debug.Log($"[GeneticIntegration] Applied genetic behaviors to {gameObject.name}: {creatureInstanceComponent.Instance.GeneticProfile.GetBehaviorDescription()}");
+                UnityEngine.Debug.Log($"[GeneticIntegration] Applied genetic behaviors to {gameObject.name}: {creatureInstanceComponent.Instance.GeneticProfile.GetBehaviorDescription()}");
             }
             else
             {
-                Debug.LogWarning($"[GeneticIntegration] No genetic profile found on {gameObject.name}");
+                UnityEngine.Debug.LogWarning($"[GeneticIntegration] No genetic profile found on {gameObject.name}");
             }
         }
 
@@ -85,7 +85,7 @@ namespace Laboratory.Chimera.AI
             var behaviorDescription = genetics.GetBehaviorDescription();
             var recommendedBehavior = genetics.GetRecommendedIdleBehavior();
 
-            Debug.Log($"[GeneticIntegration] {gameObject.name} Status:\n" +
+            UnityEngine.Debug.Log($"[GeneticIntegration] {gameObject.name} Status:\n" +
                      $"Behavior Profile: {behaviorDescription}\n" +
                      $"Recommended State: {recommendedBehavior}\n" +
                      $"Tendencies: {behaviorTendency}\n" +

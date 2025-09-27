@@ -217,7 +217,7 @@ namespace Laboratory.Chimera.AI
                 if (!previousEnemies.Any(p => p.Enemy == detection.Enemy))
                 {
                     OnEnemyDetected?.Invoke(detection.Enemy);
-                    Debug.Log($"[Detection] New enemy detected: {detection.Enemy.name} via {detection.Type}");
+                    UnityEngine.Debug.Log($"[Detection] New enemy detected: {detection.Enemy.name} via {detection.Type}");
                 }
             }
 
@@ -227,7 +227,7 @@ namespace Laboratory.Chimera.AI
                 if (!detectedEnemies.Any(d => d.Enemy == prevDetection.Enemy))
                 {
                     OnEnemyLost?.Invoke(prevDetection.Enemy);
-                    Debug.Log($"[Detection] Enemy lost: {prevDetection.Enemy?.name ?? "Unknown"}");
+                    UnityEngine.Debug.Log($"[Detection] Enemy lost: {prevDetection.Enemy?.name ?? "Unknown"}");
                 }
             }
 
@@ -244,7 +244,7 @@ namespace Laboratory.Chimera.AI
                 // For now, we'll just log the count
                 if (detectedEnemies.Count > 0)
                 {
-                    Debug.Log($"[Detection] Reporting {detectedEnemies.Count} enemies to AI");
+                    UnityEngine.Debug.Log($"[Detection] Reporting {detectedEnemies.Count} enemies to AI");
                 }
             }
         }

@@ -5,9 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks; // Standard .NET async support
 using Laboratory.Chimera.Breeding;
-using Laboratory.Chimera.ECS;
+using Laboratory.Core.ECS;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Core;
+using Laboratory.Chimera.ECS;
 using Laboratory.Core.Events;
 using Laboratory.Core.DI;
 
@@ -139,7 +140,7 @@ namespace Laboratory.Chimera.UI
             if (biomeDropdown != null)
             {
                 biomeDropdown.ClearOptions();
-                var biomeNames = System.Enum.GetNames(typeof(BiomeType)).ToList();
+                var biomeNames = System.Enum.GetNames(typeof(Laboratory.Chimera.Core.BiomeType)).ToList();
                 biomeDropdown.AddOptions(biomeNames);
                 biomeDropdown.value = 0; // Default to first biome
             }
@@ -308,7 +309,7 @@ namespace Laboratory.Chimera.UI
             catch (System.Exception ex)
             {
                 ShowMessage($"Breeding failed: {ex.Message}");
-                Debug.LogError($"Breeding error: {ex}");
+                UnityEngine.Debug.LogError($"Breeding error: {ex}");
             }
             finally
             {
@@ -333,7 +334,7 @@ namespace Laboratory.Chimera.UI
         
         private BreedingEnvironment CreateBreedingEnvironment()
         {
-            var biomeType = (BiomeType)biomeDropdown.value;
+            var biomeType = (Laboratory.Chimera.Core.BiomeType)biomeDropdown.value;
             
             return new BreedingEnvironment
             {
@@ -576,7 +577,7 @@ namespace Laboratory.Chimera.UI
         
         private void ShowMessage(string message)
         {
-            Debug.Log($"[BreedingUI] {message}");
+            UnityEngine.Debug.Log($"[BreedingUI] {message}");
             // In a full implementation, this would show a toast notification
         }
         

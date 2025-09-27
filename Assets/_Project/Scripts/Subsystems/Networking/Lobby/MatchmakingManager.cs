@@ -2,7 +2,14 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Unity.Netcode;
+#if UNITY_SERVICES_CORE
+using Unity.Services.Core;
 using Unity.Services.Authentication;
+#endif
+#if UNITY_SERVICES_RELAY
+using Unity.Services.Relay;
+using Unity.Services.Relay.Models;
+#endif
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using Laboratory.Core.DI;
@@ -31,6 +38,7 @@ namespace Laboratory.Gameplay.Lobby
         [Header("Matchmaking Settings")]
         [SerializeField] private float matchmakingTimeout = 30f;
         [SerializeField] private bool useRelayService = false;
+        [SerializeField] private int maxPlayersPerMatch = 4;
         [SerializeField] private string fallbackServerAddress = "127.0.0.1";
         [SerializeField] private ushort fallbackServerPort = 7777;
 
@@ -229,17 +237,32 @@ namespace Laboratory.Gameplay.Lobby
         private async UniTask StartRelayMatchmakingAsync()
         {
             Debug.Log("[MatchmakingManager] Starting Relay-based matchmaking...");
-            
-            // When Unity Services packages are available, uncomment:
-            /*
+
             try
             {
+#if UNITY_SERVICES_RELAY
                 // Create allocation for max players
                 var allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayersPerMatch - 1);
                 _currentAllocationId = allocation.AllocationId;
-                
+
                 // Get join code for other players
                 _currentJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
+#else
+                // Fallback when Unity Services are not available
+                Debug.LogWarning("[MatchmakingManager] Unity Relay Services not available. Using fallback networking.");
+                _currentAllocationId = System.Guid.NewGuid().ToString();
+                _currentJoinCode = "FALLBACK_" + UnityEngine.Random.Range(1000, 9999).ToString();
+
+                // Create a mock allocation object for the rest of the code
+                var allocation = new MockRelayAllocation
+                {
+                    AllocationId = _currentAllocationId,
+                    RelayServer = new MockRelayServer { IpV4 = fallbackServerAddress, Port = fallbackServerPort },
+                    AllocationIdBytes = System.Text.Encoding.UTF8.GetBytes(_currentAllocationId),
+                    Key = new byte[32],
+                    ConnectionData = new byte[16]
+                };
+#endif
                 
                 Debug.Log($"[MatchmakingManager] Relay allocation created. Join code: {_currentJoinCode}");
                 
@@ -274,11 +297,7 @@ namespace Laboratory.Gameplay.Lobby
                 Debug.LogError($"[MatchmakingManager] Relay matchmaking failed: {ex.Message}");
                 throw;
             }
-            */
             
-            // Fallback implementation when Unity Services packages are not available
-            Debug.LogWarning("[MatchmakingManager] Unity Relay packages not available. Using fallback direct connection.");
-            await StartDirectMatchmakingAsync();
         }
 
         /// <summary>
@@ -336,16 +355,15 @@ namespace Laboratory.Gameplay.Lobby
         private async UniTask JoinRelayMatchAsync(string joinCode)
         {
             Debug.Log($"[MatchmakingManager] Joining Relay match with code: {joinCode}");
-            
-            // When Unity Services packages are available, uncomment:
-            /*
+
             try
             {
+#if UNITY_SERVICES_RELAY
                 // Join allocation using the join code
                 var joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
-                
+
                 Debug.Log($"[MatchmakingManager] Successfully joined Relay allocation");
-                
+
                 // Configure Unity Transport with Relay data
                 var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
                 transport.SetRelayServerData(
@@ -354,31 +372,31 @@ namespace Laboratory.Gameplay.Lobby
                     joinAllocation.AllocationIdBytes,
                     joinAllocation.Key,
                     joinAllocation.ConnectionData);
-                
+
                 _currentJoinCode = joinCode;
-                
+
                 SetState(CoreMatchmakingState.MatchFound);
                 _eventBus?.Publish(new MatchFoundEvent(joinCode, false));
-                
+
                 // Start as client
                 if (!NetworkManager.Singleton.StartClient())
                 {
                     throw new Exception("Failed to start client with Relay");
                 }
-                
+
                 _eventBus?.Publish(new MatchJoinedEvent(joinCode, "Relay Server"));
                 Debug.Log("[MatchmakingManager] Client started with Relay successfully");
+#else
+                // Fallback implementation when Unity Services packages are not available
+                Debug.LogWarning("[MatchmakingManager] Unity Relay packages not available. Using fallback direct connection.");
+                await JoinDirectMatchAsync(joinCode);
+#endif
             }
             catch (Exception ex)
             {
                 Debug.LogError($"[MatchmakingManager] Relay join failed: {ex.Message}");
                 throw;
             }
-            */
-            
-            // Fallback implementation when Unity Services packages are not available
-            Debug.LogWarning("[MatchmakingManager] Unity Relay packages not available. Using fallback direct connection.");
-            await JoinDirectMatchAsync(joinCode);
         }
 
         /// <summary>
@@ -489,42 +507,41 @@ namespace Laboratory.Gameplay.Lobby
         private async UniTask InitializeUnityServicesAsync()
         {
             Debug.Log("[MatchmakingManager] Initializing Unity Services...");
-            
+
             try
             {
-                // When Unity Services packages are available, uncomment:
-                /*
+#if UNITY_SERVICES_CORE
                 if (!UnityServices.State.Equals(ServicesInitializationState.Initialized))
                 {
                     await UnityServices.InitializeAsync();
                     Debug.Log("[MatchmakingManager] Unity Services initialized successfully");
                 }
-                
+
                 // Sign in anonymously if not already signed in
                 if (!AuthenticationService.Instance.IsSignedIn)
                 {
                     await AuthenticationService.Instance.SignInAnonymouslyAsync();
                     Debug.Log($"[MatchmakingManager] Signed in anonymously. Player ID: {AuthenticationService.Instance.PlayerId}");
                 }
-                
+
                 _eventBus?.Publish(new SystemInitializedEvent("UnityServices"));
-                */
-                
+#else
                 // Fallback when packages are not available
                 Debug.LogWarning("[MatchmakingManager] Unity Services packages not available. Running in offline mode.");
                 useRelayService = false; // Force disable Relay when services unavailable
-                
+
                 _eventBus?.Publish(new SystemInitializedEvent("MatchmakingManager-OfflineMode"));
+#endif
             }
             catch (Exception ex)
             {
                 Debug.LogError($"[MatchmakingManager] Failed to initialize Unity Services: {ex.Message}");
                 Debug.LogWarning("[MatchmakingManager] Falling back to direct connection mode.");
-                
+
                 useRelayService = false; // Disable Relay on initialization failure
                 _eventBus?.Publish(new SystemErrorEvent("UnityServices", ex.Message));
             }
-            
+
             await UniTask.Yield(); // Make this truly async
         }
 
@@ -579,7 +596,7 @@ namespace Laboratory.Gameplay.Lobby
     }
     
     #region Helper Classes
-    
+
     /// <summary>
     /// Status information for matchmaking operations.
     /// </summary>
@@ -592,6 +609,29 @@ namespace Laboratory.Gameplay.Lobby
         public float TimeRemaining;
         public bool UseRelay;
     }
-    
+
+#if !UNITY_SERVICES_RELAY
+    /// <summary>
+    /// Mock allocation class for fallback when Unity Relay Services are not available.
+    /// </summary>
+    public class MockRelayAllocation
+    {
+        public string AllocationId { get; set; } = string.Empty;
+        public MockRelayServer RelayServer { get; set; } = new MockRelayServer();
+        public byte[] AllocationIdBytes { get; set; } = new byte[16];
+        public byte[] Key { get; set; } = new byte[32];
+        public byte[] ConnectionData { get; set; } = new byte[16];
+    }
+
+    /// <summary>
+    /// Mock relay server class for fallback when Unity Relay Services are not available.
+    /// </summary>
+    public class MockRelayServer
+    {
+        public string IpV4 { get; set; } = "127.0.0.1";
+        public ushort Port { get; set; } = 7777;
+    }
+#endif
+
     #endregion
 }

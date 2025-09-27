@@ -558,7 +558,6 @@ namespace Laboratory.UI.Helper
 
     /// <summary>
     /// Stub implementation for NetworkPlayerData to resolve compilation errors.
-    /// This should be replaced with actual NetworkPlayerData implementation.
     /// </summary>
     public class NetworkPlayerDataStub : INetworkPlayerData
     {

@@ -60,13 +60,13 @@ namespace Laboratory.Chimera.UI
         // Missing methods that are referenced
         public void SetupTraitPreview(object traitPrediction, bool isAdvancedMode)
         {
-            Debug.Log($"Setting up trait preview - Advanced mode: {isAdvancedMode}");
+            UnityEngine.Debug.Log($"Setting up trait preview - Advanced mode: {isAdvancedMode}");
             // Placeholder implementation for trait prediction display
         }
 
         public void SetAdvancedMode(bool enabled)
         {
-            Debug.Log($"Setting advanced mode: {enabled}");
+            UnityEngine.Debug.Log($"Setting advanced mode: {enabled}");
             // Placeholder implementation for advanced mode toggle
         }
     }

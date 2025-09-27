@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
-// using Unity.Entities; // Commented out for now - add back if using ECS
 using Laboratory.Chimera.Genetics;
 using CoreBiomeType = Laboratory.Chimera.Core.BiomeType;
 

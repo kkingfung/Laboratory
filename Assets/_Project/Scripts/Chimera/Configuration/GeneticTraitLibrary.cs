@@ -113,7 +113,7 @@ namespace Laboratory.Chimera.Configuration
             
             foreach (var duplicateName in duplicateNames)
             {
-                Debug.LogWarning($"[GeneticTraitLibrary] Duplicate trait name found: {duplicateName}");
+                UnityEngine.Debug.LogWarning($"[GeneticTraitLibrary] Duplicate trait name found: {duplicateName}");
             }
         }
         
@@ -321,7 +321,7 @@ namespace Laboratory.Chimera.Configuration
                 {
                     // Use the existing TriggerMutation method
                     genetics.TriggerMutation(newTrait.traitName);
-                    Debug.Log($"Triggered environmental mutation: {newTrait.traitName}");
+                    UnityEngine.Debug.Log($"Triggered environmental mutation: {newTrait.traitName}");
                 }
             }
         }

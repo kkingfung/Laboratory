@@ -9,7 +9,8 @@
         "Unity.Jobs",
         "GUID:26c858a044ea8e443864d1208306534e",
         "GUID:29d681e95dcd18a469a9c88d73838e72",
-        "GUID:ffcee7f4abd9f1f489e66cd3ab459cd2"
+        "GUID:ffcee7f4abd9f1f489e66cd3ab459cd2",
+        "GUID:027a272e9c053054b9368bf7aab2e578"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

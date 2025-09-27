@@ -224,7 +224,7 @@ namespace Laboratory.Chimera.UI
         
         private void OnCardClicked()
         {
-            Debug.Log($"🎯 Clicked creature card: {creature.Name}");
+            UnityEngine.Debug.Log($"🎯 Clicked creature card: {creature.Name}");
         }
         
         private void OnQuickActionClicked()
@@ -277,32 +277,32 @@ namespace Laboratory.Chimera.UI
         
         private void ShowQuickActionMenu()
         {
-            Debug.Log($"📋 Quick action menu for {creature.Name}");
+            UnityEngine.Debug.Log($"📋 Quick action menu for {creature.Name}");
             
             // Show available actions based on creature state
             if (creature.CanBreed)
             {
-                Debug.Log("  • Breed");
+                UnityEngine.Debug.Log("  • Breed");
             }
             
             if (creature.Health < 100)
             {
-                Debug.Log("  • Heal");
+                UnityEngine.Debug.Log("  • Heal");
             }
             
             if (creature.Happiness < 1f)
             {
-                Debug.Log("  • Feed");
+                UnityEngine.Debug.Log("  • Feed");
             }
             
-            Debug.Log("  • Store/Retrieve");
-            Debug.Log("  • Sell");
-            Debug.Log("  • Release");
+            UnityEngine.Debug.Log("  • Store/Retrieve");
+            UnityEngine.Debug.Log("  • Sell");
+            UnityEngine.Debug.Log("  • Release");
         }
         
         private void QuickBreed()
         {
-            Debug.Log($"🧬 Quick breed requested for {creature.Name}");
+            UnityEngine.Debug.Log($"🧬 Quick breed requested for {creature.Name}");
             
             // Find suitable partner and start breeding
             var breedingUI = FindFirstObjectByType<AdvancedBreedingUI>();
@@ -331,7 +331,7 @@ namespace Laboratory.Chimera.UI
             }
             
             UpdateHealthBars();
-            Debug.Log($"💚 Healed {creature.Name}");
+            UnityEngine.Debug.Log($"💚 Healed {creature.Name}");
         }
         
         private void QuickFeed()
@@ -348,7 +348,7 @@ namespace Laboratory.Chimera.UI
             }
             
             UpdateHealthBars();
-            Debug.Log($"🍖 Fed {creature.Name}");
+            UnityEngine.Debug.Log($"🍖 Fed {creature.Name}");
         }
         
         private void ToggleFavorite()
@@ -356,7 +356,7 @@ namespace Laboratory.Chimera.UI
             creature.IsFavorite = !creature.IsFavorite;
             UpdateStatusIndicators();
             
-            Debug.Log($"⭐ {creature.Name} favorite status: {creature.IsFavorite}");
+            UnityEngine.Debug.Log($"⭐ {creature.Name} favorite status: {creature.IsFavorite}");
         }
         
         #endregion

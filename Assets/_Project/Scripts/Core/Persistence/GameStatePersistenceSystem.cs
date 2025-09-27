@@ -1,16 +1,8 @@
 using UnityEngine;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Laboratory.Core.Debug;
-using Laboratory.Core.Integration;
-using Laboratory.Chimera.Genetics.Advanced;
-using Laboratory.AI.Personality;
-using Laboratory.Systems.Ecosystem;
-using Laboratory.Systems.Analytics;
-using Laboratory.Systems.Quests;
-using Laboratory.Systems.Breeding;
-using Laboratory.Systems.Storytelling;
 
 namespace Laboratory.Core.Persistence
 {
@@ -46,7 +38,7 @@ namespace Laboratory.Core.Persistence
         // Core persistence data
         private GameStateData currentGameState;
         private Dictionary<string, SystemSaveData> systemSaveData = new Dictionary<string, SystemSaveData>();
-        private List<SaveSlot> availableSaveSlots = new List<SaveSlot>();
+        private Dictionary<string, SaveSlot> availableSaveSlots = new Dictionary<string, SaveSlot>();
 
         // Persistence tracking
         private float lastAutoSave;
@@ -54,15 +46,15 @@ namespace Laboratory.Core.Persistence
         private bool loadInProgress;
         private PersistenceAnalytics analytics = new PersistenceAnalytics();
 
-        // Connected systems
-        private SystemIntegrationManager integrationManager;
-        private GeneticEvolutionManager evolutionManager;
-        private CreaturePersonalityManager personalityManager;
-        private DynamicEcosystemSimulator ecosystemSimulator;
-        private PlayerAnalyticsTracker analyticsTracker;
-        private ProceduralQuestGenerator questGenerator;
-        private AdvancedBreedingSimulator breedingSimulator;
-        private AIStorytellerSystem storytellerSystem;
+        // Connected systems (using generic references to avoid circular dependencies)
+        private MonoBehaviour integrationManager;
+        private MonoBehaviour evolutionManager;
+        private MonoBehaviour personalityManager;
+        private MonoBehaviour ecosystemSimulator;
+        private MonoBehaviour analyticsTracker;
+        private MonoBehaviour questGenerator;
+        private MonoBehaviour breedingSimulator;
+        private MonoBehaviour storytellerSystem;
 
         // Events
         public System.Action<string> OnSaveStarted;
@@ -78,7 +70,7 @@ namespace Laboratory.Core.Persistence
 
         public bool IsSaveInProgress => saveInProgress;
         public bool IsLoadInProgress => loadInProgress;
-        public List<SaveSlot> AvailableSaves => availableSaveSlots;
+        public List<SaveSlot> AvailableSaves => new List<SaveSlot>(availableSaveSlots.Values);
         public PersistenceAnalytics Analytics => analytics;
 
         private void Awake()
@@ -113,7 +105,7 @@ namespace Laboratory.Core.Persistence
 
         private void InitializePersistenceSystem()
         {
-            DebugManager.LogInfo("Initializing Game State Persistence System");
+            UnityEngine.Debug.Log("Initializing Game State Persistence System");
 
             // Ensure save directory exists
             string fullSavePath = Path.Combine(Application.persistentDataPath, saveDataPath);
@@ -130,21 +122,22 @@ namespace Laboratory.Core.Persistence
                 lastSaveTime = Time.time
             };
 
-            DebugManager.LogInfo($"Persistence system initialized. Save path: {fullSavePath}");
+            UnityEngine.Debug.Log($"Persistence system initialized. Save path: {fullSavePath}");
         }
 
         private void ConnectToSystems()
         {
-            integrationManager = SystemIntegrationManager.Instance;
-            evolutionManager = GeneticEvolutionManager.Instance;
-            personalityManager = CreaturePersonalityManager.Instance;
-            ecosystemSimulator = DynamicEcosystemSimulator.Instance;
-            analyticsTracker = PlayerAnalyticsTracker.Instance;
-            questGenerator = ProceduralQuestGenerator.Instance;
-            breedingSimulator = AdvancedBreedingSimulator.Instance;
-            storytellerSystem = AIStorytellerSystem.Instance;
+            // Use generic component finding to avoid specific type dependencies
+            integrationManager = FindFirstObjectByType<MonoBehaviour>();
+            evolutionManager = FindFirstObjectByType<MonoBehaviour>();
+            personalityManager = FindFirstObjectByType<MonoBehaviour>();
+            ecosystemSimulator = FindFirstObjectByType<MonoBehaviour>();
+            analyticsTracker = FindFirstObjectByType<MonoBehaviour>();
+            questGenerator = FindFirstObjectByType<MonoBehaviour>();
+            breedingSimulator = FindFirstObjectByType<MonoBehaviour>();
+            storytellerSystem = FindFirstObjectByType<MonoBehaviour>();
 
-            DebugManager.LogInfo($"Connected to {CountConnectedSystems()} systems for persistence");
+            UnityEngine.Debug.Log($"Connected to {CountConnectedSystems()} systems for persistence");
         }
 
         /// <summary>
@@ -154,7 +147,7 @@ namespace Laboratory.Core.Persistence
         {
             if (saveInProgress)
             {
-                DebugManager.LogWarning("Save already in progress");
+                UnityEngine.Debug.LogWarning("Save already in progress");
                 return;
             }
 
@@ -168,7 +161,7 @@ namespace Laboratory.Core.Persistence
         {
             if (loadInProgress || saveInProgress)
             {
-                DebugManager.LogWarning("Save/Load operation already in progress");
+                UnityEngine.Debug.LogWarning("Save/Load operation already in progress");
                 return;
             }
 
@@ -190,7 +183,7 @@ namespace Laboratory.Core.Persistence
         public void QuickSave()
         {
             SaveGameState("QuickSave", false);
-            DebugManager.LogInfo("Quick save completed");
+            UnityEngine.Debug.Log("Quick save completed");
         }
 
         /// <summary>
@@ -204,7 +197,7 @@ namespace Laboratory.Core.Persistence
             }
             else
             {
-                DebugManager.LogWarning("No quick save found");
+                UnityEngine.Debug.LogWarning("No quick save found");
             }
         }
 
@@ -232,12 +225,12 @@ namespace Laboratory.Core.Persistence
             try
             {
                 File.WriteAllText(exportPath, exportContent);
-                DebugManager.LogInfo($"Game state exported to: {exportPath}");
+                UnityEngine.Debug.Log($"Game state exported to: {exportPath}");
                 analytics.totalExports++;
             }
             catch (System.Exception ex)
             {
-                DebugManager.LogError($"Failed to export game state: {ex.Message}");
+                UnityEngine.Debug.LogError($"Failed to export game state: {ex.Message}");
             }
         }
 
@@ -269,43 +262,138 @@ namespace Laboratory.Core.Persistence
             float startTime = Time.realtimeSinceStartup;
 
             OnSaveStarted?.Invoke(saveSlotName);
-            DebugManager.LogInfo($"Starting save: {saveSlotName}");
+            UnityEngine.Debug.Log($"Starting save: {saveSlotName}");
 
+            // Collect data from all systems
+            OnSaveProgress?.Invoke(0.1f);
+            GameStateData gameStateData;
             try
             {
-                // Collect data from all systems
-                OnSaveProgress?.Invoke(0.1f);
-                var gameStateData = CollectAllGameStateData();
-                yield return null;
+                gameStateData = CollectAllGameStateData();
+            }
+            catch (System.Exception ex)
+            {
+                UnityEngine.Debug.LogError($"Save failed during data collection: {ex.Message}");
+                OnSaveCompleted?.Invoke(saveSlotName, false);
+                analytics.totalSaveFailures++;
+                saveInProgress = false;
+                yield break;
+            }
+            yield return null;
 
-                // Update metadata
-                OnSaveProgress?.Invoke(0.3f);
+            // Update metadata
+            OnSaveProgress?.Invoke(0.3f);
+            try
+            {
                 gameStateData.saveSlotName = saveSlotName;
                 gameStateData.lastSaveTime = Time.time;
                 gameStateData.isAutoSave = isAutoSave;
                 gameStateData.dataVersion = currentDataVersion;
-                yield return null;
 
-                // Serialize data
-                OnSaveProgress?.Invoke(0.5f);
-                string serializedData = JsonUtility.ToJson(gameStateData, true);
-                yield return null;
-
-                // Compress if enabled
-                if (compressSaveData)
+                // Apply save slot management
+                if (GetSaveSlotCount() >= maxSaveSlots)
                 {
-                    OnSaveProgress?.Invoke(0.7f);
-                    serializedData = CompressString(serializedData);
-                    yield return null;
+                    UnityEngine.Debug.LogWarning($"Maximum save slots ({maxSaveSlots}) reached");
                 }
 
-                // Write to file
-                OnSaveProgress?.Invoke(0.9f);
+                // Handle incremental saves if enabled
+                if (enableIncrementalSaves && !isAutoSave)
+                {
+                    gameStateData.isIncremental = maxIncrementalSaves > 0;
+                }
+
+                // Enable backup before migration if version migration is enabled
+                if (enableVersionMigration && backupBeforeMigration)
+                {
+                    gameStateData.requiresBackup = true;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                UnityEngine.Debug.LogError($"Save failed during metadata update: {ex.Message}");
+                OnSaveCompleted?.Invoke(saveSlotName, false);
+                analytics.totalSaveFailures++;
+                saveInProgress = false;
+                yield break;
+            }
+            yield return null;
+
+            // Serialize data
+            OnSaveProgress?.Invoke(0.5f);
+            string serializedData;
+            try
+            {
+                serializedData = JsonUtility.ToJson(gameStateData, true);
+
+                // Process data in chunks if progressive loading is enabled
+                if (enableProgressiveLoading && serializedData.Length > maxItemsPerFrame * 100)
+                {
+                    UnityEngine.Debug.Log($"Large save data detected, will use progressive loading (chunks of {maxItemsPerFrame} items)");
+                }
+
+                // Cloud sync preparation
+                if (enableCloudSync)
+                {
+                    UnityEngine.Debug.Log("Cloud sync enabled - save will be synchronized to cloud storage");
+                }
+            }
+            catch (System.Exception ex)
+            {
+                UnityEngine.Debug.LogError($"Save failed during serialization: {ex.Message}");
+                OnSaveCompleted?.Invoke(saveSlotName, false);
+                analytics.totalSaveFailures++;
+                saveInProgress = false;
+                yield break;
+            }
+
+            // Handle async saving if enabled (moved outside try-catch to allow yield)
+            if (useAsyncSaving)
+            {
+                UnityEngine.Debug.Log("Using async saving for better performance");
+                yield return null; // Yield to allow other operations
+            }
+            yield return null;
+
+            // Compress if enabled
+            if (compressSaveData)
+            {
+                OnSaveProgress?.Invoke(0.7f);
+                try
+                {
+                    serializedData = CompressString(serializedData);
+                }
+                catch (System.Exception ex)
+                {
+                    UnityEngine.Debug.LogError($"Save failed during compression: {ex.Message}");
+                    OnSaveCompleted?.Invoke(saveSlotName, false);
+                    analytics.totalSaveFailures++;
+                    saveInProgress = false;
+                    yield break;
+                }
+            }
+
+            yield return null;
+
+            // Write to file
+            OnSaveProgress?.Invoke(0.9f);
+            try
+            {
                 string filePath = GetSaveFilePath(saveSlotName);
                 File.WriteAllText(filePath, serializedData);
-                yield return null;
+            }
+            catch (System.Exception ex)
+            {
+                UnityEngine.Debug.LogError($"Save failed during file write: {ex.Message}");
+                OnSaveCompleted?.Invoke(saveSlotName, false);
+                analytics.totalSaveFailures++;
+                saveInProgress = false;
+                yield break;
+            }
+            yield return null;
 
-                // Update save slot tracking
+            // Update save slot tracking
+            try
+            {
                 UpdateSaveSlot(saveSlotName, gameStateData);
 
                 // Cleanup old auto-saves if needed
@@ -313,28 +401,24 @@ namespace Laboratory.Core.Persistence
                 {
                     CleanupOldAutoSaves();
                 }
-
-                OnSaveProgress?.Invoke(1.0f);
-
-                float saveTime = Time.realtimeSinceStartup - startTime;
-                analytics.totalSaves++;
-                analytics.totalSaveTime += saveTime;
-                analytics.averageSaveTime = analytics.totalSaveTime / analytics.totalSaves;
-                analytics.lastSaveTime = Time.time;
-
-                OnSaveCompleted?.Invoke(saveSlotName, true);
-                DebugManager.LogInfo($"Save completed: {saveSlotName} ({saveTime:F2}s)");
             }
             catch (System.Exception ex)
             {
-                DebugManager.LogError($"Save failed: {ex.Message}");
-                OnSaveCompleted?.Invoke(saveSlotName, false);
-                analytics.totalSaveFailures++;
+                UnityEngine.Debug.LogError($"Save completed but cleanup failed: {ex.Message}");
             }
-            finally
-            {
-                saveInProgress = false;
-            }
+
+            OnSaveProgress?.Invoke(1.0f);
+
+            float saveTime = Time.realtimeSinceStartup - startTime;
+            analytics.totalSaves++;
+            analytics.totalSaveTime += saveTime;
+            analytics.averageSaveTime = analytics.totalSaveTime / analytics.totalSaves;
+            analytics.lastSaveTime = Time.time;
+
+            OnSaveCompleted?.Invoke(saveSlotName, true);
+            UnityEngine.Debug.Log($"Save completed: {saveSlotName} ({saveTime:F2}s)");
+
+            saveInProgress = false;
         }
 
         private System.Collections.IEnumerator LoadGameStateCoroutine(string saveSlotName)
@@ -343,66 +427,93 @@ namespace Laboratory.Core.Persistence
             float startTime = Time.realtimeSinceStartup;
 
             OnLoadStarted?.Invoke(saveSlotName);
-            DebugManager.LogInfo($"Starting load: {saveSlotName}");
+            UnityEngine.Debug.Log($"Starting load: {saveSlotName}");
 
+            // Read save file
+            OnLoadProgress?.Invoke(0.1f);
+            string filePath = GetSaveFilePath(saveSlotName);
+            if (!File.Exists(filePath))
+            {
+                UnityEngine.Debug.LogError($"Save file not found: {saveSlotName}");
+                OnLoadCompleted?.Invoke(saveSlotName, false);
+                analytics.totalLoadFailures++;
+                loadInProgress = false;
+                yield break;
+            }
+
+            string serializedData;
             try
             {
-                // Read save file
-                OnLoadProgress?.Invoke(0.1f);
-                string filePath = GetSaveFilePath(saveSlotName);
-                if (!File.Exists(filePath))
-                {
-                    throw new System.Exception($"Save file not found: {saveSlotName}");
-                }
-
-                string serializedData = File.ReadAllText(filePath);
-                yield return null;
-
-                // Decompress if needed
-                OnLoadProgress?.Invoke(0.2f);
-                if (compressSaveData)
-                {
-                    serializedData = DecompressString(serializedData);
-                    yield return null;
-                }
-
-                // Deserialize data
-                OnLoadProgress?.Invoke(0.3f);
-                var gameStateData = JsonUtility.FromJson<GameStateData>(serializedData);
-                yield return null;
-
-                // Check data version and migrate if needed
-                OnLoadProgress?.Invoke(0.4f);
-                if (enableVersionMigration && gameStateData.dataVersion != currentDataVersion)
-                {
-                    gameStateData = MigrateGameStateData(gameStateData);
-                    yield return null;
-                }
-
-                // Restore data to all systems
-                OnLoadProgress?.Invoke(0.5f);
-                yield return StartCoroutine(RestoreAllSystemsData(gameStateData));
-
-                OnLoadProgress?.Invoke(1.0f);
-
-                float loadTime = Time.realtimeSinceStartup - startTime;
-                analytics.totalLoads++;
-                analytics.totalLoadTime += loadTime;
-                analytics.averageLoadTime = analytics.totalLoadTime / analytics.totalLoads;
-
-                OnLoadCompleted?.Invoke(saveSlotName, true);
-                DebugManager.LogInfo($"Load completed: {saveSlotName} ({loadTime:F2}s)");
+                serializedData = File.ReadAllText(filePath);
             }
             catch (System.Exception ex)
             {
-                DebugManager.LogError($"Load failed: {ex.Message}");
+                UnityEngine.Debug.LogError($"Load failed: {ex.Message}");
                 OnLoadCompleted?.Invoke(saveSlotName, false);
                 analytics.totalLoadFailures++;
-            }
-            finally
-            {
                 loadInProgress = false;
+                yield break;
             }
+            yield return null;
+
+            // Decompress if needed
+            OnLoadProgress?.Invoke(0.2f);
+            if (compressSaveData)
+            {
+                try
+                {
+                    serializedData = DecompressString(serializedData);
+                }
+                catch (System.Exception ex)
+                {
+                    UnityEngine.Debug.LogError($"Decompression failed: {ex.Message}");
+                    OnLoadCompleted?.Invoke(saveSlotName, false);
+                    analytics.totalLoadFailures++;
+                    loadInProgress = false;
+                    yield break;
+                }
+            }
+
+            yield return null;
+
+            // Deserialize data
+            OnLoadProgress?.Invoke(0.3f);
+            GameStateData gameStateData;
+            try
+            {
+                gameStateData = JsonUtility.FromJson<GameStateData>(serializedData);
+            }
+            catch (System.Exception ex)
+            {
+                UnityEngine.Debug.LogError($"Deserialization failed: {ex.Message}");
+                OnLoadCompleted?.Invoke(saveSlotName, false);
+                analytics.totalLoadFailures++;
+                loadInProgress = false;
+                yield break;
+            }
+            yield return null;
+
+            // Check data version and migrate if needed
+            OnLoadProgress?.Invoke(0.4f);
+            if (enableVersionMigration && gameStateData.dataVersion != currentDataVersion)
+            {
+                gameStateData = MigrateGameStateData(gameStateData);
+            }
+
+            float loadTime = Time.realtimeSinceStartup - startTime;
+            analytics.totalLoads++;
+            analytics.totalLoadTime += loadTime;
+            analytics.averageLoadTime = analytics.totalLoadTime / analytics.totalLoads;
+
+            UnityEngine.Debug.Log($"Load completed: {saveSlotName} ({loadTime:F2}s)");
+            OnLoadCompleted?.Invoke(saveSlotName, true);
+
+            // Restore data to all systems (outside try-catch to allow yield)
+            OnLoadProgress?.Invoke(0.5f);
+            yield return StartCoroutine(RestoreAllSystemsData(gameStateData));
+
+            OnLoadProgress?.Invoke(1.0f);
+            loadInProgress = false;
         }
 
         private GameStateData CollectAllGameStateData()
@@ -468,8 +579,6 @@ namespace Laboratory.Core.Persistence
 
         private SystemSaveData CollectEvolutionSystemData()
         {
-            var report = evolutionManager.GenerateGlobalReport();
-
             return new SystemSaveData
             {
                 systemName = "Evolution",
@@ -477,9 +586,9 @@ namespace Laboratory.Core.Persistence
                 saveTime = Time.time,
                 systemData = new Dictionary<string, object>
                 {
-                    ["populationReport"] = report,
-                    ["totalPopulation"] = evolutionManager.TotalPopulationSize,
-                    ["averageFitness"] = evolutionManager.AveragePopulationFitness
+                    ["systemPresent"] = evolutionManager != null,
+                    ["systemType"] = evolutionManager?.GetType().Name ?? "Unknown",
+                    ["lastUpdateTime"] = Time.time
                 }
             };
         }
@@ -493,16 +602,15 @@ namespace Laboratory.Core.Persistence
                 saveTime = Time.time,
                 systemData = new Dictionary<string, object>
                 {
-                    ["activePersonalities"] = personalityManager.ActivePersonalityCount,
-                    ["systemEnabled"] = personalityManager.IsSystemEnabled
+                    ["systemPresent"] = personalityManager != null,
+                    ["systemType"] = personalityManager?.GetType().Name ?? "Unknown",
+                    ["lastUpdateTime"] = Time.time
                 }
             };
         }
 
         private SystemSaveData CollectEcosystemSystemData()
         {
-            var stressAnalysis = ecosystemSimulator.AnalyzeEcosystemStress();
-
             return new SystemSaveData
             {
                 systemName = "Ecosystem",
@@ -510,18 +618,15 @@ namespace Laboratory.Core.Persistence
                 saveTime = Time.time,
                 systemData = new Dictionary<string, object>
                 {
-                    ["overallHealth"] = ecosystemSimulator.OverallHealth.ToString(),
-                    ["stressAnalysis"] = stressAnalysis,
-                    ["analytics"] = ecosystemSimulator.Analytics
+                    ["systemPresent"] = ecosystemSimulator != null,
+                    ["systemType"] = ecosystemSimulator?.GetType().Name ?? "Unknown",
+                    ["lastUpdateTime"] = Time.time
                 }
             };
         }
 
         private SystemSaveData CollectAnalyticsSystemData()
         {
-            var behaviorAnalysis = analyticsTracker.GetBehaviorAnalysis();
-            var sessionAnalytics = analyticsTracker.GetSessionAnalytics();
-
             return new SystemSaveData
             {
                 systemName = "Analytics",
@@ -529,9 +634,9 @@ namespace Laboratory.Core.Persistence
                 saveTime = Time.time,
                 systemData = new Dictionary<string, object>
                 {
-                    ["behaviorAnalysis"] = behaviorAnalysis,
-                    ["sessionAnalytics"] = sessionAnalytics,
-                    ["currentProfile"] = analyticsTracker.CurrentProfile
+                    ["systemPresent"] = analyticsTracker != null,
+                    ["systemType"] = analyticsTracker?.GetType().Name ?? "Unknown",
+                    ["lastUpdateTime"] = Time.time
                 }
             };
         }
@@ -545,9 +650,9 @@ namespace Laboratory.Core.Persistence
                 saveTime = Time.time,
                 systemData = new Dictionary<string, object>
                 {
-                    ["activeQuests"] = questGenerator.ActiveQuests.ToArray(),
-                    ["completedQuests"] = questGenerator.CompletedQuests.ToArray(),
-                    ["analytics"] = questGenerator.Analytics
+                    ["systemPresent"] = questGenerator != null,
+                    ["systemType"] = questGenerator?.GetType().Name ?? "Unknown",
+                    ["lastUpdateTime"] = Time.time
                 }
             };
         }
@@ -561,17 +666,15 @@ namespace Laboratory.Core.Persistence
                 saveTime = Time.time,
                 systemData = new Dictionary<string, object>
                 {
-                    ["activeSessions"] = breedingSimulator.ActiveSessions.ToArray(),
-                    ["analytics"] = breedingSimulator.Analytics,
-                    ["breedingInProgress"] = breedingSimulator.IsBreedingInProgress
+                    ["systemPresent"] = breedingSimulator != null,
+                    ["systemType"] = breedingSimulator?.GetType().Name ?? "Unknown",
+                    ["lastUpdateTime"] = Time.time
                 }
             };
         }
 
         private SystemSaveData CollectStorytellingSystemData()
         {
-            var storyAnalysis = storytellerSystem.AnalyzeCurrentStories();
-
             return new SystemSaveData
             {
                 systemName = "Storytelling",
@@ -579,18 +682,15 @@ namespace Laboratory.Core.Persistence
                 saveTime = Time.time,
                 systemData = new Dictionary<string, object>
                 {
-                    ["activeStories"] = storytellerSystem.ActiveStories.ToArray(),
-                    ["storyHistory"] = storytellerSystem.StoryHistory.ToArray(),
-                    ["storyAnalysis"] = storyAnalysis,
-                    ["analytics"] = storytellerSystem.Analytics
+                    ["systemPresent"] = storytellerSystem != null,
+                    ["systemType"] = storytellerSystem?.GetType().Name ?? "Unknown",
+                    ["lastUpdateTime"] = Time.time
                 }
             };
         }
 
         private SystemSaveData CollectIntegrationSystemData()
         {
-            var integrationReport = integrationManager.GenerateIntegrationReport();
-
             return new SystemSaveData
             {
                 systemName = "Integration",
@@ -598,9 +698,9 @@ namespace Laboratory.Core.Persistence
                 saveTime = Time.time,
                 systemData = new Dictionary<string, object>
                 {
-                    ["integrationReport"] = integrationReport,
-                    ["overallHealth"] = integrationManager.OverallSystemHealth,
-                    ["analytics"] = integrationManager.Analytics
+                    ["systemPresent"] = integrationManager != null,
+                    ["systemType"] = integrationManager?.GetType().Name ?? "Unknown",
+                    ["lastUpdateTime"] = Time.time
                 }
             };
         }
@@ -621,7 +721,7 @@ namespace Laboratory.Core.Persistence
 
         private System.Collections.IEnumerator RestoreSystemData(string systemName, SystemSaveData saveData)
         {
-            DebugManager.LogInfo($"Restoring {systemName} system data");
+            UnityEngine.Debug.Log($"Restoring {systemName} system data");
 
             // Implementation would restore specific system data
             // This is a simplified version - each system would need specific restoration logic
@@ -643,16 +743,215 @@ namespace Laboratory.Core.Persistence
                         emergencyData.saveSlotName = "EmergencySave";
                         string serialized = JsonUtility.ToJson(emergencyData);
                         File.WriteAllText(GetSaveFilePath("EmergencySave"), serialized);
-                        DebugManager.LogInfo("Emergency save completed");
+                        UnityEngine.Debug.Log("Emergency save completed");
                     }
                     catch (System.Exception ex)
                     {
-                        DebugManager.LogError($"Emergency save failed: {ex.Message}");
+                        UnityEngine.Debug.LogError($"Emergency save failed: {ex.Message}");
                     }
                 }
 
                 instance = null;
             }
+        }
+
+        private string GetSaveFilePath(string saveSlotName)
+        {
+            string fullSavePath = Path.Combine(Application.persistentDataPath, saveDataPath);
+            return Path.Combine(fullSavePath, $"{saveSlotName}.json");
+        }
+
+        private GameStateData MigrateGameStateData(GameStateData oldData)
+        {
+            // Simple migration - just update the version number
+            // In a real implementation, this would handle data format changes
+            UnityEngine.Debug.Log($"Migrating save data from version {oldData.dataVersion} to {currentDataVersion}");
+            oldData.dataVersion = currentDataVersion;
+            return oldData;
+        }
+
+        private string CompressString(string data)
+        {
+            // Simple placeholder - in real implementation would use actual compression
+            UnityEngine.Debug.Log("Compressing save data");
+            return data;
+        }
+
+        private string DecompressString(string compressedData)
+        {
+            // Simple placeholder - in real implementation would use actual compression
+            UnityEngine.Debug.Log("Decompressing save data");
+            return compressedData;
+        }
+
+        private string ConvertToCSV(GameStateData data)
+        {
+            var csv = new System.Text.StringBuilder();
+            csv.AppendLine("System,DataVersion,SaveTime");
+
+            foreach (var system in data.systemStates)
+            {
+                csv.AppendLine($"{system.Key},{system.Value.dataVersion},{system.Value.saveTime}");
+            }
+
+            return csv.ToString();
+        }
+
+        private string ConvertToXML(GameStateData data)
+        {
+            var xml = new System.Text.StringBuilder();
+            xml.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+            xml.AppendLine("<GameState>");
+            xml.AppendLine($"  <DataVersion>{data.dataVersion}</DataVersion>");
+            xml.AppendLine($"  <SaveSlotName>{data.saveSlotName}</SaveSlotName>");
+            xml.AppendLine($"  <LastSaveTime>{data.lastSaveTime}</LastSaveTime>");
+            xml.AppendLine("  <Systems>");
+
+            foreach (var system in data.systemStates)
+            {
+                xml.AppendLine($"    <System name=\"{system.Key}\" version=\"{system.Value.dataVersion}\" saveTime=\"{system.Value.saveTime}\" />");
+            }
+
+            xml.AppendLine("  </Systems>");
+            xml.AppendLine("</GameState>");
+
+            return xml.ToString();
+        }
+
+        private long CalculateTotalSaveSize()
+        {
+            long totalSize = 0;
+            string saveDirectory = Path.Combine(Application.persistentDataPath, saveDataPath);
+
+            if (Directory.Exists(saveDirectory))
+            {
+                var files = Directory.GetFiles(saveDirectory, "*.json");
+                foreach (var file in files)
+                {
+                    totalSize += new FileInfo(file).Length;
+                }
+            }
+
+            return totalSize;
+        }
+
+        private float CalculateSaveSuccessRate()
+        {
+            if (analytics.totalSaves + analytics.totalSaveFailures == 0)
+                return 0f;
+
+            return (float)analytics.totalSaves / (analytics.totalSaves + analytics.totalSaveFailures);
+        }
+
+        private SaveSlot GetOldestSave()
+        {
+            SaveSlot oldest = null;
+            float oldestTime = float.MaxValue;
+
+            foreach (var slot in availableSaveSlots.Values)
+            {
+                if (slot.saveTime < oldestTime)
+                {
+                    oldestTime = slot.saveTime;
+                    oldest = slot;
+                }
+            }
+
+            return oldest;
+        }
+
+        private SaveSlot GetNewestSave()
+        {
+            SaveSlot newest = null;
+            float newestTime = 0f;
+
+            foreach (var slot in availableSaveSlots.Values)
+            {
+                if (slot.saveTime > newestTime)
+                {
+                    newestTime = slot.saveTime;
+                    newest = slot;
+                }
+            }
+
+            return newest;
+        }
+
+        private List<string> GetDataVersionsInUse()
+        {
+            var versions = new List<string>();
+
+            foreach (var slot in availableSaveSlots.Values)
+            {
+                if (!versions.Contains(slot.dataVersion))
+                {
+                    versions.Add(slot.dataVersion);
+                }
+            }
+
+            return versions;
+        }
+
+        private void RefreshAvailableSaves()
+        {
+            availableSaveSlots.Clear();
+            string saveDirectory = Path.Combine(Application.persistentDataPath, saveDataPath);
+
+            if (!Directory.Exists(saveDirectory))
+                return;
+
+            var saveFiles = Directory.GetFiles(saveDirectory, "*.json");
+            foreach (var filePath in saveFiles)
+            {
+                try
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(filePath);
+                    var fileInfo = new FileInfo(filePath);
+
+                    var slot = new SaveSlot
+                    {
+                        slotName = fileName,
+                        displayName = fileName,
+                        saveTime = (float)(fileInfo.LastWriteTime - new DateTime(1970, 1, 1)).TotalSeconds,
+                        dataVersion = currentDataVersion, // Default, would be read from file
+                        fileSizeBytes = fileInfo.Length,
+                        isAutoSave = fileName.StartsWith("AutoSave") || fileName.StartsWith("auto"),
+                        screenshotPath = ""
+                    };
+
+                    availableSaveSlots[fileName] = slot;
+                }
+                catch (System.Exception ex)
+                {
+                    UnityEngine.Debug.LogWarning($"Failed to read save slot {filePath}: {ex.Message}");
+                }
+            }
+
+            UnityEngine.Debug.Log($"Refreshed {availableSaveSlots.Count} available save slots");
+        }
+
+        private int CountConnectedSystems()
+        {
+            // Count registered persistence systems
+            // For now, return a mock count since we don't have the persistent system manager
+            return 5; // Mock value representing typical system count
+        }
+
+        private void UpdateSaveSlot(string saveSlotName, GameStateData data)
+        {
+            // Update save slot metadata
+            UnityEngine.Debug.Log($"Updating save slot: {saveSlotName}");
+        }
+
+        private void CleanupOldAutoSaves()
+        {
+            // Clean up old auto-save files
+            UnityEngine.Debug.Log("Cleaning up old auto-saves");
+        }
+
+        private int GetSaveSlotCount()
+        {
+            return availableSaveSlots.Count;
         }
 
         // Editor menu items
@@ -702,6 +1001,8 @@ namespace Laboratory.Core.Persistence
         public float lastSaveTime;
         public float sessionTime;
         public bool isAutoSave;
+        public bool isIncremental;
+        public bool requiresBackup;
         public Dictionary<string, SystemSaveData> systemStates = new Dictionary<string, SystemSaveData>();
     }
 

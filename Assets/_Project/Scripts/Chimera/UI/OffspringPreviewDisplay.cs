@@ -47,7 +47,7 @@ namespace Laboratory.Chimera.UI
         
         private void OnSelectClicked()
         {
-            Debug.Log($"Selected offspring preview {previewIndex}");
+            UnityEngine.Debug.Log($"Selected offspring preview {previewIndex}");
         }
         
         public GeneticProfile GetGenetics()

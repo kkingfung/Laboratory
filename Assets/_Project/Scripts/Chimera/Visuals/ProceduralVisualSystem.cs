@@ -125,7 +125,7 @@ namespace Laboratory.Chimera.Visuals
         {
             if (genetics == null)
             {
-                Debug.LogWarning($"{name}: Cannot apply genetic visuals - no genetic profile provided");
+                UnityEngine.Debug.LogWarning($"{name}: Cannot apply genetic visuals - no genetic profile provided");
                 return;
             }
             
@@ -133,11 +133,11 @@ namespace Laboratory.Chimera.Visuals
             string newHash = GenerateGeneticHash(genetics);
             if (newHash == currentVisualHash)
             {
-                if (enableDebugMode) Debug.Log($"{name}: Genetic visuals already up to date");
+                if (enableDebugMode) UnityEngine.Debug.Log($"{name}: Genetic visuals already up to date");
                 return;
             }
             
-            Debug.Log($"🎨 Generating procedural appearance for {name} (Gen {genetics.Generation})");
+            UnityEngine.Debug.Log($"🎨 Generating procedural appearance for {name} (Gen {genetics.Generation})");
             
             try
             {
@@ -180,11 +180,11 @@ namespace Laboratory.Chimera.Visuals
                 currentVisualHash = newHash;
                 isInitialized = true;
                 
-                Debug.Log($"✅ Procedural appearance generated for {name}");
+                UnityEngine.Debug.Log($"✅ Procedural appearance generated for {name}");
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"Failed to generate procedural appearance for {name}: {e.Message}");
+                UnityEngine.Debug.LogError($"Failed to generate procedural appearance for {name}: {e.Message}");
             }
         }
         
@@ -217,7 +217,7 @@ namespace Laboratory.Chimera.Visuals
                 ApplyTraitSpecificChange(traitName, value);
                 
                 if (enableDebugMode)
-                    Debug.Log($"Applied trait change: {traitName} = {value:F2}");
+                    UnityEngine.Debug.Log($"Applied trait change: {traitName} = {value:F2}");
             }
         }
         
@@ -550,7 +550,7 @@ namespace Laboratory.Chimera.Visuals
             patternSystem.GeneratePattern(patternType, patternComplexity);
             
             if (enableDebugMode)
-                Debug.Log($"Generated pattern: {patternType} (complexity: {patternComplexity:F2})");
+                UnityEngine.Debug.Log($"Generated pattern: {patternType} (complexity: {patternComplexity:F2})");
         }
         
         private string DeterminePatternType(GeneticProfile genetics)
@@ -780,7 +780,7 @@ namespace Laboratory.Chimera.Visuals
             availableSystem.Play();
             
             if (enableDebugMode)
-                Debug.Log($"Created magical effect: {magicType} (intensity: {intensity:F2})");
+                UnityEngine.Debug.Log($"Created magical effect: {magicType} (intensity: {intensity:F2})");
         }
         
         private void ConfigureMagicalParticleSystem(ParticleSystem ps, string magicType, float intensity)
@@ -1616,7 +1616,7 @@ namespace Laboratory.Chimera.Visuals
         public void ToggleDebugMode()
         {
             enableDebugMode = !enableDebugMode;
-            Debug.Log($"ProceduralVisualSystem debug mode: {enableDebugMode}");
+            UnityEngine.Debug.Log($"ProceduralVisualSystem debug mode: {enableDebugMode}");
         }
         
         public string GetVisualDebugInfo()

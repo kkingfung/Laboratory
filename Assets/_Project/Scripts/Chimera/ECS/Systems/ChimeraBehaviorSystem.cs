@@ -4,12 +4,12 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Physics;
-using Laboratory.Chimera.ECS.Components;
+using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using UnityEngine;
 using Unity.Burst;
 
-namespace Laboratory.Chimera.ECS.Systems
+namespace Laboratory.Core.ECS.Systems
 {
     /// <summary>
     /// UNIFIED BEHAVIOR SYSTEM - The brain of Project Chimera
@@ -38,7 +38,7 @@ namespace Laboratory.Chimera.ECS.Systems
             _config = Resources.Load<ChimeraUniverseConfiguration>("Configs/ChimeraUniverse");
             if (_config == null)
             {
-                Debug.LogError("ChimeraUniverseConfiguration not found in Resources/Configs/! Creating default...");
+                UnityEngine.Debug.LogError("ChimeraUniverseConfiguration not found in Resources/Configs/! Creating default...");
                 _config = ChimeraUniverseConfiguration.CreateDefault();
             }
 

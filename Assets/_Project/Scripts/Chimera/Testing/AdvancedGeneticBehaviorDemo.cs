@@ -83,7 +83,7 @@ namespace Laboratory.Chimera.Testing
                 CreateDefaultGeneticPresets();
             }
 
-            Debug.Log("[GeneticDemo] Advanced Genetic Behavior Demo initialized!");
+            UnityEngine.Debug.Log("[GeneticDemo] Advanced Genetic Behavior Demo initialized!");
         }
 
         private void CreateDefaultGeneticPresets()
@@ -168,7 +168,7 @@ namespace Laboratory.Chimera.Testing
                 SpawnCreatureWithPreset(i % geneticPresets.Length);
             }
 
-            Debug.Log($"[GeneticDemo] Spawned {numberOfCreatures} creatures with advanced genetic behaviors!");
+            UnityEngine.Debug.Log($"[GeneticDemo] Spawned {numberOfCreatures} creatures with advanced genetic behaviors!");
         }
 
         private void SpawnCreatureWithPreset(int presetIndex)
@@ -220,7 +220,7 @@ namespace Laboratory.Chimera.Testing
             // Configure AI based on genetics
             ConfigureAIFromGenetics(monsterAI, preset);
 
-            Debug.Log($"[GeneticDemo] Created {preset.name} with advanced genetic behaviors");
+            UnityEngine.Debug.Log($"[GeneticDemo] Created {preset.name} with advanced genetic behaviors");
         }
 
         private void AddVisualRepresentation(GameObject creatureGO, int presetIndex)
@@ -321,7 +321,7 @@ namespace Laboratory.Chimera.Testing
                 // Use preset index for cycling behavior
                 currentPresetIndex = (currentPresetIndex + 1) % 5; // Cycle through 5 presets
 
-                Debug.Log($"[GeneticDemo] Switched to scenario: {currentScenario} (Preset {currentPresetIndex})");
+                UnityEngine.Debug.Log($"[GeneticDemo] Switched to scenario: {currentScenario} (Preset {currentPresetIndex})");
             }
         }
 
@@ -566,7 +566,7 @@ namespace Laboratory.Chimera.Testing
                 var integration = creature.GetComponent<GeneticBehaviorIntegration>();
                 if (integration != null)
                 {
-                    Debug.Log($"[BehaviorLog] {creature.name}: {integration.GetComprehensiveBehaviorReport()}");
+                    UnityEngine.Debug.Log($"[BehaviorLog] {creature.name}: {integration.GetComprehensiveBehaviorReport()}");
                 }
             }
         }
@@ -594,7 +594,7 @@ namespace Laboratory.Chimera.Testing
                 var geneticAdapter = randomCreature.GetComponent<GeneticBehaviorAdapter>();
                 geneticAdapter?.RefreshGeneticBehavior();
                 
-                Debug.Log($"[GeneticDemo] Mutated {randomCreature.name} - {randomGene.traitName}: {randomGene.value:F2}");
+                UnityEngine.Debug.Log($"[GeneticDemo] Mutated {randomCreature.name} - {randomGene.traitName}: {randomGene.value:F2}");
             }
         }
 
@@ -615,7 +615,7 @@ namespace Laboratory.Chimera.Testing
             // Respawn creatures
             SpawnTestCreatures();
             
-            Debug.Log("[GeneticDemo] Demo reset complete!");
+            UnityEngine.Debug.Log("[GeneticDemo] Demo reset complete!");
         }
 
         #endregion

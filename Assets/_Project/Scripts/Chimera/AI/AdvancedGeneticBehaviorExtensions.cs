@@ -1,6 +1,7 @@
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Creatures;
+using Laboratory.Core.ECS;
 using System.Collections.Generic;
 using System.Linq;
 

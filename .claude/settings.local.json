@@ -15,7 +15,8 @@
       "WebFetch(domain:game.ci)",
       "Bash(powershell:*)",
       "Read(//c/ProgramData/Unity/**)",
-      "WebFetch(domain:hub.docker.com)"
+      "WebFetch(domain:hub.docker.com)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []
