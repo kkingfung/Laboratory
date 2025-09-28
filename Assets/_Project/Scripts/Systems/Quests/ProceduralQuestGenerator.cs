@@ -667,7 +667,7 @@ namespace Laboratory.Systems.Quests
         }
 
         // Editor menu items
-        [UnityEditor.MenuItem("Laboratory/Quests/Generate Random Quest", false, 200)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Quests/Generate Random Quest", false, 200)]
         private static void MenuGenerateQuest()
         {
             if (Application.isPlaying && Instance != null)
@@ -680,7 +680,7 @@ namespace Laboratory.Systems.Quests
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Quests/Show Quest Analytics", false, 201)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Quests/Show Quest Analytics", false, 201)]
         private static void MenuShowAnalytics()
         {
             if (Application.isPlaying && Instance != null)

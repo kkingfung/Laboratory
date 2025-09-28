@@ -726,7 +726,7 @@ namespace ProjectChimera.Validation
         #region Editor Integration
 
         #if UNITY_EDITOR
-        [MenuItem("🐲 Chimera/Scene Validation/Validate Current Scene")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Scene Validation/Validate Current Scene")]
         public static void ValidateCurrentScene()
         {
             ChimeraSceneValidator validator = FindFirstObjectByType<ChimeraSceneValidator>();
@@ -744,7 +744,7 @@ namespace ProjectChimera.Validation
             }
         }
 
-        [MenuItem("🐲 Chimera/Scene Validation/Auto-Fix Issues")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Scene Validation/Auto-Fix Issues")]
         public static void AutoFixCurrentScene()
         {
             ChimeraSceneValidator validator = FindFirstObjectByType<ChimeraSceneValidator>();
@@ -758,7 +758,7 @@ namespace ProjectChimera.Validation
             }
         }
 
-        [MenuItem("🐲 Chimera/Scene Validation/Add Validator to Scene")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Scene Validation/Add Validator to Scene")]
         public static void AddValidatorToScene()
         {
             if (FindFirstObjectByType<ChimeraSceneValidator>() == null)

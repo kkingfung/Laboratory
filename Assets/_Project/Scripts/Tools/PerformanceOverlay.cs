@@ -1,14 +1,15 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Laboratory.Core.Performance;
 
-namespace Laboratory.Infrastructure.Tools
+namespace Laboratory.Tools
 {
     /// <summary>
     /// Performance monitoring overlay that displays real-time performance metrics
     /// including frames per second (FPS), frame time, and memory usage.
     /// Automatically updates the UI with smoothed performance data.
     /// </summary>
-    public class PerformanceOverlay : MonoBehaviour
+    public class PerformanceOverlay : OptimizedMonoBehaviour
     {
         #region Serialized Fields
 
@@ -79,16 +80,21 @@ namespace Laboratory.Infrastructure.Tools
         /// <summary>
         /// Validates component references and initializes the overlay.
         /// </summary>
-        private void Start()
+        protected override void Start()
         {
+            base.Start(); // Register for optimized updates
+
             ValidateComponents();
             InitializeDisplay();
+
+            // Performance overlay doesn't need frequent updates
+            updateFrequency = OptimizedUpdateManager.UpdateFrequency.LowFrequency;
         }
 
         /// <summary>
         /// Updates performance metrics and refreshes the display.
         /// </summary>
-        private void Update()
+        public override void OnOptimizedUpdate(float deltaTime)
         {
             UpdatePerformanceMetrics();
             RefreshDisplay();

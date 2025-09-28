@@ -24,7 +24,7 @@ namespace Laboratory.AI.Tools
         private List<EnemyController> enemyControllers = new List<EnemyController>();
         private List<GameObject> objectsToMigrate = new List<GameObject>();
 
-        [MenuItem("Laboratory/AI Tools/Migration Utility")]
+        [MenuItem("🧪 Laboratory/AI/Migration Utility")]
         public static void ShowWindow()
         {
             GetWindow<AIMigrationUtility>("AI Migration Utility");
@@ -475,7 +475,7 @@ namespace Laboratory.AI.Tools
         private float avgPathCalculationTime;
         private int pathsCalculatedLastSecond;
         
-        [MenuItem("Laboratory/AI Tools/Performance Monitor")]
+        [MenuItem("🧪 Laboratory/AI/Performance Monitor")]
         public static void ShowWindow()
         {
             GetWindow<PathfindingPerformanceMonitor>("Pathfinding Performance Monitor");

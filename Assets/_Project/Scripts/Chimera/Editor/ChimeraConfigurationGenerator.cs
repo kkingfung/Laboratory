@@ -19,13 +19,13 @@ namespace Laboratory.Chimera.Editor
         private bool _overwriteExisting = false;
         private string _configAssetName = "ChimeraUniverse";
 
-        [MenuItem("Window/Project Chimera/Generate Configuration Assets")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Windows/Generate Configuration Assets")]
         public static void ShowWindow()
         {
             GetWindow<ChimeraConfigurationGenerator>("Chimera Config Generator");
         }
 
-        [MenuItem("Assets/Create/Project Chimera/Default Universe Configuration")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Assets/Default Universe Configuration")]
         public static void CreateDefaultConfiguration()
         {
             CreateChimeraUniverseConfiguration("ChimeraUniverse", true);
@@ -226,7 +226,7 @@ namespace Laboratory.Chimera.Editor
             Debug.Log($"✅ Created creature visualization prefab at: {creaturePrefabPath}");
         }
 
-        [MenuItem("Assets/Create/Project Chimera/Testing Scene")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Assets/Testing Scene")]
         public static void CreateTestingScene()
         {
             // Create a new scene for testing

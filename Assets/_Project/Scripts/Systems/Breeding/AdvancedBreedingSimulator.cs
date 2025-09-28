@@ -666,7 +666,7 @@ namespace Laboratory.Systems.Breeding
         }
 
         // Editor menu items
-        [UnityEditor.MenuItem("Laboratory/Breeding/Show Breeding Simulator", false, 400)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Breeding/Show Breeding Simulator", false, 400)]
         private static void MenuShowBreedingSimulator()
         {
             if (Application.isPlaying && Instance != null)
@@ -676,7 +676,7 @@ namespace Laboratory.Systems.Breeding
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Breeding/Get Breeding Recommendations", false, 401)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Breeding/Get Breeding Recommendations", false, 401)]
         private static void MenuGetRecommendations()
         {
             if (Application.isPlaying && Instance != null)

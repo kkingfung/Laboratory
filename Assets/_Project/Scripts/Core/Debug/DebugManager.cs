@@ -507,7 +507,7 @@ namespace Laboratory.Core.Debug
         }
 
         // Menu item for quick access
-        [UnityEditor.MenuItem("Laboratory/Debug/Toggle Debug Console")]
+        [UnityEditor.MenuItem("🧪 Laboratory/Debug/Toggle Debug Console")]
         private static void ToggleDebugConsole()
         {
             if (Application.isPlaying && Instance?.debugConsole != null)
@@ -520,7 +520,7 @@ namespace Laboratory.Core.Debug
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Debug/Create Debug Manager")]
+        [UnityEditor.MenuItem("🧪 Laboratory/Debug/Create Debug Manager")]
         private static void CreateDebugManager()
         {
             GameObject debugManagerGO = new GameObject("Debug Manager");

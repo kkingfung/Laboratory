@@ -48,7 +48,7 @@ namespace Laboratory.Editor
         private Color pickupColor = Color.yellow;
         private Color interactableColor = Color.blue;
 
-        [MenuItem("Laboratory/Level Designer")]
+        [MenuItem("🧪 Laboratory/Tools/Level Designer")]
         public static void ShowWindow()
         {
             LevelDesignerWindow window = GetWindow<LevelDesignerWindow>("Level Designer");

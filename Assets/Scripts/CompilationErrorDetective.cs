@@ -437,7 +437,7 @@ namespace ProjectChimera.ErrorFixing
         #region Editor Menu Items
 
         #if UNITY_EDITOR
-        [MenuItem("🐲 Chimera/Error Detection/Run Full Diagnosis")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Error Detection/Run Full Diagnosis")]
         public static void RunFullDiagnosis()
         {
             var detective = FindFirstObjectByType<CompilationErrorDetective>();
@@ -450,14 +450,14 @@ namespace ProjectChimera.ErrorFixing
             detective.DetectCompilationIssues();
         }
 
-        [MenuItem("🐲 Chimera/Error Detection/Check Missing Packages")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Error Detection/Check Missing Packages")]
         public static void MenuCheckMissingPackages()
         {
             var detective = new CompilationErrorDetective();
             detective.CheckMissingPackages();
         }
 
-        [MenuItem("🐲 Chimera/Error Detection/Clear Console")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Error Detection/Clear Console")]
         public static void ClearConsole()
         {
             var logEntries = System.Type.GetType("UnityEditor.LogEntries,UnityEditor.dll");

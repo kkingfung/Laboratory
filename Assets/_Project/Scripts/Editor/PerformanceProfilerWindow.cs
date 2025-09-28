@@ -44,7 +44,7 @@ namespace Laboratory.Editor
             public List<string> warnings = new List<string>();
         }
 
-        [MenuItem("Laboratory/Performance Profiler")]
+        [MenuItem("🧪 Laboratory/Performance/Performance Profiler")]
         public static void ShowWindow()
         {
             PerformanceProfilerWindow window = GetWindow<PerformanceProfilerWindow>("Performance Profiler");

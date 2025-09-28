@@ -494,7 +494,7 @@ namespace Laboratory.Systems.Analytics
         }
 
         // Editor menu items
-        [UnityEditor.MenuItem("Laboratory/Analytics/Show Player Behavior Analysis", false, 500)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Analytics/Show Player Behavior Analysis", false, 500)]
         private static void MenuShowBehaviorAnalysis()
         {
             if (Application.isPlaying && Instance != null)
@@ -508,7 +508,7 @@ namespace Laboratory.Systems.Analytics
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Analytics/Show Session Analytics", false, 501)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Analytics/Show Session Analytics", false, 501)]
         private static void MenuShowSessionAnalytics()
         {
             if (Application.isPlaying && Instance != null)
@@ -525,7 +525,7 @@ namespace Laboratory.Systems.Analytics
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Analytics/Trigger Test Adaptation", false, 502)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Analytics/Trigger Test Adaptation", false, 502)]
         private static void MenuTriggerTestAdaptation()
         {
             if (Application.isPlaying && Instance != null)

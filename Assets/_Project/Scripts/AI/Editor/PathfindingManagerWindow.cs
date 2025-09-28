@@ -22,7 +22,7 @@ namespace Laboratory.AI.Editor
         private string testAgentCount = "10";
         private string testDuration = "30";
 
-        [MenuItem("Laboratory/AI/Pathfinding Manager")]
+        [MenuItem("🧪 Laboratory/AI/Pathfinding Manager")]
         public static void ShowWindow()
         {
             PathfindingManagerWindow window = GetWindow<PathfindingManagerWindow>();

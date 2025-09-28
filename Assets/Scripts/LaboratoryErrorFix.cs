@@ -307,7 +307,7 @@ namespace Laboratory.AI
         #region Editor Menu Items
 
         #if UNITY_EDITOR
-        [MenuItem("🐲 Chimera/Laboratory Fix/Fix All Laboratory Errors")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Fix/Fix All Laboratory Errors")]
         public static void MenuFixAllLaboratoryErrors()
         {
             var fixer = FindFirstObjectByType<LaboratoryErrorFix>();
@@ -320,14 +320,14 @@ namespace Laboratory.AI
             fixer.FixAllLaboratoryErrors();
         }
 
-        [MenuItem("🐲 Chimera/Laboratory Fix/Create Fixed PathfindingSystemSetup")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Fix/Create Fixed PathfindingSystemSetup")]
         public static void MenuCreateFixedPathfindingSystemSetup()
         {
             var fixer = new LaboratoryErrorFix();
             fixer.CreateFixedPathfindingSystemSetup();
         }
 
-        [MenuItem("🐲 Chimera/Laboratory Fix/List Backup Files")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Fix/List Backup Files")]
         public static void MenuListBackupFiles()
         {
             Debug.Log("🔍 Searching for .bak files...");
@@ -357,7 +357,7 @@ namespace Laboratory.AI
             }
         }
 
-        [MenuItem("🐲 Chimera/Laboratory Fix/Force Refresh Assets")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Fix/Force Refresh Assets")]
         public static void MenuForceRefreshAssets()
         {
             Debug.Log("🔄 Force refreshing assets...");

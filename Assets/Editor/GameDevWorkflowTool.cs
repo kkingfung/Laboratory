@@ -38,7 +38,7 @@ namespace Laboratory.Editor.Tools
 
         #region Unity Editor Window
 
-        [MenuItem("⚡ Laboratory/GameDev Workflow")]
+        [MenuItem("🧪 Laboratory/Workflow/GameDev Tools")]
         public static void ShowWindow()
         {
             GetWindow<GameDevWorkflowTool>("GameDev Workflow");

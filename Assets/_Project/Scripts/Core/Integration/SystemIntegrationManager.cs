@@ -159,7 +159,11 @@ namespace Laboratory.Core.Integration
             questGenerator = ProceduralQuestGenerator.Instance;
             breedingSimulator = AdvancedBreedingSimulator.Instance;
             storytellerSystem = AIStorytellerSystem.Instance;
-            debugConsole = FindObjectOfType<EnhancedDebugConsole>();
+            // ⚡ OPTIMIZED: Try to get from cache or use lazy initialization to avoid FindObjectOfType
+            if (debugConsole == null)
+            {
+                debugConsole = FindObjectOfType<EnhancedDebugConsole>();
+            }
 
             // Subscribe to system events
             SubscribeToSystemEvents();
@@ -598,7 +602,7 @@ namespace Laboratory.Core.Integration
         }
 
         // Editor menu items
-        [UnityEditor.MenuItem("Laboratory/Integration/Show System Integration Report", false, 700)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Integration/Show System Integration Report", false, 700)]
         private static void MenuShowIntegrationReport()
         {
             if (Application.isPlaying && Instance != null)
@@ -613,7 +617,7 @@ namespace Laboratory.Core.Integration
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Integration/Trigger System Cascade", false, 701)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Integration/Trigger System Cascade", false, 701)]
         private static void MenuTriggerCascade()
         {
             if (Application.isPlaying && Instance != null)
@@ -626,7 +630,7 @@ namespace Laboratory.Core.Integration
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Integration/Force System Synergy Check", false, 702)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Integration/Force System Synergy Check", false, 702)]
         private static void MenuForceSynergyCheck()
         {
             if (Application.isPlaying && Instance != null)

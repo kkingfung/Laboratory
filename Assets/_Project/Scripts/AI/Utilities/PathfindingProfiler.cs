@@ -211,7 +211,7 @@ namespace Laboratory.AI.Utilities
         }
         
         #if UNITY_EDITOR
-        [UnityEditor.MenuItem("🐲 Chimera/Laboratory Fix/Create PathfindingProfiler")]
+        [UnityEditor.MenuItem("🧪 Laboratory/AI/Create PathfindingProfiler")]
         public static void CreatePathfindingProfiler()
         {
             GameObject profilerGO = new GameObject("PathfindingProfiler");

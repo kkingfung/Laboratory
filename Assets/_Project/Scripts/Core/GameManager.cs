@@ -3,6 +3,7 @@ using UnityEngine.SceneManagement;
 using Laboratory.Core.DI;
 using Laboratory.Core.Events;
 using Laboratory.Core.State;
+using Laboratory.Core.Performance;
 
 namespace Laboratory.Core
 {
@@ -10,7 +11,7 @@ namespace Laboratory.Core
     /// Central game manager that coordinates all major game systems and handles
     /// game state transitions, scoring, and overall game flow for 3D action game.
     /// </summary>
-    public class GameManager : MonoBehaviour
+    public class GameManager : OptimizedMonoBehaviour
     {
         [Header("Game Settings")]
         [SerializeField] private int maxLives = 3;
@@ -89,9 +90,11 @@ namespace Laboratory.Core
             }
 
             playerLives = maxLives;
+            // Set to low frequency since GameManager doesn't need frequent updates
+            updateFrequency = OptimizedUpdateManager.UpdateFrequency.LowFrequency;
         }
 
-        private void Start()
+        protected override void Start()
         {
             // Subscribe to player events
             SubscribeToEvents();
@@ -100,18 +103,18 @@ namespace Laboratory.Core
             StartGame();
         }
 
-        private void Update()
+        public override void OnOptimizedUpdate(float deltaTime)
         {
             if (isGameActive)
             {
-                gameTime += Time.deltaTime;
+                gameTime += deltaTime;
                 CheckWinCondition();
             }
 
             HandleDebugInput();
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
             UnsubscribeFromEvents();
         }

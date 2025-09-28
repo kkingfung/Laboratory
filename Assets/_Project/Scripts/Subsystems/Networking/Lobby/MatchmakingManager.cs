@@ -253,6 +253,9 @@ namespace Laboratory.Gameplay.Lobby
                 _currentAllocationId = System.Guid.NewGuid().ToString();
                 _currentJoinCode = "FALLBACK_" + UnityEngine.Random.Range(1000, 9999).ToString();
 
+                // Simulate async delay for consistency with the real Relay implementation
+                await UniTask.Delay(100);
+
                 // Create a mock allocation object for the rest of the code
                 var allocation = new MockRelayAllocation
                 {

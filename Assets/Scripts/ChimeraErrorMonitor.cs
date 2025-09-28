@@ -547,7 +547,7 @@ namespace ProjectChimera.ErrorHandling
         #region Editor Menu Items
 
         #if UNITY_EDITOR
-        [MenuItem("🐲 Chimera/Error Monitor/Show Recent Errors")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Error Monitor/Show Recent Errors")]
         public static void ShowRecentErrors()
         {
             if (Instance != null)
@@ -562,7 +562,7 @@ namespace ProjectChimera.ErrorHandling
             }
         }
 
-        [MenuItem("🐲 Chimera/Error Monitor/Export Error Report")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Error Monitor/Export Error Report")]
         public static void ExportErrorReportMenu()
         {
             if (Instance != null)
@@ -571,7 +571,7 @@ namespace ProjectChimera.ErrorHandling
             }
         }
 
-        [MenuItem("🐲 Chimera/Error Monitor/Clear Error History")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Error Monitor/Clear Error History")]
         public static void ClearErrorHistoryMenu()
         {
             if (Instance != null)
@@ -580,7 +580,7 @@ namespace ProjectChimera.ErrorHandling
             }
         }
 
-        [MenuItem("🐲 Chimera/Error Monitor/Open Log Folder")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Error Monitor/Open Log Folder")]
         public static void OpenLogFolder()
         {
             string logPath = Path.Combine(Application.persistentDataPath, "ChimeraLogs");

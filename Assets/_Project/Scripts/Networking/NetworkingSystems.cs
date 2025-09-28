@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
+using Unity.Burst;
 using Laboratory.AI.ECS;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.AI;
@@ -127,6 +128,7 @@ namespace Laboratory.Networking
 
     // Network AI state synchronization system
     [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [BurstCompile]
     public partial class NetworkAISyncSystem : SystemBase
     {
         private EntityQuery _networkedAIQuery;
@@ -151,22 +153,28 @@ namespace Laboratory.Networking
                 _aiStateSystem = World.GetExistingSystemManaged<UnifiedAIStateSystem>();
             }
 
-            // Sync AI states to network components (simplified for non-NetCode)
+            // Sync AI states to network components (Burst-optimized)
             Entities
                 .WithAll<NetworkedAIStateComponent>()
                 .ForEach((Entity entity, ref NetworkedAIStateComponent networked) =>
                 {
-                    // Simplified sync logic without accessing other components directly in ForEach
-                    // Only sync if enough time has passed
-                    bool shouldSync = currentTime - networked.lastSyncTime > GetSyncInterval(networked.networkPriority);
+                    // Inlined sync interval calculation for Burst compatibility
+                    float syncInterval = networked.networkPriority switch
+                    {
+                        >= 8 => 0.05f,  // High priority: 20 Hz
+                        >= 5 => 0.1f,   // Medium priority: 10 Hz
+                        >= 2 => 0.2f,   // Low priority: 5 Hz
+                        _ => 0.5f       // Very low priority: 2 Hz
+                    };
+
+                    bool shouldSync = currentTime - networked.lastSyncTime > syncInterval;
 
                     if (shouldSync)
                     {
                         networked.lastSyncTime = currentTime;
-                        // Simplified state update - would need proper state tracking
                         networked.stateVersion++;
                     }
-                }).WithoutBurst().Run();
+                }).Run(); // Burst compilation enabled!
         }
 
         private float GetSyncInterval(byte priority)
@@ -183,6 +191,7 @@ namespace Laboratory.Networking
 
     // Network pathfinding synchronization system
     [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [BurstCompile]
     public partial class NetworkPathfindingSyncSystem : SystemBase
     {
         private EntityQuery _networkedPathfindingQuery;
@@ -199,19 +208,19 @@ namespace Laboratory.Networking
 
         protected override void OnUpdate()
         {
-            // Sync pathfinding states (simplified implementation)
+            // Sync pathfinding states (Burst-optimized)
             Entities
                 .WithAll<NetworkedPathfindingComponent>()
                 .ForEach((Entity entity, ref NetworkedPathfindingComponent networked) =>
                 {
-                    // Simplified pathfinding sync - would need proper state tracking
+                    // Simplified pathfinding sync - Burst compatible
                     if (networked.needsResync)
                     {
                         networked.pathVersion++;
                         networked.needsResync = false;
                         networked.pathProgress = 0f;
                     }
-                }).WithoutBurst().Run();
+                }).Run(); // Burst compilation enabled!
         }
 
         private float CalculatePathProgress(Entity entity, PathfindingComponent pathfinding)
@@ -230,6 +239,7 @@ namespace Laboratory.Networking
 
     // Network genetics synchronization system
     [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [BurstCompile]
     public partial class NetworkGeneticsSyncSystem : SystemBase
     {
         private EntityQuery _networkedGeneticsQuery;
@@ -246,18 +256,22 @@ namespace Laboratory.Networking
 
         protected override void OnUpdate()
         {
-            // Sync genetics data (simplified implementation)
+            // Sync genetics data (Burst-optimized)
+            var currentTime = (float)SystemAPI.Time.ElapsedTime;
+            var randomSeed = (uint)(currentTime * 1000) + 1;
+            var random = Unity.Mathematics.Random.CreateFromIndex(randomSeed);
+
             Entities
                 .WithAll<NetworkedGeneticsComponent>()
                 .ForEach((Entity entity, ref NetworkedGeneticsComponent networked) =>
                 {
-                    // Simplified genetics sync - would need proper genetic data access
+                    // Burst-compatible genetics sync using Unity.Mathematics.Random
                     if (networked.geneticHash == 0)
                     {
-                        networked.geneticHash = (uint)UnityEngine.Random.Range(1000, 9999);
+                        networked.geneticHash = (uint)random.NextInt(1000, 9999);
                         networked.geneticVersion++;
                     }
-                }).WithoutBurst().Run();
+                }).Run(); // Burst compilation enabled!
         }
 
         private uint CalculateGeneticHash(Laboratory.Chimera.ECS.CreatureGeneticsComponent genetics)

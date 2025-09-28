@@ -4,7 +4,7 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Laboratory.Infrastructure.Tools
+namespace Laboratory.Tools
 {
     /// <summary>
     /// In-game debug console that displays logs and accepts input commands.

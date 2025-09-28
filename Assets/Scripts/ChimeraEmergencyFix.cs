@@ -350,7 +350,7 @@ namespace ProjectChimera.EmergencyFix
         #region Editor Menu Items
 
         #if UNITY_EDITOR
-        [MenuItem("🐲 Chimera/Emergency Fix/Run Full Emergency Fix")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Emergency Fix/Run Full Emergency Fix")]
         public static void RunFullEmergencyFix()
         {
             var fixer = FindFirstObjectByType<ChimeraEmergencyFix>();
@@ -363,7 +363,7 @@ namespace ProjectChimera.EmergencyFix
             fixer.RunEmergencyFix();
         }
 
-        [MenuItem("🐲 Chimera/Emergency Fix/Create Essential Objects")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Emergency Fix/Create Essential Objects")]
         public static void CreateEssentialObjects()
         {
             var fixer = new ChimeraEmergencyFix();
@@ -372,14 +372,14 @@ namespace ProjectChimera.EmergencyFix
             fixer.CreateMissingEssentials();
         }
 
-        [MenuItem("🐲 Chimera/Emergency Fix/Add Missing Tags")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Emergency Fix/Add Missing Tags")]
         public static void MenuAddMissingTags()
         {
             var fixer = new ChimeraEmergencyFix();
             fixer.AddMissingTags();
         }
 
-        [MenuItem("🐲 Chimera/Emergency Fix/Validate Scene")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Emergency Fix/Validate Scene")]
         public static void ValidateScene()
         {
             var fixer = new ChimeraEmergencyFix();

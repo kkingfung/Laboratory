@@ -18,7 +18,7 @@ namespace Laboratory.Editor.Debug
         private float refreshRate = 1f;
         private double lastRefreshTime;
 
-        [MenuItem("Laboratory/Debug/Debug Console Window")]
+        [MenuItem("🧪 Laboratory/Debug/Console Window")]
         public static void ShowWindow()
         {
             var window = GetWindow<DebugConsoleEditorWindow>("Debug Console");

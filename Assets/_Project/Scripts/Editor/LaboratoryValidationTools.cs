@@ -15,7 +15,7 @@ namespace Laboratory.Editor
     /// </summary>
     public static class LaboratoryValidationTools
     {
-        private const string MenuRoot = "Laboratory/Validation/";
+        private const string MenuRoot = "🧪 Laboratory/Validation/";
 
         #region Validation Menu Items
 

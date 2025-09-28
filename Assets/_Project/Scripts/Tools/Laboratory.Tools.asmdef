@@ -2,7 +2,8 @@
     "name": "Laboratory.Tools",
     "rootNamespace": "Laboratory.Tools",
     "references": [
-        "Unity.Mathematics"
+        "Unity.Mathematics",
+        "GUID:26c858a044ea8e443864d1208306534e"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

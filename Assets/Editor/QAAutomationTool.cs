@@ -32,7 +32,7 @@ namespace Laboratory.Editor.Tools
 
         #region Unity Editor Window
 
-        [MenuItem("🛠️ Laboratory/QA Automation")]
+        [MenuItem("🧪 Laboratory/Quality/QA Automation")]
         public static void ShowWindow()
         {
             GetWindow<QAAutomationTool>("QA Automation");
@@ -104,7 +104,7 @@ namespace Laboratory.Editor.Tools
             if (isRunningTests)
             {
                 var progress = totalTests > 0 ? (float)testsCompleted / totalTests : 0f;
-                EditorGUILayout.LabelField($"⏳ Running tests... {testsCompleted}/{totalTests}", EditorStyles.helpBox);
+                EditorGUILayout.LabelField($"⏳ Running tests... {testsCompleted}/{totalTests}", GUI.skin.box);
                 EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(), progress, $"{progress:P0}");
             }
         }
@@ -170,7 +170,7 @@ namespace Laboratory.Editor.Tools
 
                 if (check.Status == QAStatus.Failed && !string.IsNullOrEmpty(check.ErrorMessage))
                 {
-                    EditorGUILayout.LabelField(check.ErrorMessage, EditorStyles.wordWrappedMiniLabel);
+                    EditorGUILayout.LabelField(check.ErrorMessage, GUI.skin.label);
                 }
 
                 if (GUILayout.Button("▶️", GUILayout.Width(30)))

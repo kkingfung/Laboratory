@@ -591,25 +591,25 @@ public static class BuildScript
 
     #region Menu Items & Utility Methods
 
-    [MenuItem("🐲 Chimera Build/Build Windows 64-bit")]
+    [MenuItem("🧪 Laboratory/Build/Windows 64-bit")]
     public static void BuildWindows64()
     {
         BuildProject(null, null, BuildTarget.StandaloneWindows64);
     }
 
-    [MenuItem("🐲 Chimera Build/Build Linux 64-bit")]
+    [MenuItem("🧪 Laboratory/Build/Linux 64-bit")]
     public static void BuildLinux64()
     {
         BuildProject(null, null, BuildTarget.StandaloneLinux64);
     }
 
-    [MenuItem("🐲 Chimera Build/Build macOS")]
+    [MenuItem("🧪 Laboratory/Build/macOS")]
     public static void BuildMacOS()
     {
         BuildProject(null, null, BuildTarget.StandaloneOSX);
     }
 
-    [MenuItem("🐲 Chimera Build/Build All Platforms")]
+    [MenuItem("🧪 Laboratory/Build/All Platforms")]
     public static void BuildAllPlatforms()
     {
         Debug.Log("🏗️ Starting multi-platform build for Project Chimera...");
@@ -647,14 +647,14 @@ public static class BuildScript
         }
     }
 
-    [MenuItem("🐲 Chimera Build/Quick Development Build")]
+    [MenuItem("🧪 Laboratory/Build/Quick Development")]
     public static void QuickDevelopmentBuild()
     {
         EditorUserBuildSettings.development = true;
         BuildProject("Builds/Development", $"{PROJECT_NAME}-Dev.exe", BuildTarget.StandaloneWindows64);
     }
     
-    [MenuItem("🐲 Chimera Build/Validate Project Settings")]
+    [MenuItem("🧪 Laboratory/Build/Validate Settings")]
     public static void ValidateProjectSettings()
     {
         Debug.Log("🔍 Validating Project Chimera settings...");
@@ -719,7 +719,7 @@ public static class BuildScript
         Debug.Log("✅ Project Chimera validation complete!");
     }
 
-    [MenuItem("🐲 Chimera Build/Open Build Folder")]
+    [MenuItem("🧪 Laboratory/Build/Open Build Folder")]
     public static void OpenBuildFolder()
     {
         string buildPath = Path.GetFullPath(BUILD_FOLDER);

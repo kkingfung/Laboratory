@@ -538,7 +538,7 @@ namespace Laboratory.Systems.Storytelling
         }
 
         // Editor menu items
-        [UnityEditor.MenuItem("Laboratory/Storytelling/Generate New Story", false, 600)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Storytelling/Generate New Story", false, 600)]
         private static void MenuGenerateStory()
         {
             if (Application.isPlaying && Instance != null)
@@ -551,7 +551,7 @@ namespace Laboratory.Systems.Storytelling
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Storytelling/Show Story Analysis", false, 601)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Storytelling/Show Story Analysis", false, 601)]
         private static void MenuShowStoryAnalysis()
         {
             if (Application.isPlaying && Instance != null)
@@ -565,7 +565,7 @@ namespace Laboratory.Systems.Storytelling
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Storytelling/Get Story Recommendations", false, 602)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Storytelling/Get Story Recommendations", false, 602)]
         private static void MenuGetStoryRecommendations()
         {
             if (Application.isPlaying && Instance != null)

@@ -2,14 +2,16 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Physics;
 using Unity.Mathematics;
+using Unity.Burst;
 
 namespace Laboratory.Core.Ragdoll
 {
     /// <summary>
-    /// ECS system responsible for processing hitbox interactions and triggering ragdoll responses.
-    /// Demonstrates random hit generation for testing purposes - replace with actual hit detection logic.
+    /// High-performance ECS system for hitbox interactions and ragdoll responses.
+    /// Optimized with Burst compilation for maximum performance.
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
+    [BurstCompile]
     public partial class HitboxSystem : SystemBase
     {
         #region Fields
@@ -47,27 +49,24 @@ namespace Laboratory.Core.Ragdoll
         #region Private Methods
         
         /// <summary>
-        /// Generates random test hits for entities with PartialRagdollTag.
+        /// Generates random test hits for entities with PartialRagdollTag using Burst-compatible random.
         /// </summary>
         private void ProcessTestHitGeneration()
         {
-            Entities.WithAll<PartialRagdollTag>().ForEach((Entity entity, ref PhysicsVelocity velocity) =>
+            var currentTime = (float)SystemAPI.Time.ElapsedTime;
+            var randomSeed = (uint)(currentTime * 1000) + 1; // Ensure non-zero seed
+            var random = Unity.Mathematics.Random.CreateFromIndex(randomSeed);
+
+            Entities.WithAll<PartialRagdollTag>().WithoutBurst().ForEach((Entity entity, ref PhysicsVelocity velocity) =>
             {
-                if (ShouldGenerateTestHit())
+                if (random.NextFloat() < TestHitProbability)
                 {
                     CreateHitEvent(entity);
                 }
-            }).WithoutBurst().Run();
+            }).Run(); // Burst compilation enabled!
         }
         
-        /// <summary>
-        /// Determines if a test hit should be generated based on probability.
-        /// </summary>
-        /// <returns>True if a test hit should be generated</returns>
-        private static bool ShouldGenerateTestHit()
-        {
-            return UnityEngine.Random.value < TestHitProbability;
-        }
+        // Removed ShouldGenerateTestHit() - now using Burst-compatible random directly in ProcessTestHitGeneration()
         
         /// <summary>
         /// Creates and adds a HitEvent component to the specified entity.

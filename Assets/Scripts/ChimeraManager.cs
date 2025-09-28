@@ -774,7 +774,7 @@ namespace ProjectChimera.Core
         #region Editor Utilities
 
         #if UNITY_EDITOR
-        [MenuItem("🐲 Chimera/Force System Check")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Force System Check")]
         public static void ForceSystemCheck()
         {
             if (Instance != null)
@@ -787,7 +787,7 @@ namespace ProjectChimera.Core
             }
         }
 
-        [MenuItem("🐲 Chimera/Emergency Cleanup")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Emergency Cleanup")]
         public static void ForceEmergencyCleanup()
         {
             if (Instance != null)
@@ -800,7 +800,7 @@ namespace ProjectChimera.Core
             }
         }
 
-        [MenuItem("🐲 Chimera/Restart All Systems")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Restart All Systems")]
         public static void RestartAllSystems()
         {
             if (Instance != null)

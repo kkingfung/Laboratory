@@ -3,6 +3,7 @@ using Unity.Entities;
 using Laboratory.Core.Health;
 using Laboratory.Core.Events;
 using Laboratory.Core.Systems;
+using Laboratory.Core.Performance;
 using System;
 
 namespace Laboratory.Subsystems.Player
@@ -13,7 +14,7 @@ namespace Laboratory.Subsystems.Player
     /// </summary>
     [RequireComponent(typeof(CharacterController))]
     [RequireComponent(typeof(Animator))]
-    public class PlayerController : MonoBehaviour, IHealthComponent
+    public class PlayerController : MonoBehaviour, IHealthComponent, IOptimizedUpdate
     {
         [Header("Movement Settings")]
         [SerializeField] private float moveSpeed = 5f;
@@ -49,7 +50,6 @@ namespace Laboratory.Subsystems.Player
 
         // Performance optimization: cache ground check to reduce Physics calls
         private float lastGroundCheckTime;
-        private float groundCheckInterval = 0.1f; // Check ground 10 times per second instead of every frame
 
         #region IHealthComponent Implementation
 
@@ -126,30 +126,60 @@ namespace Laboratory.Subsystems.Player
             animator = GetComponent<Animator>();
             playerCamera = UnityEngine.Camera.main;
             audioSource = GetComponent<AudioSource>();
-            
+
             currentHealth = maxHealth;
+        }
+
+        private void Start()
+        {
+            // Register for optimized updates for non-critical systems (ground check, animations)
+            OptimizedUpdateManager.Instance.RegisterSystem(this, OptimizedUpdateManager.UpdateFrequency.HighFrequency);
+        }
+
+        private void OnDestroy()
+        {
+            OptimizedUpdateManager.Instance.UnregisterSystem(this);
         }
 
         private void Update()
         {
+            // Keep critical input handling in Update() for responsiveness
             HandleMovement();
             HandleCombat();
             HandleInteraction();
+            // Note: Animation and ground check moved to OnOptimizedUpdate
+        }
+
+        public void OnOptimizedUpdate(float deltaTime)
+        {
+            // Non-critical systems can update at lower frequency
+            UpdateGroundCheck();
             UpdateAnimations();
+        }
+
+        public void OnRegistered(OptimizedUpdateManager.UpdateFrequency frequency)
+        {
+            // Optional callback when registered
+        }
+
+        public void OnUnregistered()
+        {
+            // Optional callback when unregistered
         }
 
         #endregion
 
         #region Movement
 
+        private void UpdateGroundCheck()
+        {
+            // Ground check moved to optimized update for better performance
+            isGrounded = Physics.CheckSphere(transform.position, groundCheckDistance, groundMask);
+        }
+
         private void HandleMovement()
         {
-            // Performance optimized ground check - only check every groundCheckInterval seconds
-            if (Time.time - lastGroundCheckTime >= groundCheckInterval)
-            {
-                isGrounded = Physics.CheckSphere(transform.position, groundCheckDistance, groundMask);
-                lastGroundCheckTime = Time.time;
-            }
+            // Ground check is now handled in OnOptimizedUpdate
 
             if (isGrounded && velocity.y < 0)
             {

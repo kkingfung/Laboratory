@@ -44,7 +44,7 @@ namespace Laboratory.Editor.Tools
 
         #region Unity Editor Window
 
-        [MenuItem("🚀 Laboratory/Performance Auditor")]
+        [MenuItem("🧪 Laboratory/Performance/Performance Auditor")]
         public static void ShowWindow()
         {
             GetWindow<PerformanceAuditorTool>("Performance Auditor");
@@ -98,7 +98,7 @@ namespace Laboratory.Editor.Tools
 
             if (isScanning)
             {
-                EditorGUILayout.LabelField($"⏳ Scanning... {totalFilesScanned} files processed", EditorStyles.helpBox);
+                EditorGUILayout.LabelField($"⏳ Scanning... {totalFilesScanned} files processed", GUI.skin.box);
                 EditorUtility.DisplayProgressBar("Performance Scan", $"Processing files...", 0.5f);
             }
         }
@@ -107,7 +107,7 @@ namespace Laboratory.Editor.Tools
         {
             if (detectedIssues.Count == 0)
             {
-                EditorGUILayout.LabelField("✅ No performance issues detected or scan not run yet.", EditorStyles.helpBox);
+                EditorGUILayout.LabelField("✅ No performance issues detected or scan not run yet.", GUI.skin.box);
                 return;
             }
 
@@ -138,7 +138,7 @@ namespace Laboratory.Editor.Tools
             var originalColor = GUI.backgroundColor;
             GUI.backgroundColor = bgColor;
 
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.BeginVertical(GUI.skin.box);
             {
                 GUI.backgroundColor = originalColor;
 
@@ -154,8 +154,8 @@ namespace Laboratory.Editor.Tools
                 EditorGUILayout.EndHorizontal();
 
                 EditorGUILayout.LabelField($"File: {Path.GetFileName(issue.FilePath)}:{issue.LineNumber}");
-                EditorGUILayout.LabelField($"Code: {issue.CodeSnippet}", EditorStyles.wordWrappedLabel);
-                EditorGUILayout.LabelField($"💡 Fix: {issue.Pattern.Suggestion}", EditorStyles.wordWrappedMiniLabel);
+                EditorGUILayout.LabelField($"Code: {issue.CodeSnippet}", GUI.skin.label);
+                EditorGUILayout.LabelField($"💡 Fix: {issue.Pattern.Suggestion}", GUI.skin.label);
             }
             EditorGUILayout.EndVertical();
 

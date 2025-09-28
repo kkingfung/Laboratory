@@ -314,16 +314,20 @@ namespace Laboratory.Chimera.Genetics.Advanced
         private void HandleEvolutionaryEvent(string eventMessage)
         {
             DebugManager.LogInfo($"Evolutionary event: {eventMessage}");
+
+            // Use circular buffer to prevent unbounded memory growth
             analytics.evolutionaryEvents.Add(new EvolutionaryEvent
             {
                 message = eventMessage,
                 timestamp = Time.time
             });
 
-            // Keep event log manageable
-            if (analytics.evolutionaryEvents.Count > 100)
+            // Keep event log at fixed size - use circular buffer approach
+            const int MAX_EVENTS = 50; // Reduced from 100 for better memory usage
+            while (analytics.evolutionaryEvents.Count > MAX_EVENTS)
             {
-                analytics.evolutionaryEvents.RemoveAt(0);
+                // Remove oldest events efficiently
+                analytics.evolutionaryEvents.RemoveRange(0, analytics.evolutionaryEvents.Count - MAX_EVENTS);
             }
         }
 
@@ -369,7 +373,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         }
 
         // Menu items for easy access
-        [UnityEditor.MenuItem("Laboratory/Genetics/Run Evolution Cycle")]
+        [UnityEditor.MenuItem("🧪 Laboratory/Genetics/Run Evolution Cycle")]
         private static void MenuRunEvolution()
         {
             if (Application.isPlaying && Instance != null)
@@ -382,7 +386,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Genetics/Generate Population Report")]
+        [UnityEditor.MenuItem("🧪 Laboratory/Genetics/Generate Population Report")]
         private static void MenuGenerateReport()
         {
             if (Application.isPlaying && Instance != null)

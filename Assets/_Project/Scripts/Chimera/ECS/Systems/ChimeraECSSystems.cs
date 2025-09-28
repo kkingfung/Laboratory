@@ -7,6 +7,7 @@ using Laboratory.Chimera.ECS;
 using Laboratory.Chimera.Core;
 using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Laboratory.Chimera.ECS.Systems
 {
@@ -452,25 +453,70 @@ namespace Laboratory.Chimera.ECS.Systems
     #region Sync Systems
     
     /// <summary>
-    /// Synchronizes ECS data back to GameObjects for visual representation
+    /// High-performance GameObject synchronization system with cached lookups
+    /// Optimized to eliminate expensive FindObjectsOfTypeAll calls
     /// </summary>
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public partial class GameObjectSyncSystem : SystemBase
     {
+        internal static readonly Dictionary<int, UnityEngine.GameObject> _gameObjectCache = new Dictionary<int, UnityEngine.GameObject>();
+        private static float _lastCacheRefreshTime = 0f;
+        private const float CACHE_REFRESH_INTERVAL = 5f; // Refresh cache every 5 seconds
+
+        protected override void OnCreate()
+        {
+            RefreshGameObjectCache();
+        }
+
         protected override void OnUpdate()
         {
-            // Use SystemAPI.Query instead of Entities.ForEach for GameObject access
+            float currentTime = (float)SystemAPI.Time.ElapsedTime;
+
+            // Periodically refresh cache to handle destroyed/created GameObjects
+            if (currentTime - _lastCacheRefreshTime > CACHE_REFRESH_INTERVAL)
+            {
+                RefreshGameObjectCache();
+                _lastCacheRefreshTime = currentTime;
+            }
+
+            // High-performance sync using cached lookups
             foreach (var (link, transform) in SystemAPI.Query<RefRO<GameObjectLinkComponent>, RefRO<LocalTransform>>())
             {
-                // Find GameObject by InstanceID and sync position/rotation
-                var gameObject = UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.GameObject>()
-                    .FirstOrDefault(go => go.GetInstanceID() == link.ValueRO.InstanceID);
+                int instanceID = link.ValueRO.InstanceID;
 
-                if (gameObject != null && gameObject.activeInHierarchy)
+                if (_gameObjectCache.TryGetValue(instanceID, out var gameObject) &&
+                    gameObject != null && gameObject.activeInHierarchy)
                 {
                     gameObject.transform.SetPositionAndRotation(transform.ValueRO.Position, transform.ValueRO.Rotation);
                 }
+                else if (gameObject == null)
+                {
+                    // Remove invalid entries from cache
+                    _gameObjectCache.Remove(instanceID);
+                }
             }
+        }
+
+        private static void RefreshGameObjectCache()
+        {
+            _gameObjectCache.Clear();
+
+            // Only search once during cache refresh instead of every frame
+            var allGameObjects = UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.GameObject>();
+            foreach (var go in allGameObjects)
+            {
+                if (go != null)
+                {
+                    _gameObjectCache[go.GetInstanceID()] = go;
+                }
+            }
+
+            UnityEngine.Debug.Log($"GameObjectSyncSystem: Cached {_gameObjectCache.Count} GameObjects");
+        }
+
+        protected override void OnDestroy()
+        {
+            _gameObjectCache.Clear();
         }
     }
     
@@ -581,7 +627,8 @@ namespace Laboratory.Chimera.ECS.Systems
     }
 
     /// <summary>
-    /// Processes creature death and cleanup
+    /// High-performance creature death processing system with cached lookups
+    /// Optimized to eliminate expensive FindObjectsOfTypeAll calls
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CreatureDeathSystem : SystemBase
@@ -597,19 +644,21 @@ namespace Laboratory.Chimera.ECS.Systems
         {
             var ecb = ecbSystem.CreateCommandBuffer();
 
-            // Handle dead creatures
+            // Handle dead creatures using cached GameObject lookup
             foreach (var (link, entity) in SystemAPI.Query<RefRO<GameObjectLinkComponent>>().WithAll<DeadTag>().WithEntityAccess())
             {
-                // Find and deactivate the associated GameObject
-                var gameObject = UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.GameObject>()
-                    .FirstOrDefault(go => go.GetInstanceID() == link.ValueRO.InstanceID);
+                int instanceID = link.ValueRO.InstanceID;
 
-                if (gameObject != null)
+                // Use the shared cache from GameObjectSyncSystem for consistency
+                if (GameObjectSyncSystem._gameObjectCache.TryGetValue(instanceID, out var gameObject) && gameObject != null)
                 {
                     gameObject.SetActive(false);
+
+                    // Optional: Add death effects here
+                    // PlayDeathEffects(gameObject);
                 }
 
-                // Destroy the entity after a delay (could add corpse mechanics here)
+                // Destroy the entity (could add corpse mechanics here)
                 ecb.DestroyEntity(entity);
             }
 

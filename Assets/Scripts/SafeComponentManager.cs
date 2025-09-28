@@ -581,7 +581,7 @@ namespace ProjectChimera.Components
         #region Editor Utilities
 
         #if UNITY_EDITOR
-        [MenuItem("🐲 Chimera/Component Tools/Validate Selected Objects")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Component Tools/Validate Selected")]
         public static void ValidateSelectedObjects()
         {
             foreach (GameObject obj in Selection.gameObjects)
@@ -598,7 +598,7 @@ namespace ProjectChimera.Components
             }
         }
 
-        [MenuItem("🐲 Chimera/Component Tools/Auto-Fix Selected Objects")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Component Tools/Auto-Fix Selected")]
         public static void AutoFixSelectedObjects()
         {
             foreach (GameObject obj in Selection.gameObjects)
@@ -612,7 +612,7 @@ namespace ProjectChimera.Components
             }
         }
 
-        [MenuItem("🐲 Chimera/Component Tools/Add to Selected Monsters")]
+        [MenuItem("🧪 Laboratory/Project Chimera/Component Tools/Add to Monsters")]
         public static void AddToSelectedMonsters()
         {
             int count = 0;

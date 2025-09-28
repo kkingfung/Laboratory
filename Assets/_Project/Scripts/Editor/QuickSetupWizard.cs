@@ -43,7 +43,7 @@ namespace Laboratory.Editor
 
         private static QuickSetupWizard wizard;
 
-        [MenuItem("Laboratory/Quick Setup Wizard")]
+        [MenuItem("🧪 Laboratory/Setup/Quick Setup Wizard")]
         public static void CreateWizard()
         {
             wizard = ScriptableWizard.DisplayWizard<QuickSetupWizard>("3D Action Game Setup", "Create Scene", "Apply Setup");

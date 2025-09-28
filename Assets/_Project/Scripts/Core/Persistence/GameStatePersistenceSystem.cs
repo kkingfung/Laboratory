@@ -955,7 +955,7 @@ namespace Laboratory.Core.Persistence
         }
 
         // Editor menu items
-        [UnityEditor.MenuItem("Laboratory/Persistence/Quick Save", false, 800)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Persistence/Quick Save", false, 800)]
         private static void MenuQuickSave()
         {
             if (Application.isPlaying && Instance != null)
@@ -965,7 +965,7 @@ namespace Laboratory.Core.Persistence
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Persistence/Quick Load", false, 801)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Persistence/Quick Load", false, 801)]
         private static void MenuQuickLoad()
         {
             if (Application.isPlaying && Instance != null)
@@ -975,7 +975,7 @@ namespace Laboratory.Core.Persistence
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Persistence/Show Save Statistics", false, 802)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Persistence/Show Save Statistics", false, 802)]
         private static void MenuShowSaveStatistics()
         {
             if (Application.isPlaying && Instance != null)

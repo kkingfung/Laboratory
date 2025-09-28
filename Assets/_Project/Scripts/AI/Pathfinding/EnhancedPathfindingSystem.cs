@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using Laboratory.Core.Configuration;
 
 namespace Laboratory.AI.Pathfinding
 {
@@ -54,6 +55,10 @@ namespace Laboratory.AI.Pathfinding
         private float lastPerformanceLog = 0f;
         private int totalPathsCalculated = 0;
 
+        // Object pooling for path calculations to eliminate GC allocations
+        private Queue<List<Vector3>> _pathListPool = new Queue<List<Vector3>>();
+        private Queue<List<Vector3>> _tempListPool = new Queue<List<Vector3>>();
+
         #region Unity Lifecycle
 
         private void Awake()
@@ -93,6 +98,17 @@ namespace Laboratory.AI.Pathfinding
         {
             flowFieldGenerator = new FlowFieldGenerator();
             StartCoroutine(PathUpdateCoroutine());
+
+            // Pre-populate object pools using configuration values
+            var config = Config.Performance;
+            int maxLists = config.maxPooledLists;
+            int initialCapacity = config.pathListInitialCapacity;
+
+            for (int i = 0; i < maxLists; i++)
+            {
+                _pathListPool.Enqueue(new List<Vector3>(initialCapacity));
+                _tempListPool.Enqueue(new List<Vector3>(initialCapacity));
+            }
         }
 
         #endregion
@@ -226,19 +242,26 @@ namespace Laboratory.AI.Pathfinding
 
         private Vector3[] CalculateAStarPath(Vector3 start, Vector3 destination, out bool success)
         {
-            // Simplified A* implementation for demonstration
-            // In a real project, you'd use a more sophisticated A* algorithm
+            // Simplified A* implementation for demonstration - using pooled lists to avoid GC
             success = true;
-            List<Vector3> path = new List<Vector3>();
-            
-            // For now, fall back to NavMesh but with waypoint optimization
-            var navPath = CalculateNavMeshPath(start, destination, out success);
-            if (success)
+            List<Vector3> path = GetPooledPathList();
+
+            try
             {
-                path.AddRange(OptimizePath(navPath));
+                // For now, fall back to NavMesh but with waypoint optimization
+                var navPath = CalculateNavMeshPath(start, destination, out success);
+                if (success && navPath != null)
+                {
+                    var optimizedPath = OptimizePath(navPath);
+                    path.AddRange(optimizedPath);
+                }
+
+                return path.ToArray();
             }
-            
-            return path.ToArray();
+            finally
+            {
+                ReturnPooledPathList(path);
+            }
         }
 
         private Vector3[] CalculateFlowFieldPath(Vector3 start, Vector3 destination, out bool success)
@@ -287,26 +310,34 @@ namespace Laboratory.AI.Pathfinding
             if (originalPath == null || originalPath.Length <= 2)
                 return originalPath;
 
-            List<Vector3> optimizedPath = new List<Vector3>();
-            optimizedPath.Add(originalPath[0]);
+            List<Vector3> optimizedPath = GetPooledTempList();
 
-            for (int i = 1; i < originalPath.Length - 1; i++)
+            try
             {
-                Vector3 current = originalPath[i];
-                Vector3 next = originalPath[i + 1];
-                Vector3 previous = optimizedPath[optimizedPath.Count - 1];
+                optimizedPath.Add(originalPath[0]);
 
-                // Check if we can skip this waypoint with a direct line
-                if (!Physics.Linecast(previous, next, NavMesh.AllAreas))
+                for (int i = 1; i < originalPath.Length - 1; i++)
                 {
-                    continue; // Skip this waypoint
-                }
-                
-                optimizedPath.Add(current);
-            }
+                    Vector3 current = originalPath[i];
+                    Vector3 next = originalPath[i + 1];
+                    Vector3 previous = optimizedPath[optimizedPath.Count - 1];
 
-            optimizedPath.Add(originalPath[originalPath.Length - 1]);
-            return optimizedPath.ToArray();
+                    // Check if we can skip this waypoint with a direct line
+                    if (!Physics.Linecast(previous, next, NavMesh.AllAreas))
+                    {
+                        continue; // Skip this waypoint
+                    }
+
+                    optimizedPath.Add(current);
+                }
+
+                optimizedPath.Add(originalPath[originalPath.Length - 1]);
+                return optimizedPath.ToArray();
+            }
+            finally
+            {
+                ReturnPooledTempList(optimizedPath);
+            }
         }
 
         #endregion
@@ -348,9 +379,12 @@ namespace Laboratory.AI.Pathfinding
         private int CountNearbyAgents(Vector3 position, float radius)
         {
             int count = 0;
+            // ⚡ OPTIMIZED: Use sqrMagnitude for faster distance checks
+            var sqrRadius = radius * radius;
             foreach (var agent in registeredAgents)
             {
-                if (Vector3.Distance(agent.GetPosition(), position) <= radius)
+                var sqrDistance = (agent.GetPosition() - position).sqrMagnitude;
+                if (sqrDistance <= sqrRadius)
                 {
                     count++;
                 }
@@ -364,19 +398,26 @@ namespace Laboratory.AI.Pathfinding
 
         private void UpdateFlowFields()
         {
-            List<Vector3> toRemove = new List<Vector3>();
-            
-            foreach (var kvp in activeFlowFields)
+            List<Vector3> toRemove = GetPooledTempList();
+
+            try
             {
-                if (Time.time - kvp.Value.creationTime > pathCacheLifetime)
+                foreach (var kvp in activeFlowFields)
                 {
-                    toRemove.Add(kvp.Key);
+                    if (Time.time - kvp.Value.creationTime > pathCacheLifetime)
+                    {
+                        toRemove.Add(kvp.Key);
+                    }
+                }
+
+                foreach (var key in toRemove)
+                {
+                    activeFlowFields.Remove(key);
                 }
             }
-            
-            foreach (var key in toRemove)
+            finally
             {
-                activeFlowFields.Remove(key);
+                ReturnPooledTempList(toRemove);
             }
         }
 
@@ -446,19 +487,27 @@ namespace Laboratory.AI.Pathfinding
         private void CleanupCache()
         {
             if (pathCache.Count == 0) return;
-            
-            List<Vector3> toRemove = new List<Vector3>();
-            foreach (var kvp in pathCache)
+
+            List<Vector3> toRemove = GetPooledTempList();
+
+            try
             {
-                if (Time.time - kvp.Value.timestamp > pathCacheLifetime)
+                foreach (var kvp in pathCache)
                 {
-                    toRemove.Add(kvp.Key);
+                    if (Time.time - kvp.Value.timestamp > pathCacheLifetime)
+                    {
+                        toRemove.Add(kvp.Key);
+                    }
+                }
+
+                foreach (var key in toRemove)
+                {
+                    pathCache.Remove(key);
                 }
             }
-            
-            foreach (var key in toRemove)
+            finally
             {
-                pathCache.Remove(key);
+                ReturnPooledTempList(toRemove);
             }
         }
 
@@ -490,6 +539,62 @@ namespace Laboratory.AI.Pathfinding
             foreach (var agent in registeredAgents)
             {
                 agent.DrawDebugPath();
+            }
+        }
+
+        #endregion
+
+        #region Object Pooling
+
+        /// <summary>
+        /// Get a pooled List<Vector3> for path calculations to avoid GC allocations
+        /// </summary>
+        private List<Vector3> GetPooledPathList()
+        {
+            if (_pathListPool.Count > 0)
+            {
+                var list = _pathListPool.Dequeue();
+                list.Clear();
+                return list;
+            }
+            return new List<Vector3>(Config.Performance.pathListInitialCapacity);
+        }
+
+        /// <summary>
+        /// Return a List<Vector3> to the pool for reuse
+        /// </summary>
+        private void ReturnPooledPathList(List<Vector3> list)
+        {
+            if (_pathListPool.Count < Config.Performance.maxPooledLists)
+            {
+                list.Clear();
+                _pathListPool.Enqueue(list);
+            }
+        }
+
+        /// <summary>
+        /// Get a pooled temporary List<Vector3> for intermediate calculations
+        /// </summary>
+        private List<Vector3> GetPooledTempList()
+        {
+            if (_tempListPool.Count > 0)
+            {
+                var list = _tempListPool.Dequeue();
+                list.Clear();
+                return list;
+            }
+            return new List<Vector3>(Config.Performance.pathListInitialCapacity);
+        }
+
+        /// <summary>
+        /// Return a temporary List<Vector3> to the pool for reuse
+        /// </summary>
+        private void ReturnPooledTempList(List<Vector3> list)
+        {
+            if (_tempListPool.Count < Config.Performance.maxPooledLists)
+            {
+                list.Clear();
+                _tempListPool.Enqueue(list);
             }
         }
 

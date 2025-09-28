@@ -767,7 +767,7 @@ namespace Laboratory.Systems.Ecosystem
         }
 
         // Editor menu items
-        [UnityEditor.MenuItem("Laboratory/Ecosystem/Trigger Random Environmental Event", false, 300)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Ecosystem/Trigger Random Environmental Event", false, 300)]
         private static void MenuTriggerRandomEvent()
         {
             if (Application.isPlaying && Instance != null)
@@ -782,7 +782,7 @@ namespace Laboratory.Systems.Ecosystem
             }
         }
 
-        [UnityEditor.MenuItem("Laboratory/Ecosystem/Analyze Ecosystem Stress", false, 301)]
+        [UnityEditor.MenuItem("🧪 Laboratory/Ecosystem/Analyze Ecosystem Stress", false, 301)]
         private static void MenuAnalyzeStress()
         {
             if (Application.isPlaying && Instance != null)
