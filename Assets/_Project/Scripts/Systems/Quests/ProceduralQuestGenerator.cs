@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using Laboratory.Core.Events;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.AI.Personality;
 
@@ -85,7 +84,7 @@ namespace Laboratory.Systems.Quests
 
         private void InitializeQuestSystem()
         {
-            DebugManager.LogInfo("Initializing Procedural Quest Generator");
+            Debug.Log("Initializing Procedural Quest Generator");
 
             // Initialize type popularity tracking
             foreach (QuestType type in System.Enum.GetValues(typeof(QuestType)))
@@ -102,7 +101,7 @@ namespace Laboratory.Systems.Quests
             // Subscribe to relevant game events
             SubscribeToGameEvents();
 
-            DebugManager.LogInfo("Procedural Quest Generator initialized");
+            Debug.Log("Procedural Quest Generator initialized");
         }
 
         private void Update()
@@ -156,7 +155,7 @@ namespace Laboratory.Systems.Quests
 
                 OnQuestGenerated?.Invoke(newQuest);
 
-                DebugManager.LogInfo($"Generated {questType} quest: {newQuest.title}");
+                Debug.Log($"Generated {questType} quest: {newQuest.title}");
             }
 
             return newQuest;
@@ -181,7 +180,7 @@ namespace Laboratory.Systems.Quests
                         if (objective.currentProgress >= objective.targetProgress)
                         {
                             objective.isCompleted = true;
-                            DebugManager.LogInfo($"Objective completed: {objective.description}");
+                            Debug.Log($"Objective completed: {objective.description}");
                         }
                     }
                 }
@@ -219,7 +218,7 @@ namespace Laboratory.Systems.Quests
                 UpdateTypePopularity(quest.type, true);
 
                 OnQuestCompleted?.Invoke(quest);
-                DebugManager.LogInfo($"Quest completed: {quest.title}");
+                Debug.Log($"Quest completed: {quest.title}");
             }
         }
 
@@ -272,7 +271,7 @@ namespace Laboratory.Systems.Quests
                 UpdateTypePopularity(expiredQuest.type, false);
 
                 OnQuestExpired?.Invoke(expiredQuest);
-                DebugManager.LogInfo($"Quest expired: {expiredQuest.title}");
+                Debug.Log($"Quest expired: {expiredQuest.title}");
             }
         }
 
@@ -667,6 +666,7 @@ namespace Laboratory.Systems.Quests
         }
 
         // Editor menu items
+#if UNITY_EDITOR
         [UnityEditor.MenuItem("🧪 Laboratory/Quests/Generate Random Quest", false, 200)]
         private static void MenuGenerateQuest()
         {
@@ -693,6 +693,7 @@ namespace Laboratory.Systems.Quests
                          $"Active: {Instance.ActiveQuests.Count}");
             }
         }
+#endif
     }
 
     // Supporting data structures

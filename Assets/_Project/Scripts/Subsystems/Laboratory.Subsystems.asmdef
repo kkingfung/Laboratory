@@ -3,6 +3,9 @@
     "rootNamespace": "Laboratory.Subsystems",
     "references": [
         "Laboratory.Core",
+        "Laboratory.Chimera",
+        "Laboratory.Networking",
+        "Laboratory.Core.Progression",
         "Laboratory.Models",
         "Laboratory.AI.Pathfinding",
         "Laboratory.AI.Agents",
@@ -13,6 +16,7 @@
         "Unity.Physics",
         "Unity.Burst",
         "Unity.Transforms",
+        "Unity.Jobs",
         "Unity.Netcode.Runtime",
         "Unity.InputSystem",
         "Unity.Cinemachine",

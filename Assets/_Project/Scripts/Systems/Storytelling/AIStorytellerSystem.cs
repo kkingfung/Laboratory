@@ -120,7 +120,7 @@ namespace Laboratory.Systems.Storytelling
 
         private void InitializeStorytellerSystem()
         {
-            DebugManager.LogInfo("Initializing AI Storyteller System");
+            Debug.Log("Initializing AI Storyteller System");
 
             // Initialize story generation systems
             narrativeGenerator = new NarrativeGenerator(this);
@@ -134,7 +134,7 @@ namespace Laboratory.Systems.Storytelling
                 CreateDefaultStoryTemplates();
             }
 
-            DebugManager.LogInfo("AI Storyteller System initialized");
+            Debug.Log("AI Storyteller System initialized");
         }
 
         private void ConnectToGameSystems()
@@ -210,7 +210,7 @@ namespace Laboratory.Systems.Storytelling
 
             OnStoryGenerated?.Invoke(story);
 
-            DebugManager.LogInfo($"Generated story: '{story.title}' using template '{template.templateName}'");
+            Debug.Log($"Generated story: '{story.title}' using template '{template.templateName}'");
 
             return story;
         }
@@ -253,7 +253,7 @@ namespace Laboratory.Systems.Storytelling
 
                 OnNarrativeUpdate?.Invoke(fragment);
 
-                DebugManager.LogInfo($"Updated story '{story.title}' with event: {gameEvent.eventType}");
+                Debug.Log($"Updated story '{story.title}' with event: {gameEvent.eventType}");
             }
         }
 
@@ -297,7 +297,7 @@ namespace Laboratory.Systems.Storytelling
             var characterProfile = characterSystem.CreateCharacterProfile(creatureId);
             creatureCharacters[creatureId] = characterProfile;
 
-            DebugManager.LogInfo($"Generated character profile for creature {creatureId}: {characterProfile.characterName}");
+            Debug.Log($"Generated character profile for creature {creatureId}: {characterProfile.characterName}");
 
             return characterProfile;
         }
@@ -538,6 +538,7 @@ namespace Laboratory.Systems.Storytelling
         }
 
         // Editor menu items
+#if UNITY_EDITOR
         [UnityEditor.MenuItem("🧪 Laboratory/Storytelling/Generate New Story", false, 600)]
         private static void MenuGenerateStory()
         {
@@ -579,6 +580,7 @@ namespace Laboratory.Systems.Storytelling
                 }
             }
         }
+#endif
     }
 
     // Supporting data structures for AI storytelling system

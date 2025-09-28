@@ -1,0 +1,28 @@
+{
+    "name": "Laboratory.Economy",
+    "rootNamespace": "Laboratory.Economy",
+    "references": [
+        "Laboratory.Core",
+        "Laboratory.Chimera.Core",
+        "Laboratory.Core.Progression",
+        "Laboratory.Systems.Breeding",
+        "Laboratory.Systems.Analytics",
+        "Unity.TextMeshPro",
+        "Unity.Mathematics",
+        "Unity.Collections",
+        "Unity.Entities",
+        "Unity.InputSystem",
+        "Unity.Netcode.Runtime",
+        "R3",
+        "UniTask"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

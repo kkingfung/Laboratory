@@ -1,6 +1,6 @@
 {
-    "name": "Laboratory.Networking",
-    "rootNamespace": "Laboratory.Networking",
+    "name": "Laboratory.UI",
+    "rootNamespace": "Laboratory.UI",
     "references": [
         "Laboratory.Core",
         "Laboratory.Chimera.Core",
@@ -8,33 +8,27 @@
         "Laboratory.AI.ECS",
         "Laboratory.Core.Progression",
         "Laboratory.Economy",
+        "Laboratory.Networking",
+        "Laboratory.Subsystems",
         "Unity.Entities",
         "Unity.Transforms",
         "Unity.Collections",
         "Unity.Mathematics",
-        "Unity.Burst",
-        "Unity.Jobs",
-        "Unity.Physics",
-        "Unity.NetCode",
-        "Unity.Networking.Transport",
-        "Unity.Netcode.Runtime",
+        "Unity.TextMeshPro",
         "Unity.InputSystem",
+        "Unity.Addressables",
+        "Unity.Localization",
         "R3",
-        "UniTask"
+        "UniTask",
+        "Unity.Netcode.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": true,
+    "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "com.unity.netcode",
-            "expression": "1.0.0",
-            "define": "UNITY_NETCODE_ENTITIES"
-        }
-    ],
+    "versionDefines": [],
     "noEngineReferences": false
 }

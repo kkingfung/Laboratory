@@ -126,7 +126,7 @@ namespace Laboratory.Systems.Breeding
 
         private void InitializeBreedingSimulator()
         {
-            DebugManager.LogInfo("Initializing Advanced Breeding Simulator");
+            Debug.Log("Initializing Advanced Breeding Simulator");
 
             // Initialize UI lists
             parentAList = new List<CreatureUI>();
@@ -135,7 +135,7 @@ namespace Laboratory.Systems.Breeding
             // Initialize selection
             currentSelection = new BreedingSelection();
 
-            DebugManager.LogInfo("Advanced Breeding Simulator initialized");
+            Debug.Log("Advanced Breeding Simulator initialized");
         }
 
         private void SetupUI()
@@ -236,7 +236,7 @@ namespace Laboratory.Systems.Breeding
         {
             if (!CanStartBreeding())
             {
-                DebugManager.LogWarning("Cannot start breeding: conditions not met");
+                Debug.LogWarning("Cannot start breeding: conditions not met");
                 return null;
             }
 
@@ -270,7 +270,7 @@ namespace Laboratory.Systems.Breeding
                 breedingParticles.Play();
             }
 
-            DebugManager.LogInfo($"Started breeding session {session.id}: Parent {session.parentAId} x Parent {session.parentBId}");
+            Debug.Log($"Started breeding session {session.id}: Parent {session.parentAId} x Parent {session.parentBId}");
 
             return session;
         }
@@ -295,7 +295,7 @@ namespace Laboratory.Systems.Breeding
                 }
 
                 ShowParentSelectionPanel();
-                DebugManager.LogInfo($"Cancelled breeding session {currentSession.id}");
+                Debug.Log($"Cancelled breeding session {currentSession.id}");
             }
         }
 
@@ -349,7 +349,7 @@ namespace Laboratory.Systems.Breeding
                 if (geneticAlgorithm != null)
                 {
                     // This would add the offspring to the active population
-                    DebugManager.LogInfo($"Accepted offspring from breeding session {completedSession.id}");
+                    Debug.Log($"Accepted offspring from breeding session {completedSession.id}");
                 }
 
                 // Register with personality system
@@ -389,7 +389,7 @@ namespace Laboratory.Systems.Breeding
                 // Remove completed session
                 activeBreedingSessions.Remove(completedSession);
 
-                DebugManager.LogInfo($"Rejected offspring from breeding session {completedSession.id}");
+                Debug.Log($"Rejected offspring from breeding session {completedSession.id}");
                 ShowParentSelectionPanel();
             }
         }
@@ -504,13 +504,13 @@ namespace Laboratory.Systems.Breeding
                 ShowOffspringPreviewPanel();
                 UpdateOffspringPreview(session);
 
-                DebugManager.LogInfo($"Breeding session {session.id} completed. Offspring ID: {session.offspring.id}, Fitness: {session.offspring.fitness:F3}");
+                Debug.Log($"Breeding session {session.id} completed. Offspring ID: {session.offspring.id}, Fitness: {session.offspring.fitness:F3}");
             }
             else
             {
                 session.status = BreedingStatus.Failed;
                 analytics.totalBreedingFailures++;
-                DebugManager.LogWarning($"Breeding session {session.id} failed to generate offspring");
+                Debug.LogWarning($"Breeding session {session.id} failed to generate offspring");
             }
         }
 
@@ -666,6 +666,7 @@ namespace Laboratory.Systems.Breeding
         }
 
         // Editor menu items
+#if UNITY_EDITOR
         [UnityEditor.MenuItem("🧪 Laboratory/Breeding/Show Breeding Simulator", false, 400)]
         private static void MenuShowBreedingSimulator()
         {
@@ -691,6 +692,7 @@ namespace Laboratory.Systems.Breeding
                 }
             }
         }
+#endif
     }
 
     // Supporting data structures for breeding simulation

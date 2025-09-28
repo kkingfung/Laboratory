@@ -2,8 +2,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using System.Linq;
-using Laboratory.Core.Events;
-using Laboratory.Core.Utilities;
 using Laboratory.Systems.Quests;
 using Laboratory.Systems.Breeding;
 using Laboratory.Systems.Ecosystem;
@@ -125,7 +123,7 @@ namespace Laboratory.Systems.Analytics
 
         private void InitializeAnalytics()
         {
-            DebugManager.LogInfo("Initializing Player Analytics Tracker");
+            Debug.Log("Initializing Player Analytics Tracker");
 
             // Initialize player profile
             currentPlayerProfile = LoadOrCreatePlayerProfile();
@@ -141,7 +139,7 @@ namespace Laboratory.Systems.Analytics
             // Load historical data
             LoadSessionHistory();
 
-            DebugManager.LogInfo($"Player Analytics initialized for player: {currentPlayerProfile.playerId}");
+            Debug.Log($"Player Analytics initialized for player: {currentPlayerProfile.playerId}");
         }
 
         /// <summary>
@@ -178,7 +176,7 @@ namespace Laboratory.Systems.Analytics
                 AnalyzeActionInRealTime(action);
             }
 
-            DebugManager.LogInfo($"Tracked action: {actionType} (Session actions: {currentSessionActions.Count})");
+            Debug.Log($"Tracked action: {actionType} (Session actions: {currentSessionActions.Count})");
         }
 
         /// <summary>
@@ -307,7 +305,7 @@ namespace Laboratory.Systems.Analytics
 
             OnGameAdaptationTriggered?.Invoke(adaptation);
 
-            DebugManager.LogInfo($"Game adaptation triggered: {adaptationType} (Intensity: {intensity:F2})");
+            Debug.Log($"Game adaptation triggered: {adaptationType} (Intensity: {intensity:F2})");
 
             return adaptation;
         }
@@ -324,7 +322,7 @@ namespace Laboratory.Systems.Analytics
             currentSessionActions.Clear();
             sessionStartTime = Time.time;
 
-            DebugManager.LogInfo($"Started new gameplay session: {currentSession.sessionId}");
+            Debug.Log($"Started new gameplay session: {currentSession.sessionId}");
         }
 
         private void UpdateCurrentSession()
@@ -495,6 +493,7 @@ namespace Laboratory.Systems.Analytics
         }
 
         // Editor menu items
+#if UNITY_EDITOR
         [UnityEditor.MenuItem("🧪 Laboratory/Analytics/Show Player Behavior Analysis", false, 500)]
         private static void MenuShowBehaviorAnalysis()
         {
@@ -535,6 +534,7 @@ namespace Laboratory.Systems.Analytics
                 Debug.Log("Triggered test game adaptation");
             }
         }
+#endif
     }
 
     // Supporting data structures for analytics

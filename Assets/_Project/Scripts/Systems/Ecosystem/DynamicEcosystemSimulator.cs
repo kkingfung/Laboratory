@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using Laboratory.Core.Events;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.AI.Personality;
 using Laboratory.Systems.Quests;
@@ -93,7 +92,7 @@ namespace Laboratory.Systems.Ecosystem
 
         private void InitializeEcosystem()
         {
-            DebugManager.LogInfo("Initializing Dynamic Ecosystem Simulator");
+            Debug.Log("Initializing Dynamic Ecosystem Simulator");
 
             // Initialize biome nodes
             InitializeBiomeNodes();
@@ -113,7 +112,7 @@ namespace Laboratory.Systems.Ecosystem
             // Subscribe to other system events
             SubscribeToSystemEvents();
 
-            DebugManager.LogInfo($"Ecosystem initialized with {ecosystemNodes.Count} biome nodes and {globalResources.Count} resource types");
+            Debug.Log($"Ecosystem initialized with {ecosystemNodes.Count} biome nodes and {globalResources.Count} resource types");
         }
 
         private void Update()
@@ -161,7 +160,7 @@ namespace Laboratory.Systems.Ecosystem
             biomePopulations[biome].totalPopulation++;
             biomePopulations[biome].totalBiomass += genome.traits.GetValueOrDefault("size", 1f);
 
-            DebugManager.LogInfo($"Creature {creatureId} registered in {biome} biome");
+            Debug.Log($"Creature {creatureId} registered in {biome} biome");
         }
 
         /// <summary>
@@ -212,7 +211,7 @@ namespace Laboratory.Systems.Ecosystem
                 }
 
                 creatureEcosystemData.Remove(creatureId);
-                DebugManager.LogInfo($"Creature {creatureId} unregistered from ecosystem");
+                Debug.Log($"Creature {creatureId} unregistered from ecosystem");
             }
         }
 
@@ -302,7 +301,7 @@ namespace Laboratory.Systems.Ecosystem
             ApplyEventEffects(activeEvent, true);
 
             analytics.totalEnvironmentalEvents++;
-            DebugManager.LogInfo($"Environmental event started: {eventType} in {targetBiome} biome (Intensity: {intensity:F2})");
+            Debug.Log($"Environmental event started: {eventType} in {targetBiome} biome (Intensity: {intensity:F2})");
         }
 
         /// <summary>
@@ -447,7 +446,7 @@ namespace Laboratory.Systems.Ecosystem
                         OnEnvironmentalEventEnded?.Invoke(eventConfig);
                     }
 
-                    DebugManager.LogInfo($"Environmental event ended: {activeEvent.eventType}");
+                    Debug.Log($"Environmental event ended: {activeEvent.eventType}");
                 }
             }
 
@@ -767,6 +766,7 @@ namespace Laboratory.Systems.Ecosystem
         }
 
         // Editor menu items
+#if UNITY_EDITOR
         [UnityEditor.MenuItem("🧪 Laboratory/Ecosystem/Trigger Random Environmental Event", false, 300)]
         private static void MenuTriggerRandomEvent()
         {
@@ -794,6 +794,7 @@ namespace Laboratory.Systems.Ecosystem
                          $"Recommendations: {analysis.recommendations.Count}");
             }
         }
+#endif
     }
 
     // Supporting data structures (simplified for length)

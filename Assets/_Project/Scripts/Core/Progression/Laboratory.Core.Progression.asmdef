@@ -1,17 +1,16 @@
 {
-    "name": "Laboratory.Systems",
-    "rootNamespace": "Laboratory.Systems",
+    "name": "Laboratory.Core.Progression",
+    "rootNamespace": "Laboratory.Core.Progression",
     "references": [
+        "Laboratory.Core",
         "Laboratory.Chimera",
-        "Laboratory.AI.Personality",
-        "Unity.Entities",
-        "Unity.Collections",
-        "Unity.Mathematics",
-        "Unity.Burst",
-        "Unity.Jobs",
+        "Laboratory.Systems",
         "Unity.TextMeshPro",
-        "Unity.ugui",
-        "Unity.InputSystem"
+        "Unity.Mathematics",
+        "Unity.Collections",
+        "Unity.Entities",
+        "R3",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
