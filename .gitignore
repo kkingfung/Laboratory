@@ -111,3 +111,4 @@ Assets/InferenceEngine/inference-engine-jets-text-to-speech/models
 Assets/Gaia User Data/Sessions
 Assets/_Recovery
 GeneratedAssets
+.claude/settings.local.json

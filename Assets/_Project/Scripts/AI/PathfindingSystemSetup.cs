@@ -1,6 +1,6 @@
 using UnityEngine;
 using Laboratory.AI.Pathfinding;
-using System.Linq;
+using Laboratory.Core.Utilities;
 using System.Collections.Generic;
 using System.Collections;
 
@@ -144,7 +144,7 @@ namespace Laboratory.AI
             {
                 yield return new WaitForSeconds(1f);
                 
-                int activeAgents = testAgents.Count(a => a != null && a.IsMoving());
+                int activeAgents = testAgents.CountWhere(a => a != null && a.IsMoving());
                 Debug.Log($"📊 Performance Test - Active Agents: {activeAgents}, FPS: {1f / Time.deltaTime:F1}");
             }
 
@@ -202,9 +202,16 @@ namespace Laboratory.AI
             
             // Find all pathfinding agents in scene
             var allAgents = FindObjectsByType<GenericPathfindingAgent>(FindObjectsSortMode.None);
-            var pathfindingAgents = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
-                .Where(mb => mb is IPathfindingAgent)
-                .ToArray();
+            var allMonoBehaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
+            var pathfindingAgentsList = new List<MonoBehaviour>();
+            for (int i = 0; i < allMonoBehaviours.Length; i++)
+            {
+                if (allMonoBehaviours[i] is IPathfindingAgent)
+                {
+                    pathfindingAgentsList.Add(allMonoBehaviours[i]);
+                }
+            }
+            var pathfindingAgents = pathfindingAgentsList.ToArray();
                 
             Debug.Log($"Generic Pathfinding Agents: {allAgents.Length}");
             Debug.Log($"IPathfindingAgent implementations: {pathfindingAgents.Length}");

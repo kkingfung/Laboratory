@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
+using Laboratory.Core.Utilities;
 
 namespace Laboratory.Tools
 {
@@ -187,12 +188,13 @@ namespace Laboratory.Tools
         /// <param name="type">The type of log message.</param>
         private void HandleUnityLog(string condition, string stackTrace, LogType type)
         {
-            string logEntry = $"[{type}] {condition}";
+            // Use optimized string formatting
+            string logEntry = StringOptimizer.FormatOptimized("[{0}] {1}", type, condition);
 
             // Include stack trace for errors and exceptions
             if (type == LogType.Exception || type == LogType.Error)
             {
-                logEntry += $"\n{stackTrace}";
+                logEntry = StringOptimizer.FormatOptimized("{0}\n{1}", logEntry, stackTrace);
             }
 
             AddLogEntry(logEntry);
@@ -203,8 +205,22 @@ namespace Laboratory.Tools
         /// </summary>
         private void RefreshLogDisplay()
         {
-            _logText.text = string.Join("\n", _logEntries);
-            
+            // Use pooled StringBuilder for efficient string building
+            var sb = ObjectPools.StringBuilder.Get();
+            try
+            {
+                for (int i = 0; i < _logEntries.Count; i++)
+                {
+                    if (i > 0) sb.Append("\n");
+                    sb.Append(_logEntries[i]);
+                }
+                _logText.text = sb.ToString();
+            }
+            finally
+            {
+                ObjectPools.StringBuilder.Return(sb);
+            }
+
             // Force canvas update and scroll to bottom
             Canvas.ForceUpdateCanvases();
             _scrollRect.verticalNormalizedPosition = 0f;

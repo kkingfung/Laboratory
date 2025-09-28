@@ -4,18 +4,35 @@ using UnityEngine;
 namespace Laboratory.Chimera.Genetics
 {
     /// <summary>
-    /// Represents a single gene with dominant/recessive alleles
+    /// Represents a single gene with dominant/recessive alleles in the Project Chimera genetic system.
+    /// Each gene controls a specific trait and can express different phenotypes based on allele combinations.
+    /// Supports Mendelian inheritance, X-linked traits, and mutation tracking.
     /// </summary>
     [System.Serializable]
     public struct Gene
     {
+        /// <summary>Unique identifier for this gene (e.g., "STR001", "COL_EYES_01")</summary>
         public string geneId;
+
+        /// <summary>Human-readable name of the trait this gene controls (e.g., "Eye Color", "Strength")</summary>
         public string traitName;
+
+        /// <summary>Category of trait this gene represents (Physical, Mental, Magical, etc.)</summary>
         public TraitType traitType;
+
+        /// <summary>Dominant allele - expressed when present with either dominant or recessive</summary>
         public Allele dominantAllele;
+
+        /// <summary>Recessive allele - only expressed when paired with another recessive</summary>
         public Allele recessiveAllele;
+
+        /// <summary>How strongly this gene is expressed (0.0 = hidden, 1.0 = full expression)</summary>
         public float expressionStrength;
+
+        /// <summary>True if this gene is located on the X chromosome (sex-linked inheritance)</summary>
         public bool isXLinked;
+
+        /// <summary>Position of this gene on its chromosome (for linkage calculations)</summary>
         public int chromosomePosition;
         
         // Compatibility properties for GeneticProfile

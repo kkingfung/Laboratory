@@ -206,10 +206,16 @@ namespace Laboratory.Core.Performance
             return timeSinceLastUpdate >= _updateIntervals[frequency];
         }
 
+        /// <summary>
+        /// Adaptive update system that adjusts frequency based on distance and importance
+        /// </summary>
         private void UpdateSystemsAtFrequency(UpdateFrequency frequency, List<IOptimizedUpdate> callbacks)
         {
             float deltaTime = frequency == UpdateFrequency.EveryFrame ?
                 Time.deltaTime : Time.time - _lastUpdateTimes[frequency];
+
+            // Get player position for distance-based optimization
+            Vector3 playerPosition = GetPlayerPosition();
 
             // Update all systems at this frequency in a batch
             for (int i = callbacks.Count - 1; i >= 0; i--)
@@ -223,6 +229,10 @@ namespace Laboratory.Core.Performance
                     continue;
                 }
 
+                // Adaptive frequency based on distance
+                if (ShouldSkipUpdateBasedOnDistance(system, playerPosition, frequency))
+                    continue;
+
                 try
                 {
                     system.OnOptimizedUpdate(deltaTime);
@@ -235,6 +245,54 @@ namespace Laboratory.Core.Performance
                     callbacks.RemoveAt(i);
                 }
             }
+        }
+
+        /// <summary>
+        /// Determines if a system should skip update based on distance and importance
+        /// </summary>
+        private bool ShouldSkipUpdateBasedOnDistance(IOptimizedUpdate system, Vector3 playerPosition, UpdateFrequency frequency)
+        {
+            // Only apply distance-based optimization to non-critical systems
+            if (frequency == UpdateFrequency.EveryFrame)
+                return false;
+
+            // Check if system implements distance-based optimization
+            if (system is IDistanceOptimized distanceSystem)
+            {
+                float distance = Vector3.Distance(distanceSystem.GetPosition(), playerPosition);
+
+                // Dynamic update rate based on distance
+                float distanceThreshold = GetDistanceThreshold(frequency);
+                float adaptiveSkipChance = Mathf.Clamp01((distance - distanceThreshold) / distanceThreshold);
+
+                // Use frame count for deterministic skipping
+                return (Time.frameCount + distanceSystem.GetInstanceID()) % 4 < (adaptiveSkipChance * 4);
+            }
+
+            return false;
+        }
+
+        private float GetDistanceThreshold(UpdateFrequency frequency)
+        {
+            return frequency switch
+            {
+                UpdateFrequency.HighFrequency => 50f,      // High priority systems update within 50 units
+                UpdateFrequency.MediumFrequency => 100f,   // Medium priority within 100 units
+                UpdateFrequency.LowFrequency => 200f,      // Low priority within 200 units
+                UpdateFrequency.VeryLowFrequency => 500f, // Background within 500 units
+                _ => 100f
+            };
+        }
+
+        private Vector3 GetPlayerPosition()
+        {
+            // Try to find player transform
+            var playerTransform = Camera.main?.transform;
+            if (playerTransform != null)
+                return playerTransform.position;
+
+            // Fallback to world origin
+            return Vector3.zero;
         }
 
         private void UpdateStatistics()
@@ -296,6 +354,22 @@ namespace Laboratory.Core.Performance
         /// </summary>
         /// <param name="deltaTime">Time since last update for this frequency</param>
         void OnOptimizedUpdate(float deltaTime);
+    }
+
+    /// <summary>
+    /// Interface for systems that support distance-based optimization
+    /// </summary>
+    public interface IDistanceOptimized
+    {
+        /// <summary>
+        /// Gets the world position of this system for distance calculations
+        /// </summary>
+        Vector3 GetPosition();
+
+        /// <summary>
+        /// Gets a unique instance ID for deterministic update skipping
+        /// </summary>
+        int GetInstanceID();
     }
 
     /// <summary>

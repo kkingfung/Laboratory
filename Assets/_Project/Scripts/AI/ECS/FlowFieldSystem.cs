@@ -2,8 +2,8 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Jobs;
-using Unity.Burst;
 using Unity.Transforms;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Laboratory.AI.Pathfinding;
@@ -47,11 +47,26 @@ namespace Laboratory.AI.ECS
         public float avoidanceRadius;
         public float preferredSpeed;
         public bool useLocalAvoidance;
+
+        // LOD system
+        public PathfindingLOD currentLOD;
+        public float distanceToPlayer;
+        public float lastLODUpdateTime;
+    }
+
+    /// <summary>
+    /// Level of Detail for pathfinding optimization
+    /// </summary>
+    public enum PathfindingLOD : byte
+    {
+        High = 0,    // 60 FPS - Close to player, detailed pathfinding
+        Medium = 1,  // 30 FPS - Medium distance, reduced precision
+        Low = 2,     // 15 FPS - Far from player, coarse pathfinding
+        Minimal = 3  // 5 FPS - Very far, minimal updates
     }
 
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(Unity.Transforms.TransformSystemGroup))]
-    [UpdateBefore(typeof(Unity.Physics.Systems.PhysicsSystemGroup))]
     public partial class FlowFieldSystem : SystemBase
     {
         private EntityQuery _flowFieldQuery;
@@ -75,6 +90,10 @@ namespace Laboratory.AI.ECS
         private NativeArrayPool<float> _floatArrayPool;
         private NativeArrayPool<float3> _float3ArrayPool;
 
+        // Flow field caching for performance
+        private NativeHashMap<uint, Entity> _flowFieldCache; // Hash -> FlowField Entity
+        private const float CACHE_GRID_TOLERANCE = 0.5f;
+
         protected override void OnCreate()
         {
             LoadConfiguration();
@@ -88,6 +107,7 @@ namespace Laboratory.AI.ECS
             _spatialHashMap = new NativeParallelMultiHashMap<int, Entity>(5000, Allocator.Persistent);
             _flowFieldSpatialMap = new NativeParallelMultiHashMap<int, FlowFieldData>(_maxFlowFields, Allocator.Persistent);
             _generationRequests = new NativeQueue<FlowFieldGenerationRequest>(Allocator.Persistent);
+            _flowFieldCache = new NativeHashMap<uint, Entity>(_maxFlowFields, Allocator.Persistent);
 
             // Initialize NativeArray pools for zero-allocation pathfinding
             _int2ArrayPool = new NativeArrayPool<int2>(Allocator.Persistent, 50);
@@ -120,6 +140,7 @@ namespace Laboratory.AI.ECS
             if (_spatialHashMap.IsCreated) _spatialHashMap.Dispose();
             if (_flowFieldSpatialMap.IsCreated) _flowFieldSpatialMap.Dispose();
             if (_generationRequests.IsCreated) _generationRequests.Dispose();
+            if (_flowFieldCache.IsCreated) _flowFieldCache.Dispose();
 
             // Dispose NativeArray pools
             _int2ArrayPool?.Dispose();
@@ -174,32 +195,65 @@ namespace Laboratory.AI.ECS
             Profiler.EndSample();
         }
 
+        /// <summary>
+        /// Optimized spatial hashing job
+        /// </summary>
+        private struct SpatialHashingJob : IJobChunk
+        {
+            public NativeParallelMultiHashMap<int, Entity>.ParallelWriter spatialHashMap;
+            [ReadOnly] public ComponentTypeHandle<LocalTransform> transformTypeHandle;
+            [ReadOnly] public EntityTypeHandle entityTypeHandle;
+            [ReadOnly] public float spatialCellSize;
+
+            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in Unity.Burst.Intrinsics.v128 chunkEnabledMask)
+            {
+                var transforms = chunk.GetNativeArray(ref transformTypeHandle);
+                var entities = chunk.GetNativeArray(entityTypeHandle);
+
+                // Pre-calculate inverse cell size for optimization
+                float invCellSize = 1f / spatialCellSize;
+
+                for (int i = 0; i < chunk.Count; i++)
+                {
+                    var position = transforms[i].Position;
+                    var entity = entities[i];
+
+                    // Optimized spatial hash calculation
+                    int3 cell = (int3)(position * invCellSize);
+                    int spatialKey = (cell.x * 73856093) ^ (cell.y * 19349663) ^ (cell.z * 83492791);
+                    spatialHashMap.Add(spatialKey, entity);
+                }
+            }
+        }
+
         private void UpdateSpatialHash()
         {
             _spatialHashMap.Clear();
             _flowFieldSpatialMap.Clear();
 
-            // Spatial hashing using Entities.ForEach
-            var spatialHashMap = _spatialHashMap;
+            // Use optimized job for follower spatial hashing
+            var spatialHashingJob = new SpatialHashingJob
+            {
+                spatialHashMap = _spatialHashMap.AsParallelWriter(),
+                transformTypeHandle = GetComponentTypeHandle<LocalTransform>(true),
+                entityTypeHandle = GetEntityTypeHandle(),
+                spatialCellSize = _spatialCellSize
+            };
+
+            var followerQuery = GetEntityQuery(ComponentType.ReadOnly<LocalTransform>(), ComponentType.ReadOnly<FlowFieldFollowerComponent>());
+            this.Dependency = spatialHashingJob.ScheduleParallel(followerQuery, this.Dependency);
+
+            // Simple flow field spatial hashing (less entities, so keep simple)
             var flowFieldSpatialMap = _flowFieldSpatialMap;
             var spatialCellSize = _spatialCellSize;
-
-            Entities
-                .WithAll<FlowFieldFollowerComponent>()
-                .ForEach((Entity entity, in LocalTransform transform) =>
-                {
-                    // Inline spatial hash calculation to avoid method call issues
-                    int3 cell = (int3)math.floor(transform.Position / spatialCellSize);
-                    int spatialKey = (cell.x * 73856093) ^ (cell.y * 19349663) ^ (cell.z * 83492791);
-                    spatialHashMap.Add(spatialKey, entity);
-                }).ScheduleParallel();
 
             Entities
                 .WithAll<FlowFieldComponent>()
                 .ForEach((in FlowFieldComponent flowField) =>
                 {
-                    // Inline spatial hash calculation to avoid method call issues
-                    int3 cell = (int3)math.floor(flowField.destination / spatialCellSize);
+                    // Optimized spatial hash calculation with inverse multiplication
+                    float3 normalizedPos = flowField.destination / spatialCellSize;
+                    int3 cell = (int3)normalizedPos;
                     int spatialKey = (cell.x * 73856093) ^ (cell.y * 19349663) ^ (cell.z * 83492791);
                     var flowFieldData = new FlowFieldData
                     {
@@ -231,6 +285,19 @@ namespace Laboratory.AI.ECS
 
         private void CreateFlowField(FlowFieldGenerationRequest request, float currentTime)
         {
+            // Generate cache key for this flow field request
+            uint cacheKey = GenerateFlowFieldCacheKey(request.center, request.destination, request.radius);
+
+            // Check if we already have a similar flow field cached
+            if (_flowFieldCache.TryGetValue(cacheKey, out Entity cachedEntity) && EntityManager.Exists(cachedEntity))
+            {
+                // Reuse existing flow field - just update timestamp
+                var cachedFlowField = EntityManager.GetComponentData<FlowFieldComponent>(cachedEntity);
+                cachedFlowField.lastUpdateTime = currentTime;
+                EntityManager.SetComponentData(cachedEntity, cachedFlowField);
+                return;
+            }
+
             var flowFieldEntity = EntityManager.CreateEntity();
 
             // Create flow field blob
@@ -269,16 +336,18 @@ namespace Laboratory.AI.ECS
                 needsUpdate = false,
                 spatialHash = request.spatialHash
             });
+
+            // Cache the flow field for reuse
+            _flowFieldCache.TryAdd(cacheKey, flowFieldEntity);
         }
 
         /// <summary>
         /// Job for parallel flow field generation using Dijkstra's algorithm
         /// </summary>
-        [BurstCompile]
         private struct FlowFieldGenerationJob : IJob
         {
-            public BlobBuilderArray<float3> directions;
-            public BlobBuilderArray<float> costs;
+            public NativeArray<float3> directions;
+            public NativeArray<float> costs;
             [ReadOnly] public int2 gridSize;
             [ReadOnly] public float cellSize;
             [ReadOnly] public float3 worldOrigin;
@@ -352,15 +421,15 @@ namespace Laboratory.AI.ECS
                     {
                         var cell = new int2(x, y);
                         int index = GridToIndex(cell, gridSize);
-                        var direction = CalculateFlowDirection(cell, costs, gridSize);
+                        var direction = CalculateFlowDirection(cell, gridSize);
                         directions[index] = direction;
                     }
                 }
             }
 
-            private static float3 CalculateFlowDirection(int2 cell, BlobBuilderArray<float> costs, int2 gridSize)
+            private float3 CalculateFlowDirection(int2 cell, int2 gridSize)
             {
-                float3 direction = float3.zero;
+                float3 direction = new float3(0, 0, 0);
                 int currentIndex = GridToIndex(cell, gridSize);
                 float currentCost = costs[currentIndex];
 
@@ -385,7 +454,7 @@ namespace Laboratory.AI.ECS
                     }
                 }
 
-                return math.length(direction) > 0.01f ? math.normalize(direction) : float3.zero;
+                return math.length(direction) > 0.01f ? math.normalize(direction) : new float3(0, 0, 0);
             }
 
             private static int2 WorldToGrid(float3 worldPos, float3 worldOrigin, float cellSize, int2 gridSize)
@@ -395,7 +464,7 @@ namespace Laboratory.AI.ECS
                     Mathf.FloorToInt(localPos.x / cellSize),
                     Mathf.FloorToInt(localPos.z / cellSize)
                 );
-                return math.clamp(gridPos, int2.zero, gridSize - 1);
+                return math.clamp(gridPos, new int2(0, 0), gridSize - 1);
             }
 
             private static int GridToIndex(int2 gridPos, int2 gridSize)
@@ -418,7 +487,7 @@ namespace Laboratory.AI.ECS
                 return false;
             }
 
-            private static (int2 cell, int index) GetLowestCostCell(NativeArray<int2> cells, int count, BlobBuilderArray<float> costs, int2 gridSize)
+            private static (int2 cell, int index) GetLowestCostCell(NativeArray<int2> cells, int count, NativeArray<float> costs, int2 gridSize)
             {
                 int bestIndex = 0;
                 float bestCost = float.MaxValue;
@@ -437,19 +506,25 @@ namespace Laboratory.AI.ECS
             }
         }
 
-        private void GenerateFlowFieldData(ref BlobBuilderArray<float3> directions,
-                                         ref BlobBuilderArray<float> costs,
-                                         ref FlowFieldBlob flowFieldBlob,
-                                         FlowFieldGenerationRequest request)
+        /// <summary>
+        /// Async flow field generation with job scheduling
+        /// </summary>
+        private JobHandle GenerateFlowFieldDataAsync(ref BlobBuilderArray<float3> directions,
+                                                    ref BlobBuilderArray<float> costs,
+                                                    ref FlowFieldBlob flowFieldBlob,
+                                                    FlowFieldGenerationRequest request,
+                                                    JobHandle dependency)
         {
-            // Get pooled array for job
+            // Create temporary NativeArrays for async job execution
+            var tempDirections = new NativeArray<float3>(directions.Length, Allocator.TempJob);
+            var tempCosts = new NativeArray<float>(costs.Length, Allocator.TempJob);
             var tempOpenSet = _int2ArrayPool.Get(flowFieldBlob.gridSize.x * flowFieldBlob.gridSize.y);
 
-            // Create and schedule job
+            // Create and schedule job asynchronously
             var job = new FlowFieldGenerationJob
             {
-                directions = directions,
-                costs = costs,
+                directions = tempDirections,
+                costs = tempCosts,
                 gridSize = flowFieldBlob.gridSize,
                 cellSize = flowFieldBlob.cellSize,
                 worldOrigin = flowFieldBlob.worldOrigin,
@@ -457,10 +532,50 @@ namespace Laboratory.AI.ECS
                 tempOpenSet = tempOpenSet
             };
 
-            // Execute job (can be scheduled with .Schedule() for async)
+            // Schedule async execution
+            var jobHandle = job.Schedule(dependency);
+
+            // Note: Manual cleanup needed - tempDirections and tempCosts will auto-dispose with TempJob
+            // tempOpenSet needs manual return to pool after job completion
+            return jobHandle;
+        }
+
+        private void GenerateFlowFieldData(ref BlobBuilderArray<float3> directions,
+                                         ref BlobBuilderArray<float> costs,
+                                         ref FlowFieldBlob flowFieldBlob,
+                                         FlowFieldGenerationRequest request)
+        {
+            // Create temporary NativeArrays for job execution
+            var tempDirections = new NativeArray<float3>(directions.Length, Allocator.Temp);
+            var tempCosts = new NativeArray<float>(costs.Length, Allocator.Temp);
+            var tempOpenSet = _int2ArrayPool.Get(flowFieldBlob.gridSize.x * flowFieldBlob.gridSize.y);
+
+            var job = new FlowFieldGenerationJob
+            {
+                directions = tempDirections,
+                costs = tempCosts,
+                gridSize = flowFieldBlob.gridSize,
+                cellSize = flowFieldBlob.cellSize,
+                worldOrigin = flowFieldBlob.worldOrigin,
+                destination = request.destination,
+                tempOpenSet = tempOpenSet
+            };
+
             job.Execute();
 
-            // Return pooled array
+            // Copy results back to BlobBuilderArrays
+            for (int i = 0; i < directions.Length; i++)
+            {
+                directions[i] = tempDirections[i];
+            }
+            for (int i = 0; i < costs.Length; i++)
+            {
+                costs[i] = tempCosts[i];
+            }
+
+            // Cleanup
+            tempDirections.Dispose();
+            tempCosts.Dispose();
             _int2ArrayPool.Return(tempOpenSet);
         }
 
@@ -480,42 +595,117 @@ namespace Laboratory.AI.ECS
                 }).ScheduleParallel();
         }
 
-        private void ApplyFlowFieldMovement(float deltaTime)
+        /// <summary>
+        /// LOD-based movement job for hierarchical pathfinding optimization
+        /// </summary>
+        private struct LODFlowFieldMovementJob : IJobChunk
         {
-            // Create component lookup for Burst compatibility
-            var flowFieldLookup = GetComponentLookup<FlowFieldComponent>(true);
+            public ComponentTypeHandle<LocalTransform> transformTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<FlowFieldFollowerComponent> followerTypeHandle;
+            [ReadOnly] public ComponentLookup<FlowFieldComponent> flowFieldLookup;
+            [ReadOnly] public float deltaTime;
+            [ReadOnly] public float currentTime;
 
-            Entities
-                .WithAll<FlowFieldFollowerComponent>()
-                .WithReadOnly(flowFieldLookup)
-                .ForEach((ref LocalTransform transform, in FlowFieldFollowerComponent follower) =>
+            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in Unity.Burst.Intrinsics.v128 chunkEnabledMask)
+            {
+                var transforms = chunk.GetNativeArray(ref transformTypeHandle);
+                var followers = chunk.GetNativeArray(ref followerTypeHandle);
+
+                for (int i = 0; i < chunk.Count; i++)
                 {
-                    // Get flow field direction from the assigned flow field entity
-                    float3 flowDirection = float3.zero;
+                    var transform = transforms[i];
+                    var follower = followers[i];
 
-                    if (flowFieldLookup.HasComponent(follower.flowFieldEntity))
-                    {
-                        var flowFieldComp = flowFieldLookup[follower.flowFieldEntity];
-                        if (flowFieldComp.flowField.IsCreated)
-                        {
-                            // Sample flow field at current position
-                            flowDirection = SampleFlowField(flowFieldComp.flowField, transform.Position);
-                        }
-                    }
+                    // LOD-based update frequency
+                    float updateInterval = GetLODUpdateInterval(follower.currentLOD);
+                    if (currentTime - follower.lastLODUpdateTime < updateInterval)
+                        continue;
 
-                    // Apply movement based on flow field direction
+                    // Get flow field direction with LOD-based precision
+                    float3 flowDirection = GetFlowDirectionWithLOD(transform.Position, follower, flowFieldLookup);
+
+                    // Apply movement with LOD-adjusted speed
+                    float lodSpeedMultiplier = GetLODSpeedMultiplier(follower.currentLOD);
                     if (math.lengthsq(flowDirection) > 0.01f)
                     {
-                        var movement = flowDirection * follower.preferredSpeed * deltaTime;
+                        var movement = flowDirection * follower.preferredSpeed * lodSpeedMultiplier * deltaTime;
                         transform.Position += movement;
                     }
                     else
                     {
-                        // Fallback: move towards destination if no flow field available
-                        var movement = new float3(0, 0, follower.preferredSpeed * deltaTime * 0.1f);
+                        // Fallback movement with LOD consideration
+                        var movement = new float3(0, 0, follower.preferredSpeed * lodSpeedMultiplier * deltaTime * 0.1f);
                         transform.Position += movement;
                     }
-                }).ScheduleParallel();
+
+                    transforms[i] = transform;
+                }
+            }
+
+            private static float GetLODUpdateInterval(PathfindingLOD lod)
+            {
+                return lod switch
+                {
+                    PathfindingLOD.High => 0.016f,    // 60 FPS
+                    PathfindingLOD.Medium => 0.033f,  // 30 FPS
+                    PathfindingLOD.Low => 0.066f,     // 15 FPS
+                    PathfindingLOD.Minimal => 0.2f,   // 5 FPS
+                    _ => 0.033f
+                };
+            }
+
+            private static float GetLODSpeedMultiplier(PathfindingLOD lod)
+            {
+                return lod switch
+                {
+                    PathfindingLOD.High => 1.0f,     // Full speed
+                    PathfindingLOD.Medium => 0.8f,   // Slightly reduced
+                    PathfindingLOD.Low => 0.6f,      // Reduced speed
+                    PathfindingLOD.Minimal => 0.4f,  // Minimal speed
+                    _ => 1.0f
+                };
+            }
+
+            private static float3 GetFlowDirectionWithLOD(float3 position, FlowFieldFollowerComponent follower, ComponentLookup<FlowFieldComponent> flowFieldLookup)
+            {
+                if (!flowFieldLookup.HasComponent(follower.flowFieldEntity))
+                    return new float3(0, 0, 0);
+
+                var flowFieldComp = flowFieldLookup[follower.flowFieldEntity];
+                if (!flowFieldComp.flowField.IsCreated)
+                    return new float3(0, 0, 0);
+
+                // Sample with LOD-based precision
+                float3 samplePosition = position;
+
+                // For lower LODs, quantize the sample position to reduce precision
+                if (follower.currentLOD >= PathfindingLOD.Medium)
+                {
+                    float quantization = follower.currentLOD == PathfindingLOD.Medium ? 0.5f :
+                                       follower.currentLOD == PathfindingLOD.Low ? 1.0f : 2.0f;
+                    samplePosition = math.round(samplePosition / quantization) * quantization;
+                }
+
+                return SampleFlowField(flowFieldComp.flowField, samplePosition);
+            }
+        }
+
+        private void ApplyFlowFieldMovement(float deltaTime)
+        {
+            float currentTime = (float)SystemAPI.Time.ElapsedTime;
+
+            // Use LOD-optimized job for better performance
+            var lodMovementJob = new LODFlowFieldMovementJob
+            {
+                transformTypeHandle = GetComponentTypeHandle<LocalTransform>(),
+                followerTypeHandle = GetComponentTypeHandle<FlowFieldFollowerComponent>(true),
+                flowFieldLookup = GetComponentLookup<FlowFieldComponent>(true),
+                deltaTime = deltaTime,
+                currentTime = currentTime
+            };
+
+            var followerQuery = GetEntityQuery(ComponentType.ReadWrite<LocalTransform>(), ComponentType.ReadOnly<FlowFieldFollowerComponent>());
+            this.Dependency = lodMovementJob.ScheduleParallel(followerQuery, this.Dependency);
         }
 
         private void ApplyLocalAvoidance(float deltaTime)
@@ -540,7 +730,7 @@ namespace Laboratory.AI.ECS
                 Mathf.FloorToInt(localPos.x / cellSize),
                 Mathf.FloorToInt(localPos.z / cellSize)
             );
-            return math.clamp(gridPos, int2.zero, gridSize - 1);
+            return math.clamp(gridPos, new int2(0, 0), gridSize - 1);
         }
 
         private static int GridToIndex(int2 gridPos, int2 gridSize)
@@ -563,26 +753,6 @@ namespace Laboratory.AI.ECS
             return false;
         }
 
-        private static (int2 cell, int index) GetLowestCostCell(NativeArray<int2> cells,
-                                                               int count,
-                                                               BlobBuilderArray<float> costs,
-                                                               int2 gridSize)
-        {
-            int bestIndex = 0;
-            float bestCost = float.MaxValue;
-
-            for (int i = 0; i < count; i++)
-            {
-                int costIndex = GridToIndex(cells[i], gridSize);
-                if (costs[costIndex] < bestCost)
-                {
-                    bestCost = costs[costIndex];
-                    bestIndex = i;
-                }
-            }
-
-            return (cells[bestIndex], bestIndex);
-        }
 
         // Public API
         public Entity CreateFlowFieldForArea(float3 center, float3 destination, float radius)
@@ -620,6 +790,24 @@ namespace Laboratory.AI.ECS
             return (cell.x * 73856093) ^ (cell.y * 19349663) ^ (cell.z * 83492791);
         }
 
+        /// <summary>
+        /// Generates a cache key for flow field reuse based on discretized positions
+        /// </summary>
+        private uint GenerateFlowFieldCacheKey(float3 center, float3 destination, float radius)
+        {
+            // Discretize positions to grid for cache coherency
+            int3 centerGrid = (int3)(center / CACHE_GRID_TOLERANCE);
+            int3 destGrid = (int3)(destination / CACHE_GRID_TOLERANCE);
+            int radiusGrid = (int)(radius / CACHE_GRID_TOLERANCE);
+
+            // Combine into hash
+            uint hash = (uint)(centerGrid.x * 73856093) ^ (uint)(centerGrid.y * 19349663) ^ (uint)(centerGrid.z * 83492791);
+            hash ^= (uint)(destGrid.x * 13) ^ (uint)(destGrid.y * 17) ^ (uint)(destGrid.z * 19);
+            hash ^= (uint)(radiusGrid * 23);
+
+            return hash;
+        }
+
         public static float3 SampleFlowField(BlobAssetReference<FlowFieldBlob> flowFieldBlob, float3 worldPosition)
         {
             ref var flowField = ref flowFieldBlob.Value;
@@ -637,7 +825,7 @@ namespace Laboratory.AI.ECS
                 return flowField.directions[index];
             }
 
-            return float3.zero;
+            return new float3(0, 0, 0);
         }
     }
 

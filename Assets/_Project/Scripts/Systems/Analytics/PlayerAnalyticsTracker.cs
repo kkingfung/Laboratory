@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Core.Events;
+using Laboratory.Core.Utilities;
 using Laboratory.Systems.Quests;
 using Laboratory.Systems.Breeding;
 using Laboratory.Systems.Ecosystem;
@@ -230,7 +231,7 @@ namespace Laboratory.Systems.Analytics
             var parameters = new Dictionary<string, object>
             {
                 ["emotionalState"] = emotionalState.ToString(),
-                ["intensity"] = intensity,
+                ["intensity"] = intensity.ToStringCached(),
                 ["trigger"] = trigger
             };
 

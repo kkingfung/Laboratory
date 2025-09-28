@@ -7,14 +7,29 @@ using UnityEngine.AI;
 namespace Laboratory.AI.Pathfinding
 {
     /// <summary>
-    /// High-performance A* pathfinder optimized for Unity
+    /// High-performance A* pathfinder optimized for Unity with coroutine support.
+    /// Uses grid-based navigation with obstacle detection and frame-spreading for smooth gameplay.
+    /// Implements classic A* algorithm with Manhattan+Diagonal heuristic for optimal pathfinding.
     /// </summary>
     public class AStarPathfinder
     {
+        /// <summary>Maximum pathfinding iterations per request to prevent infinite loops</summary>
         private const int MAX_ITERATIONS = 1000;
+
+        /// <summary>Size of each grid cell in world units (smaller = more precise, slower)</summary>
         private readonly float cellSize = 1f;
+
+        /// <summary>LayerMask for obstacle detection (-1 = all layers)</summary>
         private readonly LayerMask obstacleLayer = -1;
 
+        /// <summary>
+        /// Asynchronously finds an optimal path between two world positions using A* algorithm.
+        /// Spreads computation across multiple frames to maintain stable framerate.
+        /// </summary>
+        /// <param name="start">Starting world position</param>
+        /// <param name="end">Target destination world position</param>
+        /// <param name="callback">Callback invoked with (path waypoints, success) when complete</param>
+        /// <returns>Coroutine enumerator for Unity StartCoroutine</returns>
         public IEnumerator FindPath(Vector3 start, Vector3 end, Action<(List<Vector3> path, bool success)> callback)
         {
             var openSet = new PriorityQueue<AStarNode>();
@@ -113,45 +128,73 @@ namespace Laboratory.AI.Pathfinding
             return neighbors;
         }
 
+        /// <summary>
+        /// Checks if a grid position contains an obstacle.
+        /// Uses NavMesh sampling for accurate walkability detection.
+        /// </summary>
+        /// <param name="position">Grid position to check</param>
+        /// <returns>True if position is blocked, false if walkable</returns>
         private bool IsObstacle(Vector3 position)
         {
-            // Check if position is on NavMesh (more reliable than raycasting)
+            // Use NavMesh sampling for reliable obstacle detection
+            // More accurate than raycasting for complex geometry
             return !NavMesh.SamplePosition(position, out NavMeshHit hit, cellSize * 0.5f, NavMesh.AllAreas);
         }
 
+        /// <summary>
+        /// Calculates heuristic distance estimate between two grid positions.
+        /// Uses Chebyshev distance (diagonal movement allowed) for optimal A* performance.
+        /// </summary>
+        /// <param name="a">Start position</param>
+        /// <param name="b">Goal position</param>
+        /// <returns>Estimated distance cost (never overestimates for A* optimality)</returns>
         private float Heuristic(Vector3 a, Vector3 b)
         {
-            // Manhattan distance with diagonal movement
+            // Chebyshev distance with diagonal movement cost adjustment
             float dx = Mathf.Abs(a.x - b.x);
             float dz = Mathf.Abs(a.z - b.z);
-            return (dx + dz) + (1.414f - 2) * Mathf.Min(dx, dz); // 1.414 ≈ √2
+            // Formula: D * (dx + dz) + (D2 - 2 * D) * min(dx, dz)
+            // Where D = 1 (straight move cost), D2 = √2 ≈ 1.414 (diagonal move cost)
+            return (dx + dz) + (1.414f - 2) * Mathf.Min(dx, dz);
         }
 
-        private List<Vector3> ReconstructPath(Dictionary<Vector3, Vector3> cameFrom, Vector3 current, 
+        /// <summary>
+        /// Reconstructs the final path from A* search results.
+        /// Works backwards from goal using the cameFrom map, then smooths the path.
+        /// </summary>
+        /// <param name="cameFrom">Dictionary mapping each node to its parent in the optimal path</param>
+        /// <param name="current">Goal position reached by A*</param>
+        /// <param name="startGrid">Grid-aligned start position</param>
+        /// <param name="actualStart">Original world start position</param>
+        /// <param name="actualEnd">Original world end position</param>
+        /// <returns>Smoothed path waypoints from start to end</returns>
+        private List<Vector3> ReconstructPath(Dictionary<Vector3, Vector3> cameFrom, Vector3 current,
             Vector3 startGrid, Vector3 actualStart, Vector3 actualEnd)
         {
             var path = new List<Vector3>();
-            
-            // Work backwards from goal to start
+
+            // Trace backwards through the optimal path using parent links
             while (cameFrom.ContainsKey(current))
             {
                 path.Add(current);
                 current = cameFrom[current];
             }
-            
-            path.Add(startGrid);
-            path.Reverse();
 
-            // Convert grid positions back to world positions and smooth
+            path.Add(startGrid);
+            path.Reverse(); // Convert from goal→start to start→goal
+
+            // Convert grid positions to world positions, preserving exact start/end
             var worldPath = new List<Vector3> { actualStart };
-            
+
+            // Add intermediate grid positions
             for (int i = 1; i < path.Count - 1; i++)
             {
                 worldPath.Add(path[i]);
             }
-            
+
             worldPath.Add(actualEnd);
 
+            // Apply path smoothing to reduce waypoint count and create natural movement
             return SmoothPath(worldPath);
         }
 

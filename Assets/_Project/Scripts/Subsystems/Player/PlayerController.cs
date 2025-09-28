@@ -4,6 +4,7 @@ using Laboratory.Core.Health;
 using Laboratory.Core.Events;
 using Laboratory.Core.Systems;
 using Laboratory.Core.Performance;
+using Laboratory.Core.Utilities;
 using System;
 
 namespace Laboratory.Subsystems.Player
@@ -58,6 +59,11 @@ namespace Laboratory.Subsystems.Player
         public bool IsAlive => currentHealth > 0;
         public bool IsDead => currentHealth <= 0;
         public float HealthPercentage => MaxHealth > 0 ? (float)CurrentHealth / MaxHealth : 0f;
+
+        /// <summary>
+        /// Gets health percentage as optimized string (e.g., "75%")
+        /// </summary>
+        public string HealthPercentageString => HealthPercentage.ToPercentString();
 
         public event Action<Laboratory.Core.Health.HealthChangedEventArgs> OnHealthChanged;
         public event Action<Laboratory.Core.Health.DeathEventArgs> OnDeath;

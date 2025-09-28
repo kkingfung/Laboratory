@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Laboratory.Core.Performance;
+using Laboratory.Core.Utilities;
 
 namespace Laboratory.Tools
 {
@@ -214,7 +215,7 @@ namespace Laboratory.Tools
             if (_fpsText == null || _deltaTime <= 0) return;
 
             float fps = 1.0f / _deltaTime;
-            _fpsText.text = $"FPS: {fps:F1}";
+            _fpsText.text = StringOptimizer.FormatOptimized("FPS: {0:F1}", fps);
         }
 
         /// <summary>
@@ -225,7 +226,7 @@ namespace Laboratory.Tools
             if (_frameTimeText == null) return;
 
             float frameMs = _deltaTime * 1000.0f;
-            _frameTimeText.text = $"Frame Time: {frameMs:F2} ms";
+            _frameTimeText.text = StringOptimizer.FormatOptimized("Frame Time: {0:F2} ms", frameMs);
         }
 
         /// <summary>
@@ -236,7 +237,7 @@ namespace Laboratory.Tools
             if (_memoryText == null) return;
 
             float memoryMB = _cachedMemory / (1024f * 1024f);
-            _memoryText.text = $"Memory: {memoryMB:F2} MB";
+            _memoryText.text = StringOptimizer.FormatOptimized("Memory: {0:F2} MB", memoryMB);
         }
 
         #endregion

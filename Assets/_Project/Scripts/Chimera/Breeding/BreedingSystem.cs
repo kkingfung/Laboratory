@@ -24,33 +24,41 @@ namespace Laboratory.Chimera.Breeding
             _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
         }
         
+        /// <summary>
+        /// Calculates environmental influence on breeding success based on biome conditions.
+        /// Factors include food availability, stress levels, predator pressure, and population density.
+        /// Environmental conditions can significantly boost or hinder breeding outcomes.
+        /// </summary>
+        /// <param name="environment">Breeding environment data, null defaults to neutral conditions</param>
+        /// <returns>Environmental modifier (0.1 to 2.0, where 1.0 = neutral, >1.0 = beneficial, <1.0 = detrimental)</returns>
         private float CalculateEnvironmentalFactor(BreedingEnvironment environment)
         {
-            if (environment == null) return 1f;
-            
+            if (environment == null) return 1f; // Neutral environment
+
             float environmentFactor = 1f;
-            
-            // Environmental conditions affect breeding success
+
+            // Base environmental breeding success multiplier
             environmentFactor *= environment.BreedingSuccessMultiplier;
-            
-            // Food and resource availability
+
+            // Food scarcity reduces breeding success, abundance improves it
             environmentFactor *= Mathf.Lerp(0.6f, 1.2f, environment.FoodAvailability);
-            
-            // Stress and predator pressure reduce breeding success
-            float stressFactor = 1f - (environment.StressLevel * 0.3f);
-            float predatorFactor = 1f - (environment.PredatorPressure * 0.2f);
+
+            // Stress and predator pressure create negative breeding conditions
+            float stressFactor = 1f - (environment.StressLevel * 0.3f); // Max 30% reduction
+            float predatorFactor = 1f - (environment.PredatorPressure * 0.2f); // Max 20% reduction
             environmentFactor *= stressFactor * predatorFactor;
-            
-            // Comfort level improves breeding
+
+            // Comfortable environments encourage breeding
             environmentFactor *= Mathf.Lerp(0.8f, 1.1f, environment.ComfortLevel);
-            
-            // Population density can negatively affect breeding if too high
+
+            // Overcrowding reduces breeding success due to competition and stress
             float populationFactor = environment.PopulationDensity;
-            if (populationFactor > 0.7f)
+            if (populationFactor > 0.7f) // Above 70% capacity
             {
                 environmentFactor *= Mathf.Lerp(1f, 0.7f, (populationFactor - 0.7f) / 0.3f);
             }
-            
+
+            // Clamp to reasonable bounds (10% to 200% of base success rate)
             return Mathf.Clamp(environmentFactor, 0.1f, 2f);
         }
         
@@ -208,35 +216,54 @@ namespace Laboratory.Chimera.Breeding
             return geneticSimilarity > 0.3f ? geneticSimilarity * 0.8f : 0f;
         }
         
+        /// <summary>
+        /// Compares genetic similarity between two creatures for breeding compatibility assessment.
+        /// Analyzes base stat distributions to determine how genetically related the creatures are.
+        /// Used to calculate species compatibility and inbreeding risk.
+        /// </summary>
+        /// <param name="genetics1">First creature's genetic profile</param>
+        /// <param name="genetics2">Second creature's genetic profile</param>
+        /// <returns>Similarity score (0.0 = completely different, 1.0 = identical genetics)</returns>
         private float CompareGeneticSimilarity(CreatureGenetics genetics1, CreatureGenetics genetics2)
         {
             if (genetics1 == null || genetics2 == null)
                 return 0f;
-                
-            // Simplified genetic similarity calculation
-            // In a real system, this would compare actual genetic markers
+
+            // Simplified genetic similarity based on statistical trait comparison
+            // In a complete system, this would analyze individual genes and allele frequencies
             float similarity = 0f;
             int comparisons = 0;
-            
-            // Compare major genetic traits - CreatureStats is a struct so it's always "not null"
-            // Check if the genetics have BaseStats (assumes they're valid if genetics object exists)
+
+            // Compare base statistical traits (strength, agility, intelligence, endurance)
+            // CreatureStats is a struct, so check for valid data using total power
             if (genetics1.BaseStats.GetTotalPower() > 0 && genetics2.BaseStats.GetTotalPower() > 0)
             {
                 similarity += CompareStatsSimilarity(genetics1.BaseStats, genetics2.BaseStats);
                 comparisons++;
             }
-            
+
+            // Return averaged similarity across all successful comparisons
             return comparisons > 0 ? similarity / comparisons : 0f;
         }
         
+        /// <summary>
+        /// Calculates normalized similarity between two creature stat profiles.
+        /// Uses relative difference comparison to handle creatures of different power levels fairly.
+        /// Essential for determining breeding compatibility across different species and generations.
+        /// </summary>
+        /// <param name="stats1">First creature's base statistics</param>
+        /// <param name="stats2">Second creature's base statistics</param>
+        /// <returns>Average similarity across all stats (0.0 = completely different, 1.0 = identical)</returns>
         private float CompareStatsSimilarity(CreatureStats stats1, CreatureStats stats2)
         {
-            // Calculate how similar the base stats are (normalized comparison)
+            // Normalized relative difference calculation prevents bias toward high/low stat creatures
+            // Formula: 1 - |diff| / max(stat1, stat2, 1) ensures meaningful comparison
             float strengthSim = 1f - Mathf.Abs(stats1.Strength - stats2.Strength) / Mathf.Max(stats1.Strength, stats2.Strength, 1f);
             float agilitySim = 1f - Mathf.Abs(stats1.Agility - stats2.Agility) / Mathf.Max(stats1.Agility, stats2.Agility, 1f);
             float intelligenceSim = 1f - Mathf.Abs(stats1.Intelligence - stats2.Intelligence) / Mathf.Max(stats1.Intelligence, stats2.Intelligence, 1f);
             float enduranceSim = 1f - Mathf.Abs(stats1.Endurance - stats2.Endurance) / Mathf.Max(stats1.Endurance, stats2.Endurance, 1f);
-            
+
+            // Return weighted average (all stats equally important for breeding compatibility)
             return (strengthSim + agilitySim + intelligenceSim + enduranceSim) / 4f;
         }
         
@@ -259,17 +286,27 @@ namespace Laboratory.Chimera.Breeding
             return 0.3f; // Too old
         }
         
+        /// <summary>
+        /// Calculates genetic diversity factor for breeding success and offspring health.
+        /// Balances the need for compatibility with the benefits of genetic diversity.
+        /// Prevents inbreeding while ensuring species can still reproduce successfully.
+        /// </summary>
+        /// <param name="parent1">First parent creature</param>
+        /// <param name="parent2">Second parent creature</param>
+        /// <returns>Diversity factor (0.4-1.0, where 1.0 = optimal genetic diversity)</returns>
         private float CalculateGeneticDiversity(CreatureInstance parent1, CreatureInstance parent2)
         {
-            // Higher genetic diversity reduces inbreeding and improves offspring
+            // Calculate genetic similarity to assess diversity level
             float similarity = CompareGeneticSimilarity(parent1.Genetics, parent2.Genetics);
-            
-            // Diversity is inverse of similarity, but we want some similarity for compatibility
-            // Sweet spot is moderate similarity (around 0.5-0.7)
-            if (similarity < 0.3f) return 0.5f; // Too different
-            if (similarity < 0.7f) return 1.0f; // Good diversity
-            if (similarity < 0.9f) return 0.8f; // Acceptable
-            return 0.4f; // Too similar (potential inbreeding)
+
+            // Genetic diversity sweet spot analysis:
+            // - Too different: species incompatibility, low success rate
+            // - Moderate difference: optimal diversity, healthy offspring
+            // - Too similar: inbreeding risk, genetic problems
+            if (similarity < 0.3f) return 0.5f; // Too genetically distant
+            if (similarity < 0.7f) return 1.0f; // Optimal genetic diversity range
+            if (similarity < 0.9f) return 0.8f; // Acceptable but slightly inbred
+            return 0.4f; // High inbreeding risk, poor offspring viability
         }
         
         private CreatureGenetics CombineGeneticsFromParents(CreatureInstance parent1, CreatureInstance parent2, BreedingEnvironment environment = null)

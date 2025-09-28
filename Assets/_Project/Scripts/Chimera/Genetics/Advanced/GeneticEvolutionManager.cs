@@ -117,7 +117,14 @@ namespace Laboratory.Chimera.Genetics.Advanced
             // Set main population to first species
             if (speciesPopulations.Count > 0)
             {
-                geneticAlgorithm = speciesPopulations.Values.First();
+                // Use efficient enumerator instead of LINQ First()
+                using (var enumerator = speciesPopulations.Values.GetEnumerator())
+                {
+                    if (enumerator.MoveNext())
+                    {
+                        geneticAlgorithm = enumerator.Current;
+                    }
+                }
             }
         }
 

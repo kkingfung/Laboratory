@@ -7,87 +7,163 @@ using Laboratory.Chimera.Core;
 namespace Laboratory.Chimera.ECS
 {
     /// <summary>
-    /// Component containing basic creature definition data
+    /// ECS component containing immutable creature definition data.
+    /// Defines the basic species characteristics that don't change during the creature's lifetime.
+    /// Used by combat, breeding, and AI systems to determine creature capabilities.
     /// </summary>
     public struct CreatureDefinitionComponent : IComponentData
     {
+        /// <summary>Unique identifier for the creature's species (references CreatureSpeciesConfig)</summary>
         public int SpeciesId;
+
+        /// <summary>Maximum health points this creature can have at full vitality</summary>
         public int MaxHealth;
+
+        /// <summary>Base attack power before modifiers and genetic traits are applied</summary>
         public int BaseAttack;
+
+        /// <summary>Base defensive capability before armor and genetic modifiers</summary>
         public int BaseDefense;
+
+        /// <summary>Base movement speed in units per second before agility modifiers</summary>
         public int BaseSpeed;
     }
     
     /// <summary>
-    /// Component for creature statistics
+    /// ECS component for dynamic creature statistics that change during gameplay.
+    /// Tracks current state, progression, and regeneration rates.
+    /// Modified by combat, aging, breeding, and genetic expression systems.
     /// </summary>
     public struct CreatureStatsComponent : IComponentData
     {
+        /// <summary>Base statistical values before genetic and temporary modifiers</summary>
         public CreatureStats BaseStats;
+
+        /// <summary>Current health points (0 = dead, MaxHealth = full health)</summary>
         public int CurrentHealth;
+
+        /// <summary>Maximum health points this creature can have (affected by genetics and level)</summary>
         public int MaxHealth;
+
+        /// <summary>Experience level affecting stat multipliers and breeding eligibility</summary>
         public int Level;
+
+        /// <summary>Experience points accumulated through activities and survival</summary>
         public int Experience;
+
+        /// <summary>Health points regenerated per second when not in combat</summary>
         public float HealthRegenRate;
 
-        // Additional properties for UI compatibility
+        // UI compatibility properties for case-insensitive access
         public int currentHealth => CurrentHealth;
         public int maxHealth => MaxHealth;
     }
     
     /// <summary>
-    /// Component for creature movement data
+    /// ECS component controlling creature movement and pathfinding state.
+    /// Integrates with AI systems, pathfinding, and animation controllers.
+    /// Updated by movement systems based on AI decisions and player input.
     /// </summary>
     public struct CreatureMovementComponent : IComponentData
     {
+        /// <summary>Base movement speed without genetic or temporary modifiers (units/second)</summary>
         public float BaseSpeed;
+
+        /// <summary>Current effective movement speed including all modifiers and conditions</summary>
         public float CurrentSpeed;
+
+        /// <summary>How fast the creature can rotate to face new directions (degrees/second)</summary>
         public float RotationSpeed;
+
+        /// <summary>World position the creature is currently moving toward</summary>
         public float3 TargetPosition;
+
+        /// <summary>True if the creature is actively moving, false if stationary</summary>
         public bool IsMoving;
+
+        /// <summary>True if the creature has a valid movement destination set</summary>
         public bool HasDestination;
     }
     
     /// <summary>
-    /// Component for creature age and life stage
+    /// ECS component tracking creature aging, life stage progression, and maturation.
+    /// Affects breeding eligibility, stat modifiers, and behavioral patterns.
+    /// Updated by aging systems and influences creature appearance and capabilities.
     /// </summary>
     public struct CreatureAgeComponent : IComponentData
     {
+        /// <summary>Total age of the creature in game days since birth</summary>
         public int AgeInDays;
-        public long BirthTime; // DateTime.ToBinary()
+
+        /// <summary>Birth timestamp stored as DateTime.ToBinary() for persistence</summary>
+        public long BirthTime;
+
+        /// <summary>Whether the creature has reached adult life stage and can breed</summary>
         public bool IsAdult;
+
+        /// <summary>Current life stage affecting stats, behavior, and breeding ability</summary>
         public LifeStage LifeStage;
+
+        /// <summary>Rate at which this creature ages (1.0 = normal, higher = faster aging)</summary>
         public float AgingRate;
+
+        /// <summary>Progress toward next life stage (0.0 to 1.0)</summary>
         public float MaturationProgress;
 
-        // Property accessors for UI compatibility
+        // UI compatibility properties for case-insensitive access
         public int ageInDays => AgeInDays;
         public float maturationProgress => MaturationProgress;
         public LifeStage currentLifeStage => LifeStage;
     }
     
     /// <summary>
-    /// Component for creature genetics data
+    /// ECS component containing creature genetic data and inherited traits.
+    /// Determines stat bonuses, appearance variations, and breeding compatibility.
+    /// Core data for the genetic breeding system and evolutionary mechanics.
     /// </summary>
     public struct CreatureGeneticsComponent : IComponentData
     {
+        /// <summary>Breeding generation number (0 = wild, higher = more bred)</summary>
         public int Generation;
+
+        /// <summary>Genetic purity percentage (0.0-1.0, affects breeding outcomes)</summary>
         public float GeneticPurity;
+
+        /// <summary>Rare coloration variant with enhanced stats (approximately 1/8192 chance)</summary>
         public bool IsShiny;
+
+        /// <summary>Unique ID of first parent for lineage tracking</summary>
         public Guid ParentId1;
+
+        /// <summary>Unique ID of second parent for lineage tracking</summary>
         public Guid ParentId2;
+
+        /// <summary>Number of actively expressed genes (affects stat calculations)</summary>
         public int ActiveGeneCount;
 
-        // Individual trait values for UI compatibility
-        public float StrengthTrait;
-        public float VitalityTrait;
-        public float AgilityTrait;
-        public float ResilienceTrait;
-        public float IntellectTrait;
-        public float CharmTrait;
+        /// <summary>Unique identifier for this creature's family lineage</summary>
         public Guid LineageId;
 
-        // Property accessors for case-insensitive access
+        // Core genetic traits that influence creature capabilities
+        /// <summary>Physical power trait affecting attack damage and carrying capacity (0.0-1.0)</summary>
+        public float StrengthTrait;
+
+        /// <summary>Health and endurance trait affecting max HP and regeneration (0.0-1.0)</summary>
+        public float VitalityTrait;
+
+        /// <summary>Speed and dexterity trait affecting movement and dodge chance (0.0-1.0)</summary>
+        public float AgilityTrait;
+
+        /// <summary>Environmental resistance trait affecting survival in harsh biomes (0.0-1.0)</summary>
+        public float ResilienceTrait;
+
+        /// <summary>Learning and problem-solving trait affecting AI behavior complexity (0.0-1.0)</summary>
+        public float IntellectTrait;
+
+        /// <summary>Social interaction trait affecting pack behavior and breeding success (0.0-1.0)</summary>
+        public float CharmTrait;
+
+        // UI compatibility properties for case-insensitive access
         public float strengthTrait => StrengthTrait;
         public float vitalityTrait => VitalityTrait;
         public float agilityTrait => AgilityTrait;
