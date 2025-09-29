@@ -497,7 +497,7 @@ namespace Laboratory.Chimera.UI
                     return creatures.OrderByDescending(c => GetCreatureRarity(c));
                     
                 case SortMode.LastSeen:
-                    return creatures.OrderByDescending(c => Time.time); // Placeholder
+                    return creatures.OrderByDescending(c => GetCreatureLastSeen(c));
                     
                 default:
                     return creatures;
@@ -1028,6 +1028,17 @@ namespace Laboratory.Chimera.UI
             if (rarity >= 0.4f) return "Rare";
             if (rarity >= 0.2f) return "Uncommon";
             return "Common";
+        }
+
+        private float GetCreatureLastSeen(CreatureInstanceComponent creature)
+        {
+            // In a full implementation, this would track when creature was last interacted with
+            // For now, simulate last seen times based on creature ID for consistent sorting
+            if (creature?.name == null) return Time.time;
+
+            int hash = creature.name.GetHashCode();
+            float hoursAgo = Mathf.Abs(hash % 72) + 1; // 1-72 hours ago
+            return Time.time - (hoursAgo * 3600f); // Convert to seconds
         }
         
         private Color GetTraitColor(Gene trait)

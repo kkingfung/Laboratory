@@ -1,11 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Laboratory.Core;
 using Laboratory.Chimera.Genetics.Advanced;
-using Laboratory.AI.Personality;
-using Laboratory.Systems.Ecosystem;
-using Laboratory.Systems.Analytics;
-using Laboratory.Systems.Quests;
 
 namespace Laboratory.Systems.Storytelling
 {
@@ -66,7 +63,6 @@ namespace Laboratory.Systems.Storytelling
         // Connected systems
         private PlayerAnalyticsTracker analyticsTracker;
         private DynamicEcosystemSimulator ecosystemSimulator;
-        private CreaturePersonalityManager personalityManager;
         private GeneticEvolutionManager evolutionManager;
 
         // Events
@@ -478,6 +474,54 @@ namespace Laboratory.Systems.Storytelling
             foreach (var story in relevantStories)
             {
                 UpdateStoryNarrative(story.id, gameEvent);
+            }
+        }
+
+        private float CalculateInteractionSignificance(SocialInteractionType interactionType)
+        {
+            return interactionType switch
+            {
+                SocialInteractionType.Conflict => 0.8f,
+                SocialInteractionType.Mating => 0.9f,
+                SocialInteractionType.Cooperation => 0.6f,
+                SocialInteractionType.Play => 0.4f,
+                SocialInteractionType.Territorial => 0.7f,
+                SocialInteractionType.Protection => 0.8f,
+                SocialInteractionType.Competition => 0.7f,
+                SocialInteractionType.Feeding => 0.5f,
+                SocialInteractionType.Grooming => 0.3f,
+                _ => 0.2f
+            };
+        }
+
+        private void HandleMoodChange(uint creatureId, MoodState newMood)
+        {
+            // Generate mood-related story events for significant mood changes
+            if (newMood.stress > 0.8f || newMood.happiness < 0.2f)
+            {
+                var gameEvent = new GameEvent
+                {
+                    eventType = "MoodChange",
+                    description = $"Creature {creatureId} experienced significant mood change: stress={newMood.stress:F2}, happiness={newMood.happiness:F2}",
+                    significance = 0.5f,
+                    timestamp = Time.time,
+                    primaryCreatureId = creatureId,
+                    eventData = new Dictionary<string, object>
+                    {
+                        ["mood"] = newMood,
+                        ["stress"] = newMood.stress,
+                        ["happiness"] = newMood.happiness
+                    }
+                };
+
+                // Update stories involving this creature
+                var relevantStories = activeStories.Where(s =>
+                    s.mainCharacters.Any(c => c.creatureId == creatureId));
+
+                foreach (var story in relevantStories)
+                {
+                    UpdateStoryNarrative(story.id, gameEvent);
+                }
             }
         }
 

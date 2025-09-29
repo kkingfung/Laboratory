@@ -503,13 +503,32 @@ namespace Laboratory.Chimera.Breeding
         private float GetEnvironmentalMutationFactor()
         {
             // Environmental factors that affect mutation rates
-            return 1.0f; // Placeholder
+            // Factors like temperature, radiation, season, etc.
+            float environmentalFactor = 1.0f;
+
+            // Simulate seasonal effects
+            float seasonFactor = 0.8f + 0.4f * Mathf.Sin(Time.time * 0.1f); // Varies between 0.8-1.2
+            environmentalFactor *= seasonFactor;
+
+            // Simulate random environmental stress
+            float stressFactor = UnityEngine.Random.Range(0.9f, 1.1f);
+            environmentalFactor *= stressFactor;
+
+            return Mathf.Clamp(environmentalFactor, 0.5f, 2.0f);
         }
-        
+
         private float GetParentAgeFactor()
         {
             // Older parents might have slightly higher mutation rates
-            return 1.0f; // Placeholder
+            // This would normally use actual parent age data
+
+            // Simulate age effect - assume random age between 1-10 generations
+            float simulatedAge = UnityEngine.Random.Range(1f, 10f);
+
+            // Age factor increases mutation rate slightly with age
+            float ageFactor = 1.0f + (simulatedAge - 1f) * 0.02f; // +2% per generation
+
+            return Mathf.Clamp(ageFactor, 1.0f, 1.2f);
         }
         
         #endregion

@@ -7,7 +7,6 @@ using UnityEngine.UI;
 using TMPro;
 using Unity.Netcode;
 using Cysharp.Threading.Tasks;
-using VContainer;
 using Laboratory.Infrastructure.Networking;
 using Laboratory.Core.Events;
 using Laboratory.UI.Helper;
@@ -111,7 +110,6 @@ namespace Laboratory.UI.Helper
         /// Inject dependencies for scoreboard messaging system
         /// </summary>
         /// <param name="eventBus">Event bus for publishing and subscribing to scoreboard events</param>
-        [Inject]
         public void Construct(IEventBus eventBus)
         {
             _eventBus = eventBus;

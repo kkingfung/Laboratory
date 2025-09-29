@@ -14,7 +14,7 @@ using Laboratory.Networking.Entities;
 using Laboratory.Subsystems.Combat.Advanced;
 using Laboratory.UI.Utils;
 using Laboratory.UI.Performance;
-using Laboratory.Chimera.Core;
+using Laboratory.Core.Configuration;
 
 namespace Laboratory.UI
 {
@@ -48,11 +48,8 @@ namespace Laboratory.UI
 
         [Header("Dynamic UI Elements")]
         [SerializeField] private Transform dynamicUIContainer;
-        [SerializeField] private CreatureCardPool creatureCardPool;
-        [SerializeField] private NotificationPool notificationPool;
 
         [Header("Accessibility")]
-        [SerializeField] private AccessibilitySettings accessibilitySettings;
         [SerializeField] private bool enableScreenReader = false;
         [SerializeField] private bool enableHighContrast = false;
         [SerializeField] private bool enableLargeText = false;
@@ -61,7 +58,6 @@ namespace Laboratory.UI
         private Dictionary<UIPanel, UIController> _panelControllers = new();
         private Queue<UINotification> _notificationQueue = new();
         private World _ecsWorld;
-        private UIUpdateSystem _uiUpdateSystem;
         private bool _isInitialized = false;
         private GameState _currentGameState = GameState.MainMenu;
         private float _lastUIUpdate = 0f;
@@ -141,10 +137,6 @@ namespace Laboratory.UI
         {
             // Get ECS World
             _ecsWorld = World.DefaultGameObjectInjectionWorld;
-            if (_ecsWorld != null)
-            {
-                _uiUpdateSystem = _ecsWorld.GetOrCreateSystemManaged<UIUpdateSystem>();
-            }
 
             // Initialize panel controllers
             InitializePanelControllers();
@@ -239,20 +231,25 @@ namespace Laboratory.UI
             // Connect to progression system
             if (progressionPanel != null)
             {
-                var progressionManager = FindObjectOfType<PlayerProgressionManager>();
+                var progressionManager = FindFirstObjectByType<PlayerProgressionManager>();
                 if (progressionManager != null && progressionPanel is IDataBindable<PlayerProgressionData> progressionBindable)
                 {
-                    progressionManager.OnProgressionChanged += data => progressionBindable.UpdateData(data);
+                    // Connect to progression events for UI updates
+                    progressionManager.OnLevelUp += (oldLevel, newLevel) => progressionBindable.UpdateData(progressionManager.CurrentProgression);
+                    progressionManager.OnExperienceGained += exp => progressionBindable.UpdateData(progressionManager.CurrentProgression);
+                    progressionManager.OnBiomeSpecializationUp += (biome, level) => progressionBindable.UpdateData(progressionManager.CurrentProgression);
                 }
             }
 
             // Connect to marketplace system
             if (marketplacePanel != null)
             {
-                var marketplace = FindObjectOfType<BreedingMarketplace>();
-                if (marketplace != null && marketplacePanel is IDataBindable<MarketplaceData> marketplaceBindable)
+                var marketplace = FindFirstObjectByType<BreedingMarketplace>();
+                if (marketplace != null && marketplacePanel is IDataBindable<MarketplaceConfig> marketplaceBindable)
                 {
-                    marketplace.OnMarketplaceDataChanged += data => marketplaceBindable.UpdateData(data);
+                    // Connect to available marketplace events for data updates
+                    marketplace.OnListingCreated += listing => marketplaceBindable.UpdateData(marketplace.Config);
+                    marketplace.OnTransactionCompleted += transaction => marketplaceBindable.UpdateData(marketplace.Config);
                 }
             }
 
@@ -311,11 +308,8 @@ namespace Laboratory.UI
 
         private void UpdateDynamicElements()
         {
-            // Update creature cards
-            if (creatureCardPool != null)
-            {
-                creatureCardPool.UpdatePool();
-            }
+            // Update creature cards and dynamic UI elements
+            UpdateCreatureDisplays();
 
             // Update performance metrics
             if (uiConfig.showPerformanceMetrics && gameplayHUD != null)
@@ -394,27 +388,27 @@ namespace Laboratory.UI
         private void HandleInput()
         {
             // Handle UI navigation input
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Escape))
             {
                 HandleEscapeKey();
             }
 
-            if (Input.GetKeyDown(KeyCode.Tab))
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Tab))
             {
                 HandleTabKey();
             }
 
             // Handle quick access hotkeys
-            if (Input.GetKeyDown(KeyCode.F1))
+            if (UnityEngine.Input.GetKeyDown(KeyCode.F1))
                 TogglePanel(UIPanel.Settings);
 
-            if (Input.GetKeyDown(KeyCode.F2))
+            if (UnityEngine.Input.GetKeyDown(KeyCode.F2))
                 TogglePanel(UIPanel.CreatureManagement);
 
-            if (Input.GetKeyDown(KeyCode.F3))
+            if (UnityEngine.Input.GetKeyDown(KeyCode.F3))
                 TogglePanel(UIPanel.Breeding);
 
-            if (Input.GetKeyDown(KeyCode.F4))
+            if (UnityEngine.Input.GetKeyDown(KeyCode.F4))
                 TogglePanel(UIPanel.Marketplace);
         }
 
@@ -611,7 +605,6 @@ namespace Laboratory.UI
         /// </summary>
         public void ApplyAccessibilitySettings()
         {
-            if (accessibilitySettings == null) return;
 
             // Apply high contrast mode
             if (enableHighContrast)
@@ -629,6 +622,61 @@ namespace Laboratory.UI
             if (enableScreenReader)
             {
                 EnableScreenReaderSupport();
+            }
+        }
+
+        /// <summary>
+        /// Updates creature displays and related UI elements
+        /// </summary>
+        private void UpdateCreatureDisplays()
+        {
+            // Update creature information in active panels
+            if (creaturePanel != null && creaturePanel.IsOpen)
+            {
+                // Refresh creature data if the panel is open
+                RefreshCreaturePanel();
+            }
+
+            // Update breeding panel if active
+            if (breedingPanel != null && breedingPanel.IsOpen)
+            {
+                // Refresh breeding information
+                RefreshBreedingPanel();
+            }
+
+            // Update marketplace if showing creature listings
+            if (marketplacePanel != null && marketplacePanel.IsOpen)
+            {
+                // This would refresh marketplace creature listings
+                RefreshMarketplacePanel();
+            }
+        }
+
+        private void RefreshCreaturePanel()
+        {
+            // Refresh creature panel data - in a full implementation this would
+            // update creature cards, stats, and other creature-related UI
+            if (creaturePanel is IRefreshable refreshableCreature)
+            {
+                refreshableCreature.RefreshUI();
+            }
+        }
+
+        private void RefreshBreedingPanel()
+        {
+            // Refresh breeding panel data
+            if (breedingPanel is IRefreshable refreshableBreeding)
+            {
+                refreshableBreeding.RefreshUI();
+            }
+        }
+
+        private void RefreshMarketplacePanel()
+        {
+            // Refresh marketplace panel data
+            if (marketplacePanel is IRefreshable refreshableMarketplace)
+            {
+                refreshableMarketplace.RefreshUI();
             }
         }
 
@@ -839,10 +887,23 @@ namespace Laboratory.UI
 
     #region Panel Base Classes
 
+
     public abstract class MainMenuPanel : UIController, IUIPanel
     {
         public event Action OnPanelOpened;
         public event Action OnPanelClosed;
+
+        public override void Show()
+        {
+            base.Show();
+            OnPanelOpened?.Invoke();
+        }
+
+        public override void Hide()
+        {
+            base.Hide();
+            OnPanelClosed?.Invoke();
+        }
 
         public virtual IEnumerator InitializeAsync()
         {
@@ -859,6 +920,18 @@ namespace Laboratory.UI
         public event Action OnPanelOpened;
         public event Action OnPanelClosed;
 
+        public override void Show()
+        {
+            base.Show();
+            OnPanelOpened?.Invoke();
+        }
+
+        public override void Hide()
+        {
+            base.Hide();
+            OnPanelClosed?.Invoke();
+        }
+
         public virtual IEnumerator InitializeAsync()
         {
             yield return null;
@@ -872,6 +945,18 @@ namespace Laboratory.UI
     {
         public event Action OnPanelOpened;
         public event Action OnPanelClosed;
+
+        public override void Show()
+        {
+            base.Show();
+            OnPanelOpened?.Invoke();
+        }
+
+        public override void Hide()
+        {
+            base.Hide();
+            OnPanelClosed?.Invoke();
+        }
 
         public virtual IEnumerator InitializeAsync()
         {
@@ -887,6 +972,18 @@ namespace Laboratory.UI
         public event Action OnPanelOpened;
         public event Action OnPanelClosed;
 
+        public override void Show()
+        {
+            base.Show();
+            OnPanelOpened?.Invoke();
+        }
+
+        public override void Hide()
+        {
+            base.Hide();
+            OnPanelClosed?.Invoke();
+        }
+
         public virtual IEnumerator InitializeAsync()
         {
             yield return null;
@@ -895,23 +992,47 @@ namespace Laboratory.UI
         public virtual void RefreshCreatureData(Entity creatureEntity) { }
     }
 
-    public abstract class MarketplacePanel : UIController, IUIPanel, IDataBindable<MarketplaceData>
+    public abstract class MarketplacePanel : UIController, IUIPanel, IDataBindable<MarketplaceConfig>
     {
         public event Action OnPanelOpened;
         public event Action OnPanelClosed;
+
+        public override void Show()
+        {
+            base.Show();
+            OnPanelOpened?.Invoke();
+        }
+
+        public override void Hide()
+        {
+            base.Hide();
+            OnPanelClosed?.Invoke();
+        }
 
         public virtual IEnumerator InitializeAsync()
         {
             yield return null;
         }
 
-        public virtual void UpdateData(MarketplaceData data) { }
+        public virtual void UpdateData(MarketplaceConfig data) { }
     }
 
     public abstract class ProgressionPanel : UIController, IUIPanel, IDataBindable<PlayerProgressionData>
     {
         public event Action OnPanelOpened;
         public event Action OnPanelClosed;
+
+        public override void Show()
+        {
+            base.Show();
+            OnPanelOpened?.Invoke();
+        }
+
+        public override void Hide()
+        {
+            base.Hide();
+            OnPanelClosed?.Invoke();
+        }
 
         public virtual IEnumerator InitializeAsync()
         {
@@ -925,6 +1046,18 @@ namespace Laboratory.UI
     {
         public event Action OnPanelOpened;
         public event Action OnPanelClosed;
+
+        public override void Show()
+        {
+            base.Show();
+            OnPanelOpened?.Invoke();
+        }
+
+        public override void Hide()
+        {
+            base.Hide();
+            OnPanelClosed?.Invoke();
+        }
 
         public virtual IEnumerator InitializeAsync()
         {
@@ -940,6 +1073,18 @@ namespace Laboratory.UI
         public event Action OnPanelOpened;
         public event Action OnPanelClosed;
 
+        public override void Show()
+        {
+            base.Show();
+            OnPanelOpened?.Invoke();
+        }
+
+        public override void Hide()
+        {
+            base.Hide();
+            OnPanelClosed?.Invoke();
+        }
+
         public virtual IEnumerator InitializeAsync()
         {
             yield return null;
@@ -953,6 +1098,18 @@ namespace Laboratory.UI
         public event Action OnPanelOpened;
         public event Action OnPanelClosed;
 
+        public override void Show()
+        {
+            base.Show();
+            OnPanelOpened?.Invoke();
+        }
+
+        public override void Hide()
+        {
+            base.Hide();
+            OnPanelClosed?.Invoke();
+        }
+
         public virtual IEnumerator InitializeAsync()
         {
             yield return null;
@@ -964,13 +1121,38 @@ namespace Laboratory.UI
         public event Action OnPanelOpened;
         public event Action OnPanelClosed;
 
+        public override void Show()
+        {
+            base.Show();
+            OnPanelOpened?.Invoke();
+        }
+
+        public override void Hide()
+        {
+            base.Hide();
+            OnPanelClosed?.Invoke();
+        }
+
         public virtual IEnumerator InitializeAsync()
         {
             yield return null;
         }
 
         public virtual void ShowNotification(UINotification notification) { }
+
+        // Ensure events are properly exposed for external subscription
+        protected virtual void TriggerPanelOpened() => OnPanelOpened?.Invoke();
+        protected virtual void TriggerPanelClosed() => OnPanelClosed?.Invoke();
     }
 
     #endregion
+
+    /// <summary>
+    /// Interface for UI components that can be refreshed
+    /// </summary>
+    public interface IRefreshable
+    {
+        void RefreshUI();
+    }
+
 }

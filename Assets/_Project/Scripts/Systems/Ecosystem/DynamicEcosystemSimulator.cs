@@ -1,9 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Laboratory.Core;
 using Laboratory.Chimera.Genetics.Advanced;
-using Laboratory.AI.Personality;
-using Laboratory.Systems.Quests;
+using Laboratory.Core.Debug;
 
 namespace Laboratory.Systems.Ecosystem
 {
@@ -666,9 +666,10 @@ namespace Laboratory.Systems.Ecosystem
             }
 
             // Subscribe to personality system events
-            if (CreaturePersonalityManager.Instance != null)
+            var personalityManager = PersonalityManager.GetInstance();
+            if (personalityManager != null)
             {
-                CreaturePersonalityManager.Instance.OnSocialInteraction += HandleSocialInteraction;
+                personalityManager.OnSocialInteraction += HandleSocialInteraction;
             }
         }
 
@@ -750,8 +751,8 @@ namespace Laboratory.Systems.Ecosystem
             // Update debug data
             DebugManager.SetDebugData("Ecosystem.OverallHealth", analytics.currentOverallHealth.ToString());
             DebugManager.SetDebugData("Ecosystem.StressLevel", analytics.currentStressLevel.ToString());
-            DebugManager.SetDebugData("Ecosystem.ActiveEvents", analytics.totalActiveEvents);
-            DebugManager.SetDebugData("Ecosystem.Temperature", CalculateCurrentTemperature());
+            DebugManager.SetDebugData("Ecosystem.ActiveEvents", analytics.totalActiveEvents.ToString());
+            DebugManager.SetDebugData("Ecosystem.Temperature", CalculateCurrentTemperature().ToString());
         }
 
         // Additional helper methods would continue here...

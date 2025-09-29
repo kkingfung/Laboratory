@@ -1,9 +1,12 @@
 using Unity.Entities;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Burst;
 using Unity.Jobs;
+using Unity.Burst.Intrinsics;
+using static Unity.Mathematics.math;
 using UnityEngine;
 using Laboratory.Core.ECS;
 using Laboratory.Chimera.ECS;
@@ -56,7 +59,7 @@ namespace Laboratory.Networking.Entities
         public AIBehaviorType currentBehavior;
         public float behaviorIntensity;
         public Entity currentTarget;
-        public BiomeType currentBiome;
+        public Laboratory.Core.ECS.BiomeType currentBiome;
         public float health;
         public float energy;
         public uint stateVersion;
@@ -160,7 +163,7 @@ namespace Laboratory.Networking.Entities
         public int level;
         public float experience;
         public int availableCreatureSlots;
-        public BiomeType[] unlockedBiomes; // Serialized as NativeArray in actual implementation
+        public uint unlockedBiomesBitmask; // Bitmask representing unlocked biomes for ECS compatibility
         public uint progressionVersion;
         public float lastProgressionUpdate;
     }
@@ -534,6 +537,24 @@ namespace Laboratory.Networking.Entities
 
             for (int i = 0; i < chunk.Count; i++)
             {
+                // Skip if entity is disabled when using enabled mask
+                if (useEnabledMask)
+                {
+                    // Use standard bit checking for enabled mask
+                    int maskIndex = i / 32;
+                    int bitIndex = i % 32;
+                    if (maskIndex < 4) // v128 has 4 uint values
+                    {
+                        uint maskValue = chunkEnabledMask.UInt0;
+                        if (maskIndex == 1) maskValue = chunkEnabledMask.UInt1;
+                        else if (maskIndex == 2) maskValue = chunkEnabledMask.UInt2;
+                        else if (maskIndex == 3) maskValue = chunkEnabledMask.UInt3;
+
+                        if ((maskValue & (1u << bitIndex)) == 0)
+                            continue;
+                    }
+                }
+
                 var replicatedState = replicatedStates[i];
                 var syncPriority = syncPriorities[i];
                 var transform = transforms[i];

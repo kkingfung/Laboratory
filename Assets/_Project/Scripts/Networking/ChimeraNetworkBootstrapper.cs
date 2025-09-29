@@ -4,7 +4,9 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using Laboratory.Core;
+using Laboratory.Core.Configuration;
 using Laboratory.Chimera.Core;
+using Laboratory.Chimera.AI;
 using Laboratory.Core.Progression;
 using Laboratory.Economy;
 using Laboratory.Networking.Entities;
@@ -58,7 +60,7 @@ namespace Laboratory.Networking
         public float spawnRadius = 50f;
 
         [Tooltip("Biome for test creature spawning")]
-        public BiomeType testSpawnBiome = BiomeType.Forest;
+        public Laboratory.Core.ECS.BiomeType testSpawnBiome = Laboratory.Core.ECS.BiomeType.Forest;
 
         [Header("System Integration")]
         [Tooltip("Initialize progression system")]
@@ -244,12 +246,12 @@ namespace Laboratory.Networking
             // Initialize Player Progression System
             if (enableProgressionSystem && progressionConfig != null)
             {
-                var progressionManager = FindObjectOfType<PlayerProgressionManager>();
+                var progressionManager = FindFirstObjectByType<PlayerProgressionManager>();
                 if (progressionManager == null)
                 {
                     var progressionGO = new GameObject("Player Progression Manager");
                     progressionManager = progressionGO.AddComponent<PlayerProgressionManager>();
-                    progressionManager.Initialize(progressionConfig);
+                    // PlayerProgressionManager initializes automatically on Awake/Start
                 }
 
                 Debug.Log("✅ Player Progression System connected to network");
@@ -258,7 +260,7 @@ namespace Laboratory.Networking
             // Initialize Marketplace System
             if (enableMarketplaceSystem)
             {
-                var marketplaceManager = FindObjectOfType<BreedingMarketplace>();
+                var marketplaceManager = FindFirstObjectByType<BreedingMarketplace>();
                 if (marketplaceManager == null)
                 {
                     var marketplaceGO = new GameObject("Breeding Marketplace");
@@ -338,7 +340,7 @@ namespace Laboratory.Networking
                 position = spawnPosition,
                 rotation = quaternion.identity,
                 velocity = float3.zero,
-                currentBehavior = AIBehaviorType.Idle,
+                currentBehavior = Laboratory.Core.ECS.AIBehaviorType.None,
                 behaviorIntensity = 0.5f,
                 currentTarget = Entity.Null,
                 currentBiome = testSpawnBiome,

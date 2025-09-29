@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Core;
+using Laboratory.Core.Configuration;
 using Laboratory.Core.ECS;
 using Laboratory.Chimera.Core;
 
@@ -474,7 +475,7 @@ namespace Laboratory.Networking.Entities
         protected override void OnCreate()
         {
             // Find configuration in scene
-            var authoring = Object.FindObjectOfType<NetcodeConfigurationAuthoring>();
+            var authoring = Object.FindFirstObjectByType<NetcodeConfigurationAuthoring>();
             if (authoring != null)
             {
                 _config = authoring.netcodeConfig;

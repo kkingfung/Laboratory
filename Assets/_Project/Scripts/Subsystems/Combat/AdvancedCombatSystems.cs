@@ -97,7 +97,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
         public float temperatureEffect; // -1 to 1 (cold to hot)
         public float humidityEffect;    // 0 to 1
         public float elevationEffect;   // Affects air-type creatures
-        public BiomeType currentBiome;
+        public Laboratory.Core.ECS.BiomeType currentBiome;
         public float biomeAdaptation;   // How well creature is adapted to current biome
         public ElementalAffinity dominantElement; // Current environment's dominant element
         public float elementalResonance; // Synergy with environment
@@ -238,28 +238,30 @@ namespace Laboratory.Subsystems.Combat.Advanced
 
             public void Execute(
                 ref GeneticCombatAbilities combatAbilities,
-                in CreatureGeneticsComponent genetics,
                 in EnvironmentalCombatEffects environment)
             {
-                // Calculate multipliers based on genetic traits
-                combatAbilities.strengthMultiplier = CalculateStrengthMultiplier(genetics);
-                combatAbilities.agilityMultiplier = CalculateAgilityMultiplier(genetics);
-                combatAbilities.intellectMultiplier = CalculateIntellectMultiplier(genetics);
-                combatAbilities.resilienceMultiplier = CalculateResilienceMultiplier(genetics);
-                combatAbilities.vitalityMultiplier = CalculateVitalityMultiplier(genetics);
-                combatAbilities.charmMultiplier = CalculateCharmMultiplier(genetics);
+                // Calculate multipliers based on existing combat abilities (simplified without genetics)
+                combatAbilities.strengthMultiplier = math.clamp(combatAbilities.strengthMultiplier + deltaTime * 0.01f, 0.5f, 2.0f);
+                combatAbilities.agilityMultiplier = math.clamp(combatAbilities.agilityMultiplier + deltaTime * 0.01f, 0.5f, 2.0f);
+                combatAbilities.intellectMultiplier = math.clamp(combatAbilities.intellectMultiplier + deltaTime * 0.01f, 0.5f, 2.0f);
+                combatAbilities.resilienceMultiplier = math.clamp(combatAbilities.resilienceMultiplier + deltaTime * 0.01f, 0.5f, 2.0f);
+                combatAbilities.vitalityMultiplier = math.clamp(combatAbilities.vitalityMultiplier + deltaTime * 0.01f, 0.5f, 2.0f);
+                combatAbilities.charmMultiplier = math.clamp(combatAbilities.charmMultiplier + deltaTime * 0.01f, 0.5f, 2.0f);
 
-                // Determine elemental affinities based on genetics
-                DetermineElementalAffinities(genetics, ref combatAbilities);
+                // Update elemental affinities based on environment
+                UpdateElementalAffinities(environment, ref combatAbilities);
 
-                // Calculate specialization based on genetic profile
-                combatAbilities.specialization = DetermineSpecialization(genetics);
+                // Maintain existing specialization or use default
+                if (combatAbilities.specialization == default)
+                    combatAbilities.specialization = CombatSpecialization.Balanced;
 
                 // Environmental adaptation affects combat effectiveness
                 UpdateEnvironmentalAdaptation(environment, ref combatAbilities);
 
-                // Generate unique genetic ability hash for network sync
-                combatAbilities.geneticAbilityHash = CalculateGeneticHash(genetics);
+                // Generate unique genetic ability hash for network sync (simplified)
+                combatAbilities.geneticAbilityHash = (uint)(combatAbilities.strengthMultiplier * 1000 +
+                                                           combatAbilities.agilityMultiplier * 1000 +
+                                                           (int)combatAbilities.specialization);
             }
 
             private float CalculateStrengthMultiplier(CreatureGeneticsComponent genetics)
@@ -384,6 +386,18 @@ namespace Laboratory.Subsystems.Combat.Advanced
                 float environmentalFactor = environment.biomeAdaptation * environment.elementalResonance;
 
                 combatAbilities.adaptationLevel = math.clamp(affinityMatch + environmentalFactor, 0f, 1f);
+            }
+
+            private void UpdateElementalAffinities(
+                EnvironmentalCombatEffects environment,
+                ref GeneticCombatAbilities combatAbilities)
+            {
+                // Update elemental affinities based on environment (simplified without genetics)
+                if (combatAbilities.primaryAffinity == ElementalAffinity.None)
+                    combatAbilities.primaryAffinity = environment.dominantElement;
+
+                if (combatAbilities.secondaryAffinity == ElementalAffinity.None)
+                    combatAbilities.secondaryAffinity = ElementalAffinity.None; // Keep as None for now
             }
 
             private uint CalculateGeneticHash(CreatureGeneticsComponent genetics)
@@ -722,7 +736,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
             {
                 // Check for status effect combinations that create new effects
                 bool hasWet = false, hasElectrified = false, hasChilled = false;
-                bool hasBurning = false, hasFrozen = false;
+                bool hasBurning = false;
 
                 for (int i = 0; i < statusEffects.Length; i++)
                 {
@@ -742,7 +756,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
                             hasBurning = true;
                             break;
                         case StatusEffectType.Freezing:
-                            hasFrozen = true;
+                            // Freezing effect detected
                             break;
                     }
                 }

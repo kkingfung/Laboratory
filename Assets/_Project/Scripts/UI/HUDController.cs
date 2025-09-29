@@ -183,7 +183,7 @@ namespace Laboratory.UI
                 .Subscribe(cooldown =>
                 {
                     button.interactable = cooldown <= 0f;
-                    // _abilityBarUI.UpdateCooldown(abilityIndex, cooldown); // Temporarily disabled
+                    // Additional cooldown UI updates could be added here
                 })
                 .AddTo(_disposables);
 

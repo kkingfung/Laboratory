@@ -3,8 +3,10 @@
     "rootNamespace": "Laboratory.Core.Progression",
     "references": [
         "Laboratory.Core",
+        "Laboratory.Core.Debug",
         "Laboratory.Chimera",
         "Laboratory.Systems",
+        "Laboratory.AI.Personality",
         "Unity.TextMeshPro",
         "Unity.Mathematics",
         "Unity.Collections",

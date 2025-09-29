@@ -5,7 +5,6 @@ using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
 using Laboratory.Core.Events;
-using MessagePipe;
 
 namespace Laboratory.UI
 {

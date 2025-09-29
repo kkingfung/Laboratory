@@ -3,8 +3,6 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Chimera.Genetics.Advanced;
-using Laboratory.AI.Personality;
-using Laboratory.Systems.Ecosystem;
 using TMPro;
 
 namespace Laboratory.Systems.Breeding
@@ -65,7 +63,7 @@ namespace Laboratory.Systems.Breeding
 
         // Core systems
         private AdvancedGeneticAlgorithm geneticAlgorithm;
-        private CreaturePersonalityManager personalityManager;
+        private IPersonalityManager personalityManager;
         private DynamicEcosystemSimulator ecosystemSimulator;
 
         // Breeding state
@@ -196,7 +194,7 @@ namespace Laboratory.Systems.Breeding
             }
 
             // Connect to personality system
-            personalityManager = CreaturePersonalityManager.Instance;
+            personalityManager = PersonalityManager.GetInstance();
 
             // Connect to ecosystem system
             ecosystemSimulator = DynamicEcosystemSimulator.Instance;

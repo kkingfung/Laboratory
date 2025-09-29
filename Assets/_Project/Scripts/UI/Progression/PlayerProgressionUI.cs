@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Core.Progression;
 using Laboratory.Core.Utilities;
-using Laboratory.Chimera.Core;
+using Laboratory.Core.Configuration;
 
 namespace Laboratory.UI.Progression
 {
@@ -150,7 +150,7 @@ namespace Laboratory.UI.Progression
             progressionManager = PlayerProgressionManager.Instance;
             if (progressionManager == null)
             {
-                DebugManager.LogWarning("PlayerProgressionManager not found - UI will not function properly");
+                Debug.LogWarning("PlayerProgressionManager not found - UI will not function properly");
                 return;
             }
 
@@ -395,8 +395,8 @@ namespace Laboratory.UI.Progression
             GameObject notificationPrefab = notification.type switch
             {
                 ProgressionNotificationType.LevelUp => levelUpNotificationPrefab,
-                ProgressionNotificationType.ResearchUnlock => researchUnlockNotificationPrefab,
-                ProgressionNotificationType.BiomeUnlock => biomeUnlockNotificationPrefab,
+                ProgressionNotificationType.ResearchUnlocked => researchUnlockNotificationPrefab,
+                ProgressionNotificationType.BiomeUnlocked => biomeUnlockNotificationPrefab,
                 _ => null
             };
 
@@ -419,8 +419,8 @@ namespace Laboratory.UI.Progression
             {
                 type = ProgressionNotificationType.LevelUp,
                 title = "Level Up!",
-                message = $"Reached Level {newLevel}",
-                data = new Dictionary<string, object> { ["oldLevel"] = oldLevel, ["newLevel"] = newLevel }
+                message = $"Reached Level {newLevel} (was {oldLevel})",
+                displayDuration = levelUpAnimationDuration
             });
 
             // Trigger experience animation
@@ -439,8 +439,7 @@ namespace Laboratory.UI.Progression
             {
                 type = ProgressionNotificationType.BiomeSpecialization,
                 title = "Specialization Up!",
-                message = $"{biome} specialization reached level {newLevel}",
-                data = new Dictionary<string, object> { ["biome"] = biome, ["level"] = newLevel }
+                message = $"{biome} specialization reached level {newLevel}"
             });
         }
 
@@ -448,10 +447,9 @@ namespace Laboratory.UI.Progression
         {
             pendingNotifications.Enqueue(new ProgressionNotification
             {
-                type = ProgressionNotificationType.ResearchUnlock,
+                type = ProgressionNotificationType.ResearchUnlocked,
                 title = "Research Unlocked!",
-                message = $"Unlocked: {researchType}",
-                data = new Dictionary<string, object> { ["researchType"] = researchType }
+                message = $"Unlocked: {researchType}"
             });
         }
 
@@ -459,10 +457,9 @@ namespace Laboratory.UI.Progression
         {
             pendingNotifications.Enqueue(new ProgressionNotification
             {
-                type = ProgressionNotificationType.TerritoryExpansion,
+                type = ProgressionNotificationType.TerritoryExpanded,
                 title = "Territory Expanded!",
-                message = $"Upgraded to: {newTier}",
-                data = new Dictionary<string, object> { ["tier"] = newTier }
+                message = $"Upgraded to: {newTier}"
             });
         }
 
@@ -470,10 +467,9 @@ namespace Laboratory.UI.Progression
         {
             pendingNotifications.Enqueue(new ProgressionNotification
             {
-                type = ProgressionNotificationType.CreatureSlots,
+                type = ProgressionNotificationType.MilestoneReached,
                 title = "More Creature Slots!",
-                message = $"Now have {newSlotCount} creature slots",
-                data = new Dictionary<string, object> { ["slotCount"] = newSlotCount }
+                message = $"Now have {newSlotCount} creature slots"
             });
         }
 
@@ -614,24 +610,6 @@ namespace Laboratory.UI.Progression
 
     // Notification system
     [System.Serializable]
-    public class ProgressionNotification
-    {
-        public ProgressionNotificationType type;
-        public string title;
-        public string message;
-        public Dictionary<string, object> data = new Dictionary<string, object>();
-        public float timestamp;
-    }
-
-    public enum ProgressionNotificationType
-    {
-        LevelUp,
-        ResearchUnlock,
-        BiomeUnlock,
-        BiomeSpecialization,
-        TerritoryExpansion,
-        CreatureSlots
-    }
 
     public class ProgressionNotificationUI : MonoBehaviour
     {
@@ -662,13 +640,84 @@ namespace Laboratory.UI.Progression
             Color backgroundColor = type switch
             {
                 ProgressionNotificationType.LevelUp => Color.gold,
-                ProgressionNotificationType.ResearchUnlock => Color.blue,
-                ProgressionNotificationType.BiomeUnlock => Color.green,
-                ProgressionNotificationType.TerritoryExpansion => Color.magenta,
+                ProgressionNotificationType.ResearchUnlocked => Color.blue,
+                ProgressionNotificationType.BiomeUnlocked => Color.green,
+                ProgressionNotificationType.TerritoryExpanded => Color.magenta,
                 _ => Color.white
             };
 
             backgroundImage.color = backgroundColor;
+        }
+    }
+
+    /// <summary>
+    /// UI component for displaying research item progress and status
+    /// </summary>
+    [System.Serializable]
+    public class ResearchItemUI : MonoBehaviour
+    {
+        [SerializeField] private TextMeshProUGUI researchNameText;
+        [SerializeField] private TextMeshProUGUI progressText;
+        [SerializeField] private Slider progressSlider;
+        [SerializeField] private Image researchIcon;
+        [SerializeField] private Button unlockButton;
+        [SerializeField] private GameObject unlockedIndicator;
+
+        public void Initialize(ResearchType researchType, ResearchProgress progress)
+        {
+            if (researchNameText != null)
+                researchNameText.text = researchType.ToString().Replace("_", " ");
+
+            if (progressText != null)
+            {
+                if (progress.isUnlocked)
+                {
+                    progressText.text = "UNLOCKED";
+                }
+                else
+                {
+                    progressText.text = $"{progress.progressPoints:F1}/{progress.requiredPoints:F1}";
+                }
+            }
+
+            if (progressSlider != null)
+            {
+                progressSlider.value = progress.isUnlocked ? 1f : (progress.progressPoints / progress.requiredPoints);
+            }
+
+            if (unlockButton != null)
+            {
+                unlockButton.interactable = !progress.isUnlocked && progress.progressPoints >= progress.requiredPoints;
+            }
+
+            if (unlockedIndicator != null)
+            {
+                unlockedIndicator.SetActive(progress.isUnlocked);
+            }
+
+            // Set research-specific visuals
+            SetResearchVisuals(researchType, progress.isUnlocked);
+        }
+
+        private void SetResearchVisuals(ResearchType researchType, bool isUnlocked)
+        {
+            if (researchIcon != null)
+            {
+                // Set icon color based on unlock status
+                researchIcon.color = isUnlocked ? Color.white : Color.gray;
+            }
+
+            // Could add research-specific icons/colors here
+        }
+
+        public void OnUnlockButtonClicked()
+        {
+            // This would connect to the progression system to unlock research
+            if (unlockButton != null && unlockButton.interactable)
+            {
+                unlockButton.interactable = false;
+                // PlayerProgressionManager.Instance?.UnlockResearch(researchType);
+            }
         }
     }
 }

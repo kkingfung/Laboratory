@@ -8,6 +8,55 @@ using Object = UnityEngine.Object;
 
 namespace Laboratory.UI.Performance
 {
+    public enum UIElementType : byte
+    {
+        CreatureNameplate = 0,
+        HealthBar = 1,
+        StatusEffect = 2,
+        DamageNumber = 3,
+        QuestMarker = 4,
+        InteractionPrompt = 5,
+        Text = 6,
+        Image = 7,
+        Button = 8,
+        ProgressBar = 9,
+        Icon = 10
+    }
+
+    public enum UILODLevel : byte
+    {
+        High = 0,    // Full detail
+        Medium = 1,  // Reduced detail
+        Low = 2,     // Minimal detail
+        Culled = 3   // Not visible
+    }
+
+    [System.Serializable]
+    public struct UIElementData : System.IEquatable<UIElementData>
+    {
+        public int instanceId;
+        public UIElementType elementType;
+        public float3 worldPosition;
+        public float lastUpdateTime;
+        public UILODLevel currentLOD;
+        public bool isVisible;
+
+        public bool Equals(UIElementData other)
+        {
+            return instanceId == other.instanceId;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is UIElementData other && Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return instanceId;
+        }
+    }
+
     /// <summary>
     /// Performance Optimized UI System - High-performance UI for Project Chimera
     /// PURPOSE: Handle thousands of UI elements efficiently with minimal performance impact
@@ -73,7 +122,7 @@ namespace Laboratory.UI.Performance
         {
             InitializeObjectPools();
             InitializeNativeCollections();
-            _mainCamera = Camera.main ?? FindObjectOfType<Camera>();
+            _mainCamera = Camera.main ?? FindFirstObjectByType<Camera>();
         }
 
         private void Start()
@@ -248,7 +297,7 @@ namespace Laboratory.UI.Performance
                     return (UILODLevel)i;
                 }
             }
-            return UILODLevel.Off;
+            return UILODLevel.Culled;
         }
 
         private void ProcessVisibilityUpdates()
@@ -372,7 +421,7 @@ namespace Laboratory.UI.Performance
             float estimate = 0f;
             estimate += _activeElements.Count * 0.001f; // ~1KB per active element
             estimate += GetTotalPooledElements() * 0.0005f; // ~0.5KB per pooled element
-            estimate += _uiElementData.Length * 0.0001f; // Native collection overhead
+            estimate += _uiElementData.Count * 0.0001f; // Native collection overhead
             return estimate;
         }
 
@@ -430,17 +479,6 @@ namespace Laboratory.UI.Performance
         public int maxSize;
     }
 
-    [System.Serializable]
-    public struct UIElementData
-    {
-        public int instanceId;
-        public UIElementType elementType;
-        public float3 worldPosition;
-        public float lastUpdateTime;
-        public UILODLevel currentLOD;
-        public bool isVisible;
-    }
-
     public struct UIPerformanceStats
     {
         public int activeElements;
@@ -448,24 +486,6 @@ namespace Laboratory.UI.Performance
         public int pooledElements;
         public float memoryUsage; // MB
         public float updateRate; // FPS
-    }
-
-    public enum UIElementType
-    {
-        CreatureNameplate = 0,
-        HealthBar = 1,
-        StatusEffect = 2,
-        DamageNumber = 3,
-        QuestMarker = 4,
-        InteractionPrompt = 5
-    }
-
-    public enum UILODLevel
-    {
-        High = 0,    // Full detail
-        Medium = 1,  // Reduced detail
-        Low = 2,     // Minimal detail
-        Off = 3      // Hidden/disabled
     }
 
     #endregion
@@ -606,7 +626,7 @@ namespace Laboratory.UI.Performance
                 case UILODLevel.Low:
                     // Minimal updates, static display
                     break;
-                case UILODLevel.Off:
+                case UILODLevel.Culled:
                     SetVisibility(false);
                     break;
             }
@@ -749,7 +769,7 @@ namespace Laboratory.UI.Performance
     {
         [SerializeField] private TMPro.TextMeshProUGUI damageText;
         [SerializeField] private float animationDuration = 1f;
-        [SerializeField] private AnimationCurve movementCurve = AnimationCurve.EaseOut(0, 0, 1, 1);
+        [SerializeField] private AnimationCurve movementCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         private Vector3 _startPosition;
         private float _animationTime;
@@ -804,7 +824,7 @@ namespace Laboratory.UI.Performance
             }
 
             // Return to pool
-            var uiManager = FindObjectOfType<PerformanceOptimizedUI>();
+            var uiManager = FindFirstObjectByType<PerformanceOptimizedUI>();
             uiManager?.ReturnUIElement(this);
         }
 

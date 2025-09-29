@@ -1,8 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Laboratory.Core;
 using Laboratory.Chimera.Genetics.Advanced;
-using Laboratory.AI.Personality;
 
 namespace Laboratory.Systems.Quests
 {
@@ -560,11 +560,8 @@ namespace Laboratory.Systems.Quests
                 context.averageCreatureFitness = GeneticEvolutionManager.Instance.AveragePopulationFitness;
             }
 
-            // Get data from personality manager
-            if (CreaturePersonalityManager.Instance != null)
-            {
-                context.activePersonalities = CreaturePersonalityManager.Instance.ActivePersonalityCount;
-            }
+            // Get data from personality manager (not currently implemented)
+            context.activePersonalities = 0; // Default value when personality system is not available
 
             // Calculate other context values
             context.unexploredAreaRatio = CalculateUnexploredRatio();
@@ -632,11 +629,7 @@ namespace Laboratory.Systems.Quests
                 GeneticEvolutionManager.Instance.OnEvolutionaryMilestone += HandleEvolutionaryEvent;
             }
 
-            // Subscribe to personality system events
-            if (CreaturePersonalityManager.Instance != null)
-            {
-                CreaturePersonalityManager.Instance.OnSocialInteraction += HandleSocialInteraction;
-            }
+            // Personality system events would be subscribed here when available
         }
 
         private void HandleEvolutionaryEvent(string eventMessage)
@@ -647,15 +640,7 @@ namespace Laboratory.Systems.Quests
             });
         }
 
-        private void HandleSocialInteraction(uint creatureA, uint creatureB, SocialInteractionType interactionType)
-        {
-            UpdateQuestProgress("CreatureBred", new Dictionary<string, object>
-            {
-                ["creatureA"] = creatureA,
-                ["creatureB"] = creatureB,
-                ["interactionType"] = interactionType
-            });
-        }
+        // Social interaction handling would be implemented when personality system is available
 
         private void OnDestroy()
         {

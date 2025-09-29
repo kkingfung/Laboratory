@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.AI;
 using Laboratory.Core.Events;
+using Laboratory.Core.Debug;
 
 namespace Laboratory.AI.Personality
 {
@@ -553,16 +554,6 @@ namespace Laboratory.AI.Personality
         public float probability;
     }
 
-    public enum SocialInteractionType
-    {
-        Neutral,
-        Cooperation,
-        Conflict,
-        Play,
-        Mating,
-        Territorial,
-        Grooming
-    }
 
     public enum PersonalityType
     {

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Debug;
 
 namespace Laboratory.Core.Progression
 {
@@ -109,7 +110,7 @@ namespace Laboratory.Core.Progression
             // Validate progression curve
             if (progressionCurve.baseExperienceRequirement <= 0)
             {
-                Debug.LogError("Base experience requirement must be greater than 0");
+                DebugManager.LogError("Base experience requirement must be greater than 0");
                 isValid = false;
             }
 
@@ -118,7 +119,7 @@ namespace Laboratory.Core.Progression
             {
                 if (biome.unlockRequirements.minimumLevel < 1 || biome.unlockRequirements.minimumLevel > 100)
                 {
-                    Debug.LogError($"Invalid minimum level for biome {biome.biomeType}: {biome.unlockRequirements.minimumLevel}");
+                    DebugManager.LogError($"Invalid minimum level for biome {biome.biomeType}: {biome.unlockRequirements.minimumLevel}");
                     isValid = false;
                 }
             }
@@ -130,7 +131,7 @@ namespace Laboratory.Core.Progression
                 {
                     if (!researchTree.Any(r => r.researchType == prerequisite))
                     {
-                        Debug.LogError($"Research {research.researchType} has invalid prerequisite: {prerequisite}");
+                        DebugManager.LogError($"Research {research.researchType} has invalid prerequisite: {prerequisite}");
                         isValid = false;
                     }
                 }
@@ -141,7 +142,7 @@ namespace Laboratory.Core.Progression
             {
                 if (territoryTiers[i].investmentCost <= territoryTiers[i - 1].investmentCost)
                 {
-                    Debug.LogError($"Territory tier {territoryTiers[i].tier} investment cost should be higher than previous tier");
+                    DebugManager.LogError($"Territory tier {territoryTiers[i].tier} investment cost should be higher than previous tier");
                     isValid = false;
                 }
             }

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using MessagePipe;
+using Laboratory.Core.Events;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
@@ -198,13 +198,8 @@ namespace Laboratory.UI
                     // Check if there's a config service that might have player info
                     if (GlobalServiceProvider.TryResolve<Laboratory.Core.Services.IConfigService>(out var configService))
                     {
-                        // Try to get player name from config
-                        // Note: GetConfig method may not exist in current IConfigService implementation
-                        // var playerName = configService.GetConfig<string>("Player.Name");
-                        // if (!string.IsNullOrEmpty(playerName))
-                        // {
-                        //     return playerName;
-                        // }
+                        // Player configuration would need to be implemented as a ScriptableObject
+                        // For now, skip to system username
                     }
                 }
                 

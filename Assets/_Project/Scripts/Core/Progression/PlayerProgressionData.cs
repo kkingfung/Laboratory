@@ -407,4 +407,35 @@ namespace Laboratory.Core.Progression
             return true;
         }
     }
+
+    /// <summary>
+    /// Progression notification data structure for UI display
+    /// </summary>
+    [System.Serializable]
+    public class ProgressionNotification
+    {
+        public string title;
+        public string message;
+        public ProgressionNotificationType type;
+        public UnityEngine.Sprite iconSprite;
+        public float displayDuration = 3f;
+        public bool requiresAcknowledgment = false;
+        public System.DateTime timestamp = System.DateTime.Now;
+    }
+
+    /// <summary>
+    /// Types of progression notifications
+    /// </summary>
+    public enum ProgressionNotificationType
+    {
+        LevelUp,
+        ResearchUnlocked,
+        BiomeUnlocked,
+        BiomeSpecialization,
+        TerritoryExpanded,
+        AchievementUnlocked,
+        MilestoneReached,
+        Warning,
+        Error
+    }
 }

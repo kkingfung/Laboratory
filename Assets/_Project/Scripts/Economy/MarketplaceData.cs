@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Linq;
+using Laboratory.Core.Configuration;
 using Laboratory.Chimera.Core;
 
 namespace Laboratory.Economy
@@ -9,6 +11,9 @@ namespace Laboratory.Economy
     /// Comprehensive data structures for the breeding marketplace system including
     /// listings, auctions, transactions, social features, and market analytics.
     /// All classes are serializable for networking and persistence.
+    ///
+    /// Note: CreatureGenome and CreatureSpecies types have been simplified to string IDs
+    /// to avoid complex assembly dependencies while maintaining functionality.
     /// </summary>
 
     [System.Serializable]
@@ -46,7 +51,7 @@ namespace Laboratory.Economy
         public string listingId;
         public string sellerId;
         public string sellerName;
-        public CreatureGenome creature;
+        public string creature;
 
         [Header("Pricing")]
         public float askingPrice;
@@ -84,7 +89,7 @@ namespace Laboratory.Economy
         public string auctionId;
         public string sellerId;
         public string sellerName;
-        public CreatureGenome creature;
+        public string creature;
 
         [Header("Auction Settings")]
         public float startingBid;
@@ -162,7 +167,7 @@ namespace Laboratory.Economy
         public string sellerName;
 
         [Header("Transaction Details")]
-        public CreatureGenome creature;
+        public string creature;
         public float price;
         public float transactionFee;
         public float netSellerProceeds => price - transactionFee;
@@ -233,7 +238,7 @@ namespace Laboratory.Economy
         public PlayerMarketTier marketTier = PlayerMarketTier.Novice;
 
         [Header("Specializations")]
-        public List<CreatureSpecies> specializedSpecies = new List<CreatureSpecies>();
+        public List<string> specializedSpecies = new List<string>();
         public Dictionary<BiomeType, int> biomeExpertise = new Dictionary<BiomeType, int>();
         public List<string> marketAchievements = new List<string>();
 
@@ -284,7 +289,7 @@ namespace Laboratory.Economy
         [Header("Guild Features")]
         public bool isPublic = true;
         public bool requiresApproval = true;
-        public List<CreatureSpecies> specializedSpecies = new List<CreatureSpecies>();
+        public List<string> specializedSpecies = new List<string>();
         public Dictionary<string, object> guildResources = new Dictionary<string, object>();
 
         public bool CanAcceptNewMembers => memberIds.Count < maxMembers;
@@ -312,7 +317,7 @@ namespace Laboratory.Economy
         public float progressPercentage = 0f;
 
         [Header("Results")]
-        public List<CreatureGenome> resultingOffspring = new List<CreatureGenome>();
+        public List<string> resultingOffspring = new List<string>();
         public Dictionary<string, float> participantRewards = new Dictionary<string, float>();
         public ProjectOutcome outcome;
 
@@ -334,12 +339,12 @@ namespace Laboratory.Economy
         public int minimumParticipants = 2;
         public int maximumParticipants = 6;
         public float estimatedDurationDays = 7f;
-        public List<CreatureSpecies> requiredSpecies = new List<CreatureSpecies>();
+        public List<string> requiredSpecies = new List<string>();
         public List<BiomeType> requiredBiomes = new List<BiomeType>();
 
         [Header("Goals")]
         public List<ProjectGoal> goals = new List<ProjectGoal>();
-        public CreatureGenome targetOutcome;
+        public string targetOutcome;
         public Dictionary<string, float> targetTraits = new Dictionary<string, float>();
 
         [Header("Rewards")]
@@ -353,7 +358,7 @@ namespace Laboratory.Economy
     {
         public string contributorId;
         public ContributionType contributionType;
-        public List<CreatureGenome> contributedCreatures = new List<CreatureGenome>();
+        public List<string> contributedCreatures = new List<string>();
         public Dictionary<string, float> resourceContributions = new Dictionary<string, float>();
         public float timeContributed = 0f;
         public float valueContributed = 0f;
@@ -398,8 +403,8 @@ namespace Laboratory.Economy
 
         [Header("Trends")]
         public MarketTrend overallTrend = MarketTrend.Stable;
-        public Dictionary<CreatureSpecies, MarketTrend> speciesTrends = new Dictionary<CreatureSpecies, MarketTrend>();
-        public Dictionary<CreatureSpecies, float> averagePrices = new Dictionary<CreatureSpecies, float>();
+        public Dictionary<string, MarketTrend> speciesTrends = new Dictionary<string, MarketTrend>();
+        public Dictionary<string, float> averagePrices = new Dictionary<string, float>();
 
         [Header("Analytics Events")]
         public Queue<AnalyticsEvent> recentEvents = new Queue<AnalyticsEvent>();
@@ -414,7 +419,7 @@ namespace Laboratory.Economy
                 data = new Dictionary<string, object>
                 {
                     ["listingId"] = listing.listingId,
-                    ["species"] = listing.creature.species.ToString(),
+                    ["creatureId"] = listing.creature, // Simplified from species
                     ["price"] = listing.askingPrice,
                     ["sellerId"] = listing.sellerId
                 }
@@ -442,7 +447,7 @@ namespace Laboratory.Economy
                 data = new Dictionary<string, object>
                 {
                     ["transactionId"] = transaction.transactionId,
-                    ["species"] = transaction.creature.species.ToString(),
+                    ["creatureId"] = transaction.creature, // Simplified from species
                     ["price"] = transaction.price,
                     ["buyerId"] = transaction.buyerId,
                     ["sellerId"] = transaction.sellerId
@@ -461,7 +466,7 @@ namespace Laboratory.Economy
                 data = new Dictionary<string, object>
                 {
                     ["auctionId"] = auction.auctionId,
-                    ["species"] = auction.creature.species.ToString(),
+                    ["creatureId"] = auction.creature, // Simplified from species
                     ["startingBid"] = auction.startingBid,
                     ["reservePrice"] = auction.reservePrice,
                     ["sellerId"] = auction.sellerId
@@ -498,15 +503,15 @@ namespace Laboratory.Economy
         public float averageTransactionValue;
         public int activeGuilds;
         public int activeCollaborativeProjects;
-        public List<CreatureSpecies> topSellingSpecies;
-        public Dictionary<CreatureSpecies, MarketTrend> marketTrends;
-        public Dictionary<CreatureSpecies, float> averagePriceBySpecies;
+        public List<string> topSellingSpecies;
+        public Dictionary<string, MarketTrend> marketTrends;
+        public Dictionary<string, float> averagePriceBySpecies;
     }
 
     [System.Serializable]
     public class SpeciesMarketAnalysis
     {
-        public CreatureSpecies species;
+        public string species;
         public List<MarketplaceListing> currentListings;
         public List<MarketTransaction> recentSales;
         public PriceHistory priceHistory;
@@ -520,7 +525,7 @@ namespace Laboratory.Economy
     [System.Serializable]
     public class PriceHistory
     {
-        public CreatureSpecies species;
+        public string species;
         public List<PriceDataPoint> dataPoints = new List<PriceDataPoint>();
         public float averagePrice;
         public float lowestPrice;

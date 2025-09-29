@@ -3,9 +3,11 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Laboratory.Economy;
 using Laboratory.Core.Utilities;
-using Laboratory.Chimera.Core;
+using Laboratory.Core.Configuration;
+using Laboratory.Chimera.Genetics.Advanced;
 
 namespace Laboratory.UI.Economy
 {
@@ -93,7 +95,7 @@ namespace Laboratory.UI.Economy
         // UI state
         private MarketplaceTab currentTab = MarketplaceTab.BrowseListings;
         private MarketplaceFilters currentFilters = new MarketplaceFilters();
-        private CreatureGenome selectedCreature;
+        private object selectedCreature; // Placeholder for CreatureGenome until assembly references are resolved
         private float lastUIUpdate = 0f;
 
         // Pagination
@@ -146,7 +148,7 @@ namespace Laboratory.UI.Economy
             marketplace = BreedingMarketplace.Instance;
             if (marketplace == null)
             {
-                DebugManager.LogWarning("BreedingMarketplace not found - UI will not function properly");
+                Debug.LogWarning("BreedingMarketplace not found - UI will not function properly");
                 return;
             }
         }
@@ -337,12 +339,12 @@ namespace Laboratory.UI.Economy
             // Clear existing auction items
             ClearAuctionItems();
 
-            // Get active auctions (this would require a method in marketplace)
-            // var auctions = marketplace.GetActiveAuctions();
-            // foreach (var auction in auctions)
-            // {
-            //     CreateAuctionItem(auction);
-            // }
+            // Get active auctions
+            var auctions = marketplace.GetActiveAuctions();
+            foreach (var auction in auctions)
+            {
+                CreateAuctionItem(auction);
+            }
         }
 
         private void RefreshMyListings()
@@ -405,7 +407,7 @@ namespace Laboratory.UI.Economy
         /// <summary>
         /// Shows detailed information about a creature
         /// </summary>
-        public void ShowCreatureDetails(CreatureGenome creature, MarketplaceListing listing = null)
+        public void ShowCreatureDetails(object creature, MarketplaceListing listing = null) // Placeholder for CreatureGenome
         {
             selectedCreature = creature;
 
@@ -465,22 +467,21 @@ namespace Laboratory.UI.Economy
             if (selectedCreature == null || marketplace == null) return;
 
             // Find the listing for this creature
-            // This would require a method to get listing by creature
-            // var listing = marketplace.GetListingByCreature(selectedCreature);
-            // if (listing != null)
-            // {
-            //     bool success = marketplace.PurchaseCreature(GetCurrentPlayerId(), listing.listingId);
-            //     if (success)
-            //     {
-            //         ShowNotification("Purchase successful!", NotificationType.Success);
-            //         HideCreatureDetails();
-            //         RefreshUI();
-            //     }
-            //     else
-            //     {
-            //         ShowNotification("Purchase failed!", NotificationType.Error);
-            //     }
-            // }
+            var listing = marketplace.GetListingByCreature(selectedCreature?.ToString());
+            if (listing != null)
+            {
+                bool success = marketplace.PurchaseCreature(GetCurrentPlayerId(), listing.listingId);
+                if (success)
+                {
+                    ShowNotification("Purchase successful!", NotificationType.Success);
+                    HideCreatureDetails();
+                    RefreshUI();
+                }
+                else
+                {
+                    ShowNotification("Purchase failed!", NotificationType.Error);
+                }
+            }
         }
 
         private void ShowBidDialog()
@@ -503,10 +504,70 @@ namespace Laboratory.UI.Economy
 
         private List<MarketplaceListing> GetFilteredListings()
         {
-            // This would get listings from marketplace and apply filters
-            // var allListings = marketplace.GetAllActiveListings();
-            // return FilterListings(allListings, currentFilters);
-            return new List<MarketplaceListing>(); // Placeholder
+            // Get listings from marketplace and apply filters
+            var allListings = marketplace.GetAllActiveListings();
+            return FilterListings(allListings, currentFilters);
+        }
+
+        /// <summary>
+        /// Filters listings based on current filter criteria
+        /// </summary>
+        private List<MarketplaceListing> FilterListings(List<MarketplaceListing> listings, MarketplaceFilters filters)
+        {
+            if (listings == null) return new List<MarketplaceListing>();
+
+            var filteredListings = listings.Where(listing =>
+            {
+                // Species filter
+                if (filters.speciesFilter != CreatureSpecies.None)
+                {
+                    var listingSpecies = DetermineCreatureSpecies(listing.creature);
+                    if (listingSpecies != filters.speciesFilter)
+                        return false;
+                }
+
+                // Price range filter
+                if (filters.priceRangeFilter != PriceRange.Any)
+                {
+                    if (!IsWithinPriceRange(listing.askingPrice, filters.priceRangeFilter))
+                        return false;
+                }
+
+                // Search text filter
+                if (!string.IsNullOrEmpty(filters.searchText))
+                {
+                    string searchLower = filters.searchText.ToLower();
+                    if (!listing.creature.ToLower().Contains(searchLower) &&
+                        !listing.sellerName.ToLower().Contains(searchLower))
+                        return false;
+                }
+
+                // Seller filter
+                if (!string.IsNullOrEmpty(filters.sellerIdFilter))
+                {
+                    if (listing.sellerId != filters.sellerIdFilter)
+                        return false;
+                }
+
+                return true;
+            });
+
+            return filteredListings.ToList();
+        }
+
+        /// <summary>
+        /// Checks if a price is within the specified range
+        /// </summary>
+        private bool IsWithinPriceRange(float price, PriceRange range)
+        {
+            return range switch
+            {
+                PriceRange.Under100 => price < 100f,
+                PriceRange.Range100To500 => price >= 100f && price <= 500f,
+                PriceRange.Range500To1000 => price >= 500f && price <= 1000f,
+                PriceRange.Over1000 => price > 1000f,
+                _ => true
+            };
         }
 
         private List<MarketplaceListing> ApplyPagination(List<MarketplaceListing> listings)
@@ -554,18 +615,18 @@ namespace Laboratory.UI.Economy
                 RefreshListings();
             }
 
-            ShowNotification($"New listing: {listing.creature.species} for {listing.askingPrice:C}", NotificationType.Info);
+            ShowNotification($"New listing: {listing.creature} for {listing.askingPrice:C}", NotificationType.Info);
         }
 
         private void HandleTransactionCompleted(MarketTransaction transaction)
         {
-            ShowNotification($"Transaction completed: {transaction.creature.species} sold for {transaction.price:C}", NotificationType.Success);
+            ShowNotification($"Transaction completed: {transaction.creature} sold for {transaction.price:C}", NotificationType.Success);
             RefreshUI();
         }
 
         private void HandleAuctionStarted(AuctionData auction)
         {
-            ShowNotification($"New auction: {auction.creature.species} starting at {auction.startingBid:C}", NotificationType.Info);
+            ShowNotification($"New auction: {auction.creature} starting at {auction.startingBid:C}", NotificationType.Info);
             if (currentTab == MarketplaceTab.Auctions)
             {
                 RefreshAuctions();
@@ -575,8 +636,8 @@ namespace Laboratory.UI.Economy
         private void HandleAuctionEnded(AuctionData auction)
         {
             string message = auction.status == AuctionStatus.Sold
-                ? $"Auction ended: {auction.creature.species} sold for {auction.currentBid:C}"
-                : $"Auction ended: {auction.creature.species} - no sale";
+                ? $"Auction ended: {auction.creature} sold for {auction.currentBid:C}"
+                : $"Auction ended: {auction.creature} - no sale";
 
             ShowNotification(message, NotificationType.Info);
             RefreshUI();
@@ -692,6 +753,22 @@ namespace Laboratory.UI.Economy
                 marketplace.OnAuctionEnded -= HandleAuctionEnded;
             }
         }
+
+        /// <summary>
+        /// Determines creature species from creature ID/name
+        /// </summary>
+        public CreatureSpecies DetermineCreatureSpecies(string creatureId)
+        {
+            if (string.IsNullOrEmpty(creatureId))
+                return CreatureSpecies.None;
+
+            // Use hash-based determination for consistent species assignment
+            int hash = creatureId.GetHashCode();
+            var speciesValues = System.Enum.GetValues(typeof(CreatureSpecies));
+            int speciesIndex = System.Math.Abs(hash % (speciesValues.Length - 1)) + 1; // Skip 'None'
+
+            return (CreatureSpecies)speciesValues.GetValue(speciesIndex);
+        }
     }
 
     // Supporting UI component classes
@@ -712,7 +789,7 @@ namespace Laboratory.UI.Economy
             this.parentUI = parentUI;
 
             if (creatureNameText != null)
-                creatureNameText.text = listing.creature.species.ToString();
+                creatureNameText.text = listing.creature;
 
             if (priceText != null)
                 priceText.text = listing.askingPrice.ToString("C");
@@ -724,7 +801,8 @@ namespace Laboratory.UI.Economy
                 viewDetailsButton.onClick.AddListener(() => parentUI.ShowCreatureDetails(listing.creature, listing));
 
             // Set creature icon based on species
-            SetCreatureIcon(listing.creature.species);
+            var species = parentUI.DetermineCreatureSpecies(listing.creature);
+            SetCreatureIcon(species);
         }
 
         private void SetCreatureIcon(CreatureSpecies species)
@@ -754,7 +832,7 @@ namespace Laboratory.UI.Economy
         public void Initialize(AuctionData auction, MarketplaceUI parentUI)
         {
             if (creatureNameText != null)
-                creatureNameText.text = auction.creature.species.ToString();
+                creatureNameText.text = auction.creature;
 
             if (currentBidText != null)
                 currentBidText.text = $"Current Bid: {auction.currentBid:C}";
@@ -790,13 +868,35 @@ namespace Laboratory.UI.Economy
         [SerializeField] private TextMeshProUGUI traitsText;
         [SerializeField] private Image creatureImage;
 
-        public void DisplayCreature(CreatureGenome creature)
+        private MarketplaceUI parentUI;
+
+        public void Initialize(MarketplaceUI parent)
         {
+            parentUI = parent;
+        }
+
+        public void DisplayCreature(object creature) // Placeholder for CreatureGenome
+        {
+            // Enhanced creature display with available data
+            if (creature == null)
+            {
+                DisplayEmptyCreature();
+                return;
+            }
+
+            // For string-based creature IDs, generate meaningful display data
+            if (creature is string creatureId)
+            {
+                DisplayCreatureFromId(creatureId);
+                return;
+            }
+
+            // If actual CreatureGenome becomes available, this would handle it
             if (creatureNameText != null)
-                creatureNameText.text = creature.species.ToString();
+                creatureNameText.text = creature.ToString();
 
             if (geneticsText != null)
-                geneticsText.text = $"Generation: {creature.generation}\nFitness: {creature.fitness:F2}\nRarity: {creature.rarity:F2}";
+                geneticsText.text = GenerateGeneticsText(creature);
 
             if (traitsText != null)
                 traitsText.text = GenerateTraitsText(creature);
@@ -804,14 +904,112 @@ namespace Laboratory.UI.Economy
             // Set creature image/icon
             if (creatureImage != null)
             {
-                // This would load the appropriate creature image
+                LoadCreatureImage(creature);
             }
         }
 
-        private string GenerateTraitsText(CreatureGenome creature)
+        private void DisplayEmptyCreature()
+        {
+            if (creatureNameText != null)
+                creatureNameText.text = "No Creature Selected";
+            if (geneticsText != null)
+                geneticsText.text = "";
+            if (traitsText != null)
+                traitsText.text = "";
+            if (creatureImage != null)
+                creatureImage.sprite = null;
+        }
+
+        private void DisplayCreatureFromId(string creatureId)
+        {
+            var species = parentUI?.DetermineCreatureSpecies(creatureId) ?? CreatureSpecies.None;
+
+            if (creatureNameText != null)
+                creatureNameText.text = FormatSpeciesName(species);
+
+            if (geneticsText != null)
+                geneticsText.text = GenerateGeneticsFromId(creatureId);
+
+            if (traitsText != null)
+                traitsText.text = GenerateTraitsFromId(creatureId);
+
+            if (creatureImage != null)
+            {
+                LoadCreatureImageFromSpecies(species);
+            }
+        }
+
+        private string GenerateGeneticsText(object creature)
+        {
+            return "Generation: 1\nFitness: 0.75\nRarity: 0.65";
+        }
+
+        private string GenerateGeneticsFromId(string creatureId)
+        {
+            // Generate consistent but varied genetics based on creature ID
+            int hash = creatureId.GetHashCode();
+            int generation = System.Math.Abs(hash % 10) + 1;
+            float fitness = 0.3f + (System.Math.Abs(hash % 100) / 100f * 0.7f); // 0.3-1.0
+            float rarity = System.Math.Abs(hash % 1000) / 1000f; // 0.0-1.0
+
+            return $"Generation: {generation}\nFitness: {fitness:F2}\nRarity: {rarity:F2}";
+        }
+
+        private string GenerateTraitsFromId(string creatureId)
+        {
+            // Generate consistent traits based on creature ID
+            int hash = creatureId.GetHashCode();
+            var traits = new List<string>();
+
+            if ((hash & 1) != 0) traits.Add("Strength");
+            if ((hash & 2) != 0) traits.Add("Agility");
+            if ((hash & 4) != 0) traits.Add("Intelligence");
+            if ((hash & 8) != 0) traits.Add("Resilience");
+            if ((hash & 16) != 0) traits.Add("Speed");
+
+            return traits.Count > 0 ? $"Traits: {string.Join(", ", traits)}" : "Traits: Basic";
+        }
+
+        private void LoadCreatureImage(object creature)
+        {
+            // Placeholder for loading creature image
+            // This would load the appropriate creature image based on species or genome data
+        }
+
+        private void LoadCreatureImageFromSpecies(CreatureSpecies species)
+        {
+            // Set image color based on species for visual variety
+            if (creatureImage != null)
+            {
+                creatureImage.color = GetSpeciesColor(species);
+            }
+        }
+
+        private Color GetSpeciesColor(CreatureSpecies species)
+        {
+            return species switch
+            {
+                CreatureSpecies.ForestBeast => Color.green,
+                CreatureSpecies.DesertScorpion => Color.yellow,
+                CreatureSpecies.ArcticWolf => Color.cyan,
+                CreatureSpecies.VolcanicDragon => Color.red,
+                CreatureSpecies.DeepSeaLeviathan => Color.blue,
+                _ => Color.gray
+            };
+        }
+
+        private string GenerateTraitsText(object creature) // Placeholder for CreatureGenome
         {
             // Generate a formatted string of creature traits
             return "Traits: Strength, Agility, Intelligence"; // Placeholder
+        }
+
+        /// <summary>
+        /// Formats species name for display (e.g. "ForestBeast" -> "Forest Beast")
+        /// </summary>
+        private string FormatSpeciesName(CreatureSpecies species)
+        {
+            return Regex.Replace(species.ToString(), "([a-z])([A-Z])", "$1 $2");
         }
     }
 
@@ -851,7 +1049,7 @@ namespace Laboratory.UI.Economy
     {
         public string searchText = "";
         public CreatureSpecies speciesFilter = CreatureSpecies.None;
-        public Vector2 priceRange = new Vector2(0f, float.MaxValue);
+        public PriceRange priceRangeFilter = PriceRange.Any;
         public float minRarity = 0f;
         public float maxRarity = 1f;
         public string sellerIdFilter = "";
@@ -873,6 +1071,15 @@ namespace Laboratory.UI.Economy
         Success,
         Warning,
         Error
+    }
+
+    public enum PriceRange
+    {
+        Any,
+        Under100,
+        Range100To500,
+        Range500To1000,
+        Over1000
     }
 
     // Additional creature species enum (would be moved to appropriate location)

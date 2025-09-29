@@ -28,7 +28,7 @@ namespace Laboratory.UI.Performance
         private EntityArchetype _uiElementArchetype; // Template for creating UI entities with required components
 
         // High-performance UI data arrays for SIMD processing
-        private NativeArray<UIElementData> _uiElements; // Core UI element data (type, state, metadata)
+        private NativeArray<ECSUIElementData> _uiElements; // Core UI element data (type, state, metadata)
         private NativeArray<UITransformData> _uiTransforms; // Position, scale, rotation data for UI elements
         private NativeArray<UIAnimationData> _uiAnimations; // Animation state and interpolation data
         private NativeHashSet<int> _dirtyUIElements; // Tracks which UI elements need updates (optimization)
@@ -63,7 +63,7 @@ namespace Laboratory.UI.Performance
             );
 
             // Initialize native collections
-            _uiElements = new NativeArray<UIElementData>(maxUIElements, Allocator.Persistent);
+            _uiElements = new NativeArray<ECSUIElementData>(maxUIElements, Allocator.Persistent);
             _uiTransforms = new NativeArray<UITransformData>(maxUIElements, Allocator.Persistent);
             _uiAnimations = new NativeArray<UIAnimationData>(maxUIElements, Allocator.Persistent);
             if (enableDirtyTracking)
@@ -94,7 +94,7 @@ namespace Laboratory.UI.Performance
             int elementIndex = GetNextAvailableIndex();
 
             // Initialize UI element data
-            _uiElements[elementIndex] = new UIElementData
+            _uiElements[elementIndex] = new ECSUIElementData
             {
                 entity = entity,
                 elementType = createData.elementType,
@@ -279,7 +279,7 @@ namespace Laboratory.UI.Performance
         [BurstCompile]
         private struct UIBatchingJob : IJob
         {
-            [ReadOnly] public NativeArray<UIElementData> elements;
+            [ReadOnly] public NativeArray<ECSUIElementData> elements;
             [ReadOnly] public NativeArray<UITransformData> transforms;
             [ReadOnly] public float3 cameraPosition;
             [ReadOnly] public float cullingDistance;
@@ -290,7 +290,7 @@ namespace Laboratory.UI.Performance
                 batches.Clear();
                 var currentBatch = new UIBatchData
                 {
-                    elementType = UIElementType.None,
+                    elementType = UIElementType.CreatureNameplate, // Default type
                     startIndex = 0,
                     count = 0
                 };
@@ -477,7 +477,7 @@ namespace Laboratory.UI.Performance
 
     #region Data Structures
 
-    public struct UIElementData
+    public struct ECSUIElementData
     {
         public Entity entity;
         public UIElementType elementType;
@@ -562,17 +562,7 @@ namespace Laboratory.UI.Performance
         public bool isVisible;
     }
 
-    // Enums
-    public enum UIElementType : byte
-    {
-        None = 0,
-        Text = 1,
-        Image = 2,
-        Button = 3,
-        HealthBar = 4,
-        ProgressBar = 5,
-        Icon = 6
-    }
+    // UI element types are defined in Laboratory.UI.Performance namespace
 
     public enum UIUpdateType : byte
     {
