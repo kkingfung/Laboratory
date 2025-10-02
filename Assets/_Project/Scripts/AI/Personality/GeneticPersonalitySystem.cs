@@ -48,7 +48,7 @@ namespace Laboratory.AI.Personality
         public System.Action<PersonalityChange> OnPersonalityChanged;
         public System.Action<MoodChange> OnMoodChanged;
         public System.Action<string, float> OnTraitLearned;
-        public System.Action<SocialInteraction> OnSocialInteraction;
+        public System.Action<PersonalitySocialInteraction> OnSocialInteraction;
 
         public GeneticPersonalitySystem()
         {
@@ -811,9 +811,9 @@ namespace Laboratory.AI.Personality
         public float duration;
         public bool isGroupInteraction;
 
-        public SocialInteraction ToInteraction()
+        public PersonalitySocialInteraction ToInteraction()
         {
-            return new SocialInteraction
+            return new PersonalitySocialInteraction
             {
                 otherCreatureId = otherCreatureId,
                 type = interactionType,
@@ -830,7 +830,7 @@ namespace Laboratory.AI.Personality
         public float relationshipChange;
     }
 
-    public struct SocialInteraction
+    public struct PersonalitySocialInteraction
     {
         public uint otherCreatureId;
         public string type;

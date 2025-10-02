@@ -2,6 +2,7 @@
     "name": "Laboratory.Chimera",
     "rootNamespace": "Laboratory.Chimera",
     "references": [
+        "Laboratory.Core",
         "Unity.Collections",
         "Unity.Mathematics",
         "Unity.Entities",
@@ -9,7 +10,8 @@
         "Unity.NetCode",
         "Unity.TextMeshPro",
         "Unity.ugui",
-        "Laboratory.Core",
+        "Unity.Burst",
+        "Unity.Rendering.Universal",
         "UniTask"
     ],
     "includePlatforms": [],

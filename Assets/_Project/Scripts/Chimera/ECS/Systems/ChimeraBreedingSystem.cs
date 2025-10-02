@@ -4,6 +4,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Burst;
+using Unity.Burst.Intrinsics;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
@@ -80,8 +81,8 @@ namespace Laboratory.Core.ECS.Systems
 
         protected override void OnUpdate()
         {
-            float deltaTime = Time.DeltaTime;
-            float currentTime = (float)Time.ElapsedTime;
+            float deltaTime = SystemAPI.Time.DeltaTime;
+            float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
             // Step 1: Update pregnancy progress
             UpdatePregnancies(deltaTime);
@@ -99,9 +100,11 @@ namespace Laboratory.Core.ECS.Systems
             {
                 config = _config,
                 deltaTime = deltaTime,
-                currentTime = (float)Time.ElapsedTime,
+                currentTime = (float)SystemAPI.Time.ElapsedTime,
                 commandBuffer = GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
-                    .CreateCommandBuffer(World.Unmanaged).AsParallelWriter()
+                    .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
+                entityTypeHandle = GetEntityTypeHandle(),
+                breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false)
             };
 
             Dependency = pregnancyUpdateJob.ScheduleParallel(_pregnantQuery, Dependency);
@@ -114,7 +117,9 @@ namespace Laboratory.Core.ECS.Systems
                 config = _config,
                 deltaTime = deltaTime,
                 commandBuffer = GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
-                    .CreateCommandBuffer(World.Unmanaged).AsParallelWriter()
+                    .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
+                entityTypeHandle = GetEntityTypeHandle(),
+                breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false)
             };
 
             Dependency = parentalCareJob.ScheduleParallel(_caringQuery, Dependency);
@@ -132,7 +137,12 @@ namespace Laboratory.Core.ECS.Systems
             var buildHashJob = new BuildBreedingSpatialHashJob
             {
                 spatialHash = _spatialBreedingHash.AsParallelWriter(),
-                cellSize = _config.Performance.spatialHashCellSize
+                cellSize = _config.Performance.spatialHashCellSize,
+                entityTypeHandle = GetEntityTypeHandle(),
+                transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
+                breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(true),
+                geneticsTypeHandle = GetComponentTypeHandle<GeneticDataComponent>(true),
+                identityTypeHandle = GetComponentTypeHandle<CreatureIdentityComponent>(true)
             };
 
             var hashHandle = buildHashJob.ScheduleParallel(_breedingReadyQuery, Dependency);
@@ -146,27 +156,39 @@ namespace Laboratory.Core.ECS.Systems
                 currentTime = currentTime,
                 randomSeed = (uint)currentTime,
                 commandBuffer = GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
-                    .CreateCommandBuffer(World.Unmanaged).AsParallelWriter()
+                    .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
+                entityTypeHandle = GetEntityTypeHandle(),
+                transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
+                breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false),
+                geneticsTypeHandle = GetComponentTypeHandle<GeneticDataComponent>(true),
+                identityTypeHandle = GetComponentTypeHandle<CreatureIdentityComponent>(true),
+                territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(true),
+                behaviorTypeHandle = GetComponentTypeHandle<BehaviorStateComponent>(true)
             };
 
             Dependency = breedingAttemptJob.ScheduleParallel(_breedingReadyQuery, hashHandle);
         }
 
         [BurstCompile]
-        struct BuildBreedingSpatialHashJob : IJobEntityBatch
+        struct BuildBreedingSpatialHashJob : IJobChunk
         {
             [WriteOnly] public NativeMultiHashMap<int, BreedingCandidate>.ParallelWriter spatialHash;
             [ReadOnly] public float cellSize;
+            [ReadOnly] public EntityTypeHandle entityTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<LocalToWorld> transformTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<BreedingComponent> breedingTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<GeneticDataComponent> geneticsTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<CreatureIdentityComponent> identityTypeHandle;
 
-            public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
+            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in Unity.Burst.Intrinsics.v128 chunkEnabledMask)
             {
-                var entities = batchInChunk.GetNativeArray(GetEntityTypeHandle());
-                var transforms = batchInChunk.GetNativeArray(GetComponentTypeHandle<LocalToWorld>(true));
-                var breeding = batchInChunk.GetNativeArray(GetComponentTypeHandle<BreedingComponent>(true));
-                var genetics = batchInChunk.GetNativeArray(GetComponentTypeHandle<GeneticDataComponent>(true));
-                var identities = batchInChunk.GetNativeArray(GetComponentTypeHandle<CreatureIdentityComponent>(true));
+                var entities = chunk.GetNativeArray(entityTypeHandle);
+                var transforms = chunk.GetNativeArray(ref transformTypeHandle);
+                var breeding = chunk.GetNativeArray(ref breedingTypeHandle);
+                var genetics = chunk.GetNativeArray(ref geneticsTypeHandle);
+                var identities = chunk.GetNativeArray(ref identityTypeHandle);
 
-                for (int i = 0; i < batchInChunk.Count; i++)
+                for (int i = 0; i < chunk.Count; i++)
                 {
                     if (breeding[i].Status != BreedingStatus.Seeking) continue;
 
@@ -194,7 +216,7 @@ namespace Laboratory.Core.ECS.Systems
         }
 
         [BurstCompile]
-        struct BreedingAttemptJob : IJobEntityBatch
+        struct BreedingAttemptJob : IJobChunk
         {
             [ReadOnly] public ChimeraUniverseConfiguration config;
             [ReadOnly] public NativeMultiHashMap<int, BreedingCandidate> spatialHash;
@@ -202,20 +224,27 @@ namespace Laboratory.Core.ECS.Systems
             [ReadOnly] public float currentTime;
             [ReadOnly] public uint randomSeed;
             public EntityCommandBuffer.ParallelWriter commandBuffer;
+            [ReadOnly] public EntityTypeHandle entityTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<LocalToWorld> transformTypeHandle;
+            public ComponentTypeHandle<BreedingComponent> breedingTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<GeneticDataComponent> geneticsTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<CreatureIdentityComponent> identityTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<SocialTerritoryComponent> territoryTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<BehaviorStateComponent> behaviorTypeHandle;
 
-            public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
+            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in Unity.Burst.Intrinsics.v128 chunkEnabledMask)
             {
-                var entities = batchInChunk.GetNativeArray(GetEntityTypeHandle());
-                var transforms = batchInChunk.GetNativeArray(GetComponentTypeHandle<LocalToWorld>(true));
-                var breeding = batchInChunk.GetNativeArray(GetComponentTypeHandle<BreedingComponent>(false));
-                var genetics = batchInChunk.GetNativeArray(GetComponentTypeHandle<GeneticDataComponent>(true));
-                var identities = batchInChunk.GetNativeArray(GetComponentTypeHandle<CreatureIdentityComponent>(true));
-                var territories = batchInChunk.GetNativeArray(GetComponentTypeHandle<SocialTerritoryComponent>(true));
-                var behaviors = batchInChunk.GetNativeArray(GetComponentTypeHandle<BehaviorStateComponent>(true));
+                var entities = chunk.GetNativeArray(entityTypeHandle);
+                var transforms = chunk.GetNativeArray(ref transformTypeHandle);
+                var breeding = chunk.GetNativeArray(ref breedingTypeHandle);
+                var genetics = chunk.GetNativeArray(ref geneticsTypeHandle);
+                var identities = chunk.GetNativeArray(ref identityTypeHandle);
+                var territories = chunk.GetNativeArray(ref territoryTypeHandle);
+                var behaviors = chunk.GetNativeArray(ref behaviorTypeHandle);
 
-                var random = new Unity.Mathematics.Random(randomSeed + (uint)batchIndex);
+                var random = new Unity.Mathematics.Random(randomSeed + (uint)unfilteredChunkIndex);
 
-                for (int i = 0; i < batchInChunk.Count; i++)
+                for (int i = 0; i < chunk.Count; i++)
                 {
                     var entity = entities[i];
                     var breedingComp = breeding[i];
@@ -244,7 +273,7 @@ namespace Laboratory.Core.ECS.Systems
                         if (random.NextFloat() < successChance)
                         {
                             // Successful breeding attempt
-                            StartBreeding(entity, potentialMate.entity, batchIndex);
+                            StartBreeding(entity, potentialMate.entity, unfilteredChunkIndex);
                         }
                         else
                         {
@@ -393,10 +422,10 @@ namespace Laboratory.Core.ECS.Systems
                 return math.saturate(baseChance);
             }
 
-            private void StartBreeding(Entity parent1, Entity parent2, int sortKey)
+            private void StartBreeding(Entity parent1, Entity parent2, int chunkIndex)
             {
                 // Set both parents to mating status
-                commandBuffer.SetComponent(sortKey, parent1, new BreedingComponent
+                commandBuffer.SetComponent(chunkIndex, parent1, new BreedingComponent
                 {
                     Status = BreedingStatus.Mating,
                     Partner = parent2,
@@ -404,7 +433,7 @@ namespace Laboratory.Core.ECS.Systems
                     BreedingReadiness = 1f
                 });
 
-                commandBuffer.SetComponent(sortKey, parent2, new BreedingComponent
+                commandBuffer.SetComponent(chunkIndex, parent2, new BreedingComponent
                 {
                     Status = BreedingStatus.Mating,
                     Partner = parent1,
@@ -413,8 +442,8 @@ namespace Laboratory.Core.ECS.Systems
                 });
 
                 // Add mating behavior tags
-                commandBuffer.AddComponent<BreedingBehaviorTag>(sortKey, parent1, new BreedingBehaviorTag { BreedingTarget = parent2 });
-                commandBuffer.AddComponent<BreedingBehaviorTag>(sortKey, parent2, new BreedingBehaviorTag { BreedingTarget = parent1 });
+                commandBuffer.AddComponent<BreedingBehaviorTag>(chunkIndex, parent1, new BreedingBehaviorTag { BreedingTarget = parent2 });
+                commandBuffer.AddComponent<BreedingBehaviorTag>(chunkIndex, parent2, new BreedingBehaviorTag { BreedingTarget = parent1 });
             }
 
             private static int GetSpatialHashKey(float3 position, float cellSize)
@@ -425,19 +454,21 @@ namespace Laboratory.Core.ECS.Systems
         }
 
         [BurstCompile]
-        struct PregnancyUpdateJob : IJobEntityBatch
+        struct PregnancyUpdateJob : IJobChunk
         {
             [ReadOnly] public ChimeraUniverseConfiguration config;
             [ReadOnly] public float deltaTime;
             [ReadOnly] public float currentTime;
             public EntityCommandBuffer.ParallelWriter commandBuffer;
+            [ReadOnly] public EntityTypeHandle entityTypeHandle;
+            public ComponentTypeHandle<BreedingComponent> breedingTypeHandle;
 
-            public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
+            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in Unity.Burst.Intrinsics.v128 chunkEnabledMask)
             {
-                var entities = batchInChunk.GetNativeArray(GetEntityTypeHandle());
-                var breeding = batchInChunk.GetNativeArray(GetComponentTypeHandle<BreedingComponent>(false));
+                var entities = chunk.GetNativeArray(entityTypeHandle);
+                var breeding = chunk.GetNativeArray(ref breedingTypeHandle);
 
-                for (int i = 0; i < batchInChunk.Count; i++)
+                for (int i = 0; i < chunk.Count; i++)
                 {
                     var entity = entities[i];
                     var breedingComp = breeding[i];
@@ -448,31 +479,31 @@ namespace Laboratory.Core.ECS.Systems
                     if (breedingComp.PregnancyProgress >= 1f)
                     {
                         // Give birth!
-                        GiveBirth(entity, breedingComp, batchIndex);
+                        GiveBirth(entity, breedingComp, unfilteredChunkIndex);
 
                         // Transition to caring status
                         breedingComp.Status = BreedingStatus.Caring;
                         breedingComp.PregnancyProgress = 0f;
                         breedingComp.BreedingCooldown = config.Breeding.breedingCooldown;
 
-                        commandBuffer.RemoveComponent<PregnantTag>(batchIndex, entity);
-                        commandBuffer.AddComponent<CaringTag>(batchIndex, entity);
-                        commandBuffer.AddComponent<ParentingBehaviorTag>(batchIndex, entity, new ParentingBehaviorTag { Offspring = Entity.Null });
+                        commandBuffer.RemoveComponent<PregnantTag>(unfilteredChunkIndex, entity);
+                        commandBuffer.AddComponent<CaringTag>(unfilteredChunkIndex, entity);
+                        commandBuffer.AddComponent<ParentingBehaviorTag>(unfilteredChunkIndex, entity, new ParentingBehaviorTag { Offspring = Entity.Null });
                     }
 
                     breeding[i] = breedingComp;
                 }
             }
 
-            private void GiveBirth(Entity parent, BreedingComponent breeding, int sortKey)
+            private void GiveBirth(Entity parent, BreedingComponent breeding, int chunkIndex)
             {
                 // Create offspring entities based on expected count
                 for (int offspring = 0; offspring < breeding.ExpectedOffspring; offspring++)
                 {
-                    var baby = commandBuffer.CreateEntity(sortKey);
+                    var baby = commandBuffer.CreateEntity(chunkIndex);
 
                     // Add basic components to offspring
-                    commandBuffer.AddComponent<CreatureIdentityComponent>(sortKey, baby, new CreatureIdentityComponent
+                    commandBuffer.AddComponent<CreatureIdentityComponent>(chunkIndex, baby, new CreatureIdentityComponent
                     {
                         Species = "OffspringSpecies", // Would be determined from parents
                         CreatureName = $"Baby_{offspring}",
@@ -487,7 +518,7 @@ namespace Laboratory.Core.ECS.Systems
                     });
 
                     // Add other required components (genetics would be inherited from parents)
-                    commandBuffer.AddComponent<GeneticDataComponent>(sortKey, baby, new GeneticDataComponent
+                    commandBuffer.AddComponent<GeneticDataComponent>(chunkIndex, baby, new GeneticDataComponent
                     {
                         // Simplified offspring genetics - in full system would be properly inherited
                         Aggression = 0.5f,
@@ -497,11 +528,11 @@ namespace Laboratory.Core.ECS.Systems
                         NativeBiome = BiomeType.Grassland
                     });
 
-                    commandBuffer.AddComponent<BehaviorStateComponent>(sortKey, baby);
-                    commandBuffer.AddComponent<CreatureNeedsComponent>(sortKey, baby);
-                    commandBuffer.AddComponent<SocialTerritoryComponent>(sortKey, baby);
-                    commandBuffer.AddComponent<EnvironmentalComponent>(sortKey, baby);
-                    commandBuffer.AddComponent<BreedingComponent>(sortKey, baby, new BreedingComponent
+                    commandBuffer.AddComponent<BehaviorStateComponent>(chunkIndex, baby);
+                    commandBuffer.AddComponent<CreatureNeedsComponent>(chunkIndex, baby);
+                    commandBuffer.AddComponent<SocialTerritoryComponent>(chunkIndex, baby);
+                    commandBuffer.AddComponent<EnvironmentalComponent>(chunkIndex, baby);
+                    commandBuffer.AddComponent<BreedingComponent>(chunkIndex, baby, new BreedingComponent
                     {
                         Status = BreedingStatus.NotReady // Too young to breed
                     });
@@ -510,18 +541,20 @@ namespace Laboratory.Core.ECS.Systems
         }
 
         [BurstCompile]
-        struct ParentalCareUpdateJob : IJobEntityBatch
+        struct ParentalCareUpdateJob : IJobChunk
         {
             [ReadOnly] public ChimeraUniverseConfiguration config;
             [ReadOnly] public float deltaTime;
             public EntityCommandBuffer.ParallelWriter commandBuffer;
+            [ReadOnly] public EntityTypeHandle entityTypeHandle;
+            public ComponentTypeHandle<BreedingComponent> breedingTypeHandle;
 
-            public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
+            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in Unity.Burst.Intrinsics.v128 chunkEnabledMask)
             {
-                var entities = batchInChunk.GetNativeArray(GetEntityTypeHandle());
-                var breeding = batchInChunk.GetNativeArray(GetComponentTypeHandle<BreedingComponent>(false));
+                var entities = chunk.GetNativeArray(entityTypeHandle);
+                var breeding = chunk.GetNativeArray(ref breedingTypeHandle);
 
-                for (int i = 0; i < batchInChunk.Count; i++)
+                for (int i = 0; i < chunk.Count; i++)
                 {
                     var entity = entities[i];
                     var breedingComp = breeding[i];
@@ -535,8 +568,8 @@ namespace Laboratory.Core.ECS.Systems
                         breedingComp.Status = BreedingStatus.Cooldown;
                         breedingComp.BreedingCooldown = config.Breeding.breedingCooldown;
 
-                        commandBuffer.RemoveComponent<CaringTag>(batchIndex, entity);
-                        commandBuffer.RemoveComponent<ParentingBehaviorTag>(batchIndex, entity);
+                        commandBuffer.RemoveComponent<CaringTag>(unfilteredChunkIndex, entity);
+                        commandBuffer.RemoveComponent<ParentingBehaviorTag>(unfilteredChunkIndex, entity);
                     }
 
                     breeding[i] = breedingComp;

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
 using Laboratory.AI.Services;
+using Laboratory.Chimera.ECS.Components;
 
 namespace Laboratory.Chimera.Genetics.Environmental
 {
@@ -132,7 +133,7 @@ namespace Laboratory.Chimera.Genetics.Environmental
         {
             _environmentalGeneticQuery = GetEntityQuery(
                 ComponentType.ReadWrite<EnvironmentalGeneticComponent>(),
-                ComponentType.ReadWrite<GeneticProfile>(),
+                ComponentType.ReadWrite<CreatureGeneticsComponent>(),
                 ComponentType.ReadOnly<Unity.Transforms.LocalTransform>()
             );
 

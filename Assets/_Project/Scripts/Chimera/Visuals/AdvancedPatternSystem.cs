@@ -136,7 +136,7 @@ namespace Laboratory.Chimera.Visuals
             currentPattern = patternType;
             currentComplexity = Mathf.Clamp01(complexity);
             
-            UnityEngine.Debug.Log($"🎨 Generating pattern: {patternType} (complexity: {complexity:F2})");
+            DebugManager.Log($"🎨 Generating pattern: {patternType} (complexity: {complexity:F2})");
             
             // Get or generate palette
             Color[] palette = GetGeneticColorPalette();
@@ -151,7 +151,7 @@ namespace Laboratory.Chimera.Visuals
             string cacheKey = $"{patternType}_{complexity:F2}_{GetPaletteHash(palette)}";
             patternCache[cacheKey] = patternTexture;
             
-            UnityEngine.Debug.Log($"✅ Pattern applied: {patternType}");
+            DebugManager.Log($"✅ Pattern applied: {patternType}");
         }
         
         /// <summary>
@@ -723,7 +723,7 @@ namespace Laboratory.Chimera.Visuals
                 yield return null;
             }
             
-            UnityEngine.Debug.Log($"🌍 Adapted to environment: {environment}");
+            DebugManager.Log($"🌍 Adapted to environment: {environment}");
         }
         
         private IEnumerator MonitorEnvironmentForCamouflage()
@@ -1026,7 +1026,7 @@ namespace Laboratory.Chimera.Visuals
         {
             patternCache.Clear();
             materialCache.Clear();
-            UnityEngine.Debug.Log("Pattern cache cleared");
+            DebugManager.Log("Pattern cache cleared");
         }
         
         #endregion
