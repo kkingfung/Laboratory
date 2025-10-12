@@ -73,11 +73,11 @@ namespace Laboratory.Chimera.Integration
                 unifiedConfig = Resources.Load<ChimeraUniverseConfiguration>("Configs/ChimeraUniverse");
 
             if (traitLibrary == null)
-                traitLibrary = FindObjectOfType<GeneticTraitLibrary>();
+                traitLibrary = FindFirstObjectByType<GeneticTraitLibrary>();
 
             // Initialize AI manager integration
             if (aiManager == null)
-                aiManager = FindObjectOfType<ChimeraAIManager>();
+                aiManager = FindFirstObjectByType<ChimeraAIManager>();
 
             // Create initial bridges for existing MonoBehaviour creatures
             CreateInitialBridges();

@@ -6,6 +6,7 @@ using System.Linq;
 using Laboratory.Chimera.Discovery.Core;
 using Laboratory.Chimera.Genetics.Core;
 using CoreDiscoveryEvent = Laboratory.Chimera.Discovery.Core.DiscoveryEvent;
+using CoreDiscoveryType = Laboratory.Chimera.Discovery.Core.DiscoveryType;
 
 namespace Laboratory.Chimera.Discovery.UI
 {
@@ -117,7 +118,7 @@ namespace Laboratory.Chimera.Discovery.UI
             {
                 _typeFilter.ClearOptions();
                 var typeOptions = new List<string> { "All Types" };
-                typeOptions.AddRange(System.Enum.GetNames(typeof(DiscoveryType)));
+                typeOptions.AddRange(System.Enum.GetNames(typeof(CoreDiscoveryType)));
                 _typeFilter.AddOptions(typeOptions);
             }
         }
@@ -185,7 +186,7 @@ namespace Laboratory.Chimera.Discovery.UI
             // Apply type filter
             if (_typeFilter != null && _typeFilter.value > 0)
             {
-                var targetType = (DiscoveryType)(_typeFilter.value - 1);
+                var targetType = (CoreDiscoveryType)(_typeFilter.value - 1);
                 _filteredDiscoveries = _filteredDiscoveries.Where(d => d.Type == targetType).ToList();
             }
 
@@ -226,7 +227,7 @@ namespace Laboratory.Chimera.Discovery.UI
         /// <summary>
         /// Create a single journal entry
         /// </summary>
-        private void CreateJournalEntry(DiscoveryEvent discovery, int index)
+        private void CreateJournalEntry(CoreDiscoveryEvent discovery, int index)
         {
             if (_journalEntryPrefab == null || _entryContainer == null) return;
 
@@ -333,7 +334,7 @@ namespace Laboratory.Chimera.Discovery.UI
         /// <summary>
         /// Animate new entry appearance
         /// </summary>
-        private System.Collections.IEnumerator AnimateNewEntry(DiscoveryEvent discovery)
+        private System.Collections.IEnumerator AnimateNewEntry(CoreDiscoveryEvent discovery)
         {
             // Find the entry for this discovery
             var entry = _entryComponents.LastOrDefault();
@@ -379,7 +380,7 @@ namespace Laboratory.Chimera.Discovery.UI
         /// <summary>
         /// Public API for external systems
         /// </summary>
-        public static void RecordDiscovery(DiscoveryEvent discovery)
+        public static void RecordDiscovery(CoreDiscoveryEvent discovery)
         {
             if (Instance != null)
             {

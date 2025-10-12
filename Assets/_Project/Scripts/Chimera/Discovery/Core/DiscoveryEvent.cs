@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
@@ -33,11 +34,22 @@ namespace Laboratory.Chimera.Discovery.Core
 
         // Celebration parameters
         public float CelebrationIntensity;
+        [MarshalAs(UnmanagedType.U1)]
         public bool IsFirstTimeDiscovery;
+        [MarshalAs(UnmanagedType.U1)]
         public bool IsWorldFirst;
         public int CommunityRank;
 
+        // Static utility methods
+        public static float CalculateSignificance(DiscoveryType type, DiscoveryRarity rarity, bool isFirstTime, bool isWorldFirst)
+        {
+            return DiscoveryNameGenerator.CalculateSignificance(type, rarity, isFirstTime, isWorldFirst);
+        }
 
+        public static string GenerateDiscoveryName(DiscoveryType type, VisualGeneticData genetics, GeneticMarkerFlags markers)
+        {
+            return DiscoveryNameGenerator.GenerateDiscoveryName(type, genetics, markers);
+        }
     }
 
     /// <summary>
@@ -49,7 +61,9 @@ namespace Laboratory.Chimera.Discovery.Core
         public Entity Parent1;
         public Entity Parent2;
         public int GenerationDepth;
+        [MarshalAs(UnmanagedType.U1)]
         public bool IsLinebred;
+        [MarshalAs(UnmanagedType.U1)]
         public bool IsOutcrossed;
         public float InbreedingCoefficient;
     }

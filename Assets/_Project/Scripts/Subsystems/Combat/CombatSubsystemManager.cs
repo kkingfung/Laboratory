@@ -5,6 +5,7 @@ using Laboratory.Core.DI;
 using Laboratory.Core.Events;
 using Laboratory.Core.Health;
 using Laboratory.Core.Health.Components;
+using Laboratory.Core.Combat;
 using Laboratory.Models.ECS.Components;
 using Laboratory.Subsystems.Combat.Abilities;
 using Laboratory.Core.Systems;
@@ -51,6 +52,7 @@ namespace Laboratory.Subsystems.Combat
         private IEventBus _eventBus;
         private IHealthSystem _healthSystem;
         private IAbilitySystem _abilitySystem;
+        private FactionManager _factionManager;
         
         private CombatSubsystemState _currentState = CombatSubsystemState.Idle;
         private bool _isInitialized = false;
@@ -186,9 +188,17 @@ namespace Laboratory.Subsystems.Combat
                 GlobalServiceProvider.Instance?.TryResolve<IEventBus>(out _eventBus);
                 GlobalServiceProvider.Instance?.TryResolve<IHealthSystem>(out _healthSystem);
                 GlobalServiceProvider.Instance?.TryResolve<IAbilitySystem>(out _abilitySystem);
+                GlobalServiceProvider.Instance?.TryResolve<FactionManager>(out _factionManager);
             }
 
-            LogDebug($"Dependencies injected - EventBus: {_eventBus != null}, HealthSystem: {_healthSystem != null}, AbilitySystem: {_abilitySystem != null}");
+            // Initialize faction manager if not available from DI
+            if (_factionManager == null && _config?.factionManager != null)
+            {
+                _factionManager = _config.factionManager;
+                _factionManager.Initialize();
+            }
+
+            LogDebug($"Dependencies injected - EventBus: {_eventBus != null}, HealthSystem: {_healthSystem != null}, AbilitySystem: {_abilitySystem != null}, FactionManager: {_factionManager != null}");
         }
 
         private void InitializeComponents()
@@ -674,9 +684,23 @@ namespace Laboratory.Subsystems.Combat
 
         private bool IsFriendly(GameObject target)
         {
-            // This would need to be implemented based on your faction/team system
-            // For now, assume all entities are hostile
-            return false;
+            if (_factionManager == null)
+            {
+                // Fallback: assume all entities are hostile if no faction system
+                return false;
+            }
+
+            var myFaction = GetComponent<IFactionComponent>();
+            var targetFaction = target.GetComponent<IFactionComponent>();
+
+            if (myFaction == null || targetFaction == null)
+            {
+                // If either entity doesn't have a faction, use default behavior
+                return false;
+            }
+
+            var relationship = _factionManager.GetRelationship(myFaction.FactionId, targetFaction.FactionId);
+            return relationship >= FactionRelationship.Neutral;
         }
 
         private void ApplyDamageOverTime(DamageOverTimeEffect dot)

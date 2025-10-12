@@ -1,0 +1,24 @@
+{
+    "name": "Laboratory.Subsystems.Debug",
+    "rootNamespace": "Laboratory.Subsystems.Debug",
+    "references": [
+        "Laboratory.Core",
+        "Laboratory.Infrastructure",
+        "Laboratory.Chimera",
+        "Laboratory.Subsystems",
+        "Unity.Mathematics",
+        "Unity.Collections",
+        "Unity.Entities",
+        "Unity.Profiling.Core",
+        "UniTask"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

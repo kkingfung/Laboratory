@@ -33,8 +33,8 @@ namespace Laboratory.Subsystems.Player
         
         // Core subsystem components
         private IHealthComponent _healthComponent;
-        private MonoBehaviour _movementController;
-        private MonoBehaviour _cameraController;
+        private IPlayerMovementController _movementController;
+        private IPlayerCameraController _cameraController;
         private ICustomizationSystem _customizationSystem;
 
         // Internal state tracking
@@ -186,7 +186,13 @@ namespace Laboratory.Subsystems.Player
                 if (characterController == null)
                     characterController = GetComponent<CharacterController>();
 
-                _movementController = _container?.Resolve<MonoBehaviour>();
+                _movementController = _container?.Resolve<IPlayerMovementController>();
+
+                // Fallback: try to find movement controller in the player object
+                if (_movementController == null && playerObject != null)
+                {
+                    _movementController = playerObject.GetComponent<IPlayerMovementController>();
+                }
 
                 if (enableDebugLogging)
                     Debug.Log("[UnifiedPlayerSubsystemManager] Movement system initialized");
@@ -201,7 +207,19 @@ namespace Laboratory.Subsystems.Player
         {
             try
             {
-                _cameraController = _container?.Resolve<MonoBehaviour>();
+                _cameraController = _container?.Resolve<IPlayerCameraController>();
+
+                // Fallback: try to find camera controller in the player object
+                if (_cameraController == null && playerObject != null)
+                {
+                    _cameraController = playerObject.GetComponent<IPlayerCameraController>();
+                }
+
+                // Additional fallback: look for camera controller in scene
+                if (_cameraController == null)
+                {
+                    _cameraController = FindObjectOfType<IPlayerCameraController>();
+                }
 
                 if (enableDebugLogging)
                     Debug.Log("[UnifiedPlayerSubsystemManager] Camera system initialized");

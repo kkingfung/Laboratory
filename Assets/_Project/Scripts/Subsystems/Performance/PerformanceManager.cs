@@ -104,14 +104,12 @@ namespace Laboratory.Subsystems.Performance
             // Create performance metrics
             var metrics = new PerformanceMetrics
             {
-                CurrentFPS = currentFPS,
-                AverageFPS = averageFPS,
-                MinFPS = minFPS,
-                MaxFPS = maxFPS,
-                MemoryUsage = currentMemoryUsage,
-                PeakMemoryUsage = peakMemoryUsage,
-                PerformanceLevel = currentPerformanceLevel,
-                OptimizationFlags = new Dictionary<string, bool>(optimizationFlags)
+                timestamp = System.DateTime.Now,
+                frameRate = currentFPS,
+                frameTimeMs = Time.unscaledDeltaTime * 1000f,
+                memoryUsedMB = currentMemoryUsage / (1024f * 1024f),
+                memoryAllocatedMB = currentMemoryUsage / (1024f * 1024f),
+                health = new PerformanceHealth()
             };
             
             OnPerformanceUpdate?.Invoke(metrics);
@@ -297,14 +295,12 @@ namespace Laboratory.Subsystems.Performance
         {
             return new PerformanceMetrics
             {
-                CurrentFPS = currentFPS,
-                AverageFPS = averageFPS,
-                MinFPS = minFPS,
-                MaxFPS = maxFPS,
-                MemoryUsage = currentMemoryUsage,
-                PeakMemoryUsage = peakMemoryUsage,
-                PerformanceLevel = currentPerformanceLevel,
-                OptimizationFlags = new Dictionary<string, bool>(optimizationFlags)
+                timestamp = System.DateTime.Now,
+                frameRate = currentFPS,
+                frameTimeMs = Time.unscaledDeltaTime * 1000f,
+                memoryUsedMB = currentMemoryUsage / (1024f * 1024f),
+                memoryAllocatedMB = currentMemoryUsage / (1024f * 1024f),
+                health = new PerformanceHealth()
             };
         }
 
@@ -344,25 +340,9 @@ namespace Laboratory.Subsystems.Performance
     }
 
     /// <summary>
-    /// Performance metrics data structure
-    /// </summary>
-    [System.Serializable]
-    public class PerformanceMetrics
-    {
-        public float CurrentFPS { get; set; }
-        public float AverageFPS { get; set; }
-        public float MinFPS { get; set; }
-        public float MaxFPS { get; set; }
-        public long MemoryUsage { get; set; }
-        public long PeakMemoryUsage { get; set; }
-        public PerformanceLevel PerformanceLevel { get; set; }
-        public Dictionary<string, bool> OptimizationFlags { get; set; }
-    }
-
-    /// <summary>
     /// Performance update event
     /// </summary>
-    public class PerformanceUpdateEvent : BaseEvent
+    public class PerformanceUpdateEvent : Laboratory.Core.Events.BaseEvent
     {
         public PerformanceMetrics Metrics { get; set; }
     }
@@ -370,7 +350,7 @@ namespace Laboratory.Subsystems.Performance
     /// <summary>
     /// Performance level changed event
     /// </summary>
-    public class PerformanceLevelChangedEvent : BaseEvent
+    public class PerformanceLevelChangedEvent : Laboratory.Core.Events.BaseEvent
     {
         public PerformanceLevel PreviousLevel { get; set; }
         public PerformanceLevel NewLevel { get; set; }
@@ -379,7 +359,7 @@ namespace Laboratory.Subsystems.Performance
     /// <summary>
     /// Garbage collection triggered event
     /// </summary>
-    public class GarbageCollectionTriggeredEvent : BaseEvent
+    public class GarbageCollectionTriggeredEvent : Laboratory.Core.Events.BaseEvent
     {
         // Inherits Timestamp from BaseEvent
     }

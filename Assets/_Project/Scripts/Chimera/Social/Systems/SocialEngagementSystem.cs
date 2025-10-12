@@ -87,12 +87,12 @@ namespace Laboratory.Chimera.Social.Systems
                 // Update engagement data
                 if (_engagementMap.TryGetValue(shareID, out EngagementData engagement))
                 {
-                    engagement = UpdateEngagementData(engagement, interaction.ValueRO);
+                    UpdateEngagementData(ref engagement, interaction.ValueRO);
                     _engagementMap[shareID] = engagement;
                 }
                 else
                 {
-                    engagement = CreateEngagementData(interaction.ValueRO);
+                    CreateEngagementData(out engagement, interaction.ValueRO);
                     _engagementMap.TryAdd(shareID, engagement);
                 }
 
@@ -188,7 +188,7 @@ namespace Laboratory.Chimera.Social.Systems
         private void CreateViralMilestoneEvent(Entity shareEntity, ViralMilestoneType type, int count)
         {
             // This would trigger notifications, achievements, etc.
-            Debug.Log($"🔥 Viral milestone reached! {type}: {count}");
+            UnityEngine.Debug.Log($"🔥 Viral milestone reached! {type}: {count}");
 
             // Could create achievement entities, notifications, etc.
             // var achievementEntity = ecb.CreateEntity();
@@ -199,7 +199,7 @@ namespace Laboratory.Chimera.Social.Systems
         /// Update engagement data from interaction
         /// </summary>
         [BurstCompile]
-        private static EngagementData UpdateEngagementData(EngagementData current, Laboratory.Chimera.Social.Core.SocialInteraction interaction)
+        private static void UpdateEngagementData(ref EngagementData current, in Laboratory.Chimera.Social.Core.SocialInteraction interaction)
         {
             switch (interaction.Type)
             {
@@ -218,30 +218,29 @@ namespace Laboratory.Chimera.Social.Systems
             }
 
             current.TotalEngagement = current.LikeCount + (current.CommentCount * 2) + (current.ShareCount * 5);
-            return current;
         }
 
         /// <summary>
         /// Create initial engagement data
         /// </summary>
         [BurstCompile]
-        private static EngagementData CreateEngagementData(Laboratory.Chimera.Social.Core.SocialInteraction interaction)
+        private static void CreateEngagementData(out EngagementData engagement, in Laboratory.Chimera.Social.Core.SocialInteraction interaction)
         {
-            var engagement = new EngagementData
+            engagement = new EngagementData
             {
                 ShareID = interaction.ShareID,
                 FirstInteractionTime = interaction.Timestamp,
                 LastInteractionTime = interaction.Timestamp
             };
 
-            return UpdateEngagementData(engagement, interaction);
+            UpdateEngagementData(ref engagement, interaction);
         }
 
         /// <summary>
         /// Calculate trending score for a share
         /// </summary>
         [BurstCompile]
-        private static float CalculateTrendingScore(SocialShareData shareData, float currentTime)
+        private static float CalculateTrendingScore(in SocialShareData shareData, float currentTime)
         {
             float hoursSincePost = (currentTime - shareData.ShareTimestamp) / 3600f;
             float engagementRate = shareData.PopularityScore / Unity.Mathematics.math.max(hoursSincePost, 0.1f);
@@ -276,7 +275,7 @@ namespace Laboratory.Chimera.Social.Systems
         /// <summary>
         /// Process specific interaction effects
         /// </summary>
-        private static void ProcessInteractionEffects(Laboratory.Chimera.Social.Core.SocialInteraction interaction, EngagementData engagement)
+        private static void ProcessInteractionEffects(in Laboratory.Chimera.Social.Core.SocialInteraction interaction, in EngagementData engagement)
         {
             switch (interaction.Type)
             {
@@ -425,7 +424,7 @@ namespace Laboratory.Chimera.Social.Systems
         /// <summary>
         /// Generate random interaction for a share
         /// </summary>
-        private void GenerateRandomInteraction(SocialShareData shareData, EntityCommandBuffer ecb, ref SystemState state)
+        private void GenerateRandomInteraction(in SocialShareData shareData, EntityCommandBuffer ecb, ref SystemState state)
         {
             var interactionTypes = new Laboratory.Chimera.Social.Core.InteractionType[] { Laboratory.Chimera.Social.Core.InteractionType.Like, Laboratory.Chimera.Social.Core.InteractionType.Comment, Laboratory.Chimera.Social.Core.InteractionType.Share };
             var randomType = interactionTypes[_random.NextInt(0, interactionTypes.Length)];

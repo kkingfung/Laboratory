@@ -83,7 +83,7 @@ namespace Laboratory.AI.ECS
         protected override void OnCreate()
         {
             // Find or create legacy pathfinding system
-            _legacyPathfindingSystem = Object.FindObjectOfType<EnhancedPathfindingSystem>();
+            _legacyPathfindingSystem = Object.FindFirstObjectByType<EnhancedPathfindingSystem>();
             if (_legacyPathfindingSystem == null)
             {
                 var pathfindingGO = new GameObject("Enhanced Pathfinding System");

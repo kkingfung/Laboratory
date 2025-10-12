@@ -378,7 +378,7 @@ namespace Laboratory.Chimera.Breeding.Games
             // Update UI
             UpdateUI();
 
-            Debug.Log($"Match found! Score: +{matchScore:F0} (Combo: {_comboMultiplier:F1}x)");
+            UnityEngine.Debug.Log($"Match found! Score: +{matchScore:F0} (Combo: {_comboMultiplier:F1}x)");
         }
 
         /// <summary>

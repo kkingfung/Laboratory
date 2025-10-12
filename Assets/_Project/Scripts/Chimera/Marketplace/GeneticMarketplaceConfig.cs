@@ -31,6 +31,15 @@ namespace Laboratory.Chimera.Marketplace
         [Range(1f, 3f)]
         public float relistingFeeMultiplier = 1.5f;
 
+        [Header("Player Economy")]
+        [Tooltip("Starting balance for new players")]
+        [Range(100, 10000)]
+        public float startingBalance = 1000f;
+
+        [Tooltip("Starting research points for new players")]
+        [Range(10, 1000)]
+        public int startingResearchPoints = 100;
+
         [Header("Price Calculation")]
         [Tooltip("Base price for common genetic material")]
         [Range(10, 1000)]
@@ -388,6 +397,9 @@ namespace Laboratory.Chimera.Marketplace
         Experimental,   // Experimental genetic modifications
         Breeding,       // Breeding services and materials
         Equipment,      // Lab equipment and tools
-        Research        // Research data and findings
+        Research,       // Research data and findings
+        GeneticMaterial, // Genetic material trading
+        BreedingServices, // Breeding services
+        ResearchData    // Research data trading
     }
 }

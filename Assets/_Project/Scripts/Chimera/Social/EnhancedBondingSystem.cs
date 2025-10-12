@@ -4,6 +4,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
 using System;
+using System.Runtime.InteropServices;
 using Laboratory.Chimera.Genetics;
 
 namespace Laboratory.Chimera.Social
@@ -30,7 +31,7 @@ namespace Laboratory.Chimera.Social
             _config = Resources.Load<EnhancedBondingConfig>("Configs/EnhancedBondingConfig");
             if (_config == null)
             {
-                Debug.LogError("EnhancedBondingConfig not found in Resources/Configs/");
+                UnityEngine.Debug.LogError("EnhancedBondingConfig not found in Resources/Configs/");
                 return;
             }
 
@@ -571,8 +572,11 @@ namespace Laboratory.Chimera.Social
     {
         public float SocialNeed;
         public float BondingCapacity;
+        [MarshalAs(UnmanagedType.U1)]
         public bool HasDeepBond;
+        [MarshalAs(UnmanagedType.U1)]
         public bool HasLifelongBond;
+        [MarshalAs(UnmanagedType.U1)]
         public bool HasSoulmate;
         public double LastSocialInteraction;
     }
@@ -640,7 +644,7 @@ namespace Laboratory.Chimera.Social
     /// <summary>
     /// Creature profile for bonding calculations
     /// </summary>
-    public struct CreatureProfile
+    public struct CreatureProfile : IComponentData
     {
         public uint creatureId;
         public FixedString64Bytes name;

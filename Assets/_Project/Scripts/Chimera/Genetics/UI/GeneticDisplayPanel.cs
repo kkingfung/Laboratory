@@ -36,6 +36,7 @@ namespace Laboratory.Chimera.Genetics.UI
 
         private VisualGeneticData _currentGenetics;
         private TraitBar[] _traitBars;
+        private readonly string[] _traitNames = { "Strength", "Vitality", "Agility", "Intelligence", "Adaptability", "Social" };
 
         /// <summary>
         /// Display creature genetics with smooth animations
@@ -100,7 +101,6 @@ namespace Laboratory.Chimera.Genetics.UI
         /// </summary>
         private IEnumerator CreateAnimatedTraitBars()
         {
-            string[] traitNames = { "Strength", "Vitality", "Agility", "Intelligence", "Adaptability", "Social" };
             _traitBars = new TraitBar[6];
 
             for (int i = 0; i < 6; i++)
@@ -112,11 +112,11 @@ namespace Laboratory.Chimera.Genetics.UI
                 {
                     _traitBars[i] = traitBar;
 
-                    byte traitValue = _currentGenetics.GetTraitValue(i);
-                    TraitAllele alleles = _currentGenetics.GetTraitAlleles(i);
+                    byte traitValue = _currentGenetics.GetTraitValue(_traitNames[i]);
+                    TraitAllele alleles = _currentGenetics.GetTraitAlleles(_traitNames[i]);
                     Color traitColor = _dnaVisualizer?.GetTraitColor(i, traitValue) ?? Color.white;
 
-                    traitBar.Initialize(traitNames[i], traitValue, alleles, traitColor);
+                    traitBar.Initialize(_traitNames[i], traitValue, alleles, traitColor);
 
                     // Animate trait bar appearance
                     yield return StartCoroutine(traitBar.AnimateAppearance(_animationDuration, _animationCurve));
@@ -191,8 +191,8 @@ namespace Laboratory.Chimera.Genetics.UI
             for (int traitIndex = 0; traitIndex < 6; traitIndex++)
             {
                 var outcomes = CalculateOffspringPossibilities(
-                    parent1.GetTraitAlleles(traitIndex),
-                    parent2.GetTraitAlleles(traitIndex)
+                    parent1.GetTraitAlleles(_traitNames[traitIndex]),
+                    parent2.GetTraitAlleles(_traitNames[traitIndex])
                 );
 
                 // Create prediction visualization
@@ -221,8 +221,8 @@ namespace Laboratory.Chimera.Genetics.UI
             float traitSynergy = 0f;
             for (int i = 0; i < 6; i++)
             {
-                byte trait1 = parent1.GetTraitValue(i);
-                byte trait2 = parent2.GetTraitValue(i);
+                byte trait1 = parent1.GetTraitValue(_traitNames[i]);
+                byte trait2 = parent2.GetTraitValue(_traitNames[i]);
 
                 // Moderate differences are good for offspring
                 float difference = Mathf.Abs(trait1 - trait2) / 100f;

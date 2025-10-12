@@ -112,7 +112,7 @@ namespace Laboratory.Chimera.Ecosystem.UI
 
         private void Start()
         {
-            _entityManager = Unity.Entities.World.DefaultGameObjectInjectionWorld?.EntityManager;
+            _entityManager = Unity.Entities.World.DefaultGameObjectInjectionWorld?.EntityManager ?? default;
             StartCoroutine(InitializeWithDelay());
         }
 
@@ -647,7 +647,7 @@ namespace Laboratory.Chimera.Ecosystem.UI
             _entityManager.AddComponentData(ecosystemEntity, new EcosystemState
             {
                 EcosystemID = new Unity.Collections.FixedString64Bytes("MockEcosystem001"),
-                PrimaryBiome = BiomeType.TemperateForest,
+                PrimaryBiome = Laboratory.Chimera.Ecosystem.Core.BiomeType.TemperateForest,
                 Temperature = 18f,
                 Humidity = 0.6f,
                 Oxygen = 0.21f,
@@ -657,7 +657,7 @@ namespace Laboratory.Chimera.Ecosystem.UI
                 CarryingCapacity = 200,
                 PopulationGrowthRate = 0.02f,
                 DiversityIndex = 1.8f,
-                CurrentSeason = Season.Spring,
+                CurrentSeason = Laboratory.Chimera.Ecosystem.Core.Season.Spring,
                 BiomeStability = 0.85f,
                 EnvironmentalPressure = 0.2f
             });
@@ -789,28 +789,139 @@ namespace Laboratory.Chimera.Ecosystem.UI
     /// </summary>
     public class LineChart : MonoBehaviour
     {
+        [SerializeField] private RectTransform chartContainer;
+        [SerializeField] private GameObject pointPrefab;
+        [SerializeField] private LineRenderer lineRenderer;
+
+        private List<GameObject> chartPoints = new List<GameObject>();
+
         public void UpdateChart(float[] data, string title)
         {
-            // Placeholder for line chart implementation
-            UnityEngine.Debug.Log($"Updating line chart: {title} with {data.Length} points");
+            if (chartContainer == null || data == null || data.Length == 0) return;
+
+            // Clear existing points
+            foreach (var point in chartPoints)
+            {
+                if (point != null) Destroy(point);
+            }
+            chartPoints.Clear();
+
+            // Create simple points for data visualization
+            float width = chartContainer.rect.width;
+            float height = chartContainer.rect.height;
+            float maxValue = Mathf.Max(data);
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (pointPrefab != null)
+                {
+                    GameObject point = Instantiate(pointPrefab, chartContainer);
+                    RectTransform pointRect = point.GetComponent<RectTransform>();
+
+                    float x = (i / (float)(data.Length - 1)) * width;
+                    float y = (data[i] / maxValue) * height;
+
+                    pointRect.anchoredPosition = new Vector2(x, y);
+                    chartPoints.Add(point);
+                }
+            }
+
+            UnityEngine.Debug.Log($"Line chart '{title}' updated with {data.Length} data points");
         }
     }
 
     public class PieChart : MonoBehaviour
     {
+        [SerializeField] private RectTransform chartContainer;
+        [SerializeField] private GameObject segmentPrefab;
+
+        private List<GameObject> chartSegments = new List<GameObject>();
+
         public void UpdateChart(float[] data, string[] labels)
         {
-            // Placeholder for pie chart implementation
-            UnityEngine.Debug.Log($"Updating pie chart with {data.Length} segments");
+            if (chartContainer == null || data == null || data.Length == 0) return;
+
+            // Clear existing segments
+            foreach (var segment in chartSegments)
+            {
+                if (segment != null) Destroy(segment);
+            }
+            chartSegments.Clear();
+
+            // Create simple color-coded segments
+            float total = 0f;
+            foreach (float value in data) total += value;
+
+            Color[] colors = { Color.red, Color.blue, Color.green, Color.yellow, Color.cyan, Color.magenta };
+
+            for (int i = 0; i < data.Length && i < colors.Length; i++)
+            {
+                if (segmentPrefab != null)
+                {
+                    GameObject segment = Instantiate(segmentPrefab, chartContainer);
+                    Image segmentImage = segment.GetComponent<Image>();
+
+                    if (segmentImage != null)
+                    {
+                        segmentImage.color = colors[i % colors.Length];
+                        float percentage = (data[i] / total) * 100f;
+                        segmentImage.fillAmount = data[i] / total;
+                    }
+
+                    chartSegments.Add(segment);
+                }
+            }
+
+            UnityEngine.Debug.Log($"Pie chart updated with {data.Length} segments");
         }
     }
 
     public class BarChart : MonoBehaviour
     {
+        [SerializeField] private RectTransform chartContainer;
+        [SerializeField] private GameObject barPrefab;
+
+        private List<GameObject> chartBars = new List<GameObject>();
+
         public void UpdateChart(float[] data, string[] labels)
         {
-            // Placeholder for bar chart implementation
-            UnityEngine.Debug.Log($"Updating bar chart with {data.Length} bars");
+            if (chartContainer == null || data == null || data.Length == 0) return;
+
+            // Clear existing bars
+            foreach (var bar in chartBars)
+            {
+                if (bar != null) Destroy(bar);
+            }
+            chartBars.Clear();
+
+            // Create simple bars
+            float width = chartContainer.rect.width / data.Length;
+            float maxValue = Mathf.Max(data);
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (barPrefab != null)
+                {
+                    GameObject bar = Instantiate(barPrefab, chartContainer);
+                    RectTransform barRect = bar.GetComponent<RectTransform>();
+
+                    float height = (data[i] / maxValue) * chartContainer.rect.height;
+                    barRect.sizeDelta = new Vector2(width * 0.8f, height);
+                    barRect.anchoredPosition = new Vector2(i * width, 0);
+
+                    // Color bars based on value
+                    Image barImage = bar.GetComponent<Image>();
+                    if (barImage != null)
+                    {
+                        float normalizedValue = data[i] / maxValue;
+                        barImage.color = Color.Lerp(Color.red, Color.green, normalizedValue);
+                    }
+
+                    chartBars.Add(bar);
+                }
+            }
+
+            UnityEngine.Debug.Log($"Bar chart updated with {data.Length} bars");
         }
     }
 }

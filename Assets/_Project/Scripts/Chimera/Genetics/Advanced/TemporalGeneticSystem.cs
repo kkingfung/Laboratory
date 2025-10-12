@@ -69,7 +69,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             // Initialize with some ancient DNA fragments for variety
             SeedAncientDNABank();
 
-            Debug.Log("Temporal Genetics System initialized - Genetic memory and evolutionary pressure active");
+            UnityEngine.Debug.Log("Temporal Genetics System initialized - Genetic memory and evolutionary pressure active");
         }
 
         #region Genetic Memory System
@@ -221,7 +221,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             genesField?.SetValue(profile, genesList.ToArray());
 
-            Debug.Log($"Ancestral trait '{ancestralTrait.traitName}' activated due to stress in lineage {profile.LineageId}");
+            UnityEngine.Debug.Log($"Ancestral trait '{ancestralTrait.traitName}' activated due to stress in lineage {profile.LineageId}");
             OnAncestralTraitActivated?.Invoke(profile, newGene);
         }
 
@@ -297,7 +297,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             activePressures.Add(pressure);
             OnEvolutionaryPressureBegin?.Invoke(pressure);
 
-            Debug.Log($"Evolutionary pressure '{pressureType}' began with intensity {pressure.intensity:F2}");
+            UnityEngine.Debug.Log($"Evolutionary pressure '{pressureType}' began with intensity {pressure.intensity:F2}");
         }
 
         private BiomeType[] SelectRandomBiomes()
@@ -326,7 +326,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         private void EndEvolutionaryPressure(EvolutionaryPressureEvent pressure)
         {
             OnEvolutionaryPressureEnd?.Invoke(pressure);
-            Debug.Log($"Evolutionary pressure '{pressure.type}' ended after {pressureDuration - pressure.duration} days");
+            UnityEngine.Debug.Log($"Evolutionary pressure '{pressure.type}' ended after {pressureDuration - pressure.duration} days");
         }
 
         /// <summary>
@@ -385,13 +385,13 @@ namespace Laboratory.Chimera.Genetics.Advanced
         public AncientDNAFragment TryDiscoverAncientDNA(Vector3 explorationLocation, BiomeType biome)
         {
             if (!enableGeneticArchaeology || UnityEngine.Random.value > ancientDNADiscoveryRate)
-                return null;
+                return default;
 
             var fragment = GenerateAncientDNAFragment(explorationLocation, biome);
             ancientDNABank.Add(fragment);
 
             OnAncientDNADiscovered?.Invoke(fragment);
-            Debug.Log($"Ancient DNA fragment '{fragment.traitName}' discovered at {explorationLocation}!");
+            UnityEngine.Debug.Log($"Ancient DNA fragment '{fragment.traitName}' discovered at {explorationLocation}!");
 
             return fragment;
         }
@@ -466,7 +466,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         {
             if (fragment.purity < 0.5f)
             {
-                Debug.Log("Ancient DNA fragment too degraded for integration");
+                UnityEngine.Debug.Log("Ancient DNA fragment too degraded for integration");
                 return false;
             }
 
@@ -490,11 +490,11 @@ namespace Laboratory.Chimera.Genetics.Advanced
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 genesField?.SetValue(profile, genesList.ToArray());
 
-                Debug.Log($"Successfully integrated ancient trait '{fragment.traitName}' into genetic profile");
+                UnityEngine.Debug.Log($"Successfully integrated ancient trait '{fragment.traitName}' into genetic profile");
                 return true;
             }
 
-            Debug.Log($"Failed to integrate ancient DNA fragment '{fragment.traitName}'");
+            UnityEngine.Debug.Log($"Failed to integrate ancient DNA fragment '{fragment.traitName}'");
             return false;
         }
 

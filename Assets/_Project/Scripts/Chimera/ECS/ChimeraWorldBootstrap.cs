@@ -573,7 +573,7 @@ namespace Laboratory.Chimera.ECS
         private void InitializeSystemIntegration()
         {
             // Create system bridge if it doesn't exist
-            _systemBridge = FindObjectOfType<Laboratory.Chimera.Integration.ChimeraSystemBridge>();
+            _systemBridge = FindFirstObjectByType<Laboratory.Chimera.Integration.ChimeraSystemBridge>();
             if (_systemBridge == null)
             {
                 var bridgeGO = new GameObject("Chimera System Bridge");
@@ -586,10 +586,10 @@ namespace Laboratory.Chimera.ECS
 
             // Auto-find existing systems if not assigned
             if (existingAIManager == null)
-                existingAIManager = FindObjectOfType<Laboratory.Chimera.AI.ChimeraAIManager>();
+                existingAIManager = FindFirstObjectByType<Laboratory.Chimera.AI.ChimeraAIManager>();
 
             if (traitLibrary == null)
-                traitLibrary = FindObjectOfType<GeneticTraitLibrary>();
+                traitLibrary = FindFirstObjectByType<GeneticTraitLibrary>();
 
             // Setup integration between systems
             if (existingAIManager != null && universeConfig != null)

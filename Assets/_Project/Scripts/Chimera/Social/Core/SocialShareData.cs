@@ -85,6 +85,28 @@ namespace Laboratory.Chimera.Social.Core
         }
 
         /// <summary>
+        /// Create share data from creature with custom title and description
+        /// </summary>
+        public static SocialShareData CreateFromCreature(Entity creature, VisualGeneticData genetics, string playerName, string title, string description)
+        {
+            return new SocialShareData
+            {
+                ShareID = new FixedString64Bytes(System.Guid.NewGuid().ToString("N")[..12]),
+                PlayerName = new FixedString64Bytes(playerName),
+                ShareTitle = new FixedString128Bytes(title),
+                ShareDescription = new FixedString512Bytes(description),
+                ShareTimestamp = (uint)UnityEngine.Time.time,
+                Type = ShareType.CreatureShowcase,
+                SharedCreature = creature,
+                GeneticData = genetics,
+                PrimaryColor = genetics.PrimaryHelixColor,
+                SecondaryColor = genetics.SecondaryHelixColor,
+                HighlightMarkers = genetics.SpecialMarkers,
+                VisualAppeal = genetics.SpecialMarkers.CountFlags() / 8f
+            };
+        }
+
+        /// <summary>
         /// Create share data from discovery
         /// </summary>
         public static SocialShareData CreateFromDiscovery(DiscoveryEvent discovery, string playerName)

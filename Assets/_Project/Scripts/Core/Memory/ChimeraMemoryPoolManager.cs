@@ -735,7 +735,7 @@ namespace Laboratory.Core.Memory
             {
                 if (instance == null)
                 {
-                    instance = FindObjectOfType<ChimeraMemoryPoolManager>();
+                    instance = FindFirstObjectByType<ChimeraMemoryPoolManager>();
                     if (instance == null)
                     {
                         var go = new GameObject("Chimera Memory Pool Manager");

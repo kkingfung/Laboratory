@@ -162,7 +162,7 @@ namespace Laboratory.Core.Integration
             // ⚡ OPTIMIZED: Try to get from cache or use lazy initialization to avoid FindObjectOfType
             if (debugConsole == null)
             {
-                debugConsole = FindObjectOfType<EnhancedDebugConsole>();
+                debugConsole = FindFirstObjectByType<EnhancedDebugConsole>();
             }
 
             // Subscribe to system events

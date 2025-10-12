@@ -225,19 +225,22 @@ namespace Laboratory.Chimera.Genetics.Visualization
             // Activate special particle effects based on markers
             if (_currentGeneticData.SpecialMarkers.HasMarker(GeneticMarkerFlags.Bioluminescent))
             {
-                _specialMarkerEffect.startColor = Color.cyan;
+                var main = _specialMarkerEffect.main;
+                main.startColor = Color.cyan;
                 _specialMarkerEffect.Play();
             }
 
             if (_currentGeneticData.SpecialMarkers.HasMarker(GeneticMarkerFlags.RareLineage))
             {
-                _specialMarkerEffect.startColor = Color.gold;
+                var main = _specialMarkerEffect.main;
+                main.startColor = Color.gold;
                 _specialMarkerEffect.Play();
             }
 
             if (_currentGeneticData.SpecialMarkers.HasMarker(GeneticMarkerFlags.ElementalAffinity))
             {
-                _specialMarkerEffect.startColor = Color.red;
+                var main = _specialMarkerEffect.main;
+                main.startColor = Color.red;
                 _specialMarkerEffect.Play();
             }
 

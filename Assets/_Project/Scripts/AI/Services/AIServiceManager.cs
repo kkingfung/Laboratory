@@ -23,7 +23,7 @@ namespace Laboratory.AI.Services
             {
                 if (_instance == null)
                 {
-                    _instance = FindObjectOfType<AIServiceManager>();
+                    _instance = FindFirstObjectByType<AIServiceManager>();
                     if (_instance == null)
                     {
                         var go = new GameObject("AI Service Manager");

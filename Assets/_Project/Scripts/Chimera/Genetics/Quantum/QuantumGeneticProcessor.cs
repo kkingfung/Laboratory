@@ -49,7 +49,7 @@ namespace Laboratory.Chimera.Genetics.Quantum
         private void OnEnable()
         {
             quantumRNG = new QuantumRandomGenerator((uint)UnityEngine.Random.Range(1, int.MaxValue));
-            DebugManager.LogInfo("Quantum Genetic Processor initialized");
+            UnityEngine.Debug.Log("Quantum Genetic Processor initialized");
         }
 
         /// <summary>
@@ -60,10 +60,10 @@ namespace Laboratory.Chimera.Genetics.Quantum
             var quantumGenome = new QuantumGenome
             {
                 id = classicalGenome.id,
-                generation = classicalGenome.generation,
+                generation = (uint)classicalGenome.generation,
                 parentA = classicalGenome.parentA,
                 parentB = classicalGenome.parentB,
-                species = classicalGenome.species,
+                species = classicalGenome.species.ToString(),
                 birthTime = classicalGenome.birthTime,
                 quantumTraits = new Dictionary<string, QuantumTrait>(),
                 coherenceLevel = 1f,
@@ -73,11 +73,11 @@ namespace Laboratory.Chimera.Genetics.Quantum
             // Convert classical traits to quantum superposition states
             foreach (var trait in classicalGenome.traits)
             {
-                quantumGenome.quantumTraits[trait.Key] = CreateQuantumTrait(trait.Value);
+                quantumGenome.quantumTraits[trait.Key.ToString()] = CreateQuantumTrait(trait);
             }
 
             quantumGenomes[quantumGenome.id] = quantumGenome;
-            DebugManager.LogInfo($"Quantum genome created for creature {quantumGenome.id}");
+            UnityEngine.Debug.Log($"Quantum genome created for creature {quantumGenome.id}");
 
             return quantumGenome;
         }
@@ -86,7 +86,7 @@ namespace Laboratory.Chimera.Genetics.Quantum
         {
             var quantumTrait = new QuantumTrait
             {
-                name = classicalTrait.name,
+                name = classicalTrait.name.ToString(),
                 superpositionStates = new QuantumState[maxSuperpositionStates],
                 entangledWith = new List<uint>(),
                 measurementProbability = 1f / maxSuperpositionStates,
@@ -122,7 +122,7 @@ namespace Laboratory.Chimera.Genetics.Quantum
             if (!quantumGenomes.TryGetValue(parentAId, out var parentA) ||
                 !quantumGenomes.TryGetValue(parentBId, out var parentB))
             {
-                DebugManager.LogError($"Quantum breeding failed: Parents not found in quantum registry");
+                UnityEngine.Debug.LogError($"Quantum breeding failed: Parents not found in quantum registry");
                 return null;
             }
 
@@ -162,7 +162,7 @@ namespace Laboratory.Chimera.Genetics.Quantum
 
             quantumGenomes[offspring.id] = offspring;
 
-            DebugManager.LogInfo($"Quantum breeding successful: Offspring {offspring.id}, Coherence {offspring.coherenceLevel:F3}");
+            UnityEngine.Debug.Log($"Quantum breeding successful: Offspring {offspring.id}, Coherence {offspring.coherenceLevel:F3}");
             return offspring;
         }
 
@@ -257,7 +257,7 @@ namespace Laboratory.Chimera.Genetics.Quantum
             if (!quantumGenomes.TryGetValue(genomeId, out var genome) ||
                 !genome.quantumTraits.TryGetValue(traitName, out var quantumTrait))
             {
-                DebugManager.LogWarning($"Cannot measure quantum trait {traitName} for genome {genomeId}");
+                UnityEngine.Debug.LogWarning($"Cannot measure quantum trait {traitName} for genome {genomeId}");
                 return 0f;
             }
 
@@ -284,7 +284,7 @@ namespace Laboratory.Chimera.Genetics.Quantum
 
             OnQuantumMeasurement?.Invoke(genomeId, traitName, measuredValue);
 
-            DebugManager.LogInfo($"Quantum measurement: {traitName} = {measuredValue:F3} for genome {genomeId}");
+            UnityEngine.Debug.Log($"Quantum measurement: {traitName} = {measuredValue:F3} for genome {genomeId}");
             return measuredValue;
         }
 
@@ -363,7 +363,7 @@ namespace Laboratory.Chimera.Genetics.Quantum
             }
 
             OnQuantumEntanglementFormed?.Invoke(genomeA, genomeB, traitName);
-            DebugManager.LogInfo($"Quantum entanglement formed: {genomeA} <-> {genomeB} ({traitName})");
+            UnityEngine.Debug.Log($"Quantum entanglement formed: {genomeA} <-> {genomeB} ({traitName})");
         }
 
         private void ApplyDecoherence(QuantumGenome genome, string traitName)
@@ -663,6 +663,10 @@ namespace Laboratory.Chimera.Genetics.Quantum
         public uint id;
         public int generation;
         public FixedList128Bytes<GeneticTrait> traits;
+        public uint parentA;
+        public uint parentB;
+        public FixedString32Bytes species;
+        public float birthTime;
     }
 
     /// <summary>
@@ -674,5 +678,10 @@ namespace Laboratory.Chimera.Genetics.Quantum
         public float value;
         public float dominance;
         public bool isActive;
+        public float mutationRate;
+
+        // Properties to match expected interface
+        public FixedString32Bytes Key => name;
+        public float Value => value;
     }
 }

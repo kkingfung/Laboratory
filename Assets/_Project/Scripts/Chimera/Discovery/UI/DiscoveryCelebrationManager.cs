@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Laboratory.Chimera.Discovery.Core;
 using Laboratory.Chimera.Genetics.Core;
 using CoreDiscoveryEvent = Laboratory.Chimera.Discovery.Core.DiscoveryEvent;
+using CoreDiscoveryType = Laboratory.Chimera.Discovery.Core.DiscoveryType;
 
 namespace Laboratory.Chimera.Discovery.UI
 {
@@ -58,7 +59,7 @@ namespace Laboratory.Chimera.Discovery.UI
         private Camera _mainCamera;
         private Vector3 _originalCameraPosition;
         private Coroutine _currentCelebration;
-        private Queue<DiscoveryEvent> _discoveryQueue = new Queue<DiscoveryEvent>();
+        private Queue<CoreDiscoveryEvent> _discoveryQueue = new Queue<CoreDiscoveryEvent>();
 
         private static DiscoveryCelebrationManager _instance;
         public static DiscoveryCelebrationManager Instance => _instance;
@@ -536,7 +537,7 @@ namespace Laboratory.Chimera.Discovery.UI
         /// <summary>
         /// Get icon sprite for discovery type
         /// </summary>
-        private Sprite GetDiscoveryIcon(DiscoveryType type)
+        private Sprite GetDiscoveryIcon(CoreDiscoveryType type)
         {
             // This would be connected to a sprite library
             // For now, return null - would need sprite assets
@@ -550,12 +551,12 @@ namespace Laboratory.Chimera.Discovery.UI
         {
             string baseDesc = discovery.Type switch
             {
-                DiscoveryType.NewTrait => "You've discovered a never-before-seen genetic combination!",
-                DiscoveryType.RareMutation => "A rare genetic mutation has emerged in your creature!",
-                DiscoveryType.SpecialMarker => "Special genetic markers have activated in this creature!",
-                DiscoveryType.PerfectGenetics => "Perfect genetic alignment achieved - a scientific breakthrough!",
-                DiscoveryType.NewSpecies => "A completely new species has been created through your breeding!",
-                DiscoveryType.LegendaryLineage => "Your breeding line has achieved legendary status!",
+                CoreDiscoveryType.NewTrait => "You've discovered a never-before-seen genetic combination!",
+                CoreDiscoveryType.RareMutation => "A rare genetic mutation has emerged in your creature!",
+                CoreDiscoveryType.SpecialMarker => "Special genetic markers have activated in this creature!",
+                CoreDiscoveryType.PerfectGenetics => "Perfect genetic alignment achieved - a scientific breakthrough!",
+                CoreDiscoveryType.NewSpecies => "A completely new species has been created through your breeding!",
+                CoreDiscoveryType.LegendaryLineage => "Your breeding line has achieved legendary status!",
                 _ => "An incredible genetic discovery has been made!"
             };
 

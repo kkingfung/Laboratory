@@ -21,7 +21,7 @@ namespace Laboratory.Chimera.Genetics.UI
             // Find tooltip display if not cached
             if (_tooltipDisplay == null)
             {
-                _tooltipDisplay = FindObjectOfType<TooltipDisplay>();
+                _tooltipDisplay = FindFirstObjectByType<TooltipDisplay>();
             }
         }
 
@@ -144,12 +144,88 @@ namespace Laboratory.Chimera.Genetics.UI
     }
 
     /// <summary>
-    /// Stub class for tooltip display functionality
+    /// Basic tooltip display functionality
     /// </summary>
     public class TooltipDisplay : MonoBehaviour
     {
-        public void ShowTooltip(string title, string description, Vector3 position) { }
-        public void HideTooltip() { }
-        public bool IsVisible => false;
+        [SerializeField] private GameObject tooltipPanel;
+        [SerializeField] private TMPro.TextMeshProUGUI titleText;
+        [SerializeField] private TMPro.TextMeshProUGUI descriptionText;
+        [SerializeField] private RectTransform tooltipRect;
+        [SerializeField] private Canvas tooltipCanvas;
+
+        private bool isVisible = false;
+
+        private void Awake()
+        {
+            if (tooltipPanel != null)
+                tooltipPanel.SetActive(false);
+        }
+
+        public void ShowTooltip(string title, string description, Vector3 position)
+        {
+            if (tooltipPanel == null) return;
+
+            // Set tooltip content
+            if (titleText != null)
+                titleText.text = title;
+
+            if (descriptionText != null)
+                descriptionText.text = description;
+
+            // Position tooltip
+            if (tooltipRect != null && tooltipCanvas != null)
+            {
+                Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(Camera.main, position);
+                Vector2 localPosition;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    tooltipCanvas.transform as RectTransform,
+                    screenPosition,
+                    tooltipCanvas.worldCamera,
+                    out localPosition);
+
+                tooltipRect.localPosition = localPosition;
+
+                // Keep tooltip on screen
+                KeepTooltipOnScreen();
+            }
+
+            // Show tooltip
+            tooltipPanel.SetActive(true);
+            isVisible = true;
+        }
+
+        public void HideTooltip()
+        {
+            if (tooltipPanel != null)
+                tooltipPanel.SetActive(false);
+
+            isVisible = false;
+        }
+
+        private void KeepTooltipOnScreen()
+        {
+            if (tooltipRect == null || tooltipCanvas == null) return;
+
+            var canvasRect = tooltipCanvas.transform as RectTransform;
+            var tooltipSize = tooltipRect.sizeDelta;
+            var tooltipPos = tooltipRect.localPosition;
+
+            // Adjust horizontal position
+            if (tooltipPos.x + tooltipSize.x > canvasRect.rect.width / 2)
+                tooltipPos.x = canvasRect.rect.width / 2 - tooltipSize.x;
+            if (tooltipPos.x < -canvasRect.rect.width / 2)
+                tooltipPos.x = -canvasRect.rect.width / 2;
+
+            // Adjust vertical position
+            if (tooltipPos.y + tooltipSize.y > canvasRect.rect.height / 2)
+                tooltipPos.y = canvasRect.rect.height / 2 - tooltipSize.y;
+            if (tooltipPos.y < -canvasRect.rect.height / 2)
+                tooltipPos.y = -canvasRect.rect.height / 2;
+
+            tooltipRect.localPosition = tooltipPos;
+        }
+
+        public bool IsVisible => isVisible;
     }
 }

@@ -64,7 +64,7 @@ namespace Laboratory.Chimera.Consciousness.Core
                 Aggression = (byte)CalculateTraitWithVariation(genetics.Strength, 20, random),
                 Affection = (byte)CalculateTraitWithVariation(genetics.Social, 35, random),
                 Independence = (byte)(100 - CalculateTraitWithVariation(genetics.Social, 25, random)),
-                Nervousness = (byte)CalculateTraitWithVariation(100 - genetics.Adaptability, 30, random),
+                Nervousness = (byte)CalculateTraitWithVariation((byte)(100 - genetics.Adaptability), 30, random),
                 Stubbornness = (byte)CalculateTraitWithVariation(genetics.Strength, 20, random),
                 Loyalty = (byte)CalculateTraitWithVariation(genetics.Social, 40, random),
 

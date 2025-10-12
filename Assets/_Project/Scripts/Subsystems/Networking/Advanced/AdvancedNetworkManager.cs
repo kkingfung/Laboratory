@@ -459,8 +459,8 @@ namespace Laboratory.Subsystems.Networking.Advanced
             if (NetworkConfig.NetworkTransport != null)
             {
                 // Add transport-specific stats here
-                networkStats.BytesSent = 0; // Placeholder - implement based on transport
-                networkStats.BytesReceived = 0; // Placeholder - implement based on transport
+                networkStats.BytesSent = 0; // Simple placeholder
+                networkStats.BytesReceived = 0; // Simple placeholder
             }
             
             // Integrate with performance manager

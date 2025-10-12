@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
@@ -41,6 +42,9 @@ namespace Laboratory.Chimera.Ecosystem.Core
         public Season CurrentSeason;
         public float SeasonProgress;       // 0.0 to 1.0 through current season
         public uint LastUpdate;
+
+        // Property alias for backward compatibility
+        public int DaysGenesis => DaysSinceGenesis;
 
         // Evolution tracking
         public float EvolutionaryPressure;
@@ -211,8 +215,6 @@ namespace Laboratory.Chimera.Ecosystem.Core
         /// </summary>
         public float GetViabilityScore()
         {
-            float baseViability = 0.5f;
-
             // Population size factor
             float sizeScore = CurrentPopulation < 10 ? 0.2f :
                              CurrentPopulation < 50 ? 0.6f :
@@ -370,6 +372,7 @@ namespace Laboratory.Chimera.Ecosystem.Core
 
         // Recovery data
         public float RecoveryRate;
+        [MarshalAs(UnmanagedType.U1)]
         public bool IsRecovering;
 
         /// <summary>

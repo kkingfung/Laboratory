@@ -3,6 +3,7 @@
     "rootNamespace": "Laboratory.Subsystems",
     "references": [
         "Laboratory.Core",
+        "Laboratory.Infrastructure",
         "Laboratory.Chimera",
         "Laboratory.Chimera.ECS",
         "Laboratory.Networking",

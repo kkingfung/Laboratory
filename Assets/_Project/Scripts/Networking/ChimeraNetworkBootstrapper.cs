@@ -507,7 +507,7 @@ namespace Laboratory.Networking
                 estimatedBandwidth = netcodeConfig != null ?
                     (syncedQuery.CalculateEntityCount() * 64f * netcodeConfig.clientUpdateRate) / 1000f : 0f,
                 isServerRunning = _isInitialized,
-                connectedClients = 1 // Placeholder
+                connectedClients = _isInitialized ? 1 : 0
             };
 
             networkedQuery.Dispose();

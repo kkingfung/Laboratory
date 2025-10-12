@@ -761,7 +761,7 @@ namespace Laboratory.Chimera.Discovery
         /// <summary>
         /// Gets all discoveries made by a specific player
         /// </summary>
-        public PlayerDiscoveryProfile GetPlayerDiscoveries(string playerId)
+        public PlayerDiscoveryProfile? GetPlayerDiscoveries(string playerId)
         {
             return playerDiscoveryProfiles.TryGetValue(playerId, out var profile) ? profile : null;
         }
@@ -896,7 +896,12 @@ namespace Laboratory.Chimera.Discovery
         UniqueSpeciesVariant, // Unique species variant
         LegendaryBloodline,  // Legendary genetic line
         MythicalCreature,    // Mythical-level creature
-        WorldFirst          // First-ever discovery
+        WorldFirst,         // First-ever discovery
+        RareMutation,       // Genetic mutation occurred
+        SpecialMarker,      // Special genetic marker activated
+        PerfectGenetics,    // All traits at maximum values
+        NewSpecies,         // Completely new genetic combination
+        LegendaryLineage    // Breeding line reaches legendary status
     }
 
     /// <summary>

@@ -81,7 +81,7 @@ namespace Laboratory.Chimera.Social
         private void OnEnable()
         {
             InitializeSocialSystems();
-            DebugManager.LogInfo("Advanced Social System initialized");
+            UnityEngine.Debug.Log("Advanced Social System initialized");
         }
 
         private void InitializeSocialSystems()
@@ -95,7 +95,7 @@ namespace Laboratory.Chimera.Social
             socialLearning = new SocialLearningSystem();
 
             globalSocialMetrics = new SocialMetrics();
-            DebugManager.LogInfo("Social subsystems initialized");
+            UnityEngine.Debug.Log("Social subsystems initialized");
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace Laboratory.Chimera.Social
                 expressiveness = socialTraits.GetValueOrDefault("Expressiveness", 0.5f)
             };
 
-            DebugManager.LogInfo($"Social agent {creatureId} registered with empathy level {socialAgent.empathyLevel:F3}");
+            UnityEngine.Debug.Log($"Social agent {creatureId} registered with empathy level {socialAgent.empathyLevel:F3}");
             return socialAgent;
         }
 
@@ -202,7 +202,7 @@ namespace Laboratory.Chimera.Social
             if (!socialAgents.TryGetValue(agentA, out var socialAgentA) ||
                 !socialAgents.TryGetValue(agentB, out var socialAgentB))
             {
-                DebugManager.LogError($"Cannot process interaction: Agent {agentA} or {agentB} not found");
+                UnityEngine.Debug.LogError($"Cannot process interaction: Agent {agentA} or {agentB} not found");
                 return null;
             }
 
@@ -250,7 +250,7 @@ namespace Laboratory.Chimera.Social
             // Log significant events
             if (result.relationshipChange > 0.2f)
             {
-                DebugManager.LogInfo($"Significant social bond formed between {agentA} and {agentB}");
+                UnityEngine.Debug.Log($"Significant social bond formed between {agentA} and {agentB}");
             }
 
             return result;
@@ -602,7 +602,7 @@ namespace Laboratory.Chimera.Social
         {
             if (memberIds.Count < 2 || memberIds.Count > maxGroupSize)
             {
-                DebugManager.LogWarning($"Invalid group size: {memberIds.Count}");
+                UnityEngine.Debug.LogWarning($"Invalid group size: {memberIds.Count}");
                 return null;
             }
 
@@ -611,7 +611,7 @@ namespace Laboratory.Chimera.Social
             {
                 if (!socialAgents.ContainsKey(memberId))
                 {
-                    DebugManager.LogError($"Cannot form group: Agent {memberId} not found");
+                    UnityEngine.Debug.LogError($"Cannot form group: Agent {memberId} not found");
                     return null;
                 }
             }
@@ -649,7 +649,7 @@ namespace Laboratory.Chimera.Social
             activeGroups[groupId] = group;
             OnGroupFormed?.Invoke(groupId, group);
 
-            DebugManager.LogInfo($"Social group {groupId} formed with {memberIds.Count} members, cohesion: {group.cohesion:F3}");
+            UnityEngine.Debug.Log($"Social group {groupId} formed with {memberIds.Count} members, cohesion: {group.cohesion:F3}");
             return group;
         }
 
@@ -910,7 +910,7 @@ namespace Laboratory.Chimera.Social
                 // Remove leadership if exists
                 groupLeaderships.Remove(groupId);
 
-                DebugManager.LogInfo($"Group {groupId} dissolved due to low cohesion");
+                UnityEngine.Debug.Log($"Group {groupId} dissolved due to low cohesion");
             }
 
             activeGroups.Remove(groupId);
@@ -957,7 +957,7 @@ namespace Laboratory.Chimera.Social
         {
             globalSocialMetrics.totalAgents = socialAgents.Count;
             globalSocialMetrics.totalGroups = activeGroups.Count;
-            globalSocialMetrics.averageGroupSize = activeGroups.Any() ? activeGroups.Values.Average(g => g.memberIds.Count) : 0f;
+            globalSocialMetrics.averageGroupSize = activeGroups.Any() ? (float)activeGroups.Values.Average(g => g.memberIds.Count) : 0f;
             globalSocialMetrics.averageEmpathy = socialAgents.Values.Average(a => a.empathyLevel);
             globalSocialMetrics.culturalDiversity = CalculateCulturalDiversity();
             globalSocialMetrics.socialNetworkDensity = socialNetwork.CalculateNetworkDensity();
@@ -1096,7 +1096,7 @@ namespace Laboratory.Chimera.Social
         {
             return new CommunicationAnalysis
             {
-                averageVocabularySize = communicationSystems.Values.Average(c => c.vocabulary.Count),
+                averageVocabularySize = (float)communicationSystems.Values.Average(c => c.vocabulary.Count),
                 communicationEfficiency = this.communicationEfficiency,
                 languageDiversity = CalculateLanguageDiversity(),
                 communicationFrequency = CalculateCommunicationFrequency()
@@ -1482,7 +1482,7 @@ namespace Laboratory.Chimera.Social
         private float CalculateAverageDegree()
         {
             if (adjacencyList.Count == 0) return 0f;
-            return adjacencyList.Values.Average(list => list.Count);
+            return (float)adjacencyList.Values.Average(list => list.Count);
         }
 
         private float CalculateClusteringCoefficient()

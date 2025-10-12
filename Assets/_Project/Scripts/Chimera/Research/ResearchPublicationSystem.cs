@@ -73,7 +73,7 @@ namespace Laboratory.Chimera.Research
         {
             LoadResearchDatabase();
             SeedInitialGrants();
-            Debug.Log("Research Publication System initialized - Ready for scientific collaboration!");
+            UnityEngine.Debug.Log("Research Publication System initialized - Ready for scientific collaboration!");
         }
 
         private void SeedInitialGrants()
@@ -138,7 +138,7 @@ namespace Laboratory.Chimera.Research
             // Initialize author profile if needed
             EnsureResearcherProfile(authorId);
 
-            Debug.Log($"Research draft '{title}' created by {GetResearcherName(authorId)}");
+            UnityEngine.Debug.Log($"Research draft '{title}' created by {GetResearcherName(authorId)}");
             return paper;
         }
 
@@ -163,7 +163,7 @@ namespace Laboratory.Chimera.Research
             };
 
             paper.results.Add(evidence);
-            Debug.Log($"Genetic evidence added to paper '{paper.title}': {description}");
+            UnityEngine.Debug.Log($"Genetic evidence added to paper '{paper.title}': {description}");
         }
 
         /// <summary>
@@ -189,7 +189,7 @@ namespace Laboratory.Chimera.Research
             };
 
             paper.results.Add(evidence);
-            Debug.Log($"Breeding evidence added to paper '{paper.title}': {outcomeDescription}");
+            UnityEngine.Debug.Log($"Breeding evidence added to paper '{paper.title}': {outcomeDescription}");
         }
 
         /// <summary>
@@ -216,7 +216,7 @@ namespace Laboratory.Chimera.Research
             };
 
             paper.results.Add(evidence);
-            Debug.Log($"Population evidence added to paper '{paper.title}': {analysis}");
+            UnityEngine.Debug.Log($"Population evidence added to paper '{paper.title}': {analysis}");
         }
 
         private float CalculateEvidenceQuality(GeneticProfile profile)
@@ -303,7 +303,7 @@ namespace Laboratory.Chimera.Research
             AssignPeerReviewers(paper);
 
             OnPaperSubmitted?.Invoke(paper);
-            Debug.Log($"Paper '{paper.title}' submitted for peer review");
+            UnityEngine.Debug.Log($"Paper '{paper.title}' submitted for peer review");
 
             return true;
         }
@@ -313,19 +313,19 @@ namespace Laboratory.Chimera.Research
             // Check minimum requirements
             if (string.IsNullOrEmpty(paper.title) || paper.title.Length < 10)
             {
-                Debug.Log("Paper title too short for submission");
+                UnityEngine.Debug.Log("Paper title too short for submission");
                 return false;
             }
 
             if (string.IsNullOrEmpty(paper.abstractText) || paper.abstractText.Length < 100)
             {
-                Debug.Log("Paper abstract too short for submission");
+                UnityEngine.Debug.Log("Paper abstract too short for submission");
                 return false;
             }
 
             if (paper.results.Count < minimumEvidenceSamples)
             {
-                Debug.Log($"Insufficient evidence samples: {paper.results.Count} < {minimumEvidenceSamples}");
+                UnityEngine.Debug.Log($"Insufficient evidence samples: {paper.results.Count} < {minimumEvidenceSamples}");
                 return false;
             }
 
@@ -333,14 +333,14 @@ namespace Laboratory.Chimera.Research
             var avgQuality = paper.results.Average(r => r.quality);
             if (avgQuality < minimumDataQuality)
             {
-                Debug.Log($"Data quality too low: {avgQuality:F2} < {minimumDataQuality:F2}");
+                UnityEngine.Debug.Log($"Data quality too low: {avgQuality:F2} < {minimumDataQuality:F2}");
                 return false;
             }
 
             // Check for plagiarism (simplified)
             if (CheckForPlagiarism(paper))
             {
-                Debug.Log("Potential plagiarism detected");
+                UnityEngine.Debug.Log("Potential plagiarism detected");
                 return false;
             }
 
@@ -410,7 +410,7 @@ namespace Laboratory.Chimera.Research
             }
 
             activePeerReviews[paper.id] = reviews;
-            Debug.Log($"Assigned {reviews.Count} peer reviewers to paper '{paper.title}'");
+            UnityEngine.Debug.Log($"Assigned {reviews.Count} peer reviewers to paper '{paper.title}'");
         }
 
         private List<string> GetEligibleReviewers(ResearchPaper paper)
@@ -465,7 +465,7 @@ namespace Laboratory.Chimera.Research
                 return false;
 
             var review = activePeerReviews.Values.SelectMany(r => r).FirstOrDefault(r => r.id == reviewId);
-            if (review == null || review.status != ReviewStatus.Assigned) return false;
+            if (string.IsNullOrEmpty(review.id) || review.status != ReviewStatus.Assigned) return false;
 
             // Update review
             review.status = ReviewStatus.Completed;
@@ -489,7 +489,7 @@ namespace Laboratory.Chimera.Research
             // Check if all reviews are complete
             CheckPaperReviewCompletion(review.paperId);
 
-            Debug.Log($"Peer review completed for paper by {GetResearcherName(review.reviewerId)}");
+            UnityEngine.Debug.Log($"Peer review completed for paper by {GetResearcherName(review.reviewerId)}");
             return true;
         }
 
@@ -577,7 +577,7 @@ namespace Laboratory.Chimera.Research
             }
 
             OnPaperPublished?.Invoke(paper);
-            Debug.Log($"Paper '{paper.title}' published successfully!");
+            UnityEngine.Debug.Log($"Paper '{paper.title}' published successfully!");
         }
 
         private float CalculatePublicationReputationGain(ResearchPaper paper)
@@ -616,7 +616,7 @@ namespace Laboratory.Chimera.Research
             pendingReview.Remove(paper.id);
             activePeerReviews.Remove(paper.id);
 
-            Debug.Log($"Paper '{paper.title}' rejected - returned to drafts");
+            UnityEngine.Debug.Log($"Paper '{paper.title}' rejected - returned to drafts");
         }
 
         private void RequestRevisions(ResearchPaper paper, List<PeerReview> reviews)
@@ -629,7 +629,7 @@ namespace Laboratory.Chimera.Research
             pendingReview.Remove(paper.id);
             activePeerReviews.Remove(paper.id);
 
-            Debug.Log($"Paper '{paper.title}' requires revisions");
+            UnityEngine.Debug.Log($"Paper '{paper.title}' requires revisions");
         }
 
         #endregion
@@ -659,7 +659,7 @@ namespace Laboratory.Chimera.Research
             };
 
             // In a real implementation, this would be sent to the invitee
-            Debug.Log($"Collaboration invitation sent to {GetResearcherName(inviteeId)} for paper '{paper.title}'");
+            UnityEngine.Debug.Log($"Collaboration invitation sent to {GetResearcherName(inviteeId)} for paper '{paper.title}'");
             return true;
         }
 
@@ -670,7 +670,7 @@ namespace Laboratory.Chimera.Research
         {
             // In a real implementation, this would look up the invitation
             // For now, we'll simulate accepting collaboration
-            Debug.Log("Collaboration invitation accepted");
+            UnityEngine.Debug.Log("Collaboration invitation accepted");
             return true;
         }
 
@@ -745,10 +745,12 @@ namespace Laboratory.Chimera.Research
                 var expiredReviews = reviews.Where(r => r.status == ReviewStatus.Assigned &&
                                                        Time.time > r.deadline).ToList();
 
-                foreach (var expiredReview in expiredReviews)
+                for (int i = 0; i < expiredReviews.Count; i++)
                 {
-                    expiredReview.status = ReviewStatus.Expired;
-                    Debug.Log($"Review expired for paper {kvp.Key}");
+                    var review = expiredReviews[i];
+                    review.status = ReviewStatus.Expired;
+                    expiredReviews[i] = review;
+                    UnityEngine.Debug.Log($"Review expired for paper {kvp.Key}");
                 }
             }
         }
@@ -786,7 +788,7 @@ namespace Laboratory.Chimera.Research
 
             // Award grant
             OnGrantAwarded?.Invoke(grant);
-            Debug.Log($"Grant '{grant.title}' awarded to {GetResearcherName(bestApplication.applicantId)}");
+            UnityEngine.Debug.Log($"Grant '{grant.title}' awarded to {GetResearcherName(bestApplication.applicantId)}");
         }
 
         private void CreateRandomGrant()
@@ -808,7 +810,7 @@ namespace Laboratory.Chimera.Research
             };
 
             availableGrants.Add(grant);
-            Debug.Log($"New research grant available: {grant.title}");
+            UnityEngine.Debug.Log($"New research grant available: {grant.title}");
         }
 
         private string GenerateGrantTitle(ResearchTopic topic)

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
 using Laboratory.AI.Services;
-using Laboratory.Chimera.ECS.Components;
+using Laboratory.Chimera.ECS;
 
 namespace Laboratory.Chimera.Genetics.Environmental
 {

@@ -373,7 +373,7 @@ namespace Laboratory.Chimera.Breeding.Games
             _currentSequenceIndex++;
             StartCoroutine(TransitionToNextSequence());
 
-            Debug.Log($"Sequence complete! Score: +{sequenceScore:F0} (Accuracy: {_accuracyScore:P0}, Time: {sequence.CompletionTime:F1}s)");
+            UnityEngine.Debug.Log($"Sequence complete! Score: +{sequenceScore:F0} (Accuracy: {_accuracyScore:P0}, Time: {sequence.CompletionTime:F1}s)");
         }
 
         /// <summary>
@@ -390,7 +390,7 @@ namespace Laboratory.Chimera.Breeding.Games
         /// </summary>
         private void CompleteAllSequences()
         {
-            Debug.Log("All DNA sequences completed!");
+            UnityEngine.Debug.Log("All DNA sequences completed!");
             // Game completion is handled by the main manager
         }
 

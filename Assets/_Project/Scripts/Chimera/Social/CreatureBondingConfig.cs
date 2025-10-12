@@ -211,7 +211,7 @@ namespace Laboratory.Chimera.Social
                     new MemoryTriggerCondition
                     {
                         type = TriggerConditionType.EmotionalState,
-                        requiredState = EmotionalState.Happy
+                        requiredState = BondingEmotionalState.Happy
                     }
                 }
             },
@@ -323,7 +323,7 @@ namespace Laboratory.Chimera.Social
                 new MemoryTriggerCondition
                 {
                     type = TriggerConditionType.EmotionalState,
-                    requiredState = EmotionalState.Nostalgic
+                    requiredState = BondingEmotionalState.Nostalgic
                 }
             };
         }

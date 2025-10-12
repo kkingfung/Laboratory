@@ -371,7 +371,7 @@ namespace Laboratory.Chimera.Social.UI
             UpdateLikeButtonState();
 
             // In real implementation, would send to server
-            Debug.Log($"Like toggled for share: {_shareData.ShareID} (Now: {newLikeCount} likes)");
+            UnityEngine.Debug.Log($"Like toggled for share: {_shareData.ShareID} (Now: {newLikeCount} likes)");
         }
 
         /// <summary>
@@ -380,7 +380,7 @@ namespace Laboratory.Chimera.Social.UI
         private void OnCommentClicked()
         {
             // In real implementation, would open comment dialog
-            Debug.Log($"Comments clicked for share: {_shareData.ShareID}");
+            UnityEngine.Debug.Log($"Comments clicked for share: {_shareData.ShareID}");
 
             // For now, just simulate adding a comment
             int newCommentCount = _shareData.CommentCount + 1;
@@ -396,7 +396,7 @@ namespace Laboratory.Chimera.Social.UI
         private void OnShareClicked()
         {
             // In real implementation, would open share options
-            Debug.Log($"Share clicked for share: {_shareData.ShareID}");
+            UnityEngine.Debug.Log($"Share clicked for share: {_shareData.ShareID}");
 
             // For now, just simulate resharing
             int newShareCount = _shareData.ShareCount + 1;

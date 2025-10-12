@@ -98,7 +98,7 @@ namespace Laboratory.Chimera.Biotechnology
             InitializeRegulatoryFrameworks();
 
             labMetrics = new LabMetrics();
-            Debug.Log("Laboratory systems initialized with ethical oversight");
+            UnityEngine.Debug.Log("Laboratory systems initialized with ethical oversight");
         }
 
         private void InitializeGeneEditingTools()
@@ -271,7 +271,7 @@ namespace Laboratory.Chimera.Biotechnology
         {
             if (activeProjects.Count >= maxConcurrentProjects)
             {
-                Debug.LogWarning("Maximum concurrent projects limit reached");
+                UnityEngine.Debug.LogWarning("Maximum concurrent projects limit reached");
                 return null;
             }
 
@@ -285,7 +285,7 @@ namespace Laboratory.Chimera.Biotechnology
                     concern = ethicalReview.concerns,
                     severity = EthicalSeverity.High
                 });
-                Debug.LogWarning($"Project '{projectName}' rejected by ethics board");
+                UnityEngine.Debug.LogWarning($"Project '{projectName}' rejected by ethics board");
                 return null;
             }
 
@@ -299,7 +299,7 @@ namespace Laboratory.Chimera.Biotechnology
                     riskLevel = biosafetyAssessment.riskLevel,
                     riskFactors = biosafetyAssessment.riskFactors
                 });
-                Debug.LogWarning($"High biosafety risk detected for project '{projectName}'");
+                UnityEngine.Debug.LogWarning($"High biosafety risk detected for project '{projectName}'");
             }
 
             var project = new GeneEditingProject
@@ -319,7 +319,7 @@ namespace Laboratory.Chimera.Biotechnology
             activeProjects[project.projectId] = project;
             OnProjectInitiated?.Invoke(project);
 
-            Debug.Log($"Gene editing project '{projectName}' created with ethical approval");
+            UnityEngine.Debug.Log($"Gene editing project '{projectName}' created with ethical approval");
             return project;
         }
 
@@ -330,20 +330,20 @@ namespace Laboratory.Chimera.Biotechnology
         {
             if (!activeProjects.TryGetValue(projectId, out var project))
             {
-                Debug.LogError($"Project {projectId} not found");
+                UnityEngine.Debug.LogError($"Project {projectId} not found");
                 return null;
             }
 
             if (!enableCRISPRSimulation)
             {
-                Debug.LogWarning("CRISPR simulation is disabled");
+                UnityEngine.Debug.LogWarning("CRISPR simulation is disabled");
                 return null;
             }
 
             // Validate edit parameters
             if (!ValidateGeneEdit(edit))
             {
-                Debug.LogError($"Invalid gene edit parameters for project {projectId}");
+                UnityEngine.Debug.LogError($"Invalid gene edit parameters for project {projectId}");
                 return null;
             }
 
@@ -367,13 +367,13 @@ namespace Laboratory.Chimera.Biotechnology
             else
             {
                 project.progressTracking.failedEdits++;
-                Debug.LogWarning($"Gene edit failed quality control: {qualityAssessment.failureReason}");
+                UnityEngine.Debug.LogWarning($"Gene edit failed quality control: {qualityAssessment.failureReason}");
             }
 
             // Update lab metrics
             UpdateLabMetrics(result);
 
-            Debug.Log($"CRISPR edit completed for {edit.targetGene}, accuracy: {result.accuracy:F3}");
+            UnityEngine.Debug.Log($"CRISPR edit completed for {edit.targetGene}, accuracy: {result.accuracy:F3}");
             return result;
         }
 
@@ -408,13 +408,13 @@ namespace Laboratory.Chimera.Biotechnology
         {
             if (!enableSyntheticGenomes)
             {
-                Debug.LogWarning("Synthetic genome design is disabled");
+                UnityEngine.Debug.LogWarning("Synthetic genome design is disabled");
                 return null;
             }
 
             if (modules.Sum(m => m.sequence.Length) > maxSyntheticGeneLength)
             {
-                Debug.LogError("Synthetic genome exceeds maximum length limit");
+                UnityEngine.Debug.LogError("Synthetic genome exceeds maximum length limit");
                 return null;
             }
 
@@ -447,12 +447,12 @@ namespace Laboratory.Chimera.Biotechnology
             // Validate genome design
             if (syntheticGenome.stabilityScore < stabilityRequirement)
             {
-                Debug.LogWarning($"Synthetic genome {genomeName} may be unstable: {syntheticGenome.stabilityScore:F3}");
+                UnityEngine.Debug.LogWarning($"Synthetic genome {genomeName} may be unstable: {syntheticGenome.stabilityScore:F3}");
             }
 
             syntheticGenomeLibrary[genomeName] = syntheticGenome;
 
-            Debug.Log($"Synthetic genome '{genomeName}' designed with {modules.Count} modules");
+            UnityEngine.Debug.Log($"Synthetic genome '{genomeName}' designed with {modules.Count} modules");
             return syntheticGenome;
         }
 
@@ -543,7 +543,7 @@ namespace Laboratory.Chimera.Biotechnology
         {
             if (!activeProjects.TryGetValue(projectId, out var project))
             {
-                Debug.LogError($"Project {projectId} not found for biosafety assessment");
+                UnityEngine.Debug.LogError($"Project {projectId} not found for biosafety assessment");
                 return null;
             }
 
@@ -562,7 +562,7 @@ namespace Laboratory.Chimera.Biotechnology
 
             safetyAssessments[projectId] = project.biosafetyAssessment;
 
-            Debug.Log($"Biosafety report generated for project {projectId}");
+            UnityEngine.Debug.Log($"Biosafety report generated for project {projectId}");
             return report;
         }
 
@@ -628,14 +628,14 @@ namespace Laboratory.Chimera.Biotechnology
         {
             if (!enableSpecimenIntegration)
             {
-                Debug.LogWarning("Real-world specimen integration is disabled");
+                UnityEngine.Debug.LogWarning("Real-world specimen integration is disabled");
                 return null;
             }
 
             // Validate specimen data
             if (!ValidateSpecimenData(specimenId, species, geneticData))
             {
-                Debug.LogError($"Invalid specimen data for {specimenId}");
+                UnityEngine.Debug.LogError($"Invalid specimen data for {specimenId}");
                 return null;
             }
 
@@ -643,7 +643,7 @@ namespace Laboratory.Chimera.Biotechnology
             var complianceResult = complianceEngine.ValidateSpecimenUse(specimenId, species);
             if (!complianceResult.compliant)
             {
-                Debug.LogError($"Specimen {specimenId} does not meet regulatory compliance");
+                UnityEngine.Debug.LogError($"Specimen {specimenId} does not meet regulatory compliance");
                 return null;
             }
 
@@ -658,7 +658,7 @@ namespace Laboratory.Chimera.Biotechnology
                 researchApplications = IdentifyResearchApplications(species, geneticData)
             };
 
-            Debug.Log($"Real-world specimen {specimenId} integrated successfully");
+            UnityEngine.Debug.Log($"Real-world specimen {specimenId} integrated successfully");
             return integrationResult;
         }
 

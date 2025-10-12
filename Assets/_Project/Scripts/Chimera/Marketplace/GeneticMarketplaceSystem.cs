@@ -166,13 +166,13 @@ namespace Laboratory.Chimera.Marketplace
         public MarketListing ListCreatureForSale(string sellerId, GeneticProfile creature, float price,
             string title, string description, int durationDays = 14)
         {
-            if (!enableCreatureTrading) return null;
+            if (!enableCreatureTrading) return default;
 
             var playerProfile = EnsurePlayerProfile(sellerId);
             if (playerProfile.activeListings >= maxListingsPerPlayer)
             {
                 UnityEngine.Debug.Log($"Player {sellerId} has reached maximum listing limit");
-                return null;
+                return default;
             }
 
             var listing = new MarketListing
@@ -219,14 +219,14 @@ namespace Laboratory.Chimera.Marketplace
             if (!activeListings.ContainsKey(listingId))
             {
                 UnityEngine.Debug.Log("Listing not found or no longer active");
-                return null;
+                return default;
             }
 
             var listing = activeListings[listingId];
             if (listing.status != ListingStatus.Active || listing.listingType != ListingType.Creature)
             {
                 UnityEngine.Debug.Log("Invalid listing for creature purchase");
-                return null;
+                return default;
             }
 
             var buyerProfile = EnsurePlayerProfile(buyerId);
@@ -236,7 +236,7 @@ namespace Laboratory.Chimera.Marketplace
             if (buyerProfile.balance < listing.price)
             {
                 UnityEngine.Debug.Log("Insufficient funds for purchase");
-                return null;
+                return default;
             }
 
             // Process transaction
@@ -274,7 +274,7 @@ namespace Laboratory.Chimera.Marketplace
         public MarketListing ListGeneticMaterial(string sellerId, GeneticSample sample, float price,
             string title, string description, int durationDays = 7)
         {
-            if (!enableGeneticMaterialTrading) return null;
+            if (!enableGeneticMaterialTrading) return default;
 
             var listing = new MarketListing
             {
@@ -294,7 +294,10 @@ namespace Laboratory.Chimera.Marketplace
             listing.marketSuggestedPrice = CalculateGeneticMaterialValue(sample);
 
             activeListings[listing.id] = listing;
-            EnsurePlayerProfile(sellerId).activeListings++;
+
+            var sellerProfile = EnsurePlayerProfile(sellerId);
+            sellerProfile.activeListings++;
+            playerProfiles[sellerId] = sellerProfile;
 
             OnListingCreated?.Invoke(listing);
             UnityEngine.Debug.Log($"Genetic material listed: {title} for {price} GC");
@@ -308,7 +311,7 @@ namespace Laboratory.Chimera.Marketplace
         public MarketListing OfferBreedingService(string providerId, BreedingServiceData serviceData,
             float price, string title, string description)
         {
-            if (!enableBreedingServices) return null;
+            if (!enableBreedingServices) return default;
 
             var listing = new MarketListing
             {
@@ -326,7 +329,10 @@ namespace Laboratory.Chimera.Marketplace
             };
 
             activeListings[listing.id] = listing;
-            EnsurePlayerProfile(providerId).activeListings++;
+
+            var providerProfile = EnsurePlayerProfile(providerId);
+            providerProfile.activeListings++;
+            playerProfiles[providerId] = providerProfile;
 
             OnListingCreated?.Invoke(listing);
             UnityEngine.Debug.Log($"Breeding service offered: {title} by {GetPlayerName(providerId)}");
@@ -344,7 +350,7 @@ namespace Laboratory.Chimera.Marketplace
         public MarketListing SellKnowledge(string sellerId, KnowledgeData knowledge, float price,
             string title, string description)
         {
-            if (!enableKnowledgeCommerce) return null;
+            if (!enableKnowledgeCommerce) return default;
 
             var listing = new MarketListing
             {
@@ -364,7 +370,10 @@ namespace Laboratory.Chimera.Marketplace
             listing.marketSuggestedPrice = CalculateKnowledgeValue(knowledge);
 
             activeListings[listing.id] = listing;
-            EnsurePlayerProfile(sellerId).activeListings++;
+
+            var sellerProfile = EnsurePlayerProfile(sellerId);
+            sellerProfile.activeListings++;
+            playerProfiles[sellerId] = sellerProfile;
 
             OnListingCreated?.Invoke(listing);
             UnityEngine.Debug.Log($"Knowledge listed: {title} for {price} RP");
@@ -426,7 +435,7 @@ namespace Laboratory.Chimera.Marketplace
         public PriceHistoryData GetPriceHistory(string traitName, int daysBack = 30)
         {
             if (!priceDatabase.ContainsKey(traitName))
-                return null;
+                return default;
 
             var priceData = priceDatabase[traitName];
             var cutoffTime = Time.time - (daysBack * 86400f);
@@ -750,7 +759,7 @@ namespace Laboratory.Chimera.Marketplace
 
         private void UpdatePricesFromTransaction(MarketListing listing)
         {
-            if (listing.listingType == ListingType.Creature && listing.creatureData != null)
+            if (listing.listingType == ListingType.Creature && listing.creatureData.geneticProfile != null)
             {
                 var traits = listing.creatureData.geneticProfile.GetTraitNames();
                 foreach (var trait in traits)
@@ -797,7 +806,7 @@ namespace Laboratory.Chimera.Marketplace
 
         private bool HasRequiredTraits(MarketListing listing, string[] requiredTraits)
         {
-            if (listing.listingType != ListingType.Creature || listing.creatureData?.geneticProfile == null)
+            if (listing.listingType != ListingType.Creature || listing.creatureData.geneticProfile == null)
                 return false;
 
             var creatureTraits = listing.creatureData.geneticProfile.GetTraitNames();
@@ -819,7 +828,7 @@ namespace Laboratory.Chimera.Marketplace
             if (criteria.requiredTraits != null && listing.listingType == ListingType.Creature)
             {
                 var matchCount = criteria.requiredTraits.Count(trait =>
-                    listing.creatureData?.geneticProfile?.GetTraitNames().Any(t => t.Contains(trait)) == true);
+                    listing.creatureData.geneticProfile != null && listing.creatureData.geneticProfile.GetTraitNames().Any(t => t.Contains(trait)));
                 score += (float)matchCount / criteria.requiredTraits.Length * 0.4f;
             }
 

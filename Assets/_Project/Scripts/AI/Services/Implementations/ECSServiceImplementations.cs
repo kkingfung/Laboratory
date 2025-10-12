@@ -256,15 +256,165 @@ namespace Laboratory.AI.Services
     [ServiceInitialize(Priority = 5)]
     public class ECSSpatialService : ISpatialAwarenessService, IPerformanceMonitorable
     {
-        public Entity[] GetEntitiesInRadius(float3 position, float radius, EntityQuery filter = default) => new Entity[0];
-        public Entity GetNearestEntity(float3 position, EntityQuery filter = default) => Entity.Null;
-        public bool IsPositionOccupied(float3 position, float radius = 1f) => false;
-        public float3 FindNearestFreePosition(float3 position, float radius = 5f) => position;
-        public bool HasLineOfSight(Entity from, Entity to) => true;
-        public float GetDistanceTo(Entity from, Entity to) => 0f;
-        public float3 GetDirectionTo(Entity from, Entity to) => float3.zero;
-        public Entity[] GetEntitiesInCone(float3 position, float3 direction, float angle, float range) => new Entity[0];
-        public void UpdatePerformanceMetrics(IPerformanceService performanceService) { }
+        private EntityManager entityManager;
+        private EntityQuery positionQuery;
+
+        public void Initialize()
+        {
+            entityManager = World.DefaultGameObjectInjectionWorld?.EntityManager;
+            if (entityManager != null)
+            {
+                positionQuery = entityManager.CreateEntityQuery(typeof(Unity.Transforms.LocalTransform));
+            }
+        }
+
+        public Entity[] GetEntitiesInRadius(float3 position, float radius, EntityQuery filter = default)
+        {
+            if (entityManager == null) return new Entity[0];
+
+            var entities = positionQuery.ToEntityArray(Unity.Collections.Allocator.Temp);
+            var transforms = positionQuery.ToComponentDataArray<Unity.Transforms.LocalTransform>(Unity.Collections.Allocator.Temp);
+
+            var results = new System.Collections.Generic.List<Entity>();
+
+            for (int i = 0; i < entities.Length; i++)
+            {
+                float distance = math.distance(position, transforms[i].Position);
+                if (distance <= radius)
+                {
+                    results.Add(entities[i]);
+                }
+            }
+
+            entities.Dispose();
+            transforms.Dispose();
+
+            return results.ToArray();
+        }
+
+        public Entity GetNearestEntity(float3 position, EntityQuery filter = default)
+        {
+            if (entityManager == null) return Entity.Null;
+
+            var entities = positionQuery.ToEntityArray(Unity.Collections.Allocator.Temp);
+            var transforms = positionQuery.ToComponentDataArray<Unity.Transforms.LocalTransform>(Unity.Collections.Allocator.Temp);
+
+            Entity nearest = Entity.Null;
+            float nearestDistance = float.MaxValue;
+
+            for (int i = 0; i < entities.Length; i++)
+            {
+                float distance = math.distance(position, transforms[i].Position);
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    nearest = entities[i];
+                }
+            }
+
+            entities.Dispose();
+            transforms.Dispose();
+
+            return nearest;
+        }
+
+        public bool IsPositionOccupied(float3 position, float radius = 1f)
+        {
+            var nearbyEntities = GetEntitiesInRadius(position, radius);
+            return nearbyEntities.Length > 0;
+        }
+
+        public float3 FindNearestFreePosition(float3 position, float radius = 5f)
+        {
+            // Simple spiral search for free position
+            for (float r = 1f; r <= radius; r += 1f)
+            {
+                for (int angle = 0; angle < 360; angle += 30)
+                {
+                    float rad = math.radians(angle);
+                    float3 testPos = position + new float3(math.cos(rad) * r, 0, math.sin(rad) * r);
+
+                    if (!IsPositionOccupied(testPos, 0.5f))
+                    {
+                        return testPos;
+                    }
+                }
+            }
+
+            return position; // Fallback to original position
+        }
+
+        public bool HasLineOfSight(Entity from, Entity to)
+        {
+            if (entityManager == null) return true;
+
+            // Simple implementation - check if entities exist and have positions
+            if (!entityManager.Exists(from) || !entityManager.Exists(to)) return false;
+
+            if (!entityManager.HasComponent<Unity.Transforms.LocalTransform>(from) ||
+                !entityManager.HasComponent<Unity.Transforms.LocalTransform>(to))
+                return false;
+
+            // For now, assume line of sight exists if both entities are valid
+            // A full implementation would use physics raycasting
+            return true;
+        }
+
+        public float GetDistanceTo(Entity from, Entity to)
+        {
+            if (entityManager == null || !entityManager.Exists(from) || !entityManager.Exists(to)) return float.MaxValue;
+
+            if (!entityManager.HasComponent<Unity.Transforms.LocalTransform>(from) ||
+                !entityManager.HasComponent<Unity.Transforms.LocalTransform>(to))
+                return float.MaxValue;
+
+            var fromPos = entityManager.GetComponentData<Unity.Transforms.LocalTransform>(from).Position;
+            var toPos = entityManager.GetComponentData<Unity.Transforms.LocalTransform>(to).Position;
+
+            return math.distance(fromPos, toPos);
+        }
+
+        public float3 GetDirectionTo(Entity from, Entity to)
+        {
+            if (entityManager == null || !entityManager.Exists(from) || !entityManager.Exists(to)) return float3.zero;
+
+            if (!entityManager.HasComponent<Unity.Transforms.LocalTransform>(from) ||
+                !entityManager.HasComponent<Unity.Transforms.LocalTransform>(to))
+                return float3.zero;
+
+            var fromPos = entityManager.GetComponentData<Unity.Transforms.LocalTransform>(from).Position;
+            var toPos = entityManager.GetComponentData<Unity.Transforms.LocalTransform>(to).Position;
+
+            return math.normalize(toPos - fromPos);
+        }
+
+        public Entity[] GetEntitiesInCone(float3 position, float3 direction, float angle, float range)
+        {
+            var entitiesInRadius = GetEntitiesInRadius(position, range);
+            var results = new System.Collections.Generic.List<Entity>();
+
+            foreach (var entity in entitiesInRadius)
+            {
+                if (entityManager.HasComponent<Unity.Transforms.LocalTransform>(entity))
+                {
+                    var entityPos = entityManager.GetComponentData<Unity.Transforms.LocalTransform>(entity).Position;
+                    var dirToEntity = math.normalize(entityPos - position);
+                    var angleToEntity = math.degrees(math.acos(math.dot(direction, dirToEntity)));
+
+                    if (angleToEntity <= angle / 2f)
+                    {
+                        results.Add(entity);
+                    }
+                }
+            }
+
+            return results.ToArray();
+        }
+
+        public void UpdatePerformanceMetrics(IPerformanceService performanceService)
+        {
+            // Track spatial query performance if needed
+        }
     }
 
     [ServiceInitialize(Priority = 5)]

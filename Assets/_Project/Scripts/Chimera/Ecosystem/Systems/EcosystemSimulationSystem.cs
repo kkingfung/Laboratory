@@ -8,6 +8,7 @@ using Laboratory.Chimera.Ecosystem.Core;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Genetics.Core;
 using System.Collections.Generic;
+using EcosystemEventType = Laboratory.Chimera.Ecosystem.Core.EcosystemEventType;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
 {
@@ -226,7 +227,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 if (ecosystemEntities.Length > 0)
                 {
                     Entity ecoEntity = ecosystemEntities[0];
-                    int currentTotal = ecosystemPopulations.GetValueOrDefault(ecoEntity, 0);
+                    ecosystemPopulations.TryGetValue(ecoEntity, out int currentTotal);
                     ecosystemPopulations[ecoEntity] = currentTotal + population.ValueRO.CurrentPopulation;
                 }
                 ecosystemEntities.Dispose();
@@ -313,7 +314,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             // 1% chance per update of generating an event
             if (random.NextFloat() < 0.01f)
             {
-                EcosystemEventType eventType = (EcosystemEventType)random.NextInt(0, 10);
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType eventType = (Laboratory.Chimera.Ecosystem.Core.EcosystemEventType)random.NextInt(0, 10);
                 float intensity = random.NextFloat(0.2f, 0.8f);
                 float duration = random.NextFloat(1f, 10f); // 1-10 days
 
@@ -336,60 +337,63 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 Entity eventEntity = ecb.CreateEntity();
                 ecb.AddComponent(eventEntity, newEvent);
 
-                Debug.Log($"🌍 Environmental Event: {eventType} (Intensity: {intensity:P0}, Duration: {duration:F1} days)");
+                #if UNITY_EDITOR
+                int intensityPercent = (int)(intensity * 100);
+                UnityEngine.Debug.Log($"🌍 Environmental Event: {eventType} (Intensity: {intensityPercent}%, Duration: {duration} days)");
+                #endif
             }
         }
 
         [BurstCompile]
-        private static float GetEventTemperatureChange(EcosystemEventType eventType, float intensity)
+        private static float GetEventTemperatureChange(Laboratory.Chimera.Ecosystem.Core.EcosystemEventType eventType, float intensity)
         {
             return eventType switch
             {
-                EcosystemEventType.Wildfire => intensity * 10f,
-                EcosystemEventType.VolcanicEruption => intensity * 15f,
-                EcosystemEventType.Drought => intensity * 5f,
-                EcosystemEventType.Flood => -intensity * 3f,
-                EcosystemEventType.ClimateShift => intensity * 8f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Wildfire => intensity * 10f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.VolcanicEruption => intensity * 15f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Drought => intensity * 5f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Flood => -intensity * 3f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.ClimateShift => intensity * 8f,
                 _ => 0f
             };
         }
 
         [BurstCompile]
-        private static float GetEventHumidityChange(EcosystemEventType eventType, float intensity)
+        private static float GetEventHumidityChange(Laboratory.Chimera.Ecosystem.Core.EcosystemEventType eventType, float intensity)
         {
             return eventType switch
             {
-                EcosystemEventType.Drought => -intensity * 0.5f,
-                EcosystemEventType.Flood => intensity * 0.3f,
-                EcosystemEventType.Wildfire => -intensity * 0.2f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Drought => -intensity * 0.5f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Flood => intensity * 0.3f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Wildfire => -intensity * 0.2f,
                 _ => 0f
             };
         }
 
         [BurstCompile]
-        private static float GetEventResourceImpact(EcosystemEventType eventType, float intensity)
+        private static float GetEventResourceImpact(Laboratory.Chimera.Ecosystem.Core.EcosystemEventType eventType, float intensity)
         {
             return eventType switch
             {
-                EcosystemEventType.Drought => -intensity * 0.6f,
-                EcosystemEventType.Flood => -intensity * 0.4f,
-                EcosystemEventType.Wildfire => -intensity * 0.8f,
-                EcosystemEventType.Disease => -intensity * 0.3f,
-                EcosystemEventType.ResourceDepletion => -intensity * 0.9f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Drought => -intensity * 0.6f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Flood => -intensity * 0.4f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Wildfire => -intensity * 0.8f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Disease => -intensity * 0.3f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.ResourceDepletion => -intensity * 0.9f,
                 _ => -intensity * 0.2f
             };
         }
 
         [BurstCompile]
-        private static float GetEventPopulationImpact(EcosystemEventType eventType, float intensity)
+        private static float GetEventPopulationImpact(Laboratory.Chimera.Ecosystem.Core.EcosystemEventType eventType, float intensity)
         {
             return eventType switch
             {
-                EcosystemEventType.Disease => -intensity * 0.7f,
-                EcosystemEventType.Wildfire => -intensity * 0.5f,
-                EcosystemEventType.Meteor => -intensity * 0.9f,
-                EcosystemEventType.VolcanicEruption => -intensity * 0.6f,
-                EcosystemEventType.Flood => -intensity * 0.3f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Disease => -intensity * 0.7f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Wildfire => -intensity * 0.5f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Meteor => -intensity * 0.9f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.VolcanicEruption => -intensity * 0.6f,
+                Laboratory.Chimera.Ecosystem.Core.EcosystemEventType.Flood => -intensity * 0.3f,
                 _ => -intensity * 0.1f
             };
         }
@@ -408,8 +412,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         [BurstCompile]
         public void Execute(ref EcosystemState ecosystem)
         {
-            // Update day counter
-            ecosystem.DaysGenesis = CurrentDay;
+            // Day counter is automatically calculated from read-only property
 
             // Apply seasonal changes
             ecosystem.UpdateSeasonalConditions(DeltaTime);
@@ -451,7 +454,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             var ecosystem = Ecosystems[0];
 
             // Calculate environmental fitness
-            float environmentalFitness = CalculateEnvironmentalFitness(population, ecosystem);
+            float environmentalFitness = CalculateEnvironmentalFitness(in population, in ecosystem);
             population.EnvironmentalFitness = environmentalFitness;
 
             // Apply natural selection
@@ -462,7 +465,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             UpdateAgeStructure(ref population, DeltaTime);
 
             // Update genetic composition over time
-            UpdateGeneticComposition(ref population, ecosystem, DeltaTime);
+            UpdateGeneticComposition(ref population, in ecosystem, DeltaTime);
 
             // Calculate survival and reproduction rates
             population.SurvivalRate = math.clamp(environmentalFitness * ecosystem.FoodAvailability, 0.1f, 0.95f);
@@ -470,10 +473,8 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         }
 
         [BurstCompile]
-        private static float CalculateEnvironmentalFitness(CreaturePopulation population, EcosystemState ecosystem)
+        private static float CalculateEnvironmentalFitness(in CreaturePopulation population, in EcosystemState ecosystem)
         {
-            float baseFitness = 0.5f;
-
             // Temperature adaptation
             float optimalTemp = ecosystem.GetOptimalTemperature();
             float tempFitness = 1.0f - math.abs(ecosystem.Temperature - optimalTemp) / 100f;
@@ -513,7 +514,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         }
 
         [BurstCompile]
-        private static void UpdateGeneticComposition(ref CreaturePopulation population, EcosystemState ecosystem, float deltaTime)
+        private static void UpdateGeneticComposition(ref CreaturePopulation population, in EcosystemState ecosystem, float deltaTime)
         {
             // Environmental pressure drives genetic adaptation
             float adaptationRate = ecosystem.EnvironmentalPressure * deltaTime * 0.01f;

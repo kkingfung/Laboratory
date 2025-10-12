@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UnityEngine.Localization
+namespace Laboratory.Infrastructure.Localization.Stubs
 {
     /// <summary>
     /// Stub implementation for Unity Localization Locale
@@ -82,30 +82,30 @@ namespace UnityEngine.Localization
     }
 }
 
-namespace UnityEngine.Localization.Settings
+namespace Laboratory.Infrastructure.Localization.Stubs.Settings
 {
     /// <summary>
     /// Stub implementation for LocalizationSettings with proper API
     /// </summary>
     public static class LocalizationSettings
     {
-        private static UnityEngine.Localization.AvailableLocales _availableLocales = new UnityEngine.Localization.AvailableLocales();
-        private static UnityEngine.Localization.Locale _selectedLocale = new UnityEngine.Localization.Locale("en", "English");
+        private static Laboratory.Infrastructure.Localization.Stubs.AvailableLocales _availableLocales = new Laboratory.Infrastructure.Localization.Stubs.AvailableLocales();
+        private static Laboratory.Infrastructure.Localization.Stubs.Locale _selectedLocale = new Laboratory.Infrastructure.Localization.Stubs.Locale("en", "English");
         
         /// <summary>
         /// Gets the initialization operation
         /// </summary>
-        public static UnityEngine.Localization.InitializationOperation InitializationOperation { get; } = new UnityEngine.Localization.InitializationOperation();
+        public static Laboratory.Infrastructure.Localization.Stubs.InitializationOperation InitializationOperation { get; } = new Laboratory.Infrastructure.Localization.Stubs.InitializationOperation();
         
         /// <summary>
         /// Gets the available locales
         /// </summary>
-        public static UnityEngine.Localization.AvailableLocales AvailableLocales => _availableLocales;
+        public static Laboratory.Infrastructure.Localization.Stubs.AvailableLocales AvailableLocales => _availableLocales;
         
         /// <summary>
         /// Gets or sets the selected locale
         /// </summary>
-        public static UnityEngine.Localization.Locale SelectedLocale 
+        public static Laboratory.Infrastructure.Localization.Stubs.Locale SelectedLocale 
         { 
             get => _selectedLocale;
             set 
@@ -118,6 +118,6 @@ namespace UnityEngine.Localization.Settings
             }
         }
         
-        public static UnityEngine.Localization.SelectedLocaleChangedEvent SelectedLocaleChanged { get; } = new UnityEngine.Localization.SelectedLocaleChangedEvent();
+        public static Laboratory.Infrastructure.Localization.Stubs.SelectedLocaleChangedEvent SelectedLocaleChanged { get; } = new Laboratory.Infrastructure.Localization.Stubs.SelectedLocaleChangedEvent();
     }
 }

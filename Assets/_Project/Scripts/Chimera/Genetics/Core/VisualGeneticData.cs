@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
@@ -52,6 +53,7 @@ namespace Laboratory.Chimera.Genetics.Core
     {
         public byte DominantValue;  // 0-100
         public byte RecessiveValue; // 0-100
+        [MarshalAs(UnmanagedType.U1)]
         public bool IsDominantExpressed; // Which allele is currently expressed
 
     }
@@ -198,6 +200,40 @@ namespace Laboratory.Chimera.Genetics.Core
                 (byte)(color.b * 255),
                 (byte)(color.a * 255)
             );
+        }
+    }
+
+    /// <summary>
+    /// Extension methods for VisualGeneticData
+    /// </summary>
+    public static class VisualGeneticDataExtensions
+    {
+        public static byte GetTraitValue(this VisualGeneticData genetics, string traitName)
+        {
+            return traitName.ToLower() switch
+            {
+                "strength" => genetics.Strength,
+                "vitality" => genetics.Vitality,
+                "agility" => genetics.Agility,
+                "intelligence" => genetics.Intelligence,
+                "adaptability" => genetics.Adaptability,
+                "social" => genetics.Social,
+                _ => 0
+            };
+        }
+
+        public static TraitAllele GetTraitAlleles(this VisualGeneticData genetics, string traitName)
+        {
+            return traitName.ToLower() switch
+            {
+                "strength" => genetics.StrengthAlleles,
+                "vitality" => genetics.VitalityAlleles,
+                "agility" => genetics.AgilityAlleles,
+                "intelligence" => genetics.IntelligenceAlleles,
+                "adaptability" => genetics.AdaptabilityAlleles,
+                "social" => genetics.SocialAlleles,
+                _ => default
+            };
         }
     }
 

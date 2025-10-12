@@ -6,6 +6,7 @@ using System.Linq;
 using System.Collections;
 using Unity.Entities;
 using Unity.Collections;
+using Laboratory.Chimera.Social;
 using Laboratory.Chimera.Social.Core;
 using Laboratory.Chimera.Discovery.Core;
 using Laboratory.Chimera.Genetics.Core;
@@ -381,7 +382,7 @@ namespace Laboratory.Chimera.Social.UI
             CloseQuickShare();
 
             // Show confirmation
-            Debug.Log("Creature shared to community feed!");
+            UnityEngine.Debug.Log("Creature shared to community feed!");
         }
 
         /// <summary>
@@ -402,7 +403,7 @@ namespace Laboratory.Chimera.Social.UI
             CloseQuickShare();
 
             // Show confirmation
-            Debug.Log("Discovery shared to community feed!");
+            UnityEngine.Debug.Log("Discovery shared to community feed!");
         }
 
         /// <summary>

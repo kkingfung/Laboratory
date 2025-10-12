@@ -134,7 +134,7 @@ namespace Laboratory.Chimera.Consciousness.UI
                 {
                     Color traitColor = GetTraitColor(name, value);
                     traitBar.Initialize(name, value, traitColor);
-                    yield return StartCoroutine(traitBar.AnimateAppearance(_animationDuration * 0.3f, _animationCurve));
+                    yield return traitBar.GetAnimateAppearanceCoroutine(_animationDuration * 0.3f, _animationCurve);
                 }
 
                 yield return new WaitForSeconds(0.1f);
@@ -215,8 +215,9 @@ namespace Laboratory.Chimera.Consciousness.UI
                 MemoryDisplayItem memoryDisplay = memoryObj.GetComponent<MemoryDisplayItem>();
                 if (memoryDisplay != null)
                 {
-                    memoryDisplay.SetupMemory(memory);
-                    yield return StartCoroutine(memoryDisplay.AnimateAppearance(0.4f));
+                    // Assuming memory has properties for title, description, type, and time
+                    memoryDisplay.SetupMemory("Memory", memory.ToString(), InteractionType.Positive, 0f);
+                    yield return memoryDisplay.GetAnimateAppearanceCoroutine(0.4f);
                 }
 
                 yield return new WaitForSeconds(0.2f);
@@ -228,12 +229,16 @@ namespace Laboratory.Chimera.Consciousness.UI
                 var relationship = _currentMemory.KnownPlayers[i];
                 GameObject relationshipObj = Instantiate(_relationshipItemPrefab, _relationshipContainer);
 
-                RelationshipDisplayItem relationshipDisplay = relationshipObj.GetComponent<RelationshipDisplayItem>();
-                if (relationshipDisplay != null)
+                // Setup relationship display
+                var textComponent = relationshipObj.GetComponentInChildren<TextMeshProUGUI>();
+                if (textComponent != null)
                 {
-                    relationshipDisplay.SetupRelationship(relationship);
-                    yield return StartCoroutine(relationshipDisplay.AnimateAppearance(0.4f));
+                    textComponent.text = $"Player: {relationship.PlayerID} - Trust: {relationship.TrustLevel:F1}";
                 }
+
+                // Animate appearance
+                relationshipObj.transform.localScale = Vector3.zero;
+                StartCoroutine(AnimateScale(relationshipObj.transform, Vector3.one, 0.4f));
 
                 yield return new WaitForSeconds(0.2f);
             }
@@ -426,7 +431,7 @@ namespace Laboratory.Chimera.Consciousness.UI
                 _stressSlider.fillRect.GetComponent<Image>();
 
             Color originalColor = targetImage.color;
-            Color flashColor = interactionType == InteractionType.Positive ? Color.white : Color.red;
+            Color flashColor = interactionType == Laboratory.Chimera.Consciousness.Memory.InteractionType.Positive ? Color.white : Color.red;
 
             // Flash effect
             for (int i = 0; i < 3; i++)

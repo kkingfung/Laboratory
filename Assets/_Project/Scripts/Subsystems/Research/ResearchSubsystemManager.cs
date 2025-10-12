@@ -1,0 +1,943 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using UnityEngine;
+using Laboratory.Core.Infrastructure;
+using Laboratory.Core.Events;
+using Laboratory.Core.Player;
+
+namespace Laboratory.Subsystems.Research
+{
+    /// <summary>
+    /// Research & Documentation Subsystem Manager for Project Chimera.
+    /// Handles player discovery journals, scientific publication generation, peer review mechanisms,
+    /// and educational curriculum integration for collaborative research communities.
+    /// </summary>
+    public class ResearchSubsystemManager : MonoBehaviour, ISubsystemManager
+    {
+        [Header("Configuration")]
+        [SerializeField] private ResearchSubsystemConfig config;
+
+        [Header("Services")]
+        [SerializeField] private bool enableDiscoveryJournals = true;
+        [SerializeField] private bool enablePublications = true;
+        [SerializeField] private bool enablePeerReview = true;
+        [SerializeField] private bool enableCurriculumIntegration = true;
+
+        // Public Properties
+        public bool IsInitialized { get; private set; }
+        public string SubsystemName => "Research";
+        public float InitializationProgress { get; private set; }
+
+        // Services
+        public IDiscoveryJournalService DiscoveryJournalService { get; private set; }
+        public IPublicationService PublicationService { get; private set; }
+        public IPeerReviewService PeerReviewService { get; private set; }
+        public ICurriculumIntegrationService CurriculumIntegrationService { get; private set; }
+        private IPlayerSessionManager _playerSessionManager;
+
+        // Events
+        public static event Action<DiscoveryJournalEvent> OnDiscoveryLogged;
+        public static event Action<PublicationEvent> OnPublicationCreated;
+        public static event Action<PeerReviewEvent> OnReviewSubmitted;
+        public static event Action<CurriculumProgressEvent> OnCurriculumProgress;
+
+        private readonly Dictionary<string, PlayerResearchProfile> _playerProfiles = new();
+        private readonly Dictionary<string, ResearchPublication> _publications = new();
+        private readonly Dictionary<string, DiscoveryJournal> _journals = new();
+        private readonly Queue<ResearchEvent> _researchEventQueue = new();
+        private readonly ResearchMetrics _researchMetrics = new();
+
+        #region Unity Lifecycle
+
+        private void Awake()
+        {
+            ValidateConfiguration();
+            InitializeComponents();
+        }
+
+        private void Start()
+        {
+            _ = InitializeAsync();
+        }
+
+        private void Update()
+        {
+            ProcessResearchEventQueue();
+            UpdateResearchMetrics();
+        }
+
+        private void OnDestroy()
+        {
+            Cleanup();
+        }
+
+        #endregion
+
+        #region Initialization
+
+        private void ValidateConfiguration()
+        {
+            if (config == null)
+            {
+                Debug.LogError($"[{SubsystemName}] Configuration is missing! Please assign a ResearchSubsystemConfig.");
+                return;
+            }
+
+            if (config.publicationTemplates == null || config.publicationTemplates.Count == 0)
+            {
+                Debug.LogWarning($"[{SubsystemName}] No publication templates configured. Publication generation will be limited.");
+            }
+
+            if (enableCurriculumIntegration && config.curriculumMappings == null)
+            {
+                Debug.LogWarning($"[{SubsystemName}] Curriculum integration enabled but no mappings configured.");
+            }
+        }
+
+        private void InitializeComponents()
+        {
+            InitializationProgress = 0.2f;
+
+            // Initialize research services
+            DiscoveryJournalService = new DiscoveryJournalService(config);
+            PublicationService = new PublicationService(config);
+            PeerReviewService = new PeerReviewService(config);
+            CurriculumIntegrationService = new CurriculumIntegrationService(config);
+
+            InitializationProgress = 0.4f;
+        }
+
+        private async Task InitializeAsync()
+        {
+            try
+            {
+                InitializationProgress = 0.5f;
+
+                // Initialize discovery journals
+                if (enableDiscoveryJournals)
+                {
+                    await DiscoveryJournalService.InitializeAsync();
+                }
+                InitializationProgress = 0.6f;
+
+                // Initialize publications
+                if (enablePublications)
+                {
+                    await PublicationService.InitializeAsync();
+                }
+                InitializationProgress = 0.7f;
+
+                // Initialize peer review
+                if (enablePeerReview)
+                {
+                    await PeerReviewService.InitializeAsync();
+                }
+                InitializationProgress = 0.8f;
+
+                // Initialize curriculum integration
+                if (enableCurriculumIntegration)
+                {
+                    await CurriculumIntegrationService.InitializeAsync();
+                }
+                InitializationProgress = 0.9f;
+
+                // Subscribe to game events
+                SubscribeToGameEvents();
+
+                // Register services
+                RegisterServices();
+
+                // Start background research processing
+                _ = StartResearchProcessingLoop();
+
+                // Load existing research data
+                await LoadExistingResearchData();
+
+                IsInitialized = true;
+                InitializationProgress = 1.0f;
+
+                Debug.Log($"[{SubsystemName}] Initialization complete. " +
+                         $"Discovery Journals: {enableDiscoveryJournals}, " +
+                         $"Publications: {enablePublications}, " +
+                         $"Peer Review: {enablePeerReview}, " +
+                         $"Curriculum Integration: {enableCurriculumIntegration}");
+
+                // Notify system initialization
+                EventBus.Publish(new SubsystemInitializedEvent(SubsystemName));
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[{SubsystemName}] Initialization failed: {ex.Message}");
+                InitializationProgress = 0f;
+            }
+        }
+
+        private void SubscribeToGameEvents()
+        {
+            // Subscribe to genetics events for automatic research documentation
+            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnBreedingComplete += HandleBreedingComplete;
+            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnMutationOccurred += HandleMutationOccurred;
+            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnTraitDiscovered += HandleTraitDiscovered;
+
+            // Subscribe to analytics events for research pattern analysis
+            Laboratory.Subsystems.Analytics.AnalyticsSubsystemManager.OnDiscoveryTracked += HandleDiscoveryTracked;
+        }
+
+        private void RegisterServices()
+        {
+            if (ServiceContainer.Instance != null)
+            {
+                ServiceContainer.Instance.Register<IDiscoveryJournalService>(DiscoveryJournalService);
+                ServiceContainer.Instance.Register<IPublicationService>(PublicationService);
+                ServiceContainer.Instance.Register<IPeerReviewService>(PeerReviewService);
+                ServiceContainer.Instance.Register<ICurriculumIntegrationService>(CurriculumIntegrationService);
+                ServiceContainer.Instance.Register<ResearchSubsystemManager>(this);
+
+                // Resolve player session manager
+                _playerSessionManager = ServiceContainer.Instance.Resolve<IPlayerSessionManager>();
+            }
+        }
+
+        private async Task LoadExistingResearchData()
+        {
+            // In a real implementation, this would load from persistent storage
+            await Task.CompletedTask;
+        }
+
+        #endregion
+
+        #region Core Research Operations
+
+        /// <summary>
+        /// Logs a discovery to the player's research journal
+        /// </summary>
+        public async Task<bool> LogDiscoveryAsync(string playerId, DiscoveryData discovery)
+        {
+            if (!IsInitialized || !enableDiscoveryJournals)
+                return false;
+
+            return await DiscoveryJournalService.LogDiscoveryAsync(playerId, discovery);
+        }
+
+        /// <summary>
+        /// Creates a research publication from discoveries
+        /// </summary>
+        public async Task<ResearchPublication> CreatePublicationAsync(string authorId, PublicationRequest request)
+        {
+            if (!IsInitialized || !enablePublications)
+                return null;
+
+            return await PublicationService.CreatePublicationAsync(authorId, request);
+        }
+
+        /// <summary>
+        /// Submits a peer review for a publication
+        /// </summary>
+        public async Task<bool> SubmitPeerReviewAsync(string reviewerId, string publicationId, PeerReview review)
+        {
+            if (!IsInitialized || !enablePeerReview)
+                return false;
+
+            return await PeerReviewService.SubmitReviewAsync(reviewerId, publicationId, review);
+        }
+
+        /// <summary>
+        /// Gets the research profile for a player
+        /// </summary>
+        public PlayerResearchProfile GetPlayerResearchProfile(string playerId)
+        {
+            if (!_playerProfiles.TryGetValue(playerId, out var profile))
+            {
+                profile = new PlayerResearchProfile
+                {
+                    playerId = playerId,
+                    creationDate = DateTime.Now,
+                    researchLevel = ResearchLevel.Student,
+                    specializations = new List<ResearchSpecialization>()
+                };
+                _playerProfiles[playerId] = profile;
+            }
+            return profile;
+        }
+
+        /// <summary>
+        /// Gets all publications by a player
+        /// </summary>
+        public List<ResearchPublication> GetPlayerPublications(string playerId)
+        {
+            var publications = new List<ResearchPublication>();
+            foreach (var publication in _publications.Values)
+            {
+                if (publication.authorId == playerId)
+                    publications.Add(publication);
+            }
+            return publications;
+        }
+
+        /// <summary>
+        /// Gets the discovery journal for a player
+        /// </summary>
+        public DiscoveryJournal GetPlayerJournal(string playerId)
+        {
+            if (!_journals.TryGetValue(playerId, out var journal))
+            {
+                journal = new DiscoveryJournal
+                {
+                    ownerId = playerId,
+                    creationDate = DateTime.Now,
+                    entries = new List<DiscoveryEntry>()
+                };
+                _journals[playerId] = journal;
+            }
+            return journal;
+        }
+
+        /// <summary>
+        /// Searches publications by criteria
+        /// </summary>
+        public List<ResearchPublication> SearchPublications(PublicationSearchCriteria criteria)
+        {
+            var results = new List<ResearchPublication>();
+
+            foreach (var publication in _publications.Values)
+            {
+                if (MatchesSearchCriteria(publication, criteria))
+                {
+                    results.Add(publication);
+                }
+            }
+
+            // Sort by relevance or date
+            results.Sort((a, b) => b.publicationDate.CompareTo(a.publicationDate));
+
+            return results;
+        }
+
+        /// <summary>
+        /// Gets curriculum progress for educational environments
+        /// </summary>
+        public CurriculumProgress GetCurriculumProgress(string studentId, string curriculumId)
+        {
+            if (!enableCurriculumIntegration)
+                return null;
+
+            return CurriculumIntegrationService.GetStudentProgress(studentId, curriculumId);
+        }
+
+        /// <summary>
+        /// Generates an automated research summary from discoveries
+        /// </summary>
+        public async Task<ResearchSummary> GenerateResearchSummaryAsync(string playerId, TimeSpan timeWindow)
+        {
+            var profile = GetPlayerResearchProfile(playerId);
+            var journal = GetPlayerJournal(playerId);
+
+            var cutoffDate = DateTime.Now - timeWindow;
+            var recentEntries = journal.entries.FindAll(e => e.timestamp >= cutoffDate);
+
+            var summary = new ResearchSummary
+            {
+                playerId = playerId,
+                timeWindow = timeWindow,
+                totalDiscoveries = recentEntries.Count,
+                uniqueSpecies = CountUniqueSpecies(recentEntries),
+                newTraits = CountNewTraits(recentEntries),
+                mutations = CountMutations(recentEntries),
+                breedingExperiments = CountBreedingExperiments(recentEntries),
+                researchScore = CalculateResearchScore(recentEntries),
+                recommendations = GenerateResearchRecommendations(profile, recentEntries)
+            };
+
+            return summary;
+        }
+
+        #endregion
+
+        #region Event Processing
+
+        private void ProcessResearchEventQueue()
+        {
+            const int maxEventsPerFrame = 5;
+            int processedCount = 0;
+
+            while (_researchEventQueue.Count > 0 && processedCount < maxEventsPerFrame)
+            {
+                var researchEvent = _researchEventQueue.Dequeue();
+                ProcessResearchEvent(researchEvent);
+                processedCount++;
+            }
+        }
+
+        private void ProcessResearchEvent(ResearchEvent researchEvent)
+        {
+            switch (researchEvent)
+            {
+                case DiscoveryJournalEvent journalEvent:
+                    ProcessDiscoveryJournalEvent(journalEvent);
+                    break;
+
+                case PublicationEvent publicationEvent:
+                    ProcessPublicationEvent(publicationEvent);
+                    break;
+
+                case PeerReviewEvent reviewEvent:
+                    ProcessPeerReviewEvent(reviewEvent);
+                    break;
+
+                case CurriculumProgressEvent curriculumEvent:
+                    ProcessCurriculumProgressEvent(curriculumEvent);
+                    break;
+            }
+        }
+
+        private void ProcessDiscoveryJournalEvent(DiscoveryJournalEvent journalEvent)
+        {
+            OnDiscoveryLogged?.Invoke(journalEvent);
+
+            // Update player research profile
+            var profile = GetPlayerResearchProfile(journalEvent.playerId);
+            profile.totalDiscoveries++;
+            profile.researchPoints += CalculateDiscoveryPoints(journalEvent.discovery);
+            UpdateResearchLevel(profile);
+
+            // Check for research achievements
+            CheckResearchAchievements(profile, journalEvent.discovery);
+        }
+
+        private void ProcessPublicationEvent(PublicationEvent publicationEvent)
+        {
+            OnPublicationCreated?.Invoke(publicationEvent);
+
+            // Add to publications collection
+            _publications[publicationEvent.publication.publicationId] = publicationEvent.publication;
+
+            // Update author's research profile
+            var profile = GetPlayerResearchProfile(publicationEvent.publication.authorId);
+            profile.publications.Add(publicationEvent.publication.publicationId);
+            profile.researchPoints += config.publicationResearchPoints;
+            UpdateResearchLevel(profile);
+
+            // Update research metrics
+            _researchMetrics.totalPublications++;
+        }
+
+        private void ProcessPeerReviewEvent(PeerReviewEvent reviewEvent)
+        {
+            OnReviewSubmitted?.Invoke(reviewEvent);
+
+            // Update reviewer's research profile
+            var profile = GetPlayerResearchProfile(reviewEvent.review.reviewerId);
+            profile.reviewsSubmitted++;
+            profile.researchPoints += config.reviewResearchPoints;
+
+            // Update research metrics
+            _researchMetrics.totalReviews++;
+        }
+
+        private void ProcessCurriculumProgressEvent(CurriculumProgressEvent curriculumEvent)
+        {
+            OnCurriculumProgress?.Invoke(curriculumEvent);
+
+            // Update curriculum integration metrics
+            if (enableCurriculumIntegration)
+            {
+                CurriculumIntegrationService.UpdateStudentProgress(curriculumEvent);
+            }
+        }
+
+        #endregion
+
+        #region Research Analytics
+
+        private void UpdateResearchMetrics()
+        {
+            // Update every 10 seconds
+            if (Time.unscaledTime % 10f < Time.unscaledDeltaTime)
+            {
+                _researchMetrics.activeResearchers = _playerProfiles.Count;
+                _researchMetrics.averageResearchLevel = CalculateAverageResearchLevel();
+                _researchMetrics.discoveryRate = CalculateDiscoveryRate();
+                _researchMetrics.collaborationIndex = CalculateCollaborationIndex();
+            }
+        }
+
+        private float CalculateAverageResearchLevel()
+        {
+            if (_playerProfiles.Count == 0)
+                return 0f;
+
+            var totalLevel = 0f;
+            foreach (var profile in _playerProfiles.Values)
+            {
+                totalLevel += (int)profile.researchLevel;
+            }
+
+            return totalLevel / _playerProfiles.Count;
+        }
+
+        private float CalculateDiscoveryRate()
+        {
+            var recentDiscoveries = 0;
+            var cutoffTime = DateTime.Now.AddHours(-1);
+
+            foreach (var journal in _journals.Values)
+            {
+                recentDiscoveries += journal.entries.Count(e => e.timestamp >= cutoffTime);
+            }
+
+            return recentDiscoveries;
+        }
+
+        private float CalculateCollaborationIndex()
+        {
+            // Calculate based on co-authored publications and peer reviews
+            var collaborativePublications = _publications.Values.Count(p => p.coAuthors.Count > 0);
+            var totalPublications = _publications.Count;
+
+            if (totalPublications == 0)
+                return 0f;
+
+            return (float)collaborativePublications / totalPublications;
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void HandleBreedingComplete(Laboratory.Subsystems.Genetics.GeneticBreedingResult result)
+        {
+            if (result != null && result.isSuccessful)
+            {
+                // Automatically log breeding discoveries
+                var discovery = new DiscoveryData
+                {
+                    discoveryType = DiscoveryType.BreedingSuccess,
+                    title = $"Successful breeding: {result.parent1Id} × {result.parent2Id}",
+                    description = GenerateBreedingDescription(result),
+                    data = new Dictionary<string, object>
+                    {
+                        ["parent1Id"] = result.parent1Id,
+                        ["parent2Id"] = result.parent2Id,
+                        ["offspringId"] = result.offspringId,
+                        ["traits"] = result.offspring?.Genes?.Count ?? 0,
+                        ["mutations"] = result.mutations?.Count ?? 0
+                    },
+                    timestamp = DateTime.Now
+                };
+
+                // Log to current player's journal
+                _ = LogDiscoveryAsync(GetCurrentPlayerId(), discovery);
+            }
+        }
+
+        private void HandleMutationOccurred(Laboratory.Subsystems.Genetics.MutationEvent mutationEvent)
+        {
+            var discovery = new DiscoveryData
+            {
+                discoveryType = DiscoveryType.Mutation,
+                title = $"Mutation discovered: {mutationEvent.mutation.affectedTrait}",
+                description = $"A {mutationEvent.mutation.mutationType} mutation occurred affecting {mutationEvent.mutation.affectedTrait} with severity {mutationEvent.mutation.severity:F2}",
+                data = new Dictionary<string, object>
+                {
+                    ["creatureId"] = mutationEvent.creatureId,
+                    ["mutationType"] = mutationEvent.mutation.mutationType.ToString(),
+                    ["affectedTrait"] = mutationEvent.mutation.affectedTrait,
+                    ["severity"] = mutationEvent.mutation.severity
+                },
+                timestamp = DateTime.Now
+            };
+
+            _ = LogDiscoveryAsync(GetCurrentPlayerId(), discovery);
+        }
+
+        private void HandleTraitDiscovered(Laboratory.Subsystems.Genetics.TraitDiscoveryEvent discoveryEvent)
+        {
+            var discovery = new DiscoveryData
+            {
+                discoveryType = DiscoveryType.NewTrait,
+                title = $"New trait discovered: {discoveryEvent.traitName}",
+                description = $"Discovered {discoveryEvent.traitName} in generation {discoveryEvent.generation}",
+                data = new Dictionary<string, object>
+                {
+                    ["traitName"] = discoveryEvent.traitName,
+                    ["generation"] = discoveryEvent.generation,
+                    ["isWorldFirst"] = discoveryEvent.isWorldFirst,
+                    ["creatureId"] = discoveryEvent.creatureId
+                },
+                timestamp = DateTime.Now,
+                isSignificant = discoveryEvent.isWorldFirst
+            };
+
+            _ = LogDiscoveryAsync(GetCurrentPlayerId(), discovery);
+        }
+
+        private void HandleDiscoveryTracked(Laboratory.Subsystems.Analytics.DiscoveryAnalyticsEvent analyticsEvent)
+        {
+            // Convert analytics discovery to research discovery
+            var discovery = new DiscoveryData
+            {
+                discoveryType = ParseDiscoveryType(analyticsEvent.discoveryType),
+                title = $"Discovery: {analyticsEvent.discoveredItem}",
+                description = $"Analytics tracked discovery of {analyticsEvent.discoveredItem}",
+                data = new Dictionary<string, object>
+                {
+                    ["discoveredItem"] = analyticsEvent.discoveredItem,
+                    ["discoveryType"] = analyticsEvent.discoveryType,
+                    ["isWorldFirst"] = analyticsEvent.isWorldFirst
+                },
+                timestamp = analyticsEvent.timestamp,
+                isSignificant = analyticsEvent.isWorldFirst
+            };
+
+            _ = LogDiscoveryAsync(GetCurrentPlayerId(), discovery);
+        }
+
+        #endregion
+
+        #region Player Context Resolution
+
+        /// <summary>
+        /// Gets the current active player ID, with fallback handling
+        /// </summary>
+        private string GetCurrentPlayerId()
+        {
+            // Try to get from player session manager first
+            if (_playerSessionManager != null)
+            {
+                var currentPlayerId = _playerSessionManager.GetCurrentPlayerId();
+                if (!string.IsNullOrEmpty(currentPlayerId))
+                {
+                    return currentPlayerId;
+                }
+            }
+
+            // Fallback to legacy methods
+            // Check if there's a player manager component in the scene
+            var playerManager = FindObjectOfType<Laboratory.Core.Player.PlayerSessionManager>();
+            if (playerManager != null)
+            {
+                return playerManager.GetCurrentPlayerId();
+            }
+
+            // Final fallback to default player
+            return "DefaultPlayer";
+        }
+
+        /// <summary>
+        /// Gets all active player IDs for multi-player scenarios
+        /// </summary>
+        private List<string> GetActivePlayerIds()
+        {
+            if (_playerSessionManager != null)
+            {
+                return _playerSessionManager.GetActivePlayerIds();
+            }
+
+            // Fallback: return current player as single-item list
+            return new List<string> { GetCurrentPlayerId() };
+        }
+
+        /// <summary>
+        /// Checks if a specific player is currently active
+        /// </summary>
+        private bool IsPlayerActive(string playerId)
+        {
+            if (_playerSessionManager != null)
+            {
+                return _playerSessionManager.IsPlayerActive(playerId);
+            }
+
+            // Fallback: assume player is active if it's the current player
+            return playerId == GetCurrentPlayerId();
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        private DiscoveryType ParseDiscoveryType(string analyticsType)
+        {
+            return analyticsType.ToLower() switch
+            {
+                "trait" => DiscoveryType.NewTrait,
+                "mutation" => DiscoveryType.Mutation,
+                "species" => DiscoveryType.NewSpecies,
+                "breeding" => DiscoveryType.BreedingSuccess,
+                _ => DiscoveryType.Other
+            };
+        }
+
+        private string GenerateBreedingDescription(Laboratory.Subsystems.Genetics.GeneticBreedingResult result)
+        {
+            var description = $"Successfully bred {result.parent1Id} with {result.parent2Id}, resulting in offspring {result.offspringId}.";
+
+            if (result.mutations.Count > 0)
+            {
+                description += $" {result.mutations.Count} mutation(s) occurred during breeding.";
+            }
+
+            if (result.offspring?.Genes != null && result.offspring.Genes.Count > 0)
+            {
+                description += $" Offspring has {result.offspring.Genes.Count} genetic traits.";
+            }
+
+            return description;
+        }
+
+        private int CalculateDiscoveryPoints(DiscoveryData discovery)
+        {
+            var basePoints = config.baseDiscoveryPoints;
+
+            // Bonus for significant discoveries
+            if (discovery.isSignificant)
+                basePoints *= 2;
+
+            // Bonus by discovery type
+            basePoints += discovery.discoveryType switch
+            {
+                DiscoveryType.NewSpecies => 50,
+                DiscoveryType.NewTrait => 25,
+                DiscoveryType.Mutation => 15,
+                DiscoveryType.BreedingSuccess => 10,
+                _ => 5
+            };
+
+            return basePoints;
+        }
+
+        private void UpdateResearchLevel(PlayerResearchProfile profile)
+        {
+            var newLevel = profile.researchPoints switch
+            {
+                < 100 => ResearchLevel.Student,
+                < 500 => ResearchLevel.Researcher,
+                < 1500 => ResearchLevel.Specialist,
+                < 3000 => ResearchLevel.Expert,
+                _ => ResearchLevel.Professor
+            };
+
+            if (newLevel != profile.researchLevel)
+            {
+                profile.researchLevel = newLevel;
+                Debug.Log($"[{SubsystemName}] Player {profile.playerId} advanced to research level: {newLevel}");
+            }
+        }
+
+        private void CheckResearchAchievements(PlayerResearchProfile profile, DiscoveryData discovery)
+        {
+            // Check for various research achievements
+            if (discovery.isSignificant && discovery.discoveryType == DiscoveryType.NewSpecies)
+            {
+                // Award "Species Pioneer" achievement
+                Debug.Log($"[{SubsystemName}] Player {profile.playerId} earned Species Pioneer achievement!");
+            }
+
+            if (profile.totalDiscoveries >= 100)
+            {
+                // Award "Prolific Researcher" achievement
+                Debug.Log($"[{SubsystemName}] Player {profile.playerId} earned Prolific Researcher achievement!");
+            }
+        }
+
+        private bool MatchesSearchCriteria(ResearchPublication publication, PublicationSearchCriteria criteria)
+        {
+            if (!string.IsNullOrEmpty(criteria.keyword))
+            {
+                var keyword = criteria.keyword.ToLower();
+                if (!publication.title.ToLower().Contains(keyword) &&
+                    !publication.abstractText.ToLower().Contains(keyword))
+                {
+                    return false;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(criteria.authorId) && publication.authorId != criteria.authorId)
+                return false;
+
+            if (criteria.publicationType != PublicationType.Any && publication.publicationType != criteria.publicationType)
+                return false;
+
+            if (criteria.fromDate.HasValue && publication.publicationDate < criteria.fromDate.Value)
+                return false;
+
+            if (criteria.toDate.HasValue && publication.publicationDate > criteria.toDate.Value)
+                return false;
+
+            return true;
+        }
+
+        private int CountUniqueSpecies(List<DiscoveryEntry> entries)
+        {
+            var species = new HashSet<string>();
+            foreach (var entry in entries)
+            {
+                if (entry.data.TryGetValue("species", out var speciesName))
+                    species.Add(speciesName.ToString());
+            }
+            return species.Count;
+        }
+
+        private int CountNewTraits(List<DiscoveryEntry> entries)
+        {
+            return entries.Count(e => e.discoveryType == DiscoveryType.NewTrait);
+        }
+
+        private int CountMutations(List<DiscoveryEntry> entries)
+        {
+            return entries.Count(e => e.discoveryType == DiscoveryType.Mutation);
+        }
+
+        private int CountBreedingExperiments(List<DiscoveryEntry> entries)
+        {
+            return entries.Count(e => e.discoveryType == DiscoveryType.BreedingSuccess);
+        }
+
+        private float CalculateResearchScore(List<DiscoveryEntry> entries)
+        {
+            var score = 0f;
+            foreach (var entry in entries)
+            {
+                score += CalculateDiscoveryPoints(entry.discoveryData);
+            }
+            return score;
+        }
+
+        private List<string> GenerateResearchRecommendations(PlayerResearchProfile profile, List<DiscoveryEntry> recentEntries)
+        {
+            var recommendations = new List<string>();
+
+            // Analyze recent research patterns and suggest next steps
+            var traitDiscoveries = recentEntries.Count(e => e.discoveryType == DiscoveryType.NewTrait);
+            var breedingAttempts = recentEntries.Count(e => e.discoveryType == DiscoveryType.BreedingSuccess);
+
+            if (traitDiscoveries > breedingAttempts * 2)
+            {
+                recommendations.Add("Consider focusing more on breeding experiments to apply your trait discoveries.");
+            }
+
+            if (profile.publications.Count == 0 && profile.totalDiscoveries >= 10)
+            {
+                recommendations.Add("You have enough discoveries to create your first research publication!");
+            }
+
+            if (profile.reviewsSubmitted == 0 && profile.researchLevel >= ResearchLevel.Researcher)
+            {
+                recommendations.Add("Consider reviewing other researchers' publications to contribute to the community.");
+            }
+
+            return recommendations;
+        }
+
+        #endregion
+
+        #region Background Processing
+
+        private async Task StartResearchProcessingLoop()
+        {
+            while (IsInitialized)
+            {
+                try
+                {
+                    await Task.Delay(config.backgroundProcessingIntervalMs);
+
+                    // Update research analytics
+                    UpdateResearchMetrics();
+
+                    // Process pending publications
+                    if (enablePublications)
+                    {
+                        PublicationService.ProcessPendingPublications();
+                    }
+
+                    // Update curriculum progress
+                    if (enableCurriculumIntegration)
+                    {
+                        CurriculumIntegrationService.UpdateAllProgress();
+                    }
+
+                    // Cleanup old data
+                    CleanupOldResearchData();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[{SubsystemName}] Background processing error: {ex.Message}");
+                }
+            }
+        }
+
+        private void CleanupOldResearchData()
+        {
+            var cutoffDate = DateTime.Now.AddDays(-config.dataRetentionDays);
+
+            // Clean up old discovery entries if configured
+            if (config.cleanupOldDiscoveries)
+            {
+                foreach (var journal in _journals.Values)
+                {
+                    journal.entries.RemoveAll(e => e.timestamp < cutoffDate);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Cleanup
+
+        private void Cleanup()
+        {
+            // Unsubscribe from events
+            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnBreedingComplete -= HandleBreedingComplete;
+            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnMutationOccurred -= HandleMutationOccurred;
+            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnTraitDiscovered -= HandleTraitDiscovered;
+
+            Laboratory.Subsystems.Analytics.AnalyticsSubsystemManager.OnDiscoveryTracked -= HandleDiscoveryTracked;
+
+            // Clear collections
+            _playerProfiles.Clear();
+            _publications.Clear();
+            _journals.Clear();
+            _researchEventQueue.Clear();
+
+            Debug.Log($"[{SubsystemName}] Cleanup complete");
+        }
+
+        #endregion
+
+        #region Debug Methods
+
+        [ContextMenu("Generate Test Research Data")]
+        private void GenerateTestResearchData()
+        {
+            if (!IsInitialized)
+            {
+                Debug.LogWarning("Research subsystem not initialized");
+                return;
+            }
+
+            var testDiscovery = new DiscoveryData
+            {
+                discoveryType = DiscoveryType.NewTrait,
+                title = "Test Discovery",
+                description = "A test discovery for debugging purposes",
+                timestamp = DateTime.Now,
+                isSignificant = true
+            };
+
+            _ = LogDiscoveryAsync("TestPlayer", testDiscovery);
+        }
+
+        [ContextMenu("Print Research Metrics")]
+        private void PrintResearchMetrics()
+        {
+            Debug.Log($"Research Metrics:\n" +
+                     $"Active Researchers: {_researchMetrics.activeResearchers}\n" +
+                     $"Total Publications: {_researchMetrics.totalPublications}\n" +
+                     $"Total Reviews: {_researchMetrics.totalReviews}\n" +
+                     $"Discovery Rate: {_researchMetrics.discoveryRate:F1}/hour\n" +
+                     $"Collaboration Index: {_researchMetrics.collaborationIndex:F2}");
+        }
+
+        #endregion
+    }
+}

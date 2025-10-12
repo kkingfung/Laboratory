@@ -69,7 +69,7 @@ namespace Laboratory.Chimera.Discovery.Systems
             DiscoveryCelebrationManager.TriggerCelebration(discovery);
 
             // Log the discovery for debugging
-            Debug.Log($"🎉 Discovery Celebration Triggered: {discovery.DiscoveryName} ({discovery.Rarity}) - Significance: {discovery.SignificanceScore:F1}");
+            UnityEngine.Debug.Log($"🎉 Discovery Celebration Triggered: {discovery.DiscoveryName} ({discovery.Rarity}) - Significance: {discovery.SignificanceScore:F1}");
 
             // Could also trigger other systems here:
             // - Achievement system

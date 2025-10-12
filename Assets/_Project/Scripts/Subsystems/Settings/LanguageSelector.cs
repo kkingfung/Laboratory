@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Localization;
-using LocalizationSettings = UnityEngine.Localization.Settings.LocalizationSettings;
 using UnityEngine.UI;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 
 namespace Laboratory.Infrastructure.Localization
 {
@@ -153,7 +153,7 @@ namespace Laboratory.Infrastructure.Localization
                 yield break;
             }
             
-            var selectedLocale = locales[index];
+            Locale selectedLocale = locales[index];
             
             try
             {

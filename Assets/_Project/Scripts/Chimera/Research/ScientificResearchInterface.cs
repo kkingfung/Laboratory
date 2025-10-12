@@ -60,7 +60,7 @@ namespace Laboratory.Chimera.Research
         private void OnEnable()
         {
             InitializeResearchInfrastructure();
-            DebugManager.LogInfo("Scientific Research Interface initialized");
+            UnityEngine.Debug.Log("Scientific Research Interface initialized");
         }
 
         private void InitializeResearchInfrastructure()
@@ -86,7 +86,7 @@ namespace Laboratory.Chimera.Research
                 });
             }
 
-            DebugManager.LogInfo("Research infrastructure initialized");
+            UnityEngine.Debug.Log("Research infrastructure initialized");
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace Laboratory.Chimera.Research
         {
             if (activeProjects.Count >= maxConcurrentProjects)
             {
-                DebugManager.LogWarning("Maximum concurrent projects limit reached");
+                UnityEngine.Debug.LogWarning("Maximum concurrent projects limit reached");
                 return null;
             }
 
@@ -105,7 +105,7 @@ namespace Laboratory.Chimera.Research
             if (!ethicsReview.approved)
             {
                 OnEthicalConcernRaised?.Invoke(ethicsReview.concerns);
-                DebugManager.LogWarning($"Project '{title}' rejected by ethics board: {ethicsReview.concerns}");
+                UnityEngine.Debug.LogWarning($"Project '{title}' rejected by ethics board: {ethicsReview.concerns}");
                 return null;
             }
 
@@ -129,14 +129,14 @@ namespace Laboratory.Chimera.Research
             // Data validation
             if (!validationEngine.ValidateProjectData(project))
             {
-                DebugManager.LogError($"Project data validation failed for '{title}'");
+                UnityEngine.Debug.LogError($"Project data validation failed for '{title}'");
                 return null;
             }
 
             activeProjects[project.projectId] = project;
             OnProjectInitiated?.Invoke(project);
 
-            DebugManager.LogInfo($"Research project '{title}' created with ID {project.projectId}");
+            UnityEngine.Debug.Log($"Research project '{title}' created with ID {project.projectId}");
             return project;
         }
 
@@ -208,14 +208,14 @@ namespace Laboratory.Chimera.Research
         {
             if (!enableGenomeSequencing)
             {
-                DebugManager.LogWarning("Genome sequencing integration is disabled");
+                UnityEngine.Debug.LogWarning("Genome sequencing integration is disabled");
                 return null;
             }
 
             // Validate genome sequence
             if (!IsValidGenomeSequence(genomeSequence))
             {
-                DebugManager.LogError($"Invalid genome sequence for species {speciesName}");
+                UnityEngine.Debug.LogError($"Invalid genome sequence for species {speciesName}");
                 return null;
             }
 
@@ -237,7 +237,7 @@ namespace Laboratory.Chimera.Research
             // Create research opportunities
             IdentifyResearchOpportunities(geneticData);
 
-            DebugManager.LogInfo($"Genome data integrated for {speciesName}, validation score: {geneticData.validationScore:F3}");
+            UnityEngine.Debug.Log($"Genome data integrated for {speciesName}, validation score: {geneticData.validationScore:F3}");
             return geneticData;
         }
 
@@ -338,7 +338,7 @@ namespace Laboratory.Chimera.Research
         {
             if (activePartnerships.Count(p => p.isActive) >= 5) // Limit active partnerships
             {
-                DebugManager.LogWarning("Maximum active partnerships limit reached");
+                UnityEngine.Debug.LogWarning("Maximum active partnerships limit reached");
                 return null;
             }
 
@@ -359,7 +359,7 @@ namespace Laboratory.Chimera.Research
             activePartnerships.Add(partnership);
             OnPartnershipEstablished?.Invoke(partnership);
 
-            DebugManager.LogInfo($"Partnership established with {institutionName} for {specialization} research");
+            UnityEngine.Debug.Log($"Partnership established with {institutionName} for {specialization} research");
             return partnership;
         }
 
@@ -388,7 +388,7 @@ namespace Laboratory.Chimera.Research
         {
             if (!activeProjects.TryGetValue(projectId, out var project))
             {
-                DebugManager.LogError($"Project {projectId} not found");
+                UnityEngine.Debug.LogError($"Project {projectId} not found");
                 return null;
             }
 
@@ -409,7 +409,7 @@ namespace Laboratory.Chimera.Research
             // Validate results
             if (!validationEngine.ValidateExperimentResults(results))
             {
-                DebugManager.LogWarning($"Experiment results validation failed for project {projectId}");
+                UnityEngine.Debug.LogWarning($"Experiment results validation failed for project {projectId}");
                 return null;
             }
 
@@ -421,7 +421,7 @@ namespace Laboratory.Chimera.Research
                 InitiatePublicationProcess(project, results);
             }
 
-            DebugManager.LogInfo($"Experiment results processed for project {projectId}, significance: {results.statisticalSignificance:F3}");
+            UnityEngine.Debug.Log($"Experiment results processed for project {projectId}, significance: {results.statisticalSignificance:F3}");
             return results;
         }
 
@@ -519,7 +519,7 @@ namespace Laboratory.Chimera.Research
             // Initiate peer review
             InitiatePeerReview(publication);
 
-            DebugManager.LogInfo($"Publication process initiated for '{publication.title}'");
+            UnityEngine.Debug.Log($"Publication process initiated for '{publication.title}'");
         }
 
         private string GeneratePublicationTitle(ResearchProject project, ExperimentResults results)
@@ -603,7 +603,7 @@ namespace Laboratory.Chimera.Research
             };
 
             pendingReviews.Add(review);
-            DebugManager.LogInfo($"Peer review initiated for publication {publication.publicationId}");
+            UnityEngine.Debug.Log($"Peer review initiated for publication {publication.publicationId}");
         }
 
         private List<string> GenerateReviewCriteria(ScientificPublication publication)
@@ -1032,7 +1032,7 @@ namespace Laboratory.Chimera.Research
 
         public void LogDataAccess(string requestor, string dataType)
         {
-            DebugManager.LogInfo($"Data access logged: {requestor} accessed {dataType}");
+            UnityEngine.Debug.Log($"Data access logged: {requestor} accessed {dataType}");
         }
     }
 }

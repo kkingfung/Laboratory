@@ -1,5 +1,6 @@
 using UnityEngine;
 using Laboratory.Models.ECS.Components;
+using Laboratory.Core.Combat;
 
 namespace Laboratory.Subsystems.Combat
 {
@@ -199,25 +200,42 @@ namespace Laboratory.Subsystems.Combat
         
         #endregion
         
+        #region Faction Settings
+
+        [Header("Faction Configuration")]
+        [Tooltip("Faction manager for relationship handling")]
+        [SerializeField]
+        private FactionManager _factionManager;
+
+        [Tooltip("Enable faction-based combat rules")]
+        [SerializeField]
+        private bool _enableFactionSystem = true;
+
+        [Tooltip("Default faction for entities without faction component")]
+        [SerializeField]
+        private string _defaultFactionId = "Neutral";
+
+        #endregion
+
         #region Debug Settings
-        
+
         [Header("Debug Configuration")]
         [Tooltip("Enable combat debug visuals")]
-        [SerializeField] 
+        [SerializeField]
         private bool _enableDebugVisuals = false;
-        
+
         [Tooltip("Enable detailed combat logging")]
-        [SerializeField] 
+        [SerializeField]
         private bool _enableDetailedLogging = false;
-        
+
         [Tooltip("Show combat statistics")]
-        [SerializeField] 
+        [SerializeField]
         private bool _showCombatStatistics = false;
-        
+
         [Tooltip("Debug gizmo color")]
-        [SerializeField] 
+        [SerializeField]
         private Color _debugGizmoColor = Color.red;
-        
+
         #endregion
         
         #region Properties
@@ -275,7 +293,12 @@ namespace Laboratory.Subsystems.Combat
         public float SoundEffectsVolume => _soundEffectsVolume;
         public bool EnableDynamicAudio => _enableDynamicAudio;
         public float AudioFadeTime => _audioFadeTime;
-        
+
+        // Faction Properties
+        public FactionManager factionManager => _factionManager;
+        public bool EnableFactionSystem => _enableFactionSystem;
+        public string DefaultFactionId => _defaultFactionId;
+
         // Debug Properties
         public bool EnableDebugVisuals => _enableDebugVisuals;
         public bool EnableDetailedLogging => _enableDetailedLogging;

@@ -4,6 +4,8 @@ using TMPro;
 using System.Collections;
 using Laboratory.Chimera.Discovery.Core;
 using Laboratory.Chimera.Genetics.Core;
+using CoreDiscoveryEvent = Laboratory.Chimera.Discovery.Core.DiscoveryEvent;
+using CoreDiscoveryType = Laboratory.Chimera.Discovery.Core.DiscoveryType;
 
 namespace Laboratory.Chimera.Discovery.UI
 {
@@ -46,13 +48,13 @@ namespace Laboratory.Chimera.Discovery.UI
         [SerializeField] private Color _legendaryColor = Color.yellow;
         [SerializeField] private Color _mythicalColor = Color.red;
 
-        private DiscoveryEvent _discoveryData;
+        private CoreDiscoveryEvent _discoveryData;
         private bool _isAnimating = false;
 
         /// <summary>
         /// Setup the journal entry with discovery data
         /// </summary>
-        public void SetupEntry(DiscoveryEvent discovery)
+        public void SetupEntry(CoreDiscoveryEvent discovery)
         {
             _discoveryData = discovery;
 
@@ -140,7 +142,7 @@ namespace Laboratory.Chimera.Discovery.UI
                 Destroy(child.gameObject);
             }
 
-            // Create mini trait bars
+            // Create mini trait bars with actual genetic data
             var genetics = _discoveryData.DiscoveredGenetics;
             CreateMiniTraitBar("STR", genetics.Strength);
             CreateMiniTraitBar("VIT", genetics.Vitality);
@@ -190,9 +192,7 @@ namespace Laboratory.Chimera.Discovery.UI
 
             if (_specialBadge != null)
             {
-                bool showBadge = _discoveryData.Rarity >= DiscoveryRarity.Legendary ||
-                               _discoveryData.IsWorldFirst ||
-                               _discoveryData.SpecialMarkers != GeneticMarkerFlags.None;
+                bool showBadge = _discoveryData.Rarity >= DiscoveryRarity.Legendary || _discoveryData.IsWorldFirst || _discoveryData.SpecialMarkers != GeneticMarkerFlags.None;
                 _specialBadge.gameObject.SetActive(showBadge);
 
                 if (showBadge)
@@ -290,12 +290,12 @@ namespace Laboratory.Chimera.Discovery.UI
         {
             string baseDesc = _discoveryData.Type switch
             {
-                DiscoveryType.NewTrait => "Unprecedented genetic combination discovered through careful breeding.",
-                DiscoveryType.RareMutation => "Spontaneous genetic mutation has created unique traits.",
-                DiscoveryType.SpecialMarker => "Ancient genetic markers have awakened in this creature.",
-                DiscoveryType.PerfectGenetics => "Perfect genetic harmony achieved - the pinnacle of breeding science.",
-                DiscoveryType.NewSpecies => "A completely new species born from visionary genetic engineering.",
-                DiscoveryType.LegendaryLineage => "This bloodline has transcended to legendary status.",
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.NewTrait => "Unprecedented genetic combination discovered through careful breeding.",
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.RareMutation => "Spontaneous genetic mutation has created unique traits.",
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.SpecialMarker => "Ancient genetic markers have awakened in this creature.",
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.PerfectGenetics => "Perfect genetic harmony achieved - the pinnacle of breeding science.",
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.NewSpecies => "A completely new species born from visionary genetic engineering.",
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.LegendaryLineage => "This bloodline has transcended to legendary status.",
                 _ => "A remarkable genetic discovery that advances our understanding."
             };
 
@@ -382,17 +382,17 @@ namespace Laboratory.Chimera.Discovery.UI
         /// <summary>
         /// Get icon sprite for discovery type
         /// </summary>
-        private Sprite GetDiscoveryTypeIcon(DiscoveryType type)
+        private Sprite GetDiscoveryTypeIcon(Laboratory.Chimera.Discovery.Core.DiscoveryType type)
         {
-            // This would be connected to a sprite library
-            // For now, return null - would need sprite assets
+            // Simple fallback to return null for now - icons can be added later
+            // This prevents the UI from breaking while allowing for future icon implementation
             return null;
         }
 
         /// <summary>
         /// Public API for external interaction
         /// </summary>
-        public DiscoveryEvent GetDiscoveryData() => _discoveryData;
+        public CoreDiscoveryEvent GetDiscoveryData() => _discoveryData;
         public bool IsAnimating => _isAnimating;
 
         /// <summary>
@@ -401,7 +401,7 @@ namespace Laboratory.Chimera.Discovery.UI
         public void OnEntryClicked()
         {
             // Could open detailed view, share to social, etc.
-            Debug.Log($"Journal entry clicked: {_discoveryData.DiscoveryName}");
+            UnityEngine.Debug.Log($"Journal entry clicked: {_discoveryData.DiscoveryName}");
 
             // Example: Open detailed discovery view
             // DiscoveryDetailView.ShowDiscovery(_discoveryData);

@@ -1,0 +1,23 @@
+{
+    "name": "Laboratory.Subsystems.Trading",
+    "rootNamespace": "Laboratory.Subsystems.Trading",
+    "references": [
+        "Laboratory.Core",
+        "Laboratory.Infrastructure",
+        "Laboratory.Chimera",
+        "Laboratory.Subsystems",
+        "Unity.Mathematics",
+        "Unity.Collections",
+        "Unity.Entities",
+        "UniTask"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

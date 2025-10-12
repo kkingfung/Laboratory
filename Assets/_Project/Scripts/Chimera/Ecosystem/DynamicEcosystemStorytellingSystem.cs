@@ -195,7 +195,7 @@ namespace Laboratory.Chimera.Ecosystem
             storyHistory.Add(storyEvent);
             OnEcosystemStoryEvent?.Invoke(storyEvent);
 
-            Debug.Log($"APEX PREDATOR EVENT: {apexType} appears in {targetBiome} with threat level {apexEvent.threatLevel:F2}");
+            UnityEngine.Debug.Log($"APEX PREDATOR EVENT: {apexType} appears in {targetBiome} with threat level {apexEvent.threatLevel:F2}");
         }
 
         private ApexPredatorType SelectApexPredatorType(BiomeType biome)
@@ -244,7 +244,7 @@ namespace Laboratory.Chimera.Ecosystem
             {
                 var population = species.Value;
                 var impact = apexEvent.populationImpact * apexEvent.threatLevel;
-                population.currentPopulation = Mathf.Max(10, population.currentPopulation * (1f - impact));
+                population.currentPopulation = (int)Mathf.Max(10, population.currentPopulation * (1f - impact));
                 population.stress += impact;
             }
 
@@ -291,7 +291,7 @@ namespace Laboratory.Chimera.Ecosystem
             storyHistory.Add(storyEvent);
             OnEcosystemStoryEvent?.Invoke(storyEvent);
 
-            Debug.Log($"ECOLOGICAL DISASTER: {disasterType} affects {string.Join(", ", affectedBiomes)} with severity {disaster.severity:F2}");
+            UnityEngine.Debug.Log($"ECOLOGICAL DISASTER: {disasterType} affects {string.Join(", ", affectedBiomes)} with severity {disaster.severity:F2}");
         }
 
         private EcologicalDisasterType SelectRandomDisasterType()
@@ -400,7 +400,7 @@ namespace Laboratory.Chimera.Ecosystem
                 {
                     var population = species.Value;
                     var mortalityRate = disaster.severity * 0.3f;
-                    population.currentPopulation = Mathf.Max(5, population.currentPopulation * (1f - mortalityRate));
+                    population.currentPopulation = Mathf.Max(5, (int)(population.currentPopulation * (1f - mortalityRate)));
                     population.stress += disaster.severity;
                 }
             }
@@ -431,7 +431,7 @@ namespace Laboratory.Chimera.Ecosystem
 
             ApplyPopulationEventEffects(popEvent);
 
-            Debug.Log($"POPULATION EVENT: {eventType} affects {popEvent.affectedSpecies.Length} species");
+            UnityEngine.Debug.Log($"POPULATION EVENT: {eventType} affects {popEvent.affectedSpecies.Length} species");
         }
 
         private int GetPopulationEventDuration(PopulationEventType type)
@@ -534,12 +534,12 @@ namespace Laboratory.Chimera.Ecosystem
                 {
                     case PopulationEventType.PopulationBoom:
                         population.currentPopulation = Mathf.Min(population.maxPopulation,
-                            population.currentPopulation * (1f + popEvent.magnitude));
+                            (int)(population.currentPopulation * (1f + popEvent.magnitude)));
                         population.growthRate *= 1.5f;
                         break;
 
                     case PopulationEventType.PopulationCrash:
-                        population.currentPopulation *= (1f - popEvent.magnitude);
+                        population.currentPopulation = (int)(population.currentPopulation * (1f - popEvent.magnitude));
                         population.stress += popEvent.magnitude;
                         break;
 
@@ -600,9 +600,9 @@ namespace Laboratory.Chimera.Ecosystem
             return weatherType switch
             {
                 WeatherEventType.StormSeason => allBiomes.Where(b => b != BiomeType.Desert).ToArray(),
-                WeatherEventType.Heatwave => new[] { BiomeType.Desert, BiomeType.Forest },
-                WeatherEventType.Blizzard => new[] { BiomeType.Arctic, BiomeType.Mountain },
-                WeatherEventType.AuroraDisplay => new[] { BiomeType.Arctic },
+                WeatherEventType.Heatwave => new[] { BiomeType.Desert, BiomeType.TemperateForest },
+                WeatherEventType.Blizzard => new[] { BiomeType.Tundra, BiomeType.Mountain },
+                WeatherEventType.AuroraDisplay => new[] { BiomeType.Tundra },
                 WeatherEventType.MeteorShower => allBiomes,
                 _ => new[] { allBiomes[Random.Range(0, allBiomes.Length)] }
             };
@@ -676,7 +676,7 @@ namespace Laboratory.Chimera.Ecosystem
                 if (Random.value < intensity * 0.1f) // 10% chance per intensity point
                 {
                     // Trigger beneficial mutations in this species
-                    Debug.Log($"Meteor shower triggers beneficial mutations in {species.Key}");
+                    UnityEngine.Debug.Log($"Meteor shower triggers beneficial mutations in {species.Key}");
                 }
             }
         }
@@ -705,7 +705,7 @@ namespace Laboratory.Chimera.Ecosystem
 
                 // Update population
                 population.currentPopulation = Mathf.Min(population.maxPopulation,
-                    population.currentPopulation * growthFactor);
+                    (int)(population.currentPopulation * growthFactor));
 
                 // Gradually reduce stress
                 population.stress = Mathf.Max(0f, population.stress - 0.05f);
@@ -1182,7 +1182,9 @@ namespace Laboratory.Chimera.Ecosystem
         SpeciesExtinction,
         NewSpeciesDiscovery,
         PopulationMigration,
-        WeatherPhenomena
+        WeatherPhenomena,
+        Wildfire,
+        VolcanicEruption
     }
 
     /// <summary>
@@ -1255,6 +1257,11 @@ namespace Laboratory.Chimera.Ecosystem
         public float storyTension;
         public int activeNarratives;
         public float playerInfluence;
+        public float health;
+        public float stability;
+        public float lastMajorEvent;
+        public float environmentalStress;
+        public float seasonalModifier;
     }
 
     #endregion

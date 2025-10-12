@@ -32,12 +32,12 @@ namespace Laboratory.Chimera.Visuals
             
             if (creatureInstance == null)
             {
-                DebugManager.LogError($"{name}: GeneticVisualIntegration requires CreatureInstanceComponent!");
+                UnityEngine.Debug.LogError($"{name}: GeneticVisualIntegration requires CreatureInstanceComponent!");
             }
             
             if (visualSystem == null)
             {
-                DebugManager.LogError($"{name}: GeneticVisualIntegration requires ProceduralVisualSystem!");
+                UnityEngine.Debug.LogError($"{name}: GeneticVisualIntegration requires ProceduralVisualSystem!");
             }
         }
         
@@ -74,7 +74,7 @@ namespace Laboratory.Chimera.Visuals
             if (creatureInstance?.CreatureData?.GeneticProfile == null)
             {
                 if (enableDebugLogs)
-                    DebugManager.LogWarning($"{name}: No genetic data available for visual application");
+                    UnityEngine.Debug.LogWarning($"{name}: No genetic data available for visual application");
                 return;
             }
             
@@ -86,7 +86,7 @@ namespace Laboratory.Chimera.Visuals
                 lastKnownGenetics = genetics;
                 
                 if (enableDebugLogs)
-                    DebugManager.Log($"✅ Applied genetic visuals to {name} - Gen {genetics.Generation}, Purity: {genetics.GetGeneticPurity():P1}");
+                    UnityEngine.Debug.Log($"✅ Applied genetic visuals to {name} - Gen {genetics.Generation}, Purity: {genetics.GetGeneticPurity():P1}");
             }
         }
         
