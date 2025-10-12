@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Laboratory.Core.Input.Interfaces;
 using Laboratory.Core.Input.Events;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
 
 namespace Laboratory.Core.Input.Services
 {
@@ -342,7 +342,11 @@ namespace Laboratory.Core.Input.Services
         {
             try
             {
-                _inputService = GlobalServiceProvider.Instance.Resolve<IInputService>();
+                var serviceContainer = ServiceContainer.Instance;
+                if (serviceContainer != null)
+                {
+                    _inputService = serviceContainer.ResolveService<IInputService>();
+                }
                 
                 if (_inputService == null)
                 {

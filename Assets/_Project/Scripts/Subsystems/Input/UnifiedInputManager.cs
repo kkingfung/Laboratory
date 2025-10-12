@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Laboratory.Core.Input.Interfaces;
 using Laboratory.Core.Input.Events;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
 using Laboratory.Infrastructure.Input;
 using Laboratory.Models.Input; // For PlayerControls
 
@@ -138,7 +138,12 @@ namespace Laboratory.Infrastructure.Input
                 _inputValidator = new InputValidator(_configuration);
                 
                 // Get or create event bus for InputEventSystem
-                var eventBus = GlobalServiceProvider.Instance?.Resolve<Laboratory.Core.Events.IEventBus>();
+                Laboratory.Core.Events.IEventBus eventBus = null;
+                var serviceContainer = ServiceContainer.Instance;
+                if (serviceContainer != null)
+                {
+                    eventBus = serviceContainer.ResolveService<Laboratory.Core.Events.IEventBus>();
+                }
                 if (eventBus == null)
                 {
                     LogWarning("No EventBus found, InputEventSystem will be created with null eventBus");
@@ -477,7 +482,7 @@ namespace Laboratory.Infrastructure.Input
         {
             try
             {
-                var serviceContainer = GlobalServiceProvider.Instance?.Resolve<IServiceContainer>();
+                var serviceContainer = ServiceContainer.Instance;
                 // Note: RegisterSingleton method might not exist on IServiceContainer
                 // This is a placeholder - the actual registration method depends on the DI container implementation
                 if (serviceContainer != null)

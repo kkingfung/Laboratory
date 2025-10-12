@@ -6,6 +6,7 @@ using System.Linq;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Core.Events;
+using Laboratory.Core.Infrastructure;
 using System.Collections;
 
 namespace Laboratory.Chimera.UI
@@ -236,9 +237,10 @@ namespace Laboratory.Chimera.UI
         
         private void InitializeEventBus()
         {
-            if (Laboratory.Core.DI.GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                Laboratory.Core.DI.GlobalServiceProvider.TryResolve<IEventBus>(out eventBus);
+                eventBus = serviceContainer.ResolveService<IEventBus>();
             }
         }
         

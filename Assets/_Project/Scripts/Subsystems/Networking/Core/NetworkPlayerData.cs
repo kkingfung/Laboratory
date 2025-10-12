@@ -1,7 +1,7 @@
 using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using Laboratory.Core.Services;
@@ -73,7 +73,11 @@ namespace Laboratory.Infrastructure.Networking
                 return null;
 
             // Try to get from cache first for performance
-            _assetService ??= GlobalServiceProvider.TryResolve<IAssetService>(out var assetService) ? assetService : null;
+            if (_assetService == null)
+            {
+                var serviceContainer = ServiceContainer.Instance;
+                _assetService = serviceContainer?.ResolveService<IAssetService>();
+            }
             
             if (_assetService == null)
             {
@@ -331,11 +335,12 @@ namespace Laboratory.Infrastructure.Networking
         /// </summary>
         private void InitializeServices()
         {
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.TryResolve<IEventBus>(out _eventBus);
-                GlobalServiceProvider.TryResolve<IAssetService>(out _assetService);
-                
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
+                _assetService = serviceContainer.ResolveService<IAssetService>();
+
                 if (_eventBus == null)
                     Debug.LogWarning("EventBus service not found. Events will not be published.");
                 if (_assetService == null)
@@ -343,7 +348,7 @@ namespace Laboratory.Infrastructure.Networking
             }
             else
             {
-                Debug.LogWarning("GlobalServiceProvider not initialized. NetworkPlayerData events and asset loading will be limited.");
+                Debug.LogWarning("ServiceContainer not initialized. NetworkPlayerData events and asset loading will be limited.");
             }
         }
         

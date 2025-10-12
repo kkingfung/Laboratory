@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Health.Components;
 using Laboratory.Core.NPC;
@@ -189,9 +189,10 @@ namespace Laboratory.Subsystems.EnemyAI
         private void InjectDependencies()
         {
             // Get services from DI container
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.Instance?.TryResolve<IEventBus>(out _eventBus);
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
             }
 
             LogDebug($"Dependencies injected - EventBus: {_eventBus != null}");

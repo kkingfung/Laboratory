@@ -1,6 +1,6 @@
 using UnityEngine;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Subsystems.Combat.CoreAbilities
 {
@@ -24,10 +24,11 @@ namespace Laboratory.Subsystems.Combat.CoreAbilities
                 healthComponent.TakeDamage(damageRequest);
                 
                 // Fire attack event
-                if (GlobalServiceProvider.IsInitialized)
+                var serviceContainer = ServiceContainer.Instance;
+                if (serviceContainer != null)
                 {
-                    var eventBus = GlobalServiceProvider.Resolve<IEventBus>();
-                    eventBus.Publish(new AttackPerformedEvent
+                    var eventBus = serviceContainer.ResolveService<IEventBus>();
+                    eventBus?.Publish(new AttackPerformedEvent
                     {
                         Attacker = attacker,
                         Target = target,
@@ -52,10 +53,11 @@ namespace Laboratory.Subsystems.Combat.CoreAbilities
             blockedAmount = incomingDamage * blockEfficiency;
 
             // Fire block event
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                var eventBus = GlobalServiceProvider.Resolve<IEventBus>();
-                eventBus.Publish(new BlockPerformedEvent
+                var eventBus = serviceContainer.ResolveService<IEventBus>();
+                eventBus?.Publish(new BlockPerformedEvent
                 {
                     Blocker = blocker,
                     IncomingDamage = incomingDamage,
@@ -80,10 +82,11 @@ namespace Laboratory.Subsystems.Combat.CoreAbilities
                 rigidbody.AddForce(dodgeDirection.normalized * dodgeForce, ForceMode.Impulse);
 
                 // Fire dodge event
-                if (GlobalServiceProvider.IsInitialized)
+                var serviceContainer = ServiceContainer.Instance;
+                if (serviceContainer != null)
                 {
-                    var eventBus = GlobalServiceProvider.Resolve<IEventBus>();
-                    eventBus.Publish(new DodgePerformedEvent
+                    var eventBus = serviceContainer.ResolveService<IEventBus>();
+                    eventBus?.Publish(new DodgePerformedEvent
                     {
                         Dodger = dodger,
                         DodgeDirection = dodgeDirection,

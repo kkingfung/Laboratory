@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.IO;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Subsystems.Analytics;
 
 namespace Laboratory.Subsystems.Configuration
@@ -56,9 +56,10 @@ namespace Laboratory.Subsystems.Configuration
         private void Start()
         {
             // Initialize event bus
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                _eventBus = GlobalServiceProvider.Resolve<IEventBus>();
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
             }
             
             InitializeConfiguration();

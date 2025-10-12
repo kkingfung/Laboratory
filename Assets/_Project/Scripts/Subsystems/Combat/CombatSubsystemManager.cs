@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Health;
 using Laboratory.Core.Health.Components;
@@ -182,13 +182,14 @@ namespace Laboratory.Subsystems.Combat
 
         private void InjectDependencies()
         {
-            // Get services from DI container
-            if (GlobalServiceProvider.IsInitialized)
+            // Get services from service container
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.Instance?.TryResolve<IEventBus>(out _eventBus);
-                GlobalServiceProvider.Instance?.TryResolve<IHealthSystem>(out _healthSystem);
-                GlobalServiceProvider.Instance?.TryResolve<IAbilitySystem>(out _abilitySystem);
-                GlobalServiceProvider.Instance?.TryResolve<FactionManager>(out _factionManager);
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
+                _healthSystem = serviceContainer.ResolveService<IHealthSystem>();
+                _abilitySystem = serviceContainer.ResolveService<IAbilitySystem>();
+                _factionManager = serviceContainer.ResolveService<FactionManager>();
             }
 
             // Initialize faction manager if not available from DI

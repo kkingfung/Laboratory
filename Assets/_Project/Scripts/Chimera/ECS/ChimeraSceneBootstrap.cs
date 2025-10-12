@@ -7,7 +7,7 @@ using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -269,9 +269,10 @@ namespace Laboratory.Chimera.ECS
             entityManager = Unity.Entities.World.DefaultGameObjectInjectionWorld.EntityManager;
             
             // Initialize or get event bus
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.TryResolve<IEventBus>(out eventBus);
+                eventBus = serviceContainer.ResolveService<IEventBus>();
             }
             
             if (eventBus == null)

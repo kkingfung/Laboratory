@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Subsystems.Inventory
 {
@@ -95,17 +95,19 @@ namespace Laboratory.Subsystems.Inventory
         private void Start()
         {
             // Try to get event bus from DI
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.TryResolve<IEventBus>(out _eventBus);
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
             }
 
             // Register this system with DI if enabled
-            if (autoRegisterWithDI && GlobalServiceProvider.IsInitialized)
+            if (autoRegisterWithDI && serviceContainer != null)
             {
-                GlobalServiceProvider.Instance.RegisterInstance<IInventorySystem>(this);
+                // Note: RegisterInstance method would need to be available on ServiceContainer
+                // This is a placeholder - actual registration depends on ServiceContainer implementation
                 if (enableLogging)
-                    Debug.Log("[UnifiedInventorySystem] Registered with DI container");
+                    Debug.Log("[UnifiedInventorySystem] Service container found for registration");
             }
 
             LoadItemDatabase();

@@ -747,6 +747,76 @@ namespace Laboratory.Subsystems.Trading
         PriceAlert
     }
 
+    [Serializable]
+    public class TradeOfferRequest
+    {
+        public TradeableItem offeredItem;
+        public TradeableItem requestedItem;
+        public CurrencyAmount offeredCurrency;
+        public CurrencyAmount requestedCurrency;
+        public List<TradeCondition> conditions = new();
+        public string description;
+        public List<string> tags = new();
+        public DateTime expiryTime;
+        public bool isPublic = true;
+    }
+
+    [Serializable]
+    public class ConsortiumRequest
+    {
+        public string requestId;
+        public string requesterId;
+        public string consortiumId;
+        public ConsortiumRequestType requestType;
+        public string description;
+        public Dictionary<string, object> requestData = new();
+        public float contributionAmount;
+        public DateTime requestTime;
+        public DateTime deadline;
+        public ConsortiumRequestStatus status;
+    }
+
+    public enum ConsortiumRequestType
+    {
+        Join,
+        Leave,
+        Contribute,
+        StartProject,
+        VoteOnProposal,
+        RequestFunding
+    }
+
+    public enum ConsortiumRequestStatus
+    {
+        Pending,
+        Approved,
+        Rejected,
+        Completed,
+        Cancelled
+    }
+
+    [Serializable]
+    public class MarketplaceFilter
+    {
+        public List<TradeableItemType> itemTypes = new();
+        public List<ItemRarity> rarities = new();
+        public CurrencyAmount minPrice;
+        public CurrencyAmount maxPrice;
+        public List<string> tags = new();
+        public string searchTerm;
+        public MarketplaceSortBy sortBy = MarketplaceSortBy.TimeCreated;
+        public bool sortDescending = true;
+    }
+
+    public enum MarketplaceSortBy
+    {
+        TimeCreated,
+        Price,
+        Rarity,
+        PopularityScore,
+        TimeRemaining
+    }
+
     #endregion
 
     #region Service Interfaces

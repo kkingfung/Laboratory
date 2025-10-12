@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 using Laboratory.Core.Timing;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 #nullable enable
 using Laboratory.Core.Services;
@@ -153,7 +153,7 @@ namespace Laboratory.Infrastructure.AsyncUtils
 
             try
             {
-                var assetService = GlobalServiceProvider.Instance?.Resolve<IAssetService>();
+                var assetService = ServiceContainer.Instance?.ResolveService<IAssetService>();
                 if (assetService != null)
                 {
                     for (int i = 0; i < assetKeys.Length; i++)
@@ -228,11 +228,11 @@ namespace Laboratory.Infrastructure.AsyncUtils
         private void Initialize()
         {
             // Get services if available
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                var services = GlobalServiceProvider.Instance;
-                services?.TryResolve(out _eventBus);
-                services?.TryResolve(out _sceneService);
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
+                _sceneService = serviceContainer.ResolveService<ISceneService>();
             }
             
             BindProgressBar();

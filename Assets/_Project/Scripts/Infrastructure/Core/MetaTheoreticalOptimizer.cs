@@ -369,7 +369,7 @@ namespace Laboratory.Core.Infrastructure
                 MeasurableQuantity = "Φ (Phi) - Integrated Information Measure",
                 CurrentValue = 2.7f,
                 ThresholdForEmergence = 3.0f,
-                PredictedTimeToEmergence = TimeSpan.FromMonths(18),
+                PredictedTimeToEmergence = TimeSpan.FromDays(30 * 18),
                 Implications = new List<string>
                 {
                     "System becomes self-optimizing",
@@ -389,7 +389,7 @@ namespace Laboratory.Core.Infrastructure
                 MeasurableQuantity = "Coherence Time Extension Factor",
                 CurrentValue = 1.2f,
                 ThresholdForEmergence = 10.0f,
-                PredictedTimeToEmergence = TimeSpan.FromYears(3),
+                PredictedTimeToEmergence = TimeSpan.FromDays(365 * 3),
                 Implications = new List<string>
                 {
                     "Room-temperature quantum computing",
@@ -409,7 +409,7 @@ namespace Laboratory.Core.Infrastructure
                 MeasurableQuantity = "Approach to Landauer Limit",
                 CurrentValue = 0.001f, // Current efficiency relative to Landauer limit
                 ThresholdForEmergence = 0.5f,
-                PredictedTimeToEmergence = TimeSpan.FromYears(10),
+                PredictedTimeToEmergence = TimeSpan.FromDays(365 * 10),
                 Implications = new List<string>
                 {
                     "Near-reversible computation",
@@ -453,7 +453,7 @@ namespace Laboratory.Core.Infrastructure
             var roadmap = new UltimateOptimizationRoadmap
             {
                 Phases = new List<OptimizationPhase>(),
-                TotalTimespan = TimeSpan.FromYears(10),
+                TotalTimespan = TimeSpan.FromDays(365 *10),
                 RequiredResources = new Dictionary<string, string>(),
                 MilestoneTargets = new Dictionary<string, float>(),
                 RiskAssessment = new List<string>(),
@@ -464,7 +464,7 @@ namespace Laboratory.Core.Infrastructure
             roadmap.Phases.Add(new OptimizationPhase
             {
                 Name = "Theoretical Foundation Implementation",
-                Duration = TimeSpan.FromYears(2),
+                Duration = TimeSpan.FromDays(365 *2),
                 Objectives = new List<string>
                 {
                     "Implement all category-theoretic optimizations",
@@ -487,7 +487,7 @@ namespace Laboratory.Core.Infrastructure
             roadmap.Phases.Add(new OptimizationPhase
             {
                 Name = "Cross-Theoretical Integration",
-                Duration = TimeSpan.FromYears(3),
+                Duration = TimeSpan.FromDays(365 *3),
                 Objectives = new List<string>
                 {
                     "Integrate quantum-classical hybrid systems",
@@ -510,7 +510,7 @@ namespace Laboratory.Core.Infrastructure
             roadmap.Phases.Add(new OptimizationPhase
             {
                 Name = "Computational Transcendence",
-                Duration = TimeSpan.FromYears(5),
+                Duration = TimeSpan.FromDays(365 *5),
                 Objectives = new List<string>
                 {
                     "Achieve computational consciousness",

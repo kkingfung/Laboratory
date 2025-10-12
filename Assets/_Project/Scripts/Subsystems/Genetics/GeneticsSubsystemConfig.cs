@@ -14,6 +14,7 @@ namespace Laboratory.Subsystems.Genetics
     {
         [Header("Core Configuration")]
         [SerializeField] private GeneticTraitLibrary defaultTraitLibrary;
+        [SerializeField] private string[] defaultSpecies = new string[] { "DefaultSpecies", "BasicCreature" };
         [SerializeField] private float globalMutationRate = 0.02f;
         [SerializeField] private bool enableAdvancedInheritance = true;
         [SerializeField] private bool enableEnvironmentalEffects = true;
@@ -37,6 +38,7 @@ namespace Laboratory.Subsystems.Genetics
 
         // Public Properties
         public GeneticTraitLibrary DefaultTraitLibrary => defaultTraitLibrary;
+        public string[] DefaultSpecies => defaultSpecies;
         public float GlobalMutationRate => globalMutationRate;
         public bool EnableAdvancedInheritance => enableAdvancedInheritance;
         public bool EnableEnvironmentalEffects => enableEnvironmentalEffects;
@@ -245,6 +247,7 @@ namespace Laboratory.Subsystems.Genetics
         [SerializeField] private int maxConcurrentBreedings = 10;
         [SerializeField] private int maxConcurrentMutations = 20;
         [SerializeField] private int maxActiveProfiles = 1000;
+        [SerializeField] private int minimumViablePopulation = 10;
 
         [Header("Caching")]
         [SerializeField] private bool enableProfileCaching = true;
@@ -265,6 +268,7 @@ namespace Laboratory.Subsystems.Genetics
         public int MaxConcurrentBreedings => maxConcurrentBreedings;
         public int MaxConcurrentMutations => maxConcurrentMutations;
         public int MaxActiveProfiles => maxActiveProfiles;
+        public int MinimumViablePopulation => minimumViablePopulation;
         public bool EnableProfileCaching => enableProfileCaching;
         public int MaxCachedProfiles => maxCachedProfiles;
         public float CacheTimeout => cacheTimeout;
@@ -294,6 +298,7 @@ namespace Laboratory.Subsystems.Genetics
                 maxConcurrentBreedings = 10,
                 maxConcurrentMutations = 20,
                 maxActiveProfiles = 1000,
+                minimumViablePopulation = 10,
                 enableProfileCaching = true,
                 maxCachedProfiles = 500,
                 cacheTimeout = 300f,

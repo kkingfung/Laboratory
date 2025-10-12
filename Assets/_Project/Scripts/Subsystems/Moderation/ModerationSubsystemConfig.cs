@@ -43,11 +43,11 @@ namespace Laboratory.Subsystems.Moderation
         [Tooltip("Filter severity threshold")]
         public ViolationSeverity filterSeverityThreshold = ViolationSeverity.Minor;
 
-        [Tooltip("Words to filter from content")]
-        public List<string> profanityFilter = new List<string>
+        [Tooltip("Word filter configuration")]
+        public WordFilter profanityFilter = new WordFilter
         {
-            // Basic inappropriate words - in a real implementation, this would be much more comprehensive
-            "inappropriate", "banned", "filtered"
+            blacklist = new List<string> { "inappropriate", "banned", "filtered" },
+            whitelist = new List<string> { "genetics", "evolution", "breeding", "mutation", "trait", "species", "organism" }
         };
 
         [Tooltip("Whitelisted words that are allowed despite filtering")]
@@ -70,6 +70,10 @@ namespace Laboratory.Subsystems.Moderation
         [Tooltip("Risk score threshold for automatic action")]
         [Range(0.1f, 1f)]
         public float riskScoreThreshold = 0.7f;
+
+        [Tooltip("Risk score threshold for marking users as suspicious")]
+        [Range(0.1f, 1f)]
+        public float suspiciousRiskThreshold = 0.5f;
 
         [Tooltip("Maximum actions per minute before flagging as spam")]
         [Range(5, 100)]
@@ -139,6 +143,9 @@ namespace Laboratory.Subsystems.Moderation
 
         [Tooltip("Enable automatic reporting to external systems")]
         public bool enableExternalReporting = false;
+
+        [Tooltip("Enable parental controls for underage users")]
+        public bool enableParentalControls = true;
 
         [Header("Filter Rules")]
         [Tooltip("Custom filter rules for advanced content moderation")]

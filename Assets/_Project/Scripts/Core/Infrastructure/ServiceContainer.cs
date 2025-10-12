@@ -1,0 +1,93 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Laboratory.Core.Infrastructure
+{
+    /// <summary>
+    /// Core dependency injection container for Project Chimera.
+    /// Provides basic service registration and resolution.
+    /// </summary>
+    public class ServiceContainer : MonoBehaviour
+    {
+        private static ServiceContainer _instance;
+        private readonly Dictionary<Type, object> _services = new();
+
+        public static ServiceContainer Instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    _instance = FindObjectOfType<ServiceContainer>();
+                    if (_instance == null)
+                    {
+                        var go = new GameObject("ServiceContainer");
+                        _instance = go.AddComponent<ServiceContainer>();
+                        DontDestroyOnLoad(go);
+                    }
+                }
+                return _instance;
+            }
+        }
+
+        private void Awake()
+        {
+            if (_instance == null)
+            {
+                _instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else if (_instance != this)
+            {
+                Destroy(gameObject);
+            }
+        }
+
+        /// <summary>
+        /// Register a service instance
+        /// </summary>
+        public void RegisterService<T>(T service) where T : class
+        {
+            var type = typeof(T);
+            _services[type] = service;
+        }
+
+        /// <summary>
+        /// Resolve a service instance
+        /// </summary>
+        public T ResolveService<T>() where T : class
+        {
+            var type = typeof(T);
+            if (_services.TryGetValue(type, out var service))
+            {
+                return service as T;
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Check if a service is registered
+        /// </summary>
+        public bool IsServiceRegistered<T>()
+        {
+            return _services.ContainsKey(typeof(T));
+        }
+
+        /// <summary>
+        /// Unregister a service
+        /// </summary>
+        public void UnregisterService<T>()
+        {
+            _services.Remove(typeof(T));
+        }
+
+        /// <summary>
+        /// Clear all services
+        /// </summary>
+        public void ClearServices()
+        {
+            _services.Clear();
+        }
+    }
+}

@@ -7,7 +7,7 @@ using Laboratory.Core.Systems;
 using Laboratory.Core.Abilities.Events;
 using Laboratory.Core.Abilities;
 using Laboratory.Core.Abilities.Systems;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
 
 namespace Laboratory.Subsystems.Combat.Abilities
 {
@@ -385,10 +385,10 @@ namespace Laboratory.Subsystems.Combat.Abilities
         private void InitializeEventBus()
         {
             // Try to get the event bus from the service container
-            if (GlobalServiceProvider.IsInitialized && 
-                GlobalServiceProvider.Instance.TryResolve<IEventBus>(out var eventBus))
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                _eventBus = eventBus;
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
             }
             else
             {
@@ -452,18 +452,20 @@ namespace Laboratory.Subsystems.Combat.Abilities
         private void RegisterWithAbilitySystem()
         {
             // Register with global ability system if available
-            if (GlobalServiceProvider.IsInitialized && 
-                GlobalServiceProvider.Instance.TryResolve<IAbilitySystem>(out var abilitySystem))
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
+                var abilitySystem = serviceContainer.ResolveService<IAbilitySystem>();
                 abilitySystem?.RegisterAbilityManager(this);
             }
         }
 
         private void UnregisterFromAbilitySystem()
         {
-            if (GlobalServiceProvider.IsInitialized && 
-                GlobalServiceProvider.Instance.TryResolve<IAbilitySystem>(out var abilitySystem))
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
+                var abilitySystem = serviceContainer.ResolveService<IAbilitySystem>();
                 abilitySystem?.UnregisterAbilityManager(this);
             }
         }

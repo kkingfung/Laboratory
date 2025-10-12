@@ -5,7 +5,7 @@ using UnityEngine;
 using Laboratory.Core.Health.Components;
 using Laboratory.Core.Health;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Systems;
 using Laboratory.Gameplay;
 using Laboratory.Gameplay.Respawn;
@@ -84,11 +84,12 @@ namespace Laboratory.Infrastructure.Networking
         
         private void Start()
         {
-            // Get services from global service provider
-            if (GlobalServiceProvider.IsInitialized)
+            // Get services from service container
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.Instance?.TryResolve<IEventBus>(out _eventBus);
-                GlobalServiceProvider.Instance?.TryResolve<IHealthSystem>(out _healthSystem);
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
+                _healthSystem = serviceContainer.ResolveService<IHealthSystem>();
             }
             
             // Subscribe to health component events
@@ -354,7 +355,8 @@ namespace Laboratory.Gameplay
             PlayRespawnClientRpc(spawnPos);
             
             // Publish respawn event
-            var eventBus = GlobalServiceProvider.Instance?.Resolve<IEventBus>();
+            var serviceContainer = ServiceContainer.Instance;
+            var eventBus = serviceContainer?.ResolveService<IEventBus>();
             var networkObject = GetComponent<NetworkObject>();
             eventBus?.Publish(new PlayerRespawnEvent
             {
@@ -384,7 +386,8 @@ namespace Laboratory.Gameplay
         private void OnRespawnTimeChanged(float oldValue, float newValue)
         {
             // Update respawn UI
-            var eventBus = GlobalServiceProvider.Instance?.Resolve<IEventBus>();
+            var serviceContainer = ServiceContainer.Instance;
+            var eventBus = serviceContainer?.ResolveService<IEventBus>();
             var networkObject = GetComponent<NetworkObject>();
             eventBus?.Publish(new PlayerRespawnTimerEvent
             {

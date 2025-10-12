@@ -244,12 +244,12 @@ namespace Laboratory.Subsystems.Ecosystem
         {
             if (ServiceContainer.Instance != null)
             {
-                ServiceContainer.Instance.Register<IBiomeService>(biomeManager);
-                ServiceContainer.Instance.Register<IPopulationService>(populationManager);
-                ServiceContainer.Instance.Register<IWeatherService>(weatherSystem);
-                ServiceContainer.Instance.Register<IConservationService>(conservationManager);
-                ServiceContainer.Instance.Register<IEnvironmentalEventService>(eventSystem);
-                ServiceContainer.Instance.Register<EcosystemSubsystemManager>(this);
+                ServiceContainer.Instance.RegisterService<IBiomeService>(biomeManager);
+                ServiceContainer.Instance.RegisterService<IPopulationService>(populationManager);
+                ServiceContainer.Instance.RegisterService<IWeatherService>(weatherSystem);
+                ServiceContainer.Instance.RegisterService<IConservationService>(conservationManager);
+                ServiceContainer.Instance.RegisterService<IEnvironmentalEventService>(eventSystem);
+                ServiceContainer.Instance.RegisterService<EcosystemSubsystemManager>(this);
             }
         }
 

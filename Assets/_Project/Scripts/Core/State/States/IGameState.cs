@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using R3;
@@ -59,7 +59,7 @@ namespace Laboratory.Core.State.Implementations
     /// </summary>
     public abstract class GameStateBase : IGameState
     {
-        protected IServiceContainer Services { get; private set; } = null!;
+        protected ServiceContainer Services { get; private set; } = null!;
         protected IEventBus EventBus { get; private set; } = null!;
         
         public abstract GameState StateType { get; }
@@ -88,10 +88,10 @@ namespace Laboratory.Core.State.Implementations
             return true;
         }
 
-        protected void InitializeServices(IServiceContainer services)
+        protected void InitializeServices(ServiceContainer services)
         {
             Services = services;
-            EventBus = services.Resolve<IEventBus>();
+            EventBus = services.ResolveService<IEventBus>();
         }
     }
 }

@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Subsystems.Spawning
 {
@@ -71,9 +71,9 @@ namespace Laboratory.Subsystems.Spawning
             lastSpawnTime = Time.time;
 
             // Fire spawn event
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null && serviceContainer.TryResolveService<IEventBus>(out var eventBus))
             {
-                var eventBus = GlobalServiceProvider.Resolve<IEventBus>();
                 eventBus.Publish(new ObjectSpawnedEvent
                 {
                     SpawnedObject = spawnedObject,

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Character.Events;
 using Laboratory.Core.Character.Interfaces;
@@ -92,7 +92,7 @@ namespace Laboratory.Core.Character
         private readonly List<Transform> _targetsToRemove = new List<Transform>();
 
         // Services
-        private IServiceContainer _services;
+        private ServiceContainer _services;
         private IEventBus _eventBus;
 
         // Performance tracking
@@ -165,10 +165,10 @@ namespace Laboratory.Core.Character
             if (!_isInitialized)
             {
                 // Try to auto-resolve services if not manually initialized
-                var serviceProvider = GlobalServiceProvider.Instance;
-                if (serviceProvider != null)
+                var serviceContainer = ServiceContainer.Instance;
+                if (serviceContainer != null)
                 {
-                    Initialize(serviceProvider);
+                    Initialize(serviceContainer);
                 }
             }
         }
@@ -215,11 +215,12 @@ namespace Laboratory.Core.Character
             }
         }
 
-        public void Initialize(IServiceContainer services)
+        public void Initialize(ServiceContainer services)
         {
             _services = services ?? throw new ArgumentNullException(nameof(services));
 
-            if (_services.TryResolve<IEventBus>(out _eventBus))
+            _eventBus = _services.ResolveService<IEventBus>();
+            if (_eventBus != null)
             {
                 Debug.Log("[UnifiedTargetSelector] Event bus resolved successfully");
             }

@@ -2,7 +2,7 @@
 using Unity.Entities;
 using UnityEngine;
 using Laboratory.Core;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Models.ECS.Components;
 using Laboratory.Core.Timing;
@@ -77,13 +77,17 @@ namespace Laboratory.Models.ECS.Systems
         {
             try
             {
-                _matchTimer = GlobalServiceProvider.Resolve<IMatchTimer>();
-                
+                var serviceContainer = ServiceContainer.Instance;
+                if (serviceContainer != null)
+                {
+                    _matchTimer = serviceContainer.ResolveService<IMatchTimer>();
+                }
+
                 if (_matchTimer == null)
                 {
-                    throw new System.InvalidOperationException("IMatchTimer could not be resolved from ServiceLocator");
+                    throw new System.InvalidOperationException("IMatchTimer could not be resolved from ServiceContainer");
                 }
-                
+
                 _isInitialized = true;
                 Debug.Log("MatchTimerSystem initialized successfully");
             }

@@ -182,7 +182,7 @@ namespace Laboratory.Infrastructure.Core
                     OptimizationMechanism = "Compute all possible optimization paths simultaneously across superposed timelines",
                     TemporalParadoxResolution = "Many-worlds interpretation - all timelines remain consistent",
                     CausalityViolation = false,
-                    TheoreticalSpeedup = "2^(number of quantum states)",
+                    TheoreticalSpeedup = float.PositiveInfinity,
                     PhysicalFeasibility = 0.1f,
                     RequiredTechnology = "Quantum temporal coherence maintenance, multiverse interface"
                 }

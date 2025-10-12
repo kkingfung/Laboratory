@@ -3,7 +3,7 @@ using UnityEngine;
 using Unity.Netcode;
 using Laboratory.Core.Health;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Core.Health.Components
 {
@@ -109,9 +109,10 @@ namespace Laboratory.Core.Health.Components
             _predictedHealth = _networkCurrentHealth.Value;
 
             // Get event bus for publishing events
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                _eventBus = GlobalServiceProvider.Resolve<IEventBus>();
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
             }
         }
 

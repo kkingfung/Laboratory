@@ -8,6 +8,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.UI.Components;
 using Laboratory.Core.Events;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Infrastructure;
 using BreedingHistoryEntry = Laboratory.Chimera.UI.Components.BreedingHistoryEntry;
 
 namespace Laboratory.Chimera.UI
@@ -129,9 +130,10 @@ namespace Laboratory.Chimera.UI
         
         private void InitializeEventBus()
         {
-            if (Laboratory.Core.DI.GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                Laboratory.Core.DI.GlobalServiceProvider.TryResolve<IEventBus>(out eventBus);
+                eventBus = serviceContainer.ResolveService<IEventBus>();
             }
         }
         

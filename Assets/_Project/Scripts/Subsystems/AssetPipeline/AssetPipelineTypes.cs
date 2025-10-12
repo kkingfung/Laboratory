@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
+using Laboratory.Chimera.Genetics;
 
 namespace Laboratory.Subsystems.AssetPipeline
 {
@@ -53,7 +55,7 @@ namespace Laboratory.Subsystems.AssetPipeline
     {
         public string requestId;
         public string creatureId;
-        public Laboratory.Subsystems.Genetics.GeneticProfile geneticProfile;
+        public GeneticProfile geneticProfile;
         public AssetGenerationType requestType;
         public AssetGenerationPriority priority;
         public DateTime timestamp;
@@ -195,7 +197,7 @@ namespace Laboratory.Subsystems.AssetPipeline
         public float importanceScore;
         public DateTime lastUpdate;
         public bool isVisible;
-        public Camera[] renderingCameras;
+        public UnityEngine.Camera[] renderingCameras;
     }
 
     public enum LODLevel
@@ -298,7 +300,7 @@ namespace Laboratory.Subsystems.AssetPipeline
     public class TextureGenerationRequest
     {
         public string requestId;
-        public Laboratory.Subsystems.Genetics.GeneticProfile geneticProfile;
+        public GeneticProfile geneticProfile;
         public TextureType textureType;
         public Vector2Int resolution = new Vector2Int(512, 512);
         public TextureFormat format = TextureFormat.RGBA32;
@@ -371,9 +373,9 @@ namespace Laboratory.Subsystems.AssetPipeline
     public interface IProceduralGenerationService
     {
         Task<bool> InitializeAsync();
-        GeneratedAssetData GenerateCreatureAsset(Laboratory.Subsystems.Genetics.GeneticProfile geneticProfile, string creatureId);
-        Mesh GenerateCreatureMesh(Laboratory.Subsystems.Genetics.GeneticProfile geneticProfile, LODLevel lodLevel = LODLevel.High);
-        Material GenerateCreatureMaterial(Laboratory.Subsystems.Genetics.GeneticProfile geneticProfile);
+        GeneratedAssetData GenerateCreatureAsset(GeneticProfile geneticProfile, string creatureId);
+        Mesh GenerateCreatureMesh(GeneticProfile geneticProfile, LODLevel lodLevel = LODLevel.High);
+        Material GenerateCreatureMaterial(GeneticProfile geneticProfile);
         List<ProceduralAssetTemplate> GetAvailableTemplates();
         bool RegisterTemplate(ProceduralAssetTemplate template);
     }
@@ -398,9 +400,9 @@ namespace Laboratory.Subsystems.AssetPipeline
     public interface IDynamicTextureService
     {
         Task<bool> InitializeAsync();
-        Task<Texture2D> GenerateTextureAsync(Laboratory.Subsystems.Genetics.GeneticProfile geneticProfile, TextureType textureType);
-        Texture2D GeneratePatternTexture(Laboratory.Subsystems.Genetics.GeneticProfile geneticProfile);
-        Texture2D GenerateColorTexture(Laboratory.Subsystems.Genetics.GeneticProfile geneticProfile);
+        Task<Texture2D> GenerateTextureAsync(GeneticProfile geneticProfile, TextureType textureType);
+        Texture2D GeneratePatternTexture(GeneticProfile geneticProfile);
+        Texture2D GenerateColorTexture(GeneticProfile geneticProfile);
         void UpdateTextureStreaming();
         bool CacheTexture(string textureId, Texture2D texture);
         Texture2D GetCachedTexture(string textureId);
@@ -461,6 +463,70 @@ namespace Laboratory.Subsystems.AssetPipeline
         public bool enableAsyncGeneration = true;
         public bool enableGarbageCollection = true;
         public int framesBetweenCleanup = 300;
+    }
+
+    #endregion
+
+    #region Missing Type Definitions
+
+    [Serializable]
+    public class ProceduralGenerationSettings
+    {
+        public int maxConcurrentGenerations = 3;
+        public bool enableAsyncGeneration = true;
+        public float qualityMultiplier = 1.0f;
+        public bool enableCaching = true;
+        public Dictionary<string, object> customParameters = new();
+    }
+
+    [Serializable]
+    public class ProceduralGenerationMetrics
+    {
+        public int totalGenerationsCompleted;
+        public int currentlyGenerating;
+        public float averageGenerationTime;
+        public float successRate;
+        public int cacheHits;
+        public int cacheMisses;
+    }
+
+    [Serializable]
+    public class LODConfiguration
+    {
+        public LODSettings settings;
+        public bool enableAdaptiveLOD = true;
+        public float performanceThreshold = 60f;
+        public bool enableDistanceCulling = true;
+    }
+
+    [Serializable]
+    public class LODMetrics
+    {
+        public Dictionary<LODLevel, int> creaturesByLOD = new();
+        public int totalCreatures;
+        public float averageUpdateTime;
+        public int culledCreatures;
+        public float averageDistance;
+    }
+
+    [Serializable]
+    public class DynamicTextureSettings
+    {
+        public Vector2Int defaultResolution = new Vector2Int(512, 512);
+        public TextureFormat preferredFormat = TextureFormat.RGBA32;
+        public bool enableMipmaps = true;
+        public bool enableCompression = true;
+        public int maxCachedTextures = 100;
+    }
+
+    [Serializable]
+    public class DynamicTextureMetrics
+    {
+        public int texturesGenerated;
+        public int texturesCached;
+        public float averageGenerationTime;
+        public float memoryUsageMB;
+        public int cacheHitRate;
     }
 
     #endregion

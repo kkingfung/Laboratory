@@ -5,6 +5,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Events;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Chimera.AI
 {
@@ -95,10 +96,11 @@ namespace Laboratory.Chimera.AI
             detectionSystem = GetComponent<EnemyDetectionSystem>();
             creatureInstance = GetComponent<CreatureInstance>();
 
-            // Try to get event bus from global services
-            if (Laboratory.Core.DI.GlobalServiceProvider.IsInitialized)
+            // Try to get event bus from service container
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                Laboratory.Core.DI.GlobalServiceProvider.TryResolve<IEventBus>(out eventBus);
+                eventBus = serviceContainer.ResolveService<IEventBus>();
             }
 
             if (monsterAI == null)

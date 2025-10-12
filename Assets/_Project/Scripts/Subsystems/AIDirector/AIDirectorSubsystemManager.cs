@@ -6,6 +6,7 @@ using System.Collections;
 using Unity.Mathematics;
 using System.Linq;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Subsystems.Analytics;
 
 namespace Laboratory.Subsystems.AIDirector
 {
@@ -231,25 +232,25 @@ namespace Laboratory.Subsystems.AIDirector
         {
             try
             {
-                // Subscribe to genetics events for automatic player tracking
+                // Subscribe to genetics events
                 Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnBreedingComplete += HandleBreedingEvent;
                 Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnMutationOccurred += HandleMutationEvent;
                 Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnTraitDiscovered += HandleTraitDiscoveryEvent;
 
-                // Subscribe to research events for educational tracking
+                // Subscribe to research events
                 Laboratory.Subsystems.Research.ResearchSubsystemManager.OnDiscoveryLogged += HandleResearchDiscoveryEvent;
                 Laboratory.Subsystems.Research.ResearchSubsystemManager.OnPublicationCreated += HandlePublicationEvent;
 
-                // Subscribe to ecosystem events for environmental awareness
+                // Subscribe to ecosystem events
                 Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnEnvironmentalEvent += HandleEnvironmentalEvent;
                 Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnPopulationChanged += HandlePopulationEvent;
 
-                // Subscribe to analytics events for behavior patterns
+                // Subscribe to analytics events
                 Laboratory.Subsystems.Analytics.AnalyticsSubsystemManager.OnPlayerActionTracked += HandlePlayerActionEvent;
                 Laboratory.Subsystems.Analytics.AnalyticsSubsystemManager.OnEducationalProgressTracked += HandleEducationalProgressEvent;
 
                 if (_config.enableDebugLogging)
-                    Debug.Log("[AIDirector] Player tracking events initialized - fully integrated with Genetics, Research, Ecosystem, and Analytics subsystems");
+                    Debug.Log("[AIDirector] Player tracking events initialized - Analytics integration active, other subsystems pending type availability");
             }
             catch (Exception ex)
             {
@@ -881,7 +882,7 @@ namespace Laboratory.Subsystems.AIDirector
                     reasoning = "Player struggling, reducing difficulty to maintain engagement",
                     parameters = new Dictionary<string, object>
                     {
-                        ["adjustmentType"] = DifficultyAdjustmentType.Reduce,
+                        ["adjustmentType"] = DifficultyAdjustmentType.Decrease,
                         ["magnitude"] = 0.2f
                     }
                 };
@@ -996,7 +997,7 @@ namespace Laboratory.Subsystems.AIDirector
 
         #region Cross-Subsystem Event Handlers
 
-        private void HandleBreedingEvent(Laboratory.Subsystems.Genetics.GeneticBreedingResult result)
+        private void HandleBreedingEvent(GeneticBreedingResult result)
         {
             if (result?.isSuccessful == true)
             {
@@ -1021,7 +1022,7 @@ namespace Laboratory.Subsystems.AIDirector
             }
         }
 
-        private void HandleMutationEvent(Laboratory.Subsystems.Genetics.MutationEvent mutationEvent)
+        private void HandleMutationEvent(MutationEvent mutationEvent)
         {
             TrackPlayerAction(mutationEvent.playerId, "mutation_discovery", new Dictionary<string, object>
             {
@@ -1038,7 +1039,7 @@ namespace Laboratory.Subsystems.AIDirector
             }
         }
 
-        private void HandleTraitDiscoveryEvent(Laboratory.Subsystems.Genetics.TraitDiscoveryEvent discoveryEvent)
+        private void HandleTraitDiscoveryEvent(TraitDiscoveryEvent discoveryEvent)
         {
             TrackPlayerAction(discoveryEvent.playerId, "trait_discovery", new Dictionary<string, object>
             {
@@ -1054,7 +1055,7 @@ namespace Laboratory.Subsystems.AIDirector
             }
         }
 
-        private void HandleResearchDiscoveryEvent(Laboratory.Subsystems.Research.DiscoveryJournalEvent discoveryEvent)
+        private void HandleResearchDiscoveryEvent(DiscoveryJournalEvent discoveryEvent)
         {
             TrackPlayerAction(discoveryEvent.playerId, "research_discovery", new Dictionary<string, object>
             {
@@ -1067,7 +1068,7 @@ namespace Laboratory.Subsystems.AIDirector
             profile.researchEngagement += discoveryEvent.discovery.isSignificant ? 0.1f : 0.05f;
         }
 
-        private void HandlePublicationEvent(Laboratory.Subsystems.Research.PublicationEvent publicationEvent)
+        private void HandlePublicationEvent(PublicationEvent publicationEvent)
         {
             TrackPlayerAction(publicationEvent.publication.authorId, "publication_created", new Dictionary<string, object>
             {
@@ -1082,7 +1083,7 @@ namespace Laboratory.Subsystems.AIDirector
             }
         }
 
-        private void HandleEnvironmentalEvent(Laboratory.Subsystems.Ecosystem.EnvironmentalEvent envEvent)
+        private void HandleEnvironmentalEvent(EnvironmentalEvent envEvent)
         {
             // Track environmental awareness
             foreach (var playerId in GetActivePlayerIds())
@@ -1101,7 +1102,7 @@ namespace Laboratory.Subsystems.AIDirector
             }
         }
 
-        private void HandlePopulationEvent(Laboratory.Subsystems.Ecosystem.PopulationEvent populationEvent)
+        private void HandlePopulationEvent(PopulationEvent populationEvent)
         {
             // Track ecosystem management engagement
             TrackPlayerAction("EcosystemManager", "population_change", new Dictionary<string, object>
@@ -1118,7 +1119,7 @@ namespace Laboratory.Subsystems.AIDirector
             }
         }
 
-        private void HandlePlayerActionEvent(Laboratory.Subsystems.Analytics.PlayerActionEvent actionEvent)
+        private void HandlePlayerActionEvent(PlayerActionEvent actionEvent)
         {
             // Integrate analytics data into AI Director decisions
             var profile = GetOrCreatePlayerProfile(actionEvent.playerId);
@@ -1131,7 +1132,7 @@ namespace Laboratory.Subsystems.AIDirector
             }
         }
 
-        private void HandleEducationalProgressEvent(Laboratory.Subsystems.Analytics.EducationalProgressEvent progressEvent)
+        private void HandleEducationalProgressEvent(EducationalProgressEvent progressEvent)
         {
             TrackPlayerAction(progressEvent.playerId, "educational_progress", new Dictionary<string, object>
             {
@@ -1147,7 +1148,7 @@ namespace Laboratory.Subsystems.AIDirector
 
         #region AI Director Decision Helpers
 
-        private float CalculateBreedingDifficulty(Laboratory.Subsystems.Genetics.GeneticBreedingResult result)
+        private float CalculateBreedingDifficulty(GeneticBreedingResult result)
         {
             var difficulty = 0.5f; // Base difficulty
 
@@ -1162,7 +1163,7 @@ namespace Laboratory.Subsystems.AIDirector
             return Mathf.Clamp(difficulty, 0.1f, 1.0f);
         }
 
-        private void ConsiderTriggeringMutationExplanation(string playerId, List<Laboratory.Subsystems.Genetics.GeneticMutation> mutations)
+        private void ConsiderTriggeringMutationExplanation(string playerId, List<GeneticMutation> mutations)
         {
             var profile = GetOrCreatePlayerProfile(playerId);
 
@@ -1243,7 +1244,7 @@ namespace Laboratory.Subsystems.AIDirector
             }
         }
 
-        private void AnalyzePlayerActionPattern(PlayerProfile profile, Laboratory.Subsystems.Analytics.PlayerActionEvent actionEvent)
+        private void AnalyzePlayerActionPattern(PlayerProfile profile, PlayerActionEvent actionEvent)
         {
             // Track action frequency and patterns
             if (!profile.actionPatterns.ContainsKey(actionEvent.actionType))
@@ -1265,7 +1266,7 @@ namespace Laboratory.Subsystems.AIDirector
             profile.engagementScore = Mathf.Clamp(profile.engagementScore + engagementDelta, 0f, 1f);
         }
 
-        private bool DetectPlayerStruggle(PlayerProfile profile, Laboratory.Subsystems.Analytics.PlayerActionEvent actionEvent)
+        private bool DetectPlayerStruggle(PlayerProfile profile, PlayerActionEvent actionEvent)
         {
             // Detect struggle patterns
             if (actionEvent.actionType == "breeding_failure" &&
@@ -1378,7 +1379,7 @@ namespace Laboratory.Subsystems.AIDirector
             return _playerProfiles.Keys.ToList();
         }
 
-        private void UpdatePlayerEcosystemAwareness(string playerId, Laboratory.Subsystems.Ecosystem.PopulationEvent populationEvent)
+        private void UpdatePlayerEcosystemAwareness(string playerId, PopulationEvent populationEvent)
         {
             var profile = GetOrCreatePlayerProfile(playerId);
 

@@ -21,6 +21,7 @@ namespace Laboratory.Chimera.Genetics
         [SerializeField] private float mutationRate = 0.02f; // 2% chance per gene
         [SerializeField] private int generationNumber = 1;
         [SerializeField] private string lineageId = "";
+        [SerializeField] private string speciesId = "DefaultSpecies";
         
         /// <summary>
         /// All genes in this genetic profile
@@ -46,7 +47,12 @@ namespace Laboratory.Chimera.Genetics
         /// Unique lineage identifier for tracking breeding lines
         /// </summary>
         public string LineageId => lineageId;
-        
+
+        /// <summary>
+        /// Species identifier for compatibility and breeding restrictions
+        /// </summary>
+        public string SpeciesId => speciesId;
+
         /// <summary>
         /// Profile ID for compatibility
         /// </summary>
@@ -80,14 +86,16 @@ namespace Laboratory.Chimera.Genetics
         public GeneticProfile()
         {
             lineageId = Guid.NewGuid().ToString("N")[..8];
+            speciesId = "DefaultSpecies";
         }
-        
-        public GeneticProfile(Gene[] initialGenes, int generation = 1, string parentLineage = "")
+
+        public GeneticProfile(Gene[] initialGenes, int generation = 1, string parentLineage = "", string species = "DefaultSpecies")
         {
             genes = initialGenes ?? Array.Empty<Gene>();
             generationNumber = generation;
-            lineageId = string.IsNullOrEmpty(parentLineage) ? 
-                Guid.NewGuid().ToString("N")[..8] : 
+            speciesId = species;
+            lineageId = string.IsNullOrEmpty(parentLineage) ?
+                Guid.NewGuid().ToString("N")[..8] :
                 $"{parentLineage}-{generation:D2}";
         }
         

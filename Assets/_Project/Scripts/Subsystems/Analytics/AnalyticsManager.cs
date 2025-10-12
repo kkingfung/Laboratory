@@ -5,8 +5,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
-using Laboratory.Subsystems.Performance;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Subsystems.Combat.CoreAbilities;
 using Laboratory.Subsystems.Spawning;
 
@@ -63,12 +62,15 @@ namespace Laboratory.Subsystems.Analytics
             analyticsFilePath = Path.Combine(Application.persistentDataPath, analyticsFileName);
             
             // Subscribe to common game events
-            if (GlobalServiceProvider.IsInitialized)
+            if (ServiceContainer.Instance != null)
             {
-                var eventBus = GlobalServiceProvider.Resolve<IEventBus>();
-                eventBus.Subscribe<PerformanceUpdateEvent>(OnPerformanceUpdate);
-                eventBus.Subscribe<AttackPerformedEvent>(OnAttackPerformed);
-                eventBus.Subscribe<ObjectSpawnedEvent>(OnObjectSpawned);
+                var eventBus = ServiceContainer.Instance.ResolveService<IEventBus>();
+                if (eventBus != null)
+                {
+                    eventBus.Subscribe<AttackPerformedEvent>(OnAttackPerformed);
+                    eventBus.Subscribe<ObjectSpawnedEvent>(OnObjectSpawned);
+                    StartPerformanceTracking();
+                }
             }
             
             LoadPersistentAnalyticsData();
@@ -133,17 +135,17 @@ namespace Laboratory.Subsystems.Analytics
         {
             if (!enableAnalytics) return;
             
-            var analyticsEvent = new AnalyticsEvent
+            var analyticsEvent = new PlayerActionEvent
             {
-                EventName = eventName,
-                Timestamp = System.DateTime.UtcNow,
-                SessionId = currentSession?.SessionId ?? "unknown",
-                Parameters = parameters ?? new Dictionary<string, object>()
+                actionType = eventName,
+                timestamp = System.DateTime.UtcNow,
+                sessionId = currentSession?.SessionId ?? "unknown",
+                parameters = parameters ?? new Dictionary<string, object>()
             };
             
             // Add common parameters
-            analyticsEvent.Parameters["session_time"] = GetSessionDuration();
-            analyticsEvent.Parameters["user_id"] = currentSession?.UserId ?? "anonymous";
+            analyticsEvent.parameters["session_time"] = GetSessionDuration();
+            analyticsEvent.parameters["user_id"] = currentSession?.UserId ?? "anonymous";
             
             eventQueue.Enqueue(analyticsEvent);
             
@@ -395,16 +397,24 @@ namespace Laboratory.Subsystems.Analytics
 
         #region Event Handlers
 
-        private void OnPerformanceUpdate(PerformanceUpdateEvent eventArgs)
+        private void StartPerformanceTracking()
         {
-            TrackPerformance("fps", eventArgs.Metrics.CurrentFPS, new Dictionary<string, object>
+            StartCoroutine(TrackPerformanceMetrics());
+        }
+
+        private System.Collections.IEnumerator TrackPerformanceMetrics()
+        {
+            while (isInitialized)
             {
-                {"average_fps", eventArgs.Metrics.AverageFPS},
-                {"min_fps", eventArgs.Metrics.MinFPS},
-                {"max_fps", eventArgs.Metrics.MaxFPS},
-                {"memory_usage", eventArgs.Metrics.MemoryUsage},
-                {"performance_level", eventArgs.Metrics.PerformanceLevel.ToString()}
-            });
+                TrackPerformance("fps", 1f / Time.deltaTime, new Dictionary<string, object>
+                {
+                    {"frame_time", Time.deltaTime * 1000f},
+                    {"memory_usage", UnityEngine.Profiling.Profiler.GetTotalAllocatedMemory(false) / (1024f * 1024f)},
+                    {"unity_frame_count", Time.frameCount}
+                });
+
+                yield return new WaitForSeconds(1f);
+            }
         }
 
         private void OnAttackPerformed(AttackPerformedEvent eventArgs)
@@ -533,14 +543,6 @@ namespace Laboratory.Subsystems.Analytics
         public int EventCount;
     }
 
-    [System.Serializable]
-    public class AnalyticsEvent
-    {
-        public string EventName;
-        public System.DateTime Timestamp;
-        public string SessionId;
-        public Dictionary<string, object> Parameters = new Dictionary<string, object>();
-    }
 
     [System.Serializable]
     public class AnalyticsBatch

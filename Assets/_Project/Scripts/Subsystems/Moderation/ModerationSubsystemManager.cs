@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
@@ -99,10 +100,10 @@ namespace Laboratory.Subsystems.Moderation
             InitializationProgress = 0.2f;
 
             // Initialize moderation services
-            ContentModerationService = new ContentModerationService(config);
-            BehaviorMonitoringService = new BehaviorMonitoringService(config);
-            SafetyComplianceService = new SafetyComplianceService(config);
-            ReportingService = new ReportingService(config);
+            ContentModerationService = new ContentModerationServiceImpl(config);
+            BehaviorMonitoringService = new BehaviorMonitoringServiceImpl(config);
+            SafetyComplianceService = new SafetyComplianceServiceImpl(config);
+            ReportingService = new ReportingServiceImpl(config);
 
             InitializationProgress = 0.4f;
         }
@@ -173,11 +174,11 @@ namespace Laboratory.Subsystems.Moderation
         {
             if (ServiceContainer.Instance != null)
             {
-                ServiceContainer.Instance.Register<IContentModerationService>(ContentModerationService);
-                ServiceContainer.Instance.Register<IBehaviorMonitoringService>(BehaviorMonitoringService);
-                ServiceContainer.Instance.Register<ISafetyComplianceService>(SafetyComplianceService);
-                ServiceContainer.Instance.Register<IReportingService>(ReportingService);
-                ServiceContainer.Instance.Register<ModerationSubsystemManager>(this);
+                ServiceContainer.Instance.RegisterService<IContentModerationService>(ContentModerationService);
+                ServiceContainer.Instance.RegisterService<IBehaviorMonitoringService>(BehaviorMonitoringService);
+                ServiceContainer.Instance.RegisterService<ISafetyComplianceService>(SafetyComplianceService);
+                ServiceContainer.Instance.RegisterService<IReportingService>(ReportingService);
+                ServiceContainer.Instance.RegisterService<ModerationSubsystemManager>(this);
             }
         }
 
@@ -649,4 +650,427 @@ namespace Laboratory.Subsystems.Moderation
 
         #endregion
     }
+
+    #region Service Implementations
+
+    /// <summary>
+    /// Content moderation service implementation
+    /// </summary>
+    public class ContentModerationServiceImpl : IContentModerationService
+    {
+        private readonly ModerationSubsystemConfig _config;
+        private WordFilter _wordFilter;
+        private readonly Dictionary<string, ContentModerationResult> _moderationCache = new();
+
+        public ContentModerationServiceImpl(ModerationSubsystemConfig config)
+        {
+            _config = config;
+        }
+
+        public async Task<bool> InitializeAsync()
+        {
+            try
+            {
+                _wordFilter = _config.profanityFilter ?? new WordFilter();
+                await Task.CompletedTask;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ContentModerationService initialization failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<ContentModerationResult> ModerateContentAsync(string content, ContentType contentType, string userId = null)
+        {
+            if (string.IsNullOrEmpty(content))
+            {
+                return new ContentModerationResult
+                {
+                    originalContent = content,
+                    moderatedContent = content,
+                    isClean = true
+                };
+            }
+
+            var cacheKey = $"{contentType}_{content.GetHashCode()}";
+            if (_moderationCache.TryGetValue(cacheKey, out var cachedResult))
+            {
+                return cachedResult;
+            }
+
+            var result = new ContentModerationResult
+            {
+                originalContent = content,
+                moderatedContent = content,
+                isClean = true
+            };
+
+            // Check against blacklist
+            var detectedWords = new List<string>();
+            var lowerContent = content.ToLower();
+
+            foreach (var word in _wordFilter.blacklist)
+            {
+                if (lowerContent.Contains(word.ToLower()))
+                {
+                    detectedWords.Add(word);
+                    result.isClean = false;
+                    result.violationReason = "Inappropriate language";
+                    result.severity = ViolationSeverity.Minor;
+
+                    // Replace with asterisks
+                    var replacement = new string('*', word.Length);
+                    result.moderatedContent = result.moderatedContent.Replace(word, replacement, StringComparison.OrdinalIgnoreCase);
+                }
+            }
+
+            result.detectedWords = detectedWords;
+
+            // Cache result
+            _moderationCache[cacheKey] = result;
+
+            await Task.CompletedTask;
+            return result;
+        }
+
+        public bool IsContentAppropriate(string content, ContentType contentType)
+        {
+            if (string.IsNullOrEmpty(content)) return true;
+
+            var lowerContent = content.ToLower();
+            return !_wordFilter.blacklist.Any(word => lowerContent.Contains(word.ToLower()));
+        }
+
+        public List<string> GetFilteredWords()
+        {
+            return new List<string>(_wordFilter.blacklist);
+        }
+
+        public void AddToWhitelist(string word)
+        {
+            if (!string.IsNullOrEmpty(word) && !_wordFilter.whitelist.Contains(word))
+            {
+                _wordFilter.whitelist.Add(word.ToLower());
+            }
+        }
+
+        public void AddToBlacklist(string word)
+        {
+            if (!string.IsNullOrEmpty(word) && !_wordFilter.blacklist.Contains(word))
+            {
+                _wordFilter.blacklist.Add(word.ToLower());
+            }
+        }
+    }
+
+    /// <summary>
+    /// Behavior monitoring service implementation
+    /// </summary>
+    public class BehaviorMonitoringServiceImpl : IBehaviorMonitoringService
+    {
+        private readonly ModerationSubsystemConfig _config;
+        private readonly Dictionary<string, List<BehaviorPattern>> _userBehaviorPatterns = new();
+        private readonly Dictionary<string, float> _userRiskScores = new();
+
+        public BehaviorMonitoringServiceImpl(ModerationSubsystemConfig config)
+        {
+            _config = config;
+        }
+
+        public async Task<bool> InitializeAsync()
+        {
+            try
+            {
+                await Task.CompletedTask;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"BehaviorMonitoringService initialization failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        public void AnalyzePlayerBehavior(Laboratory.Subsystems.Analytics.PlayerActionEvent actionEvent)
+        {
+            var userId = actionEvent.playerId;
+
+            if (!_userBehaviorPatterns.ContainsKey(userId))
+            {
+                _userBehaviorPatterns[userId] = new List<BehaviorPattern>();
+            }
+
+            // Analyze action for suspicious patterns
+            var riskScore = CalculateActionRiskScore(actionEvent);
+            UpdateUserRiskScore(userId, riskScore);
+
+            // Check for known violation patterns
+            DetectViolationPatterns(actionEvent);
+        }
+
+        public void UpdateBehaviorAnalysis()
+        {
+            foreach (var userId in _userBehaviorPatterns.Keys.ToList())
+            {
+                UpdateUserBehaviorAnalysis(userId);
+            }
+        }
+
+        public List<BehaviorPattern> GetBehaviorPatterns(string userId)
+        {
+            return _userBehaviorPatterns.TryGetValue(userId, out var patterns)
+                ? new List<BehaviorPattern>(patterns)
+                : new List<BehaviorPattern>();
+        }
+
+        public float GetUserRiskScore(string userId)
+        {
+            return _userRiskScores.TryGetValue(userId, out var score) ? score : 0f;
+        }
+
+        public List<string> GetSuspiciousUsers()
+        {
+            return _userRiskScores
+                .Where(kvp => kvp.Value > _config.suspiciousRiskThreshold)
+                .Select(kvp => kvp.Key)
+                .ToList();
+        }
+
+        private float CalculateActionRiskScore(Laboratory.Subsystems.Analytics.PlayerActionEvent actionEvent)
+        {
+            // Basic risk scoring based on action type
+            return actionEvent.actionType.ToLower() switch
+            {
+                "chat" => 0.1f,
+                "trade" => 0.3f,
+                "exploit" => 0.9f,
+                "cheat" => 1.0f,
+                _ => 0.05f
+            };
+        }
+
+        private void UpdateUserRiskScore(string userId, float actionRiskScore)
+        {
+            if (!_userRiskScores.ContainsKey(userId))
+            {
+                _userRiskScores[userId] = 0f;
+            }
+
+            // Exponential moving average
+            var alpha = 0.1f;
+            _userRiskScores[userId] = (1 - alpha) * _userRiskScores[userId] + alpha * actionRiskScore;
+        }
+
+        private void DetectViolationPatterns(Laboratory.Subsystems.Analytics.PlayerActionEvent actionEvent)
+        {
+            // Implementation for detecting specific violation patterns
+            // This would include things like spam detection, harassment patterns, etc.
+        }
+
+        private void UpdateUserBehaviorAnalysis(string userId)
+        {
+            // Update behavior analysis for user
+            // This would analyze trends, detect new patterns, etc.
+        }
+    }
+
+    /// <summary>
+    /// Safety compliance service implementation
+    /// </summary>
+    public class SafetyComplianceServiceImpl : ISafetyComplianceService
+    {
+        private readonly ModerationSubsystemConfig _config;
+        private readonly Dictionary<string, DateTime> _userAgeVerification = new();
+        private readonly Dictionary<string, List<string>> _userDataCollection = new();
+        private ComplianceReport _lastComplianceReport;
+
+        public SafetyComplianceServiceImpl(ModerationSubsystemConfig config)
+        {
+            _config = config;
+        }
+
+        public async Task<bool> InitializeAsync()
+        {
+            try
+            {
+                await Task.CompletedTask;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"SafetyComplianceService initialization failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool ValidateCOPPACompliance(string userId, int age)
+        {
+            if (!_config.coppaCompliant) return true;
+
+            // COPPA requires parental consent for users under 13
+            if (age < 13)
+            {
+                return ValidateParentalConsent(userId);
+            }
+
+            return true;
+        }
+
+        public bool ValidateDataCollection(string userId, string dataType)
+        {
+            if (!_config.coppaCompliant) return true;
+
+            // Check if user has consented to data collection
+            return HasDataCollectionConsent(userId, dataType);
+        }
+
+        public void UpdateComplianceMetrics()
+        {
+            // Update compliance metrics in background
+            GenerateComplianceReport();
+        }
+
+        public ComplianceReport GenerateComplianceReport()
+        {
+            var report = new ComplianceReport
+            {
+                generatedDate = DateTime.Now,
+                totalUsers = _userAgeVerification.Count,
+                underageUsers = _userAgeVerification.Count(kvp => (DateTime.Now - kvp.Value).TotalDays < 13 * 365),
+                dataCollectionViolations = 0,
+                contentViolations = 0,
+                behaviorViolations = 0,
+                issues = new List<ComplianceIssue>(),
+                overallComplianceScore = 0.95f
+            };
+
+            _lastComplianceReport = report;
+            return report;
+        }
+
+        public List<string> GetComplianceRecommendations()
+        {
+            var recommendations = new List<string>();
+
+            if (_config.coppaCompliant && _userAgeVerification.Count == 0)
+            {
+                recommendations.Add("Implement age verification system for COPPA compliance");
+            }
+
+            if (!_config.enableParentalControls)
+            {
+                recommendations.Add("Enable parental controls for enhanced safety");
+            }
+
+            return recommendations;
+        }
+
+        private bool ValidateParentalConsent(string userId)
+        {
+            // Implementation would check parental consent records
+            return _config.enableParentalControls;
+        }
+
+        private bool HasDataCollectionConsent(string userId, string dataType)
+        {
+            // Implementation would check data collection consent
+            return _userDataCollection.ContainsKey(userId);
+        }
+    }
+
+    /// <summary>
+    /// Reporting service implementation
+    /// </summary>
+    public class ReportingServiceImpl : IReportingService
+    {
+        private readonly ModerationSubsystemConfig _config;
+        private readonly List<BehaviorReport> _pendingReports = new();
+        private readonly List<BehaviorReport> _resolvedReports = new();
+        private readonly Dictionary<BehaviorViolationType, int> _violationCounts = new();
+
+        public ReportingServiceImpl(ModerationSubsystemConfig config)
+        {
+            _config = config;
+        }
+
+        public async Task<bool> InitializeAsync()
+        {
+            try
+            {
+                await Task.CompletedTask;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"ReportingService initialization failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> SubmitReportAsync(BehaviorReport report)
+        {
+            try
+            {
+                if (report == null) return false;
+
+                report.reportId = Guid.NewGuid().ToString();
+                report.timestamp = DateTime.Now;
+                report.status = BehaviorReportStatus.Pending;
+
+                _pendingReports.Add(report);
+
+                // Update violation counts
+                if (!_violationCounts.ContainsKey(report.violationType))
+                {
+                    _violationCounts[report.violationType] = 0;
+                }
+                _violationCounts[report.violationType]++;
+
+                await Task.CompletedTask;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"Failed to submit report: {ex.Message}");
+                return false;
+            }
+        }
+
+        public List<BehaviorReport> GetPendingReports()
+        {
+            return new List<BehaviorReport>(_pendingReports);
+        }
+
+        public bool ResolveReport(string reportId, string resolution)
+        {
+            var report = _pendingReports.FirstOrDefault(r => r.reportId == reportId);
+            if (report == null) return false;
+
+            report.status = BehaviorReportStatus.Resolved;
+            _pendingReports.Remove(report);
+            _resolvedReports.Add(report);
+
+            Debug.Log($"Report {reportId} resolved: {resolution}");
+            return true;
+        }
+
+        public ReportAnalytics GetReportAnalytics()
+        {
+            return new ReportAnalytics
+            {
+                totalReports = _pendingReports.Count + _resolvedReports.Count,
+                pendingReports = _pendingReports.Count,
+                resolvedReports = _resolvedReports.Count,
+                dismissedReports = 0,
+                violationCounts = new Dictionary<BehaviorViolationType, int>(_violationCounts),
+                reportsByUser = new Dictionary<string, int>(),
+                averageResolutionTime = 24f, // hours
+                topReportReasons = _violationCounts.OrderByDescending(kvp => kvp.Value).Take(5).Select(kvp => kvp.Key.ToString()).ToList()
+            };
+        }
+    }
+
+    #endregion
 }

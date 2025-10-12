@@ -194,11 +194,11 @@ namespace Laboratory.Subsystems.Genetics
             // Register services with dependency injection container
             if (ServiceContainer.Instance != null)
             {
-                ServiceContainer.Instance.Register<IBreedingService>(breedingEngine);
-                ServiceContainer.Instance.Register<IMutationService>(mutationProcessor);
-                ServiceContainer.Instance.Register<ITraitService>(traitCalculator);
-                ServiceContainer.Instance.Register<IGeneticDatabase>(databaseManager);
-                ServiceContainer.Instance.Register<GeneticsSubsystemManager>(this);
+                ServiceContainer.Instance.RegisterService<IBreedingService>(breedingEngine);
+                ServiceContainer.Instance.RegisterService<IMutationService>(mutationProcessor);
+                ServiceContainer.Instance.RegisterService<ITraitService>(traitCalculator);
+                ServiceContainer.Instance.RegisterService<IGeneticDatabase>(databaseManager);
+                ServiceContainer.Instance.RegisterService<GeneticsSubsystemManager>(this);
             }
         }
 
@@ -436,9 +436,9 @@ namespace Laboratory.Subsystems.Genetics
             }
 
             // Add default species from configuration
-            if (config?.defaultSpecies != null)
+            if (config?.DefaultSpecies != null)
             {
-                foreach (var defaultSpecies in config.defaultSpecies)
+                foreach (var defaultSpecies in config.DefaultSpecies)
                 {
                     if (!string.IsNullOrEmpty(defaultSpecies))
                     {

@@ -4,6 +4,7 @@ using UnityEngine;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Core.Events;
 using Laboratory.Core.Performance;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Chimera.AI
 {
@@ -42,10 +43,11 @@ namespace Laboratory.Chimera.AI
 
         private void Awake()
         {
-            // Try to get event bus
-            if (Laboratory.Core.DI.GlobalServiceProvider.IsInitialized)
+            // Try to get event bus from service container
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                Laboratory.Core.DI.GlobalServiceProvider.TryResolve<IEventBus>(out eventBus);
+                eventBus = serviceContainer.ResolveService<IEventBus>();
             }
         }
 

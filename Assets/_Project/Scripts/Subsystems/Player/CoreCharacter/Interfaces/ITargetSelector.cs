@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Core.Character.Interfaces
 {
@@ -96,7 +97,7 @@ namespace Laboratory.Core.Character.Interfaces
         /// Initializes the target selector with required services
         /// </summary>
         /// <param name="services">Service container for dependency injection</param>
-        void Initialize(IServiceContainer services);
+        void Initialize(ServiceContainer services);
 
         /// <summary>
         /// Forces an immediate target detection update
@@ -175,7 +176,7 @@ namespace Laboratory.Core.Character.Interfaces
         /// Initializes the controller with required services
         /// </summary>
         /// <param name="services">Service container for dependency injection</param>
-        void Initialize(IServiceContainer services);
+        void Initialize(ServiceContainer services);
 
         /// <summary>
         /// Updates the controller (called per frame if active)

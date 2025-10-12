@@ -7,6 +7,7 @@ using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Core.Events;
+using Laboratory.Core.Infrastructure;
 using CoreBiomeType = Laboratory.Chimera.Core.BiomeType;
 
 namespace Laboratory.Chimera.World
@@ -101,7 +102,13 @@ namespace Laboratory.Chimera.World
 
         private void InitializeEventBus()
         {
-            if (Laboratory.Core.DI.GlobalServiceProvider.TryResolve<IEventBus>(out eventBus))
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
+            {
+                eventBus = serviceContainer.ResolveService<IEventBus>();
+            }
+
+            if (eventBus != null)
             {
                 Log("Connected to global event bus");
             }

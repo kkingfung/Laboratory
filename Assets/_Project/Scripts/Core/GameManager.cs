@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.State;
 using Laboratory.Core.Performance;
@@ -125,32 +125,25 @@ namespace Laboratory.Core
 
         private void InitializeServices()
         {
-            // Only initialize services if the GlobalServiceProvider is available
-            if (GlobalServiceProvider.IsInitialized)
+            // Use the simple ServiceContainer for dependency injection
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                if (GlobalServiceProvider.TryResolve<IEventBus>(out eventBus))
-                {
-                    if (enableDebugMode)
-                        Debug.Log("[GameManager] EventBus service resolved");
-                }
+                eventBus = serviceContainer.ResolveService<IEventBus>();
+                if (eventBus != null && enableDebugMode)
+                    Debug.Log("[GameManager] EventBus service resolved");
                 else if (enableDebugMode)
-                {
                     Debug.LogWarning("[GameManager] EventBus service not available");
-                }
 
-                if (GlobalServiceProvider.TryResolve<IGameStateService>(out gameStateService))
-                {
-                    if (enableDebugMode)
-                        Debug.Log("[GameManager] GameStateService resolved");
-                }
+                gameStateService = serviceContainer.ResolveService<IGameStateService>();
+                if (gameStateService != null && enableDebugMode)
+                    Debug.Log("[GameManager] GameStateService resolved");
                 else if (enableDebugMode)
-                {
                     Debug.LogWarning("[GameManager] GameStateService not available");
-                }
             }
             else if (enableDebugMode)
             {
-                Debug.LogWarning("[GameManager] GlobalServiceProvider not initialized - services unavailable");
+                Debug.LogWarning("[GameManager] ServiceContainer not available - services unavailable");
             }
 
             audioSource = GetComponent<AudioSource>();

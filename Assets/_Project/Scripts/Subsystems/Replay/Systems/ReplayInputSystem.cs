@@ -9,7 +9,7 @@ using Laboratory.Models.ECS.Components;
 using Laboratory.Tools;
 using ReplayRecorder = Laboratory.Tools.ReplayRecorder;
 using Laboratory.Core;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Models.ECS.Systems
 {
@@ -52,12 +52,18 @@ namespace Laboratory.Models.ECS.Systems
         {
             base.OnCreate();
 
-            // Try to resolve ReplayRecorder from GlobalServiceProvider first
-            if (!GlobalServiceProvider.TryResolve<ReplayRecorder>(out _replayRecorder))
+            // Try to resolve ReplayRecorder from ServiceContainer first
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
+            {
+                _replayRecorder = serviceContainer.ResolveService<ReplayRecorder>();
+            }
+
+            if (_replayRecorder == null)
             {
                 // If not registered as a service, find it in the scene
                 _replayRecorder = Object.FindFirstObjectByType<ReplayRecorder>();
-                
+
                 if (_replayRecorder == null)
                 {
                     Debug.LogError("ReplayInputSystem: No ReplayRecorder found in scene or service container. " +

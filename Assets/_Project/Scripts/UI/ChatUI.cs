@@ -4,7 +4,7 @@ using Laboratory.Core.Events;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
 
 namespace Laboratory.UI
 {
@@ -192,14 +192,23 @@ namespace Laboratory.UI
                     return networkPlayerData.PlayerName.Value.ToString();
                 }
                 
-                // Method 2: Try to get from GlobalServiceProvider if a player service exists
-                if (GlobalServiceProvider.IsInitialized)
+                // Method 2: Try to get from ServiceContainer if a player service exists
+                var serviceContainer = ServiceContainer.Instance;
+                if (serviceContainer != null)
                 {
                     // Check if there's a config service that might have player info
-                    if (GlobalServiceProvider.TryResolve<Laboratory.Core.Services.IConfigService>(out var configService))
+                    try
                     {
-                        // Player configuration would need to be implemented as a ScriptableObject
-                        // For now, skip to system username
+                        var configService = serviceContainer.ResolveService<Laboratory.Core.Services.IConfigService>();
+                        if (configService != null)
+                        {
+                            // Player configuration would need to be implemented as a ScriptableObject
+                            // For now, skip to system username
+                        }
+                    }
+                    catch
+                    {
+                        // Config service not available, continue to next method
                     }
                 }
                 

@@ -1,6 +1,6 @@
 using System;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
 using R3;
 using UnityEngine;
 using UnityEngine.UI;

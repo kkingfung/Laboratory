@@ -191,11 +191,11 @@ namespace Laboratory.Subsystems.Analytics
         {
             if (ServiceContainer.Instance != null)
             {
-                ServiceContainer.Instance.Register<IPlayerBehaviorTracker>(PlayerBehaviorTracker);
-                ServiceContainer.Instance.Register<IPerformanceMonitor>(PerformanceMonitor);
-                ServiceContainer.Instance.Register<IEducationalAnalytics>(EducationalAnalytics);
-                ServiceContainer.Instance.Register<IDiscoveryMetrics>(DiscoveryMetrics);
-                ServiceContainer.Instance.Register<AnalyticsSubsystemManager>(this);
+                ServiceContainer.Instance.RegisterService<IPlayerBehaviorTracker>(PlayerBehaviorTracker);
+                ServiceContainer.Instance.RegisterService<IPerformanceMonitor>(PerformanceMonitor);
+                ServiceContainer.Instance.RegisterService<IEducationalAnalytics>(EducationalAnalytics);
+                ServiceContainer.Instance.RegisterService<IDiscoveryMetrics>(DiscoveryMetrics);
+                ServiceContainer.Instance.RegisterService<AnalyticsSubsystemManager>(this);
             }
         }
 
@@ -317,7 +317,7 @@ namespace Laboratory.Subsystems.Analytics
                 totalDiscoveries = _currentSession.discoveries.Count,
                 breedingAttempts = _currentSession.playerActions.FindAll(a => a.actionType == "BreedingAttempt").Count,
                 averagePerformance = PerformanceMonitor.GetAveragePerformance(),
-                educationalProgress = EducationalAnalytics.GetSessionProgress()
+                educationalProgress = EducationalAnalytics.GetOverallProgress()
             };
         }
 

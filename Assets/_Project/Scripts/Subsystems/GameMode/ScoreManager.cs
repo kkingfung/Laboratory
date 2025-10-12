@@ -1,6 +1,6 @@
 using System;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using R3;
 using UnityEngine;
 using System.Collections.Generic;
@@ -69,9 +69,10 @@ namespace Laboratory.Gameplay.Scoring
 
         private void InitializeServices()
         {
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                _eventBus = GlobalServiceProvider.Resolve<IEventBus>();
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
                 if (enableDebugLogs)
                     Debug.Log("[ScoreManager] EventBus service initialized");
             }

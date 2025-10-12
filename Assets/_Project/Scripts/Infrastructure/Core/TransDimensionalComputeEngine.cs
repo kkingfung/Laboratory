@@ -247,7 +247,7 @@ namespace Laboratory.Infrastructure.Core
                     Description = "Optimize in infinite-dimensional solution spaces",
                     DimensionalRequirements = "Access to higher spatial dimensions",
                     ComputationalComplexity = "O(2^∞) processed in O(1) through dimensional shortcuts",
-                    OptimizationCapability = "Perfect global optimum guaranteed",
+                    OptimizationCapability = float.PositiveInfinity,
                     ConsciousnessGuidance = true
                 },
                 new DimensionalAlgorithm
@@ -256,7 +256,7 @@ namespace Laboratory.Infrastructure.Core
                     Description = "Direct consciousness programming of optimal reality states",
                     DimensionalRequirements = "Consciousness-reality interface",
                     ComputationalComplexity = "O(1) through direct reality manipulation",
-                    OptimizationCapability = "Absolute optimality through reality control",
+                    OptimizationCapability = float.PositiveInfinity,
                     ConsciousnessGuidance = true
                 }
             };

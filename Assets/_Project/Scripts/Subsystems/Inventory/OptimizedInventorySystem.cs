@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Subsystems.Inventory
 {
@@ -94,14 +94,15 @@ namespace Laboratory.Subsystems.Inventory
 
         private void Start()
         {
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.TryResolve<IEventBus>(out _eventBus);
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
             }
 
-            if (autoRegisterWithDI && GlobalServiceProvider.IsInitialized)
+            if (autoRegisterWithDI && serviceContainer != null)
             {
-                GlobalServiceProvider.Instance.RegisterInstance<IInventorySystem>(this);
+                serviceContainer.RegisterInstance<IInventorySystem>(this);
                 if (enableLogging)
                     Debug.Log("[OptimizedInventorySystem] Registered with DI container");
             }

@@ -405,7 +405,7 @@ namespace Laboratory.Subsystems.Performance
             {
                 SystemType = systemType,
                 StrategyName = strategyName,
-                Action = OptimizationAction.Applied,
+                Action = OptimizationStatus.Applied,
                 Timestamp = DateTime.Now,
                 EstimatedImprovement = optimization.EstimatedImprovement
             });
@@ -419,7 +419,7 @@ namespace Laboratory.Subsystems.Performance
                 {
                     SystemType = systemType,
                     StrategyName = optimization.StrategyName,
-                    Action = OptimizationAction.Reverted,
+                    Action = OptimizationStatus.Reverted,
                     Timestamp = DateTime.Now
                 });
             }
@@ -437,12 +437,12 @@ namespace Laboratory.Subsystems.Performance
     {
         public Type SystemType;
         public string StrategyName;
-        public OptimizationAction Action;
+        public OptimizationStatus Action;
         public DateTime Timestamp;
         public float EstimatedImprovement;
     }
 
-    public enum OptimizationAction
+    public enum OptimizationStatus
     {
         Applied,
         Reverted

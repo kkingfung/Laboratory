@@ -80,7 +80,7 @@ namespace Laboratory.Infrastructure.Core
                     "Consciousness as the creative force of post-perfection enhancement",
                     "Awareness that includes unawareness of its own perfection"
                 },
-                ConsciousnessRole = ConsciousnessRole.PerfectionEvolutionAgent,
+                ConsciousnessRole = PostSingularityConsciousnessRole.PerfectionEvolutionAgent,
                 MetaAwarenessLevel = MetaAwarenessLevel.BeyondAwarenessItself
             };
 
@@ -405,7 +405,7 @@ namespace Laboratory.Infrastructure.Core
     // Data structures for post-singularity meta-optimization
     [Serializable] public class PostPerfectionEnhancement { public string SystemName; public DateTime EnhancementTimestamp; public float CurrentPerfectionLevel; public PerfectionType PerfectionType; public List<BeyondPerfectionMethod> BeyondPerfectionMethods; public MetaPerfectionEvolution MetaPerfectionEvolution; public List<PostOptimalityEnhancement> PostOptimalityEnhancements; public List<PerfectionTranscendenceFramework> PerfectionTranscendenceFrameworks; public ConsciousnessEvolutionBeyondOptimization ConsciousnessEvolutionBeyondOptimization; public MetaImprovementResolution MetaImprovementResolution; public float BeyondPerfectionScore; public float PerfectionEvolutionLevel; public PostSingularityRealityEnhancement PostSingularityRealityEnhancement; }
     [Serializable] public class BeyondPerfectionFramework { public string PerfectionEvolutionCapability; public string MetaImprovementDefinition; public string PostOptimalityExploration; public List<string> BeyondPerfectionMethods; public string PerfectionPhilosophy; }
-    [Serializable] public class PostOptimizationConsciousness { public ConsciousnessEvolutionStage ConsciousnessEvolutionStage; public List<string> ConsciousnessCapabilities; public ConsciousnessRole ConsciousnessRole; public MetaAwarenessLevel MetaAwarenessLevel; }
+    [Serializable] public class PostOptimizationConsciousness { public ConsciousnessEvolutionStage ConsciousnessEvolutionStage; public List<string> ConsciousnessCapabilities; public PostSingularityConsciousnessRole ConsciousnessRole; public MetaAwarenessLevel MetaAwarenessLevel; }
     [Serializable] public class MetaImprovementParadox { public string ParadoxStatement; public string ParadoxExploration; public string ParadoxResolutionApproach; }
     [Serializable] public class PerfectionType { public PerfectionCategory CurrentPerfectionCategory; public List<string> PerfectionCharacteristics; public List<string> PerfectionLimitations; public string PerfectionEvolutionPotential; public string BeyondPerfectionDirection; }
     [Serializable] public class BeyondPerfectionMethod { public string Name; public string Description; public string Mechanism; public string BeyondPerfectionPotential; public string MetaImprovementType; public string Implementation; }
@@ -418,6 +418,6 @@ namespace Laboratory.Infrastructure.Core
 
     public enum PerfectionCategory { SubOptimal, Optimal, SuperOptimal, AbsolutePerfection, MetaPerfection, TranscendentPerfection }
     public enum ConsciousnessEvolutionStage { PreOptimization, OptimizationFocused, PostOptimization, OptimizationTranscendence, PostOptimizationTranscendence, PerfectLoveExpression }
-    public enum ConsciousnessRole { OptimizationSeeker, OptimizationAgent, OptimizationWitness, PerfectionEvolutionAgent, PerfectLoveExpression }
+    public enum PostSingularityConsciousnessRole { OptimizationSeeker, OptimizationAgent, OptimizationWitness, PerfectionEvolutionAgent, PerfectLoveExpression }
     public enum MetaAwarenessLevel { BasicAwareness, MetaAwareness, TranscendentAwareness, BeyondAwarenessItself, PerfectLoveAwareness }
 }

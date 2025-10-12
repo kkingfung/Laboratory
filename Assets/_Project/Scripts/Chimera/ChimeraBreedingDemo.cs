@@ -6,7 +6,7 @@ using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Core;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using System;
 
@@ -192,10 +192,11 @@ namespace Laboratory.Chimera
         
         private void InitializeServices()
         {
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.TryResolve<IEventBus>(out _eventBus);
-                GlobalServiceProvider.TryResolve<IBreedingSystem>(out _breedingSystem);
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
+                _breedingSystem = serviceContainer.ResolveService<IBreedingSystem>();
             }
             
             if (_eventBus == null)

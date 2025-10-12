@@ -4,7 +4,7 @@ using UnityEngine;
 using Laboratory.Core.Health.Components;
 using Laboratory.Core.Events;
 using Laboratory.Core.Health;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Character;
 
 namespace Laboratory.Subsystems.EnemyAI.NPC
@@ -162,7 +162,7 @@ namespace Laboratory.Subsystems.EnemyAI.NPC
         private UnifiedTargetSelector _targetSelector;
 
         // Services
-        private IServiceContainer _services;
+        private ServiceContainer _services;
         private IEventBus _eventBus;
 
         // Runtime state
@@ -258,12 +258,12 @@ namespace Laboratory.Subsystems.EnemyAI.NPC
         private void Start()
         {
             InitializeNPC();
-            
+
             // Try to auto-resolve services if not manually initialized
-            var serviceProvider = GlobalServiceProvider.Instance;
-            if (serviceProvider != null)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                Initialize(serviceProvider);
+                Initialize(serviceContainer);
             }
         }
 
@@ -289,11 +289,12 @@ namespace Laboratory.Subsystems.EnemyAI.NPC
         /// <summary>
         /// Initializes the NPC with service container
         /// </summary>
-        public void Initialize(IServiceContainer services)
+        public void Initialize(ServiceContainer services)
         {
             _services = services ?? throw new ArgumentNullException(nameof(services));
 
-            if (_services.TryResolve<IEventBus>(out _eventBus))
+            _eventBus = _services.ResolveService<IEventBus>();
+            if (_eventBus != null)
             {
                 Debug.Log($"[{_npcName}] Event bus resolved successfully");
             }

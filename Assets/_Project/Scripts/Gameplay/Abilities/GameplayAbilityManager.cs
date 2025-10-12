@@ -4,7 +4,7 @@ using UnityEngine;
 using Laboratory.Core.Abilities.Interfaces;
 using Laboratory.Core.Abilities.Components;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
 
 namespace Laboratory.Gameplay.Abilities
 {
@@ -54,9 +54,9 @@ namespace Laboratory.Gameplay.Abilities
         
         private void InitializeServices()
         {
-            if (GlobalServiceProvider.IsInitialized)
+            if (ServiceContainer.Instance != null)
             {
-                eventBus = GlobalServiceProvider.Resolve<IEventBus>();
+                eventBus = ServiceContainer.Instance.ResolveService<IEventBus>();
                 if (enableDebugLogs)
                     Debug.Log("[GameplayAbilityManager] Services initialized");
             }

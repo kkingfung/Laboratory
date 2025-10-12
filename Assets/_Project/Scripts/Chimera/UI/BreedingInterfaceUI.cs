@@ -10,7 +10,7 @@ using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.ECS;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Chimera.UI
 {
@@ -149,16 +149,17 @@ namespace Laboratory.Chimera.UI
         private void InitializeSystems()
         {
             // Initialize event bus
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.TryResolve<IEventBus>(out eventBus);
+                eventBus = serviceContainer.ResolveService<IEventBus>();
             }
-            
+
             if (eventBus == null)
             {
                 eventBus = new UnifiedEventBus();
             }
-            
+
             // Initialize breeding system
             breedingSystem = new BreedingSystem(eventBus);
         }

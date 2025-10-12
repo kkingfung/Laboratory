@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Subsystems.Inventory
 {
@@ -37,9 +37,10 @@ namespace Laboratory.Subsystems.Inventory
         private void Start()
         {
             // Try to resolve inventory system from DI container
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.TryResolve<IInventorySystem>(out _inventorySystem);
+                _inventorySystem = serviceContainer.ResolveService<IInventorySystem>();
             }
             
             // Fallback: find inventory system in scene

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using System.Collections;
+using System.Linq;
 using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Subsystems.Companion

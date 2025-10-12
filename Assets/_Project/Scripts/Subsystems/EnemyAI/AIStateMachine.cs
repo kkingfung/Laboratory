@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.EnemyAI
 {
@@ -70,7 +70,11 @@ namespace Laboratory.EnemyAI
 
         protected virtual void Start()
         {
-            _eventBus = GlobalServiceProvider.Instance?.Resolve<IEventBus>();
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
+            {
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
+            }
             StartStateMachine();
         }
 

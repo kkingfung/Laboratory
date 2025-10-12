@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using Laboratory.Core.Input.Interfaces;
 using Laboratory.Core.Input.Events;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
 
 namespace Laboratory.Core.Input
 {
@@ -208,10 +208,10 @@ namespace Laboratory.Core.Input
             try
             {
                 // Get input service from DI container
-                if (GlobalServiceProvider.IsInitialized &&
-                    GlobalServiceProvider.Instance.TryResolve<IInputService>(out var inputService))
+                var serviceContainer = ServiceContainer.Instance;
+                if (serviceContainer != null)
                 {
-                    _inputService = inputService;
+                    _inputService = serviceContainer.ResolveService<IInputService>();
                 }
 
                 if (_inputService == null)

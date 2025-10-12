@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 
@@ -133,10 +133,9 @@ namespace Laboratory.Gameplay.Input
             try
             {
                 // Get event bus from service container
-                if (GlobalServiceProvider.IsInitialized &&
-                    GlobalServiceProvider.Instance.TryResolve<IEventBus>(out var eventBus))
+                if (ServiceContainer.Instance != null)
                 {
-                    _eventBus = eventBus;
+                    _eventBus = ServiceContainer.Instance.ResolveService<IEventBus>();
                 }
 
                 // Get PlayerInput component

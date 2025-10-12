@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Subsystems.Performance
 {
@@ -115,10 +115,13 @@ namespace Laboratory.Subsystems.Performance
             OnPerformanceUpdate?.Invoke(metrics);
             
             // Publish performance event
-            if (GlobalServiceProvider.IsInitialized)
+            if (ServiceContainer.Instance != null)
             {
-                var eventBus = GlobalServiceProvider.Resolve<IEventBus>();
-                eventBus.Publish(new PerformanceUpdateEvent { Metrics = metrics });
+                var eventBus = ServiceContainer.Instance.ResolveService<IEventBus>();
+                if (eventBus != null)
+                {
+                    eventBus.Publish(new PerformanceUpdateEvent { Metrics = metrics });
+                }
             }
         }
 
@@ -192,14 +195,17 @@ namespace Laboratory.Subsystems.Performance
             }
             
             OnPerformanceLevelChanged?.Invoke(level);
-            if (GlobalServiceProvider.IsInitialized)
+            if (ServiceContainer.Instance != null)
             {
-                var eventBus = GlobalServiceProvider.Resolve<IEventBus>();
-                eventBus.Publish(new PerformanceLevelChangedEvent 
-                { 
-                    PreviousLevel = previousLevel, 
-                    NewLevel = level 
-                });
+                var eventBus = ServiceContainer.Instance.ResolveService<IEventBus>();
+                if (eventBus != null)
+                {
+                    eventBus.Publish(new PerformanceLevelChangedEvent
+                    {
+                        PreviousLevel = previousLevel,
+                        NewLevel = level
+                    });
+                }
             }
             
             Debug.Log($"Performance level changed: {previousLevel} → {level}");
@@ -262,10 +268,13 @@ namespace Laboratory.Subsystems.Performance
                     System.GC.Collect();
                     lastGCTime = Time.time;
                     
-                    if (GlobalServiceProvider.IsInitialized)
+                    if (ServiceContainer.Instance != null)
                     {
-                        var eventBus = GlobalServiceProvider.Resolve<IEventBus>();
-                        eventBus.Publish(new GarbageCollectionTriggeredEvent());
+                        var eventBus = ServiceContainer.Instance.ResolveService<IEventBus>();
+                        if (eventBus != null)
+                        {
+                            eventBus.Publish(new GarbageCollectionTriggeredEvent());
+                        }
                     }
                 }
             }
@@ -342,7 +351,7 @@ namespace Laboratory.Subsystems.Performance
     /// <summary>
     /// Performance update event
     /// </summary>
-    public class PerformanceUpdateEvent : Laboratory.Core.Events.BaseEvent
+    public class PerformanceUpdateEvent : BaseEvent
     {
         public PerformanceMetrics Metrics { get; set; }
     }
@@ -350,7 +359,7 @@ namespace Laboratory.Subsystems.Performance
     /// <summary>
     /// Performance level changed event
     /// </summary>
-    public class PerformanceLevelChangedEvent : Laboratory.Core.Events.BaseEvent
+    public class PerformanceLevelChangedEvent : BaseEvent
     {
         public PerformanceLevel PreviousLevel { get; set; }
         public PerformanceLevel NewLevel { get; set; }
@@ -359,7 +368,7 @@ namespace Laboratory.Subsystems.Performance
     /// <summary>
     /// Garbage collection triggered event
     /// </summary>
-    public class GarbageCollectionTriggeredEvent : Laboratory.Core.Events.BaseEvent
+    public class GarbageCollectionTriggeredEvent : BaseEvent
     {
         // Inherits Timestamp from BaseEvent
     }

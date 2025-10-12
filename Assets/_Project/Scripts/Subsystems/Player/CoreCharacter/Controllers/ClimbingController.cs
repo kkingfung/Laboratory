@@ -1,5 +1,6 @@
 using UnityEngine;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Character.Events;
 
@@ -105,7 +106,7 @@ namespace Laboratory.Core.Character
         
         // Components
         private Rigidbody _rigidbody;
-        private IServiceContainer _services;
+        private ServiceContainer _services;
         private IEventBus _eventBus;
 
         #endregion
@@ -191,7 +192,7 @@ namespace Laboratory.Core.Character
             }
         }
 
-        public void Initialize(IServiceContainer services)
+        public void Initialize(ServiceContainer services)
         {
             _services = services ?? throw new System.ArgumentNullException(nameof(services));
 

@@ -172,7 +172,7 @@ namespace Laboratory.Subsystems.Genetics.Services
             {
                 PressureId = Guid.NewGuid().ToString(),
                 EventType = envEvent.eventType.ToString(),
-                AffectedArea = envEvent.affectedArea,
+                AffectedArea = envEvent.affectedBiomeId,
                 Severity = envEvent.severity,
                 Duration = envEvent.duration,
                 AffectedTraits = DetermineAffectedTraits(envEvent),
@@ -290,11 +290,11 @@ namespace Laboratory.Subsystems.Genetics.Services
 
             foreach (var traitName in targetTraits)
             {
-                var gene = individual.Genes?.FirstOrDefault(g => g.TraitName == traitName);
+                var gene = individual.Genes?.FirstOrDefault(g => g.traitName == traitName);
                 if (gene != null)
                 {
                     // Molecular-level fitness calculation with quantum mechanical precision
-                    var normalizedExpression = Mathf.Clamp01(gene.Expression);
+                    var normalizedExpression = Mathf.Clamp01(gene.value);
 
                     // Calculate molecular binding affinity using Lennard-Jones potential
                     var molecularFitness = CalculateMolecularBindingAffinity(normalizedExpression, traitName);
@@ -472,7 +472,7 @@ namespace Laboratory.Subsystems.Genetics.Services
             var newGeneration = new List<GeneticProfile>();
 
             // Ensure population doesn't completely collapse
-            var targetPopulation = Mathf.Max(population.Count, _config.minimumViablePopulation);
+            var targetPopulation = Mathf.Max(population.Count, _config.PerformanceConfig.MinimumViablePopulation);
 
             while (newGeneration.Count < targetPopulation)
             {
@@ -519,11 +519,8 @@ namespace Laboratory.Subsystems.Genetics.Services
         private GeneticProfile CreateOffspring(GeneticProfile parent1, GeneticProfile parent2, EnvironmentalCondition condition)
         {
             // Simplified offspring creation with environmental influence
-            var offspring = new GeneticProfile(new Gene[0]) // Would implement proper breeding logic
-            {
-                SpeciesId = parent1.SpeciesId,
-                Generation = Math.Max(parent1.Generation, parent2.Generation) + 1
-            };
+            var newGeneration = Math.Max(parent1.Generation, parent2.Generation) + 1;
+            var offspring = new GeneticProfile(new Gene[0], newGeneration, parent1.LineageId, parent1.SpeciesId); // Would implement proper breeding logic
 
             return offspring;
         }

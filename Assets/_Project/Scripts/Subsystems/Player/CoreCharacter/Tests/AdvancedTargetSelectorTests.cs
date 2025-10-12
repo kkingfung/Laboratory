@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
 using Laboratory.Core.Character.Systems;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Core.Character.Tests
 {
@@ -60,7 +61,6 @@ namespace Laboratory.Core.Character.Tests
             if (_testCamera != null)
                 Object.DestroyImmediate(_testCamera.gameObject);
 
-            _mockServices?.Dispose();
         }
 
         private GameObject CreateTestTarget(string name, Vector3 position, int layer = 0)

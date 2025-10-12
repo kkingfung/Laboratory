@@ -4,7 +4,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 #nullable enable
 
@@ -39,9 +39,10 @@ namespace Laboratory.Infrastructure.AsyncUtils
         public NetworkClient()
         {
             // Initialize event bus
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                _eventBus = GlobalServiceProvider.Resolve<IEventBus>();
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
             }
         }
 

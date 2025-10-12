@@ -74,7 +74,7 @@ namespace Laboratory.Core.Infrastructure
                 result.ViolatedConstraints.Add(new PhysicsConstraintViolation
                 {
                     ConstraintType = PhysicsConstraintType.SecondLawThermodynamics,
-                    Severity = ViolationSeverity.High,
+                    Severity = PhysicsViolationSeverity.High,
                     Description = $"Entropy increase ({entropyChange:E2} J/K) exceeds thermodynamic limit ({maxEntropyRate * populationSize:E2} J/K)",
                     RecommendedCorrection = "Reduce mutation rate or implement entropy-reducing selection mechanisms"
                 });
@@ -100,7 +100,7 @@ namespace Laboratory.Core.Infrastructure
                 result.ViolatedConstraints.Add(new PhysicsConstraintViolation
                 {
                     ConstraintType = PhysicsConstraintType.EnergyConservation,
-                    Severity = ViolationSeverity.Critical,
+                    Severity = PhysicsViolationSeverity.Critical,
                     Description = $"Required energy ({totalEnergyRequired:E2} J) exceeds available environmental energy ({environmentalEnergy:E2} J)",
                     RecommendedCorrection = "Reduce population size or increase environmental energy input"
                 });
@@ -127,7 +127,7 @@ namespace Laboratory.Core.Infrastructure
                 result.ViolatedConstraints.Add(new PhysicsConstraintViolation
                 {
                     ConstraintType = PhysicsConstraintType.QuantumMechanics,
-                    Severity = ViolationSeverity.Medium,
+                    Severity = PhysicsViolationSeverity.Medium,
                     Description = $"Mutation rate ({mutationRate:E2} Hz) exceeds quantum decoherence limit ({maxQuantumMutationRate:E2} Hz)",
                     RecommendedCorrection = "Reduce mutation rate to respect quantum mechanical constraints"
                 });
@@ -149,7 +149,7 @@ namespace Laboratory.Core.Infrastructure
                 result.ViolatedConstraints.Add(new PhysicsConstraintViolation
                 {
                     ConstraintType = PhysicsConstraintType.DiffusionLimits,
-                    Severity = ViolationSeverity.Medium,
+                    Severity = PhysicsViolationSeverity.Medium,
                     Description = $"Population size ({populationSize}) exceeds diffusion-limited carrying capacity ({maxSustainablePopulation:F0})",
                     RecommendedCorrection = "Implement resource diffusion constraints or reduce maximum population density"
                 });
@@ -166,10 +166,10 @@ namespace Laboratory.Core.Infrastructure
             {
                 efficiencyPenalty += violation.Severity switch
                 {
-                    ViolationSeverity.Low => 0.05f,
-                    ViolationSeverity.Medium => 0.15f,
-                    ViolationSeverity.High => 0.30f,
-                    ViolationSeverity.Critical => 0.50f,
+                    PhysicsViolationSeverity.Low => 0.05f,
+                    PhysicsViolationSeverity.Medium => 0.15f,
+                    PhysicsViolationSeverity.High => 0.30f,
+                    PhysicsViolationSeverity.Critical => 0.50f,
                     _ => 0f
                 };
             }
@@ -273,7 +273,7 @@ namespace Laboratory.Core.Infrastructure
     public struct PhysicsConstraintViolation
     {
         public PhysicsConstraintType ConstraintType;
-        public ViolationSeverity Severity;
+        public PhysicsViolationSeverity Severity;
         public string Description;
         public string RecommendedCorrection;
     }
@@ -296,7 +296,7 @@ namespace Laboratory.Core.Infrastructure
         InformationTheory
     }
 
-    public enum ViolationSeverity
+    public enum PhysicsViolationSeverity
     {
         Low,
         Medium,

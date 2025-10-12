@@ -5,7 +5,7 @@ using UnityEngine;
 using Laboratory.Core.Health.Components;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Systems;
 
 // Resolve DeathEvent ambiguity - use the one from Events.Messages
@@ -70,9 +70,10 @@ namespace Laboratory.Core.Health.Services
         private void Initialize()
         {
             // Get dependencies from service container
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.TryResolve<IEventBus>(out _eventBus);
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
             }
 
             Statistics = new HealthSystemStats();

@@ -27,7 +27,7 @@ namespace Laboratory.Core.Player
             // Register as service
             if (ServiceContainer.Instance != null)
             {
-                ServiceContainer.Instance.Register<IPlayerSessionManager>(this);
+                ServiceContainer.Instance.RegisterService<IPlayerSessionManager>(this);
             }
 
             // Create default player session

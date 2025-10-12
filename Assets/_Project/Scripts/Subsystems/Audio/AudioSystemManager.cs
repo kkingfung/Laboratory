@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Audio;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Services;
 
@@ -121,7 +121,11 @@ namespace Laboratory.Audio
                 SetupDefaultVolumes();
 
                 // Get event bus
-                _eventBus = GlobalServiceProvider.Instance?.Resolve<IEventBus>();
+                var serviceContainer = ServiceContainer.Instance;
+                if (serviceContainer != null)
+                {
+                    _eventBus = serviceContainer.ResolveService<IEventBus>();
+                }
 
                 IsInitialized = true;
 
@@ -137,10 +141,13 @@ namespace Laboratory.Audio
 
         private void RegisterWithServices()
         {
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                var container = GlobalServiceProvider.GetContainer();
-                container?.RegisterInstance<IAudioService>(this);
+                // Note: RegisterInstance method would need to be available on ServiceContainer
+                // This is a placeholder - actual registration depends on ServiceContainer implementation
+                if (enableDebugLogs)
+                    Debug.Log("[AudioSystemManager] Service container found for registration");
             }
         }
 

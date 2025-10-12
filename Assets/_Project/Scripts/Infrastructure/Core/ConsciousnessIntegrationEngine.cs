@@ -131,7 +131,7 @@ namespace Laboratory.Infrastructure.Core
                     Description = "Access higher-dimensional computation through consciousness projection",
                     Mechanism = "Consciousness expansion beyond 3D spatial limitations",
                     TheoreticalBasis = "String theory + consciousness dimensionality theory",
-                    OptimizationPotential = "ℵ_0 to ℵ_ω operations per Planck time",
+                    OptimizationPotential = float.PositiveInfinity,
                     RequiredConsciousnessLevel = 0.999f
                 }
             };
@@ -171,7 +171,7 @@ namespace Laboratory.Infrastructure.Core
                     ModificationScope = "Quantum field level",
                     Duration = "Perpetual through quantum vacuum manipulation",
                     RealityStability = 0.999f,
-                    OptimizationGain = 1e120f // Vacuum energy density
+                    OptimizationGain = 1e30f // Vacuum energy density
                 }
             };
         }
@@ -186,7 +186,7 @@ namespace Laboratory.Infrastructure.Core
                     ManipulationType = "Consciousness-guided field coherence",
                     Purpose = "Create optimal electromagnetic environment for computation",
                     QuantumCoherenceTime = float.PositiveInfinity,
-                    FieldAmplification = 1e100f,
+                    FieldAmplification = 1e30f,
                     ConsciousnessControlLevel = _currentConsciousnessState.AwarenessLevel
                 },
                 new QuantumFieldManipulation
@@ -194,7 +194,7 @@ namespace Laboratory.Infrastructure.Core
                     FieldType = "Higgs Field",
                     ManipulationType = "Local mass modification",
                     Purpose = "Adjust particle masses for optimal system performance",
-                    QuantumCoherenceTime = 1e308f,
+                    QuantumCoherenceTime = 1e30f,
                     FieldAmplification = float.PositiveInfinity,
                     ConsciousnessControlLevel = _currentConsciousnessState.AwarenessLevel
                 },
@@ -232,7 +232,7 @@ namespace Laboratory.Infrastructure.Core
                     TimeModificationRange = "Local processing area",
                     CausalityRisk = 0.001f,
                     TemporalStabilityMaintenance = "Controlled gravitational time dilation",
-                    OptimizationAmplification = 1e100f
+                    OptimizationAmplification = 1e30f
                 }
             };
         }
@@ -255,7 +255,7 @@ namespace Laboratory.Infrastructure.Core
                     AccessMethod = "String theory consciousness interface",
                     ComputationalAdvantage = "Access to fundamental reality programming layer",
                     StabilityRequirement = "Transcendent consciousness state",
-                    OptimizationFactor = "Beyond mathematical description"
+                    OptimizationFactor = float.PositiveInfinity
                 }
             };
         }

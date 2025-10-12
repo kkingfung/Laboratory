@@ -5,7 +5,7 @@ using Cysharp.Threading.Tasks;
 using Laboratory.Core;
 using Laboratory.Core.State;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Infrastructure.AsyncUtils;
 using Unity.Entities;
 using UnityEngine;
@@ -68,9 +68,10 @@ namespace Laboratory.Infrastructure.Networking
             _networkClient.DataReceived += OnDataReceived;
 
             // Get game state service
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                _gameStateService = GlobalServiceProvider.Resolve<IGameStateService>();
+                _gameStateService = serviceContainer.ResolveService<IGameStateService>();
             }
 
             // Start message processing loop

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using UnityEngine;
@@ -34,7 +34,7 @@ namespace Laboratory.Core.Bootstrap
         TimeSpan EstimatedDuration { get; }
         
         /// <summary>Executes the startup task with progress reporting and cancellation support.</summary>
-        UniTask ExecuteAsync(IServiceContainer services, IProgress<float>? progress, CancellationToken cancellation);
+        UniTask ExecuteAsync(ServiceContainer services, IProgress<float>? progress, CancellationToken cancellation);
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ namespace Laboratory.Core.Bootstrap
         public virtual IReadOnlyList<Type> Dependencies => Array.Empty<Type>();
         public virtual TimeSpan EstimatedDuration => TimeSpan.FromSeconds(1);
         
-        public abstract UniTask ExecuteAsync(IServiceContainer services, IProgress<float>? progress, CancellationToken cancellation);
+        public abstract UniTask ExecuteAsync(ServiceContainer services, IProgress<float>? progress, CancellationToken cancellation);
         
         protected void ReportProgress(IProgress<float>? progress, float value)
         {
@@ -129,7 +129,7 @@ namespace Laboratory.Core.Bootstrap
         /// <summary>
         /// Executes all registered startup tasks with proper ordering and dependency resolution.
         /// </summary>
-        public async UniTask InitializeAsync(IServiceContainer services, IProgress<float>? overallProgress = null, CancellationToken cancellation = default)
+        public async UniTask InitializeAsync(ServiceContainer services, IProgress<float>? overallProgress = null, CancellationToken cancellation = default)
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
@@ -137,7 +137,7 @@ namespace Laboratory.Core.Bootstrap
             Debug.Log($"StartupOrchestrator: Beginning initialization with {_tasks.Count} tasks");
             
             // Get event bus for progress reporting (optional)
-            services.TryResolve(out _eventBus);
+            _eventBus = services.ResolveService<IEventBus>();
             
             try
             {
@@ -220,7 +220,7 @@ namespace Laboratory.Core.Bootstrap
             ordered.Add(task);
         }
         
-        private async UniTask ExecuteTasksInOrder(List<IStartupTask> orderedTasks, IServiceContainer services, IProgress<float>? overallProgress, CancellationToken cancellation)
+        private async UniTask ExecuteTasksInOrder(List<IStartupTask> orderedTasks, ServiceContainer services, IProgress<float>? overallProgress, CancellationToken cancellation)
         {
             var totalTasks = orderedTasks.Count;
             var completedTasks = 0;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
 using Laboratory.Core.Health;
 using ECS_DamageType = Laboratory.Models.ECS.Components.DamageType;
 using ECS_DamageRequest = Laboratory.Models.ECS.Components.DamageRequest;
@@ -73,9 +73,10 @@ namespace Laboratory.Infrastructure.Health
         private void Initialize()
         {
             // Get event bus from service container
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.TryResolve<IEventBus>(out _eventBus);
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
             }
 
             // Register default damage processors

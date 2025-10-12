@@ -3,9 +3,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Subsystems.Analytics;
-using Laboratory.Subsystems.Performance;
 
 namespace Laboratory.Subsystems.Networking.Advanced
 {
@@ -44,7 +43,7 @@ namespace Laboratory.Subsystems.Networking.Advanced
         private IEventBus _eventBus;
         
         // Performance monitoring
-        private PerformanceManager performanceManager;
+        private NetworkPerformanceMonitor performanceMonitor;
         private AnalyticsManager analyticsManager;
         
         // Network events
@@ -61,13 +60,14 @@ namespace Laboratory.Subsystems.Networking.Advanced
         private void Start()
         {
             // Initialize event bus
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                _eventBus = GlobalServiceProvider.Resolve<IEventBus>();
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
             }
             
             // Get references to other managers
-            performanceManager = FindFirstObjectByType<PerformanceManager>();
+            InitializePerformanceMonitoring();
             analyticsManager = FindFirstObjectByType<AnalyticsManager>();
             
             // Subscribe to network events
@@ -123,6 +123,15 @@ namespace Laboratory.Subsystems.Networking.Advanced
             {
                 NetworkManager.Singleton.NetworkConfig.TickRate = (uint)serverTickRate;
                 Debug.Log($"Network tick rate set to: {serverTickRate}");
+            }
+        }
+
+        private void InitializePerformanceMonitoring()
+        {
+            if (enableNetworkPerformanceMonitoring)
+            {
+                performanceMonitor = new NetworkPerformanceMonitor();
+                Debug.Log("Network performance monitoring initialized");
             }
         }
 
@@ -463,10 +472,10 @@ namespace Laboratory.Subsystems.Networking.Advanced
                 networkStats.BytesReceived = 0; // Simple placeholder
             }
             
-            // Integrate with performance manager
-            if (performanceManager != null && enableNetworkPerformanceMonitoring)
+            // Integrate with performance monitor
+            if (performanceMonitor != null && enableNetworkPerformanceMonitoring)
             {
-                var perfMetrics = performanceManager.GetCurrentMetrics();
+                var perfMetrics = performanceMonitor.GetCurrentMetrics();
                 networkStats.ServerFPS = perfMetrics.CurrentFPS;
                 networkStats.ServerMemoryUsage = perfMetrics.MemoryUsage;
             }
@@ -803,6 +812,39 @@ namespace Laboratory.Subsystems.Networking.Advanced
     {
         public string MessageType { get; set; }
         public string Data { get; set; }
+    }
+
+    /// <summary>
+    /// Simple network performance monitor for tracking network metrics
+    /// </summary>
+    public class NetworkPerformanceMonitor
+    {
+        public float PacketsPerSecond { get; private set; }
+        public float BytesPerSecond { get; private set; }
+        public float Latency { get; private set; }
+        public int ConnectedClients { get; private set; }
+
+        private float lastUpdateTime;
+        private int packetCount;
+        private long byteCount;
+
+        public void UpdateMetrics(int packets, long bytes, float latency, int clients)
+        {
+            float deltaTime = Time.time - lastUpdateTime;
+            if (deltaTime >= 1f)
+            {
+                PacketsPerSecond = packetCount / deltaTime;
+                BytesPerSecond = byteCount / deltaTime;
+                packetCount = 0;
+                byteCount = 0;
+                lastUpdateTime = Time.time;
+            }
+
+            packetCount += packets;
+            byteCount += bytes;
+            Latency = latency;
+            ConnectedClients = clients;
+        }
     }
 
     #endregion

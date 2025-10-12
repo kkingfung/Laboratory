@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
+using Laboratory.Chimera.Genetics;
 
 namespace Laboratory.Subsystems.AssetPipeline
 {
@@ -98,10 +99,10 @@ namespace Laboratory.Subsystems.AssetPipeline
             InitializationProgress = 0.2f;
 
             // Initialize asset services
-            ProceduralGenerationService = new ProceduralGenerationService(config);
-            LODManagementService = new LODManagementService(config);
-            DynamicTextureService = new DynamicTextureService(config);
-            AssetOptimizationService = new AssetOptimizationService(config);
+            ProceduralGenerationService = new DefaultProceduralGenerationService(config);
+            LODManagementService = new DefaultLODManagementService(config);
+            DynamicTextureService = new DefaultDynamicTextureService(config);
+            AssetOptimizationService = new DefaultAssetOptimizationService(config);
 
             InitializationProgress = 0.4f;
         }
@@ -182,11 +183,11 @@ namespace Laboratory.Subsystems.AssetPipeline
         {
             if (ServiceContainer.Instance != null)
             {
-                ServiceContainer.Instance.Register<IProceduralGenerationService>(ProceduralGenerationService);
-                ServiceContainer.Instance.Register<ILODManagementService>(LODManagementService);
-                ServiceContainer.Instance.Register<IDynamicTextureService>(DynamicTextureService);
-                ServiceContainer.Instance.Register<IAssetOptimizationService>(AssetOptimizationService);
-                ServiceContainer.Instance.Register<AssetPipelineSubsystemManager>(this);
+                ServiceContainer.Instance.RegisterService<IProceduralGenerationService>(ProceduralGenerationService);
+                ServiceContainer.Instance.RegisterService<ILODManagementService>(LODManagementService);
+                ServiceContainer.Instance.RegisterService<IDynamicTextureService>(DynamicTextureService);
+                ServiceContainer.Instance.RegisterService<IAssetOptimizationService>(AssetOptimizationService);
+                ServiceContainer.Instance.RegisterService<AssetPipelineSubsystemManager>(this);
             }
         }
 
@@ -197,7 +198,7 @@ namespace Laboratory.Subsystems.AssetPipeline
         /// <summary>
         /// Generates procedural assets for a creature based on genetic data
         /// </summary>
-        public async Task<GeneratedAssetData> GenerateCreatureAssetsAsync(Laboratory.Subsystems.Genetics.GeneticProfile geneticProfile, string creatureId)
+        public async Task<GeneratedAssetData> GenerateCreatureAssetsAsync(GeneticProfile geneticProfile, string creatureId)
         {
             if (!IsInitialized || !enableProceduralGeneration)
                 return null;
@@ -240,7 +241,7 @@ namespace Laboratory.Subsystems.AssetPipeline
         /// <summary>
         /// Generates dynamic textures for creature traits
         /// </summary>
-        public async Task<Texture2D> GenerateCreatureTextureAsync(Laboratory.Subsystems.Genetics.GeneticProfile geneticProfile, TextureType textureType)
+        public async Task<Texture2D> GenerateCreatureTextureAsync(GeneticProfile geneticProfile, TextureType textureType)
         {
             if (!enableDynamicTextures)
                 return null;
@@ -271,7 +272,7 @@ namespace Laboratory.Subsystems.AssetPipeline
         /// <summary>
         /// Preloads assets for upcoming genetic combinations
         /// </summary>
-        public async Task PreloadAssetsAsync(List<Laboratory.Subsystems.Genetics.GeneticProfile> upcomingProfiles)
+        public async Task PreloadAssetsAsync(List<GeneticProfile> upcomingProfiles)
         {
             if (!enableProceduralGeneration)
                 return;
@@ -557,7 +558,7 @@ namespace Laboratory.Subsystems.AssetPipeline
             }
 
             // Create a test genetic profile
-            var testProfile = new Laboratory.Subsystems.Genetics.GeneticProfile();
+            var testProfile = new GeneticProfile();
             _ = GenerateCreatureAssetsAsync(testProfile, "TestCreature_" + Time.time);
         }
 
@@ -577,4 +578,134 @@ namespace Laboratory.Subsystems.AssetPipeline
 
         #endregion
     }
+
+    #region Default Service Implementations
+
+    public class DefaultProceduralGenerationService : IProceduralGenerationService
+    {
+        private AssetPipelineSubsystemConfig _config;
+
+        public DefaultProceduralGenerationService(AssetPipelineSubsystemConfig config)
+        {
+            _config = config;
+        }
+
+        public async Task<bool> InitializeAsync()
+        {
+            return await Task.FromResult(true);
+        }
+
+        public GeneratedAssetData GenerateCreatureAsset(GeneticProfile geneticProfile, string creatureId)
+        {
+            return new GeneratedAssetData();
+        }
+
+        public Mesh GenerateCreatureMesh(GeneticProfile geneticProfile, LODLevel lodLevel = LODLevel.High)
+        {
+            return null; // Would generate actual mesh based on genetic profile
+        }
+
+        public Material GenerateCreatureMaterial(GeneticProfile geneticProfile)
+        {
+            return null; // Would generate material based on genetic profile
+        }
+
+        public List<ProceduralAssetTemplate> GetAvailableTemplates()
+        {
+            return new List<ProceduralAssetTemplate>();
+        }
+
+        public bool RegisterTemplate(ProceduralAssetTemplate template)
+        {
+            return true; // Would register template for use
+        }
+    }
+
+    public class DefaultLODManagementService : ILODManagementService
+    {
+        private AssetPipelineSubsystemConfig _config;
+
+        public DefaultLODManagementService(AssetPipelineSubsystemConfig config)
+        {
+            _config = config;
+        }
+
+        public async Task<bool> InitializeAsync()
+        {
+            return await Task.FromResult(true);
+        }
+
+        public void UpdateCreatureLOD(string creatureId, float distance, float importance = 1f) { }
+        public void UpdateAllLODs() { }
+        public LODLevel GetOptimalLODLevel(float distance, float importance) { return LODLevel.High; }
+        public CreatureLODData GetCreatureLODData(string creatureId) { return new CreatureLODData(); }
+        public void SetLODSettings(LODSettings settings) { }
+        public int GetCreatureCountByLOD(LODLevel lodLevel) { return 0; }
+    }
+
+    public class DefaultDynamicTextureService : IDynamicTextureService
+    {
+        private AssetPipelineSubsystemConfig _config;
+
+        public DefaultDynamicTextureService(AssetPipelineSubsystemConfig config)
+        {
+            _config = config;
+        }
+
+        public async Task<bool> InitializeAsync()
+        {
+            return await Task.FromResult(true);
+        }
+
+        public async Task<Texture2D> GenerateTextureAsync(GeneticProfile geneticProfile, TextureType textureType)
+        {
+            return await Task.FromResult<Texture2D>(null);
+        }
+
+        public Texture2D GeneratePatternTexture(GeneticProfile geneticProfile)
+        {
+            return null; // Would generate pattern texture based on genetic profile
+        }
+
+        public Texture2D GenerateColorTexture(GeneticProfile geneticProfile)
+        {
+            return null; // Would generate color texture based on genetic profile
+        }
+
+        public void UpdateTextureStreaming() { }
+
+        public bool CacheTexture(string textureId, Texture2D texture)
+        {
+            return true; // Would cache texture for reuse
+        }
+
+        public Texture2D GetCachedTexture(string textureId)
+        {
+            return null; // Would return cached texture if available
+        }
+    }
+
+    public class DefaultAssetOptimizationService : IAssetOptimizationService
+    {
+        private AssetPipelineSubsystemConfig _config;
+
+        public DefaultAssetOptimizationService(AssetPipelineSubsystemConfig config)
+        {
+            _config = config;
+        }
+
+        public async Task<bool> InitializeAsync()
+        {
+            return await Task.FromResult(true);
+        }
+
+        public void OptimizeMemoryUsage() { }
+        public void PerformBackgroundOptimization() { }
+        public AssetOptimizationMetrics GetOptimizationMetrics() { return new AssetOptimizationMetrics(); }
+        public void CompressTextures(List<Texture2D> textures) { }
+        public void OptimizeMeshes(List<Mesh> meshes) { }
+        public void UnloadUnusedAssets() { }
+    }
+
+    #endregion
 }

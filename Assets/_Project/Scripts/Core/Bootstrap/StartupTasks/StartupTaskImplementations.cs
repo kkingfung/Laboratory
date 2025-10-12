@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Services;
 using Laboratory.Core.Bootstrap;
 using System.Linq;
@@ -19,7 +19,7 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
         public override int Priority => 10;
         public override string Name => "Core Services";
 
-        public override async UniTask ExecuteAsync(IServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
+        public override async UniTask ExecuteAsync(ServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
         {
             ReportProgress(progress, 0.1f);
             
@@ -33,8 +33,8 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
             ReportProgress(progress, 0.7f);
             
             // Test service resolution
-            var eventBus = services.Resolve<Laboratory.Core.Events.IEventBus>();
-            var stateService = services.Resolve<Laboratory.Core.State.IGameStateService>();
+            var eventBus = services.ResolveService<Laboratory.Core.Events.IEventBus>();
+            var stateService = services.ResolveService<Laboratory.Core.State.IGameStateService>();
             
             // Add small delay to make this truly async
             await UniTask.Yield();
@@ -52,11 +52,11 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
         public override int Priority => 20;
         public override string Name => "Configuration";
 
-        public override async UniTask ExecuteAsync(IServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
+        public override async UniTask ExecuteAsync(ServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
         {
             ReportProgress(progress, 0.1f);
             
-            var configService = services.Resolve<IConfigService>();
+            var configService = services.ResolveService<IConfigService>();
             LogInfo("Starting configuration loading");
             
             ReportProgress(progress, 0.3f);
@@ -81,11 +81,11 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
         public override int Priority => 30;
         public override string Name => "Asset Preload";
 
-        public override async UniTask ExecuteAsync(IServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
+        public override async UniTask ExecuteAsync(ServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
         {
             ReportProgress(progress, 0.1f);
             
-            var assetService = services.Resolve<IAssetService>();
+            var assetService = services.ResolveService<IAssetService>();
             LogInfo("Starting asset preloading");
             
             ReportProgress(progress, 0.2f);
@@ -110,11 +110,11 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
         public override int Priority => 40;
         public override string Name => "Game State Setup";
 
-        public override async UniTask ExecuteAsync(IServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
+        public override async UniTask ExecuteAsync(ServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
         {
             ReportProgress(progress, 0.1f);
             
-            var stateService = services.Resolve<Laboratory.Core.State.IGameStateService>();
+            var stateService = services.ResolveService<Laboratory.Core.State.IGameStateService>();
             LogInfo("Setting up initial game state");
             
             ReportProgress(progress, 0.3f);
@@ -145,7 +145,7 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
         public override int Priority => 45;
         public override string Name => "Game Systems";
 
-        public override async UniTask ExecuteAsync(IServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
+        public override async UniTask ExecuteAsync(ServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
         {
             ReportProgress(progress, 0.1f);
             
@@ -154,7 +154,7 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
             // Initialize health system service
             try
             {
-                var healthSystemService = services.Resolve<Laboratory.Core.Systems.IHealthSystem>();
+                var healthSystemService = services.ResolveService<Laboratory.Core.Systems.IHealthSystem>();
                 if (healthSystemService != null)
                 {
                     LogInfo("Health system service initialized");
@@ -183,7 +183,7 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
         public override int Priority => 50;
         public override string Name => "Network Initialization";
 
-        public override async UniTask ExecuteAsync(IServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
+        public override async UniTask ExecuteAsync(ServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
         {
             ReportProgress(progress, 0.1f);
             
@@ -192,10 +192,11 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
             try
             {
                 // Check if network service is available
-                if (services.TryResolve<INetworkService>(out var networkService))
+                var networkService = services.ResolveService<INetworkService>();
+                if (networkService != null)
                 {
                     LogInfo("Network service found, initializing...");
-                    await InitializeNetworkService(networkService!, progress, cancellation);
+                    await InitializeNetworkService(networkService, progress, cancellation);
                 }
                 else
                 {
@@ -247,7 +248,7 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
             }
         }
         
-        private async UniTask SetupOfflineMode(IServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
+        private async UniTask SetupOfflineMode(ServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
         {
             ReportProgress(progress, 0.3f);
             
@@ -288,7 +289,7 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
         public override int Priority => 60;
         public override string Name => "UI System";
 
-        public override async UniTask ExecuteAsync(IServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
+        public override async UniTask ExecuteAsync(ServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
         {
             ReportProgress(progress, 0.1f);
             
@@ -297,10 +298,11 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
             try
             {
                 // Check if UI service is available
-                if (services.TryResolve<IUIService>(out var uiService))
+                var uiService = services.ResolveService<IUIService>();
+                if (uiService != null)
                 {
                     LogInfo("UI service found, initializing...");
-                    await InitializeUIService(uiService!, progress, cancellation);
+                    await InitializeUIService(uiService, progress, cancellation);
                 }
                 else
                 {
@@ -366,7 +368,7 @@ namespace Laboratory.Core.Bootstrap.StartupTasks
             }
         }
         
-        private async UniTask SetupBasicUISystem(IServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
+        private async UniTask SetupBasicUISystem(ServiceContainer services, IProgress<float>? progress, CancellationToken cancellation)
         {
             ReportProgress(progress, 0.2f);
             

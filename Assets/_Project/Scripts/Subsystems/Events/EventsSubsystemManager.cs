@@ -170,21 +170,30 @@ namespace Laboratory.Subsystems.Events
 
         private void SubscribeToGameEvents()
         {
-            // Subscribe to genetics events for discovery celebrations
-            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnBreedingComplete += HandleBreedingComplete;
-            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnMutationOccurred += HandleMutationOccurred;
-            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnTraitDiscovered += HandleTraitDiscovered;
+            try
+            {
+                // Subscribe to genetics events for discovery celebrations
+                Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnBreedingComplete += HandleBreedingComplete;
+                Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnMutationOccurred += HandleMutationOccurred;
+                Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnTraitDiscovered += HandleTraitDiscovered;
 
-            // Subscribe to analytics events for discovery tracking
-            Laboratory.Subsystems.Analytics.AnalyticsSubsystemManager.OnDiscoveryTracked += HandleDiscoveryTracked;
+                // Subscribe to analytics events for discovery tracking
+                Laboratory.Subsystems.Analytics.AnalyticsSubsystemManager.OnDiscoveryTracked += HandleDiscoveryTracked;
 
-            // Subscribe to research events for publication celebrations
-            Laboratory.Subsystems.Research.ResearchSubsystemManager.OnPublicationCreated += HandlePublicationCreated;
-            Laboratory.Subsystems.Research.ResearchSubsystemManager.OnDiscoveryLogged += HandleResearchDiscovery;
+                // Subscribe to research events for publication celebrations
+                Laboratory.Subsystems.Research.ResearchSubsystemManager.OnPublicationCreated += HandlePublicationCreated;
+                Laboratory.Subsystems.Research.ResearchSubsystemManager.OnDiscoveryLogged += HandleResearchDiscovery;
 
-            // Subscribe to ecosystem events for environmental celebrations
-            Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnWeatherChanged += HandleWeatherChanged;
-            Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnEnvironmentalEvent += HandleEnvironmentalEvent;
+                // Subscribe to ecosystem events for environmental celebrations
+                Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnWeatherChanged += HandleWeatherChanged;
+                Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnEnvironmentalEvent += HandleEnvironmentalEvent;
+
+                Debug.Log($"[{SubsystemName}] Subscribed to game events successfully");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[{SubsystemName}] Some event subscriptions failed: {ex.Message}");
+            }
         }
 
         private void RegisterServices()
@@ -775,18 +784,27 @@ namespace Laboratory.Subsystems.Events
 
         private void Cleanup()
         {
-            // Unsubscribe from events
-            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnBreedingComplete -= HandleBreedingComplete;
-            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnMutationOccurred -= HandleMutationOccurred;
-            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnTraitDiscovered -= HandleTraitDiscovered;
+            try
+            {
+                // Unsubscribe from events
+                Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnBreedingComplete -= HandleBreedingComplete;
+                Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnMutationOccurred -= HandleMutationOccurred;
+                Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnTraitDiscovered -= HandleTraitDiscovered;
 
-            Laboratory.Subsystems.Analytics.AnalyticsSubsystemManager.OnDiscoveryTracked -= HandleDiscoveryTracked;
+                Laboratory.Subsystems.Analytics.AnalyticsSubsystemManager.OnDiscoveryTracked -= HandleDiscoveryTracked;
 
-            Laboratory.Subsystems.Research.ResearchSubsystemManager.OnPublicationCreated -= HandlePublicationCreated;
-            Laboratory.Subsystems.Research.ResearchSubsystemManager.OnDiscoveryLogged -= HandleResearchDiscovery;
+                Laboratory.Subsystems.Research.ResearchSubsystemManager.OnPublicationCreated -= HandlePublicationCreated;
+                Laboratory.Subsystems.Research.ResearchSubsystemManager.OnDiscoveryLogged -= HandleResearchDiscovery;
 
-            Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnWeatherChanged -= HandleWeatherChanged;
-            Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnEnvironmentalEvent -= HandleEnvironmentalEvent;
+                Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnWeatherChanged -= HandleWeatherChanged;
+                Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnEnvironmentalEvent -= HandleEnvironmentalEvent;
+
+                Debug.Log($"[{SubsystemName}] Event unsubscription complete");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[{SubsystemName}] Some event unsubscriptions failed: {ex.Message}");
+            }
 
             // Clear collections
             _activeEvents.Clear();

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Core.Timing
 {
@@ -39,15 +39,12 @@ namespace Laboratory.Core.Timing
                 DontDestroyOnLoad(gameObject);
                 
                 // Register with service container if available
-                if (GlobalServiceProvider.IsInitialized)
+                var serviceContainer = ServiceContainer.Instance;
+                if (serviceContainer != null)
                 {
                     try
                     {
-                        var services = GlobalServiceProvider.Instance;
-                        if (services is ServiceContainer container)
-                        {
-                            container.RegisterInstance<TimerService>(this);
-                        }
+                        serviceContainer.RegisterService<TimerService>(this);
                     }
                     catch (System.Exception ex)
                     {

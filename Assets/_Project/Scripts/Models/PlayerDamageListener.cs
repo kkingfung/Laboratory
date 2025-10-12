@@ -1,6 +1,6 @@
 using UnityEngine;
 using Laboratory.Core.Events;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models
@@ -21,9 +21,10 @@ namespace Laboratory.Models
         {
             healthComponent = ECSHealthComponent.Create(maxHealth);
             
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                eventBus = GlobalServiceProvider.Instance.Resolve<IEventBus>();
+                eventBus = serviceContainer.ResolveService<IEventBus>();
             }
         }
 

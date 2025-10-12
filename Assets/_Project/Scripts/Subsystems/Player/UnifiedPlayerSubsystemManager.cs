@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Health;
 using Laboratory.Core.Character;
@@ -28,7 +28,7 @@ namespace Laboratory.Subsystems.Player
         [SerializeField] private CharacterController characterController;
 
         // Service dependencies
-        private IServiceContainer _container;
+        private ServiceContainer _container;
         private IEventBus _eventManager;
         
         // Core subsystem components
@@ -133,7 +133,7 @@ namespace Laboratory.Subsystems.Player
                 }
 
                 _container = ServiceContainer.Instance;
-                _eventManager = _container?.Resolve<IEventBus>();
+                _eventManager = _container?.ResolveService<IEventBus>();
 
                 InitializeHealthSystem();
                 InitializeMovementSystem();
@@ -186,7 +186,7 @@ namespace Laboratory.Subsystems.Player
                 if (characterController == null)
                     characterController = GetComponent<CharacterController>();
 
-                _movementController = _container?.Resolve<IPlayerMovementController>();
+                _movementController = _container?.ResolveService<IPlayerMovementController>();
 
                 // Fallback: try to find movement controller in the player object
                 if (_movementController == null && playerObject != null)
@@ -207,7 +207,7 @@ namespace Laboratory.Subsystems.Player
         {
             try
             {
-                _cameraController = _container?.Resolve<IPlayerCameraController>();
+                _cameraController = _container?.ResolveService<IPlayerCameraController>();
 
                 // Fallback: try to find camera controller in the player object
                 if (_cameraController == null && playerObject != null)
@@ -218,7 +218,15 @@ namespace Laboratory.Subsystems.Player
                 // Additional fallback: look for camera controller in scene
                 if (_cameraController == null)
                 {
-                    _cameraController = FindObjectOfType<IPlayerCameraController>();
+                    var cameraControllers = FindObjectsOfType<MonoBehaviour>();
+                    foreach (var controller in cameraControllers)
+                    {
+                        if (controller is IPlayerCameraController cameraController)
+                        {
+                            _cameraController = cameraController;
+                            break;
+                        }
+                    }
                 }
 
                 if (enableDebugLogging)
@@ -234,7 +242,7 @@ namespace Laboratory.Subsystems.Player
         {
             try
             {
-                _customizationSystem = _container?.Resolve<ICustomizationSystem>();
+                _customizationSystem = _container?.ResolveService<ICustomizationSystem>();
 
                 if (enableDebugLogging)
                     Debug.Log("[UnifiedPlayerSubsystemManager] Customization system initialized");

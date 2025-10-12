@@ -300,6 +300,7 @@ namespace Laboratory.Chimera.Genetics
         public StatModifier[] statModifiers = Array.Empty<StatModifier>();
         
         [Header("Compatibility")]
+        public string[] compatibleSpecies = Array.Empty<string>();
         public string[] incompatibleTraits = Array.Empty<string>();
         public string[] prerequisiteTraits = Array.Empty<string>();
         

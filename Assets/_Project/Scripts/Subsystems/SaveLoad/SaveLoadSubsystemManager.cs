@@ -161,8 +161,8 @@ namespace Laboratory.Subsystems.SaveLoad
                          $"Save slots: {config.SaveConfig.MaxSaveSlots}, " +
                          $"Autosave: {enableAutosave}, Cloud: {enableCloudSync}");
 
-                // Notify system initialization
-                EventBus.Publish(new SubsystemInitializedEvent(SubsystemName));
+                // Notify system initialization completed
+                Debug.Log($"[{SubsystemName}] Subsystem initialized successfully");
             }
             catch (Exception ex)
             {
@@ -212,11 +212,11 @@ namespace Laboratory.Subsystems.SaveLoad
         {
             if (ServiceContainer.Instance != null)
             {
-                ServiceContainer.Instance.Register<ISaveDataService>(saveDataManager);
-                ServiceContainer.Instance.Register<IAutoSaveService>(autoSaveManager);
-                ServiceContainer.Instance.Register<ICloudSyncService>(cloudSyncManager);
-                ServiceContainer.Instance.Register<IDataIntegrityService>(integrityManager);
-                ServiceContainer.Instance.Register<SaveLoadSubsystemManager>(this);
+                ServiceContainer.Instance.RegisterService<ISaveDataService>(saveDataManager);
+                ServiceContainer.Instance.RegisterService<IAutoSaveService>(autoSaveManager);
+                ServiceContainer.Instance.RegisterService<ICloudSyncService>(cloudSyncManager);
+                ServiceContainer.Instance.RegisterService<IDataIntegrityService>(integrityManager);
+                ServiceContainer.Instance.RegisterService<SaveLoadSubsystemManager>(this);
             }
         }
 
@@ -501,12 +501,12 @@ namespace Laboratory.Subsystems.SaveLoad
         private async Task CollectGeneticsData()
         {
             // Get genetics service
-            var geneticsService = ServiceContainer.Instance?.Resolve<Laboratory.Subsystems.Genetics.GeneticsSubsystemManager>();
+            var geneticsService = ServiceContainer.Instance?.ResolveService<Laboratory.Subsystems.Genetics.GeneticsSubsystemManager>();
             if (geneticsService == null)
                 return;
 
             // Collect genetic profiles from the genetics database
-            var databaseService = ServiceContainer.Instance?.Resolve<Laboratory.Subsystems.Genetics.IGeneticDatabase>();
+            var databaseService = ServiceContainer.Instance?.ResolveService<Laboratory.Subsystems.Genetics.IGeneticDatabase>();
             if (databaseService != null)
             {
                 // This would require extending the database service to get all profiles
@@ -520,7 +520,7 @@ namespace Laboratory.Subsystems.SaveLoad
         private async Task CollectEcosystemData()
         {
             // Get ecosystem service
-            var ecosystemService = ServiceContainer.Instance?.Resolve<EcosystemSubsystemManager>();
+            var ecosystemService = ServiceContainer.Instance?.ResolveService<EcosystemSubsystemManager>();
             if (ecosystemService == null)
                 return;
 
@@ -597,7 +597,7 @@ namespace Laboratory.Subsystems.SaveLoad
             if (ecosystemData == null)
                 return;
 
-            var ecosystemService = ServiceContainer.Instance?.Resolve<EcosystemSubsystemManager>();
+            var ecosystemService = ServiceContainer.Instance?.ResolveService<EcosystemSubsystemManager>();
             if (ecosystemService == null)
                 return;
 

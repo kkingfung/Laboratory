@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models
@@ -47,14 +47,15 @@ namespace Laboratory.Models
             if (_disposed) return;
 
             // Get the unified event bus
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.Instance?.TryResolve<IEventBus>(out _eventBus);
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
             }
 
             if (_eventBus == null)
             {
-                Debug.LogError("EventSystemBridge: Could not resolve IEventBus from GlobalServiceProvider");
+                Debug.LogError("EventSystemBridge: Could not resolve IEventBus from ServiceContainer");
                 return;
             }
 

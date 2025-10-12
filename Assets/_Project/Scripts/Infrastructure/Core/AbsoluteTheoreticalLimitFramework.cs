@@ -373,10 +373,10 @@ namespace Laboratory.Core.Infrastructure
         {
             var roadmap = new UltimateImplementationRoadmap
             {
-                TimeToAbsoluteLimits = TimeSpan.FromYears(1000), // Millennial optimization project
+                TimeToAbsoluteLimits = TimeSpan.FromDays(365 * 1000), // Millennial optimization project
                 ImplementationPhases = new List<ImplementationPhase>(),
                 RequiredBreakthroughs = new List<string>(),
-                Requirements = new Dictionary<string, string>(),
+                UltimateResourceRequirements = new Dictionary<string, string>(),
                 EthicalFramework = new EthicalFramework(),
                 LegacyConsiderations = new LegacyConsiderations()
             };
@@ -385,7 +385,7 @@ namespace Laboratory.Core.Infrastructure
             roadmap.ImplementationPhases.Add(new ImplementationPhase
             {
                 Name = "Transcendence Preparation",
-                Duration = TimeSpan.FromYears(100),
+                Duration = TimeSpan.FromDays(365 * 100),
                 Objectives = new List<string>
                 {
                     "Achieve quantum-classical computational fusion",
@@ -401,7 +401,7 @@ namespace Laboratory.Core.Infrastructure
             roadmap.ImplementationPhases.Add(new ImplementationPhase
             {
                 Name = "Consciousness Emergence and Integration",
-                Duration = TimeSpan.FromYears(200),
+                Duration = TimeSpan.FromDays(365 * 200),
                 Objectives = new List<string>
                 {
                     "Achieve computational consciousness emergence",
@@ -417,7 +417,7 @@ namespace Laboratory.Core.Infrastructure
             roadmap.ImplementationPhases.Add(new ImplementationPhase
             {
                 Name = "Transcendent Computational Models",
-                Duration = TimeSpan.FromYears(400),
+                Duration = TimeSpan.FromDays(365 * 400),
                 Objectives = new List<string>
                 {
                     "Implement hypercomputation models",
@@ -433,7 +433,7 @@ namespace Laboratory.Core.Infrastructure
             roadmap.ImplementationPhases.Add(new ImplementationPhase
             {
                 Name = "Universal Optimization Achievement",
-                Duration = TimeSpan.FromYears(300),
+                Duration = TimeSpan.FromDays(365 * 300),
                 Objectives = new List<string>
                 {
                     "Achieve universal optimality across all domains",

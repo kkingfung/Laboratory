@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
+using Laboratory.Chimera.Genetics;
+using Laboratory.Subsystems.Genetics;
 
 namespace Laboratory.Subsystems.Trading
 {
@@ -171,8 +173,8 @@ namespace Laboratory.Subsystems.Trading
         private void SubscribeToGameEvents()
         {
             // Subscribe to genetics events for automatic genetic value assessment
-            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnBreedingComplete += HandleBreedingComplete;
-            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnTraitDiscovered += HandleTraitDiscovered;
+            GeneticsSubsystemManager.OnBreedingComplete += HandleBreedingComplete;
+            GeneticsSubsystemManager.OnTraitDiscovered += HandleTraitDiscovered;
 
             // Subscribe to research events for consortium collaboration
             Laboratory.Subsystems.Research.ResearchSubsystemManager.OnPublicationCreated += HandlePublicationCreated;
@@ -350,7 +352,7 @@ namespace Laboratory.Subsystems.Trading
         /// <summary>
         /// Calculates the market value of genetic material
         /// </summary>
-        public int CalculateGeneticValue(Laboratory.Subsystems.Genetics.GeneticProfile geneticProfile)
+        public int CalculateGeneticValue(GeneticProfile geneticProfile)
         {
             return GeneticMarketplaceService.CalculateGeneticValue(geneticProfile);
         }
@@ -581,7 +583,7 @@ namespace Laboratory.Subsystems.Trading
 
         #region Event Handlers
 
-        private void HandleBreedingComplete(Laboratory.Subsystems.Genetics.GeneticBreedingResult result)
+        private void HandleBreedingComplete(GeneticBreedingResult result)
         {
             if (result?.offspring != null && result.isSuccessful)
             {
@@ -593,7 +595,7 @@ namespace Laboratory.Subsystems.Trading
             }
         }
 
-        private void HandleTraitDiscovered(Laboratory.Subsystems.Genetics.TraitDiscoveryEvent discoveryEvent)
+        private void HandleTraitDiscovered(TraitDiscoveryEvent discoveryEvent)
         {
             // Award currency for trait discovery
             var baseAward = config.traitDiscoveryReward;
@@ -840,8 +842,8 @@ namespace Laboratory.Subsystems.Trading
         private void Cleanup()
         {
             // Unsubscribe from events
-            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnBreedingComplete -= HandleBreedingComplete;
-            Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnTraitDiscovered -= HandleTraitDiscovered;
+            GeneticsSubsystemManager.OnBreedingComplete -= HandleBreedingComplete;
+            GeneticsSubsystemManager.OnTraitDiscovered -= HandleTraitDiscovered;
 
             Laboratory.Subsystems.Research.ResearchSubsystemManager.OnPublicationCreated -= HandlePublicationCreated;
 

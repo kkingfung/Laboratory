@@ -368,7 +368,7 @@ namespace Laboratory.Core.Events
             var totalEvents = _eventCounts.Values.Sum();
             if (totalEvents > 0)
             {
-                Debug.Log($"[EventBus] Performance Report: {totalEvents} events processed, {_subscribers.Count} subscriber types");
+                Debug.Log($"[EventBus] Performance Report: {totalEvents} events processed, {_subscriberGroups.Count} subscriber types");
                 _eventCounts.Clear();
             }
         }
@@ -492,7 +492,6 @@ namespace Laboratory.Core.Events
         public Dictionary<Type, int> EventTypeCounts;
         public float CacheHitRate;
         public float MemoryEfficiency;
-    }
     }
 
     // IEvent interface is defined in Laboratory.Core.Events namespace in IEventBus.cs

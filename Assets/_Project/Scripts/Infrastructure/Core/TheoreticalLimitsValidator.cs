@@ -206,7 +206,7 @@ namespace Laboratory.Core.Infrastructure
                 {
                     SystemName = "Physical Constraints",
                     ViolationType = "Energy Efficiency",
-                    Severity = ViolationSeverity.Medium,
+                    Severity = TheoreticalViolationSeverity.Medium,
                     Description = "Energy consumption exceeds theoretical minimum by 1000x",
                     Impact = "Acceptable for classical computing, improvement possible with reversible computing"
                 });
@@ -353,10 +353,10 @@ namespace Laboratory.Core.Infrastructure
             {
                 violationPenalty += violation.Severity switch
                 {
-                    ViolationSeverity.Low => 0.02f,
-                    ViolationSeverity.Medium => 0.05f,
-                    ViolationSeverity.High => 0.10f,
-                    ViolationSeverity.Critical => 0.25f,
+                    TheoreticalViolationSeverity.Low => 0.02f,
+                    TheoreticalViolationSeverity.Medium => 0.05f,
+                    TheoreticalViolationSeverity.High => 0.10f,
+                    TheoreticalViolationSeverity.Critical => 0.25f,
                     _ => 0f
                 };
             }
@@ -376,7 +376,7 @@ namespace Laboratory.Core.Infrastructure
             {
                 SystemName = "Genetic Algorithms",
                 PredictionType = "Scaling Performance",
-                TimeHorizon = TimeSpan.FromYears(2),
+                TimeHorizon = TimeSpan.FromDays(365 * 2),
                 PredictedMetrics = new Dictionary<string, float>
                 {
                     {"MaxPopulationSize", 10000f},
@@ -392,7 +392,7 @@ namespace Laboratory.Core.Infrastructure
             {
                 SystemName = "Quantum Computing Transition",
                 PredictionType = "Quantum Advantage",
-                TimeHorizon = TimeSpan.FromYears(5),
+                TimeHorizon = TimeSpan.FromDays(365 * 5),
                 PredictedMetrics = new Dictionary<string, float>
                 {
                     {"GeneticAlgorithmSpeedup", 10.0f},
@@ -408,7 +408,7 @@ namespace Laboratory.Core.Infrastructure
             {
                 SystemName = "Information Theory Optimizations",
                 PredictionType = "Compression Efficiency",
-                TimeHorizon = TimeSpan.FromMonths(6),
+                TimeHorizon = TimeSpan.FromDays(30 * 6),
                 PredictedMetrics = new Dictionary<string, float>
                 {
                     {"DataCompressionRatio", 0.6f}, // 40% size reduction
@@ -474,7 +474,7 @@ namespace Laboratory.Core.Infrastructure
     {
         public string SystemName;
         public string ViolationType;
-        public ViolationSeverity Severity;
+        public TheoreticalViolationSeverity Severity;
         public string Description;
         public string Impact;
     }
@@ -506,7 +506,7 @@ namespace Laboratory.Core.Infrastructure
         MathematicalLimits
     }
 
-    public enum ViolationSeverity
+    public enum TheoreticalViolationSeverity
     {
         Low,
         Medium,

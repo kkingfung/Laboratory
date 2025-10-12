@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Character.Configuration;
 using Laboratory.Core.Character.Events;
@@ -50,7 +51,7 @@ namespace Laboratory.Core.Character.Controllers
         private float _targetAimWeight = 0f;
         
         // Services
-        private IServiceContainer _services;
+        private ServiceContainer _services;
         private IEventBus _eventBus;
         private Animator _animator;
         
@@ -156,7 +157,7 @@ namespace Laboratory.Core.Character.Controllers
             }
         }
 
-        public void Initialize(IServiceContainer services)
+        public void Initialize(ServiceContainer services)
         {
             _services = services ?? throw new ArgumentNullException(nameof(services));
             

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEditor;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
 
 namespace Laboratory.Editor
 {
@@ -30,7 +30,7 @@ namespace Laboratory.Editor
             var issues = new List<string>();
             bool allPassed = true;
 
-            // Test GlobalServiceProvider
+            // Test ServiceContainer
             if (!ValidateServiceProvider(issues))
                 allPassed = false;
 
@@ -64,15 +64,15 @@ namespace Laboratory.Editor
             
             bool healthy = true;
             
-            // Check GlobalServiceProvider
-            if (!GlobalServiceProvider.IsInitialized)
+            // Check ServiceContainer
+            if (ServiceContainer.Instance == null)
             {
-                Debug.LogError("❌ GlobalServiceProvider not initialized");
+                Debug.LogError("❌ ServiceContainer not initialized");
                 healthy = false;
             }
             else
             {
-                Debug.Log("✅ GlobalServiceProvider initialized");
+                Debug.Log("✅ ServiceContainer initialized");
             }
 
             // Check for deprecated components in current scene
@@ -90,10 +90,24 @@ namespace Laboratory.Editor
             }
 
             // Test event system quickly
-            if (GlobalServiceProvider.IsInitialized)
+            if (ServiceContainer.Instance != null)
             {
-                if (!GlobalServiceProvider.TestEventSystem())
+                try
                 {
+                    var eventBus = ServiceContainer.Instance.ResolveService<Laboratory.Core.Events.IEventBus>();
+                    if (eventBus == null)
+                    {
+                        Debug.LogError("❌ EventBus service not found");
+                        healthy = false;
+                    }
+                    else
+                    {
+                        Debug.Log("✅ EventBus service available");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"❌ Error testing event system: {ex.Message}");
                     healthy = false;
                 }
             }
@@ -116,8 +130,15 @@ namespace Laboratory.Editor
         {
             Debug.Log("=== LABORATORY SYSTEM DIAGNOSTICS ===");
             
-            // Service Provider diagnostics
-            Debug.Log(GlobalServiceProvider.GetDiagnosticInfo());
+            // Service Container diagnostics
+            if (ServiceContainer.Instance != null)
+            {
+                Debug.Log("ServiceContainer is initialized and available");
+            }
+            else
+            {
+                Debug.Log("ServiceContainer is not initialized");
+            }
             
             // Scene analysis
             var monoBehaviours = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
@@ -144,15 +165,15 @@ namespace Laboratory.Editor
 
         private static bool ValidateServiceProvider(List<string> issues)
         {
-            Debug.Log("Validating GlobalServiceProvider...");
+            Debug.Log("Validating ServiceContainer...");
             
-            if (!GlobalServiceProvider.IsInitialized)
+            if (ServiceContainer.Instance == null)
             {
-                issues.Add("CRITICAL: GlobalServiceProvider is not initialized");
+                issues.Add("CRITICAL: ServiceContainer is not initialized");
                 return false;
             }
 
-            Debug.Log("✅ GlobalServiceProvider is properly initialized");
+            Debug.Log("✅ ServiceContainer is properly initialized");
             return true;
         }
 
@@ -160,26 +181,63 @@ namespace Laboratory.Editor
         {
             Debug.Log("Validating core services...");
             
-            if (!GlobalServiceProvider.IsInitialized)
+            if (ServiceContainer.Instance == null)
             {
-                issues.Add("Cannot validate services: GlobalServiceProvider not initialized");
+                issues.Add("Cannot validate services: ServiceContainer not initialized");
                 return false;
             }
 
-            return GlobalServiceProvider.ValidateCoreServices();
+            try
+            {
+                // Test core services availability
+                var eventBus = ServiceContainer.Instance.ResolveService<Laboratory.Core.Events.IEventBus>();
+                if (eventBus != null)
+                {
+                    Debug.Log("✅ Core services are available");
+                    return true;
+                }
+                else
+                {
+                    issues.Add("Core services not properly registered");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                issues.Add($"Error validating core services: {ex.Message}");
+                return false;
+            }
         }
 
         private static bool ValidateEventSystem(List<string> issues)
         {
             Debug.Log("Validating event system...");
             
-            if (!GlobalServiceProvider.IsInitialized)
+            if (ServiceContainer.Instance == null)
             {
-                issues.Add("Cannot validate event system: GlobalServiceProvider not initialized");
+                issues.Add("Cannot validate event system: ServiceContainer not initialized");
                 return false;
             }
 
-            return GlobalServiceProvider.TestEventSystem();
+            try
+            {
+                var eventBus = ServiceContainer.Instance.ResolveService<Laboratory.Core.Events.IEventBus>();
+                if (eventBus != null)
+                {
+                    Debug.Log("✅ Event system is working");
+                    return true;
+                }
+                else
+                {
+                    issues.Add("Event system not available");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                issues.Add($"Error testing event system: {ex.Message}");
+                return false;
+            }
         }
 
         private static bool ValidateDeprecatedComponents(List<string> issues)

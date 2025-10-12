@@ -5,7 +5,7 @@ using Unity.Entities;
 using R3;
 using UnityEngine;
 using Laboratory.Core;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
 using Laboratory.Core.State;
 using Laboratory.Core.Events.Messages;
 using Laboratory.Infrastructure.AsyncUtils;
@@ -93,10 +93,17 @@ namespace Laboratory.Models.ECS.Systems
         {
             try
             {
-                // Get the service container from GlobalServiceProvider
-                _services = GlobalServiceProvider.Instance;
-                _gameStateService = _services.Resolve<IGameStateService>();
-                _loadingScreen = _services.Resolve<LoadingScreen>();
+                // Get the service container from ServiceContainer
+                _services = ServiceContainer.Instance;
+                if (_services != null)
+                {
+                    _gameStateService = _services.ResolveService<IGameStateService>();
+                    _loadingScreen = _services.ResolveService<LoadingScreen>();
+                }
+                else
+                {
+                    throw new InvalidOperationException("ServiceContainer.Instance is null");
+                }
                 
                 if (_gameStateService == null)
                 {

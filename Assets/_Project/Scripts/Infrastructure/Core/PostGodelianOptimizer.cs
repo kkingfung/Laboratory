@@ -72,7 +72,7 @@ namespace Laboratory.Core.Infrastructure
                     "System achieves meta-optimization through self-reflection",
                     "Transcends halting problem limitations for genetic processes"
                 },
-                ImplementationComplexity = ComplexityLevel.TranscendentInfinite,
+                ImplementationComplexity = ComplexityLevel.Transcendent,
                 TheoreticalSoundness = 0.85f
             });
 
@@ -91,7 +91,7 @@ namespace Laboratory.Core.Infrastructure
                     "Perfect service matching through cardinal arithmetic",
                     "Transcends computational complexity hierarchy"
                 },
-                ImplementationComplexity = ComplexityLevel.TranscendentInfinite,
+                ImplementationComplexity = ComplexityLevel.Transcendent,
                 TheoreticalSoundness = 0.72f
             });
 
@@ -110,7 +110,7 @@ namespace Laboratory.Core.Infrastructure
                     "Infinite-precision event ordering and causality",
                     "Transcends speed-of-light information propagation through hyperreal time"
                 },
-                ImplementationComplexity = ComplexityLevel.TranscendentInfinite,
+                ImplementationComplexity = ComplexityLevel.Transcendent,
                 TheoreticalSoundness = 0.68f
             });
         }
@@ -348,7 +348,7 @@ namespace Laboratory.Core.Infrastructure
                     "Consciousness verification and measurement",
                     "Ethical optimization of conscious processes"
                 },
-                ImplementationTimeframe = TimeSpan.FromYears(15)
+                ImplementationTimeframe = TimeSpan.FromDays(365 *15)
             });
 
             // Global Workspace Theory Computation
@@ -375,7 +375,7 @@ namespace Laboratory.Core.Infrastructure
                     "Conscious information access rights",
                     "Global workspace information security"
                 },
-                ImplementationTimeframe = TimeSpan.FromYears(8)
+                ImplementationTimeframe = TimeSpan.FromDays(365 *8)
             });
 
             // Orchestrated Objective Reduction
@@ -402,7 +402,7 @@ namespace Laboratory.Core.Infrastructure
                     "Quantum information processing ethics",
                     "Conscious quantum state manipulation"
                 },
-                ImplementationTimeframe = TimeSpan.FromYears(25)
+                ImplementationTimeframe = TimeSpan.FromDays(365 *25)
             });
         }
 
@@ -621,7 +621,7 @@ namespace Laboratory.Core.Infrastructure
         PredictiveProcessing
     }
 
-    public enum ComplexityLevel
+    public enum PostGodelianComplexityLevel
     {
         Low,
         Medium,

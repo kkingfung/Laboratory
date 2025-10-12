@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using Laboratory.Core.Character.Controllers;
 using Laboratory.Core.Character.Configuration;
-using Laboratory.Core.DI;
+using Laboratory.Infrastructure.Core;
 
 namespace Laboratory.Core.Character.Tests
 {

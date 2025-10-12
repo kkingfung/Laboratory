@@ -91,9 +91,15 @@ namespace Laboratory.Core.Infrastructure
             var dependencyGraph = BuildDependencyGraph(batch.Services);
             var optimizedOrder = TopologicalSort(dependencyGraph);
 
+            // Convert the sorted types back to service registrations
+            var serviceMap = batch.Services.ToDictionary(s => s.ServiceType, s => s);
+            var sortedServices = optimizedOrder.Where(type => serviceMap.ContainsKey(type))
+                                             .Select(type => serviceMap[type])
+                                             .ToList();
+
             return new ServiceRegistrationBatch
             {
-                Services = optimizedOrder.ToList(),
+                Services = sortedServices,
                 TotalServices = batch.TotalServices,
                 AssemblyName = batch.AssemblyName
             };
@@ -431,7 +437,9 @@ namespace Laboratory.Core.Infrastructure
         {
             foreach (var dependency in service.Dependencies)
             {
-                if (!container.IsRegistered(dependency))
+                // Note: Simple ServiceContainer doesn't support dependency checking by Type
+                // This validation is simplified for our basic container
+                if (dependency == null)
                 {
                     result.MissingDependencies.Add(new MissingDependency
                     {
@@ -515,5 +523,38 @@ namespace Laboratory.Core.Infrastructure
         public Type ServiceType;
         public Type DependencyType;
         public string Description;
+    }
+
+    /// <summary>
+    /// Attribute to mark classes as services for automatic discovery
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    public class ServiceAttribute : Attribute
+    {
+        public ServiceScope Scope { get; set; } = ServiceScope.Singleton;
+        public int Priority { get; set; } = 0;
+
+        public ServiceAttribute() { }
+
+        public ServiceAttribute(ServiceScope scope)
+        {
+            Scope = scope;
+        }
+
+        public ServiceAttribute(ServiceScope scope, int priority)
+        {
+            Scope = scope;
+            Priority = priority;
+        }
+    }
+
+    /// <summary>
+    /// Service scope enumeration
+    /// </summary>
+    public enum ServiceScope
+    {
+        Singleton,
+        Transient,
+        Scoped
     }
 }

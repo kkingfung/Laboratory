@@ -474,7 +474,7 @@ namespace Laboratory.Core.Infrastructure
         High
     }
 
-    public enum ComplexityLevel
+    public enum QuantumComplexityLevel
     {
         Low,
         Medium,

@@ -12,7 +12,7 @@ using Unity.Services.Relay.Models;
 #endif
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
-using Laboratory.Core.DI;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using Laboratory.Core.Services;
@@ -457,11 +457,12 @@ namespace Laboratory.Gameplay.Lobby
         /// </summary>
         private void InitializeServices()
         {
-            if (GlobalServiceProvider.IsInitialized)
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
             {
-                GlobalServiceProvider.TryResolve<IEventBus>(out _eventBus);
-                GlobalServiceProvider.TryResolve<INetworkService>(out _networkService);
-                
+                _eventBus = serviceContainer.ResolveService<IEventBus>();
+                _networkService = serviceContainer.ResolveService<INetworkService>();
+
                 if (_eventBus == null)
                     Debug.LogWarning("[MatchmakingManager] EventBus service not found. Events will not be published.");
                 if (_networkService == null)
@@ -469,7 +470,7 @@ namespace Laboratory.Gameplay.Lobby
             }
             else
             {
-                Debug.LogWarning("[MatchmakingManager] GlobalServiceProvider not initialized. Some features will be limited.");
+                Debug.LogWarning("[MatchmakingManager] ServiceContainer not initialized. Some features will be limited.");
             }
         }
 

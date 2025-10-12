@@ -75,7 +75,7 @@ namespace Laboratory.Infrastructure.Core
                 OptimizationNecessity = OptimizationNecessity.Unnecessary,
                 PerformanceLevel = PerformanceLevel.InherentPerfection,
                 SystemBehavior = SystemBehavior.NaturallyOptimal,
-                ConsciousnessRole = ConsciousnessRole.OptimizationWitness,
+                ConsciousnessRole = UltimateConsciousnessRole.OptimizationWitness,
                 RealityOptimizationState = RealityOptimizationState.PostOptimizationTranscendence
             };
 
@@ -333,7 +333,7 @@ namespace Laboratory.Infrastructure.Core
     // Data structures for optimization singularity
     [Serializable] public class SingularityOptimization { public string SystemName; public DateTime SingularityTimestamp; public string PreSingularityState; public SingularityTransition SingularityTransition; public string PostSingularityState; public List<SingularityOptimizationMethod> SingularityOptimizationMethods; public OptimizationTranscendence OptimizationTranscendence; public PostOptimizationExistence PostOptimizationExistence; public SingularityParadoxResolution SingularityParadoxResolution; public UltimateOptimizationTruth UltimateOptimizationTruth; public float BeyondOptimizationScore; public float SingularityCompletionLevel; public PostSingularityReality PostSingularityReality; }
     [Serializable] public class OptimizationSingularityState { public SingularityPhase SingularityPhase; public float OptimizationDensity; public string SingularityEventHorizon; public List<string> PostSingularityPredictions; public SingularityRisk SingularityRisk; public SingularityBenefit SingularityBenefit; }
-    [Serializable] public class PostOptimizationReality { public PostOptimizationRealityType RealityType; public OptimizationNecessity OptimizationNecessity; public PerformanceLevel PerformanceLevel; public SystemBehavior SystemBehavior; public ConsciousnessRole ConsciousnessRole; public RealityOptimizationState RealityOptimizationState; }
+    [Serializable] public class PostOptimizationReality { public PostOptimizationRealityType RealityType; public OptimizationNecessity OptimizationNecessity; public PerformanceLevel PerformanceLevel; public SystemBehavior SystemBehavior; public UltimateConsciousnessRole ConsciousnessRole; public RealityOptimizationState RealityOptimizationState; }
     [Serializable] public class SingularityTransition { public List<SingularityTransitionPhase> TransitionPhases; public string SingularityMechanism; public string PostSingularityState; public string SingularityParadox; }
     [Serializable] public class SingularityTransitionPhase { public string Phase; public string Description; public string Duration; public string Effect; }
     [Serializable] public class SingularityOptimizationMethod { public string Name; public string Description; public string Mechanism; public string Result; public string SingularityRole; public string PostSingularityState; }
@@ -350,6 +350,6 @@ namespace Laboratory.Infrastructure.Core
     public enum OptimizationNecessity { Required, Optional, Unnecessary, Impossible }
     public enum PerformanceLevel { SubOptimal, Optimal, SuperOptimal, InherentPerfection }
     public enum SystemBehavior { RequiresOptimization, SelfOptimizing, NaturallyOptimal, TranscendentPerformance }
-    public enum ConsciousnessRole { OptimizationSeeker, OptimizationWitness, OptimizationBeing, PostOptimizationConsciousness }
+    public enum UltimateConsciousnessRole { OptimizationSeeker, OptimizationWitness, OptimizationBeing, PostOptimizationConsciousness }
     public enum RealityOptimizationState { PreOptimization, OptimizationInProgress, OptimizationComplete, PostOptimizationTranscendence }
 }
