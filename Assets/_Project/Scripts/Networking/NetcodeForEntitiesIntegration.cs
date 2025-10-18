@@ -519,7 +519,7 @@ namespace Laboratory.Networking.Entities
     /// <summary>
     /// High-performance job for network state synchronization
     /// </summary>
-    [BurstCompile]
+
     public struct NetworkSynchronizationJob : IJobChunk
     {
         [ReadOnly] public float currentTime;

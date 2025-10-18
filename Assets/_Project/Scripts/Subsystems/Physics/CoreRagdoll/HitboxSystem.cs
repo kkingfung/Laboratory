@@ -11,7 +11,7 @@ namespace Laboratory.Core.Ragdoll
     /// Optimized with Burst compilation for maximum performance.
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [BurstCompile]
+
     public partial class HitboxSystem : SystemBase
     {
         #region Fields

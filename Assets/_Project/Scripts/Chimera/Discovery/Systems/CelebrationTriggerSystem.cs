@@ -11,13 +11,13 @@ namespace Laboratory.Chimera.Discovery.Systems
     /// ECS system that bridges discovery detection to UI celebration system
     /// Processes celebration triggers and coordinates with MonoBehaviour celebration manager
     /// </summary>
-    [BurstCompile]
+
     public partial struct CelebrationTriggerSystem : ISystem
     {
         private EntityQuery _celebrationQuery;
         private ComponentLookup<Laboratory.Chimera.Discovery.Core.DiscoveryEvent> _discoveryLookup;
 
-        [BurstCompile]
+
         public void OnCreate(ref SystemState state)
         {
             _celebrationQuery = SystemAPI.QueryBuilder()
@@ -92,13 +92,13 @@ namespace Laboratory.Chimera.Discovery.Systems
     /// <summary>
     /// System to clean up processed celebrations after a delay
     /// </summary>
-    [BurstCompile]
+
     public partial struct CelebrationCleanupSystem : ISystem
     {
         private EntityQuery _processedQuery;
         private double _lastCleanupTime;
 
-        [BurstCompile]
+
         public void OnCreate(ref SystemState state)
         {
             _processedQuery = SystemAPI.QueryBuilder()
@@ -108,7 +108,7 @@ namespace Laboratory.Chimera.Discovery.Systems
             _lastCleanupTime = SystemAPI.Time.ElapsedTime;
         }
 
-        [BurstCompile]
+
         public void OnUpdate(ref SystemState state)
         {
             // Only run cleanup every 30 seconds

@@ -230,7 +230,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
             Dependency = updateJob.ScheduleParallel(_creatureQuery, Dependency);
         }
 
-        [BurstCompile]
+
         private partial struct UpdateGeneticAbilitiesJob : IJobEntity
         {
             [ReadOnly] public float deltaTime;
@@ -454,7 +454,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
             Dependency = updateJob.ScheduleParallel(_formationQuery, Dependency);
         }
 
-        [BurstCompile]
+
         private partial struct UpdateFormationJob : IJobEntity
         {
             [ReadOnly] public float deltaTime;
@@ -594,7 +594,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
             Dependency = processJob.ScheduleParallel(_statusEffectQuery, Dependency);
         }
 
-        [BurstCompile]
+
         private partial struct ProcessStatusEffectsJob : IJobEntity
         {
             [ReadOnly] public float deltaTime;
@@ -820,7 +820,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
             Dependency = tacticalJob.ScheduleParallel(_tacticalAIQuery, Dependency);
         }
 
-        [BurstCompile]
+
         private partial struct TacticalAIUpdateJob : IJobEntity
         {
             [ReadOnly] public float deltaTime;
@@ -1039,7 +1039,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
             Dependency = syncJob.ScheduleParallel(_networkCombatQuery, Dependency);
         }
 
-        [BurstCompile]
+
         private partial struct CombatNetworkSyncJob : IJobEntity
         {
             [ReadOnly] public float currentTime;

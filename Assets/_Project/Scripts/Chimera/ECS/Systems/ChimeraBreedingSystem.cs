@@ -169,7 +169,7 @@ namespace Laboratory.Core.ECS.Systems
             Dependency = breedingAttemptJob.ScheduleParallel(_breedingReadyQuery, hashHandle);
         }
 
-        [BurstCompile]
+
         struct BuildBreedingSpatialHashJob : IJobChunk
         {
             [WriteOnly] public NativeMultiHashMap<int, BreedingCandidate>.ParallelWriter spatialHash;
@@ -215,7 +215,7 @@ namespace Laboratory.Core.ECS.Systems
             }
         }
 
-        [BurstCompile]
+
         struct BreedingAttemptJob : IJobChunk
         {
             [ReadOnly] public ChimeraUniverseConfiguration config;
@@ -453,7 +453,7 @@ namespace Laboratory.Core.ECS.Systems
             }
         }
 
-        [BurstCompile]
+
         struct PregnancyUpdateJob : IJobChunk
         {
             [ReadOnly] public ChimeraUniverseConfiguration config;
@@ -540,7 +540,7 @@ namespace Laboratory.Core.ECS.Systems
             }
         }
 
-        [BurstCompile]
+
         struct ParentalCareUpdateJob : IJobChunk
         {
             [ReadOnly] public ChimeraUniverseConfiguration config;

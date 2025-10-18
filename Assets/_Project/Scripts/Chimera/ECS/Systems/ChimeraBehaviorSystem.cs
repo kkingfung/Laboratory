@@ -121,7 +121,7 @@ namespace Laboratory.Core.ECS.Systems
         }
 
         // Job to build spatial hash for efficient neighbor queries
-        [BurstCompile]
+
         struct BuildSpatialHashJob : IJobEntityBatch
         {
             [WriteOnly] public NativeMultiHashMap<int, CreatureData>.ParallelWriter spatialHash;
@@ -159,7 +159,7 @@ namespace Laboratory.Core.ECS.Systems
         }
 
         // Main behavior decision job - where genetics meets AI
-        [BurstCompile]
+
         struct BehaviorDecisionJob : IJobEntityBatch
         {
             [ReadOnly] public ChimeraUniverseConfiguration config;
@@ -446,7 +446,7 @@ namespace Laboratory.Core.ECS.Systems
         }
 
         // Job to execute behaviors based on decisions
-        [BurstCompile]
+
         struct ExecuteBehaviorJob : IJobEntityBatch
         {
             [ReadOnly] public ChimeraUniverseConfiguration config;

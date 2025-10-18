@@ -13,7 +13,7 @@ namespace Laboratory.Chimera.Social.Systems
     /// ECS system managing social engagement and viral discovery propagation
     /// Handles likes, shares, trending calculations, and community features
     /// </summary>
-    [BurstCompile]
+
     public partial struct SocialEngagementSystem : ISystem
     {
         private EntityQuery _shareQuery;
@@ -25,7 +25,7 @@ namespace Laboratory.Chimera.Social.Systems
         private NativeList<TrendingShare> _trendingShares;
         private double _lastTrendingUpdate;
 
-        [BurstCompile]
+
         public void OnCreate(ref SystemState state)
         {
             _shareQuery = SystemAPI.QueryBuilder()
@@ -45,7 +45,7 @@ namespace Laboratory.Chimera.Social.Systems
             state.RequireForUpdate(_shareQuery);
         }
 
-        [BurstCompile]
+
         public void OnDestroy(ref SystemState state)
         {
             if (_engagementMap.IsCreated)
@@ -198,7 +198,7 @@ namespace Laboratory.Chimera.Social.Systems
         /// <summary>
         /// Update engagement data from interaction
         /// </summary>
-        [BurstCompile]
+
         private static void UpdateEngagementData(ref EngagementData current, in Laboratory.Chimera.Social.Core.SocialInteraction interaction)
         {
             switch (interaction.Type)
@@ -223,7 +223,7 @@ namespace Laboratory.Chimera.Social.Systems
         /// <summary>
         /// Create initial engagement data
         /// </summary>
-        [BurstCompile]
+
         private static void CreateEngagementData(out EngagementData engagement, in Laboratory.Chimera.Social.Core.SocialInteraction interaction)
         {
             engagement = new EngagementData
@@ -239,7 +239,7 @@ namespace Laboratory.Chimera.Social.Systems
         /// <summary>
         /// Calculate trending score for a share
         /// </summary>
-        [BurstCompile]
+
         private static float CalculateTrendingScore(in SocialShareData shareData, float currentTime)
         {
             float hoursSincePost = (currentTime - shareData.ShareTimestamp) / 3600f;
@@ -372,13 +372,13 @@ namespace Laboratory.Chimera.Social.Systems
     /// <summary>
     /// System for automatic content generation and community simulation
     /// </summary>
-    [BurstCompile]
+
     public partial struct CommunitySimulationSystem : ISystem
     {
         private double _lastSimulationUpdate;
         private Unity.Mathematics.Random _random;
 
-        [BurstCompile]
+
         public void OnCreate(ref SystemState state)
         {
             _lastSimulationUpdate = SystemAPI.Time.ElapsedTime;

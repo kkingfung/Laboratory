@@ -523,7 +523,7 @@ namespace Laboratory.Core.MonsterTown
         ActivityCenter,
         ResearchLab,
         MonsterHabitat,
-        Equipment Shop,
+        EquipmentShop,
         SocialHub,
         EducationCenter
     }

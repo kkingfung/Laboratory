@@ -16,7 +16,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     /// Main ecosystem simulation system managing population dynamics, natural selection, and environmental changes
     /// Creates a living, breathing world where creatures adapt and evolve over time
     /// </summary>
-    [BurstCompile]
+
     public partial struct EcosystemSimulationSystem : ISystem
     {
         private EntityQuery _ecosystemQuery;
@@ -38,7 +38,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         private const float POPULATION_UPDATE_INTERVAL = 5.0f;   // Population changes every 5 seconds
         private const float ENVIRONMENTAL_UPDATE_INTERVAL = 10.0f; // Environmental events every 10 seconds
 
-        [BurstCompile]
+
         public void OnCreate(ref SystemState state)
         {
             _ecosystemQuery = SystemAPI.QueryBuilder()
@@ -69,7 +69,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             state.RequireForUpdate(_ecosystemQuery);
         }
 
-        [BurstCompile]
+
         public void OnUpdate(ref SystemState state)
         {
             double currentTime = SystemAPI.Time.ElapsedTime;
@@ -109,7 +109,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         /// <summary>
         /// Update core ecosystem environmental conditions
         /// </summary>
-        [BurstCompile]
+
         private void UpdateEcosystemStates(ref SystemState state, float deltaTime)
         {
             var ecosystemJob = new EcosystemUpdateJob
@@ -159,7 +159,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         /// <summary>
         /// Update resource availability and consumption
         /// </summary>
-        [BurstCompile]
+
         private void UpdateResourceSystems(ref SystemState state, float deltaTime)
         {
             var resourceJob = new ResourceUpdateJob
@@ -251,7 +251,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         /// <summary>
         /// Calculate population growth rate for ecosystem
         /// </summary>
-        [BurstCompile]
+
         private float CalculateGrowthRate(EcosystemState ecosystem)
         {
             if (ecosystem.TotalPopulation == 0) return 0f;
@@ -344,7 +344,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             }
         }
 
-        [BurstCompile]
+
         private static float GetEventTemperatureChange(Laboratory.Chimera.Ecosystem.Core.EcosystemEventType eventType, float intensity)
         {
             return eventType switch
@@ -358,7 +358,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             };
         }
 
-        [BurstCompile]
+
         private static float GetEventHumidityChange(Laboratory.Chimera.Ecosystem.Core.EcosystemEventType eventType, float intensity)
         {
             return eventType switch
@@ -370,7 +370,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             };
         }
 
-        [BurstCompile]
+
         private static float GetEventResourceImpact(Laboratory.Chimera.Ecosystem.Core.EcosystemEventType eventType, float intensity)
         {
             return eventType switch
@@ -384,7 +384,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             };
         }
 
-        [BurstCompile]
+
         private static float GetEventPopulationImpact(Laboratory.Chimera.Ecosystem.Core.EcosystemEventType eventType, float intensity)
         {
             return eventType switch
@@ -402,14 +402,14 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     /// <summary>
     /// Job for updating ecosystem environmental conditions
     /// </summary>
-    [BurstCompile]
+
     public partial struct EcosystemUpdateJob : IJobEntity
     {
         public float DeltaTime;
         public int CurrentDay;
         public uint CurrentTime;
 
-        [BurstCompile]
+
         public void Execute(ref EcosystemState ecosystem)
         {
             // Day counter is automatically calculated from read-only property
@@ -436,7 +436,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     /// <summary>
     /// Job for updating population dynamics and natural selection
     /// </summary>
-    [BurstCompile]
+
     public partial struct PopulationDynamicsJob : IJobEntity
     {
         public float DeltaTime;
@@ -445,7 +445,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         [ReadOnly] public ComponentLookup<CreaturePopulation> PopulationLookup;
         [ReadOnly] public ComponentLookup<VisualGeneticData> GeneticsLookup;
 
-        [BurstCompile]
+
         public void Execute(ref CreaturePopulation population)
         {
             if (Ecosystems.Length == 0) return;
@@ -472,7 +472,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             population.ReproductionRate = math.clamp(population.SurvivalRate * ecosystem.WaterAvailability * 0.8f, 0.05f, 0.6f);
         }
 
-        [BurstCompile]
+
         private static float CalculateEnvironmentalFitness(in CreaturePopulation population, in EcosystemState ecosystem)
         {
             // Temperature adaptation
@@ -488,7 +488,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return math.clamp((tempFitness + resourceFitness + traitFitness) / 3f, 0.1f, 1.0f);
         }
 
-        [BurstCompile]
+
         private static void UpdateAgeStructure(ref CreaturePopulation population, float deltaTime)
         {
             // Simplified aging - move individuals through life stages
@@ -513,7 +513,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             population.HealthyIndividuals = (int)(population.CurrentPopulation * population.SurvivalRate);
         }
 
-        [BurstCompile]
+
         private static void UpdateGeneticComposition(ref CreaturePopulation population, in EcosystemState ecosystem, float deltaTime)
         {
             // Environmental pressure drives genetic adaptation
@@ -553,13 +553,13 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     /// <summary>
     /// Job for updating ecosystem resources
     /// </summary>
-    [BurstCompile]
+
     public partial struct ResourceUpdateJob : IJobEntity
     {
         public float DeltaTime;
         [ReadOnly] public ComponentLookup<EcosystemState> EcosystemLookup;
 
-        [BurstCompile]
+
         public void Execute(Entity entity, ref EcosystemResources resources)
         {
             if (!EcosystemLookup.TryGetComponent(entity, out EcosystemState ecosystem))

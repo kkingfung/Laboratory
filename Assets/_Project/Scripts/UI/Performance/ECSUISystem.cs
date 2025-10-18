@@ -191,7 +191,7 @@ namespace Laboratory.UI.Performance
         /// <summary>
         /// SIMD-optimized UI animation system
         /// </summary>
-        [BurstCompile]
+
         private struct UIAnimationUpdateJob : IJobParallelFor
         {
             public NativeArray<UIAnimationData> animations;
@@ -276,7 +276,7 @@ namespace Laboratory.UI.Performance
         /// <summary>
         /// Burst-optimized UI culling and batching
         /// </summary>
-        [BurstCompile]
+
         private struct UIBatchingJob : IJob
         {
             [ReadOnly] public NativeArray<ECSUIElementData> elements;

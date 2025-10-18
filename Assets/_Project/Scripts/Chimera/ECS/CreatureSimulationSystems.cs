@@ -15,13 +15,13 @@ namespace Laboratory.Chimera.ECS
     /// Optimized for 1000+ creatures with burst compilation and job system.
     /// </summary>
 
-    [BurstCompile]
+
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial struct CreatureAgingSystem : ISystem
     {
         private EntityQuery creatureQuery;
 
-        [BurstCompile]
+
         public void OnCreate(ref SystemState state)
         {
             creatureQuery = SystemAPI.QueryBuilder()
@@ -29,7 +29,7 @@ namespace Laboratory.Chimera.ECS
                 .Build();
         }
 
-        [BurstCompile]
+
         public void OnUpdate(ref SystemState state)
         {
             var deltaTime = SystemAPI.Time.DeltaTime;
@@ -43,12 +43,12 @@ namespace Laboratory.Chimera.ECS
         }
     }
 
-    [BurstCompile]
+
     public partial struct CreatureAgingJob : IJobEntity
     {
         public float deltaTime;
 
-        [BurstCompile]
+
         public void Execute(ref CreatureData creatureData)
         {
             if (!creatureData.isAlive) return;
@@ -64,14 +64,14 @@ namespace Laboratory.Chimera.ECS
         }
     }
 
-    [BurstCompile]
+
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CreatureAgingSystem))]
     public partial struct CreatureAISystem : ISystem
     {
         private EntityQuery aiQuery;
 
-        [BurstCompile]
+
         public void OnCreate(ref SystemState state)
         {
             aiQuery = SystemAPI.QueryBuilder()
@@ -80,7 +80,7 @@ namespace Laboratory.Chimera.ECS
                 .Build();
         }
 
-        [BurstCompile]
+
         public void OnUpdate(ref SystemState state)
         {
             var time = (float)SystemAPI.Time.ElapsedTime;
@@ -97,14 +97,14 @@ namespace Laboratory.Chimera.ECS
         }
     }
 
-    [BurstCompile]
+
     public partial struct CreatureAIJob : IJobEntity
     {
         public float time;
         public float deltaTime;
         public Unity.Mathematics.Random random;
 
-        [BurstCompile]
+
         public void Execute(ref CreatureAIComponent ai, in CreatureData data, ref LocalTransform transform)
         {
             if (!data.isAlive) return;
@@ -120,7 +120,7 @@ namespace Laboratory.Chimera.ECS
             ExecuteBehavior(ref ai, in data, ref transform);
         }
 
-        [BurstCompile]
+
         private void UpdateBehaviorState(ref CreatureAIComponent ai, in CreatureData data)
         {
             // Simple state machine - in real system would be more sophisticated
@@ -138,7 +138,7 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        [BurstCompile]
+
         private void ExecuteBehavior(ref CreatureAIComponent ai, in CreatureData data, ref LocalTransform transform)
         {
             switch (ai.CurrentState)
@@ -165,13 +165,13 @@ namespace Laboratory.Chimera.ECS
         }
     }
 
-    [BurstCompile]
+
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial struct CreatureGeneticsSystem : ISystem
     {
         private EntityQuery geneticsQuery;
 
-        [BurstCompile]
+
         public void OnCreate(ref SystemState state)
         {
             geneticsQuery = SystemAPI.QueryBuilder()
@@ -181,7 +181,7 @@ namespace Laboratory.Chimera.ECS
                 .Build();
         }
 
-        [BurstCompile]
+
         public void OnUpdate(ref SystemState state)
         {
             var geneticsJob = new CreatureGeneticsJob();
@@ -189,10 +189,10 @@ namespace Laboratory.Chimera.ECS
         }
     }
 
-    [BurstCompile]
+
     public partial struct CreatureGeneticsJob : IJobEntity
     {
-        [BurstCompile]
+
         public void Execute(in CreatureData data, ref CreatureStats stats,
                           in DynamicBuffer<CreatureGeneticTrait> traits)
         {
@@ -210,7 +210,7 @@ namespace Laboratory.Chimera.ECS
             stats.health = math.lerp(stats.health, stats.maxHealth * (1f + vitalityMod * 0.3f), influence);
         }
 
-        [BurstCompile]
+
         private float GetTraitValue(in DynamicBuffer<CreatureGeneticTrait> traits, int traitNameHash)
         {
             for (int i = 0; i < traits.Length; i++)
@@ -222,7 +222,7 @@ namespace Laboratory.Chimera.ECS
         }
     }
 
-    [BurstCompile]
+
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public partial struct CreatureVisualizationSystem : ISystem
     {
@@ -289,12 +289,12 @@ namespace Laboratory.Chimera.ECS
         }
     }
 
-    [BurstCompile]
+
     public partial struct CreatureCleanupJob : IJobEntity
     {
         public EntityCommandBuffer.ParallelWriter ecb;
 
-        [BurstCompile]
+
         public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, in CreatureData data)
         {
             if (!data.isAlive)

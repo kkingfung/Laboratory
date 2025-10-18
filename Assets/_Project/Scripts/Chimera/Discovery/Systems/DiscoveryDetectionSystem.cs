@@ -16,7 +16,7 @@ namespace Laboratory.Chimera.Discovery.Systems
     /// ECS system that detects genetic discoveries during breeding and creature generation
     /// Analyzes genetic data to identify rare traits, mutations, and special combinations
     /// </summary>
-    [BurstCompile]
+
     public partial struct DiscoveryDetectionSystem : ISystem
     {
         private EntityQuery _newCreatureQuery;
@@ -27,7 +27,7 @@ namespace Laboratory.Chimera.Discovery.Systems
         private NativeHashMap<uint, bool> _discoveredTraits;
         private NativeList<Laboratory.Chimera.Discovery.Core.DiscoveryEvent> _pendingDiscoveries;
 
-        [BurstCompile]
+
         public void OnCreate(ref SystemState state)
         {
             _newCreatureQuery = SystemAPI.QueryBuilder()
@@ -44,7 +44,7 @@ namespace Laboratory.Chimera.Discovery.Systems
             state.RequireForUpdate(_newCreatureQuery);
         }
 
-        [BurstCompile]
+
         public void OnDestroy(ref SystemState state)
         {
             if (_discoveredTraits.IsCreated)
@@ -53,7 +53,7 @@ namespace Laboratory.Chimera.Discovery.Systems
                 _pendingDiscoveries.Dispose();
         }
 
-        [BurstCompile]
+
         public void OnUpdate(ref SystemState state)
         {
             _geneticsLookup.Update(ref state);
@@ -106,7 +106,7 @@ namespace Laboratory.Chimera.Discovery.Systems
             }
         }
 
-        [BurstCompile]
+
         private static uint CalculateTraitHash(in VisualGeneticData genetics)
         {
             uint hash = 0;
@@ -120,7 +120,7 @@ namespace Laboratory.Chimera.Discovery.Systems
     /// <summary>
     /// Job for parallel discovery detection
     /// </summary>
-    [BurstCompile]
+
     public partial struct DiscoveryDetectionJob : IJobEntity
     {
         [ReadOnly] public ComponentLookup<VisualGeneticData> GeneticsLookup;
@@ -129,7 +129,7 @@ namespace Laboratory.Chimera.Discovery.Systems
         public EntityCommandBuffer.ParallelWriter ECB;
         public uint CurrentTime;
 
-        [BurstCompile]
+
         public void Execute(Entity entity, [EntityIndexInQuery] int entityInQueryIndex, in VisualGeneticData genetics)
         {
             var discoveries = AnalyzeGenetics(entity, genetics);
@@ -146,7 +146,7 @@ namespace Laboratory.Chimera.Discovery.Systems
             discoveries.Dispose();
         }
 
-        [BurstCompile]
+
         private NativeList<Laboratory.Chimera.Discovery.Core.DiscoveryEvent> AnalyzeGenetics(Entity entity, in VisualGeneticData genetics)
         {
             var discoveries = new NativeList<Laboratory.Chimera.Discovery.Core.DiscoveryEvent>(5, Allocator.Temp);
@@ -192,7 +192,7 @@ namespace Laboratory.Chimera.Discovery.Systems
             return discoveries;
         }
 
-        [BurstCompile]
+
         private void CreateDiscovery(out Laboratory.Chimera.Discovery.Core.DiscoveryEvent discovery, Laboratory.Chimera.Discovery.Core.DiscoveryType type, Laboratory.Chimera.Discovery.Core.DiscoveryRarity rarity, Entity entity, in VisualGeneticData genetics)
         {
             bool isFirstTime = !DiscoveredTraits.ContainsKey(CalculateTraitHash(genetics));
@@ -213,14 +213,14 @@ namespace Laboratory.Chimera.Discovery.Systems
             };
         }
 
-        [BurstCompile]
+
         private static bool IsPerfectGenetics(in VisualGeneticData genetics)
         {
             return genetics.Strength >= 95 && genetics.Vitality >= 95 && genetics.Agility >= 95 &&
                    genetics.Intelligence >= 95 && genetics.Adaptability >= 95 && genetics.Social >= 95;
         }
 
-        [BurstCompile]
+
         private static bool HasRareMutation(in VisualGeneticData genetics)
         {
             // Check for statistical outliers that indicate mutations
@@ -243,7 +243,7 @@ namespace Laboratory.Chimera.Discovery.Systems
             return extremeTraits >= 3;
         }
 
-        [BurstCompile]
+
         private static bool HasLegendaryPotential(in VisualGeneticData genetics)
         {
             int totalStats = genetics.Strength + genetics.Vitality + genetics.Agility +
@@ -251,7 +251,7 @@ namespace Laboratory.Chimera.Discovery.Systems
             return totalStats >= 500 && genetics.SpecialMarkers != GeneticMarkerFlags.None;
         }
 
-        [BurstCompile]
+
         private static DiscoveryRarity CalculateMarkerRarity(GeneticMarkerFlags markers)
         {
             int markerCount = math.countbits((uint)markers);
@@ -265,7 +265,7 @@ namespace Laboratory.Chimera.Discovery.Systems
             };
         }
 
-        [BurstCompile]
+
         private static DiscoveryRarity CalculateTraitRarity(in VisualGeneticData genetics)
         {
             int totalStats = genetics.Strength + genetics.Vitality + genetics.Agility +
@@ -282,7 +282,7 @@ namespace Laboratory.Chimera.Discovery.Systems
             };
         }
 
-        [BurstCompile]
+
         private static float CalculateCelebrationIntensity(DiscoveryRarity rarity, bool isWorldFirst)
         {
             float baseIntensity = rarity switch
@@ -299,7 +299,7 @@ namespace Laboratory.Chimera.Discovery.Systems
             return isWorldFirst ? baseIntensity * 2.0f : baseIntensity;
         }
 
-        [BurstCompile]
+
         private static uint CalculateTraitHash(in VisualGeneticData genetics)
         {
             uint hash = 0;
@@ -309,7 +309,7 @@ namespace Laboratory.Chimera.Discovery.Systems
             return hash;
         }
 
-        [BurstCompile]
+
         private static float CalculateSignificanceBurst(Laboratory.Chimera.Discovery.Core.DiscoveryType type, Laboratory.Chimera.Discovery.Core.DiscoveryRarity rarity, bool isFirstTime, bool isWorldFirst)
         {
             float baseScore = rarity switch

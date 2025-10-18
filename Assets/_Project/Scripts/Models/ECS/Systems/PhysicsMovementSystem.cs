@@ -142,7 +142,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <summary>
         /// Burst-compiled job for processing physics movement calculations in parallel
         /// </summary>
-        [BurstCompile]
+
         private partial struct PhysicsMovementJob : IJobEntity
         {
             /// <summary>

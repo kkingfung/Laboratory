@@ -1,0 +1,270 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
+using Laboratory.Chimera.Social.Data;
+using Laboratory.Chimera.Social.Types;
+
+namespace Laboratory.Chimera.Social.Systems
+{
+    /// <summary>
+    /// Group formation, leadership, and dynamics management system
+    /// </summary>
+    public class GroupDynamicsSystem : MonoBehaviour
+    {
+        [Header("Group Configuration")]
+        [SerializeField] private int maxGroupSize = 25;
+        [SerializeField] private float groupCohesionThreshold = 0.7f;
+        [SerializeField] private float leadershipEmergenceRate = 0.05f;
+        [SerializeField] private bool enableHierarchyFormation = true;
+
+        private Dictionary<uint, SocialGroup> activeGroups = new();
+        private Dictionary<uint, Leadership> groupLeaderships = new();
+        private SocialNetworkSystem networkSystem;
+
+        public event Action<uint, SocialGroup> OnGroupFormed;
+        public event Action<uint> OnGroupDisbanded;
+        public event Action<uint, uint> OnLeadershipEmergence;
+        public event Action<uint, uint> OnLeadershipChange;
+
+        private void Start()
+        {
+            networkSystem = FindObjectOfType<SocialNetworkSystem>();
+        }
+
+        public void FormGroup(List<uint> memberIds, string groupName = "")
+        {
+            if (memberIds.Count < 2 || memberIds.Count > maxGroupSize)
+                return;
+
+            var groupId = GenerateGroupId();
+            var group = new SocialGroup
+            {
+                GroupId = groupId,
+                GroupName = string.IsNullOrEmpty(groupName) ? $"Group_{groupId}" : groupName,
+                Members = new List<uint>(memberIds),
+                LeaderId = 0, // Will be determined by leadership emergence
+                Cohesion = CalculateInitialCohesion(memberIds),
+                CenterPosition = CalculateGroupCenter(memberIds),
+                GroupStatus = SocialStatus.Regular,
+                FormationDate = DateTime.UtcNow
+            };
+
+            activeGroups[groupId] = group;
+
+            if (enableHierarchyFormation)
+            {
+                DetermineLeadership(group);
+            }
+
+            OnGroupFormed?.Invoke(groupId, group);
+            Debug.Log($"Group formed: {group.GroupName} with {memberIds.Count} members");
+        }
+
+        public void UpdateGroupDynamics()
+        {
+            foreach (var group in activeGroups.Values.ToList())
+            {
+                UpdateGroupCohesion(group);
+                UpdateLeadership(group);
+                CheckGroupStability(group);
+            }
+        }
+
+        public void AddMemberToGroup(uint groupId, uint memberId)
+        {
+            if (activeGroups.TryGetValue(groupId, out var group))
+            {
+                if (group.Members.Count < maxGroupSize && !group.Members.Contains(memberId))
+                {
+                    group.Members.Add(memberId);
+                    UpdateGroupCohesion(group);
+                    Debug.Log($"Added member {memberId} to group {group.GroupName}");
+                }
+            }
+        }
+
+        public void RemoveMemberFromGroup(uint groupId, uint memberId)
+        {
+            if (activeGroups.TryGetValue(groupId, out var group))
+            {
+                group.Members.Remove(memberId);
+
+                if (group.LeaderId == memberId)
+                {
+                    DetermineLeadership(group);
+                }
+
+                if (group.Members.Count < 2)
+                {
+                    DisbandGroup(groupId);
+                }
+                else
+                {
+                    UpdateGroupCohesion(group);
+                }
+            }
+        }
+
+        private void DetermineLeadership(SocialGroup group)
+        {
+            if (group.Members.Count == 0) return;
+
+            // Find the member with highest charisma and social connections
+            uint bestLeaderCandidate = 0;
+            float bestLeadershipScore = -1f;
+
+            foreach (var memberId in group.Members)
+            {
+                float leadershipScore = CalculateLeadershipScore(memberId, group);
+                if (leadershipScore > bestLeadershipScore)
+                {
+                    bestLeadershipScore = leadershipScore;
+                    bestLeaderCandidate = memberId;
+                }
+            }
+
+            if (bestLeaderCandidate != 0 && bestLeaderCandidate != group.LeaderId)
+            {
+                var previousLeader = group.LeaderId;
+                group.LeaderId = bestLeaderCandidate;
+
+                var leadership = new Leadership
+                {
+                    LeaderId = bestLeaderCandidate,
+                    GroupId = group.GroupId,
+                    Style = DetermineLeadershipStyle(bestLeaderCandidate),
+                    Effectiveness = 0.5f, // Starting effectiveness
+                    PopularityRating = 0.5f,
+                    LeadershipStart = DateTime.UtcNow
+                };
+
+                groupLeaderships[group.GroupId] = leadership;
+
+                if (previousLeader != 0)
+                    OnLeadershipChange?.Invoke(previousLeader, bestLeaderCandidate);
+                else
+                    OnLeadershipEmergence?.Invoke(bestLeaderCandidate, group.GroupId);
+            }
+        }
+
+        private float CalculateLeadershipScore(uint agentId, SocialGroup group)
+        {
+            // This would use actual agent data in a full implementation
+            float charismaScore = UnityEngine.Random.Range(0.3f, 1f);
+            float socialConnectionsScore = UnityEngine.Random.Range(0.2f, 0.9f);
+            float experienceScore = UnityEngine.Random.Range(0.1f, 0.8f);
+
+            return (charismaScore * 0.4f + socialConnectionsScore * 0.4f + experienceScore * 0.2f);
+        }
+
+        private LeadershipStyle DetermineLeadershipStyle(uint leaderId)
+        {
+            // This would analyze the leader's personality and behavior patterns
+            var styles = Enum.GetValues(typeof(LeadershipStyle));
+            return (LeadershipStyle)styles.GetValue(UnityEngine.Random.Range(0, styles.Length));
+        }
+
+        private float CalculateInitialCohesion(List<uint> memberIds)
+        {
+            if (networkSystem == null) return 0.5f;
+
+            float totalRelationshipStrength = 0f;
+            int relationshipCount = 0;
+
+            for (int i = 0; i < memberIds.Count; i++)
+            {
+                for (int j = i + 1; j < memberIds.Count; j++)
+                {
+                    var relationship = networkSystem.GetRelationship(memberIds[i], memberIds[j]);
+                    if (relationship != null)
+                    {
+                        totalRelationshipStrength += relationship.Strength;
+                        relationshipCount++;
+                    }
+                }
+            }
+
+            return relationshipCount > 0 ? (totalRelationshipStrength / relationshipCount + 1f) / 2f : 0.3f;
+        }
+
+        private Vector3 CalculateGroupCenter(List<uint> memberIds)
+        {
+            // This would use actual agent positions in a full implementation
+            return Vector3.zero;
+        }
+
+        private void UpdateGroupCohesion(SocialGroup group)
+        {
+            group.Cohesion = CalculateInitialCohesion(group.Members);
+
+            // Apply leadership effectiveness bonus
+            if (groupLeaderships.TryGetValue(group.GroupId, out var leadership))
+            {
+                group.Cohesion += leadership.Effectiveness * 0.2f;
+            }
+
+            group.Cohesion = Mathf.Clamp01(group.Cohesion);
+        }
+
+        private void UpdateLeadership(SocialGroup group)
+        {
+            if (groupLeaderships.TryGetValue(group.GroupId, out var leadership))
+            {
+                // Update leadership effectiveness based on group performance
+                float performanceBonus = group.Cohesion > groupCohesionThreshold ? 0.01f : -0.01f;
+                leadership.Effectiveness += performanceBonus;
+                leadership.Effectiveness = Mathf.Clamp01(leadership.Effectiveness);
+
+                // Check for leadership challenges
+                if (leadership.Effectiveness < 0.3f && UnityEngine.Random.value < leadershipEmergenceRate)
+                {
+                    DetermineLeadership(group);
+                }
+            }
+        }
+
+        private void CheckGroupStability(SocialGroup group)
+        {
+            if (group.Cohesion < 0.2f)
+            {
+                // Group is becoming unstable, consider disbanding
+                if (UnityEngine.Random.value < 0.1f) // 10% chance per update
+                {
+                    DisbandGroup(group.GroupId);
+                }
+            }
+        }
+
+        private void DisbandGroup(uint groupId)
+        {
+            if (activeGroups.TryGetValue(groupId, out var group))
+            {
+                activeGroups.Remove(groupId);
+                groupLeaderships.Remove(groupId);
+                OnGroupDisbanded?.Invoke(groupId);
+                Debug.Log($"Group disbanded: {group.GroupName}");
+            }
+        }
+
+        private uint GenerateGroupId()
+        {
+            return (uint)UnityEngine.Random.Range(100000, 999999);
+        }
+
+        public SocialGroup GetGroup(uint groupId)
+        {
+            return activeGroups.TryGetValue(groupId, out var group) ? group : null;
+        }
+
+        public List<SocialGroup> GetAllGroups()
+        {
+            return activeGroups.Values.ToList();
+        }
+
+        public Leadership GetGroupLeadership(uint groupId)
+        {
+            return groupLeaderships.TryGetValue(groupId, out var leadership) ? leadership : null;
+        }
+    }
+}

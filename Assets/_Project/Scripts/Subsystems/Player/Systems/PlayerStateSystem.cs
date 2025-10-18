@@ -12,7 +12,7 @@ namespace Laboratory.Models.ECS.Systems
     /// <summary>
     /// Job that processes player state updates in parallel.
     /// </summary>
-    [BurstCompile]
+
     public struct PlayerStateJob : IJobChunk
     {
         public float DeltaTime;

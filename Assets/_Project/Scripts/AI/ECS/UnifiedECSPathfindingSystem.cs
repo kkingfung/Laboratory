@@ -377,7 +377,7 @@ namespace Laboratory.AI.ECS
     }
 
     // Supporting Jobs
-    [BurstCompile]
+
     struct SpatialHashJob : IJobEntityBatch
     {
         [WriteOnly] public NativeMultiHashMap<int, Entity>.ParallelWriter spatialHash;
@@ -402,7 +402,7 @@ namespace Laboratory.AI.ECS
         }
     }
 
-    [BurstCompile]
+
     struct PathfindingUpdateJob : IJobEntityBatch
     {
         [ReadOnly] public float deltaTime;
@@ -439,7 +439,7 @@ namespace Laboratory.AI.ECS
         }
     }
 
-    [BurstCompile]
+
     struct PathfollowingJob : IJobEntityBatch
     {
         [ReadOnly] public float deltaTime;

@@ -16,7 +16,7 @@ namespace Laboratory.Core.Spatial
     /// and efficient neighbor queries for massive populations (1000+ creatures).
     /// Uses ECS job system with Burst compilation for maximum performance.
     /// </summary>
-    [BurstCompile]
+
     public partial struct ChimeraSpatialHashSystem : ISystem
     {
         // Spatial hash configuration
@@ -89,7 +89,7 @@ namespace Laboratory.Core.Spatial
             state.RequireForUpdate(creatureQuery);
         }
 
-        [BurstCompile]
+
         public void OnUpdate(ref SystemState state)
         {
             var deltaTime = SystemAPI.Time.DeltaTime;
@@ -118,7 +118,7 @@ namespace Laboratory.Core.Spatial
             state.Dependency = queryJobHandle;
         }
 
-        [BurstCompile]
+
         private partial struct UpdateSpatialHashJob : IJobEntity
         {
             public NativeMultiHashMap<int, SpatialHashEntry> spatialHashMap;
@@ -217,7 +217,7 @@ namespace Laboratory.Core.Spatial
             }
         }
 
-        [BurstCompile]
+
         private struct ProcessSpatialQueriesJob : IJob
         {
             [ReadOnly] public NativeMultiHashMap<int, SpatialHashEntry>.ReadOnly spatialHashMap;
