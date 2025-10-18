@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Laboratory.Chimera.Genetics;
 
 namespace Laboratory.Core.MonsterTown
 {
@@ -141,87 +140,6 @@ namespace Laboratory.Core.MonsterTown
         }
     }
 
-    /// <summary>
-    /// Activity result data structure
-    /// </summary>
-    [Serializable]
-    public class ActivityResult
-    {
-        public ActivityType ActivityType { get; set; }
-        public bool Success { get; set; }
-        public float PerformanceScore { get; set; }
-        public int ExperienceGained { get; set; }
-        public List<Reward> Rewards { get; set; } = new();
-        public string EducationalContent { get; set; } = "";
-        public DateTime CompletedAt { get; set; } = DateTime.UtcNow;
-        public float Duration { get; set; } // In seconds
-
-        /// <summary>
-        /// Create successful activity result
-        /// </summary>
-        public static ActivityResult CreateSuccess(ActivityType activityType, float performanceScore, int experience)
-        {
-            return new ActivityResult
-            {
-                ActivityType = activityType,
-                Success = true,
-                PerformanceScore = performanceScore,
-                ExperienceGained = experience,
-                Rewards = GenerateRewards(performanceScore, activityType)
-            };
-        }
-
-        /// <summary>
-        /// Create failed activity result
-        /// </summary>
-        public static ActivityResult CreateFailure(ActivityType activityType, string reason)
-        {
-            return new ActivityResult
-            {
-                ActivityType = activityType,
-                Success = false,
-                PerformanceScore = 0f,
-                ExperienceGained = 5, // Small consolation experience
-                Rewards = new List<Reward>()
-            };
-        }
-
-        private static List<Reward> GenerateRewards(float performanceScore, ActivityType activityType)
-        {
-            var rewards = new List<Reward>();
-
-            // Base coin reward
-            var coinAmount = Mathf.RoundToInt(performanceScore * 100f);
-            rewards.Add(new Reward { Type = RewardType.Coins, Amount = coinAmount });
-
-            // Activity tokens based on performance
-            if (performanceScore > 0.7f)
-            {
-                rewards.Add(new Reward { Type = RewardType.ActivityTokens, Amount = 5 });
-            }
-
-            // Special rewards for exceptional performance
-            if (performanceScore > 0.9f)
-            {
-                rewards.Add(new Reward { Type = RewardType.Equipment, ItemId = GetSpecialEquipment(activityType) });
-            }
-
-            return rewards;
-        }
-
-        private static string GetSpecialEquipment(ActivityType activityType)
-        {
-            return activityType switch
-            {
-                ActivityType.Racing => "SpeedBoots",
-                ActivityType.Combat => "CombatArmor",
-                ActivityType.Puzzle => "ThinkingCap",
-                ActivityType.Strategy => "TacticalVisor",
-                ActivityType.Music => "RhythmGloves",
-                _ => "GenericBooster"
-            };
-        }
-    }
 
     #endregion
 

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Core.MonsterTown;
-using Laboratory.Chimera.Breeding;
 
 namespace Laboratory.Core.Education
 {

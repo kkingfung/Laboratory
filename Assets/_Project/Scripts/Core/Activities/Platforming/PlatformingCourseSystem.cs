@@ -6,7 +6,8 @@ using Unity.Transforms;
 using Unity.Burst;
 using UnityEngine;
 using Laboratory.Core.ECS.Components;
-using Laboratory.Core.Activities;
+using Laboratory.Core.Activities.Components;
+using Laboratory.Core.Activities.Types;
 
 namespace Laboratory.Core.Activities.Platforming
 {
@@ -195,7 +196,7 @@ namespace Laboratory.Core.Activities.Platforming
         public void Execute(ref PlatformerComponent platformer,
             ref LocalTransform transform,
             in PlatformingPerformanceComponent performance,
-            in GeneticDataComponent genetics)
+            RefRO<GeneticDataComponent> genetics)
         {
             if (platformer.Status != PlatformerStatus.Running && platformer.Status != PlatformerStatus.Jumping)
                 return;
@@ -204,8 +205,8 @@ namespace Laboratory.Core.Activities.Platforming
             platformer.RunTime += DeltaTime;
 
             // Calculate movement based on genetics and performance
-            float speed = genetics.Speed * performance.MovementSpeed;
-            float agility = genetics.Agility * performance.PrecisionControl;
+            float speed = genetics.ValueRO.Speed * performance.MovementSpeed;
+            float agility = genetics.ValueRO.Agility * performance.PrecisionControl;
 
             // Simple platforming movement
             float3 movement = new float3(speed * DeltaTime, 0, 0);

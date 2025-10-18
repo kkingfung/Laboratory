@@ -6,8 +6,6 @@ using Unity.Entities;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
-using Laboratory.Chimera.Breeding;
-using Laboratory.Chimera.Genetics;
 
 namespace Laboratory.Core.MonsterTown.Validation
 {

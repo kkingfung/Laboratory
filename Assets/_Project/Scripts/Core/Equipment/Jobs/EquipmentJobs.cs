@@ -14,8 +14,8 @@ namespace Laboratory.Core.Equipment.Jobs
         public float DeltaTime;
 
         public void Execute(ref CreatureEquipmentComponent equipment,
-            in GeneticDataComponent genetics,
-            in ActivityParticipantComponent activity)
+            RefRO<GeneticDataComponent> genetics,
+            RefRO<ActivityParticipantComponent> activity)
         {
             // Calculate total equipment bonuses
             float totalStatBonus = 0f;

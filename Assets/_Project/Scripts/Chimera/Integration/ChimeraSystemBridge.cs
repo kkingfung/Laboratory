@@ -148,7 +148,7 @@ namespace Laboratory.Chimera.Integration
 
             // Get ECS data
             var identity = _entityManager.GetComponentData<CreatureIdentityComponent>(ecsEntity);
-            var genetics = _entityManager.GetComponentData<GeneticDataComponent>(ecsEntity);
+            var genetics = _entityManager.GetComponentData<ChimeraGeneticDataComponent>(ecsEntity);
             var transform = _entityManager.GetComponentData<Unity.Transforms.LocalToWorld>(ecsEntity);
 
             // Create GameObject
@@ -278,11 +278,11 @@ namespace Laboratory.Chimera.Integration
             };
         }
 
-        private GeneticDataComponent ConvertToGeneticData(ChimeraMonsterAI monoBehaviour)
+        private ChimeraGeneticDataComponent ConvertToGeneticData(ChimeraMonsterAI monoBehaviour)
         {
             var genetics = monoBehaviour.GetGeneticsData();
 
-            return new GeneticDataComponent
+            return new ChimeraGeneticDataComponent
             {
                 Aggression = genetics.GetTraitValue("Aggression", 0.5f),
                 Sociability = genetics.GetTraitValue("Sociability", 0.5f),
@@ -377,7 +377,7 @@ namespace Laboratory.Chimera.Integration
             };
         }
 
-        private void ConfigureMonoBehaviourFromECS(ChimeraMonsterAI monsterAI, CreatureIdentityComponent identity, GeneticDataComponent genetics)
+        private void ConfigureMonoBehaviourFromECS(ChimeraMonsterAI monsterAI, CreatureIdentityComponent identity, ChimeraGeneticDataComponent genetics)
         {
             // Configure MonoBehaviour properties based on ECS data
             monsterAI.SetSpeciesName(identity.Species.ToString());

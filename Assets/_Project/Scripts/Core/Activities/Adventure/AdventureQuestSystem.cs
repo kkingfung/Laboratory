@@ -6,7 +6,8 @@ using Unity.Transforms;
 using Unity.Burst;
 using UnityEngine;
 using Laboratory.Core.ECS.Components;
-using Laboratory.Core.Activities;
+using Laboratory.Core.Activities.Components;
+using Laboratory.Core.Activities.Types;
 
 namespace Laboratory.Core.Activities.Adventure
 {
@@ -664,16 +665,16 @@ namespace Laboratory.Core.Activities.Adventure
 
         public void Execute(ref AdventurerComponent adventurer,
             in AdventurePerformanceComponent performance,
-            in GeneticDataComponent genetics)
+            RefRO<GeneticDataComponent> genetics)
         {
             switch (adventurer.Status)
             {
                 case AdventurerStatus.Exploring:
-                    ProcessExploration(ref adventurer, performance, genetics);
+                    ProcessExploration(ref adventurer, performance, genetics.ValueRO);
                     break;
 
                 case AdventurerStatus.In_Danger:
-                    ProcessDangerSituation(ref adventurer, performance, genetics);
+                    ProcessDangerSituation(ref adventurer, performance, genetics.ValueRO);
                     break;
 
                 case AdventurerStatus.Resting:
@@ -686,7 +687,7 @@ namespace Laboratory.Core.Activities.Adventure
             }
 
             // Update stamina and mood
-            UpdateAdventurerCondition(ref adventurer, performance, genetics, DeltaTime);
+            UpdateAdventurerCondition(ref adventurer, performance, genetics.ValueRO, DeltaTime);
         }
 
 

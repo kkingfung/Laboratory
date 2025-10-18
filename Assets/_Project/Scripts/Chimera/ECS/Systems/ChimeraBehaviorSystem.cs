@@ -46,7 +46,7 @@ namespace Laboratory.Core.ECS.Systems
             _creatureQuery = GetEntityQuery(new ComponentType[]
             {
                 ComponentType.ReadWrite<CreatureIdentityComponent>(),
-                ComponentType.ReadWrite<GeneticDataComponent>(),
+                ComponentType.ReadWrite<ChimeraGeneticDataComponent>(),
                 ComponentType.ReadWrite<BehaviorStateComponent>(),
                 ComponentType.ReadWrite<CreatureNeedsComponent>(),
                 ComponentType.ReadWrite<SocialTerritoryComponent>(),
@@ -131,7 +131,7 @@ namespace Laboratory.Core.ECS.Systems
             {
                 var transforms = batchInChunk.GetNativeArray(GetComponentTypeHandle<LocalToWorld>(true));
                 var identities = batchInChunk.GetNativeArray(GetComponentTypeHandle<CreatureIdentityComponent>(true));
-                var genetics = batchInChunk.GetNativeArray(GetComponentTypeHandle<GeneticDataComponent>(true));
+                var genetics = batchInChunk.GetNativeArray(GetComponentTypeHandle<ChimeraGeneticDataComponent>(true));
                 var territories = batchInChunk.GetNativeArray(GetComponentTypeHandle<SocialTerritoryComponent>(true));
 
                 for (int i = 0; i < batchInChunk.Count; i++)
@@ -172,7 +172,7 @@ namespace Laboratory.Core.ECS.Systems
             public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
             {
                 var identities = batchInChunk.GetNativeArray(GetComponentTypeHandle<CreatureIdentityComponent>(true));
-                var genetics = batchInChunk.GetNativeArray(GetComponentTypeHandle<GeneticDataComponent>(true));
+                var genetics = batchInChunk.GetNativeArray(GetComponentTypeHandle<ChimeraGeneticDataComponent>(true));
                 var behaviors = batchInChunk.GetNativeArray(GetComponentTypeHandle<BehaviorStateComponent>(true));
                 var needs = batchInChunk.GetNativeArray(GetComponentTypeHandle<CreatureNeedsComponent>(true));
                 var territories = batchInChunk.GetNativeArray(GetComponentTypeHandle<SocialTerritoryComponent>(true));
@@ -199,7 +199,7 @@ namespace Laboratory.Core.ECS.Systems
 
             private BehaviorDecision MakeGeneticsBasedDecision(
                 CreatureIdentityComponent identity,
-                GeneticDataComponent genetics,
+                ChimeraGeneticDataComponent genetics,
                 BehaviorStateComponent behavior,
                 CreatureNeedsComponent needs,
                 SocialTerritoryComponent territory,
@@ -242,7 +242,7 @@ namespace Laboratory.Core.ECS.Systems
             }
 
             private BehaviorWeights CalculateBehaviorWeights(
-                GeneticDataComponent genetics,
+                ChimeraGeneticDataComponent genetics,
                 CreatureNeedsComponent needs,
                 EnvironmentalComponent environment,
                 SocialTerritoryComponent territory)
@@ -391,7 +391,7 @@ namespace Laboratory.Core.ECS.Systems
             }
 
             private Entity FindBehaviorTarget(CreatureBehaviorType behavior, float3 position,
-                                           GeneticDataComponent genetics, SocialTerritoryComponent territory,
+                                           ChimeraGeneticDataComponent genetics, SocialTerritoryComponent territory,
                                            EnvironmentalComponent environment)
             {
                 // Simple target finding - in full implementation, this would use spatial queries
@@ -425,7 +425,7 @@ namespace Laboratory.Core.ECS.Systems
                 }
             }
 
-            private float CalculateBehaviorIntensity(GeneticDataComponent genetics, CreatureNeedsComponent needs, CreatureBehaviorType behavior)
+            private float CalculateBehaviorIntensity(ChimeraGeneticDataComponent genetics, CreatureNeedsComponent needs, CreatureBehaviorType behavior)
             {
                 switch (behavior)
                 {
@@ -549,7 +549,7 @@ namespace Laboratory.Core.ECS.Systems
     {
         public float3 position;
         public CreatureIdentityComponent identity;
-        public GeneticDataComponent genetics;
+        public ChimeraGeneticDataComponent genetics;
         public SocialTerritoryComponent territory;
     }
 

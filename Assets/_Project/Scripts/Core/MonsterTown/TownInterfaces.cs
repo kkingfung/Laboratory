@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 using Cysharp.Threading.Tasks;
-using Laboratory.Chimera.Breeding;
 
 namespace Laboratory.Core.MonsterTown
 {
@@ -214,51 +213,7 @@ namespace Laboratory.Core.MonsterTown
         }
     }
 
-    /// <summary>
-    /// Monster statistics for activities
-    /// </summary>
-    [Serializable]
-    public struct MonsterStats
-    {
-        public float strength;
-        public float agility;
-        public float vitality;
-        public float intelligence;
-        public float social;
-        public float adaptability;
-        public float speed;
-        public float charisma;
 
-        public static MonsterStats GetDefault() => new MonsterStats
-        {
-            strength = 50f,
-            agility = 50f,
-            vitality = 50f,
-            intelligence = 50f,
-            social = 50f,
-            adaptability = 50f,
-            speed = 50f,
-            charisma = 50f
-        };
-    }
-
-    /// <summary>
-    /// Monster performance calculation for activities
-    /// </summary>
-    [Serializable]
-    public struct MonsterPerformance
-    {
-        public float basePerformance;
-        public float geneticBonus;
-        public float equipmentBonus;
-        public float experienceBonus;
-        public float happinessModifier;
-
-        public float CalculateTotal()
-        {
-            return Mathf.Clamp01(basePerformance + geneticBonus + equipmentBonus + experienceBonus + happinessModifier);
-        }
-    }
 
     /// <summary>
     /// Activity result data
@@ -313,37 +268,13 @@ namespace Laboratory.Core.MonsterTown
         public TownResources entryCost;
         public float difficultyLevel;
         public TownResources baseRewards;
+        public int Capacity;
     }
 
     #endregion
 
     #region Enums
 
-    /// <summary>
-    /// Available activity types - covers all major game genres
-    /// </summary>
-    public enum ActivityType
-    {
-        // Core Activity Types
-        Racing,
-        Combat,
-        Puzzle,
-        Strategy,
-        Platforming,
-        Adventure,
-        Crafting,
-        Music,
-
-        // Extended Activity Types
-        Sports,
-        Stealth,
-        Exploration,
-        Rhythm,
-        CardGame,
-        BoardGame,
-        Simulation,
-        Detective
-    }
 
     /// <summary>
     /// Building types for town construction
@@ -378,16 +309,6 @@ namespace Laboratory.Core.MonsterTown
     /// <summary>
     /// Monster locations within town
     /// </summary>
-    public enum TownLocation
-    {
-        TownCenter,
-        BreedingCenter,
-        TrainingGrounds,
-        ActivityCenter,
-        Habitat,
-        Hospital,
-        Adventure
-    }
 
     #endregion
 

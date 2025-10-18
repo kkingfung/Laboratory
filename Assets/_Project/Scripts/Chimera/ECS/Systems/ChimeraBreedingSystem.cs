@@ -46,7 +46,7 @@ namespace Laboratory.Core.ECS.Systems
             _breedingReadyQuery = GetEntityQuery(new ComponentType[]
             {
                 ComponentType.ReadWrite<BreedingComponent>(),
-                ComponentType.ReadOnly<GeneticDataComponent>(),
+                ComponentType.ReadOnly<ChimeraGeneticDataComponent>(),
                 ComponentType.ReadOnly<CreatureIdentityComponent>(),
                 ComponentType.ReadOnly<SocialTerritoryComponent>(),
                 ComponentType.ReadOnly<EnvironmentalComponent>(),
@@ -141,7 +141,7 @@ namespace Laboratory.Core.ECS.Systems
                 entityTypeHandle = GetEntityTypeHandle(),
                 transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
                 breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(true),
-                geneticsTypeHandle = GetComponentTypeHandle<GeneticDataComponent>(true),
+                geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
                 identityTypeHandle = GetComponentTypeHandle<CreatureIdentityComponent>(true)
             };
 
@@ -160,7 +160,7 @@ namespace Laboratory.Core.ECS.Systems
                 entityTypeHandle = GetEntityTypeHandle(),
                 transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
                 breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false),
-                geneticsTypeHandle = GetComponentTypeHandle<GeneticDataComponent>(true),
+                geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
                 identityTypeHandle = GetComponentTypeHandle<CreatureIdentityComponent>(true),
                 territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(true),
                 behaviorTypeHandle = GetComponentTypeHandle<BehaviorStateComponent>(true)
@@ -177,7 +177,7 @@ namespace Laboratory.Core.ECS.Systems
             [ReadOnly] public EntityTypeHandle entityTypeHandle;
             [ReadOnly] public ComponentTypeHandle<LocalToWorld> transformTypeHandle;
             [ReadOnly] public ComponentTypeHandle<BreedingComponent> breedingTypeHandle;
-            [ReadOnly] public ComponentTypeHandle<GeneticDataComponent> geneticsTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<ChimeraGeneticDataComponent> geneticsTypeHandle;
             [ReadOnly] public ComponentTypeHandle<CreatureIdentityComponent> identityTypeHandle;
 
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in Unity.Burst.Intrinsics.v128 chunkEnabledMask)
@@ -227,7 +227,7 @@ namespace Laboratory.Core.ECS.Systems
             [ReadOnly] public EntityTypeHandle entityTypeHandle;
             [ReadOnly] public ComponentTypeHandle<LocalToWorld> transformTypeHandle;
             public ComponentTypeHandle<BreedingComponent> breedingTypeHandle;
-            [ReadOnly] public ComponentTypeHandle<GeneticDataComponent> geneticsTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<ChimeraGeneticDataComponent> geneticsTypeHandle;
             [ReadOnly] public ComponentTypeHandle<CreatureIdentityComponent> identityTypeHandle;
             [ReadOnly] public ComponentTypeHandle<SocialTerritoryComponent> territoryTypeHandle;
             [ReadOnly] public ComponentTypeHandle<BehaviorStateComponent> behaviorTypeHandle;
@@ -287,7 +287,7 @@ namespace Laboratory.Core.ECS.Systems
                 }
             }
 
-            private BreedingCandidate FindBestMate(Entity self, float3 position, GeneticDataComponent selfGenetics,
+            private BreedingCandidate FindBestMate(Entity self, float3 position, ChimeraGeneticDataComponent selfGenetics,
                                                  CreatureIdentityComponent selfIdentity, BreedingComponent selfBreeding,
                                                  ref Unity.Mathematics.Random random)
             {
@@ -347,7 +347,7 @@ namespace Laboratory.Core.ECS.Systems
                        identity2.CurrentLifeStage == LifeStage.Adult;
             }
 
-            private float CalculateMateScore(GeneticDataComponent selfGenetics, GeneticDataComponent mateGenetics,
+            private float CalculateMateScore(ChimeraGeneticDataComponent selfGenetics, ChimeraGeneticDataComponent mateGenetics,
                                            CreatureIdentityComponent selfIdentity, CreatureIdentityComponent mateIdentity,
                                            BreedingComponent selfBreeding, float distance)
             {
@@ -374,7 +374,7 @@ namespace Laboratory.Core.ECS.Systems
                 return score;
             }
 
-            private float CalculateGeneticSimilarity(GeneticDataComponent genetics1, GeneticDataComponent genetics2)
+            private float CalculateGeneticSimilarity(ChimeraGeneticDataComponent genetics1, ChimeraGeneticDataComponent genetics2)
             {
                 // Compare key genetic traits
                 float similarity = 0f;
@@ -396,7 +396,7 @@ namespace Laboratory.Core.ECS.Systems
                 return 0.3f; // Too similar (inbreeding risk)
             }
 
-            private float CalculateBreedingSuccessChance(GeneticDataComponent parent1, GeneticDataComponent parent2,
+            private float CalculateBreedingSuccessChance(ChimeraGeneticDataComponent parent1, ChimeraGeneticDataComponent parent2,
                                                        CreatureIdentityComponent identity1, CreatureIdentityComponent identity2)
             {
                 float baseChance = 0.7f;
@@ -518,7 +518,7 @@ namespace Laboratory.Core.ECS.Systems
                     });
 
                     // Add other required components (genetics would be inherited from parents)
-                    commandBuffer.AddComponent<GeneticDataComponent>(chunkIndex, baby, new GeneticDataComponent
+                    commandBuffer.AddComponent<ChimeraGeneticDataComponent>(chunkIndex, baby, new ChimeraGeneticDataComponent
                     {
                         // Simplified offspring genetics - in full system would be properly inherited
                         Aggression = 0.5f,
@@ -583,7 +583,7 @@ namespace Laboratory.Core.ECS.Systems
     {
         public Entity entity;
         public float3 position;
-        public GeneticDataComponent genetics;
+        public ChimeraGeneticDataComponent genetics;
         public CreatureIdentityComponent identity;
         public BreedingComponent breeding;
     }

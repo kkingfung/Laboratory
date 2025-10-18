@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Laboratory.Core.Activities.Types;
 
 namespace Laboratory.Core.Activities.Components
 {

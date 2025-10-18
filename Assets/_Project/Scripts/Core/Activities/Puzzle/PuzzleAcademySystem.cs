@@ -5,7 +5,8 @@ using Unity.Mathematics;
 using Unity.Burst;
 using UnityEngine;
 using Laboratory.Core.ECS.Components;
-using Laboratory.Core.Activities;
+using Laboratory.Core.Activities.Components;
+using Laboratory.Core.Activities.Types;
 
 namespace Laboratory.Core.Activities.Puzzle
 {
@@ -564,7 +565,7 @@ namespace Laboratory.Core.Activities.Puzzle
 
         public void Execute(ref PuzzleSolverComponent solver,
             in PuzzlePerformanceComponent performance,
-            in GeneticDataComponent genetics)
+            RefRO<GeneticDataComponent> genetics)
         {
             if (solver.Status != SolverStatus.Solving)
                 return;
@@ -572,7 +573,7 @@ namespace Laboratory.Core.Activities.Puzzle
             solver.SolveTime += DeltaTime;
 
             // Process puzzle solving based on type
-            bool puzzleProgressed = ProcessPuzzleType(ref solver, performance, genetics);
+            bool puzzleProgressed = ProcessPuzzleType(ref solver, performance, genetics.ValueRO);
 
             if (puzzleProgressed)
             {
@@ -582,7 +583,7 @@ namespace Laboratory.Core.Activities.Puzzle
             else
             {
                 solver.StuckTimer += DeltaTime;
-                if (solver.StuckTimer > GetStuckThreshold(performance, genetics))
+                if (solver.StuckTimer > GetStuckThreshold(performance, genetics.ValueRO))
                 {
                     solver.IsStuck = true;
                     HandleStuckState(ref solver, performance);
@@ -590,7 +591,7 @@ namespace Laboratory.Core.Activities.Puzzle
             }
 
             // Check for completion
-            CheckPuzzleCompletion(ref solver, performance, genetics);
+            CheckPuzzleCompletion(ref solver, performance, genetics.ValueRO);
         }
 
 

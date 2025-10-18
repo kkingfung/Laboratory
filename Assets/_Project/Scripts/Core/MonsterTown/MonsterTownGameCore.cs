@@ -528,56 +528,6 @@ namespace Laboratory.Core.MonsterTown
         EducationCenter
     }
 
-    public enum ActivityType
-    {
-        Racing,
-        Combat,
-        Puzzle,
-        Strategy,
-        Adventure,
-        Platforming,
-        Music,
-        Crafting,
-        Exploration,
-        Social
-    }
-
-    [Serializable]
-    public class MonsterPerformance
-    {
-        public float OverallRating;
-
-        // Racing stats
-        public float Speed;
-        public float Endurance;
-        public float Handling;
-
-        // Combat stats
-        public float AttackPower;
-        public float Defense;
-        public float Agility;
-
-        // Puzzle stats
-        public float Intelligence;
-        public float Patience;
-        public float Memory;
-
-        // Strategy stats
-        public float Leadership;
-        public float Tactics;
-        public float Adaptability;
-    }
-
-    [Serializable]
-    public class ActivityResult
-    {
-        public ActivityType ActivityType;
-        public bool Success;
-        public float PerformanceScore;
-        public int ExperienceGained;
-        public List<Reward> Rewards;
-        public string EducationalContent;
-    }
 
     [Serializable]
     public class ActivityProgress
@@ -605,24 +555,6 @@ namespace Laboratory.Core.MonsterTown
         public int Coins;
         public int Gems;
         public int ActivityTokens;
-    }
-
-    [Serializable]
-    public class Reward
-    {
-        public RewardType Type;
-        public int Amount;
-        public string ItemId;
-    }
-
-    public enum RewardType
-    {
-        Coins,
-        Gems,
-        Equipment,
-        GeneticMaterial,
-        ActivityTokens,
-        Experience
     }
 
     #endregion

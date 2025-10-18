@@ -2,8 +2,6 @@ using UnityEngine;
 using Unity.Entities;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core.Infrastructure;
-using Laboratory.Chimera.Configuration;
-using Laboratory.Chimera.ECS;
 using System.Collections.Generic;
 
 namespace Laboratory.Core.MonsterTown

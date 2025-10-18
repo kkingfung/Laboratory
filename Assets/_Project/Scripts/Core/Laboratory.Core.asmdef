@@ -4,6 +4,7 @@
     "references": [
         "R3",
         "UniTask",
+        "Unity.Burst",
         "Unity.Entities",
         "Unity.Transforms",
         "Unity.Mathematics",

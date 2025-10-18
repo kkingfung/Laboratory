@@ -654,25 +654,6 @@ namespace Laboratory.Core.MonsterTown
         public float BonusAmount;
     }
 
-    [Serializable]
-    public class ActivityRequirements
-    {
-        public int MinLevel;
-        public string[] RequiredStats;
-        public string[] RequiredEquipment;
-        public float MinHappiness;
-    }
-
-    [Serializable]
-    public class ActivityConfig
-    {
-        public ActivityType Type;
-        public string Name;
-        public string Description;
-        public ActivityRequirements Requirements;
-        public float BaseRewardMultiplier;
-        public bool IsUnlocked;
-    }
 
     #endregion
 }

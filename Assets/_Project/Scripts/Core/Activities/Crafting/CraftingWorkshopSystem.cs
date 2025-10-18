@@ -5,7 +5,8 @@ using Unity.Mathematics;
 using Unity.Burst;
 using UnityEngine;
 using Laboratory.Core.ECS.Components;
-using Laboratory.Core.Activities;
+using Laboratory.Core.Activities.Components;
+using Laboratory.Core.Activities.Types;
 using Laboratory.Core.Equipment;
 
 namespace Laboratory.Core.Activities.Crafting
@@ -536,13 +537,13 @@ namespace Laboratory.Core.Activities.Crafting
 
         public void Execute(ref CrafterComponent crafter,
             in CraftingPerformanceComponent performance,
-            in GeneticDataComponent genetics)
+            RefRO<GeneticDataComponent> genetics)
         {
             if (crafter.Status != CrafterStatus.Crafting)
                 return;
 
             // Update crafting progress
-            float craftingSpeed = genetics.Intelligence * performance.CraftingSpeed;
+            float craftingSpeed = genetics.ValueRO.Intelligence * performance.CraftingSpeed;
             crafter.CraftingProgress += craftingSpeed * DeltaTime * 0.1f;
 
             // Update stamina
@@ -551,11 +552,11 @@ namespace Laboratory.Core.Activities.Crafting
             // Check for completion
             if (crafter.CraftingProgress >= 1f)
             {
-                CompleteCraftingItem(ref crafter, performance, genetics);
+                CompleteCraftingItem(ref crafter, performance, genetics.ValueRO);
             }
 
             // Check for innovation opportunities
-            if (genetics.Curiosity > 0.7f && performance.InnovationAbility > 0.6f)
+            if (genetics.ValueRO.Curiosity > 0.7f && performance.InnovationAbility > 0.6f)
             {
                 if (math.random().NextFloat() < 0.001f) // 0.1% chance per frame
                 {
@@ -565,7 +566,7 @@ namespace Laboratory.Core.Activities.Crafting
             }
 
             // Update mood
-            UpdateCrafterMood(ref crafter, performance, genetics);
+            UpdateCrafterMood(ref crafter, performance, genetics.ValueRO);
         }
 
 

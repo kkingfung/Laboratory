@@ -4,6 +4,9 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Core.MonsterTown;
 using Laboratory.Core.Configuration;
+using Laboratory.Core.Activities.Types;
+using EquipmentItem = Laboratory.Core.MonsterTown.Equipment;
+using ActivityType = Laboratory.Core.Activities.Types.ActivityType;
 
 namespace Laboratory.Core.Equipment
 {
@@ -30,8 +33,8 @@ namespace Laboratory.Core.Equipment
         [SerializeField] private float cacheUpdateFrequency = 5f;
 
         // Equipment storage and management
-        private Dictionary<string, Equipment> _globalEquipment = new();
-        private Dictionary<string, List<Equipment>> _monsterEquipment = new();
+        private Dictionary<string, EquipmentItem> _globalEquipment = new();
+        private Dictionary<string, List<EquipmentItem>> _monsterEquipment = new();
         private Dictionary<string, EquipmentPerformanceCache> _performanceCache = new();
 
         #region Equipment Database Management
@@ -68,7 +71,7 @@ namespace Laboratory.Core.Equipment
 
         private Equipment CreateEquipmentFromConfig(EquipmentConfig config)
         {
-            return new Equipment
+            return new EquipmentItem
             {
                 ItemId = config.ItemId,
                 Name = config.Name,
@@ -106,7 +109,7 @@ namespace Laboratory.Core.Equipment
             // Initialize monster equipment list if needed
             if (!_monsterEquipment.ContainsKey(monster.UniqueId))
             {
-                _monsterEquipment[monster.UniqueId] = new List<Equipment>();
+                _monsterEquipment[monster.UniqueId] = new List<EquipmentItem>();
             }
 
             var monsterEquipment = _monsterEquipment[monster.UniqueId];
@@ -165,7 +168,7 @@ namespace Laboratory.Core.Equipment
         /// <summary>
         /// Check if a monster can equip a specific item
         /// </summary>
-        public bool CanEquipItem(Monster monster, Equipment equipment)
+        public bool CanEquipItem(Monster monster, EquipmentItem equipment)
         {
             // Level requirement
             if (monster.Level < equipment.Level)
@@ -303,7 +306,7 @@ namespace Laboratory.Core.Equipment
         /// <summary>
         /// Calculate set bonuses when wearing multiple pieces of the same equipment set
         /// </summary>
-        private float CalculateSetBonuses(List<Equipment> equipment, ActivityType activityType)
+        private float CalculateSetBonuses(List<EquipmentItem> equipment, ActivityType activityType)
         {
             // Group equipment by set (using rarity as set identifier for now)
             var sets = equipment.GroupBy(e => e.Rarity).Where(g => g.Count() >= 2);
@@ -348,7 +351,7 @@ namespace Laboratory.Core.Equipment
         /// <summary>
         /// Create new equipment instance (for rewards, crafting, etc.)
         /// </summary>
-        public Equipment CreateEquipment(string baseItemId, int level = 1, EquipmentRarity? overrideRarity = null)
+        public EquipmentItem CreateEquipment(string baseItemId, int level = 1, EquipmentRarity? overrideRarity = null)
         {
             if (!_globalEquipment.TryGetValue(baseItemId, out var baseEquipment))
             {
@@ -406,9 +409,9 @@ namespace Laboratory.Core.Equipment
 
         #region Utility Methods
 
-        private Equipment CloneEquipment(Equipment original)
+        private Equipment CloneEquipment(EquipmentItem original)
         {
-            return new Equipment
+            return new EquipmentItem
             {
                 ItemId = original.ItemId,
                 Name = original.Name,
@@ -446,17 +449,17 @@ namespace Laboratory.Core.Equipment
         /// <summary>
         /// Get all equipment owned by a monster
         /// </summary>
-        public List<Equipment> GetMonsterEquipment(Monster monster)
+        public List<EquipmentItem> GetMonsterEquipment(Monster monster)
         {
             return _monsterEquipment.TryGetValue(monster.UniqueId, out var equipment)
-                ? new List<Equipment>(equipment)
-                : new List<Equipment>();
+                ? new List<EquipmentItem>(equipment)
+                : new List<EquipmentItem>();
         }
 
         /// <summary>
         /// Get equipment by item ID from global database
         /// </summary>
-        public Equipment GetEquipmentById(string itemId)
+        public EquipmentItem GetEquipmentById(string itemId)
         {
             return _globalEquipment.TryGetValue(itemId, out var equipment) ? equipment : null;
         }
@@ -487,8 +490,8 @@ namespace Laboratory.Core.Equipment
         public string Name;
         [TextArea(3, 5)]
         public string Description;
-        public EquipmentType Type;
-        public EquipmentRarity Rarity;
+        public EquipmentItemType Type;
+        public EquipmentItemRarity Rarity;
 
         [Header("Stat Bonuses")]
         public Dictionary<StatType, float> StatBonuses = new();

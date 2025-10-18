@@ -5,7 +5,8 @@ using Unity.Mathematics;
 using Unity.Burst;
 using UnityEngine;
 using Laboratory.Core.ECS.Components;
-using Laboratory.Core.Activities;
+using Laboratory.Core.Activities.Components;
+using Laboratory.Core.Activities.Types;
 
 namespace Laboratory.Core.Activities.Music
 {
@@ -602,16 +603,16 @@ namespace Laboratory.Core.Activities.Music
 
         public void Execute(ref MusicPerformerComponent performer,
             in MusicPerformanceComponent performance,
-            in GeneticDataComponent genetics)
+            RefRO<GeneticDataComponent> genetics)
         {
             if (performer.Status != PerformerStatus.Performing)
                 return;
 
             // Update musical performance based on genetics and skill
-            UpdateRhythmAccuracy(ref performer, performance, genetics);
-            UpdatePerformanceScore(ref performer, performance, genetics);
+            UpdateRhythmAccuracy(ref performer, performance, genetics.ValueRO);
+            UpdatePerformanceScore(ref performer, performance, genetics.ValueRO);
             UpdateFlowState(ref performer, performance, DeltaTime);
-            UpdateMusicalMood(ref performer, genetics, Time);
+            UpdateMusicalMood(ref performer, genetics.ValueRO, Time);
         }
 
 

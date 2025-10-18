@@ -131,11 +131,11 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Create a genetics data component using integrated trait values
         /// </summary>
-        public GeneticDataComponent CreateIntegratedGeneticData(string speciesName = "")
+        public ChimeraGeneticDataComponent CreateIntegratedGeneticData(string speciesName = "")
         {
             ValidateIntegrationCache();
 
-            var geneticData = new GeneticDataComponent
+            var geneticData = new ChimeraGeneticDataComponent
             {
                 Aggression = GetIntegratedTraitValue("Aggression", 0.5f),
                 Sociability = GetIntegratedTraitValue("Sociability", 0.5f),
@@ -292,7 +292,7 @@ namespace Laboratory.Chimera.Integration
             }
         }
 
-        private void ApplySpeciesModifications(ref GeneticDataComponent genetics, SpeciesData speciesData)
+        private void ApplySpeciesModifications(ref ChimeraGeneticDataComponent genetics, SpeciesData speciesData)
         {
             genetics.Size *= speciesData.sizeModifier;
             genetics.Speed *= speciesData.speedModifier;
@@ -301,7 +301,7 @@ namespace Laboratory.Chimera.Integration
             genetics.Intelligence *= speciesData.intelligenceModifier;
         }
 
-        private float CalculateIntegratedFitness(GeneticDataComponent genetics)
+        private float CalculateIntegratedFitness(ChimeraGeneticDataComponent genetics)
         {
             // Use unified config weights if available
             var weights = unifiedConfig?.Genetics;
@@ -317,7 +317,7 @@ namespace Laboratory.Chimera.Integration
             return (genetics.Aggression + genetics.Intelligence + genetics.Adaptability + genetics.Fertility) / 4f;
         }
 
-        private uint CalculateGeneticHash(GeneticDataComponent genetics)
+        private uint CalculateGeneticHash(ChimeraGeneticDataComponent genetics)
         {
             uint hash = 0;
             hash ^= (uint)(genetics.Aggression * 1000) << 0;
@@ -327,7 +327,7 @@ namespace Laboratory.Chimera.Integration
             return hash;
         }
 
-        private BiomeType DetermineBestBiome(GeneticDataComponent genetics)
+        private BiomeType DetermineBestBiome(ChimeraGeneticDataComponent genetics)
         {
             float bestScore = 0f;
             BiomeType bestBiome = BiomeType.Grassland;
@@ -345,7 +345,7 @@ namespace Laboratory.Chimera.Integration
             return bestBiome;
         }
 
-        private float CalculateBiomeAffinityScore(GeneticDataComponent genetics, BiomeIntegrationData biome)
+        private float CalculateBiomeAffinityScore(ChimeraGeneticDataComponent genetics, BiomeIntegrationData biome)
         {
             float score = 0f;
 

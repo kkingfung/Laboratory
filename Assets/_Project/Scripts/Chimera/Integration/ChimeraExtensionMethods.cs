@@ -21,11 +21,11 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Convert MonoBehaviour AI to ECS components (extension method)
         /// </summary>
-        public static GeneticDataComponent ToECSGeneticsComponent(this ChimeraMonsterAI monsterAI)
+        public static ChimeraGeneticDataComponent ToECSGeneticsComponent(this ChimeraMonsterAI monsterAI)
         {
             var genetics = monsterAI.GetGeneticsData();
 
-            return new GeneticDataComponent
+            return new ChimeraGeneticDataComponent
             {
                 Aggression = genetics.GetTraitValue("Aggression", 0.5f),
                 Sociability = genetics.GetTraitValue("Sociability", 0.5f),
@@ -69,7 +69,7 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Apply ECS genetics data to MonoBehaviour AI
         /// </summary>
-        public static void ApplyECSGenetics(this ChimeraMonsterAI monsterAI, GeneticDataComponent ecsGenetics)
+        public static void ApplyECSGenetics(this ChimeraMonsterAI monsterAI, ChimeraGeneticDataComponent ecsGenetics)
         {
             var genetics = monsterAI.GetGeneticsData();
 
@@ -124,9 +124,9 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Get all managed creatures as ECS-compatible data
         /// </summary>
-        public static List<GeneticDataComponent> GetAllCreatureGeneticsECS(this ChimeraAIManager aiManager)
+        public static List<ChimeraGeneticDataComponent> GetAllCreatureGeneticsECS(this ChimeraAIManager aiManager)
         {
-            var genetics = new List<GeneticDataComponent>();
+            var genetics = new List<ChimeraGeneticDataComponent>();
             var monsters = aiManager.GetManagedMonsters();
 
             foreach (var monster in monsters)
@@ -193,11 +193,11 @@ namespace Laboratory.Chimera.Integration
         #region GeneticProfile Extensions
 
         /// <summary>
-        /// Convert existing GeneticProfile to ECS GeneticDataComponent
+        /// Convert existing GeneticProfile to ECS ChimeraGeneticDataComponent
         /// </summary>
-        public static GeneticDataComponent ToECSComponent(this GeneticProfile profile)
+        public static ChimeraGeneticDataComponent ToECSComponent(this GeneticProfile profile)
         {
-            var component = new GeneticDataComponent();
+            var component = new ChimeraGeneticDataComponent();
 
             foreach (var gene in profile.Genes)
             {
@@ -248,9 +248,9 @@ namespace Laboratory.Chimera.Integration
         }
 
         /// <summary>
-        /// Create GeneticProfile from ECS GeneticDataComponent
+        /// Create GeneticProfile from ECS ChimeraGeneticDataComponent
         /// </summary>
-        public static GeneticProfile FromECSComponent(GeneticDataComponent ecsGenetics)
+        public static GeneticProfile FromECSComponent(ChimeraGeneticDataComponent ecsGenetics)
         {
             var genes = new List<Gene>
             {

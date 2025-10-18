@@ -12,7 +12,7 @@ namespace Laboratory.Core.ECS.Components
     #region Core Genetic Data
 
     /// <summary>
-    /// Genetic data component - extended from CreatureECSComponents for richer functionality
+    /// Genetic data component - genetic stats for Core systems
     /// </summary>
     public struct GeneticDataComponent : IComponentData
     {

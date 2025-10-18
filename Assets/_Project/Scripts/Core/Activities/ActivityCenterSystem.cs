@@ -5,6 +5,8 @@ using Unity.Mathematics;
 using Unity.Burst;
 using UnityEngine;
 using Laboratory.Core.ECS.Components;
+using Laboratory.Core.Activities.Components;
+using Laboratory.Core.Activities.Types;
 using Laboratory.Core.Configuration;
 
 namespace Laboratory.Core.Activities
@@ -16,106 +18,7 @@ namespace Laboratory.Core.Activities
     /// INTEGRATION: Works with genetics to determine monster performance
     /// </summary>
 
-    #region Activity Components
 
-    /// <summary>
-    /// Core activity participation component
-    /// </summary>
-    public struct ActivityParticipantComponent : IComponentData
-    {
-        public ActivityType CurrentActivity;
-        public ActivityStatus Status;
-        public Entity ActivityCenter;
-        public float PerformanceScore;
-        public float ActivityProgress;
-        public float TimeInActivity;
-        public int ExperienceGained;
-        public bool HasRewards;
-    }
-
-    /// <summary>
-    /// Activity center instance component
-    /// </summary>
-    public struct ActivityCenterComponent : IComponentData
-    {
-        public ActivityType ActivityType;
-        public int MaxParticipants;
-        public int CurrentParticipants;
-        public float ActivityDuration;
-        public float DifficultyLevel;
-        public bool IsActive;
-        public float QualityRating;
-        public Entity OwnerCreature; // For player-built centers
-    }
-
-    /// <summary>
-    /// Activity performance tracking
-    /// </summary>
-    public struct ActivityPerformanceComponent : IComponentData
-    {
-        // Racing Performance
-        public float RacingSpeed;
-        public float RacingAgility;
-        public float RacingEndurance;
-
-        // Combat Performance
-        public float CombatPower;
-        public float CombatDefense;
-        public float CombatStrategy;
-
-        // Puzzle Performance
-        public float PuzzleSolving;
-        public float LogicSpeed;
-        public float PatternRecognition;
-
-        // Overall metrics
-        public float OverallRating;
-        public int TotalActivitiesCompleted;
-        public float BestPerformance;
-    }
-
-    /// <summary>
-    /// Equipment effects on activity performance
-    /// </summary>
-    public struct ActivityEquipmentComponent : IComponentData
-    {
-        public Entity EquippedGear;
-        public float SpeedBonus;
-        public float StrengthBonus;
-        public float IntelligenceBonus;
-        public float EnduranceBonus;
-        public float SpecialtyBonus; // Activity-specific bonus
-    }
-
-    #endregion
-
-    #region Enums
-
-    public enum ActivityType : byte
-    {
-        None,
-        Racing,
-        Combat,
-        Puzzle,
-        Strategy,
-        Music,
-        Adventure,
-        Platforming,
-        Crafting
-    }
-
-    public enum ActivityStatus : byte
-    {
-        NotParticipating,
-        Queued,
-        Warming_Up,
-        Active,
-        Completed,
-        Failed,
-        Rewarded
-    }
-
-    #endregion
 
     #region Core Activity System
 
@@ -173,9 +76,9 @@ namespace Laboratory.Core.Activities
 
         public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity,
             ref ActivityParticipantComponent participant,
-            in GeneticDataComponent genetics,
-            in CreatureIdentityComponent identity,
-            in ActivityPerformanceComponent performance)
+            RefRO<GeneticDataComponent> genetics,
+            RefRO<CreatureIdentityComponent> identity,
+            RefRO<ActivityPerformanceComponent> performance)
         {
             if (participant.Status == ActivityStatus.NotParticipating)
                 return;
@@ -206,7 +109,7 @@ namespace Laboratory.Core.Activities
 
                 case ActivityStatus.Active:
                     // Calculate performance based on genetics and activity type
-                    float performanceMultiplier = CalculatePerformanceMultiplier(participant.CurrentActivity, genetics);
+                    float performanceMultiplier = CalculatePerformanceMultiplier(participant.CurrentActivity, genetics.ValueRO);
                     float progressRate = performanceMultiplier * DeltaTime;
 
                     participant.ActivityProgress += progressRate;

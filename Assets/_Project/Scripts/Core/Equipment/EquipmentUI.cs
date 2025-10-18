@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using TMPro;
 using Laboratory.Core.MonsterTown;
 
 namespace Laboratory.Core.Equipment
@@ -21,15 +20,15 @@ namespace Laboratory.Core.Equipment
         [SerializeField] private GameObject inventoryItemPrefab;
 
         [Header("📊 Monster Info Display")]
-        [SerializeField] private TextMeshProUGUI monsterNameText;
-        [SerializeField] private TextMeshProUGUI monsterLevelText;
+        [SerializeField] private Text monsterNameText;
+        [SerializeField] private Text monsterLevelText;
         [SerializeField] private Slider[] statBars; // For displaying stat bonuses
 
         [Header("🔧 Equipment Details")]
         [SerializeField] private GameObject detailsPanel;
-        [SerializeField] private TextMeshProUGUI itemNameText;
-        [SerializeField] private TextMeshProUGUI itemDescriptionText;
-        [SerializeField] private TextMeshProUGUI itemStatsText;
+        [SerializeField] private Text itemNameText;
+        [SerializeField] private Text itemDescriptionText;
+        [SerializeField] private Text itemStatsText;
         [SerializeField] private Image itemIcon;
         [SerializeField] private Button equipButton;
         [SerializeField] private Button unequipButton;
@@ -341,7 +340,7 @@ namespace Laboratory.Core.Equipment
     {
         [SerializeField] private Image slotIcon;
         [SerializeField] private Image equipmentIcon;
-        [SerializeField] private TextMeshProUGUI slotLabel;
+        [SerializeField] private Text slotLabel;
 
         public EquipmentType SlotType { get; private set; }
         private Equipment _currentEquipment;
@@ -410,8 +409,8 @@ namespace Laboratory.Core.Equipment
     public class InventoryItemUI : MonoBehaviour, IPointerClickHandler
     {
         [SerializeField] private Image itemIcon;
-        [SerializeField] private TextMeshProUGUI itemName;
-        [SerializeField] private TextMeshProUGUI itemLevel;
+        [SerializeField] private Text itemName;
+        [SerializeField] private Text itemLevel;
 
         private Equipment _equipment;
         private EquipmentUI _parentUI;

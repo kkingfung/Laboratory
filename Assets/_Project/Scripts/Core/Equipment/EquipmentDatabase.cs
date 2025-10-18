@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Core.MonsterTown;
+using ActivityType = Laboratory.Core.Activities.Types.ActivityType;
 
 namespace Laboratory.Core.Equipment
 {

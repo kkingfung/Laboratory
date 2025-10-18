@@ -3,9 +3,6 @@ using Unity.Entities;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
-using Laboratory.Chimera.Configuration;
-using Laboratory.Chimera.ECS;
-using Laboratory.Chimera.Breeding;
 using System.Collections.Generic;
 using System.Linq;
 

@@ -5,6 +5,8 @@ using Unity.Mathematics;
 using Unity.Burst;
 using UnityEngine;
 using Laboratory.Core.ECS.Components;
+using Laboratory.Core.Activities.Components;
+using Laboratory.Core.Activities.Types;
 using Laboratory.Core.Activities;
 
 namespace Laboratory.Core.Equipment
@@ -231,8 +233,8 @@ namespace Laboratory.Core.Equipment
         public float DeltaTime;
 
         public void Execute(ref CreatureEquipmentComponent equipment,
-            in GeneticDataComponent genetics,
-            in ActivityParticipantComponent activity)
+            RefRO<GeneticDataComponent> genetics,
+            RefRO<ActivityParticipantComponent> activity)
         {
             // Calculate total equipment bonuses
             float totalStatBonus = 0f;

@@ -391,7 +391,7 @@ namespace Laboratory.Core.MonsterTown
             return MonsterPerformance.FromMonsterStats(MonsterStats.CreateBalanced(50f));
         }
 
-        private ActivityResult ConvertActivityResult(Laboratory.Core.MonsterTown.ActivityResult originalResult, MonsterInstance monster, ActivityType activityType)
+        private ActivityResult ConvertActivityResult(ActivityResult originalResult, MonsterInstance monster, ActivityType activityType)
         {
             var townResources = new TownResources
             {
@@ -399,16 +399,7 @@ namespace Laboratory.Core.MonsterTown
                 activityTokens = originalResult.Success ? 5 : 1
             };
 
-            return new ActivityResult
-            {
-                IsSuccess = originalResult.Success,
-                ActivityType = activityType,
-                PerformanceRating = originalResult.PerformanceScore,
-                ResourcesEarned = townResources,
-                ExperienceGained = originalResult.ExperienceGained,
-                HappinessChange = originalResult.Success ? 0.1f : -0.05f,
-                ResultMessage = originalResult.Success ? $"Great performance in {activityType}!" : "Better luck next time!"
-            };
+            return ActivityResult.Success(activityType, originalResult.PerformanceRating, originalResult.ResourcesEarned, originalResult.ExperienceGained);
         }
 
         #endregion
@@ -621,20 +612,6 @@ namespace Laboratory.Core.MonsterTown
         public float AverageExperience => TotalAttempts > 0 ? TotalExperience / TotalAttempts : 0f;
     }
 
-    /// <summary>
-    /// Extended ActivityCenterInfo with capacity
-    /// </summary>
-    public struct ActivityCenterInfo
-    {
-        public ActivityType activityType;
-        public string name;
-        public string description;
-        public bool isUnlocked;
-        public TownResources entryCost;
-        public float difficultyLevel;
-        public TownResources baseRewards;
-        public int Capacity;
-    }
 
     #endregion
 
@@ -647,11 +624,11 @@ namespace Laboratory.Core.MonsterTown
     {
         public async Task InitializeAsync() => await Task.Delay(100);
 
-        public async Task<Laboratory.Core.MonsterTown.ActivityResult> RunActivityAsync(ActivitySession session)
+        public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(2000, 4000));
             var performance = session.Performance.CalculateTotal();
-            return Laboratory.Core.MonsterTown.ActivityResult.CreateSuccess(ActivityType.Sports, performance, Mathf.RoundToInt(performance * 60));
+            return ActivityResult.Success(ActivityType.Sports, performance, new TownResources { coins = Mathf.RoundToInt(performance * 60) }, Mathf.RoundToInt(performance * 60));
         }
 
         public string GetActivityName() => "Sports Complex";
@@ -665,11 +642,11 @@ namespace Laboratory.Core.MonsterTown
     {
         public async Task InitializeAsync() => await Task.Delay(100);
 
-        public async Task<Laboratory.Core.MonsterTown.ActivityResult> RunActivityAsync(ActivitySession session)
+        public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(3000, 6000));
             var performance = session.Performance.CalculateTotal();
-            return Laboratory.Core.MonsterTown.ActivityResult.CreateSuccess(ActivityType.Stealth, performance, Mathf.RoundToInt(performance * 80));
+            return ActivityResult.Success(ActivityType.Stealth, performance, new TownResources { coins = Mathf.RoundToInt(performance * 80) }, Mathf.RoundToInt(performance * 80));
         }
 
         public string GetActivityName() => "Stealth Training";
@@ -683,11 +660,11 @@ namespace Laboratory.Core.MonsterTown
     {
         public async Task InitializeAsync() => await Task.Delay(100);
 
-        public async Task<Laboratory.Core.MonsterTown.ActivityResult> RunActivityAsync(ActivitySession session)
+        public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(2000, 4000));
             var performance = session.Performance.CalculateTotal();
-            return Laboratory.Core.MonsterTown.ActivityResult.CreateSuccess(ActivityType.Rhythm, performance, Mathf.RoundToInt(performance * 70));
+            return ActivityResult.Success(ActivityType.Rhythm, performance, new TownResources { coins = Mathf.RoundToInt(performance * 70) }, Mathf.RoundToInt(performance * 70));
         }
 
         public string GetActivityName() => "Rhythm Academy";
@@ -701,11 +678,11 @@ namespace Laboratory.Core.MonsterTown
     {
         public async Task InitializeAsync() => await Task.Delay(100);
 
-        public async Task<Laboratory.Core.MonsterTown.ActivityResult> RunActivityAsync(ActivitySession session)
+        public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(4000, 8000));
             var performance = session.Performance.CalculateTotal();
-            return Laboratory.Core.MonsterTown.ActivityResult.CreateSuccess(ActivityType.CardGame, performance, Mathf.RoundToInt(performance * 90));
+            return ActivityResult.Success(ActivityType.CardGame, performance, new TownResources { coins = Mathf.RoundToInt(performance * 90) }, Mathf.RoundToInt(performance * 90));
         }
 
         public string GetActivityName() => "Card Game Lounge";
@@ -719,11 +696,11 @@ namespace Laboratory.Core.MonsterTown
     {
         public async Task InitializeAsync() => await Task.Delay(100);
 
-        public async Task<Laboratory.Core.MonsterTown.ActivityResult> RunActivityAsync(ActivitySession session)
+        public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(5000, 10000));
             var performance = session.Performance.CalculateTotal();
-            return Laboratory.Core.MonsterTown.ActivityResult.CreateSuccess(ActivityType.BoardGame, performance, Mathf.RoundToInt(performance * 100));
+            return ActivityResult.Success(ActivityType.BoardGame, performance, new TownResources { coins = Mathf.RoundToInt(performance * 100) }, Mathf.RoundToInt(performance * 100));
         }
 
         public string GetActivityName() => "Board Game Café";
@@ -737,11 +714,11 @@ namespace Laboratory.Core.MonsterTown
     {
         public async Task InitializeAsync() => await Task.Delay(100);
 
-        public async Task<Laboratory.Core.MonsterTown.ActivityResult> RunActivityAsync(ActivitySession session)
+        public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(6000, 12000));
             var performance = session.Performance.CalculateTotal();
-            return Laboratory.Core.MonsterTown.ActivityResult.CreateSuccess(ActivityType.Simulation, performance, Mathf.RoundToInt(performance * 120));
+            return ActivityResult.Success(ActivityType.Simulation, performance, new TownResources { coins = Mathf.RoundToInt(performance * 120) }, Mathf.RoundToInt(performance * 120));
         }
 
         public string GetActivityName() => "Simulation Center";
@@ -755,11 +732,11 @@ namespace Laboratory.Core.MonsterTown
     {
         public async Task InitializeAsync() => await Task.Delay(100);
 
-        public async Task<Laboratory.Core.MonsterTown.ActivityResult> RunActivityAsync(ActivitySession session)
+        public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(8000, 15000));
             var performance = session.Performance.CalculateTotal();
-            return Laboratory.Core.MonsterTown.ActivityResult.CreateSuccess(ActivityType.Detective, performance, Mathf.RoundToInt(performance * 150));
+            return ActivityResult.Success(ActivityType.Detective, performance, new TownResources { coins = Mathf.RoundToInt(performance * 150) }, Mathf.RoundToInt(performance * 150));
         }
 
         public string GetActivityName() => "Detective Bureau";

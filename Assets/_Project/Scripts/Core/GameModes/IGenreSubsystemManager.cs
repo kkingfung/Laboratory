@@ -19,7 +19,62 @@ namespace Laboratory.Core.GameModes
         CityBuilder,       // Population genetics and ecosystem management
         Detective,         // Genetic investigation and mysteries
         Economics,         // Genetic trait trading and speculation
-        Sports             // Competitive genetics olympics
+        Sports,            // Competitive genetics olympics
+
+        // Action Genres
+        FPS,               // First-person shooter with genetic creatures
+        ThirdPersonShooter, // Third-person action with genetic creatures
+        Fighting,          // Fighting games with evolved fighters
+        BeatEmUp,          // Beat 'em up with creature companions
+        HackAndSlash,      // Action RPG with genetic weapons/allies
+        Stealth,           // Stealth games with evolved abilities
+        SurvivalHorror,    // Horror survival with genetic mutations
+
+        // Strategy Variants
+        RealTimeStrategy,  // RTS with genetic units
+        TurnBasedStrategy, // Turn-based with genetic evolution
+        FourXStrategy,     // 4X games with species evolution
+        GrandStrategy,     // Grand strategy with genetic civilizations
+        AutoBattler,       // Auto-chess with genetic pieces
+
+        // Puzzle Variants
+        Match3,            // Match-3 with genetic combinations
+        TetrisLike,        // Tetris-like with genetic shapes
+        PhysicsPuzzle,     // Physics puzzles with genetic properties
+        HiddenObject,      // Hidden object with genetic clues
+        WordGame,          // Word games with genetic terminology
+
+        // Adventure Variants
+        PointAndClickAdventure, // Point-and-click with genetic mysteries
+        VisualNovel,       // Visual novels with genetic storylines
+        WalkingSimulator,  // Walking sims with ecosystem exploration
+        Metroidvania,      // Metroidvania with genetic abilities
+
+        // Platform Variants
+        Platformer2D,      // 2D platforming with genetic powers
+        Platformer3D,      // 3D platforming with evolved abilities
+        EndlessRunner,     // Endless running with genetic evolution
+
+        // Simulation Variants
+        VehicleSimulation, // Vehicle sims with genetic engineering
+        FlightSimulator,   // Flight sims with evolved aircraft
+        FarmingSimulator,  // Farming with genetic crops/animals
+        ConstructionSimulator, // Construction with genetic materials
+
+        // Arcade Variants
+        Roguelike,         // Roguelike with genetic progression
+        Roguelite,         // Roguelite with genetic meta-progression
+        BulletHell,        // Bullet hell with genetic patterns
+        Arcade,            // Classic arcade with genetic twists
+
+        // Board/Card Games
+        BoardGame,         // Board games with genetic mechanics
+        CardGame,          // Card games with genetic deck building
+        ChessLike,         // Chess-like with genetic pieces
+
+        // Music Games
+        RhythmGame,        // Rhythm games with genetic beats
+        MusicCreation      // Music creation with genetic sounds
     }
 
     /// <summary>

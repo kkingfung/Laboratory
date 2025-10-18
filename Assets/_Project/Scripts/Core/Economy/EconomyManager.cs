@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Core.MonsterTown;
-using Laboratory.Core.Equipment;
 using Laboratory.Core.Events;
+using EquipmentRarity = Laboratory.Core.Equipment.EquipmentRarity;
 
 namespace Laboratory.Core.Economy
 {

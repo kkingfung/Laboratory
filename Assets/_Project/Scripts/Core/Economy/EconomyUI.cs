@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 using Laboratory.Core.MonsterTown;
 using Laboratory.Core.Equipment;
 
@@ -17,46 +16,46 @@ namespace Laboratory.Core.Economy
     {
         [Header("💰 Wallet Display")]
         [SerializeField] private GameObject walletPanel;
-        [SerializeField] private TextMeshProUGUI coinsText;
-        [SerializeField] private TextMeshProUGUI gemsText;
-        [SerializeField] private TextMeshProUGUI tokensText;
-        [SerializeField] private TextMeshProUGUI samplesText;
-        [SerializeField] private TextMeshProUGUI materialsText;
-        [SerializeField] private TextMeshProUGUI energyText;
+        [SerializeField] private Text coinsText;
+        [SerializeField] private Text gemsText;
+        [SerializeField] private Text tokensText;
+        [SerializeField] private Text samplesText;
+        [SerializeField] private Text materialsText;
+        [SerializeField] private Text energyText;
 
         [Header("🏪 Marketplace")]
         [SerializeField] private GameObject marketplacePanel;
         [SerializeField] private Transform marketListingsParent;
         [SerializeField] private GameObject marketListingPrefab;
-        [SerializeField] private TMP_Dropdown categoryFilter;
-        [SerializeField] private TMP_Dropdown rarityFilter;
+        [SerializeField] private Dropdown categoryFilter;
+        [SerializeField] private Dropdown rarityFilter;
         [SerializeField] private Button refreshMarketButton;
 
         [Header("💱 Currency Exchange")]
         [SerializeField] private GameObject exchangePanel;
-        [SerializeField] private TMP_Dropdown fromCurrencyDropdown;
-        [SerializeField] private TMP_Dropdown toCurrencyDropdown;
-        [SerializeField] private TMP_InputField exchangeAmountInput;
-        [SerializeField] private TextMeshProUGUI exchangeRateText;
-        [SerializeField] private TextMeshProUGUI exchangeResultText;
+        [SerializeField] private Dropdown fromCurrencyDropdown;
+        [SerializeField] private Dropdown toCurrencyDropdown;
+        [SerializeField] private InputField exchangeAmountInput;
+        [SerializeField] private Text exchangeRateText;
+        [SerializeField] private Text exchangeResultText;
         [SerializeField] private Button exchangeButton;
 
         [Header("📊 Market Stats")]
         [SerializeField] private GameObject statsPanel;
-        [SerializeField] private TextMeshProUGUI totalPlayersText;
-        [SerializeField] private TextMeshProUGUI globalValueText;
-        [SerializeField] private TextMeshProUGUI activeListingsText;
+        [SerializeField] private Text totalPlayersText;
+        [SerializeField] private Text globalValueText;
+        [SerializeField] private Text activeListingsText;
         [SerializeField] private Transform exchangeRatesParent;
         [SerializeField] private GameObject exchangeRateItemPrefab;
 
         [Header("🛒 Item Listing")]
         [SerializeField] private GameObject listItemPanel;
-        [SerializeField] private TMP_InputField itemNameInput;
-        [SerializeField] private TMP_Dropdown itemCategoryDropdown;
-        [SerializeField] private TMP_Dropdown itemRarityDropdown;
-        [SerializeField] private TMP_InputField priceCoinsInput;
-        [SerializeField] private TMP_InputField priceGemsInput;
-        [SerializeField] private TMP_InputField quantityInput;
+        [SerializeField] private InputField itemNameInput;
+        [SerializeField] private Dropdown itemCategoryDropdown;
+        [SerializeField] private Dropdown itemRarityDropdown;
+        [SerializeField] private InputField priceCoinsInput;
+        [SerializeField] private InputField priceGemsInput;
+        [SerializeField] private InputField quantityInput;
         [SerializeField] private Button listItemButton;
 
         // Runtime data
@@ -122,11 +121,11 @@ namespace Laboratory.Core.Economy
             if (categoryFilter != null)
             {
                 categoryFilter.options.Clear();
-                categoryFilter.options.Add(new TMP_Dropdown.OptionData("All Categories"));
-                categoryFilter.options.Add(new TMP_Dropdown.OptionData("Equipment"));
-                categoryFilter.options.Add(new TMP_Dropdown.OptionData("Monsters"));
-                categoryFilter.options.Add(new TMP_Dropdown.OptionData("Materials"));
-                categoryFilter.options.Add(new TMP_Dropdown.OptionData("Food"));
+                categoryFilter.options.Add(new Dropdown.OptionData("All Categories"));
+                categoryFilter.options.Add(new Dropdown.OptionData("Equipment"));
+                categoryFilter.options.Add(new Dropdown.OptionData("Monsters"));
+                categoryFilter.options.Add(new Dropdown.OptionData("Materials"));
+                categoryFilter.options.Add(new Dropdown.OptionData("Food"));
                 categoryFilter.RefreshShownValue();
             }
 
@@ -134,30 +133,30 @@ namespace Laboratory.Core.Economy
             if (rarityFilter != null)
             {
                 rarityFilter.options.Clear();
-                rarityFilter.options.Add(new TMP_Dropdown.OptionData("All Rarities"));
+                rarityFilter.options.Add(new Dropdown.OptionData("All Rarities"));
                 foreach (EquipmentRarity rarity in Enum.GetValues(typeof(EquipmentRarity)))
                 {
-                    rarityFilter.options.Add(new TMP_Dropdown.OptionData(rarity.ToString()));
+                    rarityFilter.options.Add(new Dropdown.OptionData(rarity.ToString()));
                 }
                 rarityFilter.RefreshShownValue();
             }
 
             // Initialize currency dropdowns
-            var currencyOptions = new List<TMP_Dropdown.OptionData>();
+            var currencyOptions = new List<Dropdown.OptionData>();
             foreach (CurrencyType currency in Enum.GetValues(typeof(CurrencyType)))
             {
-                currencyOptions.Add(new TMP_Dropdown.OptionData(currency.ToString()));
+                currencyOptions.Add(new Dropdown.OptionData(currency.ToString()));
             }
 
             if (fromCurrencyDropdown != null)
             {
-                fromCurrencyDropdown.options = new List<TMP_Dropdown.OptionData>(currencyOptions);
+                fromCurrencyDropdown.options = new List<Dropdown.OptionData>(currencyOptions);
                 fromCurrencyDropdown.RefreshShownValue();
             }
 
             if (toCurrencyDropdown != null)
             {
-                toCurrencyDropdown.options = new List<TMP_Dropdown.OptionData>(currencyOptions);
+                toCurrencyDropdown.options = new List<Dropdown.OptionData>(currencyOptions);
                 toCurrencyDropdown.value = 1; // Default to second currency
                 toCurrencyDropdown.RefreshShownValue();
             }
@@ -166,10 +165,10 @@ namespace Laboratory.Core.Economy
             if (itemCategoryDropdown != null)
             {
                 itemCategoryDropdown.options.Clear();
-                itemCategoryDropdown.options.Add(new TMP_Dropdown.OptionData("Equipment"));
-                itemCategoryDropdown.options.Add(new TMP_Dropdown.OptionData("Monsters"));
-                itemCategoryDropdown.options.Add(new TMP_Dropdown.OptionData("Materials"));
-                itemCategoryDropdown.options.Add(new TMP_Dropdown.OptionData("Food"));
+                itemCategoryDropdown.options.Add(new Dropdown.OptionData("Equipment"));
+                itemCategoryDropdown.options.Add(new Dropdown.OptionData("Monsters"));
+                itemCategoryDropdown.options.Add(new Dropdown.OptionData("Materials"));
+                itemCategoryDropdown.options.Add(new Dropdown.OptionData("Food"));
                 itemCategoryDropdown.RefreshShownValue();
             }
 
@@ -179,7 +178,7 @@ namespace Laboratory.Core.Economy
                 itemRarityDropdown.options.Clear();
                 foreach (EquipmentRarity rarity in Enum.GetValues(typeof(EquipmentRarity)))
                 {
-                    itemRarityDropdown.options.Add(new TMP_Dropdown.OptionData(rarity.ToString()));
+                    itemRarityDropdown.options.Add(new Dropdown.OptionData(rarity.ToString()));
                 }
                 itemRarityDropdown.RefreshShownValue();
             }
@@ -373,7 +372,7 @@ namespace Laboratory.Core.Economy
                     if (rate.Key == CurrencyType.Coins) continue; // Skip base currency
 
                     var rateObject = Instantiate(exchangeRateItemPrefab, exchangeRatesParent);
-                    var rateText = rateObject.GetComponent<TextMeshProUGUI>();
+                    var rateText = rateObject.GetComponent<Text>();
                     if (rateText != null)
                     {
                         rateText.text = $"1 {rate.Key} = {rate.Value:F4} Coins";
@@ -620,11 +619,11 @@ namespace Laboratory.Core.Economy
     /// </summary>
     public class MarketListingUI : MonoBehaviour
     {
-        [SerializeField] private TextMeshProUGUI itemNameText;
-        [SerializeField] private TextMeshProUGUI itemCategoryText;
-        [SerializeField] private TextMeshProUGUI itemPriceText;
-        [SerializeField] private TextMeshProUGUI itemQuantityText;
-        [SerializeField] private TextMeshProUGUI sellerText;
+        [SerializeField] private Text itemNameText;
+        [SerializeField] private Text itemCategoryText;
+        [SerializeField] private Text itemPriceText;
+        [SerializeField] private Text itemQuantityText;
+        [SerializeField] private Text sellerText;
         [SerializeField] private Image rarityBackground;
         [SerializeField] private Button purchaseButton;
 

@@ -18,8 +18,8 @@ namespace Laboratory.Core.Activities.Jobs
 
         public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity,
             ref ActivityParticipantComponent participant,
-            in GeneticDataComponent genetics,
-            in CreatureIdentityComponent identity,
+            RefRO<GeneticDataComponent> genetics,
+            RefRO<CreatureIdentityComponent> identity,
             in ActivityPerformanceComponent performance)
         {
             if (participant.Status == ActivityStatus.NotParticipating)
@@ -38,7 +38,7 @@ namespace Laboratory.Core.Activities.Jobs
                     break;
 
                 case ActivityStatus.Active:
-                    ProcessActiveState(ref participant, genetics);
+                    ProcessActiveState(ref participant, genetics.ValueRO);
                     break;
 
                 case ActivityStatus.Completed:

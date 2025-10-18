@@ -6,7 +6,8 @@ using Unity.Transforms;
 using Unity.Burst;
 using UnityEngine;
 using Laboratory.Core.ECS.Components;
-using Laboratory.Core.Activities;
+using Laboratory.Core.Activities.Components;
+using Laboratory.Core.Activities.Types;
 
 namespace Laboratory.Core.Activities.Combat
 {
@@ -449,7 +450,7 @@ namespace Laboratory.Core.Activities.Combat
         public void Execute(ref CombatFighterComponent fighter,
             ref CombatActionComponent action,
             in CombatPerformanceComponent performance,
-            in GeneticDataComponent genetics)
+            RefRO<GeneticDataComponent> genetics)
         {
             if (fighter.Status != FighterStatus.Fighting)
                 return;
@@ -463,12 +464,12 @@ namespace Laboratory.Core.Activities.Combat
             UpdateStamina(ref fighter, DeltaTime, performance);
 
             // Process current action
-            ProcessCombatAction(ref fighter, ref action, performance, genetics);
+            ProcessCombatAction(ref fighter, ref action, performance, genetics.ValueRO);
 
             // AI decision making for next action
             if (action.CurrentAction == CombatAction.None && fighter.AttackCooldown <= 0f)
             {
-                DecideNextAction(ref action, fighter, performance, genetics);
+                DecideNextAction(ref action, fighter, performance, genetics.ValueRO);
             }
 
             // Update combat position (simplified)
@@ -501,7 +502,7 @@ namespace Laboratory.Core.Activities.Combat
             if (action.ActionProgress >= action.ActionDuration)
             {
                 // Execute the action
-                ExecuteCombatAction(ref fighter, ref action, performance, genetics);
+                ExecuteCombatAction(ref fighter, ref action, performance, genetics.ValueRO);
 
                 // Complete the action
                 action.CurrentAction = CombatAction.None;
@@ -554,7 +555,7 @@ namespace Laboratory.Core.Activities.Combat
                 case CombatAction.Special_Move:
                     if (performance.HasSpecialMoves)
                     {
-                        ExecuteSpecialMove(ref fighter, ref action, performance, genetics);
+                        ExecuteSpecialMove(ref fighter, ref action, performance, genetics.ValueRO);
                     }
                     break;
 

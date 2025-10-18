@@ -5,7 +5,8 @@ using Unity.Mathematics;
 using Unity.Burst;
 using UnityEngine;
 using Laboratory.Core.ECS.Components;
-using Laboratory.Core.Activities;
+using Laboratory.Core.Activities.Components;
+using Laboratory.Core.Activities.Types;
 
 namespace Laboratory.Core.Activities.Strategy
 {
@@ -532,18 +533,18 @@ namespace Laboratory.Core.Activities.Strategy
 
         public void Execute(ref StrategyCommanderComponent commander,
             in StrategyPerformanceComponent performance,
-            in GeneticDataComponent genetics)
+            RefRO<GeneticDataComponent> genetics)
         {
             if (commander.Status != CommanderStatus.Commanding)
                 return;
 
             // Update commander actions based on role and performance
-            ProcessCommanderRole(ref commander, performance, genetics);
+            ProcessCommanderRole(ref commander, performance, genetics.ValueRO);
 
             // Make strategic decisions
             if (commander.ActionsRemaining > 0)
             {
-                MakeStrategicDecision(ref commander, performance, genetics);
+                MakeStrategicDecision(ref commander, performance, genetics.ValueRO);
             }
 
             // Update morale and experience

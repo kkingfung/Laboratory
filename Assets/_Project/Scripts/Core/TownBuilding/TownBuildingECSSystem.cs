@@ -8,7 +8,6 @@ using UnityEngine;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Core.Activities;
 using Laboratory.Core.Equipment;
-using Laboratory.Core.Progression;
 
 namespace Laboratory.Core.TownBuilding
 {

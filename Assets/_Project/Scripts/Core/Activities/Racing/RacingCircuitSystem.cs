@@ -303,15 +303,15 @@ namespace Laboratory.Core.Activities.Racing
         public void Execute(ref RacerComponent racer,
             ref LocalTransform transform,
             in RacingPerformanceComponent performance,
-            in GeneticDataComponent genetics)
+            RefRO<GeneticDataComponent> genetics)
         {
             if (racer.Status != RacerStatus.Racing)
                 return;
 
             // Calculate racing physics based on genetics and performance
-            float speedFactor = genetics.Speed * performance.TopSpeed;
-            float agilityFactor = genetics.Agility * performance.CorneringAbility;
-            float enduranceFactor = genetics.Stamina * performance.Endurance;
+            float speedFactor = genetics.ValueRO.Speed * performance.TopSpeed;
+            float agilityFactor = genetics.ValueRO.Agility * performance.CorneringAbility;
+            float enduranceFactor = genetics.ValueRO.Stamina * performance.Endurance;
 
             // AI racing behavior (simplified)
             float targetSpeed = CalculateTargetSpeed(speedFactor, enduranceFactor, racer.CurrentLap);

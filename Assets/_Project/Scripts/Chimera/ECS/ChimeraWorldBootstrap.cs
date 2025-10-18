@@ -367,9 +367,9 @@ namespace Laboratory.Chimera.ECS
             _createdCreatures++;
         }
 
-        private GeneticDataComponent GenerateRandomGenetics(string species)
+        private ChimeraGeneticDataComponent GenerateRandomGenetics(string species)
         {
-            return new GeneticDataComponent
+            return new ChimeraGeneticDataComponent
             {
                 Aggression = UnityEngine.Random.Range(0.1f, 0.9f),
                 Sociability = UnityEngine.Random.Range(0.2f, 0.8f),

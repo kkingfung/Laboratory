@@ -24,8 +24,9 @@ namespace Laboratory.Core.ECS.Components
 
     /// <summary>
     /// GENETICS 2.0 - Performance-optimized genetic data that DRIVES behavior
+    /// Advanced genetics component for Chimera systems
     /// </summary>
-    public struct GeneticDataComponent : IComponentData
+    public struct ChimeraGeneticDataComponent : IComponentData
     {
         // Core Behavioral Traits (0-1 range, directly used by behavior systems)
         public float Aggression;      // Territorial behavior, combat willingness
