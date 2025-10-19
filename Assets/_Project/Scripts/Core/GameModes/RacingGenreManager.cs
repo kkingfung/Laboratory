@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Subsystems.Player;
 
 namespace Laboratory.Core.GameModes
 {

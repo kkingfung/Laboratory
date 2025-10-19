@@ -5,6 +5,7 @@ using UnityEngine;
 using Laboratory.Core.MonsterTown;
 using Laboratory.Core.Configuration;
 using Laboratory.Core.Activities.Types;
+using Laboratory.Core.Equipment.Types;
 using EquipmentItem = Laboratory.Core.MonsterTown.Equipment;
 using ActivityType = Laboratory.Core.Activities.Types.ActivityType;
 
@@ -69,7 +70,7 @@ namespace Laboratory.Core.Equipment
             }
         }
 
-        private Equipment CreateEquipmentFromConfig(EquipmentConfig config)
+        private EquipmentItem CreateEquipmentFromConfig(EquipmentConfig config)
         {
             return new EquipmentItem
             {
@@ -409,7 +410,7 @@ namespace Laboratory.Core.Equipment
 
         #region Utility Methods
 
-        private Equipment CloneEquipment(EquipmentItem original)
+        private EquipmentItem CloneEquipment(EquipmentItem original)
         {
             return new EquipmentItem
             {
@@ -490,8 +491,8 @@ namespace Laboratory.Core.Equipment
         public string Name;
         [TextArea(3, 5)]
         public string Description;
-        public EquipmentItemType Type;
-        public EquipmentItemRarity Rarity;
+        public EquipmentType Type;
+        public EquipmentRarity Rarity;
 
         [Header("Stat Bonuses")]
         public Dictionary<StatType, float> StatBonuses = new();

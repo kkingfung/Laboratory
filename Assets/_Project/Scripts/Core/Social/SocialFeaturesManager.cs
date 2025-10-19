@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using Laboratory.Core.MonsterTown;
 using Laboratory.Core.Equipment;
 using Laboratory.Core.Events;
+using EquipmentItem = Laboratory.Core.MonsterTown.Equipment;
 
 namespace Laboratory.Core.Social
 {
@@ -808,8 +809,8 @@ namespace Laboratory.Core.Social
         public string OfferId;
         public string OffererId;
         public string AccepterId;
-        public List<Equipment> OfferedItems = new();
-        public List<Equipment> RequestedItems = new();
+        public List<EquipmentItem> OfferedItems = new();
+        public List<EquipmentItem> RequestedItems = new();
         public TownResources OfferedCurrency;
         public TownResources RequestedCurrency;
         public DateTime CreatedAt;
@@ -824,8 +825,8 @@ namespace Laboratory.Core.Social
     [Serializable]
     public class TradeOfferData
     {
-        public List<Equipment> OfferedItems = new();
-        public List<Equipment> RequestedItems = new();
+        public List<EquipmentItem> OfferedItems = new();
+        public List<EquipmentItem> RequestedItems = new();
         public TownResources OfferedCurrency;
         public TownResources RequestedCurrency;
     }

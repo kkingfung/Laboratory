@@ -3,6 +3,7 @@ using Unity.Entities;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
+using Laboratory.Core.MonsterTown.Integration;
 
 namespace Laboratory.Core.MonsterTown
 {
@@ -22,7 +23,7 @@ namespace Laboratory.Core.MonsterTown
 === STEP 1: Scene Setup ===
 1. Add TownManagementSystem to your scene
 2. Configure MonsterTownConfig ScriptableObject
-3. Link existing ChimeraSceneBootstrap
+3. Link ChimeraIntegrationBridge for creature integration
 4. Set up town bounds and grid settings
 
 === STEP 2: Configuration ===
@@ -47,7 +48,7 @@ namespace Laboratory.Core.MonsterTown
         [Header("Quick Setup")]
         [SerializeField] private bool autoSetupOnStart = false;
         [SerializeField] private MonsterTownConfig defaultTownConfig;
-        [SerializeField] private ChimeraSpeciesConfig[] testSpecies;
+        [SerializeField] private int testSpeciesCount = 3;
 
         [Header("Integration Test")]
         [SerializeField] private bool runIntegrationTest = false;
@@ -56,7 +57,7 @@ namespace Laboratory.Core.MonsterTown
         // Integration status tracking
         private bool isIntegrationComplete = false;
         private TownManagementSystem townManager;
-        private ChimeraSceneBootstrap chimeraBootstrap;
+        private ChimeraIntegrationBridge chimeraIntegration;
 
         #region Unity Lifecycle
 
@@ -141,11 +142,12 @@ namespace Laboratory.Core.MonsterTown
                 Debug.Log("Created new TownManagementSystem");
             }
 
-            // Find existing ChimeraSceneBootstrap
-            chimeraBootstrap = FindObjectOfType<ChimeraSceneBootstrap>();
-            if (chimeraBootstrap == null)
+            // Find existing ChimeraIntegrationBridge
+            chimeraIntegration = FindObjectOfType<ChimeraIntegrationBridge>();
+            if (chimeraIntegration == null)
             {
-                Debug.LogWarning("ChimeraSceneBootstrap not found! Monster integration will be limited.");
+                chimeraIntegration = gameObject.AddComponent<ChimeraIntegrationBridge>();
+                Debug.Log("Created ChimeraIntegrationBridge for monster integration.");
             }
 
             await UniTask.Yield();
@@ -177,9 +179,9 @@ namespace Laboratory.Core.MonsterTown
         {
             Debug.Log("🧬 Integrating with Chimera Bootstrap...");
 
-            if (chimeraBootstrap == null)
+            if (chimeraIntegration == null)
             {
-                Debug.LogWarning("No ChimeraSceneBootstrap found - skipping creature integration");
+                Debug.LogWarning("No ChimeraIntegrationBridge found - skipping creature integration");
                 return;
             }
 
@@ -191,10 +193,10 @@ namespace Laboratory.Core.MonsterTown
                 eventBus.Subscribe<BreedingSuccessfulEvent>(OnChimeraBreedingSuccess);
             }
 
-            // Initialize Chimera if not already done
-            if (chimeraBootstrap != null)
+            // Initialize Chimera integration
+            if (chimeraIntegration != null)
             {
-                await chimeraBootstrap.InitializeChimeraScene();
+                await chimeraIntegration.InitializeIntegrationAsync();
             }
 
             Debug.Log("Chimera integration complete");
@@ -283,10 +285,13 @@ namespace Laboratory.Core.MonsterTown
                 validationResults.Add("✅ BuildingSystem ready");
 
             // Check Chimera Integration
-            if (chimeraBootstrap == null)
-                validationResults.Add("⚠️ ChimeraSceneBootstrap not found - limited creature integration");
+            if (chimeraIntegration == null)
+                validationResults.Add("⚠️ ChimeraIntegrationBridge not found - limited creature integration");
             else
-                validationResults.Add("✅ Chimera integration ready");
+            {
+                var status = chimeraIntegration.GetIntegrationStatus();
+                validationResults.Add(status.IsIntegrationActive ? "✅ Chimera integration active" : "⚠️ Chimera integration inactive");
+            }
 
             // Log results
             Debug.Log("🔍 Integration Validation Results:");
@@ -504,13 +509,12 @@ namespace Laboratory.Core.MonsterTown
 
         private void OnChimeraCreatureSpawned(CreatureSpawnedEvent evt)
         {
-            Debug.Log($"🧬 Chimera creature spawned - integrating with town: {evt.Species.speciesName}");
+            Debug.Log($"🧬 Chimera creature spawned - integrating with town: {evt.Monster.Name}");
 
-            // Convert Chimera creature to Monster Town monster
-            if (townManager != null)
+            // Add Chimera creature to Monster Town
+            if (townManager != null && evt.Monster != null)
             {
-                var monster = ConvertChimeraCreatureToMonster(evt);
-                townManager.AddMonsterToTown(monster);
+                townManager.AddMonsterToTown(evt.Monster);
             }
         }
 
@@ -524,6 +528,12 @@ namespace Laboratory.Core.MonsterTown
             {
                 var bonusResources = new TownResources { coins = 100, gems = 5 };
                 resourceManager.AddResources(bonusResources);
+            }
+
+            // Add offspring to town
+            if (townManager != null && evt.Offspring != null)
+            {
+                townManager.AddMonsterToTown(evt.Offspring);
             }
         }
 
@@ -594,7 +604,7 @@ namespace Laboratory.Core.MonsterTown
         {
             isIntegrationComplete = false;
             townManager = null;
-            chimeraBootstrap = null;
+            chimeraIntegration = null;
             Debug.Log("Integration reset - run setup again");
         }
 
@@ -621,7 +631,7 @@ namespace Laboratory.Core.MonsterTown
             GUI.Label(new Rect(20, yOffset, 380, 20), $"Town Manager: {townMgrStatus}", style);
             yOffset += 20;
 
-            var chimeraStatus = chimeraBootstrap != null ? "✅ Linked" : "⚠️ Not Found";
+            var chimeraStatus = chimeraIntegration != null ? "✅ Bridge Active" : "⚠️ Bridge Missing";
             GUI.Label(new Rect(20, yOffset, 380, 20), $"Chimera Integration: {chimeraStatus}", style);
             yOffset += 20;
 

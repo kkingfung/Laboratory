@@ -3,6 +3,7 @@ using Unity.Entities;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core.Infrastructure;
 using System.Collections.Generic;
+using Laboratory.Core.MonsterTown.Integration;
 
 namespace Laboratory.Core.MonsterTown
 {
@@ -25,7 +26,7 @@ namespace Laboratory.Core.MonsterTown
         [SerializeField] private bool enableVerboseLogging = true;
 
         [Header("🧬 Test Species Configuration")]
-        [SerializeField] private ChimeraSpeciesConfig[] testSpecies;
+        [SerializeField] private string[] testSpeciesNames = {"Fire Drake", "Water Sprite", "Earth Guardian"};
         [SerializeField] private int initialMonsterCount = 8;
         [SerializeField] private bool enableRandomBreeding = true;
 
@@ -195,18 +196,18 @@ namespace Laboratory.Core.MonsterTown
         {
             LogTest($"🧬 Populating test town with {initialMonsterCount} monsters...");
 
-            if (testSpecies == null || testSpecies.Length == 0)
+            if (testSpeciesNames == null || testSpeciesNames.Length == 0)
             {
-                LogTest("⚠️ No test species configured - creating default species");
-                testSpecies = new ChimeraSpeciesConfig[] { CreateDefaultTestSpecies() };
+                LogTest("⚠️ No test species configured - using defaults");
+                testSpeciesNames = new string[] { "Default Monster" };
             }
 
             testMonsters.Clear();
 
             for (int i = 0; i < initialMonsterCount; i++)
             {
-                var species = testSpecies[i % testSpecies.Length];
-                var monster = CreateTestMonster(species, i);
+                var speciesName = testSpeciesNames[i % testSpeciesNames.Length];
+                var monster = CreateTestMonster(speciesName, i);
 
                 if (townManager.AddMonsterToTown(monster))
                 {
@@ -378,7 +379,7 @@ namespace Laboratory.Core.MonsterTown
                 bool hasMonsters = townMonsters.Count > 0;
 
                 // Test adding a new monster
-                var newMonster = CreateTestMonster(testSpecies[0], 999);
+                var newMonster = CreateTestMonster(testSpeciesNames[0], 999);
                 bool addSuccess = townManager.AddMonsterToTown(newMonster);
 
                 var finalCount = townManager.GetTownMonsters().Count;
@@ -572,13 +573,14 @@ namespace Laboratory.Core.MonsterTown
 
         #region Utility Methods
 
-        private MonsterInstance CreateTestMonster(ChimeraSpeciesConfig species, int index)
+        private MonsterInstance CreateTestMonster(string speciesName, int index)
         {
             return new MonsterInstance
             {
                 UniqueId = System.Guid.NewGuid().ToString(),
-                Name = $"{species.speciesName} Test #{index}",
-                GeneticProfile = species.GenerateRandomGeneticProfile(),
+                Name = $"{speciesName} Test #{index}",
+                Species = speciesName,
+                Genetics = MonsterGenetics.CreateRandom(),
                 Stats = new MonsterStats
                 {
                     strength = Random.Range(30f, 70f),
@@ -594,11 +596,9 @@ namespace Laboratory.Core.MonsterTown
             };
         }
 
-        private ChimeraSpeciesConfig CreateDefaultTestSpecies()
+        private string CreateDefaultTestSpecies()
         {
-            var species = ScriptableObject.CreateInstance<ChimeraSpeciesConfig>();
-            species.speciesName = "Test Species";
-            return species;
+            return "Test Species";
         }
 
         private Vector3 CalculateTestBuildingPosition(int index)

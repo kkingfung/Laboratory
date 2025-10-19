@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Laboratory.Core;
+using GeneticProfile = Laboratory.Core.CoreCreatureComponents.GeneticProfile;
 
 namespace Laboratory.Core.MonsterTown
 {

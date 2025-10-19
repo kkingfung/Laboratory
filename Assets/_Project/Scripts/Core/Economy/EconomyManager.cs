@@ -134,7 +134,7 @@ namespace Laboratory.Core.Economy
         /// <summary>
         /// Create a new wallet for a player
         /// </summary>
-        public PlayerWallet CreatePlayerWallet(string playerId, TownResources startingCurrency = null)
+        public PlayerWallet CreatePlayerWallet(string playerId, TownResources startingCurrency = default)
         {
             if (_playerWallets.ContainsKey(playerId))
             {

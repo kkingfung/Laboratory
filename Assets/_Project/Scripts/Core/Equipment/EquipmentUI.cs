@@ -3,6 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Laboratory.Core.MonsterTown;
+using Laboratory.Core.Equipment.Types;
+using EquipmentItem = Laboratory.Core.MonsterTown.Equipment;
 
 namespace Laboratory.Core.Equipment
 {
@@ -39,7 +41,7 @@ namespace Laboratory.Core.Equipment
         private EquipmentManager _equipmentManager;
         private List<EquipmentSlotUI> _equipmentSlots = new();
         private List<InventoryItemUI> _inventoryItems = new();
-        private Equipment _selectedEquipment;
+        private EquipmentItem _selectedEquipment;
 
         #region UI Initialization
 
@@ -179,7 +181,7 @@ namespace Laboratory.Core.Equipment
             }
         }
 
-        private void CreateInventoryItem(Equipment equipment)
+        private void CreateInventoryItem(EquipmentItem equipment)
         {
             if (inventoryItemPrefab == null) return;
 
@@ -200,13 +202,13 @@ namespace Laboratory.Core.Equipment
         /// <summary>
         /// Select an equipment item for details/actions
         /// </summary>
-        public void SelectEquipment(Equipment equipment)
+        public void SelectEquipment(EquipmentItem equipment)
         {
             _selectedEquipment = equipment;
             ShowEquipmentDetails(equipment);
         }
 
-        private void ShowEquipmentDetails(Equipment equipment)
+        private void ShowEquipmentDetails(EquipmentItem equipment)
         {
             if (equipment == null || detailsPanel == null) return;
 
@@ -232,7 +234,7 @@ namespace Laboratory.Core.Equipment
                 upgradeButton.gameObject.SetActive(true);
         }
 
-        private string GenerateStatsText(Equipment equipment)
+        private string GenerateStatsText(EquipmentItem equipment)
         {
             var statsText = "";
 
@@ -343,7 +345,7 @@ namespace Laboratory.Core.Equipment
         [SerializeField] private Text slotLabel;
 
         public EquipmentType SlotType { get; private set; }
-        private Equipment _currentEquipment;
+        private EquipmentItem _currentEquipment;
         private EquipmentUI _parentUI;
 
         public void InitializeSlot(EquipmentType slotType, EquipmentUI parentUI)
@@ -357,7 +359,7 @@ namespace Laboratory.Core.Equipment
             ClearSlot();
         }
 
-        public void SetEquipment(Equipment equipment)
+        public void SetEquipment(EquipmentItem equipment)
         {
             _currentEquipment = equipment;
 
@@ -412,10 +414,10 @@ namespace Laboratory.Core.Equipment
         [SerializeField] private Text itemName;
         [SerializeField] private Text itemLevel;
 
-        private Equipment _equipment;
+        private EquipmentItem _equipment;
         private EquipmentUI _parentUI;
 
-        public void InitializeItem(Equipment equipment, EquipmentUI parentUI)
+        public void InitializeItem(EquipmentItem equipment, EquipmentUI parentUI)
         {
             _equipment = equipment;
             _parentUI = parentUI;

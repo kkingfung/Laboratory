@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Core.MonsterTown.Systems;
 
 namespace Laboratory.Core.MonsterTown
 {
@@ -38,7 +39,6 @@ namespace Laboratory.Core.MonsterTown
 
         // Core game systems
         private MonsterBreedingSystem _breedingSystem;
-        private TownBuildingSystem _townSystem;
         private ActivityCenterManager _activityManager;
         private MonsterCareSystem _careSystem;
         private RewardSystem _rewardSystem;
@@ -66,7 +66,6 @@ namespace Laboratory.Core.MonsterTown
         private void InitializeCoreSystems()
         {
             _breedingSystem = GetComponent<MonsterBreedingSystem>() ?? gameObject.AddComponent<MonsterBreedingSystem>();
-            _townSystem = GetComponent<TownBuildingSystem>() ?? gameObject.AddComponent<TownBuildingSystem>();
             _activityManager = GetComponent<ActivityCenterManager>() ?? gameObject.AddComponent<ActivityCenterManager>();
             _careSystem = GetComponent<MonsterCareSystem>() ?? gameObject.AddComponent<MonsterCareSystem>();
             _rewardSystem = GetComponent<RewardSystem>() ?? gameObject.AddComponent<RewardSystem>();
@@ -274,15 +273,7 @@ namespace Laboratory.Core.MonsterTown
         /// </summary>
         private float CalculateGeneticBonus(MonsterGenetics genetics, ActivityType activityType)
         {
-            return activityType switch
-            {
-                ActivityType.Racing => (genetics.Agility * 0.5f + genetics.Vitality * 0.3f + genetics.Strength * 0.2f) / 100f,
-                ActivityType.Combat => (genetics.Strength * 0.4f + genetics.Vitality * 0.3f + genetics.Agility * 0.3f) / 100f,
-                ActivityType.Puzzle => (genetics.Intelligence * 0.6f + genetics.Adaptability * 0.4f) / 100f,
-                ActivityType.Strategy => (genetics.Intelligence * 0.4f + genetics.Social * 0.4f + genetics.Adaptability * 0.2f) / 100f,
-                ActivityType.Adventure => (genetics.GetAverageStats()) / 100f, // Balanced for all stats
-                _ => genetics.GetAverageStats() / 100f
-            };
+            return genetics.GetActivityBonus(activityType);
         }
 
         /// <summary>
@@ -290,18 +281,9 @@ namespace Laboratory.Core.MonsterTown
         /// </summary>
         private float CalculateEquipmentBonus(MonsterEquipment equipment, ActivityType activityType)
         {
-            if (equipment == null) return 0f;
+            if (equipment.GetEquippedCount() == 0) return 0f;
 
-            float bonus = 0f;
-            foreach (var item in equipment.GetEquippedItems())
-            {
-                if (item.CompatibleActivities.Contains(activityType))
-                {
-                    bonus += item.PerformanceBonus;
-                }
-            }
-
-            return Mathf.Clamp(bonus, 0f, 0.5f); // Max 50% bonus from equipment
+            return equipment.GetActivityBonus(activityType);
         }
 
         #endregion

@@ -547,9 +547,26 @@ namespace Laboratory.Core.Platform
         public GameGenre SupportedGenre => GameGenre.ThirdPersonShooter;
         public GameGenre CurrentActiveGenre { get; private set; }
         public event Action<GameGenre, bool> GenreModeChanged;
-        public bool CanActivateForGenre(GameGenre genre) => genre == SupportedGenre;
-        public async Task ActivateGenreMode(GameGenre genre, GenreConfig config) { CurrentActiveGenre = genre; }
-        public async Task DeactivateGenreMode() { CurrentActiveGenre = GameGenre.Exploration; }
+
+        public bool CanActivateForGenre(GameGenre genre)
+        {
+            return genre == GameGenre.ThirdPersonShooter || genre == GameGenre.Exploration;
+        }
+
+        public async Task ActivateGenreMode(GameGenre genre, GenreConfig config)
+        {
+            CurrentActiveGenre = genre;
+            GenreModeChanged?.Invoke(genre, true);
+            await Task.CompletedTask;
+        }
+
+        public async Task DeactivateGenreMode()
+        {
+            var previousGenre = CurrentActiveGenre;
+            CurrentActiveGenre = GameGenre.Exploration;
+            GenreModeChanged?.Invoke(previousGenre, false);
+            await Task.CompletedTask;
+        }
     }
 
     // Add similar placeholder implementations for all other genres...

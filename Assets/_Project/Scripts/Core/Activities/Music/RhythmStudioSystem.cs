@@ -83,7 +83,7 @@ namespace Laboratory.Core.Activities.Music
         public float PercussionInstruments;
         public float KeyboardInstruments;
         public float VocalAbility;
-        public float ElectronicMusic;
+        public float ElectronicInstruments;
 
         // Genre specializations
         public float ClassicalMusic;

@@ -5,6 +5,10 @@ using Unity.Entities;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
+using Laboratory.Core.Activities.Components;
+using Laboratory.Core;
+using Laboratory.Core.MonsterTown.Systems;
+using Laboratory.Core.MonsterTown.Integration;
 
 namespace Laboratory.Core.MonsterTown
 {
@@ -41,7 +45,8 @@ namespace Laboratory.Core.MonsterTown
         // Core Systems
         private EntityManager entityManager;
         private IEventBus eventBus;
-        private IBreedingSystem breedingSystem;
+        private MonsterBreedingSystem breedingSystem;
+        private ChimeraIntegrationBridge chimeraIntegration;
         private IBuildingSystem buildingSystem;
         private IResourceManager resourceManager;
         private IActivityCenterManager activityCenterManager;
@@ -50,7 +55,7 @@ namespace Laboratory.Core.MonsterTown
         private TownResources currentResources;
         private Dictionary<BuildingType, List<Entity>> townBuildings = new();
         private Dictionary<string, MonsterInstance> townMonsters = new();
-        private List<ActivityCenter> activityCenters = new();
+        private List<Entity> activityCenters = new();
         private bool isInitialized = false;
         private float lastResourceUpdate;
 
@@ -307,12 +312,7 @@ namespace Laboratory.Core.MonsterTown
             // Breeding System (if exists)
             if (enableBreedingFacilities)
             {
-                breedingSystem = serviceContainer.ResolveService<IBreedingSystem>();
-                if (breedingSystem == null)
-                {
-                    breedingSystem = new BreedingSystem(eventBus);
-                    serviceContainer.RegisterService<IBreedingSystem>(breedingSystem);
-                }
+                breedingSystem = GetComponent<MonsterBreedingSystem>() ?? gameObject.AddComponent<MonsterBreedingSystem>();
             }
 
             // Building System
@@ -617,7 +617,8 @@ namespace Laboratory.Core.MonsterTown
 
         private void IntegrateWithChimeraSystem()
         {
-            // Subscribe to Chimera events
+            // Subscribe to integration events
+            chimeraIntegration = GetComponent<ChimeraIntegrationBridge>() ?? gameObject.AddComponent<ChimeraIntegrationBridge>();
             eventBus.Subscribe<CreatureSpawnedEvent>(OnChimeraCreatureSpawned);
             eventBus.Subscribe<BreedingSuccessfulEvent>(OnChimeraBreedingSuccess);
 
@@ -627,7 +628,7 @@ namespace Laboratory.Core.MonsterTown
         private void OnChimeraCreatureSpawned(CreatureSpawnedEvent evt)
         {
             // Convert Chimera creature to Monster Town monster
-            var monster = ConvertChimeraCreatureToMonster(evt.CreatureEntity);
+            var monster = evt.Monster;
             if (monster != null)
             {
                 AddMonsterToTown(monster);
@@ -638,6 +639,12 @@ namespace Laboratory.Core.MonsterTown
         {
             // Breeding in town gives bonus resources
             AddResources(new TownResources { coins = 50, gems = 5 });
+
+            // Add offspring to town
+            if (evt.Offspring != null)
+            {
+                AddMonsterToTown(evt.Offspring);
+            }
         }
 
         private MonsterInstance ConvertChimeraCreatureToMonster(Entity creatureEntity)

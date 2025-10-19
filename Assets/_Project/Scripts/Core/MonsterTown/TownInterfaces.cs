@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Entities;
 using Cysharp.Threading.Tasks;
+using Laboratory.Core;
 
 namespace Laboratory.Core.MonsterTown
 {

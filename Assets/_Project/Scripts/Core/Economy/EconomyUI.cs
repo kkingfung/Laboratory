@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using Laboratory.Core.MonsterTown;
 using Laboratory.Core.Equipment;
+using Laboratory.Core.Equipment.Types;
+using EquipmentRarity = Laboratory.Core.Equipment.Types.EquipmentRarity;
 
 namespace Laboratory.Core.Economy
 {

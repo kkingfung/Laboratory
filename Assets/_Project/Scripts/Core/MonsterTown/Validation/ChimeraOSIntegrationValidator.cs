@@ -6,6 +6,7 @@ using Unity.Entities;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
+using Laboratory.Core.MonsterTown.Systems;
 
 namespace Laboratory.Core.MonsterTown.Validation
 {
@@ -35,7 +36,7 @@ namespace Laboratory.Core.MonsterTown.Validation
         private ActivityCenterManager _activityManager;
         private BuildingSystem _buildingSystem;
         private ResourceManager _resourceManager;
-        private IBreedingSystem _breedingSystem;
+        private MonsterBreedingSystem _breedingSystem;
         private IEventBus _eventBus;
 
         #region Unity Lifecycle
@@ -232,12 +233,12 @@ namespace Laboratory.Core.MonsterTown.Validation
 
             if (serviceContainer != null)
             {
-                _breedingSystem = serviceContainer.ResolveService<IBreedingSystem>();
+                _breedingSystem = FindObjectOfType<MonsterBreedingSystem>();
                 breedingSystemExists = _breedingSystem != null;
             }
 
             AddValidationResult("Breeding System", breedingSystemExists,
-                breedingSystemExists ? "IBreedingSystem implementation found" : "IBreedingSystem implementation missing");
+                breedingSystemExists ? "MonsterBreedingSystem found" : "MonsterBreedingSystem missing");
 
             await UniTask.Yield();
         }
