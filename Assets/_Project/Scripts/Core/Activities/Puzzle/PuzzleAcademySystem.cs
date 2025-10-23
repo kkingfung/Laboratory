@@ -384,12 +384,14 @@ namespace Laboratory.Core.Activities.Puzzle
         private EntityQuery academyQuery;
         private EntityQuery solverQuery;
         private EndSimulationEntityCommandBufferSystem ecbSystem;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
             academyQuery = GetEntityQuery(ComponentType.ReadWrite<PuzzleAcademyComponent>());
             solverQuery = GetEntityQuery(ComponentType.ReadWrite<PuzzleSolverComponent>());
             ecbSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -532,6 +534,7 @@ namespace Laboratory.Core.Activities.Puzzle
     public partial class PuzzleSolvingSystem : SystemBase
     {
         private EntityQuery puzzleQuery;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
@@ -541,6 +544,7 @@ namespace Laboratory.Core.Activities.Puzzle
                 ComponentType.ReadOnly<PuzzlePerformanceComponent>(),
                 ComponentType.ReadOnly<GeneticDataComponent>()
             });
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -793,6 +797,7 @@ namespace Laboratory.Core.Activities.Puzzle
     public partial class Match3PuzzleSystem : SystemBase
     {
         private EntityQuery match3Query;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
@@ -801,6 +806,7 @@ namespace Laboratory.Core.Activities.Puzzle
                 ComponentType.ReadWrite<Match3PuzzleComponent>(),
                 ComponentType.ReadOnly<PuzzleSolverComponent>()
             });
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -834,7 +840,7 @@ namespace Laboratory.Core.Activities.Puzzle
                 match3.MovesRemaining = math.max(0, match3.MovesRemaining - 1);
 
                 // Check for special gems
-                if (match3.ChainsCreated > 0 && math.random().NextFloat() < 0.3f)
+                if (match3.ChainsCreated > 0 && random.NextFloat() < 0.3f)
                 {
                     match3.SpecialGemsUsed++;
                     match3.CurrentScore += 100; // Bonus for special gems
@@ -864,6 +870,7 @@ namespace Laboratory.Core.Activities.Puzzle
         private EntityQuery speedQuery;
         private EntityQuery collaborativeQuery;
         private EndSimulationEntityCommandBufferSystem ecbSystem;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
@@ -871,6 +878,7 @@ namespace Laboratory.Core.Activities.Puzzle
             speedQuery = GetEntityQuery(ComponentType.ReadWrite<SpeedSolvingComponent>());
             collaborativeQuery = GetEntityQuery(ComponentType.ReadWrite<CollaborativePuzzleComponent>());
             ecbSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -882,21 +890,24 @@ namespace Laboratory.Core.Activities.Puzzle
             var battleJob = new PuzzleBattleUpdateJob
             {
                 DeltaTime = deltaTime,
-                CommandBuffer = ecb
+                CommandBuffer = ecb,
+                random = Unity.Mathematics.Random.CreateFromIndex((uint)System.DateTime.Now.Ticks)
             };
             Dependency = battleJob.ScheduleParallel(battleQuery, Dependency);
 
             // Update speed solving competitions
             var speedJob = new SpeedSolvingJob
             {
-                DeltaTime = deltaTime
+                DeltaTime = deltaTime,
+                random = Unity.Mathematics.Random.CreateFromIndex((uint)(System.DateTime.Now.Ticks))
             };
             Dependency = speedJob.ScheduleParallel(speedQuery, Dependency);
 
             // Update collaborative puzzles
             var collaborativeJob = new CollaborativePuzzleJob
             {
-                DeltaTime = deltaTime
+                DeltaTime = deltaTime,
+                random = Unity.Mathematics.Random.CreateFromIndex((uint)(System.DateTime.Now.Ticks + 123))
             };
             Dependency = collaborativeJob.ScheduleParallel(collaborativeQuery, Dependency);
 
@@ -909,6 +920,7 @@ namespace Laboratory.Core.Activities.Puzzle
     {
         public float DeltaTime;
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
+        public Unity.Mathematics.Random random;
 
         public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref PuzzleBattleComponent battle)
         {
@@ -984,8 +996,8 @@ namespace Laboratory.Core.Activities.Puzzle
         private void UpdateSpeedSolvingBattle(ref PuzzleBattleComponent battle)
         {
             // Speed solving simulation
-            float speed1 = math.random().NextFloat(0.8f, 1.2f) * DeltaTime;
-            float speed2 = math.random().NextFloat(0.8f, 1.2f) * DeltaTime;
+            float speed1 = random.NextFloat(0.8f, 1.2f) * DeltaTime;
+            float speed2 = random.NextFloat(0.8f, 1.2f) * DeltaTime;
 
             battle.Battle1Score += speed1;
             battle.Battle2Score += speed2;
@@ -995,12 +1007,12 @@ namespace Laboratory.Core.Activities.Puzzle
         private void UpdateMatch3Battle(ref PuzzleBattleComponent battle)
         {
             // Match-3 head-to-head simulation
-            if (math.random().NextFloat() < 0.1f) // 10% chance per frame for moves
+            if (random.NextFloat() < 0.1f) // 10% chance per frame for moves
             {
-                if (math.random().NextFloat() < 0.5f)
-                    battle.Battle1Score += math.random().NextFloat(1f, 5f);
+                if (random.NextFloat() < 0.5f)
+                    battle.Battle1Score += random.NextFloat(1f, 5f);
                 else
-                    battle.Battle2Score += math.random().NextFloat(1f, 5f);
+                    battle.Battle2Score += random.NextFloat(1f, 5f);
             }
         }
 
@@ -1008,8 +1020,8 @@ namespace Laboratory.Core.Activities.Puzzle
         private void UpdateLogicDuel(ref PuzzleBattleComponent battle)
         {
             // Logic puzzle solving duel
-            float logic1 = math.random().NextFloat(0.5f, 1f) * DeltaTime;
-            float logic2 = math.random().NextFloat(0.5f, 1f) * DeltaTime;
+            float logic1 = random.NextFloat(0.5f, 1f) * DeltaTime;
+            float logic2 = random.NextFloat(0.5f, 1f) * DeltaTime;
 
             battle.Battle1Score += logic1;
             battle.Battle2Score += logic2;
@@ -1019,10 +1031,10 @@ namespace Laboratory.Core.Activities.Puzzle
         private void UpdateMemoryChallenge(ref PuzzleBattleComponent battle)
         {
             // Memory challenge simulation
-            if (math.random().NextFloat() < 0.05f) // 5% chance per frame
+            if (random.NextFloat() < 0.05f) // 5% chance per frame
             {
-                float memory1 = math.random().NextFloat(1f, 3f);
-                float memory2 = math.random().NextFloat(1f, 3f);
+                float memory1 = random.NextFloat(1f, 3f);
+                float memory2 = random.NextFloat(1f, 3f);
 
                 battle.Battle1Score += memory1;
                 battle.Battle2Score += memory2;
@@ -1033,8 +1045,8 @@ namespace Laboratory.Core.Activities.Puzzle
         private void UpdatePatternRace(ref PuzzleBattleComponent battle)
         {
             // Pattern recognition race
-            float pattern1 = math.random().NextFloat(0.7f, 1.3f) * DeltaTime;
-            float pattern2 = math.random().NextFloat(0.7f, 1.3f) * DeltaTime;
+            float pattern1 = random.NextFloat(0.7f, 1.3f) * DeltaTime;
+            float pattern2 = random.NextFloat(0.7f, 1.3f) * DeltaTime;
 
             battle.Battle1Score += pattern1;
             battle.Battle2Score += pattern2;
@@ -1044,8 +1056,8 @@ namespace Laboratory.Core.Activities.Puzzle
         private void UpdateTeamBattle(ref PuzzleBattleComponent battle)
         {
             // Team collaboration simulation
-            float team1 = math.random().NextFloat(0.6f, 1.4f) * DeltaTime * battle.TeamSize;
-            float team2 = math.random().NextFloat(0.6f, 1.4f) * DeltaTime * battle.TeamSize;
+            float team1 = random.NextFloat(0.6f, 1.4f) * DeltaTime * battle.TeamSize;
+            float team2 = random.NextFloat(0.6f, 1.4f) * DeltaTime * battle.TeamSize;
 
             battle.Battle1Score += team1;
             battle.Battle2Score += team2;
@@ -1115,6 +1127,7 @@ namespace Laboratory.Core.Activities.Puzzle
     public partial struct SpeedSolvingJob : IJobEntity
     {
         public float DeltaTime;
+        public Unity.Mathematics.Random random;
 
         public void Execute(ref SpeedSolvingComponent speedSolving)
         {
@@ -1139,9 +1152,9 @@ namespace Laboratory.Core.Activities.Puzzle
             speedSolving.Speed2Time += DeltaTime;
 
             // Simulate moves
-            if (math.random().NextFloat() < 0.1f) // 10% chance per frame
+            if (random.NextFloat() < 0.1f) // 10% chance per frame
             {
-                if (math.random().NextFloat() < 0.5f)
+                if (random.NextFloat() < 0.5f)
                     speedSolving.Speed1Moves++;
                 else
                     speedSolving.Speed2Moves++;
@@ -1172,6 +1185,7 @@ namespace Laboratory.Core.Activities.Puzzle
     public partial struct CollaborativePuzzleJob : IJobEntity
     {
         public float DeltaTime;
+        public Unity.Mathematics.Random random;
 
         public void Execute(ref CollaborativePuzzleComponent collaborative)
         {
@@ -1191,8 +1205,8 @@ namespace Laboratory.Core.Activities.Puzzle
         private void UpdateCoordination(ref CollaborativePuzzleComponent collaborative)
         {
             // Simulate team coordination
-            float coordination1 = math.random().NextFloat(0.5f, 1.5f) * DeltaTime;
-            float coordination2 = math.random().NextFloat(0.5f, 1.5f) * DeltaTime;
+            float coordination1 = random.NextFloat(0.5f, 1.5f) * DeltaTime;
+            float coordination2 = random.NextFloat(0.5f, 1.5f) * DeltaTime;
 
             collaborative.CoordinationBonus1 += coordination1;
             collaborative.CoordinationBonus2 += coordination2;

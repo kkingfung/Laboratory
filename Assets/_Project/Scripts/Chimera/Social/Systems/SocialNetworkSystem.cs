@@ -17,11 +17,11 @@ namespace Laboratory.Chimera.Social.Systems
         [SerializeField] private float maxRelationshipDistance = 100f;
         [SerializeField] private int maxRelationshipsPerAgent = 50;
 
-        private Dictionary<uint, SocialAgent> socialAgents = new();
-        private Dictionary<(uint, uint), SocialRelationship> relationships = new();
+        private Dictionary<uint, Data.SocialAgent> socialAgents = new();
+        private Dictionary<(uint, uint), Data.SocialRelationship> relationships = new();
         private SocialNetworkGraph networkGraph;
 
-        public event Action<uint, uint, RelationshipType> OnRelationshipFormed;
+        public event Action<uint, uint, Laboratory.Chimera.Social.Types.RelationshipType> OnRelationshipFormed;
         public event Action<uint, uint> OnRelationshipDecayed;
 
         private void Awake()
@@ -29,13 +29,13 @@ namespace Laboratory.Chimera.Social.Systems
             networkGraph = new SocialNetworkGraph();
         }
 
-        public void RegisterAgent(SocialAgent agent)
+        public void RegisterAgent(Data.SocialAgent agent)
         {
             if (!socialAgents.ContainsKey(agent.AgentId))
             {
                 socialAgents[agent.AgentId] = agent;
                 networkGraph.AddNode(agent.AgentId);
-                Debug.Log($"Registered social agent: {agent.Name}");
+                UnityEngine.Debug.Log($"Registered social agent: {agent.Name}");
             }
         }
 
@@ -45,11 +45,11 @@ namespace Laboratory.Chimera.Social.Systems
 
             if (!relationships.TryGetValue(relationshipKey, out var relationship))
             {
-                relationship = new SocialRelationship
+                relationship = new Data.SocialRelationship
                 {
                     Agent1Id = agent1Id,
                     Agent2Id = agent2Id,
-                    Type = RelationshipType.Stranger,
+                    Type = Types.RelationshipType.Stranger,
                     Strength = 0f,
                     Trust = 0f,
                     FormationDate = DateTime.UtcNow
@@ -57,18 +57,18 @@ namespace Laboratory.Chimera.Social.Systems
                 relationships[relationshipKey] = relationship;
             }
 
-            ApplyInteractionOutcome(relationship, outcome, intensity);
-            UpdateRelationshipType(relationship);
+            ApplySocialInteractionOutcome(relationship, outcome, intensity);
+            UpdateSocialRelationshipType(relationship);
             networkGraph.UpdateEdge(agent1Id, agent2Id, relationship.Strength);
         }
 
-        public SocialRelationship GetRelationship(uint agent1Id, uint agent2Id)
+        public Data.SocialRelationship GetRelationship(uint agent1Id, uint agent2Id)
         {
             var key = GetRelationshipKey(agent1Id, agent2Id);
             return relationships.TryGetValue(key, out var relationship) ? relationship : null;
         }
 
-        public List<SocialRelationship> GetAgentRelationships(uint agentId)
+        public List<Data.SocialRelationship> GetAgentRelationships(uint agentId)
         {
             return relationships.Values.Where(r =>
                 r.Agent1Id == agentId || r.Agent2Id == agentId).ToList();
@@ -104,7 +104,7 @@ namespace Laboratory.Chimera.Social.Systems
             return agent1Id < agent2Id ? (agent1Id, agent2Id) : (agent2Id, agent1Id);
         }
 
-        private void ApplyInteractionOutcome(SocialRelationship relationship, InteractionOutcome outcome, float intensity)
+        private void ApplySocialInteractionOutcome(Data.SocialRelationship relationship, InteractionOutcome outcome, float intensity)
         {
             switch (outcome)
             {
@@ -116,9 +116,9 @@ namespace Laboratory.Chimera.Social.Systems
                     relationship.Strength -= intensity * 0.15f;
                     relationship.Trust -= intensity * 0.1f;
                     break;
-                case InteractionOutcome.Transformative:
-                    relationship.Strength += intensity * 0.2f;
-                    relationship.Trust += intensity * 0.15f;
+                default:
+                    // Handle any other outcome types
+                    relationship.Strength += intensity * 0.05f;
                     break;
             }
 
@@ -126,20 +126,20 @@ namespace Laboratory.Chimera.Social.Systems
             relationship.Trust = Mathf.Clamp(relationship.Trust, -1f, 1f);
         }
 
-        private void UpdateRelationshipType(SocialRelationship relationship)
+        private void UpdateSocialRelationshipType(Data.SocialRelationship relationship)
         {
             var oldType = relationship.Type;
 
             if (relationship.Strength > 0.7f && relationship.Trust > 0.6f)
-                relationship.Type = RelationshipType.Friend;
+                relationship.Type = Types.RelationshipType.Friend;
             else if (relationship.Strength < -0.5f)
-                relationship.Type = RelationshipType.Enemy;
+                relationship.Type = Types.RelationshipType.Enemy;
             else if (relationship.Strength < -0.2f)
-                relationship.Type = RelationshipType.Rival;
+                relationship.Type = Types.RelationshipType.Rival;
             else if (relationship.Strength > 0.3f)
-                relationship.Type = RelationshipType.Acquaintance;
+                relationship.Type = Types.RelationshipType.Acquaintance;
             else
-                relationship.Type = RelationshipType.Stranger;
+                relationship.Type = Types.RelationshipType.Stranger;
 
             if (oldType != relationship.Type)
             {

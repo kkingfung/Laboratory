@@ -4,6 +4,10 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
 
+using EcoMetrics = Laboratory.Chimera.Ecosystem.Data.EcosystemMetrics;
+using EcoBiomeType = Laboratory.Chimera.Ecosystem.Data.BiomeType;
+using EcoTrophicLevel = Laboratory.Chimera.Ecosystem.Data.TrophicLevel;
+
 namespace Laboratory.Chimera.Ecosystem.Systems
 {
     /// <summary>
@@ -30,7 +34,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private EcosystemHealth currentHealth;
         private Dictionary<Vector2, EcosystemHealth> regionalHealth = new();
-        private List<EcosystemMetrics> metricsHistory = new();
+        private List<EcoMetrics> metricsHistory = new();
         private Dictionary<string, float> healthIndicators = new();
 
         // Dependencies
@@ -44,7 +48,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         public System.Action<string> OnHealthWarning;
         public System.Action<string> OnHealthCritical;
         public System.Action<Vector2, float> OnRegionalHealthChanged;
-        public System.Action<EcosystemMetrics> OnMetricsUpdated;
+        public System.Action<EcoMetrics> OnMetricsUpdated;
 
         private void Awake()
         {
@@ -92,7 +96,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 ["PopulationVariability"] = 0f
             };
 
-            Debug.Log("🌿 Ecosystem health monitoring system initialized");
+            UnityEngine.Debug.Log("🌿 Ecosystem health monitoring system initialized");
         }
 
         private IEnumerator HealthAssessmentLoop()
@@ -110,19 +114,23 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void PerformHealthAssessment()
         {
-            var metrics = CollectEcosystemMetrics();
+            var metrics = CollectEcoMetrics();
             var health = CalculateEcosystemHealth(metrics);
 
             currentHealth = health;
             OnHealthAssessmentComplete?.Invoke(health);
 
-            Debug.Log($"🌿 Ecosystem health assessment: {health.OverallHealthScore:F2} " +
+            UnityEngine.Debug.Log($"🌿 Ecosystem health assessment: {health.OverallHealthScore:F2} " +
                      $"(Biodiversity: {health.BiodiversityIndex:F2}, Stability: {health.PopulationStability:F2})");
         }
 
-        private EcosystemMetrics CollectEcosystemMetrics()
+        private EcoMetrics CollectEcoMetrics()
         {
-            var metrics = new EcosystemMetrics();
+            var metrics = new EcoMetrics()
+            {
+                BiomeDistribution = new Dictionary<EcoBiomeType, float>(),
+                TrophicDistribution = new Dictionary<EcoTrophicLevel, int>()
+            };
 
             // Collect species data
             if (speciesSystem != null)
@@ -144,6 +152,17 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
                 // Calculate population stability
                 metrics.PopulationStability = CalculatePopulationStability(populations);
+
+                // Collect trophic distribution (simplified - assumes equal distribution for now)
+                foreach (var speciesId in populations.Keys)
+                {
+                    // For now, distribute species evenly across trophic levels
+                    // In a real implementation, this would come from species data
+                    var trophicLevel = (EcoTrophicLevel)(speciesId % 4); // Distribute across first 4 levels
+                    if (!metrics.TrophicDistribution.ContainsKey(trophicLevel))
+                        metrics.TrophicDistribution[trophicLevel] = 0;
+                    metrics.TrophicDistribution[trophicLevel]++;
+                }
             }
 
             // Collect biome distribution
@@ -178,7 +197,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return metrics;
         }
 
-        private EcosystemHealth CalculateEcosystemHealth(EcosystemMetrics metrics)
+        private EcosystemHealth CalculateEcosystemHealth(EcoMetrics metrics)
         {
             var health = new EcosystemHealth();
 
@@ -214,7 +233,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return health;
         }
 
-        private float CalculateBiodiversityIndex(EcosystemMetrics metrics)
+        private float CalculateBiodiversityIndex(EcoMetrics metrics)
         {
             // Shannon-Weaver diversity index approximation
             float speciesRichness = metrics.TotalSpeciesCount / 50f; // Normalize to expected maximum
@@ -249,18 +268,18 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return maxH > 0 ? shannonH / maxH : 0f;
         }
 
-        private float CalculateTrophicBalance(EcosystemMetrics metrics)
+        private float CalculateTrophicBalance(EcoMetrics metrics)
         {
             if (metrics.TrophicDistribution == null || metrics.TrophicDistribution.Count == 0)
                 return 0.5f;
 
             // Ideal trophic pyramid: many producers, fewer consumers at each level
-            var idealDistribution = new Dictionary<TrophicLevel, float>
+            var idealDistribution = new Dictionary<EcoTrophicLevel, float>
             {
-                [TrophicLevel.Producer] = 0.4f,
-                [TrophicLevel.PrimaryConsumer] = 0.3f,
-                [TrophicLevel.SecondaryConsumer] = 0.2f,
-                [TrophicLevel.TertiaryConsumer] = 0.1f
+                [EcoTrophicLevel.Producer] = 0.4f,
+                [EcoTrophicLevel.PrimaryConsumer] = 0.3f,
+                [EcoTrophicLevel.SecondaryConsumer] = 0.2f,
+                [EcoTrophicLevel.TertiaryConsumer] = 0.1f
             };
 
             float totalSpecies = metrics.TrophicDistribution.Values.Sum();
@@ -269,7 +288,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             float balance = 0f;
             foreach (var kvp in idealDistribution)
             {
-                float actualProportion = metrics.TrophicDistribution.GetValueOrDefault(kvp.Key, 0) / totalSpecies;
+                float actualProportion = metrics.TrophicDistribution.GetValueOrDefault<EcoTrophicLevel, int>(kvp.Key, 0) / totalSpecies;
                 float difference = Mathf.Abs(actualProportion - kvp.Value);
                 balance += 1f - difference;
             }
@@ -277,7 +296,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return balance / idealDistribution.Count;
         }
 
-        private float CalculateResourceSustainability(EcosystemMetrics metrics)
+        private float CalculateResourceSustainability(EcoMetrics metrics)
         {
             float carryingCapacityScore = 1f - Mathf.Abs(metrics.CarryingCapacityUtilization - 0.7f) / 0.7f;
             float extinctionRateScore = 1f - Mathf.Min(metrics.ExtinctionRate * 10f, 1f);
@@ -303,7 +322,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return totalScore / globalResources.Count;
         }
 
-        private float CalculateHabitatQuality(EcosystemMetrics metrics)
+        private float CalculateHabitatQuality(EcoMetrics metrics)
         {
             float biomeStability = CalculateBiomeStability();
             float climateStability = CalculateClimateStability();
@@ -395,7 +414,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return 0.6f; // Placeholder
         }
 
-        private List<string> IdentifyThreats(EcosystemMetrics metrics, EcosystemHealth health)
+        private List<string> IdentifyThreats(EcoMetrics metrics, EcosystemHealth health)
         {
             var threats = new List<string>();
 
@@ -420,7 +439,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return threats;
         }
 
-        private List<string> IdentifyOpportunities(EcosystemMetrics metrics, EcosystemHealth health)
+        private List<string> IdentifyOpportunities(EcoMetrics metrics, EcosystemHealth health)
         {
             var opportunities = new List<string>();
 
@@ -464,10 +483,10 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             }
         }
 
-        private EcosystemMetrics CollectRegionalMetrics(Vector2 location)
+        private EcoMetrics CollectRegionalMetrics(Vector2 location)
         {
             // Simplified regional metrics collection
-            return new EcosystemMetrics
+            return new EcoMetrics
             {
                 TotalSpeciesCount = Random.Range(5, 15),
                 AveragePopulationSize = Random.Range(50f, 200f),
@@ -475,7 +494,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             };
         }
 
-        private float CalculateRegionalHealth(EcosystemMetrics metrics)
+        private float CalculateRegionalHealth(EcoMetrics metrics)
         {
             // Simplified regional health calculation
             return Random.Range(0.4f, 0.9f);
@@ -510,7 +529,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void UpdateMetricsHistory()
         {
-            var currentMetrics = CollectEcosystemMetrics();
+            var currentMetrics = CollectEcoMetrics();
             metricsHistory.Add(currentMetrics);
 
             // Limit history size
@@ -524,7 +543,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         public EcosystemHealth GetCurrentHealth() => currentHealth;
         public Dictionary<Vector2, EcosystemHealth> GetRegionalHealth() => new Dictionary<Vector2, EcosystemHealth>(regionalHealth);
-        public List<EcosystemMetrics> GetMetricsHistory() => new List<EcosystemMetrics>(metricsHistory);
+        public List<EcoMetrics> GetMetricsHistory() => new List<EcoMetrics>(metricsHistory);
         public Dictionary<string, float> GetHealthIndicators() => new Dictionary<string, float>(healthIndicators);
 
         public void SetHealthIndicator(string indicator, float value)

@@ -35,7 +35,9 @@ namespace Laboratory.Core.MonsterTown
 
         public BuildingSystem(EntityManager entityManager, IEventBus eventBus)
         {
-            _entityManager = entityManager ?? throw new ArgumentNullException(nameof(entityManager));
+            if (entityManager.World == null || !entityManager.World.IsCreated)
+                throw new ArgumentNullException(nameof(entityManager));
+            _entityManager = entityManager;
             _eventBus = eventBus;
         }
 
@@ -223,7 +225,7 @@ namespace Laboratory.Core.MonsterTown
             {
                 _entityManager.AddComponentData(entity, new ResourceGeneratorComponent
                 {
-                    generationRate = config.resourceGeneration,
+                    generationRate = config.resourceGeneration.ToTownResources(),
                     lastGenerationTime = Time.time
                 });
             }
@@ -556,10 +558,17 @@ namespace Laboratory.Core.MonsterTown
             // Clean up entity when visual is destroyed
             if (LinkedEntity != Entity.Null)
             {
-                var entityManager = World.DefaultGameObjectInjectionWorld?.EntityManager;
-                if (entityManager != null && entityManager.Exists(LinkedEntity))
+                var world = World.DefaultGameObjectInjectionWorld;
+                if (world != null && world.IsCreated)
                 {
-                    entityManager.DestroyEntity(LinkedEntity);
+                    var entityManager = world.EntityManager;
+                    if (entityManager.Exists(LinkedEntity))
+                    {
+                        var entityArray = new Unity.Collections.NativeArray<Entity>(1, Unity.Collections.Allocator.Temp);
+                        entityArray[0] = LinkedEntity;
+                        entityManager.DestroyEntity(entityArray);
+                        entityArray.Dispose();
+                    }
                 }
             }
         }

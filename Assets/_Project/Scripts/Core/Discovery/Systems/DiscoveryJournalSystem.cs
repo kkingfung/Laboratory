@@ -4,7 +4,7 @@ using UnityEngine;
 using Laboratory.Core.Discovery.Data;
 using Laboratory.Core.Discovery.Types;
 using Laboratory.Core.Discovery.Services;
-using Laboratory.Core.ECS.Components;
+using Laboratory.Core.MonsterTown;
 
 namespace Laboratory.Core.Discovery.Systems
 {
@@ -48,10 +48,17 @@ namespace Laboratory.Core.Discovery.Systems
 
         private void InitializeServices()
         {
-            journalEntryService = new JournalEntryService(this);
-            breedingAnalysisService = new BreedingAnalysisService(this);
-            achievementService = new AchievementService(this, achievementDatabase);
-            researchProjectService = new ResearchProjectService(this);
+            // Get the main DiscoveryJournalSystem from the Discovery namespace
+            var mainDiscoverySystem = FindObjectOfType<Laboratory.Core.Discovery.DiscoveryJournalSystem>();
+            if (mainDiscoverySystem == null)
+            {
+                Debug.LogWarning("Main DiscoveryJournalSystem not found. Creating services with null reference.");
+            }
+
+            journalEntryService = new JournalEntryService(mainDiscoverySystem);
+            breedingAnalysisService = new BreedingAnalysisService(mainDiscoverySystem);
+            achievementService = new AchievementService(mainDiscoverySystem, achievementDatabase);
+            researchProjectService = new ResearchProjectService(mainDiscoverySystem);
         }
 
         #region Public API

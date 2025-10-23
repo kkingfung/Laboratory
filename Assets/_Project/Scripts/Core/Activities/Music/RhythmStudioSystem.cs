@@ -387,12 +387,14 @@ namespace Laboratory.Core.Activities.Music
         private EntityQuery studioQuery;
         private EntityQuery performerQuery;
         private EndSimulationEntityCommandBufferSystem ecbSystem;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
             studioQuery = GetEntityQuery(ComponentType.ReadWrite<RhythmStudioComponent>());
             performerQuery = GetEntityQuery(ComponentType.ReadWrite<MusicPerformerComponent>());
             ecbSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -404,7 +406,8 @@ namespace Laboratory.Core.Activities.Music
             var studioUpdateJob = new StudioUpdateJob
             {
                 DeltaTime = deltaTime,
-                CommandBuffer = ecb
+                CommandBuffer = ecb,
+                random = Unity.Mathematics.Random.CreateFromIndex((uint)(System.DateTime.Now.Ticks))
             };
             Dependency = studioUpdateJob.ScheduleParallel(studioQuery, Dependency);
 
@@ -417,6 +420,7 @@ namespace Laboratory.Core.Activities.Music
     {
         public float DeltaTime;
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
+        public Unity.Mathematics.Random random;
 
         public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref RhythmStudioComponent studio)
         {
@@ -558,7 +562,7 @@ namespace Laboratory.Core.Activities.Music
         {
             // This would normally query all performers in the studio
             // For now, simplified calculation
-            return math.random().NextFloat(0.6f, 0.95f);
+            return random.NextFloat(0.6f, 0.95f);
         }
     }
 
@@ -570,6 +574,7 @@ namespace Laboratory.Core.Activities.Music
     public partial class MusicPerformanceSystem : SystemBase
     {
         private EntityQuery performanceQuery;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
@@ -579,6 +584,7 @@ namespace Laboratory.Core.Activities.Music
                 ComponentType.ReadOnly<MusicPerformanceComponent>(),
                 ComponentType.ReadOnly<GeneticDataComponent>()
             });
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -588,7 +594,8 @@ namespace Laboratory.Core.Activities.Music
             var performanceJob = new MusicPerformanceJob
             {
                 DeltaTime = deltaTime,
-                Time = (float)SystemAPI.Time.ElapsedTime
+                Time = (float)SystemAPI.Time.ElapsedTime,
+                random = Unity.Mathematics.Random.CreateFromIndex((uint)(System.DateTime.Now.Ticks + 456))
             };
 
             Dependency = performanceJob.ScheduleParallel(performanceQuery, Dependency);
@@ -600,6 +607,7 @@ namespace Laboratory.Core.Activities.Music
     {
         public float DeltaTime;
         public float Time;
+        public Unity.Mathematics.Random random;
 
         public void Execute(ref MusicPerformerComponent performer,
             in MusicPerformanceComponent performance,
@@ -623,7 +631,7 @@ namespace Laboratory.Core.Activities.Music
             float baseAccuracy = rhythmSkill * 0.9f; // Max 90% base accuracy
 
             // Add some randomness for realism
-            float randomFactor = math.random().NextFloat(-0.1f, 0.1f);
+            float randomFactor = random.NextFloat(-0.1f, 0.1f);
             float currentAccuracy = math.clamp(baseAccuracy + randomFactor, 0.1f, 1.0f);
 
             performer.RhythmAccuracy = currentAccuracy;
@@ -723,6 +731,7 @@ namespace Laboratory.Core.Activities.Music
     public partial class GeneticMusicSignatureSystem : SystemBase
     {
         private EntityQuery signatureQuery;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
@@ -732,6 +741,7 @@ namespace Laboratory.Core.Activities.Music
                 ComponentType.ReadOnly<GeneticDataComponent>(),
                 ComponentType.ReadOnly<CreatureIdentityComponent>()
             });
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -749,7 +759,7 @@ namespace Laboratory.Core.Activities.Music
         private void GenerateGeneticMusicSignature(ref GeneticMusicSignatureComponent signature, GeneticDataComponent genetics, CreatureIdentityComponent identity)
         {
             // Generate unique musical signature from genetics
-            var random = new Unity.Mathematics.Random((uint)identity.UniqueID);
+            var random = new Unity.Mathematics.Random((uint)identity.CreatureID);
 
             // Base frequency derived from genetics
             signature.BaseFrequency = 220f + (genetics.Intelligence * 440f); // A3 to A4 range
@@ -823,7 +833,7 @@ namespace Laboratory.Core.Activities.Music
         private uint GenerateMusicHash(GeneticDataComponent genetics, CreatureIdentityComponent identity)
         {
             // Create unique hash from genetic traits
-            uint hash = (uint)identity.UniqueID;
+            uint hash = (uint)identity.CreatureID;
             hash ^= (uint)(genetics.Intelligence * 1000000);
             hash ^= (uint)(genetics.Agility * 2000000);
             hash ^= (uint)(genetics.Sociability * 3000000);
@@ -849,10 +859,12 @@ namespace Laboratory.Core.Activities.Music
     public partial class RhythmGameMechanicsSystem : SystemBase
     {
         private EntityQuery rhythmGameQuery;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
             rhythmGameQuery = GetEntityQuery(ComponentType.ReadWrite<RhythmGameComponent>());
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()

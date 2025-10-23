@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Laboratory.Chimera.Social.Data;
 using Laboratory.Chimera.Social.Types;
+using Laboratory.Chimera.Debug;
+
 
 namespace Laboratory.Chimera.Social.Systems
 {
@@ -18,11 +19,11 @@ namespace Laboratory.Chimera.Social.Systems
         [SerializeField] private float leadershipEmergenceRate = 0.05f;
         [SerializeField] private bool enableHierarchyFormation = true;
 
-        private Dictionary<uint, SocialGroup> activeGroups = new();
-        private Dictionary<uint, Leadership> groupLeaderships = new();
+        private Dictionary<uint, Laboratory.Chimera.Social.Data.SocialGroup> activeGroups = new();
+        private Dictionary<uint, Laboratory.Chimera.Social.Data.Leadership> groupLeaderships = new();
         private SocialNetworkSystem networkSystem;
 
-        public event Action<uint, SocialGroup> OnGroupFormed;
+        public event Action<uint, Laboratory.Chimera.Social.Data.SocialGroup> OnGroupFormed;
         public event Action<uint> OnGroupDisbanded;
         public event Action<uint, uint> OnLeadershipEmergence;
         public event Action<uint, uint> OnLeadershipChange;
@@ -38,7 +39,7 @@ namespace Laboratory.Chimera.Social.Systems
                 return;
 
             var groupId = GenerateGroupId();
-            var group = new SocialGroup
+            var group = new Laboratory.Chimera.Social.Data.SocialGroup
             {
                 GroupId = groupId,
                 GroupName = string.IsNullOrEmpty(groupName) ? $"Group_{groupId}" : groupName,
@@ -46,7 +47,7 @@ namespace Laboratory.Chimera.Social.Systems
                 LeaderId = 0, // Will be determined by leadership emergence
                 Cohesion = CalculateInitialCohesion(memberIds),
                 CenterPosition = CalculateGroupCenter(memberIds),
-                GroupStatus = SocialStatus.Regular,
+                GroupStatus = Laboratory.Chimera.Social.Types.SocialStatus.Regular,
                 FormationDate = DateTime.UtcNow
             };
 
@@ -58,7 +59,7 @@ namespace Laboratory.Chimera.Social.Systems
             }
 
             OnGroupFormed?.Invoke(groupId, group);
-            Debug.Log($"Group formed: {group.GroupName} with {memberIds.Count} members");
+            UnityEngine.Debug.Log($"Group formed: {group.GroupName} with {memberIds.Count} members");
         }
 
         public void UpdateGroupDynamics()
@@ -79,7 +80,7 @@ namespace Laboratory.Chimera.Social.Systems
                 {
                     group.Members.Add(memberId);
                     UpdateGroupCohesion(group);
-                    Debug.Log($"Added member {memberId} to group {group.GroupName}");
+                    UnityEngine.Debug.Log($"Added member {memberId} to group {group.GroupName}");
                 }
             }
         }
@@ -106,7 +107,7 @@ namespace Laboratory.Chimera.Social.Systems
             }
         }
 
-        private void DetermineLeadership(SocialGroup group)
+        private void DetermineLeadership(Laboratory.Chimera.Social.Data.SocialGroup group)
         {
             if (group.Members.Count == 0) return;
 
@@ -129,11 +130,11 @@ namespace Laboratory.Chimera.Social.Systems
                 var previousLeader = group.LeaderId;
                 group.LeaderId = bestLeaderCandidate;
 
-                var leadership = new Leadership
+                var leadership = new Data.Leadership
                 {
                     LeaderId = bestLeaderCandidate,
                     GroupId = group.GroupId,
-                    Style = DetermineLeadershipStyle(bestLeaderCandidate),
+                    Style = (Types.LeadershipStyle)(int)DetermineLeadershipStyle(bestLeaderCandidate),
                     Effectiveness = 0.5f, // Starting effectiveness
                     PopularityRating = 0.5f,
                     LeadershipStart = DateTime.UtcNow
@@ -148,7 +149,7 @@ namespace Laboratory.Chimera.Social.Systems
             }
         }
 
-        private float CalculateLeadershipScore(uint agentId, SocialGroup group)
+        private float CalculateLeadershipScore(uint agentId, Laboratory.Chimera.Social.Data.SocialGroup group)
         {
             // This would use actual agent data in a full implementation
             float charismaScore = UnityEngine.Random.Range(0.3f, 1f);
@@ -194,7 +195,7 @@ namespace Laboratory.Chimera.Social.Systems
             return Vector3.zero;
         }
 
-        private void UpdateGroupCohesion(SocialGroup group)
+        private void UpdateGroupCohesion(Laboratory.Chimera.Social.Data.SocialGroup group)
         {
             group.Cohesion = CalculateInitialCohesion(group.Members);
 
@@ -207,7 +208,7 @@ namespace Laboratory.Chimera.Social.Systems
             group.Cohesion = Mathf.Clamp01(group.Cohesion);
         }
 
-        private void UpdateLeadership(SocialGroup group)
+        private void UpdateLeadership(Laboratory.Chimera.Social.Data.SocialGroup group)
         {
             if (groupLeaderships.TryGetValue(group.GroupId, out var leadership))
             {
@@ -224,7 +225,7 @@ namespace Laboratory.Chimera.Social.Systems
             }
         }
 
-        private void CheckGroupStability(SocialGroup group)
+        private void CheckGroupStability(Laboratory.Chimera.Social.Data.SocialGroup group)
         {
             if (group.Cohesion < 0.2f)
             {
@@ -243,7 +244,7 @@ namespace Laboratory.Chimera.Social.Systems
                 activeGroups.Remove(groupId);
                 groupLeaderships.Remove(groupId);
                 OnGroupDisbanded?.Invoke(groupId);
-                Debug.Log($"Group disbanded: {group.GroupName}");
+                UnityEngine.Debug.Log($"Group disbanded: {group.GroupName}");
             }
         }
 
@@ -252,17 +253,17 @@ namespace Laboratory.Chimera.Social.Systems
             return (uint)UnityEngine.Random.Range(100000, 999999);
         }
 
-        public SocialGroup GetGroup(uint groupId)
+        public Laboratory.Chimera.Social.Data.SocialGroup GetGroup(uint groupId)
         {
             return activeGroups.TryGetValue(groupId, out var group) ? group : null;
         }
 
-        public List<SocialGroup> GetAllGroups()
+        public List<Laboratory.Chimera.Social.Data.SocialGroup> GetAllGroups()
         {
             return activeGroups.Values.ToList();
         }
 
-        public Leadership GetGroupLeadership(uint groupId)
+        public Laboratory.Chimera.Social.Data.Leadership GetGroupLeadership(uint groupId)
         {
             return groupLeaderships.TryGetValue(groupId, out var leadership) ? leadership : null;
         }

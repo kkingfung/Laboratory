@@ -488,12 +488,14 @@ namespace Laboratory.Core.Activities.Adventure
         private EntityQuery guildQuery;
         private EntityQuery adventurerQuery;
         private EndSimulationEntityCommandBufferSystem ecbSystem;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
             guildQuery = GetEntityQuery(ComponentType.ReadWrite<AdventureGuildComponent>());
             adventurerQuery = GetEntityQuery(ComponentType.ReadWrite<AdventurerComponent>());
             ecbSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -586,7 +588,7 @@ namespace Laboratory.Core.Activities.Adventure
             if (guild.ActiveExpeditions > 0)
             {
                 // Random completion chance
-                if (math.random().NextFloat() < 0.01f * deltaTime) // 1% chance per second
+                if (UnityEngine.Random.value < 0.01f * deltaTime) // 1% chance per second
                 {
                     guild.ActiveExpeditions--;
                     guild.CompletedQuests++;
@@ -632,6 +634,7 @@ namespace Laboratory.Core.Activities.Adventure
     public partial class AdventureExplorationSystem : SystemBase
     {
         private EntityQuery explorationQuery;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
@@ -641,6 +644,7 @@ namespace Laboratory.Core.Activities.Adventure
                 ComponentType.ReadOnly<AdventurePerformanceComponent>(),
                 ComponentType.ReadOnly<GeneticDataComponent>()
             });
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -650,7 +654,8 @@ namespace Laboratory.Core.Activities.Adventure
             var explorationJob = new AdventureExplorationJob
             {
                 DeltaTime = deltaTime,
-                Time = (float)SystemAPI.Time.ElapsedTime
+                Time = (float)SystemAPI.Time.ElapsedTime,
+                random = Unity.Mathematics.Random.CreateFromIndex((uint)System.DateTime.Now.Ticks)
             };
 
             Dependency = explorationJob.ScheduleParallel(explorationQuery, Dependency);
@@ -662,6 +667,7 @@ namespace Laboratory.Core.Activities.Adventure
     {
         public float DeltaTime;
         public float Time;
+        public Unity.Mathematics.Random random;
 
         public void Execute(ref AdventurerComponent adventurer,
             in AdventurePerformanceComponent performance,
@@ -734,7 +740,7 @@ namespace Laboratory.Core.Activities.Adventure
         private bool CheckForDiscovery(AdventurePerformanceComponent performance, GeneticDataComponent genetics)
         {
             float discoveryChance = genetics.Curiosity * performance.TreasureHunting * 0.01f; // 1% max per frame
-            return math.random().NextFloat() < discoveryChance;
+            return random.NextFloat() < discoveryChance;
         }
 
 
@@ -744,7 +750,7 @@ namespace Laboratory.Core.Activities.Adventure
             float dangerReduction = performance.DangerSense * genetics.Caution;
             float actualDangerChance = math.max(0.001f, dangerChance - dangerReduction * 0.001f);
 
-            return math.random().NextFloat() < actualDangerChance;
+            return random.NextFloat() < actualDangerChance;
         }
 
 
@@ -756,7 +762,7 @@ namespace Laboratory.Core.Activities.Adventure
             float survivalSkill = genetics.Adaptability * performance.SurvivalInstinct;
             float survivalChance = survivalSkill * 0.1f; // 10% max chance per second
 
-            if (math.random().NextFloat() < survivalChance)
+            if (random.NextFloat() < survivalChance)
             {
                 // Successfully escaped danger
                 adventurer.Status = AdventurerStatus.Exploring;
@@ -850,11 +856,13 @@ namespace Laboratory.Core.Activities.Adventure
     {
         private EntityQuery questQuery;
         private EndSimulationEntityCommandBufferSystem ecbSystem;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
             questQuery = GetEntityQuery(ComponentType.ReadWrite<QuestComponent>());
             ecbSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -874,7 +882,7 @@ namespace Laboratory.Core.Activities.Adventure
         private void GenerateProceduralQuests(EntityCommandBuffer ecb)
         {
             // Generate a new quest (simplified example)
-            if (math.random().NextFloat() < 0.01f) // 1% chance per frame
+            if (random.NextFloat() < 0.01f) // 1% chance per frame
             {
                 var questEntity = ecb.CreateEntity();
                 var questSeed = (uint)UnityEngine.Random.Range(1, int.MaxValue);
@@ -940,10 +948,12 @@ namespace Laboratory.Core.Activities.Adventure
     public partial class DungeonExplorationSystem : SystemBase
     {
         private EntityQuery dungeonQuery;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
             dungeonQuery = GetEntityQuery(ComponentType.ReadWrite<DungeonComponent>());
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -972,15 +982,15 @@ namespace Laboratory.Core.Activities.Adventure
                 dungeon.RoomsExplored = newRoomsExplored;
 
                 // Chance for encounters
-                if (math.random().NextFloat() < 0.3f)
+                if (random.NextFloat() < 0.3f)
                 {
-                    if (math.random().NextFloat() < 0.5f)
+                    if (random.NextFloat() < 0.5f)
                         dungeon.TreasuresFound++;
                     else
                         dungeon.TrapsEncountered++;
                 }
 
-                if (math.random().NextFloat() < 0.2f)
+                if (random.NextFloat() < 0.2f)
                     dungeon.MonstersSeen++;
             }
 
@@ -996,7 +1006,7 @@ namespace Laboratory.Core.Activities.Adventure
                 if (dungeon.HasBoss && !dungeon.BossDefeated)
                 {
                     // Simulate boss encounter
-                    if (math.random().NextFloat() < 0.7f) // 70% boss defeat chance
+                    if (random.NextFloat() < 0.7f) // 70% boss defeat chance
                     {
                         dungeon.BossDefeated = true;
                         dungeon.Status = DungeonStatus.Boss_Defeated;
@@ -1016,12 +1026,14 @@ namespace Laboratory.Core.Activities.Adventure
         private EntityQuery competitionQuery;
         private EntityQuery territoryQuery;
         private EndSimulationEntityCommandBufferSystem ecbSystem;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
             competitionQuery = GetEntityQuery(ComponentType.ReadWrite<AdventureCompetitionComponent>());
             territoryQuery = GetEntityQuery(ComponentType.ReadWrite<TerritoryControlComponent>());
             ecbSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -1033,14 +1045,16 @@ namespace Laboratory.Core.Activities.Adventure
             var competitionJob = new CompetitionUpdateJob
             {
                 DeltaTime = deltaTime,
-                CommandBuffer = ecb
+                CommandBuffer = ecb,
+                random = Unity.Mathematics.Random.CreateFromIndex((uint)System.DateTime.Now.Ticks)
             };
             Dependency = competitionJob.ScheduleParallel(competitionQuery, Dependency);
 
             // Update territory control
             var territoryJob = new TerritoryControlJob
             {
-                DeltaTime = deltaTime
+                DeltaTime = deltaTime,
+                random = Unity.Mathematics.Random.CreateFromIndex((uint)System.DateTime.Now.Ticks)
             };
             Dependency = territoryJob.ScheduleParallel(territoryQuery, Dependency);
 
@@ -1053,6 +1067,7 @@ namespace Laboratory.Core.Activities.Adventure
     {
         public float DeltaTime;
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
+        public Unity.Mathematics.Random random;
 
         public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref AdventureCompetitionComponent competition)
         {
@@ -1120,8 +1135,8 @@ namespace Laboratory.Core.Activities.Adventure
         private void UpdateDungeonRace(ref AdventureCompetitionComponent competition)
         {
             // Simulate dungeon exploration progress
-            float progress1 = math.random().NextFloat(0f, 1f) * DeltaTime;
-            float progress2 = math.random().NextFloat(0f, 1f) * DeltaTime;
+            float progress1 = random.NextFloat(0f, 1f) * DeltaTime;
+            float progress2 = random.NextFloat(0f, 1f) * DeltaTime;
 
             competition.Competition1Score += progress1;
             competition.Competition2Score += progress2;
@@ -1131,9 +1146,9 @@ namespace Laboratory.Core.Activities.Adventure
         private void UpdateTreasureHuntDuel(ref AdventureCompetitionComponent competition)
         {
             // Treasure discovery simulation
-            if (math.random().NextFloat() < 0.02f) // 2% chance per frame
+            if (random.NextFloat() < 0.02f) // 2% chance per frame
             {
-                if (math.random().NextFloat() < 0.5f)
+                if (random.NextFloat() < 0.5f)
                     competition.Competition1Score += 1f;
                 else
                     competition.Competition2Score += 1f;
@@ -1144,8 +1159,8 @@ namespace Laboratory.Core.Activities.Adventure
         private void UpdateSpeedExploration(ref AdventureCompetitionComponent competition)
         {
             // Speed-based exploration
-            float speed1 = math.random().NextFloat(0.5f, 1.5f) * DeltaTime;
-            float speed2 = math.random().NextFloat(0.5f, 1.5f) * DeltaTime;
+            float speed1 = random.NextFloat(0.5f, 1.5f) * DeltaTime;
+            float speed2 = random.NextFloat(0.5f, 1.5f) * DeltaTime;
 
             competition.Competition1Score += speed1;
             competition.Competition2Score += speed2;
@@ -1155,8 +1170,8 @@ namespace Laboratory.Core.Activities.Adventure
         private void UpdateSurvivalChallenge(ref AdventureCompetitionComponent competition)
         {
             // Survival endurance test
-            float endurance1 = math.random().NextFloat(0.8f, 1.2f);
-            float endurance2 = math.random().NextFloat(0.8f, 1.2f);
+            float endurance1 = random.NextFloat(0.8f, 1.2f);
+            float endurance2 = random.NextFloat(0.8f, 1.2f);
 
             // Higher score = better survival
             competition.Competition1Score += endurance1 * DeltaTime;
@@ -1167,8 +1182,8 @@ namespace Laboratory.Core.Activities.Adventure
         private void UpdateTerritoryControl(ref AdventureCompetitionComponent competition)
         {
             // Territory capture mechanics
-            float control1 = math.random().NextFloat(0f, 1f) * DeltaTime * 0.5f;
-            float control2 = math.random().NextFloat(0f, 1f) * DeltaTime * 0.5f;
+            float control1 = random.NextFloat(0f, 1f) * DeltaTime * 0.5f;
+            float control2 = random.NextFloat(0f, 1f) * DeltaTime * 0.5f;
 
             competition.Competition1Score += control1;
             competition.Competition2Score += control2;
@@ -1233,6 +1248,7 @@ namespace Laboratory.Core.Activities.Adventure
     public partial struct TerritoryControlJob : IJobEntity
     {
         public float DeltaTime;
+        public Unity.Mathematics.Random random;
 
         public void Execute(ref TerritoryControlComponent territory)
         {
@@ -1264,10 +1280,10 @@ namespace Laboratory.Core.Activities.Adventure
             territory.ContestedTimer += DeltaTime;
 
             // Simulate territorial struggle
-            float controlChange = math.random().NextFloat(-1f, 1f) * DeltaTime * 0.1f;
+            float controlChange = random.NextFloat(-1f, 1f) * DeltaTime * 0.1f;
             territory.ControlProgress += controlChange;
 
-            float challengeChange = math.random().NextFloat(-1f, 1f) * DeltaTime * 0.1f;
+            float challengeChange = random.NextFloat(-1f, 1f) * DeltaTime * 0.1f;
             territory.ChallengeProgress += challengeChange;
 
             // Clamp values
@@ -1416,7 +1432,7 @@ namespace Laboratory.Core.Activities.Adventure
 
             // Draw exploration radius
             Gizmos.color = Color.green;
-            Gizmos.DrawWireDisc(transform.position, Vector3.up, explorationRadius);
+            Gizmos.DrawWireSphere(transform.position, explorationRadius);
 
             // Draw quest locations
             if (questLocations != null)

@@ -6,7 +6,7 @@ using Laboratory.Core.Events;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Laboratory.Core.MonsterTown
+namespace Laboratory.Core.Integration
 {
     /// <summary>
     /// Monster Town Compilation Test - Validates that all Monster Town systems

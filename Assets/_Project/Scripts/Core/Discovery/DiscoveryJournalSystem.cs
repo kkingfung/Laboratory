@@ -54,6 +54,14 @@ namespace Laboratory.Core.Discovery
         public event Action<GeneticDiscovery> OnGeneticDiscoveryMade;
         public event Action<ResearchProject> OnResearchProjectCompleted;
 
+        // Public properties for services
+        public bool EnableAutoDocumentation => enableAutoDocumentation;
+        public bool EnableAchievements => enableAchievements;
+        public bool EnableResearchProjects => enableResearchProjects;
+        public bool EnablePlayerNotes => enablePlayerNotes;
+        public int MaxActiveResearchProjects => maxActiveResearchProjects;
+        public float ResearchProjectDuration => researchProjectDuration;
+
         #region Initialization
 
         public void InitializeDiscoverySystem(JournalConfig config, AchievementDatabase achievements)
@@ -440,6 +448,20 @@ namespace Laboratory.Core.Discovery
             Debug.Log($"🔬 Research project completed: {project.Title}");
         }
 
+        /// <summary>
+        /// Manually trigger research project completion (for services)
+        /// </summary>
+        public void TriggerResearchProjectCompleted(string playerId, string projectId)
+        {
+            if (!_activeResearchProjects.TryGetValue(playerId, out var projects)) return;
+
+            var project = projects.FirstOrDefault(p => p.ProjectId == projectId);
+            if (project != null && project.Status == ResearchStatus.InProgress)
+            {
+                CompleteResearchProject(playerId, project);
+            }
+        }
+
         #endregion
 
         #region Data Analysis and Generation
@@ -793,6 +815,14 @@ namespace Laboratory.Core.Discovery
             return _unlockedAchievements.TryGetValue(playerId, out var achievements)
                 ? new List<Achievement>(achievements)
                 : new List<Achievement>();
+        }
+
+        /// <summary>
+        /// Trigger achievement unlocked event
+        /// </summary>
+        public void TriggerAchievementUnlocked(Achievement achievement)
+        {
+            OnAchievementUnlocked?.Invoke(achievement);
         }
 
         /// <summary>

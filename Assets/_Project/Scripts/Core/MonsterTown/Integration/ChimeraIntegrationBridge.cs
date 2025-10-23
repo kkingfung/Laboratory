@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Unity.Entities;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
+using Laboratory.Core.MonsterTown.Systems;
 
 namespace Laboratory.Core.MonsterTown.Integration
 {
@@ -100,8 +102,18 @@ namespace Laboratory.Core.MonsterTown.Integration
                 Experience = 0,
                 Happiness = UnityEngine.Random.Range(40f, 80f),
                 Energy = 100f,
-                Genetics = MonsterGenetics.CreateRandom(),
-                Equipment = MonsterEquipment.CreateStarter(),
+                GeneticProfile = new BasicGeneticProfile
+                {
+                    OverallFitness = UnityEngine.Random.Range(0.3f, 0.9f),
+                    Traits = new System.Collections.Generic.Dictionary<string, float>
+                    {
+                        ["Strength"] = UnityEngine.Random.Range(0.2f, 1.0f),
+                        ["Speed"] = UnityEngine.Random.Range(0.2f, 1.0f),
+                        ["Intelligence"] = UnityEngine.Random.Range(0.2f, 1.0f),
+                        ["Endurance"] = UnityEngine.Random.Range(0.2f, 1.0f)
+                    }
+                },
+                Equipment = new List<string> { "Starter_Collar", "Training_Harness" },
                 BirthTime = DateTime.Now,
                 Generation = 1
             };
@@ -123,15 +135,21 @@ namespace Laboratory.Core.MonsterTown.Integration
                 Experience = 0,
                 Happiness = 70f,
                 Energy = 100f,
-                Genetics = MonsterGenetics.Crossover(parent1.Genetics, parent2.Genetics),
-                Equipment = MonsterEquipment.CreateEmpty(),
+                GeneticProfile = CreateCrossoverProfile(parent1.GeneticProfile, parent2.GeneticProfile),
+                Equipment = new List<string>(),
                 BirthTime = DateTime.Now,
                 Generation = Mathf.Max(parent1.Generation, parent2.Generation) + 1
             };
 
             // Fire breeding success event
-            var breedingEvent = new BreedingSuccessfulEvent(parent1, parent2, offspring);
-            eventBus?.PublishEvent(breedingEvent);
+            var breedingEvent = new BreedingSuccessfulEvent
+            {
+                Parent1 = parent1,
+                Parent2 = parent2,
+                Offspring = offspring,
+                BreedingTime = DateTime.Now
+            };
+            eventBus?.Publish(breedingEvent);
 
             Debug.Log($"🧬 Simulated Chimera breeding success: {offspring.Name}");
         }
@@ -233,7 +251,7 @@ namespace Laboratory.Core.MonsterTown.Integration
 
                 // Fire creature spawned event
                 var spawnEvent = new CreatureSpawnedEvent(testMonster);
-                eventBus?.PublishEvent(spawnEvent);
+                eventBus?.Publish(spawnEvent);
 
                 await Task.Delay(100);
             }
@@ -282,6 +300,26 @@ namespace Laboratory.Core.MonsterTown.Integration
             return $"{parent1.Species.Split(' ')[0]}-{parent2.Species.Split(' ')[0]} Hybrid";
         }
 
+        private IGeneticProfile CreateCrossoverProfile(IGeneticProfile parent1, IGeneticProfile parent2)
+        {
+            var crossoverProfile = new BasicGeneticProfile();
+
+            // Simple crossover - average traits from both parents
+            if (parent1.Traits.Count > 0 && parent2.Traits.Count > 0)
+            {
+                var allTraits = parent1.Traits.Keys.Union(parent2.Traits.Keys);
+                foreach (var trait in allTraits)
+                {
+                    var value1 = parent1.Traits.ContainsKey(trait) ? parent1.Traits[trait] : 0.5f;
+                    var value2 = parent2.Traits.ContainsKey(trait) ? parent2.Traits[trait] : 0.5f;
+                    crossoverProfile.Traits[trait] = (value1 + value2) / 2f;
+                }
+            }
+
+            crossoverProfile.OverallFitness = (parent1.OverallFitness + parent2.OverallFitness) / 2f;
+            return crossoverProfile;
+        }
+
         #endregion
     }
 
@@ -308,7 +346,7 @@ namespace Laboratory.Core.MonsterTown.Integration
     /// <summary>
     /// Event fired when a creature is spawned from Chimera system
     /// </summary>
-    public class CreatureSpawnedEvent : IGameEvent
+    public class CreatureSpawnedEvent
     {
         public MonsterInstance Monster { get; }
         public DateTime Timestamp { get; }
@@ -316,7 +354,7 @@ namespace Laboratory.Core.MonsterTown.Integration
         public CreatureSpawnedEvent(MonsterInstance monster)
         {
             Monster = monster;
-            Timestamp = DateTime.Now;
+            Timestamp = DateTime.UtcNow;
         }
     }
 

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Core.GameModes;
 
 namespace Laboratory.Core.Platform
 {
@@ -21,6 +22,11 @@ namespace Laboratory.Core.Platform
         [SerializeField] private bool enableCrossGenreGenetics = true;
         [SerializeField] private bool enableGeneticEducation = true;
         [SerializeField] private bool enableGeneticEvolution = true;
+
+        // Public properties for external access
+        public bool EnableCrossGenreGenetics => enableCrossGenreGenetics;
+        public bool EnableGeneticEducation => enableGeneticEducation;
+        public bool EnableGeneticEvolution => enableGeneticEvolution;
 
         // Universal genetic system that adapts to any genre
         private Dictionary<string, IGeneticGameElement> geneticElements = new();
@@ -491,79 +497,5 @@ namespace Laboratory.Core.Platform
 
     #endregion
 
-    #region Extended Genre Enum
-
-    public enum GameGenre
-    {
-        // Your existing genres
-        Exploration,
-        Strategy,
-        Racing,
-        Puzzle,
-        TowerDefense,
-        BattleRoyale,
-        CityBuilder,
-        Detective,
-        Economics,
-        Sports,
-
-        // All major gaming genres (no VR/AR - requires special hardware)
-
-        // Action Genres
-        FPS,
-        ThirdPersonShooter,
-        Fighting,
-        BeatEmUp,
-        HackAndSlash,
-        Stealth,
-        SurvivalHorror,
-
-        // Strategy Genres
-        RealTimeStrategy,
-        TurnBasedStrategy,
-        FourXStrategy,
-        GrandStrategy,
-        AutoBattler,
-
-        // Puzzle Genres
-        Match3,
-        TetrisLike,
-        PhysicsPuzzle,
-        HiddenObject,
-        WordGame,
-
-        // Adventure Genres
-        PointAndClickAdventure,
-        VisualNovel,
-        WalkingSimulator,
-        Metroidvania,
-
-        // Platform Genres
-        Platformer2D,
-        Platformer3D,
-        EndlessRunner,
-
-        // Simulation Genres
-        VehicleSimulation,
-        FlightSimulator,
-        FarmingSimulator,
-        ConstructionSimulator,
-
-        // Roguelike & Arcade
-        Roguelike,
-        Roguelite,
-        BulletHell,
-        Arcade,
-
-        // Board & Card Games
-        BoardGame,
-        CardGame,
-        ChessLike,
-
-        // Music & Audio
-        RhythmGame,
-        MusicCreation
-    }
-
-    #endregion
+    // GameGenre enum is defined in Laboratory.Core.GameModes namespace - using that one instead
 }

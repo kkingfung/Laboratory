@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
+using EcoCatastropheType = Laboratory.Chimera.Ecosystem.Data.CatastropheType;
+using EcoBiomeType = Laboratory.Chimera.Ecosystem.Data.BiomeType;
+using EcoSeasonType = Laboratory.Chimera.Ecosystem.Data.SeasonType;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
 {
@@ -28,9 +31,9 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         [SerializeField] private bool enableAdaptiveRecovery = true;
 
         private List<CatastrophicEvent> activeEvents = new();
-        private Dictionary<CatastropheType, CatastropheConfiguration> eventConfigs = new();
+        private Dictionary<EcoCatastropheType, CatastropheConfiguration> eventConfigs = new();
         private Dictionary<Vector2, List<CatastrophicEvent>> regionalEvents = new();
-        private Dictionary<CatastropheType, float> eventHistory = new();
+        private Dictionary<EcoCatastropheType, float> eventHistory = new();
 
         // Dependencies
         private ClimateEvolutionSystem climateSystem;
@@ -42,8 +45,8 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         // Events
         public System.Action<CatastrophicEvent> OnCatastropheTriggered;
         public System.Action<CatastrophicEvent> OnCatastropheEnded;
-        public System.Action<Vector2, CatastropheType, float> OnRecoveryProgress;
-        public System.Action<CatastropheType, float> OnEventProbabilityChanged;
+        public System.Action<Vector2, EcoCatastropheType, float> OnRecoveryProgress;
+        public System.Action<EcoCatastropheType, float> OnEventProbabilityChanged;
 
         private void Awake()
         {
@@ -71,7 +74,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             {
                 new CatastropheConfiguration
                 {
-                    Type = CatastropheType.Wildfire,
+                    Type = EcoCatastropheType.Wildfire,
                     BaseProbability = 0.03f,
                     MinIntensity = 0.3f,
                     MaxIntensity = 1.0f,
@@ -79,19 +82,19 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                     MaxDuration = 1800f,
                     MinRadius = 10f,
                     MaxRadius = 30f,
-                    SeasonalModifier = new Dictionary<SeasonType, float>
+                    SeasonalModifier = new Dictionary<EcoSeasonType, float>
                     {
-                        [SeasonType.Summer] = 2.0f,
-                        [SeasonType.Autumn] = 1.5f,
-                        [SeasonType.Spring] = 0.8f,
-                        [SeasonType.Winter] = 0.3f
+                        [EcoSeasonType.Summer] = 2.0f,
+                        [EcoSeasonType.Autumn] = 1.5f,
+                        [EcoSeasonType.Spring] = 0.8f,
+                        [EcoSeasonType.Winter] = 0.3f
                     },
-                    BiomeModifier = new Dictionary<BiomeType, float>
+                    BiomeModifier = new Dictionary<EcoBiomeType, float>
                     {
-                        [BiomeType.Forest] = 2.0f,
-                        [BiomeType.Grassland] = 1.5f,
-                        [BiomeType.Desert] = 0.8f,
-                        [BiomeType.Swamp] = 0.3f
+                        [EcoBiomeType.Forest] = 2.0f,
+                        [EcoBiomeType.Grassland] = 1.5f,
+                        [EcoBiomeType.Desert] = 0.8f,
+                        [EcoBiomeType.Swamp] = 0.3f
                     },
                     Effects = new Dictionary<string, float>
                     {
@@ -103,7 +106,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 },
                 new CatastropheConfiguration
                 {
-                    Type = CatastropheType.Flood,
+                    Type = EcoCatastropheType.Flood,
                     BaseProbability = 0.025f,
                     MinIntensity = 0.2f,
                     MaxIntensity = 1.0f,
@@ -111,20 +114,20 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                     MaxDuration = 2400f,
                     MinRadius = 15f,
                     MaxRadius = 50f,
-                    SeasonalModifier = new Dictionary<SeasonType, float>
+                    SeasonalModifier = new Dictionary<EcoSeasonType, float>
                     {
-                        [SeasonType.Spring] = 2.0f,
-                        [SeasonType.Autumn] = 1.3f,
-                        [SeasonType.Summer] = 0.7f,
-                        [SeasonType.Winter] = 1.2f
+                        [EcoSeasonType.Spring] = 2.0f,
+                        [EcoSeasonType.Autumn] = 1.3f,
+                        [EcoSeasonType.Summer] = 0.7f,
+                        [EcoSeasonType.Winter] = 1.2f
                     },
-                    BiomeModifier = new Dictionary<BiomeType, float>
+                    BiomeModifier = new Dictionary<EcoBiomeType, float>
                     {
-                        [BiomeType.Grassland] = 1.8f,
-                        [BiomeType.Forest] = 1.2f,
-                        [BiomeType.Swamp] = 0.5f,
-                        [BiomeType.Desert] = 0.2f,
-                        [BiomeType.Mountain] = 0.3f
+                        [EcoBiomeType.Grassland] = 1.8f,
+                        [EcoBiomeType.Forest] = 1.2f,
+                        [EcoBiomeType.Swamp] = 0.5f,
+                        [EcoBiomeType.Desert] = 0.2f,
+                        [EcoBiomeType.Mountain] = 0.3f
                     },
                     Effects = new Dictionary<string, float>
                     {
@@ -136,7 +139,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 },
                 new CatastropheConfiguration
                 {
-                    Type = CatastropheType.Drought,
+                    Type = EcoCatastropheType.Drought,
                     BaseProbability = 0.04f,
                     MinIntensity = 0.4f,
                     MaxIntensity = 1.0f,
@@ -144,20 +147,20 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                     MaxDuration = 7200f,
                     MinRadius = 25f,
                     MaxRadius = 100f,
-                    SeasonalModifier = new Dictionary<SeasonType, float>
+                    SeasonalModifier = new Dictionary<EcoSeasonType, float>
                     {
-                        [SeasonType.Summer] = 2.5f,
-                        [SeasonType.Autumn] = 1.5f,
-                        [SeasonType.Spring] = 0.5f,
-                        [SeasonType.Winter] = 0.2f
+                        [EcoSeasonType.Summer] = 2.5f,
+                        [EcoSeasonType.Autumn] = 1.5f,
+                        [EcoSeasonType.Spring] = 0.5f,
+                        [EcoSeasonType.Winter] = 0.2f
                     },
-                    BiomeModifier = new Dictionary<BiomeType, float>
+                    BiomeModifier = new Dictionary<EcoBiomeType, float>
                     {
-                        [BiomeType.Desert] = 0.8f,
-                        [BiomeType.Grassland] = 2.0f,
-                        [BiomeType.Savanna] = 1.8f,
-                        [BiomeType.Forest] = 1.2f,
-                        [BiomeType.Swamp] = 0.3f
+                        [EcoBiomeType.Desert] = 0.8f,
+                        [EcoBiomeType.Grassland] = 2.0f,
+                        [EcoBiomeType.Savanna] = 1.8f,
+                        [EcoBiomeType.Forest] = 1.2f,
+                        [EcoBiomeType.Swamp] = 0.3f
                     },
                     Effects = new Dictionary<string, float>
                     {
@@ -169,7 +172,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 },
                 new CatastropheConfiguration
                 {
-                    Type = CatastropheType.VolcanicEruption,
+                    Type = EcoCatastropheType.VolcanicEruption,
                     BaseProbability = 0.005f,
                     MinIntensity = 0.6f,
                     MaxIntensity = 1.0f,
@@ -177,19 +180,19 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                     MaxDuration = 3600f,
                     MinRadius = 20f,
                     MaxRadius = 80f,
-                    SeasonalModifier = new Dictionary<SeasonType, float>
+                    SeasonalModifier = new Dictionary<EcoSeasonType, float>
                     {
-                        [SeasonType.Spring] = 1.2f,
-                        [SeasonType.Summer] = 1.0f,
-                        [SeasonType.Autumn] = 1.1f,
-                        [SeasonType.Winter] = 0.9f
+                        [EcoSeasonType.Spring] = 1.2f,
+                        [EcoSeasonType.Summer] = 1.0f,
+                        [EcoSeasonType.Autumn] = 1.1f,
+                        [EcoSeasonType.Winter] = 0.9f
                     },
-                    BiomeModifier = new Dictionary<BiomeType, float>
+                    BiomeModifier = new Dictionary<EcoBiomeType, float>
                     {
-                        [BiomeType.Volcanic] = 3.0f,
-                        [BiomeType.Mountain] = 1.5f,
-                        [BiomeType.Desert] = 0.8f,
-                        [BiomeType.Ocean] = 0.3f
+                        [EcoBiomeType.Volcanic] = 3.0f,
+                        [EcoBiomeType.Mountain] = 1.5f,
+                        [EcoBiomeType.Desert] = 0.8f,
+                        [EcoBiomeType.Ocean] = 0.3f
                     },
                     Effects = new Dictionary<string, float>
                     {
@@ -201,7 +204,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 },
                 new CatastropheConfiguration
                 {
-                    Type = CatastropheType.Plague,
+                    Type = EcoCatastropheType.Plague,
                     BaseProbability = 0.02f,
                     MinIntensity = 0.3f,
                     MaxIntensity = 0.8f,
@@ -209,20 +212,20 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                     MaxDuration = 3600f,
                     MinRadius = 30f,
                     MaxRadius = 60f,
-                    SeasonalModifier = new Dictionary<SeasonType, float>
+                    SeasonalModifier = new Dictionary<EcoSeasonType, float>
                     {
-                        [SeasonType.Spring] = 1.5f,
-                        [SeasonType.Summer] = 1.8f,
-                        [SeasonType.Autumn] = 1.2f,
-                        [SeasonType.Winter] = 0.6f
+                        [EcoSeasonType.Spring] = 1.5f,
+                        [EcoSeasonType.Summer] = 1.8f,
+                        [EcoSeasonType.Autumn] = 1.2f,
+                        [EcoSeasonType.Winter] = 0.6f
                     },
-                    BiomeModifier = new Dictionary<BiomeType, float>
+                    BiomeModifier = new Dictionary<EcoBiomeType, float>
                     {
-                        [BiomeType.Swamp] = 2.0f,
-                        [BiomeType.Forest] = 1.5f,
-                        [BiomeType.Grassland] = 1.3f,
-                        [BiomeType.Desert] = 0.7f,
-                        [BiomeType.Tundra] = 0.5f
+                        [EcoBiomeType.Swamp] = 2.0f,
+                        [EcoBiomeType.Forest] = 1.5f,
+                        [EcoBiomeType.Grassland] = 1.3f,
+                        [EcoBiomeType.Desert] = 0.7f,
+                        [EcoBiomeType.Tundra] = 0.5f
                     },
                     Effects = new Dictionary<string, float>
                     {
@@ -242,7 +245,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 eventHistory[config.Type] = 0f;
             }
 
-            Debug.Log($"💥 Initialized {eventConfigs.Count} catastrophe types");
+            UnityEngine.Debug.Log($"💥 Initialized {eventConfigs.Count} catastrophe types");
         }
 
         private IEnumerator CatastropheMonitoringLoop()
@@ -308,7 +311,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return finalProbability;
         }
 
-        private void TriggerCatastrophe(CatastropheType type)
+        private void TriggerCatastrophe(EcoCatastropheType type)
         {
             if (!eventConfigs.TryGetValue(type, out var config)) return;
 
@@ -347,10 +350,10 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             ApplyCatastropheEffects(catastrophe);
             OnCatastropheTriggered?.Invoke(catastrophe);
 
-            Debug.Log($"💥 {type} triggered at {location} (intensity: {intensity:F2}, radius: {radius:F1})");
+            UnityEngine.Debug.Log($"💥 {type} triggered at {location} (intensity: {intensity:F2}, radius: {radius:F1})");
         }
 
-        private Vector2 SelectCatastropheLocation(CatastropheType type)
+        private Vector2 SelectCatastropheLocation(EcoCatastropheType type)
         {
             var config = eventConfigs[type];
 
@@ -557,7 +560,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             }
 
             OnCatastropheEnded?.Invoke(catastrophe);
-            Debug.Log($"💥 {catastrophe.Type} ended at {catastrophe.EpicenterLocation}");
+            UnityEngine.Debug.Log($"💥 {catastrophe.Type} ended at {catastrophe.EpicenterLocation}");
 
             // Start recovery process
             if (enableRecovery)
@@ -598,7 +601,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 yield return null;
             }
 
-            Debug.Log($"🌱 Recovery from {catastrophe.Type} completed at {catastrophe.EpicenterLocation}");
+            UnityEngine.Debug.Log($"🌱 Recovery from {catastrophe.Type} completed at {catastrophe.EpicenterLocation}");
         }
 
         private void ApplyRecoveryEffects(CatastrophicEvent catastrophe, float progress)
@@ -624,17 +627,17 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             // Some catastrophes can lead to positive long-term changes
             switch (catastrophe.Type)
             {
-                case CatastropheType.Wildfire:
+                case EcoCatastropheType.Wildfire:
                     // Fire can clear undergrowth and promote new growth
                     // Would enhance soil nutrients and biodiversity in the long term
                     break;
 
-                case CatastropheType.VolcanicEruption:
+                case EcoCatastropheType.VolcanicEruption:
                     // Volcanic ash enriches soil
                     // Would improve soil quality over time
                     break;
 
-                case CatastropheType.Flood:
+                case EcoCatastropheType.Flood:
                     // Floods can deposit fertile sediments
                     // Would improve soil quality in some areas
                     break;
@@ -646,10 +649,10 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         public Dictionary<Vector2, List<CatastrophicEvent>> GetRegionalEvents() =>
             new Dictionary<Vector2, List<CatastrophicEvent>>(regionalEvents);
 
-        public Dictionary<CatastropheType, float> GetEventHistory() =>
-            new Dictionary<CatastropheType, float>(eventHistory);
+        public Dictionary<EcoCatastropheType, float> GetEventHistory() =>
+            new Dictionary<EcoCatastropheType, float>(eventHistory);
 
-        public void TriggerCatastropheAt(CatastropheType type, Vector2 location, float intensity = 1.0f)
+        public void TriggerCatastropheAt(EcoCatastropheType type, Vector2 location, float intensity = 1.0f)
         {
             if (!eventConfigs.TryGetValue(type, out var config)) return;
 
@@ -670,10 +673,10 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             ApplyCatastropheEffects(catastrophe);
             OnCatastropheTriggered?.Invoke(catastrophe);
 
-            Debug.Log($"💥 Manually triggered {type} at {location}");
+            UnityEngine.Debug.Log($"💥 Manually triggered {type} at {location}");
         }
 
-        public void SetCatastropheProbability(CatastropheType type, float probability)
+        public void SetCatastropheProbability(EcoCatastropheType type, float probability)
         {
             if (eventConfigs.TryGetValue(type, out var config))
             {
@@ -691,7 +694,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     [System.Serializable]
     public class CatastropheConfiguration
     {
-        public CatastropheType Type;
+        public EcoCatastropheType Type;
         public float BaseProbability = 0.01f;
         public float MinIntensity = 0.1f;
         public float MaxIntensity = 1.0f;
@@ -699,8 +702,8 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         public float MaxDuration = 1800f;
         public float MinRadius = 10f;
         public float MaxRadius = 50f;
-        public Dictionary<SeasonType, float> SeasonalModifier = new();
-        public Dictionary<BiomeType, float> BiomeModifier = new();
+        public Dictionary<EcoSeasonType, float> SeasonalModifier = new();
+        public Dictionary<EcoBiomeType, float> BiomeModifier = new();
         public Dictionary<string, float> Effects = new();
     }
 }

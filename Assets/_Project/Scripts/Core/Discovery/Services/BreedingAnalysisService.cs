@@ -4,8 +4,8 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Core.Discovery.Data;
 using Laboratory.Core.Discovery.Types;
-using Laboratory.Core.Discovery.Systems;
-using Laboratory.Core.ECS.Components;
+using Laboratory.Core.Discovery;
+using Laboratory.Core.MonsterTown;
 
 namespace Laboratory.Core.Discovery.Services
 {

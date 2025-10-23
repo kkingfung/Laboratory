@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Core.Discovery.Data;
 using Laboratory.Core.Discovery.Types;
-using Laboratory.Core.Discovery.Systems;
+using Laboratory.Core.Discovery;
 
 namespace Laboratory.Core.Discovery.Services
 {

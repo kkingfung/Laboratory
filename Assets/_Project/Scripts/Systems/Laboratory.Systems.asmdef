@@ -3,7 +3,6 @@
     "rootNamespace": "Laboratory.Systems",
     "references": [
         "Laboratory.Chimera",
-        "Laboratory.Core",
         "Laboratory.Core.Debug",
         "Unity.Entities",
         "Unity.Collections",

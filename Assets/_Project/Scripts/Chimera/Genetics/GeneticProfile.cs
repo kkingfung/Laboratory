@@ -530,6 +530,15 @@ namespace Laboratory.Chimera.Genetics
         {
             return genes.Where(g => g.isActive).Select(g => g.traitName).ToList();
         }
+
+        /// <summary>
+        /// Gets the value of a specific trait, with a default fallback
+        /// </summary>
+        public float GetTraitValue(string traitName, float defaultValue = 0f)
+        {
+            var gene = genes.FirstOrDefault(g => g.isActive && g.traitName == traitName);
+            return gene.value ?? defaultValue;
+        }
     }
     
     /// <summary>

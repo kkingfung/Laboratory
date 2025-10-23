@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Laboratory.Chimera.Social.Data;
-using Laboratory.Chimera.Social.Types;
 
 namespace Laboratory.Chimera.Social.Systems
 {
@@ -18,7 +16,7 @@ namespace Laboratory.Chimera.Social.Systems
         [SerializeField] private int maxVocabularySize = 500;
         [SerializeField] private float languageEvolutionRate = 0.01f;
 
-        private Dictionary<uint, CommunicationProfile> agentProfiles = new();
+        private Dictionary<uint, Laboratory.Chimera.Social.Data.CommunicationProfile> agentProfiles = new();
         private List<CommunicationEvent> recentCommunications = new();
         private LanguageEvolutionEngine languageEngine;
 
@@ -30,10 +28,10 @@ namespace Laboratory.Chimera.Social.Systems
             languageEngine = new LanguageEvolutionEngine(maxVocabularySize, languageEvolutionRate);
         }
 
-        public void RegisterAgent(uint agentId, CommunicationProfile profile)
+        public void RegisterAgent(uint agentId, Laboratory.Chimera.Social.Data.CommunicationProfile profile)
         {
             agentProfiles[agentId] = profile;
-            Debug.Log($"Registered communication profile for agent {agentId}");
+            UnityEngine.Debug.Log($"Registered communication profile for agent {agentId}");
         }
 
         public bool SendCommunication(uint senderId, uint receiverId, string message, string context = "")
@@ -88,7 +86,7 @@ namespace Laboratory.Chimera.Social.Systems
             }
         }
 
-        private bool CalculateCommunicationSuccess(CommunicationProfile sender, CommunicationProfile receiver)
+        private bool CalculateCommunicationSuccess(Laboratory.Chimera.Social.Data.CommunicationProfile sender, Laboratory.Chimera.Social.Data.CommunicationProfile receiver)
         {
             float compatibilityScore = CalculateStyleCompatibility(sender.Style, receiver.Style);
             float languageOverlap = CalculateLanguageOverlap(sender, receiver);
@@ -99,22 +97,22 @@ namespace Laboratory.Chimera.Social.Systems
             return UnityEngine.Random.value < successProbability;
         }
 
-        private float CalculateStyleCompatibility(CommunicationStyle senderStyle, CommunicationStyle receiverStyle)
+        private float CalculateStyleCompatibility(Laboratory.Chimera.Social.Types.CommunicationStyle senderStyle, Laboratory.Chimera.Social.Types.CommunicationStyle receiverStyle)
         {
             // Some communication styles work better together
             return (senderStyle, receiverStyle) switch
             {
-                (CommunicationStyle.Direct, CommunicationStyle.Direct) => 0.9f,
-                (CommunicationStyle.Diplomatic, CommunicationStyle.Diplomatic) => 0.9f,
-                (CommunicationStyle.Charismatic, _) => 0.8f,
-                (_, CommunicationStyle.Charismatic) => 0.8f,
-                (CommunicationStyle.Aggressive, CommunicationStyle.Passive) => 0.3f,
-                (CommunicationStyle.Passive, CommunicationStyle.Aggressive) => 0.3f,
+                (Laboratory.Chimera.Social.Types.CommunicationStyle.Direct, Laboratory.Chimera.Social.Types.CommunicationStyle.Direct) => 0.9f,
+                (Laboratory.Chimera.Social.Types.CommunicationStyle.Diplomatic, Laboratory.Chimera.Social.Types.CommunicationStyle.Diplomatic) => 0.9f,
+                (Laboratory.Chimera.Social.Types.CommunicationStyle.Charismatic, _) => 0.8f,
+                (_, Laboratory.Chimera.Social.Types.CommunicationStyle.Charismatic) => 0.8f,
+                (Laboratory.Chimera.Social.Types.CommunicationStyle.Aggressive, Laboratory.Chimera.Social.Types.CommunicationStyle.Passive) => 0.3f,
+                (Laboratory.Chimera.Social.Types.CommunicationStyle.Passive, Laboratory.Chimera.Social.Types.CommunicationStyle.Aggressive) => 0.3f,
                 _ => 0.6f
             };
         }
 
-        private float CalculateLanguageOverlap(CommunicationProfile sender, CommunicationProfile receiver)
+        private float CalculateLanguageOverlap(Laboratory.Chimera.Social.Data.CommunicationProfile sender, Laboratory.Chimera.Social.Data.CommunicationProfile receiver)
         {
             if (sender.LanguageProficiency.Count == 0 || receiver.LanguageProficiency.Count == 0)
                 return 0.5f; // Default if no language data
@@ -159,7 +157,7 @@ namespace Laboratory.Chimera.Social.Systems
             return recentCommunications.TakeLast(count).ToList();
         }
 
-        public CommunicationProfile GetAgentProfile(uint agentId)
+        public Laboratory.Chimera.Social.Data.CommunicationProfile GetAgentProfile(uint agentId)
         {
             return agentProfiles.TryGetValue(agentId, out var profile) ? profile : null;
         }

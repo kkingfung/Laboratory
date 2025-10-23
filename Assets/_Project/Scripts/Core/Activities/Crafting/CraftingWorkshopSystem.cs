@@ -434,10 +434,12 @@ namespace Laboratory.Core.Activities.Crafting
     public partial class CraftingWorkshopManagementSystem : SystemBase
     {
         private EntityQuery workshopQuery;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
             workshopQuery = GetEntityQuery(ComponentType.ReadWrite<CraftingWorkshopComponent>());
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -480,7 +482,7 @@ namespace Laboratory.Core.Activities.Crafting
         private void UpdateCraftingSession(ref CraftingWorkshopComponent workshop, float deltaTime)
         {
             // Increase items crafted (simplified)
-            if (workshop.CurrentCrafters > 0 && math.random().NextFloat() < 0.01f)
+            if (workshop.CurrentCrafters > 0 && random.NextFloat() < 0.01f)
             {
                 workshop.ItemsCrafted++;
             }
@@ -491,7 +493,7 @@ namespace Laboratory.Core.Activities.Crafting
             if (workshop.CanInnovate)
             {
                 // Innovation attempts
-                if (math.random().NextFloat() < workshop.InnovationRate * deltaTime)
+                if (random.NextFloat() < workshop.InnovationRate * deltaTime)
                 {
                     workshop.RecipesKnown++;
                 }
@@ -504,6 +506,7 @@ namespace Laboratory.Core.Activities.Crafting
     public partial class CraftingProcessSystem : SystemBase
     {
         private EntityQuery craftingQuery;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
@@ -513,6 +516,7 @@ namespace Laboratory.Core.Activities.Crafting
                 ComponentType.ReadOnly<CraftingPerformanceComponent>(),
                 ComponentType.ReadOnly<GeneticDataComponent>()
             });
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -522,7 +526,8 @@ namespace Laboratory.Core.Activities.Crafting
             var craftingJob = new CraftingProcessJob
             {
                 DeltaTime = deltaTime,
-                Time = (float)SystemAPI.Time.ElapsedTime
+                Time = (float)SystemAPI.Time.ElapsedTime,
+                random = random
             };
 
             Dependency = craftingJob.ScheduleParallel(craftingQuery, Dependency);
@@ -534,6 +539,7 @@ namespace Laboratory.Core.Activities.Crafting
     {
         public float DeltaTime;
         public float Time;
+        public Unity.Mathematics.Random random;
 
         public void Execute(ref CrafterComponent crafter,
             in CraftingPerformanceComponent performance,
@@ -558,7 +564,7 @@ namespace Laboratory.Core.Activities.Crafting
             // Check for innovation opportunities
             if (genetics.ValueRO.Curiosity > 0.7f && performance.InnovationAbility > 0.6f)
             {
-                if (math.random().NextFloat() < 0.001f) // 0.1% chance per frame
+                if (random.NextFloat() < 0.001f) // 0.1% chance per frame
                 {
                     crafter.IsInnovating = true;
                     crafter.Status = CrafterStatus.Innovating;
@@ -576,7 +582,7 @@ namespace Laboratory.Core.Activities.Crafting
             crafter.CraftingProgress = 0f;
 
             // Calculate quality based on performance
-            float qualityRoll = genetics.Intelligence * performance.QualityControl * math.random().NextFloat();
+            float qualityRoll = genetics.Intelligence * performance.QualityControl * random.NextFloat();
             if (qualityRoll > 0.8f)
             {
                 crafter.QualityItemsProduced++;
@@ -610,10 +616,12 @@ namespace Laboratory.Core.Activities.Crafting
     public partial class RecipeDiscoverySystem : SystemBase
     {
         private EntityQuery recipeQuery;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
             recipeQuery = GetEntityQuery(ComponentType.ReadWrite<CraftingRecipeComponent>());
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -624,7 +632,7 @@ namespace Laboratory.Core.Activities.Crafting
                 if (!recipe.ValueRO.IsDiscovered)
                 {
                     // Simple discovery mechanics
-                    if (math.random().NextFloat() < 0.001f)
+                    if (random.NextFloat() < 0.001f)
                     {
                         recipe.ValueRW.IsDiscovered = true;
                     }
@@ -645,6 +653,7 @@ namespace Laboratory.Core.Activities.Crafting
         private EntityQuery innovationQuery;
         private EntityQuery resourceQuery;
         private EndSimulationEntityCommandBufferSystem ecbSystem;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
@@ -653,6 +662,7 @@ namespace Laboratory.Core.Activities.Crafting
             innovationQuery = GetEntityQuery(ComponentType.ReadWrite<InnovationCompetitionComponent>());
             resourceQuery = GetEntityQuery(ComponentType.ReadWrite<ResourceCompetitionComponent>());
             ecbSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -773,8 +783,9 @@ namespace Laboratory.Core.Activities.Crafting
         private void UpdateSpeedCraftingCompetition(ref CraftingCompetitionComponent competition)
         {
             // Speed crafting simulation
-            float speed1 = math.random().NextFloat(0.8f, 1.2f) * DeltaTime;
-            float speed2 = math.random().NextFloat(0.8f, 1.2f) * DeltaTime;
+            var random = Unity.Mathematics.Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            float speed1 = random.NextFloat(0.8f, 1.2f) * DeltaTime;
+            float speed2 = random.NextFloat(0.8f, 1.2f) * DeltaTime;
 
             competition.Competition1Score += speed1;
             competition.Competition2Score += speed2;
@@ -784,10 +795,11 @@ namespace Laboratory.Core.Activities.Crafting
         private void UpdateQualityContest(ref CraftingCompetitionComponent competition)
         {
             // Quality-focused crafting simulation
-            if (math.random().NextFloat() < 0.08f) // 8% chance per frame
+            var random = Unity.Mathematics.Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            if (random.NextFloat() < 0.08f) // 8% chance per frame
             {
-                float quality1 = math.random().NextFloat(1f, 5f);
-                float quality2 = math.random().NextFloat(1f, 5f);
+                float quality1 = random.NextFloat(1f, 5f);
+                float quality2 = random.NextFloat(1f, 5f);
 
                 competition.Competition1Score += quality1;
                 competition.Competition2Score += quality2;
@@ -798,10 +810,11 @@ namespace Laboratory.Core.Activities.Crafting
         private void UpdateInnovationChallenge(ref CraftingCompetitionComponent competition)
         {
             // Innovation competition simulation
-            if (math.random().NextFloat() < 0.02f) // 2% chance per frame for innovation
+            var random = Unity.Mathematics.Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            if (random.NextFloat() < 0.02f) // 2% chance per frame for innovation
             {
-                float innovation1 = math.random().NextFloat(5f, 15f);
-                float innovation2 = math.random().NextFloat(5f, 15f);
+                float innovation1 = random.NextFloat(5f, 15f);
+                float innovation2 = random.NextFloat(5f, 15f);
 
                 competition.Competition1Score += innovation1;
                 competition.Competition2Score += innovation2;
@@ -812,8 +825,9 @@ namespace Laboratory.Core.Activities.Crafting
         private void UpdateResourceTrading(ref CraftingCompetitionComponent competition)
         {
             // Resource trading competition
-            float trading1 = math.random().NextFloat(0.5f, 1.5f) * DeltaTime;
-            float trading2 = math.random().NextFloat(0.5f, 1.5f) * DeltaTime;
+            var random = Unity.Mathematics.Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            float trading1 = random.NextFloat(0.5f, 1.5f) * DeltaTime;
+            float trading2 = random.NextFloat(0.5f, 1.5f) * DeltaTime;
 
             competition.Competition1Score += trading1;
             competition.Competition2Score += trading2;
@@ -823,8 +837,9 @@ namespace Laboratory.Core.Activities.Crafting
         private void UpdateEfficiencyBattle(ref CraftingCompetitionComponent competition)
         {
             // Efficiency competition (materials vs output)
-            float efficiency1 = math.random().NextFloat(0.7f, 1.3f) * DeltaTime;
-            float efficiency2 = math.random().NextFloat(0.7f, 1.3f) * DeltaTime;
+            var random = Unity.Mathematics.Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            float efficiency1 = random.NextFloat(0.7f, 1.3f) * DeltaTime;
+            float efficiency2 = random.NextFloat(0.7f, 1.3f) * DeltaTime;
 
             competition.Competition1Score += efficiency1;
             competition.Competition2Score += efficiency2;
@@ -834,8 +849,9 @@ namespace Laboratory.Core.Activities.Crafting
         private void UpdateTeamWorkshop(ref CraftingCompetitionComponent competition)
         {
             // Team collaboration simulation
-            float team1 = math.random().NextFloat(0.6f, 1.4f) * DeltaTime * competition.TeamSize;
-            float team2 = math.random().NextFloat(0.6f, 1.4f) * DeltaTime * competition.TeamSize;
+            var random = Unity.Mathematics.Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            float team1 = random.NextFloat(0.6f, 1.4f) * DeltaTime * competition.TeamSize;
+            float team2 = random.NextFloat(0.6f, 1.4f) * DeltaTime * competition.TeamSize;
 
             competition.Competition1Score += team1;
             competition.Competition2Score += team2;
@@ -845,10 +861,11 @@ namespace Laboratory.Core.Activities.Crafting
         private void UpdateMasterCraftsmanDuel(ref CraftingCompetitionComponent competition)
         {
             // High-stakes master duel
-            if (math.random().NextFloat() < 0.05f) // 5% chance per frame
+            var random = Unity.Mathematics.Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            if (random.NextFloat() < 0.05f) // 5% chance per frame
             {
-                float mastery1 = math.random().NextFloat(2f, 8f);
-                float mastery2 = math.random().NextFloat(2f, 8f);
+                float mastery1 = random.NextFloat(2f, 8f);
+                float mastery2 = random.NextFloat(2f, 8f);
 
                 competition.Competition1Score += mastery1;
                 competition.Competition2Score += mastery2;
@@ -945,9 +962,10 @@ namespace Laboratory.Core.Activities.Crafting
             speedCrafting.Speed2Time += DeltaTime;
 
             // Simulate item completion
-            if (math.random().NextFloat() < 0.15f) // 15% chance per frame
+            var random = Unity.Mathematics.Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            if (random.NextFloat() < 0.15f) // 15% chance per frame
             {
-                if (math.random().NextFloat() < 0.5f)
+                if (random.NextFloat() < 0.5f)
                     speedCrafting.Items1Crafted++;
                 else
                     speedCrafting.Items2Crafted++;
@@ -1000,17 +1018,18 @@ namespace Laboratory.Core.Activities.Crafting
         private void UpdateInnovationExperiments(ref InnovationCompetitionComponent innovation)
         {
             // Simulation innovation experimentation
-            if (math.random().NextFloat() < 0.03f) // 3% chance per frame
+            var random = Unity.Mathematics.Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            if (random.NextFloat() < 0.03f) // 3% chance per frame
             {
-                if (math.random().NextFloat() < 0.5f)
+                if (random.NextFloat() < 0.5f)
                 {
                     innovation.Innovations1Created++;
-                    innovation.Innovation1Quality += math.random().NextFloat(1f, 5f);
+                    innovation.Innovation1Quality += random.NextFloat(1f, 5f);
                 }
                 else
                 {
                     innovation.Innovations2Created++;
-                    innovation.Innovation2Quality += math.random().NextFloat(1f, 5f);
+                    innovation.Innovation2Quality += random.NextFloat(1f, 5f);
                 }
             }
 
@@ -1073,7 +1092,8 @@ namespace Laboratory.Core.Activities.Crafting
             resource.MarketValue2 += resource.Resources2Acquired * 1.5f;
 
             // Rare chance for bidding war
-            if (math.random().NextFloat() < 0.01f) // 1% chance per frame
+            var random = Unity.Mathematics.Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            if (random.NextFloat() < 0.01f) // 1% chance per frame
             {
                 resource.Status = ResourceCompetitionStatus.Bidding_War;
             }
@@ -1083,9 +1103,10 @@ namespace Laboratory.Core.Activities.Crafting
         private void UpdateBiddingWar(ref ResourceCompetitionComponent resource)
         {
             // Intense bidding simulation
-            if (math.random().NextFloat() < 0.2f) // 20% chance per frame
+            var random = Unity.Mathematics.Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            if (random.NextFloat() < 0.2f) // 20% chance per frame
             {
-                int bidWinner = math.random().NextInt(0, 2);
+                int bidWinner = random.NextInt(0, 2);
                 if (bidWinner == 0)
                 {
                     resource.Resources1Acquired += 5;
@@ -1099,7 +1120,7 @@ namespace Laboratory.Core.Activities.Crafting
             }
 
             // Return to normal trading after bidding war
-            if (math.random().NextFloat() < 0.05f) // 5% chance to end
+            if (random.NextFloat() < 0.05f) // 5% chance to end
             {
                 resource.Status = ResourceCompetitionStatus.Trading_Active;
             }

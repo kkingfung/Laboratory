@@ -8,6 +8,7 @@ using Laboratory.Core.Activities.Types;
 using Laboratory.Core.Equipment.Types;
 using EquipmentItem = Laboratory.Core.MonsterTown.Equipment;
 using ActivityType = Laboratory.Core.Activities.Types.ActivityType;
+using EquipmentRarity = Laboratory.Core.Equipment.Types.EquipmentRarity;
 
 namespace Laboratory.Core.Equipment
 {
@@ -77,10 +78,10 @@ namespace Laboratory.Core.Equipment
                 ItemId = config.ItemId,
                 Name = config.Name,
                 Description = config.Description,
-                Type = config.Type,
-                Rarity = config.Rarity,
+                Type = (Laboratory.Core.MonsterTown.EquipmentType)config.Type,
+                Rarity = (Laboratory.Core.MonsterTown.EquipmentRarity)config.Rarity,
                 StatBonuses = new Dictionary<StatType, float>(config.StatBonuses),
-                ActivityBonuses = new List<ActivityType>(config.ActivityBonuses),
+                ActivityBonuses = config.ActivityBonuses.Select(a => (Laboratory.Core.MonsterTown.ActivityType)a).ToList(),
                 Level = 1,
                 IsEquipped = false
             };
@@ -233,13 +234,13 @@ namespace Laboratory.Core.Equipment
             foreach (var item in equipment.Where(e => e.IsEquipped))
             {
                 // Activity-specific bonuses
-                totalActivityBonus += item.GetActivityBonus(activityType);
+                totalActivityBonus += item.GetActivityBonus(ConvertToMonsterTownType(activityType));
                 equipmentCount++;
 
                 // Add stat bonuses (convert to performance values)
                 foreach (var statBonus in item.StatBonuses)
                 {
-                    ApplyStatBonusToPerformance(ref bonuses, statBonus.Key, statBonus.Value * GetRarityMultiplier(item.Rarity));
+                    ApplyStatBonusToPerformance(ref bonuses, statBonus.Key, statBonus.Value * GetRarityMultiplier(ConvertToEquipmentRarity(item.Rarity)));
                 }
             }
 
@@ -320,13 +321,13 @@ namespace Laboratory.Core.Equipment
                 var setRarity = set.Key;
 
                 // Set bonus scales with number of pieces and rarity
-                float setBonus = (setCount - 1) * 0.1f * GetRarityMultiplier(setRarity) * 0.5f;
+                float setBonus = (setCount - 1) * 0.1f * GetRarityMultiplier(ConvertToEquipmentRarity(setRarity)) * 0.5f;
                 totalSetBonus += setBonus;
 
                 // Special set bonuses for certain activities
                 if (setCount >= 3)
                 {
-                    totalSetBonus += GetSpecialSetBonus(setRarity, activityType);
+                    totalSetBonus += GetSpecialSetBonus(ConvertToEquipmentRarity(setRarity), activityType);
                 }
             }
 
@@ -365,7 +366,7 @@ namespace Laboratory.Core.Equipment
 
             if (overrideRarity.HasValue)
             {
-                newEquipment.Rarity = overrideRarity.Value;
+                newEquipment.Rarity = ConvertToMonsterTownRarity(overrideRarity.Value);
             }
 
             // Scale bonuses with level
@@ -420,9 +421,90 @@ namespace Laboratory.Core.Equipment
                 Type = original.Type,
                 Rarity = original.Rarity,
                 StatBonuses = new Dictionary<StatType, float>(original.StatBonuses),
-                ActivityBonuses = new List<ActivityType>(original.ActivityBonuses),
+                ActivityBonuses = ConvertActivityBonusesToMonsterTown(original.ActivityBonuses),
                 Level = original.Level,
                 IsEquipped = false
+            };
+        }
+
+        private List<ActivityType> ConvertActivityBonuses(List<Laboratory.Core.MonsterTown.ActivityType> monsterTownActivities)
+        {
+            var convertedActivities = new List<ActivityType>();
+
+            foreach (var activity in monsterTownActivities)
+            {
+                var converted = ConvertToActivitiesType(activity);
+                if (converted != ActivityType.None)
+                {
+                    convertedActivities.Add(converted);
+                }
+            }
+
+            return convertedActivities;
+        }
+
+        private List<Laboratory.Core.MonsterTown.ActivityType> ConvertActivityBonusesToMonsterTown(List<Laboratory.Core.MonsterTown.ActivityType> original)
+        {
+            // For cloning within the same type, just create a new list
+            return new List<Laboratory.Core.MonsterTown.ActivityType>(original);
+        }
+
+        private ActivityType ConvertToActivitiesType(Laboratory.Core.MonsterTown.ActivityType monsterTownActivity)
+        {
+            return monsterTownActivity switch
+            {
+                Laboratory.Core.MonsterTown.ActivityType.Racing => ActivityType.Racing,
+                Laboratory.Core.MonsterTown.ActivityType.Combat => ActivityType.Combat,
+                Laboratory.Core.MonsterTown.ActivityType.Puzzle => ActivityType.Puzzle,
+                Laboratory.Core.MonsterTown.ActivityType.Strategy => ActivityType.Strategy,
+                Laboratory.Core.MonsterTown.ActivityType.Adventure => ActivityType.Adventure,
+                Laboratory.Core.MonsterTown.ActivityType.Platforming => ActivityType.Platforming,
+                Laboratory.Core.MonsterTown.ActivityType.Music => ActivityType.Music,
+                Laboratory.Core.MonsterTown.ActivityType.Crafting => ActivityType.Crafting,
+                _ => ActivityType.None
+            };
+        }
+
+        private Laboratory.Core.MonsterTown.ActivityType ConvertToMonsterTownType(ActivityType activitiesActivity)
+        {
+            return activitiesActivity switch
+            {
+                ActivityType.Racing => Laboratory.Core.MonsterTown.ActivityType.Racing,
+                ActivityType.Combat => Laboratory.Core.MonsterTown.ActivityType.Combat,
+                ActivityType.Puzzle => Laboratory.Core.MonsterTown.ActivityType.Puzzle,
+                ActivityType.Strategy => Laboratory.Core.MonsterTown.ActivityType.Strategy,
+                ActivityType.Adventure => Laboratory.Core.MonsterTown.ActivityType.Adventure,
+                ActivityType.Platforming => Laboratory.Core.MonsterTown.ActivityType.Platforming,
+                ActivityType.Music => Laboratory.Core.MonsterTown.ActivityType.Music,
+                ActivityType.Crafting => Laboratory.Core.MonsterTown.ActivityType.Crafting,
+                _ => Laboratory.Core.MonsterTown.ActivityType.Racing // Default fallback
+            };
+        }
+
+        private Laboratory.Core.MonsterTown.EquipmentRarity ConvertToMonsterTownRarity(EquipmentRarity equipmentRarity)
+        {
+            return equipmentRarity switch
+            {
+                EquipmentRarity.Common => Laboratory.Core.MonsterTown.EquipmentRarity.Common,
+                EquipmentRarity.Uncommon => Laboratory.Core.MonsterTown.EquipmentRarity.Uncommon,
+                EquipmentRarity.Rare => Laboratory.Core.MonsterTown.EquipmentRarity.Rare,
+                EquipmentRarity.Epic => Laboratory.Core.MonsterTown.EquipmentRarity.Epic,
+                EquipmentRarity.Legendary => Laboratory.Core.MonsterTown.EquipmentRarity.Legendary,
+                EquipmentRarity.Mythic => Laboratory.Core.MonsterTown.EquipmentRarity.Legendary, // Map Mythic to Legendary as fallback
+                _ => Laboratory.Core.MonsterTown.EquipmentRarity.Common
+            };
+        }
+
+        private EquipmentRarity ConvertToEquipmentRarity(Laboratory.Core.MonsterTown.EquipmentRarity monsterTownRarity)
+        {
+            return monsterTownRarity switch
+            {
+                Laboratory.Core.MonsterTown.EquipmentRarity.Common => EquipmentRarity.Common,
+                Laboratory.Core.MonsterTown.EquipmentRarity.Uncommon => EquipmentRarity.Uncommon,
+                Laboratory.Core.MonsterTown.EquipmentRarity.Rare => EquipmentRarity.Rare,
+                Laboratory.Core.MonsterTown.EquipmentRarity.Epic => EquipmentRarity.Epic,
+                Laboratory.Core.MonsterTown.EquipmentRarity.Legendary => EquipmentRarity.Legendary,
+                _ => EquipmentRarity.Common
             };
         }
 

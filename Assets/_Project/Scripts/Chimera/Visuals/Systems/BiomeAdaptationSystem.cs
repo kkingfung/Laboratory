@@ -53,7 +53,7 @@ namespace Laboratory.Chimera.Visuals.Systems
             }
 
             adaptationCoroutine = StartCoroutine(PerformBiomeAdaptation(traits));
-            Debug.Log($"🌍 Starting adaptation to {biome} biome");
+            UnityEngine.Debug.Log($"🌍 Starting adaptation to {biome} biome");
         }
 
         private void InitializeBiomeAdaptations()
@@ -183,7 +183,7 @@ namespace Laboratory.Chimera.Visuals.Systems
         {
             if (!biomeAdaptations.TryGetValue(targetBiome, out var adaptation))
             {
-                Debug.LogWarning($"No adaptation data found for biome: {targetBiome}");
+                UnityEngine.Debug.LogWarning($"No adaptation data found for biome: {targetBiome}");
                 yield break;
             }
 
@@ -206,7 +206,7 @@ namespace Laboratory.Chimera.Visuals.Systems
             currentBiome = targetBiome;
             adaptationProgress = 1.0f;
 
-            Debug.Log($"🌍 Adaptation to {targetBiome} complete");
+            UnityEngine.Debug.Log($"🌍 Adaptation to {targetBiome} complete");
             adaptationCoroutine = null;
         }
 

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Core;
-using GeneticProfile = Laboratory.Core.CoreCreatureComponents.GeneticProfile;
 
 namespace Laboratory.Core.MonsterTown
 {
@@ -23,7 +22,7 @@ namespace Laboratory.Core.MonsterTown
         public string Name { get; set; } = "Monster";
         public int Level { get; set; } = 1;
         public float Happiness { get; set; } = 0.8f;
-        public GeneticProfile GeneticProfile { get; set; }
+        public IGeneticProfile GeneticProfile { get; set; } = new BasicGeneticProfile();
         public MonsterStats Stats { get; set; } = new MonsterStats();
         public Dictionary<ActivityType, float> ActivityExperience { get; set; } = new();
         public List<Equipment> Equipment { get; set; } = new();
@@ -84,6 +83,83 @@ namespace Laboratory.Core.MonsterTown
                 _ => 50f // Default value
             };
         }
+
+        /// <summary>
+        /// Improve monster stats based on activity participation
+        /// </summary>
+        public void ImproveFromActivity(ActivityResult result)
+        {
+            // Improve stats based on activity type and performance
+            var improvementAmount = result.PerformanceRating * 0.1f;
+            var currentStats = Stats; // Get a copy of the stats
+
+            switch (result.ActivityType)
+            {
+                case ActivityType.Racing:
+                    currentStats.speed += improvementAmount;
+                    currentStats.agility += improvementAmount * 0.5f;
+                    break;
+
+                case ActivityType.Combat:
+                    currentStats.strength += improvementAmount;
+                    currentStats.vitality += improvementAmount * 0.5f;
+                    break;
+
+                case ActivityType.Puzzle:
+                    currentStats.intelligence += improvementAmount;
+                    currentStats.adaptability += improvementAmount * 0.5f;
+                    break;
+
+                case ActivityType.Strategy:
+                    currentStats.intelligence += improvementAmount * 0.7f;
+                    currentStats.social += improvementAmount * 0.3f;
+                    break;
+
+                default:
+                    // General improvement for other activities
+                    var statBonus = improvementAmount / 8f;
+                    currentStats.strength += statBonus;
+                    currentStats.agility += statBonus;
+                    currentStats.vitality += statBonus;
+                    currentStats.speed += statBonus;
+                    currentStats.intelligence += statBonus;
+                    currentStats.adaptability += statBonus;
+                    currentStats.social += statBonus;
+                    currentStats.charisma += statBonus;
+                    break;
+            }
+
+            // Assign the modified stats back
+            Stats = currentStats;
+
+            // Apply happiness change
+            Happiness = Mathf.Clamp01(Happiness + result.HappinessChange);
+
+            // Update last activity time
+            LastActivityTime = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// Add experience for a specific activity type
+        /// </summary>
+        public void AddActivityExperience(ActivityType activityType, float experienceAmount)
+        {
+            if (!ActivityExperience.ContainsKey(activityType))
+                ActivityExperience[activityType] = 0f;
+
+            ActivityExperience[activityType] += experienceAmount;
+
+            // Cap experience at a reasonable maximum
+            ActivityExperience[activityType] = Mathf.Min(ActivityExperience[activityType], 10000f);
+        }
+
+        /// <summary>
+        /// Get experience for a specific activity type
+        /// </summary>
+        public float GetActivityExperience(ActivityType activityType)
+        {
+            return ActivityExperience.ContainsKey(activityType) ? ActivityExperience[activityType] : 0f;
+        }
     }
 
     #endregion
@@ -110,6 +186,21 @@ namespace Laboratory.Core.MonsterTown
         public float EquipmentBonus;
         public float ExperienceBonus;
         public float HappinessBonus;
+
+        [Header("Performance Components")]
+        public float basePerformance;
+        public float geneticBonus;
+        public float equipmentBonus;
+        public float experienceBonus;
+        public float happinessModifier;
+
+        [Header("Advanced Performance")]
+        public float OverallRating;
+        public float Patience;
+        public float Memory;
+        public float Leadership;
+        public float Tactics;
+        public float Adaptability;
 
         /// <summary>
         /// Calculate total performance for an activity
@@ -242,6 +333,10 @@ namespace Laboratory.Core.MonsterTown
         CardGame,
         BoardGame,
         Simulation,
+        Interactive,
+        Assessment,
+        Platformer,
+        Art,
         Detective,
         Survival,
         Building,
@@ -260,7 +355,9 @@ namespace Laboratory.Core.MonsterTown
         Vehicle,
         Instrument,
         Gadget,
-        Boost
+        Boost,
+        Head,
+        Body
     }
 
     /// <summary>

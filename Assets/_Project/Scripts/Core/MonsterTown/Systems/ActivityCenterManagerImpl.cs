@@ -395,8 +395,8 @@ namespace Laboratory.Core.MonsterTown
         {
             var townResources = new TownResources
             {
-                coins = originalResult.ExperienceGained * 2, // Convert experience to coins
-                activityTokens = originalResult.Success ? 5 : 1
+                coins = Mathf.RoundToInt(originalResult.ExperienceGained * 2), // Convert experience to coins
+                activityTokens = originalResult.IsSuccess ? 5 : 1
             };
 
             return ActivityResult.Success(activityType, originalResult.PerformanceRating, originalResult.ResourcesEarned, originalResult.ExperienceGained);

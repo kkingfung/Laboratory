@@ -1,9 +1,18 @@
 using System;
 using System.Threading.Tasks;
-using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Core.GameModes
 {
+    /// <summary>
+    /// Base interface for all subsystem managers in Project Chimera.
+    /// </summary>
+    public interface ISubsystemManager
+    {
+        string SubsystemName { get; }
+        bool IsInitialized { get; }
+        float InitializationProgress { get; }
+    }
+
     /// <summary>
     /// Enumeration of supported game genres in Project Chimera.
     /// Each genre represents a different way to interact with the genetic breeding system.

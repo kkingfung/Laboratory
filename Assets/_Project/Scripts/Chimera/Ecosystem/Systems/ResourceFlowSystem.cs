@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
+using Laboratory.Chimera.Debug;
+
+using EcoBiomeType = Laboratory.Chimera.Ecosystem.Data.BiomeType;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
 {
@@ -24,7 +27,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         [SerializeField] private bool enableSeasonalModifiers = true;
         [SerializeField] private float seasonalVariation = 0.3f;
 
-        private Dictionary<Vector2, Dictionary<ResourceType, ResourceFlow>> regionalResources = new();
+        private Dictionary<Vector2, Dictionary<ResourceType, Data.ResourceFlow>> regionalResources = new();
         private Dictionary<ResourceType, float> globalResourceLevels = new();
         private Dictionary<ResourceType, ResourceConfiguration> resourceConfigs = new();
 
@@ -127,7 +130,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 globalResourceLevels[config.Type] = config.BaseAvailability;
             }
 
-            Debug.Log($"💧 Initialized {resourceConfigs.Count} resource types");
+            UnityEngine.Debug.Log($"💧 Initialized {resourceConfigs.Count} resource types");
         }
 
         private void InitializeRegionalResources()
@@ -138,17 +141,17 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 for (int y = -50; y <= 50; y += 10)
                 {
                     var location = new Vector2(x, y);
-                    var biome = biomeSystem?.GetBiomeAtLocation(location) ?? BiomeType.Grassland;
+                    var biome = biomeSystem?.GetBiomeAtLocation(location) ?? EcoBiomeType.Grassland;
                     InitializeResourcesForLocation(location, biome);
                 }
             }
 
-            Debug.Log($"🗺️ Initialized resources for {regionalResources.Count} regions");
+            UnityEngine.Debug.Log($"🗺️ Initialized resources for {regionalResources.Count} regions");
         }
 
-        private void InitializeResourcesForLocation(Vector2 location, BiomeType biome)
+        private void InitializeResourcesForLocation(Vector2 location, EcoBiomeType biome)
         {
-            var locationResources = new Dictionary<ResourceType, ResourceFlow>();
+            var locationResources = new Dictionary<ResourceType, Data.ResourceFlow>();
 
             foreach (var kvp in resourceConfigs)
             {
@@ -158,7 +161,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 var biomeModifier = GetBiomeResourceModifier(biome, resourceType);
                 var locationModifier = GetLocationResourceModifier(location, resourceType);
 
-                var resourceFlow = new ResourceFlow
+                var resourceFlow = new Data.ResourceFlow
                 {
                     Type = resourceType,
                     Availability = config.BaseAvailability * biomeModifier * locationModifier,
@@ -176,60 +179,60 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             regionalResources[location] = locationResources;
         }
 
-        private float GetBiomeResourceModifier(BiomeType biome, ResourceType resourceType)
+        private float GetBiomeResourceModifier(EcoBiomeType biome, ResourceType resourceType)
         {
-            var modifiers = new Dictionary<(BiomeType, ResourceType), float>
+            var modifiers = new Dictionary<(EcoBiomeType, ResourceType), float>
             {
                 // Water availability by biome
-                [(BiomeType.Ocean, ResourceType.Water)] = 3.0f,
-                [(BiomeType.Swamp, ResourceType.Water)] = 2.5f,
-                [(BiomeType.Rainforest, ResourceType.Water)] = 2.0f,
-                [(BiomeType.Forest, ResourceType.Water)] = 1.5f,
-                [(BiomeType.Grassland, ResourceType.Water)] = 1.0f,
-                [(BiomeType.Desert, ResourceType.Water)] = 0.2f,
-                [(BiomeType.Tundra, ResourceType.Water)] = 0.8f,
+                [(EcoBiomeType.Ocean, ResourceType.Water)] = 3.0f,
+                [(EcoBiomeType.Swamp, ResourceType.Water)] = 2.5f,
+                [(EcoBiomeType.Rainforest, ResourceType.Water)] = 2.0f,
+                [(EcoBiomeType.Forest, ResourceType.Water)] = 1.5f,
+                [(EcoBiomeType.Grassland, ResourceType.Water)] = 1.0f,
+                [(EcoBiomeType.Desert, ResourceType.Water)] = 0.2f,
+                [(EcoBiomeType.Tundra, ResourceType.Water)] = 0.8f,
 
                 // Food availability by biome
-                [(BiomeType.Rainforest, ResourceType.Food)] = 2.5f,
-                [(BiomeType.Forest, ResourceType.Food)] = 2.0f,
-                [(BiomeType.Grassland, ResourceType.Food)] = 1.8f,
-                [(BiomeType.Savanna, ResourceType.Food)] = 1.5f,
-                [(BiomeType.Ocean, ResourceType.Food)] = 1.2f,
-                [(BiomeType.Desert, ResourceType.Food)] = 0.3f,
-                [(BiomeType.Tundra, ResourceType.Food)] = 0.5f,
-                [(BiomeType.Mountain, ResourceType.Food)] = 0.7f,
+                [(EcoBiomeType.Rainforest, ResourceType.Food)] = 2.5f,
+                [(EcoBiomeType.Forest, ResourceType.Food)] = 2.0f,
+                [(EcoBiomeType.Grassland, ResourceType.Food)] = 1.8f,
+                [(EcoBiomeType.Savanna, ResourceType.Food)] = 1.5f,
+                [(EcoBiomeType.Ocean, ResourceType.Food)] = 1.2f,
+                [(EcoBiomeType.Desert, ResourceType.Food)] = 0.3f,
+                [(EcoBiomeType.Tundra, ResourceType.Food)] = 0.5f,
+                [(EcoBiomeType.Mountain, ResourceType.Food)] = 0.7f,
 
                 // Shelter availability by biome
-                [(BiomeType.Forest, ResourceType.Shelter)] = 2.0f,
-                [(BiomeType.Mountain, ResourceType.Shelter)] = 1.8f,
-                [(BiomeType.Cave, ResourceType.Shelter)] = 3.0f,
-                [(BiomeType.Grassland, ResourceType.Shelter)] = 0.8f,
-                [(BiomeType.Desert, ResourceType.Shelter)] = 0.5f,
-                [(BiomeType.Ocean, ResourceType.Shelter)] = 0.2f,
+                [(EcoBiomeType.Forest, ResourceType.Shelter)] = 2.0f,
+                [(EcoBiomeType.Mountain, ResourceType.Shelter)] = 1.8f,
+                [(EcoBiomeType.Cave, ResourceType.Shelter)] = 3.0f,
+                [(EcoBiomeType.Grassland, ResourceType.Shelter)] = 0.8f,
+                [(EcoBiomeType.Desert, ResourceType.Shelter)] = 0.5f,
+                [(EcoBiomeType.Ocean, ResourceType.Shelter)] = 0.2f,
 
                 // Mineral availability by biome
-                [(BiomeType.Mountain, ResourceType.Minerals)] = 3.0f,
-                [(BiomeType.Cave, ResourceType.Minerals)] = 2.5f,
-                [(BiomeType.Volcanic, ResourceType.Minerals)] = 2.0f,
-                [(BiomeType.Desert, ResourceType.Minerals)] = 1.5f,
-                [(BiomeType.Ocean, ResourceType.Minerals)] = 0.3f,
-                [(BiomeType.Swamp, ResourceType.Minerals)] = 0.4f,
+                [(EcoBiomeType.Mountain, ResourceType.Minerals)] = 3.0f,
+                [(EcoBiomeType.Cave, ResourceType.Minerals)] = 2.5f,
+                [(EcoBiomeType.Volcanic, ResourceType.Minerals)] = 2.0f,
+                [(EcoBiomeType.Desert, ResourceType.Minerals)] = 1.5f,
+                [(EcoBiomeType.Ocean, ResourceType.Minerals)] = 0.3f,
+                [(EcoBiomeType.Swamp, ResourceType.Minerals)] = 0.4f,
 
                 // Energy availability by biome
-                [(BiomeType.Volcanic, ResourceType.Energy)] = 2.5f,
-                [(BiomeType.Desert, ResourceType.Energy)] = 2.0f,
-                [(BiomeType.Grassland, ResourceType.Energy)] = 1.5f,
-                [(BiomeType.Forest, ResourceType.Energy)] = 1.2f,
-                [(BiomeType.Cave, ResourceType.Energy)] = 0.3f,
-                [(BiomeType.Tundra, ResourceType.Energy)] = 0.8f,
+                [(EcoBiomeType.Volcanic, ResourceType.Energy)] = 2.5f,
+                [(EcoBiomeType.Desert, ResourceType.Energy)] = 2.0f,
+                [(EcoBiomeType.Grassland, ResourceType.Energy)] = 1.5f,
+                [(EcoBiomeType.Forest, ResourceType.Energy)] = 1.2f,
+                [(EcoBiomeType.Cave, ResourceType.Energy)] = 0.3f,
+                [(EcoBiomeType.Tundra, ResourceType.Energy)] = 0.8f,
 
                 // Territory availability by biome
-                [(BiomeType.Grassland, ResourceType.Territory)] = 2.0f,
-                [(BiomeType.Forest, ResourceType.Territory)] = 1.5f,
-                [(BiomeType.Savanna, ResourceType.Territory)] = 1.8f,
-                [(BiomeType.Mountain, ResourceType.Territory)] = 1.2f,
-                [(BiomeType.Desert, ResourceType.Territory)] = 1.0f,
-                [(BiomeType.Ocean, ResourceType.Territory)] = 0.5f
+                [(EcoBiomeType.Grassland, ResourceType.Territory)] = 2.0f,
+                [(EcoBiomeType.Forest, ResourceType.Territory)] = 1.5f,
+                [(EcoBiomeType.Savanna, ResourceType.Territory)] = 1.8f,
+                [(EcoBiomeType.Mountain, ResourceType.Territory)] = 1.2f,
+                [(EcoBiomeType.Desert, ResourceType.Territory)] = 1.0f,
+                [(EcoBiomeType.Ocean, ResourceType.Territory)] = 0.5f
             };
 
             return modifiers.GetValueOrDefault((biome, resourceType), 1.0f);
@@ -451,7 +454,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                         if (resource.Availability <= threshold && resource.Availability > 0f)
                         {
                             // Resource is critically low but not depleted
-                            Debug.LogWarning($"⚠️ Resource {resourceType} critically low at {location}: {resource.Availability:F1}");
+                            UnityEngine.Debug.LogWarning($"⚠️ Resource {resourceType} critically low at {location}: {resource.Availability:F1}");
                         }
                         else if (resource.Availability > threshold * 2f && resource.Availability < config.CarryingCapacity * 0.9f)
                         {
@@ -522,7 +525,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 resources[resourceType] = resource;
 
                 OnResourceLevelChanged?.Invoke(location, resourceType, resource.Availability);
-                Debug.Log($"💎 Added {amount} {resourceType} to {location}");
+                UnityEngine.Debug.Log($"💎 Added {amount} {resourceType} to {location}");
             }
         }
 

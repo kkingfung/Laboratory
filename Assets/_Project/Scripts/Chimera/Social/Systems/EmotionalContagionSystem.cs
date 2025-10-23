@@ -6,6 +6,8 @@ using Unity.Mathematics;
 using Laboratory.Chimera.Social.Data;
 using Laboratory.Chimera.Social.Types;
 
+using SocialEmotionalState = Laboratory.Chimera.Social.Types.EmotionalState;
+
 namespace Laboratory.Chimera.Social.Systems
 {
     /// <summary>
@@ -21,11 +23,11 @@ namespace Laboratory.Chimera.Social.Systems
 
         private EmotionalContagionEngine emotionalContagion;
         private EmpathyNetworkManager empathyNetwork;
-        private Dictionary<uint, EmotionalState> agentEmotionalStates = new();
+        private Dictionary<uint, SocialEmotionalState> agentSocialEmotionalStates = new();
         private Dictionary<uint, float> agentEmpathyLevels = new();
 
-        public event Action<uint, uint, EmotionalState> OnEmotionalContagion;
-        public event Action<uint, EmotionalState> OnEmotionalStateChanged;
+        public event Action<uint, uint, SocialEmotionalState> OnEmotionalContagion;
+        public event Action<uint, SocialEmotionalState> OnSocialEmotionalStateChanged;
         public event Action<uint, float> OnEmpathyDeveloped;
 
         private void Awake()
@@ -34,23 +36,23 @@ namespace Laboratory.Chimera.Social.Systems
             empathyNetwork = new EmpathyNetworkManager();
         }
 
-        public void RegisterAgent(uint agentId, EmotionalState initialState = EmotionalState.Neutral, float empathyLevel = 0.5f)
+        public void RegisterAgent(uint agentId, SocialEmotionalState initialState = SocialEmotionalState.Neutral, float empathyLevel = 0.5f)
         {
-            agentEmotionalStates[agentId] = initialState;
+            agentSocialEmotionalStates[agentId] = initialState;
             agentEmpathyLevels[agentId] = empathyLevel;
             empathyNetwork.AddAgent(agentId, empathyLevel);
 
-            Debug.Log($"Registered emotional agent {agentId} with state {initialState} and empathy {empathyLevel:F2}");
+            UnityEngine.Debug.Log($"Registered emotional agent {agentId} with state {initialState} and empathy {empathyLevel:F2}");
         }
 
-        public void UpdateEmotionalState(uint agentId, EmotionalState newState, float intensity = 1.0f)
+        public void UpdateSocialEmotionalState(uint agentId, SocialEmotionalState newState, float intensity = 1.0f)
         {
-            if (!agentEmotionalStates.ContainsKey(agentId)) return;
+            if (!agentSocialEmotionalStates.ContainsKey(agentId)) return;
 
-            var previousState = agentEmotionalStates[agentId];
-            agentEmotionalStates[agentId] = newState;
+            var previousState = agentSocialEmotionalStates[agentId];
+            agentSocialEmotionalStates[agentId] = newState;
 
-            OnEmotionalStateChanged?.Invoke(agentId, newState);
+            OnSocialEmotionalStateChanged?.Invoke(agentId, newState);
 
             // Trigger emotional contagion if state changed significantly
             if (previousState != newState && enableEmotionalContagion)
@@ -59,7 +61,7 @@ namespace Laboratory.Chimera.Social.Systems
             }
         }
 
-        private void ProcessEmotionalContagion(uint sourceAgentId, EmotionalState emotion, float intensity)
+        private void ProcessEmotionalContagion(uint sourceAgentId, SocialEmotionalState emotion, float intensity)
         {
             var nearbyAgents = GetNearbyAgents(sourceAgentId, empathyRange);
 
@@ -84,21 +86,21 @@ namespace Laboratory.Chimera.Social.Systems
             return baseProbability * distanceFactor;
         }
 
-        private void ApplyEmotionalContagion(uint sourceId, uint targetId, EmotionalState emotion, float strength)
+        private void ApplyEmotionalContagion(uint sourceId, uint targetId, SocialEmotionalState emotion, float strength)
         {
-            var currentState = agentEmotionalStates[targetId];
-            var newState = BlendEmotionalStates(currentState, emotion, strength);
+            var currentState = agentSocialEmotionalStates[targetId];
+            var newState = BlendSocialEmotionalStates(currentState, emotion, strength);
 
-            agentEmotionalStates[targetId] = newState;
+            agentSocialEmotionalStates[targetId] = newState;
 
             // Develop empathy through emotional sharing
             DevelopEmpathy(targetId, strength * empathyDevelopmentRate);
 
             OnEmotionalContagion?.Invoke(sourceId, targetId, newState);
-            Debug.Log($"Emotional contagion: {emotion} spread from {sourceId} to {targetId} (strength: {strength:F2})");
+            UnityEngine.Debug.Log($"Emotional contagion: {emotion} spread from {sourceId} to {targetId} (strength: {strength:F2})");
         }
 
-        private EmotionalState BlendEmotionalStates(EmotionalState current, EmotionalState incoming, float blendStrength)
+        private SocialEmotionalState BlendSocialEmotionalStates(SocialEmotionalState current, SocialEmotionalState incoming, float blendStrength)
         {
             // Simplified blending - in reality this would be more sophisticated
             if (blendStrength > 0.7f)
@@ -115,18 +117,18 @@ namespace Laboratory.Chimera.Social.Systems
             }
         }
 
-        private EmotionalState GetBlendedEmotion(EmotionalState emotion1, EmotionalState emotion2)
+        private SocialEmotionalState GetBlendedEmotion(SocialEmotionalState emotion1, SocialEmotionalState emotion2)
         {
             // Emotional blending rules
             return (emotion1, emotion2) switch
             {
-                (EmotionalState.Happy, EmotionalState.Excited) => EmotionalState.Excited,
-                (EmotionalState.Excited, EmotionalState.Happy) => EmotionalState.Excited,
-                (EmotionalState.Sad, EmotionalState.Fearful) => EmotionalState.Anxious,
-                (EmotionalState.Fearful, EmotionalState.Sad) => EmotionalState.Anxious,
-                (EmotionalState.Angry, EmotionalState.Fearful) => EmotionalState.Anxious,
-                (EmotionalState.Happy, EmotionalState.Calm) => EmotionalState.Confident,
-                (EmotionalState.Calm, EmotionalState.Happy) => EmotionalState.Confident,
+                (SocialEmotionalState.Happy, SocialEmotionalState.Excited) => SocialEmotionalState.Excited,
+                (SocialEmotionalState.Excited, SocialEmotionalState.Happy) => SocialEmotionalState.Excited,
+                (SocialEmotionalState.Sad, SocialEmotionalState.Fearful) => SocialEmotionalState.Anxious,
+                (SocialEmotionalState.Fearful, SocialEmotionalState.Sad) => SocialEmotionalState.Anxious,
+                (SocialEmotionalState.Angry, SocialEmotionalState.Fearful) => SocialEmotionalState.Anxious,
+                (SocialEmotionalState.Happy, SocialEmotionalState.Calm) => SocialEmotionalState.Confident,
+                (SocialEmotionalState.Calm, SocialEmotionalState.Happy) => SocialEmotionalState.Confident,
                 _ => emotion1 // Default to first emotion if no blending rule exists
             };
         }
@@ -147,7 +149,7 @@ namespace Laboratory.Chimera.Social.Systems
         {
             // This would use actual spatial data in a full implementation
             // For now, returning a subset of all agents
-            var allAgents = agentEmotionalStates.Keys.ToList();
+            var allAgents = agentSocialEmotionalStates.Keys.ToList();
             return allAgents.Where(id => id != agentId && UnityEngine.Random.value < 0.3f).Take(5).ToList();
         }
 
@@ -162,25 +164,30 @@ namespace Laboratory.Chimera.Social.Systems
             // Gradually return emotions to neutral state
             var decayRate = 0.01f;
 
-            foreach (var agentId in agentEmotionalStates.Keys.ToList())
+            foreach (var agentId in agentSocialEmotionalStates.Keys.ToList())
             {
-                var currentState = agentEmotionalStates[agentId];
+                var currentState = agentSocialEmotionalStates[agentId];
 
-                if (currentState != EmotionalState.Neutral && UnityEngine.Random.value < decayRate)
+                if (currentState != SocialEmotionalState.Neutral && UnityEngine.Random.value < decayRate)
                 {
                     // Gradually move toward neutral
-                    var neutralizingStates = new[] { EmotionalState.Neutral, EmotionalState.Calm };
+                    var neutralizingStates = new[] { SocialEmotionalState.Neutral, SocialEmotionalState.Calm };
                     var newState = neutralizingStates[UnityEngine.Random.Range(0, neutralizingStates.Length)];
 
-                    agentEmotionalStates[agentId] = newState;
-                    OnEmotionalStateChanged?.Invoke(agentId, newState);
+                    agentSocialEmotionalStates[agentId] = newState;
+                    OnSocialEmotionalStateChanged?.Invoke(agentId, newState);
                 }
             }
         }
 
-        public EmotionalState GetAgentEmotionalState(uint agentId)
+        public SocialEmotionalState GetAgentSocialEmotionalState(uint agentId)
         {
-            return agentEmotionalStates.GetValueOrDefault(agentId, EmotionalState.Neutral);
+            return agentSocialEmotionalStates.GetValueOrDefault(agentId, SocialEmotionalState.Neutral);
+        }
+
+        public SocialEmotionalState GetAgentEmotionalState(uint agentId)
+        {
+            return GetAgentSocialEmotionalState(agentId);
         }
 
         public float GetAgentEmpathyLevel(uint agentId)
@@ -188,9 +195,9 @@ namespace Laboratory.Chimera.Social.Systems
             return agentEmpathyLevels.GetValueOrDefault(agentId, 0.5f);
         }
 
-        public Dictionary<uint, EmotionalState> GetAllEmotionalStates()
+        public Dictionary<uint, SocialEmotionalState> GetAllSocialEmotionalStates()
         {
-            return new Dictionary<uint, EmotionalState>(agentEmotionalStates);
+            return new Dictionary<uint, SocialEmotionalState>(agentSocialEmotionalStates);
         }
 
         public EmpathyNetworkAnalysis GetEmpathyNetworkAnalysis()

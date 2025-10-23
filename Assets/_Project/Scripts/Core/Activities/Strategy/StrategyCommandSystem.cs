@@ -306,12 +306,14 @@ namespace Laboratory.Core.Activities.Strategy
         private EntityQuery commandQuery;
         private EntityQuery commanderQuery;
         private EndSimulationEntityCommandBufferSystem ecbSystem;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
             commandQuery = GetEntityQuery(ComponentType.ReadWrite<StrategyCommandComponent>());
             commanderQuery = GetEntityQuery(ComponentType.ReadWrite<StrategyCommanderComponent>());
             ecbSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -323,7 +325,8 @@ namespace Laboratory.Core.Activities.Strategy
             var commandUpdateJob = new CommandCenterUpdateJob
             {
                 DeltaTime = deltaTime,
-                CommandBuffer = ecb
+                CommandBuffer = ecb,
+                random = Unity.Mathematics.Random.CreateFromIndex((uint)(System.DateTime.Now.Ticks))
             };
             Dependency = commandUpdateJob.ScheduleParallel(commandQuery, Dependency);
 
@@ -337,6 +340,7 @@ namespace Laboratory.Core.Activities.Strategy
     {
         public float DeltaTime;
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
+        public Unity.Mathematics.Random random;
 
         public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, ref StrategyCommandComponent command)
         {
@@ -476,7 +480,7 @@ namespace Laboratory.Core.Activities.Strategy
             else
             {
                 // Determine winner based on victory points, remaining units, etc.
-                command.Status = math.random().NextFloat() > 0.5f ? BattleStatus.Victory : BattleStatus.Defeat;
+                command.Status = random.NextFloat() > 0.5f ? BattleStatus.Victory : BattleStatus.Defeat;
             }
         }
 
@@ -499,6 +503,7 @@ namespace Laboratory.Core.Activities.Strategy
     public partial class StrategicDecisionSystem : SystemBase
     {
         private EntityQuery strategicQuery;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
@@ -508,6 +513,7 @@ namespace Laboratory.Core.Activities.Strategy
                 ComponentType.ReadOnly<StrategyPerformanceComponent>(),
                 ComponentType.ReadOnly<GeneticDataComponent>()
             });
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -517,7 +523,8 @@ namespace Laboratory.Core.Activities.Strategy
             var strategicJob = new StrategicDecisionJob
             {
                 DeltaTime = deltaTime,
-                Time = (float)SystemAPI.Time.ElapsedTime
+                Time = (float)SystemAPI.Time.ElapsedTime,
+                random = Unity.Mathematics.Random.CreateFromIndex((uint)System.DateTime.Now.Ticks)
             };
 
             Dependency = strategicJob.ScheduleParallel(strategicQuery, Dependency);
@@ -530,6 +537,7 @@ namespace Laboratory.Core.Activities.Strategy
     {
         public float DeltaTime;
         public float Time;
+        public Unity.Mathematics.Random random;
 
         public void Execute(ref StrategyCommanderComponent commander,
             in StrategyPerformanceComponent performance,
@@ -596,7 +604,7 @@ namespace Laboratory.Core.Activities.Strategy
             float diplomaticPower = genetics.Sociability * performance.DiplomaticSkill;
 
             // Simplified diplomatic actions
-            if (math.random().NextFloat() < diplomaticPower * 0.1f)
+            if (random.NextFloat() < diplomaticPower * 0.1f)
             {
                 commander.VictoryPoints += 5; // Diplomatic victory points
             }

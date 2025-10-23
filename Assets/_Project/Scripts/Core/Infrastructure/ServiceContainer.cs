@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Laboratory.Core.Infrastructure
@@ -88,6 +89,32 @@ namespace Laboratory.Core.Infrastructure
         public void ClearServices()
         {
             _services.Clear();
+        }
+
+        /// <summary>
+        /// Get all registered services of a specific type
+        /// </summary>
+        public IEnumerable<T> GetServices<T>() where T : class
+        {
+            var results = new List<T>();
+            foreach (var service in _services.Values)
+            {
+                if (service is T typedService)
+                {
+                    results.Add(typedService);
+                }
+            }
+            return results;
+        }
+
+        /// <summary>
+        /// Resolve a service by name or key
+        /// </summary>
+        public T ResolveService<T>(string name) where T : class
+        {
+            // For now, just return the first service of type T
+            // In a full implementation, this would use a name-based lookup
+            return ResolveService<T>();
         }
     }
 }

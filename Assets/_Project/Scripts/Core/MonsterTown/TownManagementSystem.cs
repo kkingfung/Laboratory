@@ -241,7 +241,7 @@ namespace Laboratory.Core.MonsterTown
             }
 
             // Deduct resources
-            DeductResources(buildingConfig.constructionCost);
+            DeductResources(buildingConfig.constructionCost.ToTownResources());
 
             // Build
             var buildingEntity = await buildingSystem.ConstructBuilding(buildingConfig, position);
@@ -264,7 +264,7 @@ namespace Laboratory.Core.MonsterTown
             }
 
             // Refund on failure
-            AddResources(buildingConfig.constructionCost);
+            AddResources(buildingConfig.constructionCost.ToTownResources());
             return false;
         }
 
@@ -284,6 +284,120 @@ namespace Laboratory.Core.MonsterTown
         public IReadOnlyList<Entity> GetBuildingsOfType(BuildingType buildingType)
         {
             return townBuildings.TryGetValue(buildingType, out var buildings) ? buildings : new List<Entity>();
+        }
+
+        /// <summary>
+        /// Update town systems with deltaTime
+        /// </summary>
+        public void UpdateTown(PlayerTown playerTown, float deltaTime)
+        {
+            if (playerTown == null) return;
+
+            // Update town happiness based on facilities
+            UpdateTownHappiness(playerTown);
+
+            // Update facility construction progress
+            UpdateFacilityConstruction(playerTown, deltaTime);
+
+            // Update population and capacity
+            UpdateTownPopulation(playerTown);
+
+            // Update town level progression
+            CheckTownLevelProgression(playerTown);
+        }
+
+        /// <summary>
+        /// Update town happiness based on facilities and monsters
+        /// </summary>
+        public void UpdateTownHappiness(PlayerTown playerTown)
+        {
+            if (playerTown?.Facilities == null) return;
+
+            float baseHappiness = 50f;
+            float facilityBonus = 0f;
+
+            // Calculate happiness from facilities
+            foreach (var facility in playerTown.Facilities)
+            {
+                if (!facility.IsConstructed) continue;
+
+                switch (facility.Type)
+                {
+                    case FacilityType.MonsterHabitat:
+                        facilityBonus += facility.Level * 5f;
+                        break;
+                    case FacilityType.SocialHub:
+                        facilityBonus += facility.Level * 8f;
+                        break;
+                    case FacilityType.EducationCenter:
+                        facilityBonus += facility.Level * 4f;
+                        break;
+                    case FacilityType.ActivityCenter:
+                        facilityBonus += facility.Level * 6f;
+                        break;
+                    case FacilityType.BreedingCenter:
+                        facilityBonus += facility.Level * 3f;
+                        break;
+                }
+            }
+
+            // Town level bonus
+            facilityBonus += playerTown.Level * 2f;
+
+            // Update town happiness
+            playerTown.Happiness = Mathf.Clamp01((baseHappiness + facilityBonus) / 100f);
+        }
+
+        /// <summary>
+        /// Upgrade a facility to the next level
+        /// </summary>
+        public async UniTask UpgradeFacility(TownFacility facility)
+        {
+            if (facility == null || !facility.IsConstructed)
+            {
+                Debug.LogWarning("Cannot upgrade facility: facility is null or not constructed");
+                return;
+            }
+
+            // Start upgrade process
+            facility.Level++;
+            Debug.Log($"🔧 Upgraded {facility.Type} to level {facility.Level}");
+
+            // Could add upgrade time/cost here if needed
+            await UniTask.Delay(100); // Simulate upgrade time
+
+            // Fire upgrade event
+            eventBus?.Publish(new FacilityUpgradedEvent(facility));
+        }
+
+        /// <summary>
+        /// Start construction of a facility
+        /// </summary>
+        public async UniTask StartConstruction(TownFacility facility)
+        {
+            if (facility == null)
+            {
+                Debug.LogWarning("Cannot start construction: facility is null");
+                return;
+            }
+
+            // Mark construction as started
+            facility.ConstructionStartTime = DateTime.UtcNow;
+            facility.IsConstructed = false;
+
+            Debug.Log($"🏗️ Started construction of {facility.Type} (will complete in {facility.ConstructionTime.TotalMinutes:F1} minutes)");
+
+            // Fire construction started event
+            eventBus?.Publish(new FacilityConstructionStartedEvent(facility));
+
+            // Wait for construction to complete (in real game this would be handled by UpdateFacilityConstruction)
+            await UniTask.Delay((int)facility.ConstructionTime.TotalMilliseconds);
+
+            // Mark as completed
+            facility.IsConstructed = true;
+
+            Debug.Log($"✅ Construction completed: {facility.Type}");
+            eventBus?.Publish(new FacilityConstructionCompletedEvent(facility));
         }
 
         #endregion
@@ -326,7 +440,7 @@ namespace Laboratory.Core.MonsterTown
             // Activity Center Manager
             if (enableActivityCenters)
             {
-                activityCenterManager = new ActivityCenterManager(eventBus);
+                activityCenterManager = new ActivityCenterManagerImpl(eventBus);
                 serviceContainer.RegisterService<IActivityCenterManager>(activityCenterManager);
             }
 
@@ -427,7 +541,7 @@ namespace Laboratory.Core.MonsterTown
 
         private bool CanAffordBuilding(BuildingConfig config)
         {
-            return currentResources.CanAfford(config.constructionCost);
+            return currentResources.CanAfford(config.constructionCost.ToTownResources());
         }
 
         #endregion
@@ -603,7 +717,91 @@ namespace Laboratory.Core.MonsterTown
             return townMonsters.Count > 0 ? (totalHappiness / townMonsters.Count - 0.5f) * 0.5f : 0f;
         }
 
-        private float CalculateGeneticBonus(GeneticProfile genetics, ActivityType activityType)
+        /// <summary>
+        /// Update facility construction progress
+        /// </summary>
+        private void UpdateFacilityConstruction(PlayerTown playerTown, float deltaTime)
+        {
+            if (playerTown?.Facilities == null) return;
+
+            foreach (var facility in playerTown.Facilities)
+            {
+                if (facility.IsConstructed) continue;
+
+                // Check if construction time has elapsed
+                var constructionElapsed = DateTime.UtcNow - facility.ConstructionStartTime;
+                if (constructionElapsed >= facility.ConstructionTime)
+                {
+                    facility.IsConstructed = true;
+                    Debug.Log($"🏗️ Construction completed: {facility.Type} Level {facility.Level}");
+
+                    // Fire completion event
+                    eventBus?.Publish(new FacilityConstructionCompletedEvent(facility));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Update town population and capacity
+        /// </summary>
+        private void UpdateTownPopulation(PlayerTown playerTown)
+        {
+            if (playerTown == null) return;
+
+            // Count current population
+            playerTown.Population = townMonsters.Count;
+
+            // Update population capacity based on facilities
+            int maxCapacity = 10; // Base capacity
+            foreach (var facility in playerTown.Facilities)
+            {
+                if (!facility.IsConstructed) continue;
+
+                switch (facility.Type)
+                {
+                    case FacilityType.MonsterHabitat:
+                        maxCapacity += facility.Level * 5;
+                        break;
+                    case FacilityType.BreedingCenter:
+                        maxCapacity += facility.Level * 3;
+                        break;
+                    case FacilityType.ActivityCenter:
+                        maxCapacity += facility.Level * 2;
+                        break;
+                }
+            }
+
+            // Store capacity for UI/display purposes (would need to add this property to PlayerTown)
+            // playerTown.MaxPopulation = maxCapacity;
+        }
+
+        /// <summary>
+        /// Check if town should level up
+        /// </summary>
+        private void CheckTownLevelProgression(PlayerTown playerTown)
+        {
+            if (playerTown == null) return;
+
+            // Calculate level requirements
+            int requiredPopulation = playerTown.Level * 5;
+            int requiredFacilities = playerTown.Level * 2;
+            float requiredHappiness = 0.6f + (playerTown.Level * 0.1f);
+
+            bool canLevelUp = playerTown.Population >= requiredPopulation &&
+                             playerTown.Facilities.Count >= requiredFacilities &&
+                             playerTown.Happiness >= requiredHappiness;
+
+            if (canLevelUp && playerTown.Level < 10) // Max level 10
+            {
+                playerTown.Level++;
+                Debug.Log($"🎉 Town leveled up to Level {playerTown.Level}!");
+
+                // Fire level up event
+                eventBus?.Publish(new TownLevelUpEvent(playerTown.Level));
+            }
+        }
+
+        private float CalculateGeneticBonus(IGeneticProfile genetics, ActivityType activityType)
         {
             // Implementation depends on how genetics are structured
             return 0.1f; // Placeholder
@@ -744,4 +942,57 @@ namespace Laboratory.Core.MonsterTown
 
         #endregion
     }
+
+    #region Event Classes
+
+    public class FacilityUpgradedEvent
+    {
+        public TownFacility Facility { get; }
+        public DateTime Timestamp { get; }
+
+        public FacilityUpgradedEvent(TownFacility facility)
+        {
+            Facility = facility;
+            Timestamp = DateTime.UtcNow;
+        }
+    }
+
+    public class FacilityConstructionStartedEvent
+    {
+        public TownFacility Facility { get; }
+        public DateTime Timestamp { get; }
+
+        public FacilityConstructionStartedEvent(TownFacility facility)
+        {
+            Facility = facility;
+            Timestamp = DateTime.UtcNow;
+        }
+    }
+
+    public class FacilityConstructionCompletedEvent
+    {
+        public TownFacility Facility { get; }
+        public DateTime Timestamp { get; }
+
+        public FacilityConstructionCompletedEvent(TownFacility facility)
+        {
+            Facility = facility;
+            Timestamp = DateTime.UtcNow;
+        }
+    }
+
+    public class TownLevelUpEvent
+    {
+        public int NewLevel { get; }
+        public DateTime Timestamp { get; }
+
+        public TownLevelUpEvent(int newLevel)
+        {
+            NewLevel = newLevel;
+            Timestamp = DateTime.UtcNow;
+        }
+    }
+
+
+    #endregion
 }

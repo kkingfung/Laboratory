@@ -20,7 +20,7 @@ namespace Laboratory.Chimera.Visuals.Generators
 
         public IEnumerator GenerateMaterials(VisualGeneticTraits traits, Renderer[] renderers)
         {
-            Debug.Log("🎨 Generating genetic materials");
+            UnityEngine.Debug.Log("🎨 Generating genetic materials");
 
             var materialGenetics = ExtractMaterialGenetics(traits);
 
@@ -34,7 +34,7 @@ namespace Laboratory.Chimera.Visuals.Generators
                 yield return null;
             }
 
-            Debug.Log("✨ Material generation complete");
+            UnityEngine.Debug.Log("✨ Material generation complete");
         }
 
         private MaterialGenetics ExtractMaterialGenetics(VisualGeneticTraits traits)

@@ -455,7 +455,7 @@ namespace Laboratory.Core.Social
 
             if (!string.IsNullOrEmpty(category))
             {
-                offers = offers.Where(o => o.OfferedItems.Any(item => item.Category == category)).ToList();
+                offers = offers.Where(o => o.OfferedItems.Any(item => item.Type.ToString() == category)).ToList();
             }
 
             return offers.OrderBy(o => o.CreatedAt).ToList();

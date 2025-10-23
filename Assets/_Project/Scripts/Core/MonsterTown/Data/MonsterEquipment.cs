@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Core.Equipment.Types;
+using EquipmentItem = Laboratory.Core.MonsterTown.Equipment;
 
 namespace Laboratory.Core.MonsterTown
 {

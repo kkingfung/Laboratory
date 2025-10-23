@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Core.Discovery.Data;
 using Laboratory.Core.Discovery.Types;
-using Laboratory.Core.Discovery.Systems;
+using Laboratory.Core.Discovery;
 
 namespace Laboratory.Core.Discovery.Services
 {
@@ -135,7 +135,7 @@ namespace Laboratory.Core.Discovery.Services
             discoverySystem.AddJournalEntry(playerId, JournalEntryType.ResearchCompletion,
                 $"Research Complete: {project.Title}", content, project);
 
-            discoverySystem.TriggerResearchProjectCompleted(project);
+            discoverySystem.TriggerResearchProjectCompleted(playerId, project.ProjectId);
             Debug.Log($"✅ Research project completed: {project.Title}");
         }
 

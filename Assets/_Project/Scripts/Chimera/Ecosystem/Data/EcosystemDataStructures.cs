@@ -135,6 +135,7 @@ namespace Laboratory.Chimera.Ecosystem.Data
         public int TotalSpeciesCount;
         public int EndangeredSpeciesCount;
         public float AveragePopulationSize;
+        public float PopulationStability;
         public float ExtinctionRate;
         public float SpeciationRate;
         public float CarryingCapacityUtilization;

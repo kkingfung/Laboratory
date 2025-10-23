@@ -44,7 +44,7 @@ namespace Laboratory.Chimera.Visuals.Generators
                 yield break;
             }
 
-            Debug.Log("🔮 Generating magical effects");
+            UnityEngine.Debug.Log("🔮 Generating magical effects");
 
             ClearExistingEffects();
 
@@ -77,7 +77,7 @@ namespace Laboratory.Chimera.Visuals.Generators
                 StartEffectAnimations(magicalData, traits);
             }
 
-            Debug.Log($"🔮 Generated {activeEffects.Count} magical effects");
+            UnityEngine.Debug.Log($"🔮 Generated {activeEffects.Count} magical effects");
         }
 
         private MagicalVisualEffects ExtractMagicalVisualData(VisualGeneticTraits traits)

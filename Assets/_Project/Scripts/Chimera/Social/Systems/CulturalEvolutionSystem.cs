@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Laboratory.Chimera.Social.Data;
-using Laboratory.Chimera.Social.Types;
+using SocialTypes = Laboratory.Chimera.Social.Types;
 
 namespace Laboratory.Chimera.Social.Systems
 {
@@ -18,13 +17,13 @@ namespace Laboratory.Chimera.Social.Systems
         [SerializeField] private bool enableCulturalEvolution = true;
         [SerializeField] private float culturalDriftRate = 0.001f;
 
-        private List<CulturalTrait> globalCulture = new();
+        private List<Laboratory.Chimera.Social.Data.CulturalTrait> globalCulture = new();
         private Dictionary<string, CulturalNorm> establishedNorms = new();
         private List<Innovation> culturalInnovations = new();
         private CulturalEvolutionEngine cultureEngine;
 
-        public event Action<CulturalTrait> OnCulturalInnovation;
-        public event Action<CulturalTrait> OnCulturalTraitSpread;
+        public event Action<Laboratory.Chimera.Social.Data.CulturalTrait> OnCulturalInnovation;
+        public event Action<Laboratory.Chimera.Social.Data.CulturalTrait> OnCulturalTraitSpread;
         public event Action<string, CulturalNorm> OnNormEstablished;
 
         private void Awake()
@@ -37,7 +36,7 @@ namespace Laboratory.Chimera.Social.Systems
         {
             var baseCulturalTraits = new[]
             {
-                new CulturalTrait
+                new Laboratory.Chimera.Social.Data.CulturalTrait
                 {
                     TraitName = "Cooperation",
                     Description = "Tendency to work together for mutual benefit",
@@ -45,7 +44,7 @@ namespace Laboratory.Chimera.Social.Systems
                     TransmissionRate = 0.4f,
                     EmergenceDate = DateTime.UtcNow
                 },
-                new CulturalTrait
+                new Laboratory.Chimera.Social.Data.CulturalTrait
                 {
                     TraitName = "Hierarchy Respect",
                     Description = "Acknowledgment of social ranking and leadership",
@@ -53,7 +52,7 @@ namespace Laboratory.Chimera.Social.Systems
                     TransmissionRate = 0.3f,
                     EmergenceDate = DateTime.UtcNow
                 },
-                new CulturalTrait
+                new Laboratory.Chimera.Social.Data.CulturalTrait
                 {
                     TraitName = "Knowledge Sharing",
                     Description = "Willingness to share information and skills",
@@ -66,7 +65,7 @@ namespace Laboratory.Chimera.Social.Systems
             globalCulture.AddRange(baseCulturalTraits);
         }
 
-        public void ProcessCulturalInteraction(uint agent1Id, uint agent2Id, InteractionType interactionType, InteractionOutcome outcome)
+        public void ProcessCulturalInteraction(uint agent1Id, uint agent2Id, SocialTypes.InteractionType interactionType, SocialTypes.InteractionOutcome outcome)
         {
             if (!enableCulturalEvolution) return;
 
@@ -78,7 +77,7 @@ namespace Laboratory.Chimera.Social.Systems
             }
 
             // Check for innovation emergence
-            if (outcome == InteractionOutcome.Transformative && UnityEngine.Random.value < innovationRate)
+            if (outcome == SocialTypes.InteractionOutcome.Transformative && UnityEngine.Random.value < innovationRate)
             {
                 GenerateInnovation(agent1Id, agent2Id, interactionType);
             }
@@ -99,11 +98,11 @@ namespace Laboratory.Chimera.Social.Systems
                 traitToTransmit.Prevalence = Mathf.Clamp01(traitToTransmit.Prevalence);
 
                 OnCulturalTraitSpread?.Invoke(traitToTransmit);
-                Debug.Log($"Cultural trait '{traitToTransmit.TraitName}' transmitted from {fromAgent} to {toAgent}");
+                UnityEngine.Debug.Log($"Cultural trait '{traitToTransmit.TraitName}' transmitted from {fromAgent} to {toAgent}");
             }
         }
 
-        private void GenerateInnovation(uint innovator1, uint innovator2, InteractionType context)
+        private void GenerateInnovation(uint innovator1, uint innovator2, SocialTypes.InteractionType context)
         {
             var innovation = new Innovation
             {
@@ -120,7 +119,7 @@ namespace Laboratory.Chimera.Social.Systems
             culturalInnovations.Add(innovation);
 
             // Create corresponding cultural trait
-            var newTrait = new CulturalTrait
+            var newTrait = new Laboratory.Chimera.Social.Data.CulturalTrait
             {
                 TraitName = innovation.Name,
                 Description = innovation.Description,
@@ -132,17 +131,17 @@ namespace Laboratory.Chimera.Social.Systems
             globalCulture.Add(newTrait);
 
             OnCulturalInnovation?.Invoke(newTrait);
-            Debug.Log($"Cultural innovation emerged: {innovation.Name}");
+            UnityEngine.Debug.Log($"Cultural innovation emerged: {innovation.Name}");
         }
 
-        private string GenerateInnovationName(InteractionType context)
+        private string GenerateInnovationName(SocialTypes.InteractionType context)
         {
             var prefixes = new[] { "Enhanced", "Improved", "Collaborative", "Advanced", "Refined" };
             var suffixes = context switch
             {
-                InteractionType.Cooperation => new[] { "Teamwork", "Collaboration", "Unity", "Partnership" },
-                InteractionType.Competition => new[] { "Competition", "Excellence", "Achievement", "Performance" },
-                InteractionType.Conversation => new[] { "Communication", "Dialogue", "Expression", "Understanding" },
+                SocialTypes.InteractionType.Cooperation => new[] { "Teamwork", "Collaboration", "Unity", "Partnership" },
+                SocialTypes.InteractionType.Competition => new[] { "Competition", "Excellence", "Achievement", "Performance" },
+                SocialTypes.InteractionType.Conversation => new[] { "Communication", "Dialogue", "Expression", "Understanding" },
                 _ => new[] { "Interaction", "Behavior", "Practice", "Method" }
             };
 
@@ -152,14 +151,14 @@ namespace Laboratory.Chimera.Social.Systems
             return $"{prefix} {suffix}";
         }
 
-        private string GenerateInnovationDescription(InteractionType context)
+        private string GenerateInnovationDescription(SocialTypes.InteractionType context)
         {
             return context switch
             {
-                InteractionType.Cooperation => "A new method of cooperative behavior that enhances group effectiveness",
-                InteractionType.Competition => "An innovative competitive strategy that improves individual performance",
-                InteractionType.Conversation => "An advanced communication technique that increases understanding",
-                InteractionType.Conflict => "A novel conflict resolution approach that maintains relationships",
+                SocialTypes.InteractionType.Cooperation => "A new method of cooperative behavior that enhances group effectiveness",
+                SocialTypes.InteractionType.Competition => "An innovative competitive strategy that improves individual performance",
+                SocialTypes.InteractionType.Conversation => "An advanced communication technique that increases understanding",
+                SocialTypes.InteractionType.Conflict => "A novel conflict resolution approach that maintains relationships",
                 _ => "A new social behavior that improves interaction outcomes"
             };
         }
@@ -181,7 +180,7 @@ namespace Laboratory.Chimera.Social.Systems
             foreach (var extinctTrait in extinctTraits)
             {
                 globalCulture.Remove(extinctTrait);
-                Debug.Log($"Cultural trait '{extinctTrait.TraitName}' became extinct");
+                UnityEngine.Debug.Log($"Cultural trait '{extinctTrait.TraitName}' became extinct");
             }
 
             // Establish norms for highly prevalent traits
@@ -195,7 +194,7 @@ namespace Laboratory.Chimera.Social.Systems
             UpdateInnovationAdoption();
         }
 
-        private void EstablishNorm(CulturalTrait trait)
+        private void EstablishNorm(Laboratory.Chimera.Social.Data.CulturalTrait trait)
         {
             var norm = new CulturalNorm
             {
@@ -208,7 +207,7 @@ namespace Laboratory.Chimera.Social.Systems
 
             establishedNorms[trait.TraitName] = norm;
             OnNormEstablished?.Invoke(trait.TraitName, norm);
-            Debug.Log($"Cultural norm established: {trait.TraitName}");
+            UnityEngine.Debug.Log($"Cultural norm established: {trait.TraitName}");
         }
 
         private float CalculateEnforcementLevel(float prevalence)
@@ -242,9 +241,9 @@ namespace Laboratory.Chimera.Social.Systems
             }
         }
 
-        public List<CulturalTrait> GetGlobalCulture()
+        public List<Laboratory.Chimera.Social.Data.CulturalTrait> GetGlobalCulture()
         {
-            return new List<CulturalTrait>(globalCulture);
+            return new List<Laboratory.Chimera.Social.Data.CulturalTrait>(globalCulture);
         }
 
         public Dictionary<string, CulturalNorm> GetEstablishedNorms()
@@ -257,10 +256,11 @@ namespace Laboratory.Chimera.Social.Systems
             return new List<Innovation>(culturalInnovations);
         }
 
-        public CulturalTrait GetCulturalTrait(string traitName)
+        public Laboratory.Chimera.Social.Data.CulturalTrait GetCulturalTrait(string traitName)
         {
             return globalCulture.FirstOrDefault(t => t.TraitName == traitName);
         }
+
     }
 
     /// <summary>
@@ -278,7 +278,7 @@ namespace Laboratory.Chimera.Social.Systems
             this.innovationRate = innovationRate;
         }
 
-        public bool ProcessInteraction(uint agent1Id, uint agent2Id, InteractionType interactionType, InteractionOutcome outcome)
+        public bool ProcessInteraction(uint agent1Id, uint agent2Id, SocialTypes.InteractionType interactionType, SocialTypes.InteractionOutcome outcome)
         {
             var key = agent1Id < agent2Id ? (agent1Id, agent2Id) : (agent2Id, agent1Id);
 
@@ -290,7 +290,7 @@ namespace Laboratory.Chimera.Social.Systems
             agentInteractionHistory[key].Add($"{interactionType}_{outcome}");
 
             // Return whether cultural transmission should occur
-            return outcome == InteractionOutcome.Positive || outcome == InteractionOutcome.Transformative;
+            return outcome == SocialTypes.InteractionOutcome.Positive || outcome == SocialTypes.InteractionOutcome.Transformative;
         }
 
         public float CalculateInnovationProbability(uint agent1Id, uint agent2Id)

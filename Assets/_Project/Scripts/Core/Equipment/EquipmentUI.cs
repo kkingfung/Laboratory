@@ -134,7 +134,7 @@ namespace Laboratory.Core.Equipment
             {
                 if (equipment.IsEquipped)
                 {
-                    var slot = _equipmentSlots.Find(s => s.SlotType == equipment.Type);
+                    var slot = _equipmentSlots.Find(s => s.SlotType == (Laboratory.Core.Equipment.EquipmentType)equipment.Type);
                     slot?.SetEquipment(equipment);
                 }
             }
@@ -367,7 +367,7 @@ namespace Laboratory.Core.Equipment
             {
                 equipmentIcon.gameObject.SetActive(true);
                 // Would set actual icon here if we had sprite references
-                equipmentIcon.color = GetRarityColor(equipment.Rarity);
+                equipmentIcon.color = GetRarityColor((Laboratory.Core.Equipment.EquipmentRarity)equipment.Rarity);
             }
         }
 
@@ -430,7 +430,7 @@ namespace Laboratory.Core.Equipment
 
             if (itemIcon != null)
             {
-                itemIcon.color = GetRarityColor(equipment.Rarity);
+                itemIcon.color = GetRarityColor((Laboratory.Core.Equipment.EquipmentRarity)equipment.Rarity);
             }
         }
 

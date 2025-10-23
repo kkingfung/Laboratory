@@ -3,7 +3,6 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
-using Laboratory.Infrastructure.AsyncUtils;
 using UnityEngine;
 
 #nullable enable

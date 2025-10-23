@@ -98,7 +98,13 @@ namespace Laboratory.Core.MonsterTown
             if (!_activitySystems.TryGetValue(activityType, out var activitySystem))
             {
                 Debug.LogError($"Activity system for {activityType} not found");
-                return null;
+                return new ActivityResult
+                {
+                    IsSuccess = false,
+                    ActivityType = activityType,
+                    ResultMessage = $"Activity system for {activityType} not found",
+                    FailureReason = "System not available"
+                };
             }
 
             Debug.Log($"🎯 {monster.Name} starting {activityType} activity...");
@@ -127,7 +133,7 @@ namespace Laboratory.Core.MonsterTown
                 result.EducationalContent = GenerateEducationalContent(activityType, result);
             }
 
-            Debug.Log($"🏆 {monster.Name} completed {activityType}: {result.PerformanceScore:F2} score, {result.ExperienceGained} XP");
+            Debug.Log($"🏆 {monster.Name} completed {activityType}: {result.PerformanceRating:F2} score, {result.ExperienceGained} XP");
 
             return result;
         }
@@ -210,7 +216,7 @@ namespace Laboratory.Core.MonsterTown
         /// </summary>
         private void ApplyCrossActivityBenefits(Monster monster, ActivityResult result)
         {
-            var crossBenefits = CalculateCrossActivityBenefits(result.ActivityType, result.PerformanceScore);
+            var crossBenefits = CalculateCrossActivityBenefits(result.ActivityType, result.PerformanceRating);
 
             foreach (var benefit in crossBenefits)
             {
@@ -289,12 +295,12 @@ namespace Laboratory.Core.MonsterTown
 
         private string GenerateRacingEducation(ActivityResult result)
         {
-            if (result.PerformanceScore > 0.8f)
+            if (result.PerformanceRating > 0.8f)
             {
                 return "🏃‍♂️ Excellent speed! Your monster's high Agility genetics gave it superior acceleration and cornering ability. " +
                        "In real life, athletes with fast-twitch muscle fibers (genetic trait) excel at sprinting and quick movements.";
             }
-            else if (result.PerformanceScore > 0.5f)
+            else if (result.PerformanceRating > 0.5f)
             {
                 return "🏃 Good endurance! Your monster's Vitality genetics helped it maintain speed throughout the race. " +
                        "This mirrors how some people have genetic advantages for endurance activities like marathon running.";
@@ -308,7 +314,7 @@ namespace Laboratory.Core.MonsterTown
 
         private string GenerateCombatEducation(ActivityResult result)
         {
-            return result.PerformanceScore > 0.7f
+            return result.PerformanceRating > 0.7f
                 ? "⚔️ Strong performance! Your monster's Strength genetics provided powerful attacks, while good Vitality gave defensive resilience. " +
                   "This reflects how genetic factors influence muscle mass, bone density, and recovery rates in real combat sports."
                 : "🛡️ Practice needed! Combat success depends on balanced Strength, Vitality, and Agility genetics. " +
@@ -317,7 +323,7 @@ namespace Laboratory.Core.MonsterTown
 
         private string GeneratePuzzleEducation(ActivityResult result)
         {
-            return result.PerformanceScore > 0.75f
+            return result.PerformanceRating > 0.75f
                 ? "🧠 Brilliant thinking! Your monster's high Intelligence genetics enabled fast problem-solving and pattern recognition. " +
                   "Intelligence has both genetic and environmental components - nature provides the foundation, nurture develops the skills."
                 : "🤔 Keep training that brain! Puzzle-solving improves with practice, building on genetic intelligence potential. " +
@@ -326,7 +332,7 @@ namespace Laboratory.Core.MonsterTown
 
         private string GenerateStrategyEducation(ActivityResult result)
         {
-            return result.PerformanceScore > 0.7f
+            return result.PerformanceRating > 0.7f
                 ? "🎯 Strategic mastery! Your monster's combination of Intelligence and Social genetics enabled excellent leadership and tactical planning. " +
                   "Great leaders often have genetic predispositions for analytical thinking and social awareness."
                 : "📚 Strategy takes time to develop! Good strategic thinking builds on Intelligence genetics but requires experience. " +
@@ -335,7 +341,7 @@ namespace Laboratory.Core.MonsterTown
 
         private string GenerateMusicEducation(ActivityResult result)
         {
-            return result.PerformanceScore > 0.7f
+            return result.PerformanceRating > 0.7f
                 ? "🎵 Perfect rhythm! Your monster's Agility and Intelligence genetics created excellent timing and coordination. " +
                   "Musical ability often runs in families, suggesting genetic components for rhythm, pitch recognition, and motor coordination."
                 : "🎼 Music is learnable! While some genetic advantages exist for musical ability, practice and training can develop these skills. " +
@@ -410,10 +416,10 @@ namespace Laboratory.Core.MonsterTown
             var result = new ActivityResult
             {
                 ActivityType = ActivityType.Racing,
-                Success = success,
-                PerformanceScore = Mathf.Clamp01(60f / raceTime), // Better time = higher score
+                IsSuccess = success,
+                PerformanceRating = Mathf.Clamp01(60f / raceTime), // Better time = higher score
                 ExperienceGained = success ? 50 : 25,
-                Rewards = GenerateRacingRewards(success, raceTime)
+                ResourcesEarned = ConvertRewardsToTownResources(GenerateRacingRewards(success, raceTime))
             };
 
             // Simulate activity duration
@@ -455,6 +461,41 @@ namespace Laboratory.Core.MonsterTown
             return rewards;
         }
 
+        /// <summary>
+        /// Convert List<Reward> to TownResources
+        /// </summary>
+        private TownResources ConvertRewardsToTownResources(List<Reward> rewards)
+        {
+            var townResources = new TownResources();
+
+            foreach (var reward in rewards)
+            {
+                switch (reward.Type)
+                {
+                    case RewardType.Coins:
+                        townResources.coins += reward.Amount;
+                        break;
+                    case RewardType.Gems:
+                        townResources.gems += reward.Amount;
+                        break;
+                    case RewardType.ActivityTokens:
+                        townResources.activityTokens += reward.Amount;
+                        break;
+                    case RewardType.GeneticSamples:
+                        townResources.geneticSamples += reward.Amount;
+                        break;
+                    case RewardType.Materials:
+                        townResources.materials += reward.Amount;
+                        break;
+                    case RewardType.Energy:
+                        townResources.energy += reward.Amount;
+                        break;
+                }
+            }
+
+            return townResources;
+        }
+
         public string GetActivityName() => "Racing Circuit";
         public string GetActivityDescription() => "Test your monster's speed and agility on various racing tracks";
     }
@@ -480,10 +521,12 @@ namespace Laboratory.Core.MonsterTown
             var result = new ActivityResult
             {
                 ActivityType = ActivityType.Combat,
-                Success = combatSuccess,
-                PerformanceScore = Mathf.Clamp01((performance.AttackPower + performance.Defense) / 2f),
+                IsSuccess = combatSuccess,
+                PerformanceRating = Mathf.Clamp01((performance.AttackPower + performance.Defense) / 2f),
                 ExperienceGained = combatSuccess ? 75 : 30,
-                Rewards = GenerateCombatRewards(combatSuccess, performance.AttackPower)
+                ResourcesEarned = new TownResources { coins = combatSuccess ? 100 : 25 },
+                HappinessChange = combatSuccess ? 0.08f : -0.02f,
+                ResultMessage = combatSuccess ? "Victory in combat!" : "Defeat in combat, but learned from the experience."
             };
 
             await Task.Delay(UnityEngine.Random.Range(3000, 6000));
@@ -524,7 +567,7 @@ namespace Laboratory.Core.MonsterTown
         {
             // Implement puzzle-solving mini-game
             await Task.Delay(UnityEngine.Random.Range(1000, 4000));
-            return new ActivityResult { ActivityType = ActivityType.Puzzle, Success = true, PerformanceScore = 0.7f };
+            return new ActivityResult { ActivityType = ActivityType.Puzzle, IsSuccess = true, PerformanceRating = 0.7f, ResourcesEarned = new TownResources { coins = 50 }, ExperienceGained = 40, HappinessChange = 0.07f, ResultMessage = "Great puzzle solving!" };
         }
         public string GetActivityName() => "Puzzle Academy";
         public string GetActivityDescription() => "Solve puzzles to develop your monster's intelligence";
@@ -536,7 +579,7 @@ namespace Laboratory.Core.MonsterTown
         public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(4000, 8000));
-            return new ActivityResult { ActivityType = ActivityType.Strategy, Success = true, PerformanceScore = 0.6f };
+            return new ActivityResult { ActivityType = ActivityType.Strategy, IsSuccess = true, PerformanceRating = 0.6f, ResourcesEarned = new TownResources { coins = 60 }, ExperienceGained = 45, HappinessChange = 0.06f, ResultMessage = "Excellent strategic thinking!" };
         }
         public string GetActivityName() => "Strategy Command";
         public string GetActivityDescription() => "Lead armies and plan tactics in strategic battles";
@@ -548,7 +591,7 @@ namespace Laboratory.Core.MonsterTown
         public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(5000, 10000));
-            return new ActivityResult { ActivityType = ActivityType.Adventure, Success = true, PerformanceScore = 0.8f };
+            return new ActivityResult { ActivityType = ActivityType.Adventure, IsSuccess = true, PerformanceRating = 0.8f, ResourcesEarned = new TownResources { coins = 80 }, ExperienceGained = 60, HappinessChange = 0.08f, ResultMessage = "Amazing adventure completed!" };
         }
         public string GetActivityName() => "Adventure Guild";
         public string GetActivityDescription() => "Embark on quests and explore dangerous territories";
@@ -560,7 +603,7 @@ namespace Laboratory.Core.MonsterTown
         public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(2000, 5000));
-            return new ActivityResult { ActivityType = ActivityType.Platforming, Success = true, PerformanceScore = 0.65f };
+            return new ActivityResult { ActivityType = ActivityType.Platforming, IsSuccess = true, PerformanceRating = 0.65f, ResourcesEarned = new TownResources { coins = 55 }, ExperienceGained = 42, HappinessChange = 0.065f, ResultMessage = "Great platforming skills!" };
         }
         public string GetActivityName() => "Obstacle Course";
         public string GetActivityDescription() => "Navigate challenging platforming courses";
@@ -572,7 +615,7 @@ namespace Laboratory.Core.MonsterTown
         public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(2000, 4000));
-            return new ActivityResult { ActivityType = ActivityType.Music, Success = true, PerformanceScore = 0.7f };
+            return new ActivityResult { ActivityType = ActivityType.Music, IsSuccess = true, PerformanceRating = 0.7f, ResourcesEarned = new TownResources { coins = 65 }, ExperienceGained = 50, HappinessChange = 0.07f, ResultMessage = "Beautiful musical performance!" };
         }
         public string GetActivityName() => "Rhythm Studio";
         public string GetActivityDescription() => "Create music and test rhythm abilities";
@@ -584,7 +627,7 @@ namespace Laboratory.Core.MonsterTown
         public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(3000, 6000));
-            return new ActivityResult { ActivityType = ActivityType.Crafting, Success = true, PerformanceScore = 0.6f };
+            return new ActivityResult { ActivityType = ActivityType.Crafting, IsSuccess = true, PerformanceRating = 0.6f, ResourcesEarned = new TownResources { coins = 45 }, ExperienceGained = 35, HappinessChange = 0.06f, ResultMessage = "Nice crafting work!" };
         }
         public string GetActivityName() => "Crafting Workshop";
         public string GetActivityDescription() => "Create items and equipment through crafting";
@@ -596,7 +639,7 @@ namespace Laboratory.Core.MonsterTown
         public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(4000, 8000));
-            return new ActivityResult { ActivityType = ActivityType.Exploration, Success = true, PerformanceScore = 0.75f };
+            return new ActivityResult { ActivityType = ActivityType.Exploration, IsSuccess = true, PerformanceRating = 0.75f, ResourcesEarned = new TownResources { coins = 70 }, ExperienceGained = 55, HappinessChange = 0.075f, ResultMessage = "Fantastic exploration!" };
         }
         public string GetActivityName() => "Exploration Expedition";
         public string GetActivityDescription() => "Discover new territories and hidden secrets";
@@ -608,7 +651,7 @@ namespace Laboratory.Core.MonsterTown
         public async Task<ActivityResult> RunActivityAsync(ActivitySession session)
         {
             await Task.Delay(UnityEngine.Random.Range(1000, 3000));
-            return new ActivityResult { ActivityType = ActivityType.Social, Success = true, PerformanceScore = 0.8f };
+            return new ActivityResult { ActivityType = ActivityType.Social, IsSuccess = true, PerformanceRating = 0.8f, ResourcesEarned = new TownResources { coins = 75 }, ExperienceGained = 58, HappinessChange = 0.08f, ResultMessage = "Wonderful social interaction!" };
         }
         public string GetActivityName() => "Social Hub";
         public string GetActivityDescription() => "Interact with other monsters and players";

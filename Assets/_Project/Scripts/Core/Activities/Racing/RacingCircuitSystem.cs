@@ -7,6 +7,8 @@ using Unity.Burst;
 using UnityEngine;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Core.Activities;
+using Laboratory.Core.Activities.Components;
+using Laboratory.Core.Activities.Types;
 
 namespace Laboratory.Core.Activities.Racing
 {

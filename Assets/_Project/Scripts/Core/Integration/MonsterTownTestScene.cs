@@ -5,7 +5,7 @@ using Laboratory.Core.Infrastructure;
 using System.Collections.Generic;
 using Laboratory.Core.MonsterTown.Integration;
 
-namespace Laboratory.Core.MonsterTown
+namespace Laboratory.Core.Integration
 {
     /// <summary>
     /// Monster Town Test Scene - Complete test environment for validating Monster Town integration.
@@ -70,7 +70,7 @@ namespace Laboratory.Core.MonsterTown
 
         // System references
         private TownManagementSystem townManager;
-        private ChimeraSceneBootstrap chimeraBootstrap;
+        private ISceneBootstrap chimeraBootstrap;
         private MonsterTownIntegrationGuide integrationGuide;
 
         #region Unity Lifecycle
@@ -170,7 +170,7 @@ namespace Laboratory.Core.MonsterTown
 
             // Get system references
             townManager = FindObjectOfType<TownManagementSystem>();
-            chimeraBootstrap = FindObjectOfType<ChimeraSceneBootstrap>();
+            chimeraBootstrap = FindObjectOfType<MonoBehaviour>() as ISceneBootstrap;
 
             LogTest("Core systems setup complete");
         }

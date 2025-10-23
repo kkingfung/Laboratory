@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Platform;
+using Laboratory.Core.GameModes;
 
 namespace Laboratory.Core.Platform.Genres
 {
@@ -41,6 +43,45 @@ namespace Laboratory.Core.Platform.Genres
         public GameGenre SupportedGenre => GameGenre.FPS;
         public GameGenre CurrentActiveGenre { get; private set; }
         public event Action<GameGenre, bool> GenreModeChanged;
+
+        public bool CanActivateForGenre(GameGenre genre)
+        {
+            return genre == GameGenre.FPS || genre == GameGenre.Exploration;
+        }
+
+        public async Task ActivateGenreMode(GameGenre genre, GenreConfig config)
+        {
+            if (!CanActivateForGenre(genre))
+            {
+                throw new InvalidOperationException($"Cannot activate {genre} mode on FPS Genetic Integration");
+            }
+
+            CurrentActiveGenre = genre;
+            GenreModeChanged?.Invoke(genre, true);
+
+            // Initialize FPS genetic systems
+            InitializeFPSGenetics();
+            IsInitialized = true;
+            InitializationProgress = 1.0f;
+
+            await Task.CompletedTask;
+        }
+
+        public async Task DeactivateGenreMode()
+        {
+            var previousGenre = CurrentActiveGenre;
+            CurrentActiveGenre = GameGenre.Exploration;
+            GenreModeChanged?.Invoke(previousGenre, false);
+
+            // Cleanup FPS genetic systems if needed
+            await Task.CompletedTask;
+        }
+
+        private void InitializeFPSGenetics()
+        {
+            // Initialize FPS-specific genetic systems
+            Debug.Log("🔫 FPS Genetic Integration activated - Weapons and tactics will evolve!");
+        }
         #endregion
 
         #region FPS Genetic Features
@@ -307,31 +348,7 @@ namespace Laboratory.Core.Platform.Genres
 
         #endregion
 
-        #region Genre Implementation Requirements
-
-        public bool CanActivateForGenre(GameGenre genre)
-        {
-            return genre == GameGenre.FPS;
-        }
-
-        public async System.Threading.Tasks.Task ActivateGenreMode(GameGenre genre, GenreConfig config)
-        {
-            CurrentActiveGenre = genre;
-            IsInitialized = true;
-            InitializationProgress = 1.0f;
-
-            Debug.Log("FPS Genetic Integration activated - weapons and skills will now evolve!");
-            GenreModeChanged?.Invoke(genre, true);
-        }
-
-        public async System.Threading.Tasks.Task DeactivateGenreMode()
-        {
-            CurrentActiveGenre = GameGenre.Exploration;
-            Debug.Log("FPS Genetic Integration deactivated");
-            GenreModeChanged?.Invoke(GameGenre.FPS, false);
-        }
-
-        #endregion
+        // Interface implementation methods are defined in the IGenreSubsystemManager region above
     }
 
     #region FPS-Specific Data Structures

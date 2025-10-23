@@ -4,8 +4,10 @@ using Cysharp.Threading.Tasks;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.MonsterTown.Integration;
+using Laboratory.Chimera.Configuration;
+using Laboratory.Chimera.Creatures;
 
-namespace Laboratory.Core.MonsterTown
+namespace Laboratory.Core.Integration
 {
     /// <summary>
     /// Monster Town Integration Guide - Complete setup instructions for integrating
@@ -48,6 +50,7 @@ namespace Laboratory.Core.MonsterTown
         [Header("Quick Setup")]
         [SerializeField] private bool autoSetupOnStart = false;
         [SerializeField] private MonsterTownConfig defaultTownConfig;
+        [SerializeField] private ChimeraSpeciesConfig[] testSpecies;
         [SerializeField] private int testSpeciesCount = 3;
 
         [Header("Integration Test")]
@@ -409,13 +412,21 @@ namespace Laboratory.Core.MonsterTown
         {
             Debug.Log("🧪 Testing monster population...");
 
-            if (townManager == null || testSpecies == null || testSpecies.Length == 0)
+            if (townManager == null)
             {
-                Debug.LogWarning("Cannot test monster population - no species configured");
+                Debug.LogWarning("Cannot test monster population - no town manager");
                 return;
             }
 
-            // Create test monsters
+            if (testSpecies == null || testSpecies.Length == 0)
+            {
+                Debug.LogWarning("Cannot test monster population - no species configured. Please assign ChimeraSpeciesConfig assets to testSpecies array.");
+                return;
+            }
+
+            Debug.Log($"🧬 Creating {testMonsterCount} test monsters from {testSpecies.Length} species...");
+
+            // Create test monsters using proper ChimeraSpeciesConfig
             for (int i = 0; i < testMonsterCount; i++)
             {
                 var species = testSpecies[i % testSpecies.Length];
@@ -458,9 +469,10 @@ namespace Laboratory.Core.MonsterTown
             {
                 var performance = new MonsterPerformance
                 {
-                    basePerformance = 0.7f,
-                    geneticBonus = 0.1f,
-                    experienceBonus = 0.05f
+                    Speed = 0.7f,
+                    Endurance = 0.7f,
+                    ExperienceBonus = 0.05f,
+                    HappinessBonus = 0.1f
                 };
 
                 var result = await activityManager.RunActivity(testMonster, ActivityType.Racing, performance);
@@ -545,7 +557,7 @@ namespace Laboratory.Core.MonsterTown
         {
             var config = ScriptableObject.CreateInstance<MonsterTownConfig>();
             config.townName = "Test Monster Town";
-            config.townSize = new Vector2(50f, 50f);
+            config.townBounds = new Vector2(50f, 50f);
             config.useGridBasedPlacement = true;
             config.gridSize = 5f;
             config.enableResourceGeneration = true;
@@ -560,11 +572,56 @@ namespace Laboratory.Core.MonsterTown
             {
                 UniqueId = System.Guid.NewGuid().ToString(),
                 Name = $"{species.speciesName} #{index + 1}",
-                GeneticProfile = species.GenerateRandomGeneticProfile(),
-                Stats = MonsterStats.GetDefault(),
+                Species = species.speciesName,
+                GeneticProfile = ConvertChimeraGeneticsToMonsterTown(species),
+                Stats = ConvertChimeraStatsToMonsterStats(species.baseStats),
                 Happiness = UnityEngine.Random.Range(0.6f, 0.9f),
+                Level = 1,
+                Experience = 0f,
+                Energy = 100f,
+                BirthTime = System.DateTime.UtcNow,
+                Generation = 1,
                 IsInTown = true,
                 CurrentLocation = TownLocation.TownCenter
+            };
+        }
+
+        /// <summary>
+        /// Convert ChimeraSpeciesConfig genetics to MonsterTown IGeneticProfile
+        /// This bridges the two genetic systems properly
+        /// </summary>
+        private IGeneticProfile ConvertChimeraGeneticsToMonsterTown(ChimeraSpeciesConfig species)
+        {
+            var profile = new BasicGeneticProfile();
+            var chimeraGenetics = species.GenerateRandomGeneticProfile();
+
+            // Map Chimera genetic traits to MonsterTown genetic profile
+            foreach (var gene in chimeraGenetics.genes)
+            {
+                profile.Traits[gene.traitName] = gene.value;
+            }
+
+            // Calculate overall fitness from all traits
+            profile.OverallFitness = profile.Traits.Count > 0 ? profile.Traits.Values.Average() : 0.5f;
+
+            return profile;
+        }
+
+        /// <summary>
+        /// Convert Chimera CreatureStats to MonsterTown MonsterStats
+        /// </summary>
+        private MonsterStats ConvertChimeraStatsToMonsterStats(CreatureStats chimeraStats)
+        {
+            return new MonsterStats
+            {
+                strength = chimeraStats.attack,
+                agility = chimeraStats.speed,
+                vitality = chimeraStats.health / 10f, // Scale down health to 0-100 range
+                intelligence = chimeraStats.intelligence * 10f, // Scale up intelligence
+                social = chimeraStats.charisma * 10f, // Scale up charisma to social
+                adaptability = 50f, // Default value
+                speed = chimeraStats.speed,
+                charisma = chimeraStats.charisma * 10f
             };
         }
 
@@ -573,9 +630,10 @@ namespace Laboratory.Core.MonsterTown
             return new MonsterInstance
             {
                 UniqueId = System.Guid.NewGuid().ToString(),
-                Name = $"{evt.Species.speciesName} (Chimera)",
-                GeneticProfile = evt.Species.GenerateRandomGeneticProfile(),
-                Stats = MonsterStats.GetDefault(),
+                Name = $"Chimera Creature",
+                Species = "ChimeraSpecies",
+                GeneticProfile = new BasicGeneticProfile(),
+                Stats = MonsterStats.CreateBalanced(),
                 Happiness = 0.8f,
                 IsInTown = true,
                 CurrentLocation = TownLocation.TownCenter

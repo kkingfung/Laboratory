@@ -151,6 +151,13 @@ namespace Laboratory.Core.MonsterTown
             };
         }
 
+        public float GetTotalValue()
+        {
+            // Calculate total value with weighted conversion (coins as base currency)
+            return coins + (gems * 10f) + (activityTokens * 2f) + (geneticSamples * 5f) +
+                   (materials * 1f) + (energy * 0.5f);
+        }
+
         public override string ToString()
         {
             return $"Coins: {coins}, Gems: {gems}, Tokens: {activityTokens}, Samples: {geneticSamples}, Materials: {materials}, Energy: {energy}";
@@ -165,7 +172,7 @@ namespace Laboratory.Core.MonsterTown
     {
         public string UniqueId { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; } = "Monster";
-        public GeneticProfile GeneticProfile { get; set; }
+        public IGeneticProfile GeneticProfile { get; set; } = new BasicGeneticProfile();
         public MonsterStats Stats { get; set; } = new MonsterStats();
         public Dictionary<ActivityType, float> ActivityExperience { get; set; } = new();
         public List<string> Equipment { get; set; } = new();
@@ -173,6 +180,17 @@ namespace Laboratory.Core.MonsterTown
         public bool IsInTown { get; set; } = false;
         public TownLocation CurrentLocation { get; set; } = TownLocation.TownCenter;
         public DateTime LastActivityTime { get; set; } = DateTime.UtcNow;
+
+        // Additional properties for collection management
+        public int Level { get; set; } = 1;
+        public DateTime BirthTime { get; set; } = DateTime.UtcNow;
+        public int Generation { get; set; } = 1;
+        public string Species { get; set; } = "UnknownSpecies";
+        public float Energy { get; set; } = 100f;
+        public float Experience { get; set; } = 0f;
+
+        // Compatibility property for genetics access
+        public IGeneticProfile Genetics => GeneticProfile;
 
         public float GetActivityExperience(ActivityType activityType)
         {
@@ -190,22 +208,26 @@ namespace Laboratory.Core.MonsterTown
         public void ImproveStatsFromActivity(ActivityType activityType, float performanceRating)
         {
             var improvement = performanceRating * 0.1f; // Small stat improvements
+            var currentStats = Stats; // Get a copy of the stats
 
             switch (activityType)
             {
                 case ActivityType.Racing:
-                    Stats.speed += improvement;
-                    Stats.agility += improvement * 0.5f;
+                    currentStats.speed += improvement;
+                    currentStats.agility += improvement * 0.5f;
                     break;
                 case ActivityType.Combat:
-                    Stats.strength += improvement;
-                    Stats.vitality += improvement * 0.5f;
+                    currentStats.strength += improvement;
+                    currentStats.vitality += improvement * 0.5f;
                     break;
                 case ActivityType.Puzzle:
-                    Stats.intelligence += improvement;
-                    Stats.adaptability += improvement * 0.5f;
+                    currentStats.intelligence += improvement;
+                    currentStats.adaptability += improvement * 0.5f;
                     break;
             }
+
+            // Assign the modified stats back
+            Stats = currentStats;
         }
 
         public void AdjustHappiness(float change)
@@ -230,6 +252,7 @@ namespace Laboratory.Core.MonsterTown
         public float HappinessChange { get; set; }
         public string ResultMessage { get; set; }
         public string FailureReason { get; set; }
+        public string EducationalContent { get; set; }
 
         public static ActivityResult Success(ActivityType activityType, float performance, TownResources rewards, float experience)
         {
@@ -322,11 +345,13 @@ namespace Laboratory.Core.MonsterTown
     {
         public MonsterTownConfig TownConfig { get; private set; }
         public TownResources InitialResources { get; private set; }
+        public DateTime Timestamp { get; private set; }
 
         public TownInitializedEvent(MonsterTownConfig config, TownResources resources)
         {
             TownConfig = config;
             InitialResources = resources;
+            Timestamp = DateTime.UtcNow;
         }
     }
 
@@ -335,12 +360,14 @@ namespace Laboratory.Core.MonsterTown
         public BuildingType BuildingType { get; private set; }
         public Entity BuildingEntity { get; private set; }
         public Vector3 Position { get; private set; }
+        public DateTime Timestamp { get; private set; }
 
         public BuildingConstructedEvent(BuildingType buildingType, Entity entity, Vector3 position)
         {
             BuildingType = buildingType;
             BuildingEntity = entity;
             Position = position;
+            Timestamp = DateTime.UtcNow;
         }
     }
 
@@ -359,12 +386,14 @@ namespace Laboratory.Core.MonsterTown
         public MonsterInstance Monster { get; private set; }
         public ActivityType ActivityType { get; private set; }
         public ActivityResult Result { get; private set; }
+        public DateTime Timestamp { get; private set; }
 
         public ActivityCompletedEvent(MonsterInstance monster, ActivityType activityType, ActivityResult result)
         {
             Monster = monster;
             ActivityType = activityType;
             Result = result;
+            Timestamp = DateTime.UtcNow;
         }
     }
 

@@ -1,8 +1,8 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
-using Laboratory.Subsystems.Player;
 
 namespace Laboratory.Core.GameModes
 {
@@ -20,7 +20,7 @@ namespace Laboratory.Core.GameModes
         [SerializeField] private float geneticHandicapFactor = 0.1f;
 
         // Subsystem references
-        private UnifiedPlayerSubsystemManager _playerManager;
+        private ISubsystemManager _playerManager;
         private ServiceContainer _services;
 
         // Racing-specific state
@@ -62,7 +62,14 @@ namespace Laboratory.Core.GameModes
             _services = ServiceContainer.Instance;
             if (_services != null)
             {
-                _playerManager = _services.ResolveService<UnifiedPlayerSubsystemManager>();
+                // Try to resolve player subsystem manager by name or interface
+                _playerManager = _services.ResolveService<ISubsystemManager>("PlayerSubsystem");
+                if (_playerManager == null)
+                {
+                    // Fallback: try to get any subsystem manager with "Player" in the name
+                    var allSubsystems = _services.GetServices<ISubsystemManager>();
+                    _playerManager = allSubsystems?.FirstOrDefault(s => s.SubsystemName.Contains("Player"));
+                }
             }
         }
 

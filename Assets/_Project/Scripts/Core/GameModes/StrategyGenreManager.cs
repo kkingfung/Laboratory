@@ -1,10 +1,8 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
-using Laboratory.Subsystems.EnemyAI;
-using Laboratory.Subsystems.Combat;
-using Laboratory.Subsystems.Ecosystem;
 
 namespace Laboratory.Core.GameModes
 {
@@ -21,9 +19,9 @@ namespace Laboratory.Core.GameModes
         [SerializeField] private bool enableFogOfWar = true;
 
         // Subsystem references
-        private EnemyAISubsystemManager _aiManager;
-        private CombatSubsystemManager _combatManager;
-        private EcosystemSubsystemManager _ecosystemManager;
+        private ISubsystemManager _aiManager;
+        private ISubsystemManager _combatManager;
+        private ISubsystemManager _ecosystemManager;
         private ServiceContainer _services;
 
         // Strategy-specific state
@@ -63,9 +61,14 @@ namespace Laboratory.Core.GameModes
             _services = ServiceContainer.Instance;
             if (_services != null)
             {
-                _aiManager = _services.ResolveService<EnemyAISubsystemManager>();
-                _combatManager = _services.ResolveService<CombatSubsystemManager>();
-                _ecosystemManager = _services.ResolveService<EcosystemSubsystemManager>();
+                // Resolve subsystem managers by name matching
+                var allSubsystems = _services.GetServices<ISubsystemManager>();
+                if (allSubsystems != null)
+                {
+                    _aiManager = allSubsystems.FirstOrDefault(s => s.SubsystemName.Contains("AI") || s.SubsystemName.Contains("Enemy"));
+                    _combatManager = allSubsystems.FirstOrDefault(s => s.SubsystemName.Contains("Combat"));
+                    _ecosystemManager = allSubsystems.FirstOrDefault(s => s.SubsystemName.Contains("Ecosystem"));
+                }
             }
         }
 

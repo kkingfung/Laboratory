@@ -25,7 +25,7 @@ namespace Laboratory.Subsystems.Combat
     /// 
     /// Version 3.0 - Enhanced architecture with comprehensive combat management
     /// </summary>
-    public class CombatSubsystemManager : MonoBehaviour, IDisposable
+    public class CombatSubsystemManager : MonoBehaviour, ISubsystemManager, IDisposable
     {
         #region Serialized Fields
 
@@ -73,11 +73,17 @@ namespace Laboratory.Subsystems.Combat
 
         #region Properties
 
-        /// <summary>Current state of the combat subsystem</summary>
-        public CombatSubsystemState CurrentState => _currentState;
-        
+        /// <summary>Subsystem name for ISubsystemManager</summary>
+        public string SubsystemName => "Combat Subsystem";
+
         /// <summary>Whether the combat subsystem is fully initialized</summary>
         public bool IsInitialized => _isInitialized;
+
+        /// <summary>Initialization progress for ISubsystemManager</summary>
+        public float InitializationProgress => _isInitialized ? 1.0f : 0.0f;
+
+        /// <summary>Current state of the combat subsystem</summary>
+        public CombatSubsystemState CurrentState => _currentState;
         
         /// <summary>Current health percentage (0-1)</summary>
         public float HealthPercentage => _healthComponent?.HealthPercentage ?? 0f;

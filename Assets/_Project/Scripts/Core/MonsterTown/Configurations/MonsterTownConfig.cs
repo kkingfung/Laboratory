@@ -306,6 +306,15 @@ namespace Laboratory.Core.MonsterTown
             energy = resources.energy;
         }
 
+        /// <summary>
+        /// Check if this config has any non-zero resources
+        /// </summary>
+        public bool HasAnyResource()
+        {
+            return coins > 0 || gems > 0 || activityTokens > 0 ||
+                   geneticSamples > 0 || materials > 0 || energy > 0;
+        }
+
         private void OnValidate()
         {
             // Ensure non-negative values

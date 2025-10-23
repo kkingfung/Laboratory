@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
+using EcoBiomeType = Laboratory.Chimera.Ecosystem.Data.BiomeType;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
 {
@@ -22,16 +23,16 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         [SerializeField] private float transitionResistance = 0.3f;
         [SerializeField] private bool enableSuccession = true;
 
-        private Dictionary<Vector2, BiomeType> currentBiomes = new();
+        private Dictionary<Vector2, EcoBiomeType> currentBiomes = new();
         private Dictionary<Vector2, BiomeTransition> activeTransitions = new();
-        private Dictionary<BiomeType, Dictionary<BiomeType, float>> transitionProbabilities = new();
+        private Dictionary<EcoBiomeType, Dictionary<EcoBiomeType, float>> transitionProbabilities = new();
 
         // Dependencies
         private ClimateEvolutionSystem climateSystem;
 
         // Events
-        public System.Action<Vector2, BiomeType, BiomeType> OnBiomeTransitionStarted;
-        public System.Action<Vector2, BiomeType> OnBiomeTransitionCompleted;
+        public System.Action<Vector2, EcoBiomeType, EcoBiomeType> OnBiomeTransitionStarted;
+        public System.Action<Vector2, EcoBiomeType> OnBiomeTransitionCompleted;
         public System.Action<Vector2, float> OnBiomeStabilityChanged;
 
         private void Awake()
@@ -48,78 +49,78 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void InitializeTransitionProbabilities()
         {
-            transitionProbabilities = new Dictionary<BiomeType, Dictionary<BiomeType, float>>
+            transitionProbabilities = new Dictionary<EcoBiomeType, Dictionary<EcoBiomeType, float>>
             {
-                [BiomeType.Forest] = new Dictionary<BiomeType, float>
+                [EcoBiomeType.Forest] = new Dictionary<EcoBiomeType, float>
                 {
-                    [BiomeType.Grassland] = 0.1f,
-                    [BiomeType.Desert] = 0.05f,
-                    [BiomeType.Swamp] = 0.08f,
-                    [BiomeType.Rainforest] = 0.15f
+                    [EcoBiomeType.Grassland] = 0.1f,
+                    [EcoBiomeType.Desert] = 0.05f,
+                    [EcoBiomeType.Swamp] = 0.08f,
+                    [EcoBiomeType.Rainforest] = 0.15f
                 },
-                [BiomeType.Grassland] = new Dictionary<BiomeType, float>
+                [EcoBiomeType.Grassland] = new Dictionary<EcoBiomeType, float>
                 {
-                    [BiomeType.Forest] = 0.12f,
-                    [BiomeType.Desert] = 0.08f,
-                    [BiomeType.Savanna] = 0.1f,
-                    [BiomeType.Swamp] = 0.05f
+                    [EcoBiomeType.Forest] = 0.12f,
+                    [EcoBiomeType.Desert] = 0.08f,
+                    [EcoBiomeType.Savanna] = 0.1f,
+                    [EcoBiomeType.Swamp] = 0.05f
                 },
-                [BiomeType.Desert] = new Dictionary<BiomeType, float>
+                [EcoBiomeType.Desert] = new Dictionary<EcoBiomeType, float>
                 {
-                    [BiomeType.Grassland] = 0.06f,
-                    [BiomeType.Savanna] = 0.08f,
-                    [BiomeType.Oasis] = 0.15f
+                    [EcoBiomeType.Grassland] = 0.06f,
+                    [EcoBiomeType.Savanna] = 0.08f,
+                    [EcoBiomeType.Desert] = 0.15f
                 },
-                [BiomeType.Tundra] = new Dictionary<BiomeType, float>
+                [EcoBiomeType.Tundra] = new Dictionary<EcoBiomeType, float>
                 {
-                    [BiomeType.Taiga] = 0.1f,
-                    [BiomeType.Grassland] = 0.05f,
-                    [BiomeType.Mountain] = 0.03f
+                    [EcoBiomeType.Taiga] = 0.1f,
+                    [EcoBiomeType.Grassland] = 0.05f,
+                    [EcoBiomeType.Mountain] = 0.03f
                 },
-                [BiomeType.Ocean] = new Dictionary<BiomeType, float>
+                [EcoBiomeType.Ocean] = new Dictionary<EcoBiomeType, float>
                 {
-                    [BiomeType.Swamp] = 0.02f,
-                    [BiomeType.CoralReef] = 0.1f
+                    [EcoBiomeType.Swamp] = 0.02f,
+                    [EcoBiomeType.Ocean] = 0.1f
                 },
-                [BiomeType.Mountain] = new Dictionary<BiomeType, float>
+                [EcoBiomeType.Mountain] = new Dictionary<EcoBiomeType, float>
                 {
-                    [BiomeType.Tundra] = 0.05f,
-                    [BiomeType.Forest] = 0.08f,
-                    [BiomeType.Alpine] = 0.1f
+                    [EcoBiomeType.Tundra] = 0.05f,
+                    [EcoBiomeType.Forest] = 0.08f,
+                    [EcoBiomeType.Mountain] = 0.1f
                 },
-                [BiomeType.Swamp] = new Dictionary<BiomeType, float>
+                [EcoBiomeType.Swamp] = new Dictionary<EcoBiomeType, float>
                 {
-                    [BiomeType.Forest] = 0.1f,
-                    [BiomeType.Grassland] = 0.08f,
-                    [BiomeType.Ocean] = 0.05f
+                    [EcoBiomeType.Forest] = 0.1f,
+                    [EcoBiomeType.Grassland] = 0.08f,
+                    [EcoBiomeType.Ocean] = 0.05f
                 },
-                [BiomeType.Volcanic] = new Dictionary<BiomeType, float>
+                [EcoBiomeType.Volcanic] = new Dictionary<EcoBiomeType, float>
                 {
-                    [BiomeType.Mountain] = 0.2f,
-                    [BiomeType.Desert] = 0.1f,
-                    [BiomeType.Wasteland] = 0.3f
+                    [EcoBiomeType.Mountain] = 0.2f,
+                    [EcoBiomeType.Desert] = 0.1f,
+                    [EcoBiomeType.Void] = 0.3f
                 },
-                [BiomeType.Rainforest] = new Dictionary<BiomeType, float>
+                [EcoBiomeType.Rainforest] = new Dictionary<EcoBiomeType, float>
                 {
-                    [BiomeType.Forest] = 0.08f,
-                    [BiomeType.Swamp] = 0.1f,
-                    [BiomeType.Jungle] = 0.15f
+                    [EcoBiomeType.Forest] = 0.08f,
+                    [EcoBiomeType.Swamp] = 0.1f,
+                    [EcoBiomeType.Rainforest] = 0.15f
                 },
-                [BiomeType.Savanna] = new Dictionary<BiomeType, float>
+                [EcoBiomeType.Savanna] = new Dictionary<EcoBiomeType, float>
                 {
-                    [BiomeType.Grassland] = 0.1f,
-                    [BiomeType.Desert] = 0.08f,
-                    [BiomeType.Forest] = 0.06f
+                    [EcoBiomeType.Grassland] = 0.1f,
+                    [EcoBiomeType.Desert] = 0.08f,
+                    [EcoBiomeType.Forest] = 0.06f
                 },
-                [BiomeType.Taiga] = new Dictionary<BiomeType, float>
+                [EcoBiomeType.Taiga] = new Dictionary<EcoBiomeType, float>
                 {
-                    [BiomeType.Forest] = 0.1f,
-                    [BiomeType.Tundra] = 0.08f,
-                    [BiomeType.Mountain] = 0.05f
+                    [EcoBiomeType.Forest] = 0.1f,
+                    [EcoBiomeType.Tundra] = 0.08f,
+                    [EcoBiomeType.Mountain] = 0.05f
                 }
             };
 
-            Debug.Log("🌿 Biome transition probabilities initialized");
+            UnityEngine.Debug.Log("🌿 Biome transition probabilities initialized");
         }
 
         private void InitializeBiomeMap()
@@ -136,10 +137,10 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 }
             }
 
-            Debug.Log($"🗺️ Initialized biome map with {currentBiomes.Count} regions");
+            UnityEngine.Debug.Log($"🗺️ Initialized biome map with {currentBiomes.Count} regions");
         }
 
-        private BiomeType DetermineInitialBiome(Vector2 location)
+        private EcoBiomeType DetermineInitialBiome(Vector2 location)
         {
             // Simple biome determination based on location
             float distance = location.magnitude;
@@ -147,19 +148,19 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
             if (distance < 20f)
             {
-                return Random.value < 0.6f ? BiomeType.Forest : BiomeType.Grassland;
+                return Random.value < 0.6f ? EcoBiomeType.Forest : EcoBiomeType.Grassland;
             }
             else if (distance < 40f)
             {
-                if (angle > 45f && angle < 135f) return BiomeType.Mountain;
-                if (angle > -135f && angle < -45f) return BiomeType.Desert;
-                return BiomeType.Grassland;
+                if (angle > 45f && angle < 135f) return EcoBiomeType.Mountain;
+                if (angle > -135f && angle < -45f) return EcoBiomeType.Desert;
+                return EcoBiomeType.Grassland;
             }
             else
             {
-                if (location.y > 30f) return BiomeType.Tundra;
-                if (location.y < -30f) return BiomeType.Ocean;
-                return Random.value < 0.5f ? BiomeType.Desert : BiomeType.Savanna;
+                if (location.y > 30f) return EcoBiomeType.Tundra;
+                if (location.y < -30f) return EcoBiomeType.Ocean;
+                return Random.value < 0.5f ? EcoBiomeType.Desert : EcoBiomeType.Savanna;
             }
         }
 
@@ -259,7 +260,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return ClimateType.Continental;
         }
 
-        private float CalculateBiomeStability(BiomeType biome, EcosystemState conditions)
+        private float CalculateBiomeStability(EcoBiomeType biome, EcosystemState conditions)
         {
             float temperatureStability = GetTemperatureStability(biome, conditions.Temperature);
             float humidityStability = GetHumidityStability(biome, conditions.Humidity);
@@ -272,20 +273,20 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return Mathf.Clamp01(baseStability + biodiversityModifier + soilQualityModifier);
         }
 
-        private float GetTemperatureStability(BiomeType biome, float temperature)
+        private float GetTemperatureStability(EcoBiomeType biome, float temperature)
         {
-            var optimalRanges = new Dictionary<BiomeType, Vector2>
+            var optimalRanges = new Dictionary<EcoBiomeType, Vector2>
             {
-                [BiomeType.Tundra] = new Vector2(-10f, 5f),
-                [BiomeType.Taiga] = new Vector2(-5f, 10f),
-                [BiomeType.Forest] = new Vector2(5f, 25f),
-                [BiomeType.Grassland] = new Vector2(10f, 30f),
-                [BiomeType.Desert] = new Vector2(20f, 45f),
-                [BiomeType.Rainforest] = new Vector2(20f, 35f),
-                [BiomeType.Savanna] = new Vector2(15f, 35f),
-                [BiomeType.Mountain] = new Vector2(-5f, 15f),
-                [BiomeType.Ocean] = new Vector2(0f, 25f),
-                [BiomeType.Swamp] = new Vector2(15f, 30f)
+                [EcoBiomeType.Tundra] = new Vector2(-10f, 5f),
+                [EcoBiomeType.Taiga] = new Vector2(-5f, 10f),
+                [EcoBiomeType.Forest] = new Vector2(5f, 25f),
+                [EcoBiomeType.Grassland] = new Vector2(10f, 30f),
+                [EcoBiomeType.Desert] = new Vector2(20f, 45f),
+                [EcoBiomeType.Rainforest] = new Vector2(20f, 35f),
+                [EcoBiomeType.Savanna] = new Vector2(15f, 35f),
+                [EcoBiomeType.Mountain] = new Vector2(-5f, 15f),
+                [EcoBiomeType.Ocean] = new Vector2(0f, 25f),
+                [EcoBiomeType.Swamp] = new Vector2(15f, 30f)
             };
 
             if (optimalRanges.TryGetValue(biome, out var range))
@@ -300,17 +301,17 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return 0.5f;
         }
 
-        private float GetHumidityStability(BiomeType biome, float humidity)
+        private float GetHumidityStability(EcoBiomeType biome, float humidity)
         {
-            var optimalHumidity = new Dictionary<BiomeType, float>
+            var optimalHumidity = new Dictionary<EcoBiomeType, float>
             {
-                [BiomeType.Desert] = 0.2f,
-                [BiomeType.Tundra] = 0.4f,
-                [BiomeType.Grassland] = 0.5f,
-                [BiomeType.Forest] = 0.7f,
-                [BiomeType.Rainforest] = 0.9f,
-                [BiomeType.Swamp] = 0.95f,
-                [BiomeType.Ocean] = 0.8f
+                [EcoBiomeType.Desert] = 0.2f,
+                [EcoBiomeType.Tundra] = 0.4f,
+                [EcoBiomeType.Grassland] = 0.5f,
+                [EcoBiomeType.Forest] = 0.7f,
+                [EcoBiomeType.Rainforest] = 0.9f,
+                [EcoBiomeType.Swamp] = 0.95f,
+                [EcoBiomeType.Ocean] = 0.8f
             };
 
             if (optimalHumidity.TryGetValue(biome, out var optimal))
@@ -322,16 +323,16 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return 0.5f;
         }
 
-        private float GetRainfallStability(BiomeType biome, float rainfall)
+        private float GetRainfallStability(EcoBiomeType biome, float rainfall)
         {
-            var optimalRainfall = new Dictionary<BiomeType, float>
+            var optimalRainfall = new Dictionary<EcoBiomeType, float>
             {
-                [BiomeType.Desert] = 0.1f,
-                [BiomeType.Tundra] = 0.3f,
-                [BiomeType.Grassland] = 0.5f,
-                [BiomeType.Forest] = 0.7f,
-                [BiomeType.Rainforest] = 0.9f,
-                [BiomeType.Swamp] = 0.8f
+                [EcoBiomeType.Desert] = 0.1f,
+                [EcoBiomeType.Tundra] = 0.3f,
+                [EcoBiomeType.Grassland] = 0.5f,
+                [EcoBiomeType.Forest] = 0.7f,
+                [EcoBiomeType.Rainforest] = 0.9f,
+                [EcoBiomeType.Swamp] = 0.8f
             };
 
             if (optimalRainfall.TryGetValue(biome, out var optimal))
@@ -343,12 +344,12 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return 0.5f;
         }
 
-        private BiomeType? DeterminePotentialTransition(BiomeType currentBiome, EcosystemState conditions)
+        private EcoBiomeType? DeterminePotentialTransition(EcoBiomeType currentBiome, EcosystemState conditions)
         {
             if (!transitionProbabilities.TryGetValue(currentBiome, out var possibleTransitions))
                 return null;
 
-            BiomeType? bestTransition = null;
+            EcoBiomeType? bestTransition = null;
             float bestStability = 0f;
 
             foreach (var transition in possibleTransitions)
@@ -369,7 +370,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return bestTransition;
         }
 
-        private void StartBiomeTransition(Vector2 location, BiomeType fromBiome, BiomeType toBiome)
+        private void StartBiomeTransition(Vector2 location, EcoBiomeType fromBiome, EcoBiomeType toBiome)
         {
             var transition = new BiomeTransition
             {
@@ -385,19 +386,19 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             activeTransitions[location] = transition;
             OnBiomeTransitionStarted?.Invoke(location, fromBiome, toBiome);
 
-            Debug.Log($"🌱 Biome transition started at {location}: {fromBiome} → {toBiome}");
+            UnityEngine.Debug.Log($"🌱 Biome transition started at {location}: {fromBiome} → {toBiome}");
         }
 
-        private List<string> GetTransitionRequirements(BiomeType from, BiomeType to)
+        private List<string> GetTransitionRequirements(EcoBiomeType from, EcoBiomeType to)
         {
             var requirements = new List<string>();
 
             // Example transition requirements
-            if (to == BiomeType.Forest)
+            if (to == EcoBiomeType.Forest)
                 requirements.AddRange(new[] { "adequate_rainfall", "moderate_temperature", "soil_quality" });
-            if (to == BiomeType.Desert)
+            if (to == EcoBiomeType.Desert)
                 requirements.AddRange(new[] { "low_rainfall", "high_temperature", "low_humidity" });
-            if (to == BiomeType.Rainforest)
+            if (to == EcoBiomeType.Rainforest)
                 requirements.AddRange(new[] { "high_rainfall", "high_humidity", "warm_temperature" });
 
             return requirements;
@@ -429,17 +430,17 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             activeTransitions.Remove(location);
 
             OnBiomeTransitionCompleted?.Invoke(location, transition.ToBiome);
-            Debug.Log($"🌿 Biome transition completed at {location}: {transition.FromBiome} → {transition.ToBiome}");
+            UnityEngine.Debug.Log($"🌿 Biome transition completed at {location}: {transition.FromBiome} → {transition.ToBiome}");
         }
 
-        public BiomeType GetBiomeAtLocation(Vector2 location)
+        public EcoBiomeType GetBiomeAtLocation(Vector2 location)
         {
-            return currentBiomes.GetValueOrDefault(location, BiomeType.Grassland);
+            return currentBiomes.GetValueOrDefault(location, EcoBiomeType.Grassland);
         }
 
-        public Dictionary<BiomeType, int> GetBiomeDistribution()
+        public Dictionary<EcoBiomeType, int> GetBiomeDistribution()
         {
-            var distribution = new Dictionary<BiomeType, int>();
+            var distribution = new Dictionary<EcoBiomeType, int>();
             foreach (var biome in currentBiomes.Values)
             {
                 distribution[biome] = distribution.GetValueOrDefault(biome, 0) + 1;
@@ -452,7 +453,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return activeTransitions.Values.ToList();
         }
 
-        public void ForceTransition(Vector2 location, BiomeType toBiome)
+        public void ForceTransition(Vector2 location, EcoBiomeType toBiome)
         {
             if (currentBiomes.TryGetValue(location, out var fromBiome))
             {

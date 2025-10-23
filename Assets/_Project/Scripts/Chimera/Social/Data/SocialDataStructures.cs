@@ -15,7 +15,7 @@ namespace Laboratory.Chimera.Social.Data
         public uint AgentId;
         public string Name;
         public float3 Position;
-        public EmotionalState CurrentEmotionalState;
+        public Laboratory.Chimera.Social.Types.EmotionalState CurrentEmotionalState;
         public List<uint> Relationships = new();
         public uint CurrentGroup;
         public float Charisma;
@@ -31,7 +31,7 @@ namespace Laboratory.Chimera.Social.Data
     {
         public uint Agent1Id;
         public uint Agent2Id;
-        public RelationshipType Type;
+        public Laboratory.Chimera.Social.Types.RelationshipType Type;
         public float Strength;
         public float Trust;
         public DateTime FormationDate;
@@ -49,7 +49,7 @@ namespace Laboratory.Chimera.Social.Data
         public float3 CenterPosition;
         public Dictionary<string, float> GroupValues = new();
         public List<CulturalTrait> SharedCulture = new();
-        public SocialStatus GroupStatus;
+        public Laboratory.Chimera.Social.Types.SocialStatus GroupStatus;
         public DateTime FormationDate;
     }
 
@@ -58,8 +58,8 @@ namespace Laboratory.Chimera.Social.Data
     {
         public uint InitiatorId;
         public uint TargetId;
-        public InteractionType Type;
-        public InteractionOutcome Outcome;
+        public Laboratory.Chimera.Social.Types.InteractionType Type;
+        public Laboratory.Chimera.Social.Types.InteractionOutcome Outcome;
         public float Intensity;
         public DateTime Timestamp;
         public Vector3 Location;
@@ -73,7 +73,7 @@ namespace Laboratory.Chimera.Social.Data
         public List<uint> AffectedAgents = new();
         public Dictionary<uint, float> RelationshipChanges = new();
         public List<CulturalTrait> CulturalTransmissions = new();
-        public EmotionalState ResultingEmotion;
+        public Laboratory.Chimera.Social.Types.EmotionalState ResultingEmotion;
         public float GroupCohesionChange;
     }
 
@@ -91,7 +91,7 @@ namespace Laboratory.Chimera.Social.Data
     [Serializable]
     public class CommunicationProfile
     {
-        public CommunicationStyle Style;
+        public Laboratory.Chimera.Social.Types.CommunicationStyle Style;
         public float Expressiveness;
         public float Receptiveness;
         public List<string> PreferredTopics = new();
@@ -115,7 +115,7 @@ namespace Laboratory.Chimera.Social.Data
     {
         public uint LeaderId;
         public uint GroupId;
-        public LeadershipStyle Style;
+        public Laboratory.Chimera.Social.Types.LeadershipStyle Style;
         public float Effectiveness;
         public float PopularityRating;
         public List<uint> Supporters = new();
@@ -132,7 +132,7 @@ namespace Laboratory.Chimera.Social.Data
         public int GroupMemberships;
         public int LeadershipRoles;
         public float CulturalInfluence;
-        public Dictionary<InteractionType, int> InteractionHistory = new();
+        public Dictionary<Laboratory.Chimera.Social.Types.InteractionType, int> InteractionHistory = new();
         public List<string> PersonalValues = new();
     }
 }

@@ -57,14 +57,14 @@ namespace Laboratory.Core.Equipment
         {
             return type switch
             {
-                EquipmentType.Weapon => weapons,
-                EquipmentType.Armor => armor,
-                EquipmentType.Accessory => accessories,
-                EquipmentType.Tool => tools,
-                EquipmentType.Vehicle => vehicles,
-                EquipmentType.Instrument => instruments,
-                EquipmentType.Gadget => gadgets,
-                EquipmentType.Boost => boosts,
+                EquipmentType.WeaponMelee or EquipmentType.WeaponRanged => weapons,
+                EquipmentType.ArmorHeavy or EquipmentType.ArmorLight => armor,
+                EquipmentType.RhythmAccessory or EquipmentType.ExperienceMultiplier or EquipmentType.StatusProtection => accessories,
+                EquipmentType.CraftingTools or EquipmentType.PrecisionInstruments => tools,
+                EquipmentType.SpeedBoots or EquipmentType.TurboBooster => vehicles,
+                EquipmentType.InstrumentWind or EquipmentType.InstrumentString or EquipmentType.InstrumentPercussion => instruments,
+                EquipmentType.TacticalVisor or EquipmentType.LogicProcessor => gadgets,
+                EquipmentType.EnergyCore or EquipmentType.HealthBooster or EquipmentType.EfficiencyBooster => boosts,
                 _ => new EquipmentConfig[0]
             };
         }
@@ -208,52 +208,52 @@ namespace Laboratory.Core.Equipment
             weapons = new EquipmentConfig[]
             {
                 CreateDefaultEquipment("SpeedBoots", "Speed Boots", "Lightweight boots that enhance running speed",
-                    EquipmentType.Accessory, EquipmentRarity.Common, StatType.Speed, 15f, ActivityType.Racing),
+                    EquipmentType.SpeedBoots, EquipmentRarity.Common, StatType.Speed, 15f, ActivityType.Racing),
 
                 CreateDefaultEquipment("TurboEngineKit", "Turbo Engine Kit", "High-performance engine modifications",
-                    EquipmentType.Vehicle, EquipmentRarity.Rare, StatType.Speed, 30f, ActivityType.Racing),
+                    EquipmentType.TurboBooster, EquipmentRarity.Rare, StatType.Speed, 30f, ActivityType.Racing),
 
                 CreateDefaultEquipment("AerodynamicSuit", "Aerodynamic Suit", "Reduces air resistance during high-speed movement",
-                    EquipmentType.Armor, EquipmentRarity.Uncommon, StatType.Agility, 20f, ActivityType.Racing)
+                    EquipmentType.ArmorLight, EquipmentRarity.Uncommon, StatType.Agility, 20f, ActivityType.Racing)
             };
 
             // Combat Equipment
             armor = new EquipmentConfig[]
             {
                 CreateDefaultEquipment("CombatArmor", "Combat Armor", "Provides protection in battle",
-                    EquipmentType.Armor, EquipmentRarity.Common, StatType.Vitality, 20f, ActivityType.Combat),
+                    EquipmentType.ArmorHeavy, EquipmentRarity.Common, StatType.Vitality, 20f, ActivityType.Combat),
 
                 CreateDefaultEquipment("BattleAxe", "Battle Axe", "Heavy weapon for devastating attacks",
-                    EquipmentType.Weapon, EquipmentRarity.Uncommon, StatType.Strength, 25f, ActivityType.Combat),
+                    EquipmentType.WeaponMelee, EquipmentRarity.Uncommon, StatType.Strength, 25f, ActivityType.Combat),
 
                 CreateDefaultEquipment("WarriorShield", "Warrior Shield", "Legendary shield of ancient warriors",
-                    EquipmentType.Accessory, EquipmentRarity.Epic, StatType.Vitality, 40f, ActivityType.Combat)
+                    EquipmentType.Shield, EquipmentRarity.Epic, StatType.Vitality, 40f, ActivityType.Combat)
             };
 
             // Intelligence Equipment
             accessories = new EquipmentConfig[]
             {
                 CreateDefaultEquipment("ThinkingCap", "Thinking Cap", "Enhances cognitive abilities",
-                    EquipmentType.Accessory, EquipmentRarity.Common, StatType.Intelligence, 18f, ActivityType.Puzzle),
+                    EquipmentType.ThinkingCap, EquipmentRarity.Common, StatType.Intelligence, 18f, ActivityType.Puzzle),
 
                 CreateDefaultEquipment("WisdomTome", "Wisdom Tome", "Ancient book containing vast knowledge",
-                    EquipmentType.Tool, EquipmentRarity.Rare, StatType.Intelligence, 35f, ActivityType.Strategy),
+                    EquipmentType.StrategicAnalyzer, EquipmentRarity.Rare, StatType.Intelligence, 35f, ActivityType.Strategy),
 
                 CreateDefaultEquipment("ScholarRobes", "Scholar Robes", "Robes worn by great thinkers",
-                    EquipmentType.Armor, EquipmentRarity.Uncommon, StatType.Intelligence, 22f, ActivityType.Puzzle)
+                    EquipmentType.ArmorLight, EquipmentRarity.Uncommon, StatType.Intelligence, 22f, ActivityType.Puzzle)
             };
 
             // Music Equipment
             instruments = new EquipmentConfig[]
             {
                 CreateDefaultEquipment("RhythmGloves", "Rhythm Gloves", "Gloves that enhance musical timing",
-                    EquipmentType.Accessory, EquipmentRarity.Common, StatType.Agility, 16f, ActivityType.Music),
+                    EquipmentType.RhythmAccessory, EquipmentRarity.Common, StatType.Agility, 16f, ActivityType.Music),
 
                 CreateDefaultEquipment("MagicalLyre", "Magical Lyre", "Enchanted instrument with perfect pitch",
-                    EquipmentType.Instrument, EquipmentRarity.Legendary, StatType.Social, 50f, ActivityType.Music),
+                    EquipmentType.InstrumentString, EquipmentRarity.Legendary, StatType.Social, 50f, ActivityType.Music),
 
                 CreateDefaultEquipment("ConductorBaton", "Conductor Baton", "Allows precise musical control",
-                    EquipmentType.Tool, EquipmentRarity.Rare, StatType.Intelligence, 28f, ActivityType.Music)
+                    EquipmentType.InstrumentPercussion, EquipmentRarity.Rare, StatType.Intelligence, 28f, ActivityType.Music)
             };
 
             Debug.Log("Default equipment generated successfully!");

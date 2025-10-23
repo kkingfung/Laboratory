@@ -237,12 +237,14 @@ namespace Laboratory.Core.Activities.Combat
         private EntityQuery arenaQuery;
         private EntityQuery fighterQuery;
         private EndSimulationEntityCommandBufferSystem ecbSystem;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
             arenaQuery = GetEntityQuery(ComponentType.ReadWrite<CombatArenaComponent>());
             fighterQuery = GetEntityQuery(ComponentType.ReadWrite<CombatFighterComponent>());
             ecbSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -415,6 +417,7 @@ namespace Laboratory.Core.Activities.Combat
     public partial class CombatMechanicsSystem : SystemBase
     {
         private EntityQuery combatQuery;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
@@ -425,6 +428,7 @@ namespace Laboratory.Core.Activities.Combat
                 ComponentType.ReadOnly<CombatPerformanceComponent>(),
                 ComponentType.ReadOnly<GeneticDataComponent>()
             });
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()
@@ -434,7 +438,8 @@ namespace Laboratory.Core.Activities.Combat
             var combatJob = new CombatMechanicsJob
             {
                 DeltaTime = deltaTime,
-                Time = (float)SystemAPI.Time.ElapsedTime
+                Time = (float)SystemAPI.Time.ElapsedTime,
+                random = Unity.Mathematics.Random.CreateFromIndex((uint)System.DateTime.Now.Ticks)
             };
 
             Dependency = combatJob.ScheduleParallel(combatQuery, Dependency);
@@ -446,6 +451,7 @@ namespace Laboratory.Core.Activities.Combat
     {
         public float DeltaTime;
         public float Time;
+        public Unity.Mathematics.Random random;
 
         public void Execute(ref CombatFighterComponent fighter,
             ref CombatActionComponent action,
@@ -502,7 +508,7 @@ namespace Laboratory.Core.Activities.Combat
             if (action.ActionProgress >= action.ActionDuration)
             {
                 // Execute the action
-                ExecuteCombatAction(ref fighter, ref action, performance, genetics.ValueRO);
+                ExecuteCombatAction(ref fighter, ref action, performance, genetics);
 
                 // Complete the action
                 action.CurrentAction = CombatAction.None;
@@ -555,7 +561,7 @@ namespace Laboratory.Core.Activities.Combat
                 case CombatAction.Special_Move:
                     if (performance.HasSpecialMoves)
                     {
-                        ExecuteSpecialMove(ref fighter, ref action, performance, genetics.ValueRO);
+                        ExecuteSpecialMove(ref fighter, ref action, performance, genetics);
                     }
                     break;
 
@@ -617,23 +623,23 @@ namespace Laboratory.Core.Activities.Combat
             if (staminaRatio < 0.3f)
             {
                 // Low stamina - be defensive
-                action.CurrentAction = math.random().NextFloat() < 0.7f ? CombatAction.Block : CombatAction.Dodge;
+                action.CurrentAction = random.NextFloat() < 0.7f ? CombatAction.Block : CombatAction.Dodge;
             }
             else if (aggressionFactor > 0.7f)
             {
                 // Aggressive fighters prefer attacks
-                action.CurrentAction = math.random().NextFloat() < 0.6f ? CombatAction.Heavy_Attack : CombatAction.Basic_Attack;
+                action.CurrentAction = random.NextFloat() < 0.6f ? CombatAction.Heavy_Attack : CombatAction.Basic_Attack;
             }
             else if (intelligenceFactor > 0.7f)
             {
                 // Intelligent fighters use tactical moves
-                action.CurrentAction = math.random().NextFloat() < 0.4f ? CombatAction.Special_Move : CombatAction.Combo_Attack;
+                action.CurrentAction = random.NextFloat() < 0.4f ? CombatAction.Special_Move : CombatAction.Combo_Attack;
             }
             else
             {
                 // Balanced approach
                 var actions = new CombatAction[] { CombatAction.Basic_Attack, CombatAction.Quick_Attack, CombatAction.Block };
-                action.CurrentAction = actions[math.random().NextInt(0, actions.Length)];
+                action.CurrentAction = actions[random.NextInt(0, actions.Length)];
             }
 
             action.ActionDuration = GetActionDuration(action.CurrentAction, performance);
@@ -695,10 +701,12 @@ namespace Laboratory.Core.Activities.Combat
     public partial class TournamentBracketSystem : SystemBase
     {
         private EntityQuery bracketQuery;
+        private Unity.Mathematics.Random random;
 
         protected override void OnCreate()
         {
             bracketQuery = GetEntityQuery(ComponentType.ReadWrite<TournamentBracketComponent>());
+            random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
         protected override void OnUpdate()

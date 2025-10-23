@@ -33,7 +33,7 @@ namespace Laboratory.Chimera.Visuals.Generators
 
         public IEnumerator GenerateEffects(VisualGeneticTraits traits, ParticleSystem[] existingSystems)
         {
-            Debug.Log("✨ Generating genetic particle effects");
+            UnityEngine.Debug.Log("✨ Generating genetic particle effects");
 
             ClearExistingEffects();
 
@@ -60,7 +60,7 @@ namespace Laboratory.Chimera.Visuals.Generators
 
             ApplyComplexityScaling();
 
-            Debug.Log($"✨ Generated {activeEffects.Count} particle effects");
+            UnityEngine.Debug.Log($"✨ Generated {activeEffects.Count} particle effects");
         }
 
         private void InitializeEffectTemplates()
@@ -238,7 +238,7 @@ namespace Laboratory.Chimera.Visuals.Generators
         {
             if (activeEffects.Count >= maxActiveEffects)
             {
-                Debug.LogWarning($"Maximum particle effects reached ({maxActiveEffects})");
+                UnityEngine.Debug.LogWarning($"Maximum particle effects reached ({maxActiveEffects})");
                 return null;
             }
 

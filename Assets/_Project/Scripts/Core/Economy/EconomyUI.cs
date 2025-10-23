@@ -66,6 +66,9 @@ namespace Laboratory.Core.Economy
         private List<MarketListingUI> _marketListingUIs = new();
         private PlayerWallet _currentWallet;
 
+        // Public access to current player ID
+        public string CurrentPlayerId => _currentPlayerId;
+
         #region Initialization
 
         public void InitializeEconomyUI(EconomyManager economyManager, string playerId = "Player1")
@@ -313,7 +316,7 @@ namespace Laboratory.Core.Economy
 
             // Get filtered listings
             string selectedCategory = GetSelectedCategory();
-            EquipmentRarity? selectedRarity = GetSelectedRarity();
+            Laboratory.Core.Equipment.EquipmentRarity? selectedRarity = GetSelectedRarity();
 
             var listings = _economyManager.GetMarketplaceListings(selectedCategory, selectedRarity);
 
@@ -344,11 +347,11 @@ namespace Laboratory.Core.Economy
             return categoryFilter.options[categoryFilter.value].text;
         }
 
-        private EquipmentRarity? GetSelectedRarity()
+        private Laboratory.Core.Equipment.EquipmentRarity? GetSelectedRarity()
         {
             if (rarityFilter == null || rarityFilter.value == 0) return null;
             var rarityText = rarityFilter.options[rarityFilter.value].text;
-            return Enum.Parse<EquipmentRarity>(rarityText);
+            return Enum.Parse<Laboratory.Core.Equipment.EquipmentRarity>(rarityText);
         }
 
         #endregion
@@ -485,7 +488,7 @@ namespace Laboratory.Core.Economy
 
             var category = itemCategoryDropdown?.options[itemCategoryDropdown.value].text ?? "Equipment";
             var rarityText = itemRarityDropdown?.options[itemRarityDropdown.value].text ?? "Common";
-            var rarity = Enum.Parse<EquipmentRarity>(rarityText);
+            var rarity = (Laboratory.Core.Equipment.EquipmentRarity)Enum.Parse<Laboratory.Core.Equipment.Types.EquipmentRarity>(rarityText);
 
             var item = new MarketItem
             {
@@ -672,15 +675,15 @@ namespace Laboratory.Core.Economy
             return string.Join(", ", parts);
         }
 
-        private Color GetRarityColor(EquipmentRarity rarity)
+        private Color GetRarityColor(Laboratory.Core.Equipment.EquipmentRarity rarity)
         {
             return rarity switch
             {
-                EquipmentRarity.Common => Color.white,
-                EquipmentRarity.Uncommon => Color.green,
-                EquipmentRarity.Rare => Color.blue,
-                EquipmentRarity.Epic => new Color(0.5f, 0f, 1f),
-                EquipmentRarity.Legendary => Color.yellow,
+                Laboratory.Core.Equipment.EquipmentRarity.Common => Color.white,
+                Laboratory.Core.Equipment.EquipmentRarity.Uncommon => Color.green,
+                Laboratory.Core.Equipment.EquipmentRarity.Rare => Color.blue,
+                Laboratory.Core.Equipment.EquipmentRarity.Epic => new Color(0.5f, 0f, 1f),
+                Laboratory.Core.Equipment.EquipmentRarity.Legendary => Color.yellow,
                 _ => Color.gray
             };
         }
@@ -688,7 +691,7 @@ namespace Laboratory.Core.Economy
         private void PurchaseItem()
         {
             // For this demo, always purchase quantity 1
-            bool success = _economyManager.PurchaseMarketItem(_parentUI._currentPlayerId, _listing.Id, 1);
+            bool success = _economyManager.PurchaseMarketItem(_parentUI.CurrentPlayerId, _listing.Id, 1);
 
             if (success)
             {

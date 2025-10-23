@@ -17,7 +17,7 @@ namespace Laboratory.Subsystems.EnemyAI
     /// 
     /// Version 3.0 - Enhanced architecture with comprehensive AI management
     /// </summary>
-    public class EnemyAISubsystemManager : MonoBehaviour, IDisposable
+    public class EnemyAISubsystemManager : MonoBehaviour, ISubsystemManager, IDisposable
     {
         #region Serialized Fields
 
@@ -80,11 +80,17 @@ namespace Laboratory.Subsystems.EnemyAI
 
         #region Properties
 
-        /// <summary>Current state of the AI subsystem</summary>
-        public EnemyAIState CurrentState => _currentState;
-        
+        /// <summary>Subsystem name for ISubsystemManager</summary>
+        public string SubsystemName => "Enemy AI Subsystem";
+
         /// <summary>Whether the AI subsystem is fully initialized</summary>
         public bool IsInitialized => _isInitialized;
+
+        /// <summary>Initialization progress for ISubsystemManager</summary>
+        public float InitializationProgress => _isInitialized ? 1.0f : 0.0f;
+
+        /// <summary>Current state of the AI subsystem</summary>
+        public EnemyAIState CurrentState => _currentState;
         
         /// <summary>Current AI target</summary>
         public GameObject CurrentTarget => _currentTarget;

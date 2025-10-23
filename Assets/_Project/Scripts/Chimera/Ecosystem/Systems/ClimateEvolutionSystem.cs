@@ -61,7 +61,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 ClimateChangeRate = climateChangeRate
             };
 
-            Debug.Log("🌍 Climate evolution system initialized");
+            UnityEngine.Debug.Log("🌍 Climate evolution system initialized");
         }
 
         private IEnumerator ClimateEvolutionLoop()
@@ -106,7 +106,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
             if (currentSeason != previousSeason)
             {
-                Debug.Log($"🍂 Season changed from {previousSeason} to {currentSeason}");
+                UnityEngine.Debug.Log($"🍂 Season changed from {previousSeason} to {currentSeason}");
                 OnSeasonChanged?.Invoke(currentSeason);
             }
         }
@@ -354,7 +354,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
             activeWeatherPatterns.Add(customPattern);
             OnWeatherSystemFormed?.Invoke(customPattern);
-            Debug.Log($"🌦️ Triggered weather event: {type} at {location}");
+            UnityEngine.Debug.Log($"🌦️ Triggered weather event: {type} at {location}");
         }
 
         private void OnDestroy()

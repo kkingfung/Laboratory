@@ -193,7 +193,7 @@ namespace Laboratory.Core.GameModes
             var targetState = MapGenreToGameState(genre);
             if (_gameStateService != null && targetState != GameState.None)
             {
-                await _gameStateService.TransitionToAsync(targetState);
+                await _gameStateService.RequestTransitionAsync(targetState);
             }
         }
 

@@ -36,7 +36,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         private ResourceFlowSystem resourceSystem;
 
         // Events
-        public System.Action<uint, uint, InteractionType, float> OnInteractionOccurred;
+        public System.Action<uint, uint, Laboratory.Chimera.Ecosystem.Data.InteractionType, float> OnInteractionOccurred;
         public System.Action<uint, float> OnPopulationChanged;
         public System.Action<uint> OnSpeciesExtinction;
         public System.Action<uint, Vector2, Vector2> OnMigrationTriggered;
@@ -63,9 +63,9 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 {
                     SpeciesId = 1,
                     Name = "Forest Herbivore",
-                    TrophicLevel = TrophicLevel.PrimaryConsumer,
-                    PreferredBiomes = new List<BiomeType> { BiomeType.Forest, BiomeType.Grassland },
-                    PrimaryResources = new List<ResourceType> { ResourceType.Food, ResourceType.Water, ResourceType.Shelter },
+                    TrophicLevel = Laboratory.Chimera.Ecosystem.Data.TrophicLevel.PrimaryConsumer,
+                    PreferredBiomes = new List<Laboratory.Chimera.Ecosystem.Data.BiomeType> { Laboratory.Chimera.Ecosystem.Data.BiomeType.Forest, Laboratory.Chimera.Ecosystem.Data.BiomeType.Grassland },
+                    PrimaryResources = new List<Laboratory.Chimera.Ecosystem.Data.ResourceType> { Laboratory.Chimera.Ecosystem.Data.ResourceType.Food, Laboratory.Chimera.Ecosystem.Data.ResourceType.Water, Laboratory.Chimera.Ecosystem.Data.ResourceType.Shelter },
                     SocialBehavior = SocialBehaviorType.Herd,
                     TerritorialLevel = 0.3f,
                     AggressionLevel = 0.2f,
@@ -77,9 +77,9 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 {
                     SpeciesId = 2,
                     Name = "Forest Predator",
-                    TrophicLevel = TrophicLevel.SecondaryConsumer,
-                    PreferredBiomes = new List<BiomeType> { BiomeType.Forest },
-                    PrimaryResources = new List<ResourceType> { ResourceType.Food, ResourceType.Territory },
+                    TrophicLevel = Laboratory.Chimera.Ecosystem.Data.TrophicLevel.SecondaryConsumer,
+                    PreferredBiomes = new List<Laboratory.Chimera.Ecosystem.Data.BiomeType> { Laboratory.Chimera.Ecosystem.Data.BiomeType.Forest },
+                    PrimaryResources = new List<Laboratory.Chimera.Ecosystem.Data.ResourceType> { Laboratory.Chimera.Ecosystem.Data.ResourceType.Food, Laboratory.Chimera.Ecosystem.Data.ResourceType.Territory },
                     SocialBehavior = SocialBehaviorType.Solitary,
                     TerritorialLevel = 0.8f,
                     AggressionLevel = 0.7f,
@@ -91,9 +91,9 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 {
                     SpeciesId = 3,
                     Name = "Desert Scavenger",
-                    TrophicLevel = TrophicLevel.Omnivore,
-                    PreferredBiomes = new List<BiomeType> { BiomeType.Desert, BiomeType.Savanna },
-                    PrimaryResources = new List<ResourceType> { ResourceType.Food, ResourceType.Water },
+                    TrophicLevel = Laboratory.Chimera.Ecosystem.Data.TrophicLevel.Omnivore,
+                    PreferredBiomes = new List<Laboratory.Chimera.Ecosystem.Data.BiomeType> { Laboratory.Chimera.Ecosystem.Data.BiomeType.Desert, Laboratory.Chimera.Ecosystem.Data.BiomeType.Savanna },
+                    PrimaryResources = new List<Laboratory.Chimera.Ecosystem.Data.ResourceType> { Laboratory.Chimera.Ecosystem.Data.ResourceType.Food, Laboratory.Chimera.Ecosystem.Data.ResourceType.Water },
                     SocialBehavior = SocialBehaviorType.Pack,
                     TerritorialLevel = 0.5f,
                     AggressionLevel = 0.4f,
@@ -116,7 +116,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 };
             }
 
-            Debug.Log($"🦎 Initialized {speciesDatabase.Count} species in interaction system");
+            UnityEngine.Debug.Log($"🦎 Initialized {speciesDatabase.Count} species in interaction system");
         }
 
         private IEnumerator InteractionUpdateLoop()
@@ -178,28 +178,28 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             }
         }
 
-        private InteractionType DetermineInteractionType(SpeciesData species1, SpeciesData species2)
+        private Laboratory.Chimera.Ecosystem.Data.InteractionType DetermineInteractionType(SpeciesData species1, SpeciesData species2)
         {
             // Predation check
             if (IsPredatorPrey(species1, species2))
-                return InteractionType.Predation;
+                return Laboratory.Chimera.Ecosystem.Data.InteractionType.Predation;
 
             // Competition check
             if (CompeteForResources(species1, species2))
-                return InteractionType.Competition;
+                return Laboratory.Chimera.Ecosystem.Data.InteractionType.Competition;
 
             // Territorial check
             if (species1.TerritorialLevel > 0.5f || species2.TerritorialLevel > 0.5f)
-                return InteractionType.Territorial;
+                return Laboratory.Chimera.Ecosystem.Data.InteractionType.Territorial;
 
             // Symbiosis possibilities
             if (species1.TrophicLevel != species2.TrophicLevel &&
                 species1.PreferredBiomes.Any(b => species2.PreferredBiomes.Contains(b)))
             {
-                return Random.value < 0.3f ? InteractionType.Mutualism : InteractionType.Commensalism;
+                return Random.value < 0.3f ? Laboratory.Chimera.Ecosystem.Data.InteractionType.Mutualism : Laboratory.Chimera.Ecosystem.Data.InteractionType.Commensalism;
             }
 
-            return InteractionType.Neutralism;
+            return Laboratory.Chimera.Ecosystem.Data.InteractionType.Neutralism;
         }
 
         private bool IsPredatorPrey(SpeciesData species1, SpeciesData species2)
@@ -209,10 +209,10 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
             // Secondary consumers can prey on primary consumers, etc.
             return Mathf.Abs(level1 - level2) == 1 &&
-                   (species1.TrophicLevel == TrophicLevel.SecondaryConsumer ||
-                    species1.TrophicLevel == TrophicLevel.TertiaryConsumer ||
-                    species2.TrophicLevel == TrophicLevel.SecondaryConsumer ||
-                    species2.TrophicLevel == TrophicLevel.TertiaryConsumer);
+                   (species1.TrophicLevel == Laboratory.Chimera.Ecosystem.Data.TrophicLevel.SecondaryConsumer ||
+                    species1.TrophicLevel == Laboratory.Chimera.Ecosystem.Data.TrophicLevel.TertiaryConsumer ||
+                    species2.TrophicLevel == Laboratory.Chimera.Ecosystem.Data.TrophicLevel.SecondaryConsumer ||
+                    species2.TrophicLevel == Laboratory.Chimera.Ecosystem.Data.TrophicLevel.TertiaryConsumer);
         }
 
         private bool CompeteForResources(SpeciesData species1, SpeciesData species2)
@@ -222,25 +222,25 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                    species1.TrophicLevel == species2.TrophicLevel;
         }
 
-        private float CalculateInteractionStrength(SpeciesData species1, SpeciesData species2, InteractionType type)
+        private float CalculateInteractionStrength(SpeciesData species1, SpeciesData species2, Laboratory.Chimera.Ecosystem.Data.InteractionType type)
         {
             float baseStrength = 1.0f;
 
             switch (type)
             {
-                case InteractionType.Predation:
+                case Laboratory.Chimera.Ecosystem.Data.InteractionType.Predation:
                     baseStrength = (species1.AggressionLevel + species2.AggressionLevel) * 0.5f;
                     break;
-                case InteractionType.Competition:
+                case Laboratory.Chimera.Ecosystem.Data.InteractionType.Competition:
                     baseStrength = CalculateResourceOverlap(species1, species2);
                     break;
-                case InteractionType.Territorial:
+                case Laboratory.Chimera.Ecosystem.Data.InteractionType.Territorial:
                     baseStrength = Mathf.Max(species1.TerritorialLevel, species2.TerritorialLevel);
                     break;
-                case InteractionType.Mutualism:
+                case Laboratory.Chimera.Ecosystem.Data.InteractionType.Mutualism:
                     baseStrength = 0.6f; // Moderate positive interaction
                     break;
-                case InteractionType.Commensalism:
+                case Laboratory.Chimera.Ecosystem.Data.InteractionType.Commensalism:
                     baseStrength = 0.3f; // Weak interaction
                     break;
                 default:
@@ -272,7 +272,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return 0f;
         }
 
-        private void ExecuteInteraction(uint species1Id, uint species2Id, InteractionType type, float strength)
+        private void ExecuteInteraction(uint species1Id, uint species2Id, Laboratory.Chimera.Ecosystem.Data.InteractionType type, float strength)
         {
             var effects = CalculateInteractionEffects(species1Id, species2Id, type, strength);
 
@@ -285,17 +285,17 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
             OnInteractionOccurred?.Invoke(species1Id, species2Id, type, strength);
 
-            Debug.Log($"🦎 {type} interaction between species {species1Id} and {species2Id} (strength: {strength:F2})");
+            UnityEngine.Debug.Log($"🦎 {type} interaction between species {species1Id} and {species2Id} (strength: {strength:F2})");
         }
 
         private (float Species1Effect, float Species2Effect) CalculateInteractionEffects(
-            uint species1Id, uint species2Id, InteractionType type, float strength)
+            uint species1Id, uint species2Id, Laboratory.Chimera.Ecosystem.Data.InteractionType type, float strength)
         {
             float effect1 = 0f, effect2 = 0f;
 
             switch (type)
             {
-                case InteractionType.Predation:
+                case Laboratory.Chimera.Ecosystem.Data.InteractionType.Predation:
                     // Determine which is predator and which is prey
                     var species1 = speciesDatabase[species1Id];
                     var species2 = speciesDatabase[species2Id];
@@ -312,27 +312,27 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                     }
                     break;
 
-                case InteractionType.Competition:
+                case Laboratory.Chimera.Ecosystem.Data.InteractionType.Competition:
                     effect1 = -strength * 0.15f;
                     effect2 = -strength * 0.15f;
                     break;
 
-                case InteractionType.Mutualism:
+                case Laboratory.Chimera.Ecosystem.Data.InteractionType.Mutualism:
                     effect1 = strength * 0.1f;
                     effect2 = strength * 0.1f;
                     break;
 
-                case InteractionType.Commensalism:
+                case Laboratory.Chimera.Ecosystem.Data.InteractionType.Commensalism:
                     effect1 = strength * 0.05f;
                     effect2 = 0f;
                     break;
 
-                case InteractionType.Parasitism:
+                case Laboratory.Chimera.Ecosystem.Data.InteractionType.Parasitism:
                     effect1 = strength * 0.08f;
                     effect2 = -strength * 0.12f;
                     break;
 
-                case InteractionType.Territorial:
+                case Laboratory.Chimera.Ecosystem.Data.InteractionType.Territorial:
                     var aggression1 = speciesDatabase[species1Id].AggressionLevel;
                     var aggression2 = speciesDatabase[species2Id].AggressionLevel;
 
@@ -370,7 +370,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             }
         }
 
-        private void RecordInteraction(uint species1Id, uint species2Id, InteractionType type, float strength,
+        private void RecordInteraction(uint species1Id, uint species2Id, Laboratory.Chimera.Ecosystem.Data.InteractionType type, float strength,
             (float Species1Effect, float Species2Effect) effects)
         {
             var interaction = new SpeciesInteraction
@@ -402,7 +402,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 {
                     Species1Id = key.Item1,
                     Species2Id = key.Item2,
-                    InteractionCounts = new Dictionary<InteractionType, int>(),
+                    InteractionCounts = new Dictionary<Laboratory.Chimera.Ecosystem.Data.InteractionType, int>(),
                     LastInteractionType = type,
                     TotalInteractions = 0
                 };
@@ -509,7 +509,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 if (populationRatio <= extinctionThreshold)
                 {
                     OnSpeciesExtinction?.Invoke(speciesId);
-                    Debug.LogWarning($"💀 Species {speciesId} is facing extinction (population: {stats.CurrentPopulation})");
+                    UnityEngine.Debug.LogWarning($"💀 Species {speciesId} is facing extinction (population: {stats.CurrentPopulation})");
                 }
             }
         }
@@ -568,7 +568,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             var destinationLocation = FindSuitableMigrationDestination(speciesId);
 
             OnMigrationTriggered?.Invoke(speciesId, sourceLocation, destinationLocation);
-            Debug.Log($"🦋 Migration triggered for species {speciesId} due to population pressure: {pressure:F2}");
+            UnityEngine.Debug.Log($"🦋 Migration triggered for species {speciesId} due to population pressure: {pressure:F2}");
         }
 
         private Vector2 FindSuitableMigrationDestination(uint speciesId)
@@ -604,7 +604,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 LastUpdate = System.DateTime.Now
             };
 
-            Debug.Log($"🦎 Registered new species: {species.Name} (ID: {species.SpeciesId})");
+            UnityEngine.Debug.Log($"🦎 Registered new species: {species.Name} (ID: {species.SpeciesId})");
         }
 
         private void OnDestroy()
@@ -619,9 +619,9 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     {
         public uint SpeciesId;
         public string Name;
-        public TrophicLevel TrophicLevel;
-        public List<BiomeType> PreferredBiomes;
-        public List<ResourceType> PrimaryResources;
+        public Laboratory.Chimera.Ecosystem.Data.TrophicLevel TrophicLevel;
+        public List<Laboratory.Chimera.Ecosystem.Data.BiomeType> PreferredBiomes;
+        public List<Laboratory.Chimera.Ecosystem.Data.ResourceType> PrimaryResources;
         public SocialBehaviorType SocialBehavior;
         public float TerritorialLevel;
         public float AggressionLevel;
@@ -645,8 +645,8 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     {
         public uint Species1Id;
         public uint Species2Id;
-        public Dictionary<InteractionType, int> InteractionCounts;
-        public InteractionType LastInteractionType;
+        public Dictionary<Laboratory.Chimera.Ecosystem.Data.InteractionType, int> InteractionCounts;
+        public Laboratory.Chimera.Ecosystem.Data.InteractionType LastInteractionType;
         public int TotalInteractions;
     }
 

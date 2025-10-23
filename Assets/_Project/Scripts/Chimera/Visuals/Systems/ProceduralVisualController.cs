@@ -132,7 +132,7 @@ namespace Laboratory.Chimera.Visuals.Systems
         {
             if (creatureInstance?.CreatureData?.GeneticProfile == null)
             {
-                Debug.LogWarning("Cannot generate appearance: Missing genetic profile");
+                UnityEngine.Debug.LogWarning("Cannot generate appearance: Missing genetic profile");
                 return;
             }
 
@@ -181,7 +181,7 @@ namespace Laboratory.Chimera.Visuals.Systems
 
         private IEnumerator GenerateVisualsPipeline(VisualGeneticTraits traits)
         {
-            Debug.Log("🎨 Starting procedural visual generation pipeline");
+            UnityEngine.Debug.Log("🎨 Starting procedural visual generation pipeline");
 
             // Phase 1: Basic scaling and structure
             ApplyBasicScaling(traits);
@@ -217,7 +217,7 @@ namespace Laboratory.Chimera.Visuals.Systems
             isInitialized = true;
 
             OnVisualGenerated?.Invoke(traits);
-            Debug.Log("✨ Procedural visual generation complete");
+            UnityEngine.Debug.Log("✨ Procedural visual generation complete");
         }
 
         private VisualGeneticTraits ExtractVisualTraits(GeneticProfile geneticProfile)
@@ -245,7 +245,7 @@ namespace Laboratory.Chimera.Visuals.Systems
 
             // Extract pattern traits
             var patternValue = geneticProfile.GetTraitValue("PatternType", 0.5f);
-            traits.PrimaryPattern = (PatternType)Mathf.FloorToInt(patternValue * System.Enum.GetValues(typeof(PatternType)).Length);
+            traits.PrimaryPattern = (Laboratory.Chimera.Visuals.Data.PatternType)Mathf.FloorToInt(patternValue * System.Enum.GetValues(typeof(Laboratory.Chimera.Visuals.Data.PatternType)).Length);
             traits.PatternIntensity = geneticProfile.GetTraitValue("PatternIntensity", 0.6f);
             traits.PatternScale = geneticProfile.GetTraitValue("PatternScale", 1.0f);
             traits.PatternComplexity = geneticProfile.GetTraitValue("PatternComplexity", 0.5f);

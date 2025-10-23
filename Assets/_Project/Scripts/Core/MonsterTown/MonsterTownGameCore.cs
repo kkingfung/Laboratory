@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
@@ -44,6 +45,7 @@ namespace Laboratory.Core.MonsterTown
         private RewardSystem _rewardSystem;
         private EducationalSystem _educationSystem;
         private MultiplayerManager _multiplayerManager;
+        private TownManagementSystem _townSystem;
 
         // Game state
         private PlayerTown _playerTown;
@@ -69,6 +71,7 @@ namespace Laboratory.Core.MonsterTown
             _activityManager = GetComponent<ActivityCenterManager>() ?? gameObject.AddComponent<ActivityCenterManager>();
             _careSystem = GetComponent<MonsterCareSystem>() ?? gameObject.AddComponent<MonsterCareSystem>();
             _rewardSystem = GetComponent<RewardSystem>() ?? gameObject.AddComponent<RewardSystem>();
+            _townSystem = GetComponent<TownManagementSystem>() ?? gameObject.AddComponent<TownManagementSystem>();
 
             if (enableEducationalMode)
                 _educationSystem = GetComponent<EducationalSystem>() ?? gameObject.AddComponent<EducationalSystem>();
@@ -125,7 +128,10 @@ namespace Laboratory.Core.MonsterTown
 
             // Update multiplayer features
             if (enableMultiplayer)
-                _multiplayerManager.UpdateMultiplayer();
+            {
+                // Update multiplayer connections and trades
+                _multiplayerManager?.UpdateMultiplayer();
+            }
         }
 
         /// <summary>
@@ -133,18 +139,21 @@ namespace Laboratory.Core.MonsterTown
         /// </summary>
         public async Task<ActivityResult> SendMonsterToActivity(string monsterId, ActivityType activityType)
         {
-            var monster = _playerMonsters.GetMonster(monsterId);
-            if (monster == null)
+            var monsterInstance = _playerMonsters.GetMonster(monsterId);
+            if (monsterInstance == null)
             {
                 Debug.LogWarning($"Monster {monsterId} not found");
-                return null;
+                return ActivityResult.Failed("Monster not found");
             }
+
+            // Convert to Monster type for activity systems
+            var monster = ConvertToMonster(monsterInstance);
 
             // Check if monster meets activity requirements
             if (!_activityManager.CanParticipateInActivity(monster, activityType))
             {
                 Debug.LogWarning($"Monster {monster.Name} doesn't meet requirements for {activityType}");
-                return null;
+                return ActivityResult.Failed($"Monster {monster.Name} doesn't meet requirements for {activityType}");
             }
 
             // Calculate monster performance based on genetics and equipment
@@ -171,14 +180,18 @@ namespace Laboratory.Core.MonsterTown
         /// </summary>
         public async Task<Monster> BreedMonsters(string parent1Id, string parent2Id)
         {
-            var parent1 = _playerMonsters.GetMonster(parent1Id);
-            var parent2 = _playerMonsters.GetMonster(parent2Id);
+            var parent1Instance = _playerMonsters.GetMonster(parent1Id);
+            var parent2Instance = _playerMonsters.GetMonster(parent2Id);
 
-            if (parent1 == null || parent2 == null)
+            if (parent1Instance == null || parent2Instance == null)
             {
                 Debug.LogWarning("One or both parent monsters not found");
                 return null;
             }
+
+            // Convert to Monster type for breeding system
+            var parent1 = ConvertToMonster(parent1Instance);
+            var parent2 = ConvertToMonster(parent2Instance);
 
             // Check breeding compatibility and requirements
             if (!_breedingSystem.CanBreed(parent1, parent2))
@@ -190,17 +203,18 @@ namespace Laboratory.Core.MonsterTown
             // Create offspring with genetic inheritance
             var offspring = await _breedingSystem.CreateOffspring(parent1, parent2);
 
-            // Add to player collection
-            _playerMonsters.AddMonster(offspring);
+            // Convert offspring to MonsterInstance and add to player collection
+            var offspringInstance = ConvertToMonsterInstance(offspring);
+            _playerMonsters.AddMonster(offspringInstance);
 
             // Educational content about genetics
             if (enableEducationalMode)
-                _educationSystem.ShowBreedingEducation(parent1, parent2, offspring);
+                _educationSystem.ShowBreedingEducation(parent1Instance, parent2Instance, offspringInstance);
 
             // Save progress
             await SavePlayerData();
 
-            Debug.Log($"🧬 New monster born: {offspring.Name} with {offspring.Genetics.GetUniqueTraitCount()} unique traits!");
+            Debug.Log($"🧬 New monster born: {offspring.Name} with {offspring.GeneticProfile.Traits.Count} unique traits!");
             return offspring;
         }
 
@@ -217,7 +231,7 @@ namespace Laboratory.Core.MonsterTown
             var basePerformance = new MonsterPerformance();
 
             // Genetic influence (60% of performance)
-            var geneticBonus = CalculateGeneticBonus(monster.Genetics, activityType);
+            var geneticBonus = CalculateGeneticBonus(monster.GeneticProfile, activityType);
 
             // Equipment influence (25% of performance)
             var equipmentBonus = CalculateEquipmentBonus(monster.Equipment, activityType);
@@ -240,27 +254,27 @@ namespace Laboratory.Core.MonsterTown
             switch (activityType)
             {
                 case ActivityType.Racing:
-                    basePerformance.Speed = monster.Genetics.Agility * (1f + equipmentBonus);
-                    basePerformance.Endurance = monster.Genetics.Vitality * (1f + equipmentBonus);
-                    basePerformance.Handling = monster.Genetics.Intelligence * (1f + equipmentBonus);
+                    basePerformance.Speed = monster.Stats.agility * (1f + equipmentBonus);
+                    basePerformance.Endurance = monster.Stats.vitality * (1f + equipmentBonus);
+                    basePerformance.Handling = monster.Stats.intelligence * (1f + equipmentBonus);
                     break;
 
                 case ActivityType.Combat:
-                    basePerformance.AttackPower = monster.Genetics.Strength * (1f + equipmentBonus);
-                    basePerformance.Defense = monster.Genetics.Vitality * (1f + equipmentBonus);
-                    basePerformance.Agility = monster.Genetics.Agility * (1f + equipmentBonus);
+                    basePerformance.AttackPower = monster.Stats.strength * (1f + equipmentBonus);
+                    basePerformance.Defense = monster.Stats.vitality * (1f + equipmentBonus);
+                    basePerformance.Agility = monster.Stats.agility * (1f + equipmentBonus);
                     break;
 
                 case ActivityType.Puzzle:
-                    basePerformance.Intelligence = monster.Genetics.Intelligence * (1f + equipmentBonus);
-                    basePerformance.Patience = monster.Genetics.Social * (1f + equipmentBonus);
-                    basePerformance.Memory = monster.Genetics.Adaptability * (1f + equipmentBonus);
+                    basePerformance.Intelligence = monster.Stats.intelligence * (1f + equipmentBonus);
+                    basePerformance.Patience = monster.Stats.social * (1f + equipmentBonus);
+                    basePerformance.Memory = monster.Stats.adaptability * (1f + equipmentBonus);
                     break;
 
                 case ActivityType.Strategy:
-                    basePerformance.Leadership = monster.Genetics.Social * (1f + equipmentBonus);
-                    basePerformance.Tactics = monster.Genetics.Intelligence * (1f + equipmentBonus);
-                    basePerformance.Adaptability = monster.Genetics.Adaptability * (1f + equipmentBonus);
+                    basePerformance.Leadership = monster.Stats.social * (1f + equipmentBonus);
+                    basePerformance.Tactics = monster.Stats.intelligence * (1f + equipmentBonus);
+                    basePerformance.Adaptability = monster.Stats.adaptability * (1f + equipmentBonus);
                     break;
             }
 
@@ -271,19 +285,36 @@ namespace Laboratory.Core.MonsterTown
         /// Calculate genetic bonus for specific activity type
         /// Different genetics provide advantages in different activities
         /// </summary>
-        private float CalculateGeneticBonus(MonsterGenetics genetics, ActivityType activityType)
+        private float CalculateGeneticBonus(IGeneticProfile genetics, ActivityType activityType)
         {
-            return genetics.GetActivityBonus(activityType);
+            // Use genetic profile traits to calculate activity-specific bonuses
+            return activityType switch
+            {
+                ActivityType.Racing => (genetics.GetTraitValue("Agility") + genetics.GetTraitValue("Vitality")) / 2f,
+                ActivityType.Combat => (genetics.GetTraitValue("Strength") + genetics.GetTraitValue("Agility")) / 2f,
+                ActivityType.Puzzle => (genetics.GetTraitValue("Intelligence") + genetics.GetTraitValue("Adaptability")) / 2f,
+                ActivityType.Strategy => (genetics.GetTraitValue("Intelligence") + genetics.GetTraitValue("Social")) / 2f,
+                ActivityType.Adventure => genetics.GetOverallFitness(),
+                _ => genetics.GetOverallFitness()
+            };
         }
 
         /// <summary>
         /// Calculate equipment bonus for activity performance
         /// </summary>
-        private float CalculateEquipmentBonus(MonsterEquipment equipment, ActivityType activityType)
+        private float CalculateEquipmentBonus(List<Equipment> equipment, ActivityType activityType)
         {
-            if (equipment.GetEquippedCount() == 0) return 0f;
+            if (equipment == null || equipment.Count == 0) return 0f;
 
-            return equipment.GetActivityBonus(activityType);
+            // Calculate bonus based on equipped items
+            float totalBonus = 0f;
+            foreach (var item in equipment)
+            {
+                // Basic implementation - each equipment piece adds a small bonus
+                totalBonus += 0.1f;
+            }
+
+            return Mathf.Clamp01(totalBonus);
         }
 
         #endregion
@@ -342,6 +373,100 @@ namespace Laboratory.Core.MonsterTown
 
         #endregion
 
+        #region Type Conversion Methods
+
+        /// <summary>
+        /// Convert MonsterInstance to Monster for breeding system compatibility
+        /// </summary>
+        private Monster ConvertToMonster(MonsterInstance monsterInstance)
+        {
+            return new Monster
+            {
+                UniqueId = monsterInstance.UniqueId,
+                Name = monsterInstance.Name,
+                Level = monsterInstance.Level,
+                Happiness = monsterInstance.Happiness,
+                GeneticProfile = monsterInstance.GeneticProfile,
+                Stats = monsterInstance.Stats,
+                ActivityExperience = new Dictionary<ActivityType, float>(monsterInstance.ActivityExperience),
+                Equipment = ConvertEquipmentToList(monsterInstance.Equipment),
+                CurrentLocation = monsterInstance.CurrentLocation,
+                LastActivityTime = monsterInstance.LastActivityTime
+            };
+        }
+
+        /// <summary>
+        /// Convert Monster to MonsterInstance for collection compatibility
+        /// </summary>
+        private MonsterInstance ConvertToMonsterInstance(Monster monster)
+        {
+            return new MonsterInstance
+            {
+                UniqueId = monster.UniqueId,
+                Name = monster.Name,
+                Level = monster.Level,
+                Happiness = monster.Happiness,
+                GeneticProfile = monster.GeneticProfile,
+                Stats = monster.Stats,
+                ActivityExperience = new Dictionary<ActivityType, float>(monster.ActivityExperience),
+                Equipment = ConvertEquipmentToStringList(monster.Equipment),
+                CurrentLocation = monster.CurrentLocation,
+                LastActivityTime = monster.LastActivityTime,
+                BirthTime = DateTime.UtcNow,
+                Generation = 1,
+                Species = "Generated",
+                Energy = 100f,
+                Experience = 0f,
+                IsInTown = true
+            };
+        }
+
+        /// <summary>
+        /// Convert Equipment list to string list
+        /// </summary>
+        private List<string> ConvertEquipmentToStringList(List<Equipment> equipment)
+        {
+            if (equipment == null) return new List<string>();
+
+            var result = new List<string>();
+            foreach (var item in equipment)
+            {
+                if (!string.IsNullOrEmpty(item.ItemId))
+                    result.Add(item.ItemId);
+                else if (!string.IsNullOrEmpty(item.Name))
+                    result.Add(item.Name);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Convert string list to Equipment list (basic implementation)
+        /// </summary>
+        private List<Equipment> ConvertEquipmentToList(List<string> equipmentIds)
+        {
+            if (equipmentIds == null) return new List<Equipment>();
+
+            var result = new List<Equipment>();
+            foreach (var id in equipmentIds)
+            {
+                if (!string.IsNullOrEmpty(id))
+                {
+                    result.Add(new Equipment
+                    {
+                        ItemId = id,
+                        Name = id,
+                        Type = EquipmentType.Accessory,
+                        Rarity = EquipmentRarity.Common,
+                        Level = 1,
+                        IsEquipped = false
+                    });
+                }
+            }
+            return result;
+        }
+
+        #endregion
+
         #region Utility Methods
 
         private async Task LoadPlayerTown()
@@ -371,7 +496,7 @@ namespace Laboratory.Core.MonsterTown
 
             // Add starter monsters
             var starterMonster = await _breedingSystem.CreateRandomMonster("Starter");
-            _playerMonsters.AddMonster(starterMonster);
+            _playerMonsters.AddMonster(ConvertToMonsterInstance(starterMonster));
         }
 
         private async Task InitializeActivityCenters()
@@ -414,7 +539,7 @@ namespace Laboratory.Core.MonsterTown
             monster.ImproveFromActivity(result);
 
             // Grant rewards to player
-            _rewardSystem.GrantRewards(result.Rewards);
+            _rewardSystem.GrantRewards(result.ResourcesEarned);
 
             // Update monster experience
             monster.AddActivityExperience(result.ActivityType, result.ExperienceGained);
@@ -523,10 +648,10 @@ namespace Laboratory.Core.MonsterTown
         public void UpdateProgress(ActivityResult result)
         {
             TotalParticipations++;
-            if (result.Success) SuccessfulCompletions++;
-            if (result.PerformanceScore > BestScore) BestScore = result.PerformanceScore;
+            if (result.IsSuccess) SuccessfulCompletions++;
+            if (result.PerformanceRating > BestScore) BestScore = result.PerformanceRating;
 
-            AverageScore = ((AverageScore * (TotalParticipations - 1)) + result.PerformanceScore) / TotalParticipations;
+            AverageScore = ((AverageScore * (TotalParticipations - 1)) + result.PerformanceRating) / TotalParticipations;
             LastParticipation = DateTime.Now;
         }
     }

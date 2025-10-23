@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
@@ -111,7 +112,7 @@ namespace Laboratory.Core.MonsterTown.Systems
             RecordBreedingAttempt(parent1, parent2);
 
             // Fire breeding success event
-            eventBus?.PublishEvent(new BreedingSuccessfulEvent(parent1, parent2, offspring));
+            eventBus?.Publish(new BreedingSuccessfulEvent(parent1, parent2, offspring));
 
             return new BreedingResult
             {
@@ -158,6 +159,68 @@ namespace Laboratory.Core.MonsterTown.Systems
             var remaining = cooldownEnd - DateTime.Now;
 
             return remaining > TimeSpan.Zero ? remaining : TimeSpan.Zero;
+        }
+
+        /// <summary>
+        /// Create a random monster with specified name prefix
+        /// </summary>
+        public async Task<Monster> CreateRandomMonster(string namePrefix = "Monster")
+        {
+            await Task.Delay(100); // Simulate creation time
+
+            var monster = new Monster
+            {
+                UniqueId = Guid.NewGuid().ToString(),
+                Name = $"{namePrefix}-{UnityEngine.Random.Range(1000, 9999)}",
+                Level = 1,
+                Happiness = UnityEngine.Random.Range(0.6f, 0.9f),
+                GeneticProfile = CreateRandomGeneticProfile(),
+                Stats = MonsterStats.CreateRandom(40f, 70f),
+                ActivityExperience = new Dictionary<ActivityType, float>(),
+                Equipment = new List<Equipment>(),
+                CurrentLocation = TownLocation.TownCenter,
+                LastActivityTime = DateTime.UtcNow
+            };
+
+            Debug.Log($"🧬 Created random monster: {monster.Name}");
+            return monster;
+        }
+
+        /// <summary>
+        /// Check if two monsters can breed (simplified version for Monster class)
+        /// </summary>
+        public bool CanBreed(Monster parent1, Monster parent2)
+        {
+            if (parent1 == null || parent2 == null) return false;
+            if (parent1.UniqueId == parent2.UniqueId) return false;
+            if (parent1.Level < 2 || parent2.Level < 2) return false;
+            if (parent1.Happiness < 0.5f || parent2.Happiness < 0.5f) return false;
+            return true;
+        }
+
+        /// <summary>
+        /// Create offspring from two parent monsters (simplified version for Monster class)
+        /// </summary>
+        public async Task<Monster> CreateOffspring(Monster parent1, Monster parent2)
+        {
+            await Task.Delay(200); // Simulate breeding time
+
+            var offspring = new Monster
+            {
+                UniqueId = Guid.NewGuid().ToString(),
+                Name = GenerateOffspringName(parent1, parent2),
+                Level = 1,
+                Happiness = 0.8f,
+                GeneticProfile = CombineGenetics(parent1.GeneticProfile, parent2.GeneticProfile),
+                Stats = CreateHybridStats(parent1.Stats, parent2.Stats),
+                ActivityExperience = new Dictionary<ActivityType, float>(),
+                Equipment = new List<Equipment>(),
+                CurrentLocation = TownLocation.BreedingCenter,
+                LastActivityTime = DateTime.UtcNow
+            };
+
+            Debug.Log($"🧬 Breeding successful: {offspring.Name} born from {parent1.Name} and {parent2.Name}");
+            return offspring;
         }
 
         #endregion
@@ -242,7 +305,7 @@ namespace Laboratory.Core.MonsterTown.Systems
                 Experience = 0,
                 Happiness = 50f, // Start with neutral happiness
                 Energy = 100f,   // Start with full energy
-                Genetics = CombineGenetics(parent1.Genetics, parent2.Genetics),
+                GeneticProfile = CombineGenetics(parent1.Genetics, parent2.Genetics),
                 BirthTime = DateTime.Now,
                 Generation = Mathf.Max(parent1.Generation, parent2.Generation) + 1
             };
@@ -271,18 +334,27 @@ namespace Laboratory.Core.MonsterTown.Systems
             return UnityEngine.Random.Range(0, 2) == 0 ? parent1.Species : parent2.Species;
         }
 
-        private MonsterGenetics CombineGenetics(MonsterGenetics genetics1, MonsterGenetics genetics2)
+        private IGeneticProfile CombineGenetics(IGeneticProfile genetics1, IGeneticProfile genetics2)
         {
-            // Combine genetics from both parents
-            return new MonsterGenetics
+            // Create a new BasicGeneticProfile with combined traits
+            var combined = new BasicGeneticProfile();
+
+            // Combine traits using the GetTraitValue method
+            string[] traitNames = { "Strength", "Agility", "Intelligence", "Vitality", "Social", "Creativity" };
+
+            foreach (var traitName in traitNames)
             {
-                Strength = (genetics1.Strength + genetics2.Strength) / 2f + UnityEngine.Random.Range(-0.1f, 0.1f),
-                Agility = (genetics1.Agility + genetics2.Agility) / 2f + UnityEngine.Random.Range(-0.1f, 0.1f),
-                Intelligence = (genetics1.Intelligence + genetics2.Intelligence) / 2f + UnityEngine.Random.Range(-0.1f, 0.1f),
-                Vitality = (genetics1.Vitality + genetics2.Vitality) / 2f + UnityEngine.Random.Range(-0.1f, 0.1f),
-                Social = (genetics1.Social + genetics2.Social) / 2f + UnityEngine.Random.Range(-0.1f, 0.1f),
-                Creativity = (genetics1.Creativity + genetics2.Creativity) / 2f + UnityEngine.Random.Range(-0.1f, 0.1f)
-            };
+                float value1 = genetics1.GetTraitValue(traitName);
+                float value2 = genetics2.GetTraitValue(traitName);
+                float combinedValue = (value1 + value2) / 2f + UnityEngine.Random.Range(-0.1f, 0.1f);
+                combinedValue = Mathf.Clamp01(combinedValue);
+                combined.Traits[traitName] = combinedValue;
+            }
+
+            // Set overall fitness as average of traits
+            combined.OverallFitness = combined.Traits.Values.Average();
+
+            return combined;
         }
 
         private void RecordBreedingAttempt(MonsterInstance parent1, MonsterInstance parent2)
@@ -306,6 +378,60 @@ namespace Laboratory.Core.MonsterTown.Systems
                 lastBreedingTime[evt.Monster.UniqueId] = DateTime.MinValue; // Allow immediate breeding for new monsters
                 dailyBreedingCount[evt.Monster.UniqueId] = 0;
             }
+        }
+
+        /// <summary>
+        /// Create a random genetic profile for new monsters
+        /// </summary>
+        private IGeneticProfile CreateRandomGeneticProfile()
+        {
+            var profile = new BasicGeneticProfile();
+
+            // Add random traits
+            var traitNames = new[] { "strength", "agility", "intelligence", "vitality", "social", "adaptability" };
+            foreach (var trait in traitNames)
+            {
+                profile.Traits[trait] = UnityEngine.Random.Range(0.3f, 0.8f);
+            }
+
+            // Calculate overall fitness
+            var averageTrait = 0f;
+            foreach (var trait in profile.Traits.Values)
+            {
+                averageTrait += trait;
+            }
+            profile.OverallFitness = averageTrait / profile.Traits.Count;
+
+            return profile;
+        }
+
+        /// <summary>
+        /// Generate offspring name from two parents (Monster version)
+        /// </summary>
+        private string GenerateOffspringName(Monster parent1, Monster parent2)
+        {
+            var prefixes = new[] { "Neo", "Hybrid", "Gen", "Cross", "Fusion" };
+            var prefix = prefixes[UnityEngine.Random.Range(0, prefixes.Length)];
+            var number = UnityEngine.Random.Range(100, 999);
+            return $"{prefix}-{number}";
+        }
+
+        /// <summary>
+        /// Create hybrid stats from two parent monsters
+        /// </summary>
+        private MonsterStats CreateHybridStats(MonsterStats parent1, MonsterStats parent2)
+        {
+            return new MonsterStats
+            {
+                strength = (parent1.strength + parent2.strength) / 2f + UnityEngine.Random.Range(-5f, 5f),
+                agility = (parent1.agility + parent2.agility) / 2f + UnityEngine.Random.Range(-5f, 5f),
+                vitality = (parent1.vitality + parent2.vitality) / 2f + UnityEngine.Random.Range(-5f, 5f),
+                speed = (parent1.speed + parent2.speed) / 2f + UnityEngine.Random.Range(-5f, 5f),
+                intelligence = (parent1.intelligence + parent2.intelligence) / 2f + UnityEngine.Random.Range(-5f, 5f),
+                adaptability = (parent1.adaptability + parent2.adaptability) / 2f + UnityEngine.Random.Range(-5f, 5f),
+                social = (parent1.social + parent2.social) / 2f + UnityEngine.Random.Range(-5f, 5f),
+                charisma = (parent1.charisma + parent2.charisma) / 2f + UnityEngine.Random.Range(-5f, 5f)
+            };
         }
 
         #endregion
@@ -335,7 +461,7 @@ namespace Laboratory.Core.MonsterTown.Systems
     }
 
     // Events
-    public class BreedingSuccessfulEvent : IGameEvent
+    public class BreedingSuccessfulEvent
     {
         public MonsterInstance Parent1 { get; }
         public MonsterInstance Parent2 { get; }
@@ -351,7 +477,7 @@ namespace Laboratory.Core.MonsterTown.Systems
         }
     }
 
-    public class MonsterAddedToTownEvent : IGameEvent
+    public class MonsterAddedToTownEvent
     {
         public MonsterInstance Monster { get; }
         public DateTime Timestamp { get; }

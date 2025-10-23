@@ -5,9 +5,9 @@
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",
-        "GUID:26c858a044ea8e443864d1208306534e",
-        "GUID:62b1b28b02d4bbb459a5ad689c671229",
-        "GUID:eb424fb3d42d5fe4687e44d431f99396"
+        "Laboratory.Core",
+        "Laboratory.Chimera",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

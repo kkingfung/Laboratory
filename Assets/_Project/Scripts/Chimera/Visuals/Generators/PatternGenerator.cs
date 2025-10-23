@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Chimera.Visuals.Data;
 
+
 namespace Laboratory.Chimera.Visuals.Generators
 {
     /// <summary>
@@ -26,7 +27,7 @@ namespace Laboratory.Chimera.Visuals.Generators
 
         public IEnumerator GeneratePatterns(VisualGeneticTraits traits, Renderer[] renderers)
         {
-            Debug.Log("🎨 Generating procedural patterns");
+            UnityEngine.Debug.Log("🎨 Generating procedural patterns");
 
             foreach (var renderer in renderers)
             {
@@ -35,13 +36,13 @@ namespace Laboratory.Chimera.Visuals.Generators
                 yield return StartCoroutine(ApplyPatternsToRenderer(traits, renderer));
             }
 
-            Debug.Log("✨ Pattern generation complete");
+            UnityEngine.Debug.Log("✨ Pattern generation complete");
         }
 
         private IEnumerator ApplyPatternsToRenderer(VisualGeneticTraits traits, Renderer renderer)
         {
             // Generate primary pattern
-            if (traits.PrimaryPattern != PatternType.None)
+            if (traits.PrimaryPattern != Data.PatternType.None)
             {
                 var primaryTexture = GeneratePatternTexture(traits.PrimaryPattern, traits, "_Primary");
                 ApplyPatternToMaterial(renderer.material, primaryTexture, "_MainTex");
@@ -49,7 +50,7 @@ namespace Laboratory.Chimera.Visuals.Generators
             }
 
             // Generate secondary pattern if complex enough
-            if (traits.PatternComplexity > 0.5f && traits.SecondaryPattern != PatternType.None)
+            if (traits.PatternComplexity > 0.5f && traits.SecondaryPattern != Data.PatternType.None)
             {
                 var secondaryTexture = GeneratePatternTexture(traits.SecondaryPattern, traits, "_Secondary");
                 ApplyPatternToMaterial(renderer.material, secondaryTexture, "_DetailAlbedoMap");
@@ -63,7 +64,7 @@ namespace Laboratory.Chimera.Visuals.Generators
             }
         }
 
-        private Texture2D GeneratePatternTexture(PatternType patternType, VisualGeneticTraits traits, string suffix)
+        private Texture2D GeneratePatternTexture(Data.PatternType patternType, VisualGeneticTraits traits, string suffix)
         {
             var cacheKey = $"{patternType}_{traits.PatternScale}_{traits.PatternIntensity}_{suffix}";
 
@@ -77,28 +78,28 @@ namespace Laboratory.Chimera.Visuals.Generators
 
             switch (patternType)
             {
-                case PatternType.Stripes:
+                case Data.PatternType.Stripes:
                     GenerateStripePattern(texture, traits);
                     break;
-                case PatternType.Spots:
+                case Data.PatternType.Spots:
                     GenerateSpotPattern(texture, traits);
                     break;
-                case PatternType.Scales:
+                case Data.PatternType.Scales:
                     GenerateScalePattern(texture, traits);
                     break;
-                case PatternType.Tribal:
+                case Data.PatternType.Tribal:
                     GenerateTribalPattern(texture, traits);
                     break;
-                case PatternType.Geometric:
+                case Data.PatternType.Geometric:
                     GenerateGeometricPattern(texture, traits);
                     break;
-                case PatternType.Organic:
+                case Data.PatternType.Organic:
                     GenerateOrganicPattern(texture, traits);
                     break;
-                case PatternType.Crystalline:
+                case Data.PatternType.Crystalline:
                     GenerateCrystallinePattern(texture, traits);
                     break;
-                case PatternType.Magical:
+                case Data.PatternType.Magical:
                     GenerateMagicalPattern(texture, traits);
                     break;
                 default:
@@ -189,11 +190,11 @@ namespace Laboratory.Chimera.Visuals.Generators
                 for (int x = 0; x < resolution; x++)
                 {
                     // Create hexagonal scale pattern
-                    var scaleX = x / scaleSize;
-                    var scaleY = y / scaleSize;
+                    var scaleX = (float)x / scaleSize;
+                    var scaleY = (float)y / scaleSize;
 
                     // Offset every other row for hexagonal tiling
-                    if (scaleY % 2 == 1) scaleX += 0.5f;
+                    if ((int)scaleY % 2 == 1) scaleX += 0.5f;
 
                     var centerX = (scaleX - Mathf.Floor(scaleX)) - 0.5f;
                     var centerY = (scaleY - Mathf.Floor(scaleY)) - 0.5f;

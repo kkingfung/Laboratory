@@ -34,8 +34,8 @@ namespace Laboratory.Core.MonsterTown.Validation
         // System references
         private TownManagementSystem _townManager;
         private ActivityCenterManager _activityManager;
-        private BuildingSystem _buildingSystem;
-        private ResourceManager _resourceManager;
+        private IBuildingSystem _buildingSystem;
+        private IResourceManager _resourceManager;
         private MonsterBreedingSystem _breedingSystem;
         private IEventBus _eventBus;
 
@@ -269,8 +269,9 @@ namespace Laboratory.Core.MonsterTown.Validation
 
             if (ecsWorldExists)
             {
-                var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-                bool entityManagerValid = entityManager.IsCreated;
+                var world = World.DefaultGameObjectInjectionWorld;
+                var entityManager = world.EntityManager;
+                bool entityManagerValid = world.IsCreated;
 
                 AddValidationResult("ECS Entity Manager", entityManagerValid,
                     entityManagerValid ? "EntityManager is valid" : "EntityManager is invalid");
@@ -400,12 +401,12 @@ namespace Laboratory.Core.MonsterTown.Validation
                     bool eventReceived = false;
                     Action<TestEvent> handler = (evt) => eventReceived = true;
 
-                    _eventBus.Subscribe<TestEvent>(handler);
+                    var subscription = _eventBus.Subscribe<TestEvent>(handler);
                     _eventBus.Publish(new TestEvent());
 
                     await UniTask.Delay(100); // Allow event processing
 
-                    _eventBus.Unsubscribe<TestEvent>(handler);
+                    subscription?.Dispose();
 
                     AddValidationResult("Event System", eventReceived,
                         eventReceived ? "Event publishing/subscription working" : "Event system not working");

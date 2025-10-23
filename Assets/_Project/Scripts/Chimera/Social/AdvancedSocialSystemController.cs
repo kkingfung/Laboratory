@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Laboratory.Chimera.Social.Data;
-using Laboratory.Chimera.Social.Types;
 using Laboratory.Chimera.Social.Systems;
+using SocialTypes = Laboratory.Chimera.Social.Types;
 
 namespace Laboratory.Chimera.Social
 {
@@ -42,16 +41,16 @@ namespace Laboratory.Chimera.Social
         // System references (will be found/created at runtime)
         private SocialNetworkSystem networkSystem;
         private GroupDynamicsSystem groupSystem;
-        private CommunicationSystem communicationSystem;
+        private Laboratory.Chimera.Social.Systems.CommunicationSystem communicationSystem;
         private CulturalEvolutionSystem cultureSystem;
         private EmotionalContagionSystem emotionalSystem;
 
         // Events
-        public event Action<uint, uint, RelationshipType> OnRelationshipFormed;
-        public event Action<uint, SocialGroup> OnGroupFormed;
+        public event Action<uint, uint, SocialTypes.RelationshipType> OnRelationshipFormed;
+        public event Action<uint, Laboratory.Chimera.Social.Data.SocialGroup> OnGroupFormed;
         public event Action<uint, uint> OnLeadershipEmergence;
-        public event Action<CulturalTrait> OnCulturalInnovation;
-        public event Action<uint, uint, EmotionalState> OnEmotionalContagion;
+        public event Action<Laboratory.Chimera.Social.Data.CulturalTrait> OnCulturalInnovation;
+        public event Action<uint, uint, SocialTypes.EmotionalState> OnEmotionalContagion;
 
         private bool isInitialized = false;
 
@@ -64,7 +63,7 @@ namespace Laboratory.Chimera.Social
             ConfigureSystems();
 
             isInitialized = true;
-            Debug.Log("🤝 Advanced Social System Controller initialized with modular architecture");
+            UnityEngine.Debug.Log("🤝 Advanced Social System Controller initialized with modular architecture");
         }
 
         private void FindOrCreateSocialSystems()
@@ -82,8 +81,8 @@ namespace Laboratory.Chimera.Social
             groupSystem = socialSystemsParent.GetComponent<GroupDynamicsSystem>() ??
                          socialSystemsParent.AddComponent<GroupDynamicsSystem>();
 
-            communicationSystem = socialSystemsParent.GetComponent<CommunicationSystem>() ??
-                                socialSystemsParent.AddComponent<CommunicationSystem>();
+            communicationSystem = socialSystemsParent.GetComponent<Laboratory.Chimera.Social.Systems.CommunicationSystem>() ??
+                                socialSystemsParent.AddComponent<Laboratory.Chimera.Social.Systems.CommunicationSystem>();
 
             cultureSystem = socialSystemsParent.GetComponent<CulturalEvolutionSystem>() ??
                            socialSystemsParent.AddComponent<CulturalEvolutionSystem>();
@@ -97,7 +96,7 @@ namespace Laboratory.Chimera.Social
             // Connect subsystem events to main controller events
             if (networkSystem != null)
             {
-                networkSystem.OnRelationshipFormed += (agent1, agent2, type) => OnRelationshipFormed?.Invoke(agent1, agent2, type);
+                networkSystem.OnRelationshipFormed += (uint agent1, uint agent2, Laboratory.Chimera.Social.Types.RelationshipType type) => OnRelationshipFormed?.Invoke(agent1, agent2, type);
             }
 
             if (groupSystem != null)
@@ -121,12 +120,12 @@ namespace Laboratory.Chimera.Social
         {
             // Apply configuration to each subsystem
             // This would set the serialized field values on each system
-            Debug.Log("Social systems configured with controller parameters");
+            UnityEngine.Debug.Log("Social systems configured with controller parameters");
         }
 
         #region Public API Methods
 
-        public void RegisterSocialAgent(SocialAgent agent)
+        public void RegisterSocialAgent(Laboratory.Chimera.Social.Data.SocialAgent agent)
         {
             if (!isInitialized) Initialize();
 
@@ -136,32 +135,32 @@ namespace Laboratory.Chimera.Social
             var commProfile = agent.CommunicationProfile ?? CreateDefaultCommunicationProfile();
             communicationSystem?.RegisterAgent(agent.AgentId, commProfile);
 
-            Debug.Log($"🤝 Registered social agent: {agent.Name} (ID: {agent.AgentId})");
+            UnityEngine.Debug.Log($"🤝 Registered social agent: {agent.Name} (ID: {agent.AgentId})");
         }
 
-        public void ProcessSocialInteraction(uint agent1Id, uint agent2Id, InteractionType interactionType, InteractionOutcome outcome, float intensity = 1.0f)
+        public void ProcessSocialInteraction(uint agent1Id, uint agent2Id, SocialTypes.InteractionType interactionType, SocialTypes.InteractionOutcome outcome, float intensity = 1.0f)
         {
             if (!isInitialized) return;
 
             // Update relationships
-            networkSystem?.UpdateRelationship(agent1Id, agent2Id, outcome, intensity);
+            networkSystem?.UpdateRelationship(agent1Id, agent2Id, (Laboratory.Chimera.Social.InteractionOutcome)(int)outcome, intensity);
 
             // Process cultural transmission
             cultureSystem?.ProcessCulturalInteraction(agent1Id, agent2Id, interactionType, outcome);
 
             // Handle emotional responses
-            if (outcome == InteractionOutcome.Positive)
+            if (outcome == SocialTypes.InteractionOutcome.Positive)
             {
-                emotionalSystem?.UpdateEmotionalState(agent1Id, EmotionalState.Happy, intensity * 0.5f);
-                emotionalSystem?.UpdateEmotionalState(agent2Id, EmotionalState.Happy, intensity * 0.3f);
+                emotionalSystem?.UpdateSocialEmotionalState(agent1Id, SocialTypes.EmotionalState.Happy, intensity * 0.5f);
+                emotionalSystem?.UpdateSocialEmotionalState(agent2Id, SocialTypes.EmotionalState.Happy, intensity * 0.3f);
             }
-            else if (outcome == InteractionOutcome.Negative)
+            else if (outcome == SocialTypes.InteractionOutcome.Negative)
             {
-                emotionalSystem?.UpdateEmotionalState(agent1Id, EmotionalState.Angry, intensity * 0.4f);
-                emotionalSystem?.UpdateEmotionalState(agent2Id, EmotionalState.Sad, intensity * 0.3f);
+                emotionalSystem?.UpdateSocialEmotionalState(agent1Id, SocialTypes.EmotionalState.Angry, intensity * 0.4f);
+                emotionalSystem?.UpdateSocialEmotionalState(agent2Id, SocialTypes.EmotionalState.Sad, intensity * 0.3f);
             }
 
-            Debug.Log($"🤝 Processed social interaction: {agent1Id} → {agent2Id} ({interactionType}, {outcome})");
+            UnityEngine.Debug.Log($"🤝 Processed social interaction: {agent1Id} → {agent2Id} ({interactionType}, {outcome})");
         }
 
         public void SendCommunication(uint senderId, uint receiverId, string message, string context = "")
@@ -173,7 +172,7 @@ namespace Laboratory.Chimera.Social
             if (success)
             {
                 // Successful communication improves relationship
-                networkSystem?.UpdateRelationship(senderId, receiverId, InteractionOutcome.Positive, 0.3f);
+                networkSystem?.UpdateRelationship(senderId, receiverId, (Laboratory.Chimera.Social.InteractionOutcome)(int)SocialTypes.InteractionOutcome.Positive, 0.3f);
             }
         }
 
@@ -200,38 +199,38 @@ namespace Laboratory.Chimera.Social
 
         #region Query Methods
 
-        public SocialRelationship GetRelationship(uint agent1Id, uint agent2Id)
+        public Laboratory.Chimera.Social.Data.SocialRelationship GetRelationship(uint agent1Id, uint agent2Id)
         {
             return networkSystem?.GetRelationship(agent1Id, agent2Id);
         }
 
-        public List<SocialGroup> GetAllGroups()
+        public List<Laboratory.Chimera.Social.Data.SocialGroup> GetAllGroups()
         {
-            return groupSystem?.GetAllGroups() ?? new List<SocialGroup>();
+            return groupSystem?.GetAllGroups() ?? new List<Laboratory.Chimera.Social.Data.SocialGroup>();
         }
 
-        public List<CulturalTrait> GetGlobalCulture()
+        public List<Laboratory.Chimera.Social.Data.CulturalTrait> GetGlobalCulture()
         {
-            return cultureSystem?.GetGlobalCulture() ?? new List<CulturalTrait>();
+            return cultureSystem?.GetGlobalCulture() ?? new List<Laboratory.Chimera.Social.Data.CulturalTrait>();
         }
 
-        public EmotionalState GetAgentEmotionalState(uint agentId)
+        public SocialTypes.EmotionalState GetAgentEmotionalState(uint agentId)
         {
-            return emotionalSystem?.GetAgentEmotionalState(agentId) ?? EmotionalState.Neutral;
+            return emotionalSystem?.GetAgentSocialEmotionalState(agentId) ?? SocialTypes.EmotionalState.Neutral;
         }
 
-        public EmpathyNetworkAnalysis GetEmpathyNetworkAnalysis()
+        public Laboratory.Chimera.Social.Systems.EmpathyNetworkAnalysis GetEmpathyNetworkAnalysis()
         {
             return emotionalSystem?.GetEmpathyNetworkAnalysis();
         }
 
         #endregion
 
-        private CommunicationProfile CreateDefaultCommunicationProfile()
+        private Laboratory.Chimera.Social.Data.CommunicationProfile CreateDefaultCommunicationProfile()
         {
-            return new CommunicationProfile
+            return new Laboratory.Chimera.Social.Data.CommunicationProfile
             {
-                Style = CommunicationStyle.Direct,
+                Style = SocialTypes.CommunicationStyle.Direct,
                 Expressiveness = 0.5f,
                 Receptiveness = 0.5f,
                 PreferredTopics = new List<string> { "general", "social" },

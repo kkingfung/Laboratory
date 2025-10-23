@@ -134,7 +134,7 @@ namespace Laboratory.Core.Economy
         /// <summary>
         /// Create a new wallet for a player
         /// </summary>
-        public PlayerWallet CreatePlayerWallet(string playerId, TownResources startingCurrency = default)
+        public PlayerWallet CreatePlayerWallet(string playerId, TownResources? startingCurrency = null)
         {
             if (_playerWallets.ContainsKey(playerId))
             {
@@ -145,7 +145,7 @@ namespace Laboratory.Core.Economy
             var wallet = new PlayerWallet
             {
                 PlayerId = playerId,
-                Currency = startingCurrency ?? economyConfig.startingPlayerCurrency,
+                Currency = startingCurrency.HasValue ? startingCurrency.Value : economyConfig.startingPlayerCurrency,
                 LastUpdateTime = DateTime.UtcNow,
                 TransactionHistory = new List<string>()
             };

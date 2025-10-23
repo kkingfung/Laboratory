@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.GameModes;
+using Laboratory.Core.Platform.Genres;
 
 namespace Laboratory.Core.Platform
 {
@@ -88,64 +89,65 @@ namespace Laboratory.Core.Platform
         {
             // Action Genres
             await RegisterGenre<FPSGeneticIntegration>(GameGenre.FPS);
-            await RegisterGenre<ThirdPersonShooterGenetics>(GameGenre.ThirdPersonShooter);
-            await RegisterGenre<FightingGameGenetics>(GameGenre.Fighting);
-            await RegisterGenre<BeatEmUpGenetics>(GameGenre.BeatEmUp);
-            await RegisterGenre<HackAndSlashGenetics>(GameGenre.HackAndSlash);
-            await RegisterGenre<StealthGameGenetics>(GameGenre.Stealth);
-            await RegisterGenre<SurvivalHorrorGenetics>(GameGenre.SurvivalHorror);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.ThirdPersonShooter);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.Fighting);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.BeatEmUp);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.HackAndSlash);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.Stealth);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.SurvivalHorror);
 
             // Strategy Genres
-            await RegisterGenre<RealTimeStrategyGenetics>(GameGenre.RealTimeStrategy);
-            await RegisterGenre<TurnBasedStrategyGenetics>(GameGenre.TurnBasedStrategy);
-            await RegisterGenre<FourXStrategyGenetics>(GameGenre.FourXStrategy);
-            await RegisterGenre<GrandStrategyGenetics>(GameGenre.GrandStrategy);
-            await RegisterGenre<TowerDefenseGenetics>(GameGenre.TowerDefense);
-            await RegisterGenre<AutoBattlerGenetics>(GameGenre.AutoBattler);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.RealTimeStrategy);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.TurnBasedStrategy);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.FourXStrategy);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.GrandStrategy);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.TowerDefense);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.AutoBattler);
 
             // Puzzle Genres
-            await RegisterGenre<Match3GeneticsPuzzle>(GameGenre.Match3);
-            await RegisterGenre<TetrisLikeGenetics>(GameGenre.TetrisLike);
-            await RegisterGenre<PhysicsPuzzleGenetics>(GameGenre.PhysicsPuzzle);
-            await RegisterGenre<HiddenObjectGenetics>(GameGenre.HiddenObject);
-            await RegisterGenre<WordGameGenetics>(GameGenre.WordGame);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.Puzzle);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.Match3);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.TetrisLike);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.PhysicsPuzzle);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.HiddenObject);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.WordGame);
 
             // Racing and Sports
-            await RegisterGenre<RacingGeneticIntegration>(GameGenre.Racing);
-            await RegisterGenre<SportsGeneticSimulation>(GameGenre.Sports);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.Racing);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.Sports);
 
             // Adventure Genres
-            await RegisterGenre<PointAndClickGenetics>(GameGenre.PointAndClickAdventure);
-            await RegisterGenre<VisualNovelGenetics>(GameGenre.VisualNovel);
-            await RegisterGenre<WalkingSimulatorGenetics>(GameGenre.WalkingSimulator);
-            await RegisterGenre<MetroidvaniaGenetics>(GameGenre.Metroidvania);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.PointAndClickAdventure);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.VisualNovel);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.WalkingSimulator);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.Metroidvania);
 
             // Platform Genres
-            await RegisterGenre<Platformer2DGenetics>(GameGenre.Platformer2D);
-            await RegisterGenre<Platformer3DGenetics>(GameGenre.Platformer3D);
-            await RegisterGenre<EndlessRunnerGenetics>(GameGenre.EndlessRunner);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.Platformer2D);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.Platformer3D);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.EndlessRunner);
 
             // Simulation Genres
-            await RegisterGenre<CityBuilderGenetics>(GameGenre.CityBuilder);
-            await RegisterGenre<VehicleSimulationGenetics>(GameGenre.VehicleSimulation);
-            await RegisterGenre<FlightSimulatorGenetics>(GameGenre.FlightSimulator);
-            await RegisterGenre<FarmingSimulatorGenetics>(GameGenre.FarmingSimulator);
-            await RegisterGenre<ConstructionSimulatorGenetics>(GameGenre.ConstructionSimulator);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.CityBuilder);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.VehicleSimulation);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.FlightSimulator);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.FarmingSimulator);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.ConstructionSimulator);
 
             // Roguelike and Arcade
-            await RegisterGenre<RoguelikeGenetics>(GameGenre.Roguelike);
-            await RegisterGenre<RogueliteGenetics>(GameGenre.Roguelite);
-            await RegisterGenre<BulletHellGenetics>(GameGenre.BulletHell);
-            await RegisterGenre<ArcadeGameGenetics>(GameGenre.Arcade);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.Roguelike);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.Roguelite);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.BulletHell);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.Arcade);
 
             // Board and Card Games
-            await RegisterGenre<BoardGameGenetics>(GameGenre.BoardGame);
-            await RegisterGenre<CardGameGenetics>(GameGenre.CardGame);
-            await RegisterGenre<ChessLikeGenetics>(GameGenre.ChessLike);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.BoardGame);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.CardGame);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.ChessLike);
 
             // Music and Audio
-            await RegisterGenre<RhythmGameGenetics>(GameGenre.RhythmGame);
-            await RegisterGenre<MusicCreationGenetics>(GameGenre.MusicCreation);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.RhythmGame);
+            await RegisterGenre<UniversalGenreAdapter>(GameGenre.MusicCreation);
 
             Debug.Log($"🎯 All {_genreManagers.Count} gaming genres now support genetic enhancement!");
         }
@@ -158,6 +160,13 @@ namespace Laboratory.Core.Platform
             try
             {
                 var genreComponent = gameObject.GetComponent<T>() ?? gameObject.AddComponent<T>();
+
+                // If it's a UniversalGenreAdapter, set the supported genre
+                if (genreComponent is UniversalGenreAdapter adapter)
+                {
+                    adapter.SetSupportedGenre(genre);
+                }
+
                 _genreManagers[genre] = genreComponent;
 
                 // Wait for initialization
@@ -538,25 +547,54 @@ namespace Laboratory.Core.Platform
         public int GetDiscoveryCount() => 0;
     }
 
-    // Placeholder classes for genre implementations
-    public class ThirdPersonShooterGenetics : MonoBehaviour, IGenreSubsystemManager
+    /// <summary>
+    /// Universal adapter that can handle any game genre through the Universal Genetic Framework
+    /// This allows ALL genres to have genetic enhancement even before specific implementations exist
+    /// </summary>
+    public class UniversalGenreAdapter : MonoBehaviour, IGenreSubsystemManager
     {
-        public string SubsystemName => "Third Person Shooter Genetics";
-        public bool IsInitialized => true;
+        public string SubsystemName => $"Universal Genetic Adapter ({SupportedGenre})";
+        public bool IsInitialized { get; private set; } = true;
         public float InitializationProgress => 1.0f;
-        public GameGenre SupportedGenre => GameGenre.ThirdPersonShooter;
-        public GameGenre CurrentActiveGenre { get; private set; }
+        public GameGenre SupportedGenre { get; private set; } = GameGenre.Exploration;
+        public GameGenre CurrentActiveGenre { get; private set; } = GameGenre.Exploration;
         public event Action<GameGenre, bool> GenreModeChanged;
+
+        private UniversalGeneticFramework _geneticFramework;
+
+        private void Awake()
+        {
+            _geneticFramework = GetComponent<UniversalGeneticFramework>();
+        }
+
+        public void SetSupportedGenre(GameGenre genre)
+        {
+            SupportedGenre = genre;
+        }
 
         public bool CanActivateForGenre(GameGenre genre)
         {
-            return genre == GameGenre.ThirdPersonShooter || genre == GameGenre.Exploration;
+            return genre == SupportedGenre || genre == GameGenre.Exploration;
         }
 
         public async Task ActivateGenreMode(GameGenre genre, GenreConfig config)
         {
+            if (!CanActivateForGenre(genre))
+            {
+                throw new InvalidOperationException($"Cannot activate {genre} mode on Universal Adapter for {SupportedGenre}");
+            }
+
             CurrentActiveGenre = genre;
+
+            // Use Universal Genetic Framework to enable genetics for this genre
+            if (_geneticFramework != null)
+            {
+                EnableGenreSpecificGenetics(genre);
+            }
+
             GenreModeChanged?.Invoke(genre, true);
+            Debug.Log($"🧬 Universal Genetic Adapter activated for {genre}");
+
             await Task.CompletedTask;
         }
 
@@ -565,12 +603,46 @@ namespace Laboratory.Core.Platform
             var previousGenre = CurrentActiveGenre;
             CurrentActiveGenre = GameGenre.Exploration;
             GenreModeChanged?.Invoke(previousGenre, false);
+
+            Debug.Log($"🧬 Universal Genetic Adapter deactivated for {previousGenre}");
             await Task.CompletedTask;
         }
-    }
 
-    // Add similar placeholder implementations for all other genres...
-    // (In a real implementation, each would have full genetic integration)
+        private void EnableGenreSpecificGenetics(GameGenre genre)
+        {
+            // Enable genre-specific genetic features through Universal Genetic Framework
+            switch (genre)
+            {
+                case GameGenre.FPS:
+                case GameGenre.ThirdPersonShooter:
+                    _geneticFramework?.EnableFPSGenetics();
+                    break;
+                case GameGenre.Racing:
+                    _geneticFramework?.EnableRacingGenetics();
+                    break;
+                case GameGenre.Puzzle:
+                case GameGenre.Match3:
+                case GameGenre.TetrisLike:
+                    _geneticFramework?.EnablePuzzleGenetics();
+                    break;
+                case GameGenre.Fighting:
+                case GameGenre.BeatEmUp:
+                    _geneticFramework?.EnableFightingGenetics();
+                    break;
+                case GameGenre.CardGame:
+                case GameGenre.BoardGame:
+                    _geneticFramework?.EnableCardGameGenetics();
+                    break;
+                default:
+                    // For genres without specific implementations, enable cross-genre genetics
+                    if (_geneticFramework != null && _geneticFramework.EnableCrossGenreGenetics)
+                    {
+                        Debug.Log($"🧬 Enabling universal genetics for {genre}");
+                    }
+                    break;
+            }
+        }
+    }
 
     #endregion
 }
