@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using Laboratory.AI.Pathfinding;
 using Laboratory.AI.ECS;
 using Laboratory.Chimera.AI;
+using BiomeType = Laboratory.Shared.Types.BiomeType;
+using SharedAIBehaviorType = Laboratory.Shared.Types.AIBehaviorType;
 
 namespace Laboratory.AI.Services
 {
@@ -235,6 +237,83 @@ namespace Laboratory.AI.Services
         {
             return _world?.EntityManager.CreateEntityQuery(typeof(UnifiedAIStateComponent)).CalculateEntityCount() ?? 0;
         }
+
+        // Interface implementations with type conversion
+        bool IAIBehaviorService.SetBehavior(Entity entity, SharedAIBehaviorType behavior, float intensity)
+        {
+            return SetBehavior(entity, ConvertToChimera(behavior), intensity);
+        }
+
+        SharedAIBehaviorType IAIBehaviorService.GetCurrentBehavior(Entity entity)
+        {
+            return ConvertToShared(GetCurrentBehavior(entity));
+        }
+
+        SharedAIBehaviorType IAIBehaviorService.GetPreviousBehavior(Entity entity)
+        {
+            return ConvertToShared(GetPreviousBehavior(entity));
+        }
+
+        bool IAIBehaviorService.QueueBehavior(Entity entity, SharedAIBehaviorType behavior, float delay)
+        {
+            return QueueBehavior(entity, ConvertToChimera(behavior), delay);
+        }
+
+        void IAIBehaviorService.RegisterBehaviorCallback(Entity entity, Action<SharedAIBehaviorType, SharedAIBehaviorType> onBehaviorChanged)
+        {
+            RegisterBehaviorCallback(entity, (from, to) => onBehaviorChanged(ConvertToShared(from), ConvertToShared(to)));
+        }
+
+        // Type conversion methods
+        private AIBehaviorType ConvertToChimera(SharedAIBehaviorType shared)
+        {
+            // Convert SharedAIBehaviorType to Chimera AIBehaviorType
+            return shared switch
+            {
+                SharedAIBehaviorType.None => AIBehaviorType.None,
+                SharedAIBehaviorType.Idle => AIBehaviorType.Idle,
+                SharedAIBehaviorType.Wander => AIBehaviorType.Wander,
+                SharedAIBehaviorType.Follow => AIBehaviorType.Follow,
+                SharedAIBehaviorType.Flee => AIBehaviorType.Fleeing,
+                SharedAIBehaviorType.Attack => AIBehaviorType.Aggressive,
+                SharedAIBehaviorType.Guard => AIBehaviorType.Guard,
+                SharedAIBehaviorType.Patrol => AIBehaviorType.Patrol,
+                SharedAIBehaviorType.Search => AIBehaviorType.Investigate,
+                SharedAIBehaviorType.Hunt => AIBehaviorType.Hunt,
+                SharedAIBehaviorType.Forage => AIBehaviorType.Feed,
+                SharedAIBehaviorType.Rest => AIBehaviorType.Rest,
+                SharedAIBehaviorType.Social => AIBehaviorType.Social,
+                SharedAIBehaviorType.Mate => AIBehaviorType.Mate,
+                SharedAIBehaviorType.Territorial => AIBehaviorType.Territorial,
+                SharedAIBehaviorType.Custom => AIBehaviorType.Custom,
+                _ => AIBehaviorType.None
+            };
+        }
+
+        private SharedAIBehaviorType ConvertToShared(AIBehaviorType chimera)
+        {
+            // Convert Chimera AIBehaviorType to SharedAIBehaviorType
+            return chimera switch
+            {
+                AIBehaviorType.None => SharedAIBehaviorType.None,
+                AIBehaviorType.Idle => SharedAIBehaviorType.Idle,
+                AIBehaviorType.Wander => SharedAIBehaviorType.Wander,
+                AIBehaviorType.Follow => SharedAIBehaviorType.Follow,
+                AIBehaviorType.Fleeing => SharedAIBehaviorType.Flee,
+                AIBehaviorType.Aggressive => SharedAIBehaviorType.Attack,
+                AIBehaviorType.Guard => SharedAIBehaviorType.Guard,
+                AIBehaviorType.Patrol => SharedAIBehaviorType.Patrol,
+                AIBehaviorType.Investigate => SharedAIBehaviorType.Search,
+                AIBehaviorType.Hunt => SharedAIBehaviorType.Hunt,
+                AIBehaviorType.Feed => SharedAIBehaviorType.Forage,
+                AIBehaviorType.Rest => SharedAIBehaviorType.Rest,
+                AIBehaviorType.Social => SharedAIBehaviorType.Social,
+                AIBehaviorType.Mate => SharedAIBehaviorType.Mate,
+                AIBehaviorType.Territorial => SharedAIBehaviorType.Territorial,
+                AIBehaviorType.Custom => SharedAIBehaviorType.Custom,
+                _ => SharedAIBehaviorType.None
+            };
+        }
     }
 
     // Stub implementations for other services (to be fully implemented as needed)
@@ -261,9 +340,10 @@ namespace Laboratory.AI.Services
 
         public void Initialize()
         {
-            entityManager = World.DefaultGameObjectInjectionWorld?.EntityManager;
-            if (entityManager != null)
+            var world = World.DefaultGameObjectInjectionWorld;
+            if (world != null)
             {
+                entityManager = world.EntityManager;
                 positionQuery = entityManager.CreateEntityQuery(typeof(Unity.Transforms.LocalTransform));
             }
         }

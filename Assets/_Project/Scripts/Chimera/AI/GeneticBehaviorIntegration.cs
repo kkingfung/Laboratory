@@ -1,5 +1,5 @@
 using UnityEngine;
-using Laboratory.Chimera.Creatures;
+using Laboratory.Chimera;
 using Laboratory.Chimera.AI;
 using Laboratory.Chimera.Breeding;
 

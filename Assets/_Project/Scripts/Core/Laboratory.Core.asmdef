@@ -11,7 +11,9 @@
         "Unity.Collections",
         "Unity.Netcode.Runtime",
         "Unity.Addressables",
-        "Unity.ResourceManager"
+        "Unity.ResourceManager",
+        "Laboratory.Shared",
+        "Laboratory.Compatibility"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

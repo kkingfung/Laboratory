@@ -1,6 +1,5 @@
 using UnityEngine;
 using Unity.Entities;
-using Unity.NetCode;
 using Unity.Collections;
 using Unity.Mathematics;
 using Laboratory.Core.ECS;
@@ -84,7 +83,7 @@ namespace Laboratory.Core.Network
             public bool clientConfirmed;
         }
 
-        private struct NetworkPerformanceMetrics
+        public struct NetworkPerformanceMetrics
         {
             public int entitiesValidated;
             public int desyncDetections;
@@ -131,12 +130,8 @@ namespace Laboratory.Core.Network
 
             entityManager = world.EntityManager;
 
-            // Detect network role
-            var clientServerWorld = ClientServerBootstrap.ClientWorld;
-            var serverWorld = ClientServerBootstrap.ServerWorld;
-
-            isClient = clientServerWorld?.IsCreated == true;
-            isServer = serverWorld?.IsCreated == true;
+            // Detect network role using available Unity networking solutions
+            DetectNetworkRole();
 
             performanceMetrics.lastResetTime = Time.time;
 
@@ -207,15 +202,13 @@ namespace Laboratory.Core.Network
             var query = entityManager.CreateEntityQuery(
                 ComponentType.ReadOnly<CreatureData>(),
                 ComponentType.ReadOnly<CreatureStats>(),
-                ComponentType.ReadOnly<Unity.Transforms.LocalTransform>(),
-                ComponentType.ReadOnly<GhostInstance>()
+                ComponentType.ReadOnly<Unity.Transforms.LocalTransform>()
             );
 
             using (var entities = query.ToEntityArray(Allocator.TempJob))
             using (var creatureData = query.ToComponentDataArray<CreatureData>(Allocator.TempJob))
             using (var stats = query.ToComponentDataArray<CreatureStats>(Allocator.TempJob))
             using (var transforms = query.ToComponentDataArray<Unity.Transforms.LocalTransform>(Allocator.TempJob))
-            using (var ghostInstances = query.ToComponentDataArray<GhostInstance>(Allocator.TempJob))
             {
                 int validatedCount = 0;
                 int entitiesToValidate = math.min(entities.Length, maxValidatedEntities);
@@ -226,12 +219,11 @@ namespace Laboratory.Core.Network
                     var data = creatureData[i];
                     var stat = stats[i];
                     var transform = transforms[i];
-                    var ghostInstance = ghostInstances[i];
 
                     // Create or update network state
                     var networkState = new NetworkEntityState
                     {
-                        networkId = (uint)ghostInstance.ghostId,
+                        networkId = (uint)entity.Index, // Use entity index as fallback network ID
                         lastKnownPosition = transform.Position,
                         creatureData = data,
                         stats = stat,
@@ -613,6 +605,89 @@ namespace Laboratory.Core.Network
         private void OnDestroy()
         {
             CancelInvoke();
+        }
+
+        /// <summary>
+        /// Detect network role based on available networking solutions
+        /// </summary>
+        private void DetectNetworkRole()
+        {
+            // Reset to defaults
+            isClient = false;
+            isServer = false;
+
+            // Check for Unity Netcode for GameObjects
+            var netcodeNetworkManager = FindObjectOfType<Unity.Netcode.NetworkManager>();
+            if (netcodeNetworkManager != null)
+            {
+                isServer = netcodeNetworkManager.IsServer;
+                isClient = netcodeNetworkManager.IsClient;
+                if (showDetailedLogs)
+                    Debug.Log($"🌐 Detected Unity Netcode - Server: {isServer}, Client: {isClient}");
+                return;
+            }
+
+            // Check for Mirror Networking (if available)
+            var mirrorNetworkManager = GameObject.FindObjectOfType<MonoBehaviour>();
+            if (mirrorNetworkManager != null && mirrorNetworkManager.GetType().Name.Contains("NetworkManager"))
+            {
+                // Use reflection to safely check Mirror's NetworkManager
+                var type = mirrorNetworkManager.GetType();
+                var isServerProperty = type.GetProperty("isServer");
+                var isClientProperty = type.GetProperty("isClient");
+
+                if (isServerProperty != null && isClientProperty != null)
+                {
+                    isServer = (bool)isServerProperty.GetValue(mirrorNetworkManager);
+                    isClient = (bool)isClientProperty.GetValue(mirrorNetworkManager);
+                    if (showDetailedLogs)
+                        Debug.Log($"🌐 Detected Mirror Networking - Server: {isServer}, Client: {isClient}");
+                    return;
+                }
+            }
+
+            // Check for custom network implementations
+            var customNetworkComponents = FindObjectsOfType<MonoBehaviour>();
+            foreach (var component in customNetworkComponents)
+            {
+                var typeName = component.GetType().Name.ToLower();
+                if (typeName.Contains("network") && (typeName.Contains("manager") || typeName.Contains("controller")))
+                {
+                    // Try to detect server/client status from common property names
+                    var type = component.GetType();
+                    var serverProp = type.GetProperty("IsServer") ?? type.GetProperty("isServer") ?? type.GetProperty("IsHost");
+                    var clientProp = type.GetProperty("IsClient") ?? type.GetProperty("isClient");
+
+                    if (serverProp != null)
+                    {
+                        try
+                        {
+                            isServer = (bool)serverProp.GetValue(component);
+                        }
+                        catch { /* Ignore if property access fails */ }
+                    }
+
+                    if (clientProp != null)
+                    {
+                        try
+                        {
+                            isClient = (bool)clientProp.GetValue(component);
+                        }
+                        catch { /* Ignore if property access fails */ }
+                    }
+
+                    if (isServer || isClient)
+                    {
+                        if (showDetailedLogs)
+                            Debug.Log($"🌐 Detected custom networking ({typeName}) - Server: {isServer}, Client: {isClient}");
+                        return;
+                    }
+                }
+            }
+
+            // Default to standalone mode
+            if (showDetailedLogs)
+                Debug.Log("🌐 No networking solution detected - running in standalone mode");
         }
 
         /// <summary>

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Genetics;
+using GeneticProfile = Laboratory.Chimera.Genetics.GeneticProfile;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Core;
 

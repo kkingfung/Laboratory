@@ -258,10 +258,10 @@ namespace Laboratory.Chimera.Breeding
         {
             // Normalized relative difference calculation prevents bias toward high/low stat creatures
             // Formula: 1 - |diff| / max(stat1, stat2, 1) ensures meaningful comparison
-            float strengthSim = 1f - Mathf.Abs(stats1.Strength - stats2.Strength) / Mathf.Max(stats1.Strength, stats2.Strength, 1f);
-            float agilitySim = 1f - Mathf.Abs(stats1.Agility - stats2.Agility) / Mathf.Max(stats1.Agility, stats2.Agility, 1f);
-            float intelligenceSim = 1f - Mathf.Abs(stats1.Intelligence - stats2.Intelligence) / Mathf.Max(stats1.Intelligence, stats2.Intelligence, 1f);
-            float enduranceSim = 1f - Mathf.Abs(stats1.Endurance - stats2.Endurance) / Mathf.Max(stats1.Endurance, stats2.Endurance, 1f);
+            float strengthSim = 1f - Mathf.Abs(stats1.attack - stats2.attack) / Mathf.Max(stats1.attack, stats2.attack, 1f);
+            float agilitySim = 1f - Mathf.Abs(stats1.speed - stats2.speed) / Mathf.Max(stats1.speed, stats2.speed, 1f);
+            float intelligenceSim = 1f - Mathf.Abs(stats1.intelligence - stats2.intelligence) / Mathf.Max(stats1.intelligence, stats2.intelligence, 1f);
+            float enduranceSim = 1f - Mathf.Abs(stats1.defense - stats2.defense) / Mathf.Max(stats1.defense, stats2.defense, 1f);
 
             // Return weighted average (all stats equally important for breeding compatibility)
             return (strengthSim + agilitySim + intelligenceSim + enduranceSim) / 4f;
@@ -331,10 +331,10 @@ namespace Laboratory.Chimera.Breeding
             var combinedStats = new CreatureStats();
             
             // Combine stats with random inheritance and slight variation
-            combinedStats.attack = Mathf.RoundToInt(CombineStatValue(stats1.Strength, stats2.Strength));
-            combinedStats.speed = Mathf.RoundToInt(CombineStatValue(stats1.Agility, stats2.Agility));
-            combinedStats.intelligence = Mathf.RoundToInt(CombineStatValue(stats1.Intelligence, stats2.Intelligence));
-            combinedStats.defense = Mathf.RoundToInt(CombineStatValue(stats1.Endurance, stats2.Endurance));
+            combinedStats.attack = Mathf.RoundToInt(CombineStatValue(stats1.attack, stats2.attack));
+            combinedStats.speed = Mathf.RoundToInt(CombineStatValue(stats1.speed, stats2.speed));
+            combinedStats.intelligence = Mathf.RoundToInt(CombineStatValue(stats1.intelligence, stats2.intelligence));
+            combinedStats.defense = Mathf.RoundToInt(CombineStatValue(stats1.defense, stats2.defense));
             
             // Set other stats (health and charisma)
             combinedStats.health = Mathf.RoundToInt(CombineStatValue(stats1.health, stats2.health));
@@ -425,10 +425,10 @@ namespace Laboratory.Chimera.Breeding
             // Convert base stats to genes
             if (genetics?.BaseStats != null)
             {
-                genesList.Add(CreateGeneFromStat("Strength", genetics.BaseStats.Strength));
-                genesList.Add(CreateGeneFromStat("Agility", genetics.BaseStats.Agility));
-                genesList.Add(CreateGeneFromStat("Intelligence", genetics.BaseStats.Intelligence));
-                genesList.Add(CreateGeneFromStat("Endurance", genetics.BaseStats.Endurance));
+                genesList.Add(CreateGeneFromStat("Strength", genetics.BaseStats.attack));
+                genesList.Add(CreateGeneFromStat("Agility", genetics.BaseStats.speed));
+                genesList.Add(CreateGeneFromStat("Intelligence", genetics.BaseStats.intelligence));
+                genesList.Add(CreateGeneFromStat("Endurance", genetics.BaseStats.defense));
             }
             
             // Create the genetic profile with the genes array and generation info

@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using Laboratory.AI.ECS;
-using Laboratory.Chimera.AI;
+using Laboratory.AI.Pathfinding;
 
 namespace Laboratory.AI.Services
 {

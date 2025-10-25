@@ -142,7 +142,7 @@ namespace Laboratory.Chimera.Editor
             // Check if asset already exists
             if (!overwrite && AssetDatabase.LoadAssetAtPath<ChimeraUniverseConfiguration>(assetPath) != null)
             {
-                Debug.LogWarning($"Configuration already exists at {assetPath}. Use overwrite option to replace it.");
+                Laboratory.Chimera.Debug.DebugManager.LogWarning($"Configuration already exists at {assetPath}. Use overwrite option to replace it.");
                 return;
             }
 
@@ -164,14 +164,14 @@ namespace Laboratory.Chimera.Editor
             Selection.activeObject = config;
             EditorGUIUtility.PingObject(config);
 
-            Debug.Log($"✅ Created Chimera Universe Configuration at: {assetPath}");
+            Laboratory.Chimera.Debug.DebugManager.Log($"✅ Created Chimera Universe Configuration at: {assetPath}");
         }
 
         private void CreateDemoSceneSetup()
         {
             // Create a demo scene GameObject with bootstrap
             var demoSetup = new GameObject("Chimera World Demo");
-            var bootstrap = demoSetup.AddComponent<Laboratory.Core.ECS.ChimeraWorldBootstrap>();
+            var bootstrap = demoSetup.AddComponent<Laboratory.Chimera.ECS.ChimeraWorldBootstrap>();
 
             // Load the configuration we just created
             string configPath = Path.Combine(CONFIG_PATH, _configAssetName + ".asset");
@@ -180,7 +180,7 @@ namespace Laboratory.Chimera.Editor
             if (config != null)
             {
                 // Use reflection to set the private universeConfig field
-                var field = typeof(Laboratory.Core.ECS.ChimeraWorldBootstrap).GetField("universeConfig",
+                var field = typeof(Laboratory.Chimera.ECS.ChimeraWorldBootstrap).GetField("universeConfig",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 field?.SetValue(bootstrap, config);
             }
@@ -196,7 +196,7 @@ namespace Laboratory.Chimera.Editor
             var prefab = PrefabUtility.SaveAsPrefabAsset(demoSetup, prefabPath);
             DestroyImmediate(demoSetup);
 
-            Debug.Log($"✅ Created Chimera World Demo prefab at: {prefabPath}");
+            Laboratory.Chimera.Debug.DebugManager.Log($"✅ Created Chimera World Demo prefab at: {prefabPath}");
         }
 
         private void CreateExamplePrefabs()
@@ -223,7 +223,7 @@ namespace Laboratory.Chimera.Editor
             PrefabUtility.SaveAsPrefabAsset(creatureViz, creaturePrefabPath);
             DestroyImmediate(creatureViz);
 
-            Debug.Log($"✅ Created creature visualization prefab at: {creaturePrefabPath}");
+            Laboratory.Chimera.Debug.DebugManager.Log($"✅ Created creature visualization prefab at: {creaturePrefabPath}");
         }
 
         [MenuItem("🧪 Laboratory/Project Chimera/Assets/Testing Scene")]
@@ -249,7 +249,7 @@ namespace Laboratory.Chimera.Editor
 
             // Add Chimera World Bootstrap
             var chimeraWorldGO = new GameObject("Chimera World");
-            chimeraWorldGO.AddComponent<Laboratory.Core.ECS.ChimeraWorldBootstrap>();
+            chimeraWorldGO.AddComponent<Laboratory.Chimera.ECS.ChimeraWorldBootstrap>();
 
             // Add ground plane
             var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
@@ -259,7 +259,7 @@ namespace Laboratory.Chimera.Editor
             groundMaterial.color = new Color(0.3f, 0.7f, 0.3f);
             ground.GetComponent<Renderer>().material = groundMaterial;
 
-            Debug.Log("✅ Created Chimera testing scene with world bootstrap!");
+            Laboratory.Chimera.Debug.DebugManager.Log("✅ Created Chimera testing scene with world bootstrap!");
         }
     }
 

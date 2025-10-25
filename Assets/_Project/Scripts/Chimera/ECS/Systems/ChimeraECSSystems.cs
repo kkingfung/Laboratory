@@ -64,7 +64,7 @@ namespace Laboratory.Chimera.ECS.Systems
         {
             float ageRatio = ageInDays / lifeExpectancy;
 
-            if (ageRatio < 0.1f) return LifeStage.Egg;
+            if (ageRatio < 0.1f) return LifeStage.Embryo;
             if (ageRatio < 0.25f) return LifeStage.Juvenile;
             if (ageRatio < 0.8f) return LifeStage.Adult;
 
@@ -75,7 +75,7 @@ namespace Laboratory.Chimera.ECS.Systems
         {
             float sizeMultiplier = stage switch
             {
-                LifeStage.Egg => 0.1f,
+                LifeStage.Embryo => 0.1f,
                 LifeStage.Juvenile => math.lerp(0.5f, 0.8f, maturationProgress),
                 LifeStage.Adult => math.lerp(0.8f, 1f, maturationProgress),
                 LifeStage.Elder => 0.95f, // Slightly smaller due to age
@@ -124,16 +124,16 @@ namespace Laboratory.Chimera.ECS.Systems
                 var currentNeeds = needs.ValueRO;
                 currentNeeds.Hunger = math.max(0f, currentNeeds.Hunger - 0.1f * hourlyDecay);
                 currentNeeds.Thirst = math.max(0f, currentNeeds.Thirst - 0.15f * hourlyDecay);
-                currentNeeds.Rest = math.max(0f, currentNeeds.Rest - 0.08f * hourlyDecay);
-                currentNeeds.Social = math.max(0f, currentNeeds.Social - 0.05f * hourlyDecay);
-                currentNeeds.Exercise = math.max(0f, currentNeeds.Exercise - 0.03f * hourlyDecay);
+                currentNeeds.Energy = math.max(0f, currentNeeds.Energy - 0.08f * hourlyDecay);
+                currentNeeds.SocialConnection = math.max(0f, currentNeeds.SocialConnection - 0.05f * hourlyDecay);
+                currentNeeds.Play = math.max(0f, currentNeeds.Play - 0.03f * hourlyDecay);
 
                 // Clamp all values to valid ranges
                 currentNeeds.Hunger = math.clamp(currentNeeds.Hunger, 0f, 1f);
                 currentNeeds.Thirst = math.clamp(currentNeeds.Thirst, 0f, 1f);
-                currentNeeds.Rest = math.clamp(currentNeeds.Rest, 0f, 1f);
-                currentNeeds.Social = math.clamp(currentNeeds.Social, 0f, 1f);
-                currentNeeds.Exercise = math.clamp(currentNeeds.Exercise, 0f, 1f);
+                currentNeeds.Energy = math.clamp(currentNeeds.Energy, 0f, 1f);
+                currentNeeds.SocialConnection = math.clamp(currentNeeds.SocialConnection, 0f, 1f);
+                currentNeeds.Play = math.clamp(currentNeeds.Play, 0f, 1f);
 
                 needs.ValueRW = currentNeeds;
             }
@@ -194,12 +194,12 @@ namespace Laboratory.Chimera.ECS.Systems
                 return Laboratory.Chimera.ECS.AIState.Feed; // Search for resources
             }
 
-            if (needs.Social < 0.4f && personality.Loyalty > 0.6f)
+            if (needs.SocialConnection < 0.4f && personality.Loyalty > 0.6f)
             {
                 return Laboratory.Chimera.ECS.AIState.Follow; // Seek companionship
             }
 
-            if (needs.Rest < 0.3f)
+            if (needs.Energy < 0.3f)
             {
                 return Laboratory.Chimera.ECS.AIState.Rest; // Need to rest
             }
@@ -598,7 +598,7 @@ namespace Laboratory.Chimera.ECS.Systems
                 var healthComp = health.ValueRO;
 
                 // Natural health regeneration when well-fed and rested
-                if (needs.ValueRO.Rest > 0.7f && needs.ValueRO.Hunger > 0.6f && healthComp.CurrentHealth < healthComp.MaxHealth)
+                if (needs.ValueRO.Energy > 0.7f && needs.ValueRO.Hunger > 0.6f && healthComp.CurrentHealth < healthComp.MaxHealth)
                 {
                     float regenRate = healthComp.RegenerationRate * (genetics.ValueRO.GeneticPurity + 0.5f);
                     healthComp.CurrentHealth = math.min(healthComp.MaxHealth,

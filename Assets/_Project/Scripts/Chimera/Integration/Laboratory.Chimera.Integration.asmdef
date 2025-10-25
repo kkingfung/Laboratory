@@ -1,0 +1,24 @@
+{
+    "name": "Laboratory.Chimera.Integration",
+    "rootNamespace": "Laboratory.Chimera.Integration",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Laboratory.Core",
+        "Laboratory.Chimera",
+        "Laboratory.Chimera.AI",
+        "Laboratory.Chimera.ECS",
+        "Laboratory.Shared",
+        "UniTask"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

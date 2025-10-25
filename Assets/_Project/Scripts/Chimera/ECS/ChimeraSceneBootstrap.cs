@@ -513,9 +513,9 @@ namespace Laboratory.Chimera.ECS
                 Hunger = 1.0f,
                 Thirst = 1.0f,
                 Energy = 1.0f,
-                Social = 0.5f,
+                SocialConnection = 0.5f,
                 Comfort = 0.7f,
-                Happiness = 0.8f
+                Safety = 0.8f
             };
             var breedingComp = CreatureBreedingComponent.Create(ageComp, geneticsComp, personalityComp);
             var lifecycleComp = CreatureLifecycleComponent.Create(ageComp, geneticsComp);

@@ -3,6 +3,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Laboratory.AI.ECS;
 using Laboratory.AI.Services;
 
 namespace Laboratory.AI.BehaviorTrees
@@ -380,7 +381,7 @@ namespace Laboratory.AI.BehaviorTrees
         public NodeState Execute(Entity entity, BehaviorNodeComponent node, DynamicBuffer<BehaviorNodeComponent> allNodes,
             float currentTime, float deltaTime, BehaviorTreeSystem system)
         {
-            var pathfindingService = AIServiceManager.Get<IPathfindingService>();
+            var pathfindingService = AIServiceManager.Instance?.GetService<IPathfindingService>();
             if (pathfindingService == null) return NodeState.Failure;
 
             // Request path to target position

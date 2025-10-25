@@ -3,7 +3,10 @@
     "rootNamespace": "Laboratory.AI.Personality",
     "references": [
         "Laboratory.Core",
+        "Laboratory.Core.Debug",
         "Laboratory.Chimera",
+        "Laboratory.Chimera.AI",
+        "Laboratory.Chimera.Genetics.Advanced",
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",

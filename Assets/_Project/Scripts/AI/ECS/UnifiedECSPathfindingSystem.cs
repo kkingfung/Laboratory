@@ -2,8 +2,10 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Jobs;
 using Unity.Burst;
+using Unity.Burst.Intrinsics;
 using UnityEngine;
 using Laboratory.AI.Pathfinding;
 using Laboratory.Core.ECS.Components;
@@ -77,7 +79,7 @@ namespace Laboratory.AI.ECS
         private JobHandle _pathfindingJobHandle;
 
         // Spatial optimization
-        private NativeMultiHashMap<int, Entity> _spatialHashMap;
+        private NativeParallelMultiHashMap<int, Entity> _spatialHashMap;
         private const float SPATIAL_CELL_SIZE = 20f;
 
         protected override void OnCreate()
@@ -100,7 +102,7 @@ namespace Laboratory.AI.ECS
             // Initialize collections
             _batchedRequests = new NativeQueue<PathfindingRequestData>(Allocator.Persistent);
             _completedPaths = new NativeHashMap<Entity, PathResult>(1000, Allocator.Persistent);
-            _spatialHashMap = new NativeMultiHashMap<int, Entity>(5000, Allocator.Persistent);
+            _spatialHashMap = new NativeParallelMultiHashMap<int, Entity>(5000, Allocator.Persistent);
 
             RequireForUpdate(_activePathfindingQuery);
         }
@@ -193,15 +195,13 @@ namespace Laboratory.AI.ECS
                 var request = _batchedRequests.Dequeue();
 
                 // Submit to legacy pathfinding system
-                var pathRequest = new PathfindingRequest
-                {
-                    start = request.start,
-                    destination = request.destination,
-                    mode = request.mode,
-                    callback = (path) => OnPathCalculated(request.entity, path)
-                };
-
-                _legacyPathfindingSystem.RequestPath(pathRequest);
+                _legacyPathfindingSystem.RequestPath(
+                    request.start,
+                    request.destination,
+                    null, // No agent callback needed - handled by OnPathCalculated
+                    request.mode,
+                    0 // priority
+                );
                 processedCount++;
             }
         }
@@ -378,17 +378,19 @@ namespace Laboratory.AI.ECS
 
     // Supporting Jobs
 
-    struct SpatialHashJob : IJobEntityBatch
+    struct SpatialHashJob : IJobChunk
     {
-        [WriteOnly] public NativeMultiHashMap<int, Entity>.ParallelWriter spatialHash;
+        [WriteOnly] public NativeParallelMultiHashMap<int, Entity>.ParallelWriter spatialHash;
         [ReadOnly] public float cellSize;
+        [ReadOnly] public EntityTypeHandle entityTypeHandle;
+        [ReadOnly] public ComponentTypeHandle<LocalTransform> transformTypeHandle;
 
-        public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
+        public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
         {
-            var entities = batchInChunk.GetNativeArray(GetEntityTypeHandle());
-            var transforms = batchInChunk.GetNativeArray(GetComponentTypeHandle<LocalTransform>(true));
+            var entities = chunk.GetNativeArray(entityTypeHandle);
+            var transforms = chunk.GetNativeArray(ref transformTypeHandle);
 
-            for (int i = 0; i < batchInChunk.Count; i++)
+            for (int i = 0; i < chunk.Count; i++)
             {
                 int spatialKey = CalculateSpatialHash(transforms[i].Position, cellSize);
                 spatialHash.Add(spatialKey, entities[i]);
@@ -403,18 +405,20 @@ namespace Laboratory.AI.ECS
     }
 
 
-    struct PathfindingUpdateJob : IJobEntityBatch
+    struct PathfindingUpdateJob : IJobChunk
     {
         [ReadOnly] public float deltaTime;
         [ReadOnly] public float currentTime;
-        [ReadOnly] public NativeMultiHashMap<int, Entity> spatialHash;
+        [ReadOnly] public NativeParallelMultiHashMap<int, Entity> spatialHash;
+        public ComponentTypeHandle<PathfindingComponent> pathfindingTypeHandle;
+        [ReadOnly] public ComponentTypeHandle<LocalTransform> transformTypeHandle;
 
-        public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
+        public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
         {
-            var pathfindingComponents = batchInChunk.GetNativeArray(GetComponentTypeHandle<PathfindingComponent>(false));
-            var transforms = batchInChunk.GetNativeArray(GetComponentTypeHandle<LocalTransform>(true));
+            var pathfindingComponents = chunk.GetNativeArray(ref pathfindingTypeHandle);
+            var transforms = chunk.GetNativeArray(ref transformTypeHandle);
 
-            for (int i = 0; i < batchInChunk.Count; i++)
+            for (int i = 0; i < chunk.Count; i++)
             {
                 var pathfinding = pathfindingComponents[i];
                 var transform = transforms[i];
@@ -440,17 +444,20 @@ namespace Laboratory.AI.ECS
     }
 
 
-    struct PathfollowingJob : IJobEntityBatch
+    struct PathfollowingJob : IJobChunk
     {
         [ReadOnly] public float deltaTime;
+        public ComponentTypeHandle<PathfindingComponent> pathfindingTypeHandle;
+        public ComponentTypeHandle<LocalTransform> transformTypeHandle;
+        [ReadOnly] public BufferTypeHandle<PathNodeComponent> pathBufferTypeHandle;
 
-        public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
+        public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
         {
-            var pathfindingComponents = batchInChunk.GetNativeArray(GetComponentTypeHandle<PathfindingComponent>(false));
-            var transforms = batchInChunk.GetNativeArray(GetComponentTypeHandle<LocalTransform>(false));
-            var pathBuffers = batchInChunk.GetBufferAccessor(GetBufferTypeHandle<PathNodeComponent>(true));
+            var pathfindingComponents = chunk.GetNativeArray(ref pathfindingTypeHandle);
+            var transforms = chunk.GetNativeArray(ref transformTypeHandle);
+            var pathBuffers = chunk.GetBufferAccessor(ref pathBufferTypeHandle);
 
-            for (int i = 0; i < batchInChunk.Count; i++)
+            for (int i = 0; i < chunk.Count; i++)
             {
                 var pathfinding = pathfindingComponents[i];
                 var transform = transforms[i];

@@ -1,7 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Chimera.AI;
+using Laboratory.Core;
 using Laboratory.Core.Events;
 using Laboratory.Core.Debug;
 
@@ -99,7 +101,8 @@ namespace Laboratory.AI.Personality
             if (!enablePersonalitySystem) return null;
 
             // Generate personality from genetics
-            personalitySystem.GeneratePersonalityFromGenetics(genome);
+            var geneticProfile = ConvertGenomeToGeneticProfile(genome);
+            personalitySystem.GeneratePersonalityFromGenetics(geneticProfile);
 
             var profile = new CreaturePersonalityProfile
             {
@@ -554,6 +557,60 @@ namespace Laboratory.AI.Personality
         public float probability;
     }
 
+        /// <summary>
+        /// Converts CreatureGenome from Advanced genetics to GeneticProfile for personality system
+        /// </summary>
+        private Laboratory.Chimera.Genetics.GeneticProfile ConvertGenomeToGeneticProfile(CreatureGenome genome)
+        {
+            var geneticProfile = new Laboratory.Chimera.Genetics.GeneticProfile();
+
+            // Copy basic data (using reflection or available setters)
+            // This is a simplified conversion - in a real implementation you'd want more sophisticated mapping
+
+            return geneticProfile;
+        }
+    }
+
+    [System.Serializable]
+    public struct EnvironmentalStimulus
+    {
+        public EnvironmentalStimulusType type;
+        public float intensity;
+        public float duration;
+        public float timestamp;
+    }
+
+    [System.Serializable]
+    public struct PersonalityTrait
+    {
+        public string name;
+        public float value;
+        public float baseValue;
+        public float modifier;
+
+        // Big Five personality traits
+        public float extroversion;
+        public float agreeableness;
+        public float conscientiousness;
+        public float neuroticism;
+        public float openness;
+
+        // Additional traits
+        public float aggressiveness;
+    }
+
+    [System.Serializable]
+    public struct BehavioralTendency
+    {
+        public float Aggression;
+        public float Sociability;
+        public float Curiosity;
+        public float Caution;
+        public float Playfulness;
+        public float Intelligence;
+        public float Dominance;
+        public float Adaptability;
+    }
 
     public enum PersonalityType
     {

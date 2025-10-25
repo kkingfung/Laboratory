@@ -1,13 +1,17 @@
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Physics;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
+using Laboratory.Chimera.ECS;
+using ChimeraCreatureIdentity = Laboratory.Chimera.ECS.CreatureIdentityComponent;
 using UnityEngine;
 using Unity.Burst;
+using Unity.Burst.Intrinsics;
 
 namespace Laboratory.Core.ECS.Systems
 {
@@ -26,7 +30,7 @@ namespace Laboratory.Core.ECS.Systems
         private EntityQuery _territoryQuery;
 
         // Spatial hash for performance optimization
-        private NativeMultiHashMap<int, CreatureData> _spatialHash;
+        private NativeParallelMultiHashMap<int, CreatureData> _spatialHash;
         private JobHandle _spatialHashJob;
 
         // Behavior decision cache
@@ -45,7 +49,7 @@ namespace Laboratory.Core.ECS.Systems
             // Create entity queries for efficient filtering
             _creatureQuery = GetEntityQuery(new ComponentType[]
             {
-                ComponentType.ReadWrite<CreatureIdentityComponent>(),
+                ComponentType.ReadWrite<ChimeraCreatureIdentity>(),
                 ComponentType.ReadWrite<ChimeraGeneticDataComponent>(),
                 ComponentType.ReadWrite<BehaviorStateComponent>(),
                 ComponentType.ReadWrite<CreatureNeedsComponent>(),
@@ -57,7 +61,7 @@ namespace Laboratory.Core.ECS.Systems
             _resourceQuery = GetEntityQuery(ComponentType.ReadOnly<ResourceComponent>());
 
             // Initialize spatial hash
-            _spatialHash = new NativeMultiHashMap<int, CreatureData>(5000, Allocator.Persistent);
+            _spatialHash = new NativeParallelMultiHashMap<int, CreatureData>(5000, Allocator.Persistent);
             _behaviorDecisions = new NativeArray<BehaviorDecision>(5000, Allocator.Persistent);
 
             RequireForUpdate(_creatureQuery);
@@ -81,14 +85,18 @@ namespace Laboratory.Core.ECS.Systems
                 _behaviorDecisions = new NativeArray<BehaviorDecision>(creatureCount * 2, Allocator.Persistent);
             }
 
-            float deltaTime = Time.DeltaTime;
-            float currentTime = (float)Time.ElapsedTime;
+            float deltaTime = SystemAPI.Time.DeltaTime;
+            float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
             // Step 1: Build spatial hash for nearby creature detection
             var buildSpatialHashJob = new BuildSpatialHashJob
             {
                 spatialHash = _spatialHash.AsParallelWriter(),
-                cellSize = _config.Performance.spatialHashCellSize
+                cellSize = _config.Performance.spatialHashCellSize,
+                transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
+                identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true),
+                geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
+                territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(true)
             };
 
             _spatialHashJob = buildSpatialHashJob.ScheduleParallel(_creatureQuery, Dependency);
@@ -101,7 +109,14 @@ namespace Laboratory.Core.ECS.Systems
                 behaviorDecisions = _behaviorDecisions,
                 deltaTime = deltaTime,
                 currentTime = currentTime,
-                randomSeed = (uint)currentTime
+                randomSeed = (uint)currentTime,
+                identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true),
+                geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
+                behaviorTypeHandle = GetComponentTypeHandle<BehaviorStateComponent>(true),
+                needsTypeHandle = GetComponentTypeHandle<CreatureNeedsComponent>(true),
+                territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(true),
+                environmentTypeHandle = GetComponentTypeHandle<EnvironmentalComponent>(true),
+                transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true)
             };
 
             var decisionHandle = behaviorDecisionJob.ScheduleParallel(_creatureQuery, _spatialHashJob);
@@ -112,7 +127,10 @@ namespace Laboratory.Core.ECS.Systems
                 config = _config,
                 behaviorDecisions = _behaviorDecisions,
                 deltaTime = deltaTime,
-                currentTime = currentTime
+                currentTime = currentTime,
+                behaviorTypeHandle = GetComponentTypeHandle<BehaviorStateComponent>(false),
+                needsTypeHandle = GetComponentTypeHandle<CreatureNeedsComponent>(false),
+                territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(false)
             };
 
             Dependency = executeBehaviorJob.ScheduleParallel(_creatureQuery, decisionHandle);
@@ -122,30 +140,28 @@ namespace Laboratory.Core.ECS.Systems
 
         // Job to build spatial hash for efficient neighbor queries
 
-        struct BuildSpatialHashJob : IJobEntityBatch
+        struct BuildSpatialHashJob : IJobChunk
         {
-            [WriteOnly] public NativeMultiHashMap<int, CreatureData>.ParallelWriter spatialHash;
+            [WriteOnly] public NativeParallelMultiHashMap<int, CreatureData>.ParallelWriter spatialHash;
             [ReadOnly] public float cellSize;
+            [ReadOnly] public ComponentTypeHandle<LocalToWorld> transformTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<ChimeraCreatureIdentity> identityTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<ChimeraGeneticDataComponent> geneticsTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<SocialTerritoryComponent> territoryTypeHandle;
 
-            public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
+            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {
-                var transforms = batchInChunk.GetNativeArray(GetComponentTypeHandle<LocalToWorld>(true));
-                var identities = batchInChunk.GetNativeArray(GetComponentTypeHandle<CreatureIdentityComponent>(true));
-                var genetics = batchInChunk.GetNativeArray(GetComponentTypeHandle<ChimeraGeneticDataComponent>(true));
-                var territories = batchInChunk.GetNativeArray(GetComponentTypeHandle<SocialTerritoryComponent>(true));
+                var transforms = chunk.GetNativeArray(ref transformTypeHandle);
+                var identities = chunk.GetNativeArray(ref identityTypeHandle);
+                var genetics = chunk.GetNativeArray(ref geneticsTypeHandle);
+                var territories = chunk.GetNativeArray(ref territoryTypeHandle);
 
-                for (int i = 0; i < batchInChunk.Count; i++)
+                for (int i = 0; i < chunk.Count; i++)
                 {
                     var position = transforms[i].Position;
                     int cellKey = GetSpatialHashKey(position, cellSize);
 
-                    var creatureData = new CreatureData
-                    {
-                        position = position,
-                        identity = identities[i],
-                        genetics = genetics[i],
-                        territory = territories[i]
-                    };
+                    var creatureData = new CreatureData(position, identities[i], genetics[i], territories[i]);
 
                     spatialHash.Add(cellKey, creatureData);
                 }
@@ -160,28 +176,35 @@ namespace Laboratory.Core.ECS.Systems
 
         // Main behavior decision job - where genetics meets AI
 
-        struct BehaviorDecisionJob : IJobEntityBatch
+        struct BehaviorDecisionJob : IJobChunk
         {
             [ReadOnly] public ChimeraUniverseConfiguration config;
-            [ReadOnly] public NativeMultiHashMap<int, CreatureData> spatialHash;
+            [ReadOnly] public NativeParallelMultiHashMap<int, CreatureData> spatialHash;
             [WriteOnly] public NativeArray<BehaviorDecision> behaviorDecisions;
             [ReadOnly] public float deltaTime;
             [ReadOnly] public float currentTime;
             [ReadOnly] public uint randomSeed;
+            [ReadOnly] public ComponentTypeHandle<ChimeraCreatureIdentity> identityTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<ChimeraGeneticDataComponent> geneticsTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<BehaviorStateComponent> behaviorTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<CreatureNeedsComponent> needsTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<SocialTerritoryComponent> territoryTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<EnvironmentalComponent> environmentTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<LocalToWorld> transformTypeHandle;
 
-            public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
+            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {
-                var identities = batchInChunk.GetNativeArray(GetComponentTypeHandle<CreatureIdentityComponent>(true));
-                var genetics = batchInChunk.GetNativeArray(GetComponentTypeHandle<ChimeraGeneticDataComponent>(true));
-                var behaviors = batchInChunk.GetNativeArray(GetComponentTypeHandle<BehaviorStateComponent>(true));
-                var needs = batchInChunk.GetNativeArray(GetComponentTypeHandle<CreatureNeedsComponent>(true));
-                var territories = batchInChunk.GetNativeArray(GetComponentTypeHandle<SocialTerritoryComponent>(true));
-                var environments = batchInChunk.GetNativeArray(GetComponentTypeHandle<EnvironmentalComponent>(true));
-                var transforms = batchInChunk.GetNativeArray(GetComponentTypeHandle<LocalToWorld>(true));
+                var identities = chunk.GetNativeArray(ref identityTypeHandle);
+                var genetics = chunk.GetNativeArray(ref geneticsTypeHandle);
+                var behaviors = chunk.GetNativeArray(ref behaviorTypeHandle);
+                var needs = chunk.GetNativeArray(ref needsTypeHandle);
+                var territories = chunk.GetNativeArray(ref territoryTypeHandle);
+                var environments = chunk.GetNativeArray(ref environmentTypeHandle);
+                var transforms = chunk.GetNativeArray(ref transformTypeHandle);
 
-                var random = new Unity.Mathematics.Random(randomSeed + (uint)batchIndex);
+                var random = new Unity.Mathematics.Random(randomSeed + (uint)unfilteredChunkIndex);
 
-                for (int i = 0; i < batchInChunk.Count; i++)
+                for (int i = 0; i < chunk.Count; i++)
                 {
                     var decision = MakeGeneticsBasedDecision(
                         identities[i], genetics[i], behaviors[i], needs[i],
@@ -189,7 +212,7 @@ namespace Laboratory.Core.ECS.Systems
                         ref random, currentTime
                     );
 
-                    int globalIndex = batchIndex * batchInChunk.Count + i;
+                    int globalIndex = unfilteredChunkIndex * chunk.Count + i;
                     if (globalIndex < behaviorDecisions.Length)
                     {
                         behaviorDecisions[globalIndex] = decision;
@@ -198,7 +221,7 @@ namespace Laboratory.Core.ECS.Systems
             }
 
             private BehaviorDecision MakeGeneticsBasedDecision(
-                CreatureIdentityComponent identity,
+                ChimeraCreatureIdentity identity,
                 ChimeraGeneticDataComponent genetics,
                 BehaviorStateComponent behavior,
                 CreatureNeedsComponent needs,
@@ -447,22 +470,25 @@ namespace Laboratory.Core.ECS.Systems
 
         // Job to execute behaviors based on decisions
 
-        struct ExecuteBehaviorJob : IJobEntityBatch
+        struct ExecuteBehaviorJob : IJobChunk
         {
             [ReadOnly] public ChimeraUniverseConfiguration config;
             [ReadOnly] public NativeArray<BehaviorDecision> behaviorDecisions;
             [ReadOnly] public float deltaTime;
             [ReadOnly] public float currentTime;
+            public ComponentTypeHandle<BehaviorStateComponent> behaviorTypeHandle;
+            public ComponentTypeHandle<CreatureNeedsComponent> needsTypeHandle;
+            public ComponentTypeHandle<SocialTerritoryComponent> territoryTypeHandle;
 
-            public void Execute(ArchetypeChunk batchInChunk, int batchIndex)
+            public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {
-                var behaviors = batchInChunk.GetNativeArray(GetComponentTypeHandle<BehaviorStateComponent>(false));
-                var needs = batchInChunk.GetNativeArray(GetComponentTypeHandle<CreatureNeedsComponent>(false));
-                var territories = batchInChunk.GetNativeArray(GetComponentTypeHandle<SocialTerritoryComponent>(false));
+                var behaviors = chunk.GetNativeArray(ref behaviorTypeHandle);
+                var needs = chunk.GetNativeArray(ref needsTypeHandle);
+                var territories = chunk.GetNativeArray(ref territoryTypeHandle);
 
-                for (int i = 0; i < batchInChunk.Count; i++)
+                for (int i = 0; i < chunk.Count; i++)
                 {
-                    int globalIndex = batchIndex * batchInChunk.Count + i;
+                    int globalIndex = unfilteredChunkIndex * chunk.Count + i;
                     if (globalIndex >= behaviorDecisions.Length) continue;
 
                     var decision = behaviorDecisions[globalIndex];
@@ -545,12 +571,20 @@ namespace Laboratory.Core.ECS.Systems
     }
 
     // Supporting data structures
-    public struct CreatureData
+    public readonly struct CreatureData
     {
-        public float3 position;
-        public CreatureIdentityComponent identity;
-        public ChimeraGeneticDataComponent genetics;
-        public SocialTerritoryComponent territory;
+        public readonly float3 position;
+        public readonly ChimeraCreatureIdentity identity;
+        public readonly ChimeraGeneticDataComponent genetics;
+        public readonly SocialTerritoryComponent territory;
+
+        public CreatureData(float3 pos, ChimeraCreatureIdentity id, ChimeraGeneticDataComponent gen, SocialTerritoryComponent terr)
+        {
+            position = pos;
+            identity = id;
+            genetics = gen;
+            territory = terr;
+        }
     }
 
     public struct BehaviorDecision

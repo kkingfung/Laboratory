@@ -5,6 +5,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Core.Events;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Shared.Interfaces;
 
 namespace Laboratory.Chimera
 {
@@ -13,7 +14,7 @@ namespace Laboratory.Chimera
     /// Add this to any creature GameObject to make it participate in breeding and genetics.
     /// </summary>
     [DisallowMultipleComponent]
-    public class CreatureInstanceComponent : MonoBehaviour
+    public class CreatureInstanceComponent : MonoBehaviour, ICreatureComponent, IPoolable
     {
         [Header("Creature Data")]
         [SerializeField] private CreatureSpeciesConfig speciesConfig;
@@ -495,9 +496,67 @@ namespace Laboratory.Chimera
                 }
             }
         }
-        
+
         #endregion
-        
+
+        #region Interface Implementations
+
+        public bool IsInitialized { get; private set; }
+        public bool IsAvailableForPool => !IsInitialized || creatureData == null;
+
+        public void ResetToDefaults()
+        {
+            // Reset creature to default state
+            IsInitialized = false;
+            if (creatureData != null)
+            {
+                creatureData.Happiness = 1.0f;
+                creatureData.Age = 0f;
+                creatureData.Level = 1;
+            }
+
+            // Reset visual state
+            var renderers = GetComponentsInChildren<Renderer>();
+            foreach (var renderer in renderers)
+            {
+                renderer.enabled = true;
+            }
+        }
+
+        public void InitializeFromPool()
+        {
+            // Initialize creature for use from pool
+            IsInitialized = true;
+
+            // Ensure creature data exists
+            if (creatureData == null && speciesConfig != null)
+            {
+                creatureData = speciesConfig.CreateInstance(isWild);
+            }
+
+            // Reset to healthy state
+            if (creatureData != null)
+            {
+                creatureData.Happiness = 1.0f;
+            }
+        }
+
+        public void OnReturnToPool()
+        {
+            // Clean up when returning to pool
+            ResetToDefaults();
+            gameObject.SetActive(false);
+        }
+
+        public void OnGetFromPool()
+        {
+            // Prepare when getting from pool
+            gameObject.SetActive(true);
+            InitializeFromPool();
+        }
+
+        #endregion
+
         #region Debug & Gizmos
         
         private void OnDrawGizmosSelected()

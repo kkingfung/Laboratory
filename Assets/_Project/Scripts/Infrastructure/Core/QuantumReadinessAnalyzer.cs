@@ -51,7 +51,7 @@ namespace Laboratory.Core.Infrastructure
                 PotentialSpeedup = 2.5f, // Theoretical 2.5x speedup with quantum parallelism
                 Description = "Event distribution could leverage quantum superposition for simultaneous multi-subscriber notification",
                 Feasibility = QuantumFeasibility.Medium,
-                ImplementationComplexity = ComplexityLevel.High
+                ImplementationComplexity = QuantumComplexityLevel.High
             };
 
             report.QuantumOpportunities.Add(opportunity);
@@ -64,7 +64,7 @@ namespace Laboratory.Core.Infrastructure
                 PotentialSpeedup = 4.0f, // Theoretical 4x speedup for correlated events
                 Description = "Related events could be quantum-entangled for instantaneous correlation analysis",
                 Feasibility = QuantumFeasibility.Low,
-                ImplementationComplexity = ComplexityLevel.VeryHigh
+                ImplementationComplexity = QuantumComplexityLevel.VeryHigh
             };
 
             report.QuantumOpportunities.Add(correlationOpportunity);
@@ -80,7 +80,7 @@ namespace Laboratory.Core.Infrastructure
                 PotentialSpeedup = 10.0f, // Theoretical 10x speedup with quantum evolution
                 Description = "Population evolution could use quantum superposition to explore multiple evolutionary paths simultaneously",
                 Feasibility = QuantumFeasibility.High,
-                ImplementationComplexity = ComplexityLevel.Medium
+                ImplementationComplexity = QuantumComplexityLevel.Medium
             };
 
             report.QuantumOpportunities.Add(geneticOpportunity);
@@ -93,7 +93,7 @@ namespace Laboratory.Core.Infrastructure
                 PotentialSpeedup = 3.2f, // Theoretical 3.2x speedup for fitness search
                 Description = "Fitness landscape exploration using quantum amplitude amplification for optimal trait discovery",
                 Feasibility = QuantumFeasibility.Medium,
-                ImplementationComplexity = ComplexityLevel.High
+                ImplementationComplexity = QuantumComplexityLevel.High
             };
 
             report.QuantumOpportunities.Add(fitnessOpportunity);
@@ -121,7 +121,7 @@ namespace Laboratory.Core.Infrastructure
                 PotentialSpeedup = 1.41f, // Theoretical √N speedup for unstructured search
                 Description = "Service discovery could use Grover's algorithm for quadratic speedup in large service collections",
                 Feasibility = QuantumFeasibility.High,
-                ImplementationComplexity = ComplexityLevel.Low
+                ImplementationComplexity = QuantumComplexityLevel.Low
             };
 
             report.QuantumOpportunities.Add(searchOpportunity);
@@ -134,7 +134,7 @@ namespace Laboratory.Core.Infrastructure
                 PotentialSpeedup = 5.0f, // Theoretical 5x speedup for complex dependency graphs
                 Description = "Circular dependency detection and optimal resolution order using quantum optimization",
                 Feasibility = QuantumFeasibility.Medium,
-                ImplementationComplexity = ComplexityLevel.High
+                ImplementationComplexity = QuantumComplexityLevel.High
             };
 
             report.QuantumOpportunities.Add(dependencyOpportunity);
@@ -160,10 +160,10 @@ namespace Laboratory.Core.Infrastructure
 
                 var complexityPenalty = opportunity.ImplementationComplexity switch
                 {
-                    ComplexityLevel.Low => 1.0f,
-                    ComplexityLevel.Medium => 0.8f,
-                    ComplexityLevel.High => 0.6f,
-                    ComplexityLevel.VeryHigh => 0.4f,
+                    QuantumComplexityLevel.Low => 1.0f,
+                    QuantumComplexityLevel.Medium => 0.8f,
+                    QuantumComplexityLevel.High => 0.6f,
+                    QuantumComplexityLevel.VeryHigh => 0.4f,
                     _ => 0.2f
                 };
 
@@ -419,10 +419,10 @@ namespace Laboratory.Core.Infrastructure
         {
             return opportunity.ImplementationComplexity switch
             {
-                ComplexityLevel.Low => TimeSpan.FromDays(30),
-                ComplexityLevel.Medium => TimeSpan.FromDays(90),
-                ComplexityLevel.High => TimeSpan.FromDays(180),
-                ComplexityLevel.VeryHigh => TimeSpan.FromDays(365),
+                QuantumComplexityLevel.Low => TimeSpan.FromDays(30),
+                QuantumComplexityLevel.Medium => TimeSpan.FromDays(90),
+                QuantumComplexityLevel.High => TimeSpan.FromDays(180),
+                QuantumComplexityLevel.VeryHigh => TimeSpan.FromDays(365),
                 _ => TimeSpan.FromDays(120)
             };
         }
@@ -445,7 +445,7 @@ namespace Laboratory.Core.Infrastructure
         public float PotentialSpeedup;
         public string Description;
         public QuantumFeasibility Feasibility;
-        public ComplexityLevel ImplementationComplexity;
+        public QuantumComplexityLevel ImplementationComplexity;
     }
 
     public struct CompatibilityIssue

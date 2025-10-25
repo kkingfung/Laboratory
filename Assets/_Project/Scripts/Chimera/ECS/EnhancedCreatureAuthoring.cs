@@ -17,7 +17,7 @@ namespace Laboratory.Chimera.ECS
     {
         [Header("Creature Data")]
         [SerializeField] private CreatureDefinition creatureDefinition;
-        [SerializeField] private GeneticProfile geneticProfile;
+        [SerializeField] private Laboratory.Chimera.Genetics.GeneticProfile geneticProfile;
         [SerializeField] private bool useRandomGenetics = true;
         
         [Header("Behavior Configuration")]
@@ -175,16 +175,15 @@ namespace Laboratory.Chimera.ECS
                     Hunger = 0.5f,
                     Thirst = 0.5f,
                     Energy = 1.0f,
-                    Social = 0.5f,
+                    SocialConnection = 0.5f,
                     Comfort = 0.5f,
-                    Happiness = 0.7f,
-                    LastFed = 0f,
-                    LastDrank = 0f,
-                    LastRested = 0f,
-                    Rest = 1.0f,
-                    Exercise = 0.5f,
-                    Mental = 0.5f,
-                    Stress = 0.2f
+                    Safety = 0.7f,
+                    BreedingUrge = 0f,
+                    Territorial = 0f,
+                    Parental = 0f,
+                    Exploration = 1.0f,
+                    Play = 0.5f,
+                    Dominance = 0.2f
                 };
                 entityManager.AddComponentData(entity, needsComponent);
             }
@@ -281,7 +280,7 @@ namespace Laboratory.Chimera.ECS
         /// <summary>
         /// Set the genetic profile for this authoring component
         /// </summary>
-        public void SetGeneticProfile(GeneticProfile genetics)
+        public void SetGeneticProfile(Laboratory.Chimera.Genetics.GeneticProfile genetics)
         {
             geneticProfile = genetics;
             useRandomGenetics = false;

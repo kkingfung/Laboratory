@@ -1,8 +1,9 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using System;
-using Laboratory.Chimera.Creatures;
+using Laboratory.Chimera;
 using Laboratory.Chimera.Core;
+using Laboratory.Chimera.Creatures;
 
 namespace Laboratory.Chimera.ECS
 {
@@ -53,10 +54,6 @@ namespace Laboratory.Chimera.ECS
 
         /// <summary>Health points regenerated per second when not in combat</summary>
         public float HealthRegenRate;
-
-        // UI compatibility properties for case-insensitive access
-        public int currentHealth => CurrentHealth;
-        public int maxHealth => MaxHealth;
     }
     
     /// <summary>
@@ -109,11 +106,6 @@ namespace Laboratory.Chimera.ECS
 
         /// <summary>Progress toward next life stage (0.0 to 1.0)</summary>
         public float MaturationProgress;
-
-        // UI compatibility properties for case-insensitive access
-        public int ageInDays => AgeInDays;
-        public float maturationProgress => MaturationProgress;
-        public LifeStage currentLifeStage => LifeStage;
     }
     
     /// <summary>
@@ -162,16 +154,6 @@ namespace Laboratory.Chimera.ECS
 
         /// <summary>Social interaction trait affecting pack behavior and breeding success (0.0-1.0)</summary>
         public float CharmTrait;
-
-        // UI compatibility properties for case-insensitive access
-        public float strengthTrait => StrengthTrait;
-        public float vitalityTrait => VitalityTrait;
-        public float agilityTrait => AgilityTrait;
-        public float resilienceTrait => ResilienceTrait;
-        public float intellectTrait => IntellectTrait;
-        public float charmTrait => CharmTrait;
-        public int generation => Generation;
-        public Guid lineageId => LineageId;
     }
     
     /// <summary>
@@ -217,20 +199,6 @@ namespace Laboratory.Chimera.ECS
         public float TargetDistance;
     }
     
-    /// <summary>
-    /// Component for breeding mechanics
-    /// </summary>
-    public struct BreedingComponent : IComponentData
-    {
-        public bool CanBreed;
-        public float FertilityRate;
-        public float LastBreedTime;
-        public float BreedingCooldown;
-        public bool IsPregnant;
-        public float PregnancyTimer;
-        public float PregnancyDuration;
-        public Entity MateEntity;
-    }
     
     /// <summary>
     /// Component for creature personality traits
@@ -246,13 +214,6 @@ namespace Laboratory.Chimera.ECS
         public float Fearfulness;
         public float Bravery;
         public float SocialNeed;
-
-        // Property accessors for UI compatibility
-        public float bravery => Bravery;
-        public float loyalty => Loyalty;
-        public float curiosity => Curiosity;
-        public float socialNeed => SocialNeed;
-        public float playfulness => Playfulness;
     }
     
     /// <summary>
@@ -268,42 +229,8 @@ namespace Laboratory.Chimera.ECS
         public int FriendCount;
         public float TrustLevel;
         public float Obedience;
-
-        // Property accessors for UI compatibility
-        public float bondStrength => BondStrength;
-        public float trustLevel => TrustLevel;
-        public float obedience => Obedience;
     }
     
-    /// <summary>
-    /// Component for creature needs and status
-    /// </summary>
-    public struct CreatureNeedsComponent : IComponentData
-    {
-        public float Hunger;
-        public float Thirst;
-        public float Energy;
-        public float Social;
-        public float Comfort;
-        public float Happiness;
-        public float LastFed;
-        public float LastDrank;
-        public float LastRested;
-        public float Rest;
-        public float Exercise;
-        public float Mental;
-        public float Stress;
-
-        // Property accessors for UI compatibility
-        public float hunger => Hunger;
-        public float thirst => Thirst;
-        public float rest => Rest;
-        public float social => Social;
-        public float exercise => Exercise;
-        public float mental => Mental;
-        public float happiness => Happiness;
-        public float stress => Stress;
-    }
     
     /// <summary>
     /// Component for creature health management
@@ -319,16 +246,6 @@ namespace Laboratory.Chimera.ECS
         public int DamageTaken;
     }
     
-    /// <summary>
-    /// Life stages for creatures
-    /// </summary>
-    public enum LifeStage : byte
-    {
-        Egg = 0,
-        Juvenile = 1,
-        Adult = 2,
-        Elder = 3
-    }
     
     /// <summary>
     /// AI states for creature behavior
@@ -479,9 +396,6 @@ namespace Laboratory.Chimera.ECS
         public float HumidityTolerance;
         public float AltitudeTolerance;
 
-        // Property accessors for UI compatibility
-        public float environmentalStress => EnvironmentalStress;
-
         public static CreatureEnvironmentalComponent Create(object environment, CreatureGeneticsComponent genetics)
         {
             return new CreatureEnvironmentalComponent
@@ -547,10 +461,5 @@ namespace Laboratory.Chimera.ECS
         public bool IsNativeToBiome;
         public float BiomeComfortLevel;
         public float AdaptationLevel;
-
-        // Property accessors for UI compatibility
-        public Laboratory.Chimera.Core.BiomeType currentBiome => CurrentBiome;
-        public float biomeComfortLevel => BiomeComfortLevel;
-        public float adaptationLevel => AdaptationLevel;
     }
 }

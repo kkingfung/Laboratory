@@ -2,7 +2,8 @@ using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.AI.Pathfinding;
-using Laboratory.Chimera.AI;
+using Laboratory.AI.ECS;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.AI.Services
 {
@@ -181,4 +182,5 @@ namespace Laboratory.AI.Services
         Diamond,
         Custom
     }
+
 }

@@ -1,6 +1,9 @@
 using UnityEngine;
+using Laboratory.Chimera;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Chimera.AI;
+using Laboratory.Core;
 using Laboratory.Core.Debug;
 
 namespace Laboratory.AI.Personality

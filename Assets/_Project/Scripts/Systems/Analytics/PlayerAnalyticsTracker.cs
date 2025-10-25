@@ -2,6 +2,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using System.Linq;
+using Laboratory.Systems.Quests;
+using Laboratory.Systems.Breeding;
+using Laboratory.Systems.Ecosystem;
+using Laboratory.Chimera.Genetics.Advanced;
 
 namespace Laboratory.Systems.Analytics
 {
@@ -226,7 +230,7 @@ namespace Laboratory.Systems.Analytics
             var parameters = new Dictionary<string, object>
             {
                 ["emotionalState"] = emotionalState.ToString(),
-                ["intensity"] = intensity.ToStringCached(),
+                ["intensity"] = intensity.ToString(),
                 ["trigger"] = trigger
             };
 

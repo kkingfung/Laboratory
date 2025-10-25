@@ -5,8 +5,9 @@ using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
-using Laboratory.AI.Services;
+using Laboratory.AI.ECS;
 using Laboratory.Chimera.ECS;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Genetics.Environmental
 {
@@ -123,8 +124,8 @@ namespace Laboratory.Chimera.Genetics.Environmental
     public partial class EnvironmentalGeneticSystem : SystemBase
     {
         private EntityQuery _environmentalGeneticQuery;
-        private IEnvironmentService _environmentService;
-        private Random _random;
+        private IEnvironmentProvider _environmentProvider;
+        private Unity.Mathematics.Random _random;
 
         // Environmental expression profiles
         private readonly Dictionary<BiomeType, EnvironmentalProfile> _biomeProfiles = new Dictionary<BiomeType, EnvironmentalProfile>();
@@ -148,16 +149,16 @@ namespace Laboratory.Chimera.Genetics.Environmental
             float deltaTime = SystemAPI.Time.DeltaTime;
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
-            // Initialize environment service if needed
-            if (_environmentService == null)
+            // Initialize environment provider if needed
+            if (_environmentProvider == null)
             {
-                _environmentService = AIServiceManager.Get<IEnvironmentService>();
+                _environmentProvider = new EnvironmentProvider();
             }
 
             // Process environmental genetic adaptations
             Entities
                 .WithAll<EnvironmentalGeneticComponent>()
-                .ForEach((Entity entity, ref EnvironmentalGeneticComponent envGenetic, ref GeneticProfile genetics,
+                .ForEach((Entity entity, ref EnvironmentalGeneticComponent envGenetic, ref GeneticModifiersComponent genetics,
                     in Unity.Transforms.LocalTransform transform, in DynamicBuffer<EnvironmentalTriggerComponent> triggers,
                     in DynamicBuffer<DynamicTraitExpressionComponent> expressions) =>
                 {
@@ -178,10 +179,10 @@ namespace Laboratory.Chimera.Genetics.Environmental
 
         private void UpdateEnvironmentalConditions(Entity entity, ref EnvironmentalGeneticComponent envGenetic, float3 position)
         {
-            if (_environmentService == null) return;
+            // Get environment data using proper provider
 
             // Get current biome
-            var currentBiome = _environmentService.GetBiomeAt(position);
+            var currentBiome = _environmentProvider.GetBiomeAt(position);
 
             if (currentBiome != envGenetic.currentBiome)
             {
@@ -196,7 +197,7 @@ namespace Laboratory.Chimera.Genetics.Environmental
             }
 
             // Calculate environmental stress
-            var pressure = _environmentService.GetEnvironmentalPressure(position, entity);
+            var pressure = _environmentProvider.GetEnvironmentalPressure(position);
             envGenetic.currentStress = pressure;
 
             // Update environmental pressure component if it exists
@@ -356,7 +357,7 @@ namespace Laboratory.Chimera.Genetics.Environmental
             expression.targetExpression = math.clamp(expression.targetExpression, 0f, 1f);
         }
 
-        private void UpdateTraitExpressions(Entity entity, ref EnvironmentalGeneticComponent envGenetic, ref GeneticProfile genetics,
+        private void UpdateTraitExpressions(Entity entity, ref EnvironmentalGeneticComponent envGenetic, ref GeneticModifiersComponent genetics,
             DynamicBuffer<DynamicTraitExpressionComponent> expressions, float deltaTime)
         {
             var updatedExpressions = EntityManager.GetBuffer<DynamicTraitExpressionComponent>(entity);
@@ -380,7 +381,7 @@ namespace Laboratory.Chimera.Genetics.Environmental
             }
         }
 
-        private void ApplyExpressionToGenetics(ref GeneticProfile genetics, DynamicTraitExpressionComponent expression)
+        private void ApplyExpressionToGenetics(ref GeneticModifiersComponent genetics, DynamicTraitExpressionComponent expression)
         {
             // Apply environmental expression to the genetic profile
             // This would modify the actual expressed traits based on environmental conditions
@@ -404,7 +405,7 @@ namespace Laboratory.Chimera.Genetics.Environmental
             }
         }
 
-        private void ProcessAdaptation(Entity entity, ref EnvironmentalGeneticComponent envGenetic, ref GeneticProfile genetics,
+        private void ProcessAdaptation(Entity entity, ref EnvironmentalGeneticComponent envGenetic, ref GeneticModifiersComponent genetics,
             float currentTime, float deltaTime)
         {
             if (!envGenetic.isAdapting) return;
@@ -418,7 +419,7 @@ namespace Laboratory.Chimera.Genetics.Environmental
             }
         }
 
-        private void PerformAdaptation(Entity entity, ref EnvironmentalGeneticComponent envGenetic, ref GeneticProfile genetics)
+        private void PerformAdaptation(Entity entity, ref EnvironmentalGeneticComponent envGenetic, ref GeneticModifiersComponent genetics)
         {
             // Create or update adaptation memory
             if (EntityManager.HasBuffer<AdaptationMemoryComponent>(entity))

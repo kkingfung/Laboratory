@@ -6,6 +6,7 @@
         "Unity.Collections",
         "Unity.Mathematics",
         "Unity.Transforms",
+        "Unity.Physics",
         "Unity.NetCode",
         "Unity.Burst",
         "UniTask",

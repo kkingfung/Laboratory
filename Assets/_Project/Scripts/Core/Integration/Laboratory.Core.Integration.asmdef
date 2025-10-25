@@ -7,6 +7,9 @@
         "Unity.Mathematics",
         "Laboratory.Core",
         "Laboratory.Chimera",
+        "Laboratory.Chimera.AI",
+        "Laboratory.Chimera.ECS",
+        "Laboratory.Shared",
         "UniTask"
     ],
     "includePlatforms": [],

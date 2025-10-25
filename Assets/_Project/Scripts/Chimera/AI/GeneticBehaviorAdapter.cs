@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Linq;
-using Laboratory.Chimera.Creatures;
+using Laboratory.Chimera;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Core;

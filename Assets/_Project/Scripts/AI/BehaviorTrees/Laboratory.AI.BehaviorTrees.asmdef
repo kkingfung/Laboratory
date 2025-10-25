@@ -8,7 +8,9 @@
         "GUID:2665a8d13d1b3f18800f46e256720795",
         "GUID:8819f35a0fc84499b990e90a4ca1911f",
         "GUID:a5baed0c9693541a5bd947d336ec7659",
-        "GUID:d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9"
+        "Laboratory.AI.ECS",
+        "Laboratory.AI.Services",
+        "Laboratory.AI.Pathfinding"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Linq;
-using Laboratory.Chimera.Creatures;
+using Laboratory.Chimera;
 using Laboratory.Chimera.Breeding;
 
 namespace Laboratory.Chimera.AI

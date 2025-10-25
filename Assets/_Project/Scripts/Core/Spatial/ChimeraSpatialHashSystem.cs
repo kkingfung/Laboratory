@@ -29,7 +29,7 @@ namespace Laboratory.Core.Spatial
         private EntityQuery spatialUpdateQuery;
 
         // Spatial hash data
-        private NativeMultiHashMap<int, SpatialHashEntry> spatialHashMap;
+        private NativeParallelMultiHashMap<int, SpatialHashEntry> spatialHashMap;
         private NativeArray<float3> entityPositions;
         private NativeArray<Entity> entityList;
         private NativeArray<int> cellOccupancy;
@@ -80,7 +80,7 @@ namespace Laboratory.Core.Spatial
             });
 
             // Initialize spatial hash data structures
-            spatialHashMap = new NativeMultiHashMap<int, SpatialHashEntry>(HASH_TABLE_SIZE * 4, Allocator.Persistent);
+            spatialHashMap = new NativeParallelMultiHashMap<int, SpatialHashEntry>(HASH_TABLE_SIZE * 4, Allocator.Persistent);
             entityPositions = new NativeArray<float3>(2000, Allocator.Persistent);
             entityList = new NativeArray<Entity>(2000, Allocator.Persistent);
             cellOccupancy = new NativeArray<int>(HASH_TABLE_SIZE, Allocator.Persistent);
@@ -121,7 +121,7 @@ namespace Laboratory.Core.Spatial
 
         private partial struct UpdateSpatialHashJob : IJobEntity
         {
-            public NativeMultiHashMap<int, SpatialHashEntry> spatialHashMap;
+            public NativeParallelMultiHashMap<int, SpatialHashEntry> spatialHashMap;
             [NativeDisableParallelForRestriction]
             public NativeArray<int> cellOccupancy;
             [NativeDisableParallelForRestriction]
@@ -220,7 +220,7 @@ namespace Laboratory.Core.Spatial
 
         private struct ProcessSpatialQueriesJob : IJob
         {
-            [ReadOnly] public NativeMultiHashMap<int, SpatialHashEntry>.ReadOnly spatialHashMap;
+            [ReadOnly] public NativeParallelMultiHashMap<int, SpatialHashEntry>.ReadOnly spatialHashMap;
             [ReadOnly] public NativeArray<float3> entityPositions;
             [NativeDisableParallelForRestriction]
             public NativeArray<SpatialPerformanceMetrics> performanceMetrics;
@@ -308,7 +308,7 @@ namespace Laboratory.Core.Spatial
             public int resultCount;
         }
 
-        private struct SpatialPerformanceStats
+        public struct SpatialPerformanceStats
         {
             public int totalQueries;
             public int cacheHits;

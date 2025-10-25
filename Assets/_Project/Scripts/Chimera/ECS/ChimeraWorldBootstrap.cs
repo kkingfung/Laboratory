@@ -1,3 +1,4 @@
+using System.Linq;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -6,6 +7,7 @@ using UnityEngine;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Core.ECS.Systems;
+using Laboratory.Chimera.Integration;
 
 namespace Laboratory.Chimera.ECS
 {
@@ -58,12 +60,12 @@ namespace Laboratory.Chimera.ECS
 
         // Runtime references
         private EntityManager _entityManager;
-        private World _defaultWorld;
+        private Unity.Entities.World _defaultWorld;
         private ChimeraBehaviorSystem _behaviorSystem;
 
         // Integration components
-        private Laboratory.Chimera.Integration.ChimeraSystemBridge _systemBridge;
-        private Laboratory.Chimera.Integration.ChimeraConfigurationIntegrator _configIntegrator;
+        private ChimeraSystemBridge _systemBridge;
+        private ChimeraConfigurationIntegrator _configIntegrator;
 
         // Bootstrap statistics
         private int _createdCreatures = 0;
@@ -91,8 +93,15 @@ namespace Laboratory.Chimera.ECS
                 worldCenter = transform;
 
             // Get ECS references
-            _defaultWorld = World.DefaultGameObjectInjectionWorld;
-            _entityManager = _defaultWorld?.EntityManager;
+            _defaultWorld = World.DefaultGameObjectInjectionWorld ?? World.All.FirstOrDefault();
+
+            if (_defaultWorld == null)
+            {
+                UnityEngine.Debug.LogError("🚨 Default ECS World is null! Cannot initialize Chimera systems");
+                return;
+            }
+
+            _entityManager = _defaultWorld.EntityManager;
 
             if (_entityManager == null)
             {
@@ -493,7 +502,9 @@ namespace Laboratory.Chimera.ECS
 
             var renderer = visualizer.AddComponent<LineRenderer>();
             renderer.material = new Material(Shader.Find("Sprites/Default"));
-            renderer.color = GetBiomeConfiguration(biomeType).debugColor;
+            var biomeColor = GetBiomeConfiguration(biomeType).debugColor;
+            renderer.startColor = biomeColor;
+            renderer.endColor = biomeColor;
             renderer.widthMultiplier = 0.5f;
             renderer.useWorldSpace = false;
 
@@ -513,7 +524,7 @@ namespace Laboratory.Chimera.ECS
         {
             foreach (var biome in universeConfig.Ecosystem.biomes)
             {
-                if (biome.type == biomeType)
+                if ((BiomeType)biome.type == biomeType)
                     return biome;
             }
             return universeConfig.Ecosystem.biomes[0]; // Fallback
@@ -573,16 +584,16 @@ namespace Laboratory.Chimera.ECS
         private void InitializeSystemIntegration()
         {
             // Create system bridge if it doesn't exist
-            _systemBridge = FindFirstObjectByType<Laboratory.Chimera.Integration.ChimeraSystemBridge>();
+            _systemBridge = FindFirstObjectByType<ChimeraSystemBridge>();
             if (_systemBridge == null)
             {
                 var bridgeGO = new GameObject("Chimera System Bridge");
-                _systemBridge = bridgeGO.AddComponent<Laboratory.Chimera.Integration.ChimeraSystemBridge>();
+                _systemBridge = bridgeGO.AddComponent<ChimeraSystemBridge>();
                 bridgeGO.transform.SetParent(transform);
             }
 
             // Create configuration integrator
-            _configIntegrator = ScriptableObject.CreateInstance<Laboratory.Chimera.Integration.ChimeraConfigurationIntegrator>();
+            _configIntegrator = ScriptableObject.CreateInstance<ChimeraConfigurationIntegrator>();
 
             // Auto-find existing systems if not assigned
             if (existingAIManager == null)
@@ -595,10 +606,7 @@ namespace Laboratory.Chimera.ECS
             if (existingAIManager != null && universeConfig != null)
             {
                 // Apply unified configuration to existing AI manager
-                using (Laboratory.Chimera.Integration.ChimeraExtensionMethods)
-                {
-                    existingAIManager.ApplyUnifiedConfiguration(universeConfig);
-                }
+                existingAIManager.ApplyUnifiedConfiguration(universeConfig);
 
                 if (logBootstrapProcess)
                     UnityEngine.Debug.Log("🔗 Integrated existing ChimeraAIManager with unified configuration");
@@ -629,6 +637,10 @@ namespace Laboratory.Chimera.ECS
                         UnityEngine.Debug.Log($"🔗 Created ECS bridge for existing creature: {creature.name}");
                     }
                 }
+                else if (logBootstrapProcess)
+                {
+                    UnityEngine.Debug.Log($"🔗 Found existing creature: {creature.name}");
+                }
             }
 
             if (existingCreatures.Length > 0 && logBootstrapProcess)
@@ -644,8 +656,8 @@ namespace Laboratory.Chimera.ECS
             // Setup configuration integrator with all available configs
             var integrator = _configIntegrator;
 
-            // Use reflection to set private fields (since we can't modify the integrator constructor)
-            var integratorType = typeof(Laboratory.Chimera.Integration.ChimeraConfigurationIntegrator);
+            // Initialize the configuration integrator
+            integrator.Initialize(universeConfig, traitLibrary, biomeConfig, speciesConfig);
 
             // This would normally be set through inspector, but we're setting it programmatically
             if (traitLibrary != null)

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using Laboratory.Chimera.Breeding;
+using Laboratory.Chimera;
 using Laboratory.Chimera.Creatures;
 
 namespace Laboratory.Chimera.AI

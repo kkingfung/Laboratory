@@ -4,7 +4,6 @@
     "references": [
         "Laboratory.Core",
         "Laboratory.Chimera",
-        "Laboratory.Chimera.Core",
         "Laboratory.Chimera.ECS",
         "Laboratory.Chimera.AI",
         "Laboratory.Chimera.Genetics.Advanced",

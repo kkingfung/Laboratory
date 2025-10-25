@@ -3,6 +3,8 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using Laboratory.Core.ECS;
+using Laboratory.Shared.Interfaces;
+using Laboratory.Compatibility;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 
@@ -73,7 +75,7 @@ namespace Laboratory.Core.Memory
             public string poolCategory;
         }
 
-        private struct MemoryPoolStatistics
+        public struct MemoryPoolStatistics
         {
             public int totalAllocations;
             public int totalDeallocations;
@@ -185,11 +187,18 @@ namespace Laboratory.Core.Memory
                     trailRenderer.Clear();
                 }
 
-                // Reset any creature-specific components
-                var creatureComponent = obj.GetComponent<CreatureInstanceComponent>();
-                if (creatureComponent != null)
+                // Reset any creature-specific components using proper interface
+                var creatureComponents = obj.GetComponents<ICreatureComponent>();
+                foreach (var component in creatureComponents)
                 {
-                    creatureComponent.ResetToDefaults();
+                    component.ResetToDefaults();
+                }
+
+                // Reset any poolable components
+                var poolableComponents = obj.GetComponents<IPoolable>();
+                foreach (var component in poolableComponents)
+                {
+                    component.OnReturnToPool();
                 }
             }
 
@@ -556,11 +565,18 @@ namespace Laboratory.Core.Memory
                 {
                     creature.transform.position = positions[i % positions.Length];
 
-                    // Initialize creature without allocation
-                    var creatureComponent = creature.GetComponent<CreatureInstanceComponent>();
-                    if (creatureComponent != null)
+                    // Initialize creature without allocation using proper interface
+                    var creatureComponents = creature.GetComponents<ICreatureComponent>();
+                    foreach (var component in creatureComponents)
                     {
-                        creatureComponent.InitializeFromPool();
+                        component.InitializeFromPool();
+                    }
+
+                    // Initialize poolable components
+                    var poolableComponents = creature.GetComponents<IPoolable>();
+                    foreach (var component in poolableComponents)
+                    {
+                        component.OnGetFromPool();
                     }
                 }
             }
@@ -735,7 +751,7 @@ namespace Laboratory.Core.Memory
             {
                 if (instance == null)
                 {
-                    instance = FindFirstObjectByType<ChimeraMemoryPoolManager>();
+                    instance = UnityCompatibility.FindFirstObjectByType<ChimeraMemoryPoolManager>();
                     if (instance == null)
                     {
                         var go = new GameObject("Chimera Memory Pool Manager");

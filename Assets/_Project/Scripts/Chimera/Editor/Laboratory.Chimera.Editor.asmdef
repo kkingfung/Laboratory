@@ -1,0 +1,23 @@
+{
+    "name": "Laboratory.Chimera.Editor",
+    "rootNamespace": "Laboratory.Chimera.Editor",
+    "references": [
+        "Laboratory.Core",
+        "Laboratory.Chimera",
+        "Laboratory.Chimera.ECS",
+        "Laboratory.Chimera.AI",
+        "Laboratory.Chimera.Configuration",
+        "Laboratory.Shared"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

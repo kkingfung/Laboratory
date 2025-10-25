@@ -130,12 +130,6 @@ namespace Laboratory.Chimera.Creatures
         public int intelligence;
         public int charisma;
         
-        // Additional properties for compatibility
-        public int Strength => attack;
-        public int Agility => speed;
-        public int Endurance => defense;
-        public int Intelligence => intelligence;
-        
         public static CreatureStats operator *(CreatureStats stats, float multiplier)
         {
             return new CreatureStats

@@ -5,6 +5,8 @@ using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
+using Laboratory.Shared.Types;
+using Laboratory.Chimera.ECS;
 using System.Collections.Generic;
 
 namespace Laboratory.Chimera.Integration
@@ -21,11 +23,11 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Convert MonoBehaviour AI to ECS components (extension method)
         /// </summary>
-        public static ChimeraGeneticDataComponent ToECSGeneticsComponent(this ChimeraMonsterAI monsterAI)
+        public static Laboratory.Chimera.ECS.ChimeraGeneticDataComponent ToECSGeneticsComponent(this ChimeraMonsterAI monsterAI)
         {
             var genetics = monsterAI.GetGeneticsData();
 
-            return new ChimeraGeneticDataComponent
+            return new Laboratory.Chimera.ECS.ChimeraGeneticDataComponent
             {
                 Aggression = genetics.GetTraitValue("Aggression", 0.5f),
                 Sociability = genetics.GetTraitValue("Sociability", 0.5f),
@@ -52,9 +54,9 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Get ECS-compatible behavior state from MonoBehaviour AI
         /// </summary>
-        public static BehaviorStateComponent ToECSBehaviorState(this ChimeraMonsterAI monsterAI)
+        public static Laboratory.Chimera.ECS.BehaviorStateComponent ToECSBehaviorState(this ChimeraMonsterAI monsterAI)
         {
-            return new BehaviorStateComponent
+            return new Laboratory.Chimera.ECS.BehaviorStateComponent
             {
                 CurrentBehavior = ConvertAIBehaviorToECS(monsterAI.GetCurrentBehaviorType()),
                 BehaviorIntensity = monsterAI.GetBehaviorIntensity(),
@@ -69,7 +71,7 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Apply ECS genetics data to MonoBehaviour AI
         /// </summary>
-        public static void ApplyECSGenetics(this ChimeraMonsterAI monsterAI, ChimeraGeneticDataComponent ecsGenetics)
+        public static void ApplyECSGenetics(this ChimeraMonsterAI monsterAI, Laboratory.Chimera.ECS.ChimeraGeneticDataComponent ecsGenetics)
         {
             var genetics = monsterAI.GetGeneticsData();
 
@@ -91,7 +93,7 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Apply ECS behavior state to MonoBehaviour AI
         /// </summary>
-        public static void ApplyECSBehaviorState(this ChimeraMonsterAI monsterAI, BehaviorStateComponent ecsBehavior)
+        public static void ApplyECSBehaviorState(this ChimeraMonsterAI monsterAI, Laboratory.Chimera.ECS.BehaviorStateComponent ecsBehavior)
         {
             var monoBehaviorType = ConvertECSBehaviorToAI(ecsBehavior.CurrentBehavior);
             monsterAI.SetBehaviorType(monoBehaviorType);
@@ -124,9 +126,9 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Get all managed creatures as ECS-compatible data
         /// </summary>
-        public static List<ChimeraGeneticDataComponent> GetAllCreatureGeneticsECS(this ChimeraAIManager aiManager)
+        public static List<Laboratory.Chimera.ECS.ChimeraGeneticDataComponent> GetAllCreatureGeneticsECS(this ChimeraAIManager aiManager)
         {
-            var genetics = new List<ChimeraGeneticDataComponent>();
+            var genetics = new List<Laboratory.Chimera.ECS.ChimeraGeneticDataComponent>();
             var monsters = aiManager.GetManagedMonsters();
 
             foreach (var monster in monsters)
@@ -195,9 +197,9 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Convert existing GeneticProfile to ECS ChimeraGeneticDataComponent
         /// </summary>
-        public static ChimeraGeneticDataComponent ToECSComponent(this GeneticProfile profile)
+        public static Laboratory.Chimera.ECS.ChimeraGeneticDataComponent ToECSComponent(this Laboratory.Chimera.Genetics.GeneticProfile profile)
         {
-            var component = new ChimeraGeneticDataComponent();
+            var component = new Laboratory.Chimera.ECS.ChimeraGeneticDataComponent();
 
             foreach (var gene in profile.Genes)
             {
@@ -250,7 +252,7 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Create GeneticProfile from ECS ChimeraGeneticDataComponent
         /// </summary>
-        public static GeneticProfile FromECSComponent(ChimeraGeneticDataComponent ecsGenetics)
+        public static Laboratory.Chimera.Genetics.GeneticProfile FromECSComponent(Laboratory.Chimera.ECS.ChimeraGeneticDataComponent ecsGenetics)
         {
             var genes = new List<Gene>
             {
@@ -264,7 +266,7 @@ namespace Laboratory.Chimera.Integration
                 CreateGeneFromTrait("Fertility", ecsGenetics.Fertility)
             };
 
-            return new GeneticProfile(genes.ToArray(), 1);
+            return new Laboratory.Chimera.Genetics.GeneticProfile(genes.ToArray(), 1);
         }
 
         private static Gene CreateGeneFromTrait(string traitName, float value)
@@ -285,11 +287,11 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Convert MonoBehaviour breeding result to ECS breeding component
         /// </summary>
-        public static BreedingComponent ToECSBreedingComponent(this BreedingResult breedingResult)
+        public static Laboratory.Chimera.ECS.BreedingComponent ToECSBreedingComponent(this BreedingResult breedingResult)
         {
-            return new BreedingComponent
+            return new Laboratory.Chimera.ECS.BreedingComponent
             {
-                Status = breedingResult.Success ? BreedingStatus.Mating : BreedingStatus.Cooldown,
+                Status = breedingResult.Success ? Laboratory.Chimera.ECS.BreedingStatus.Mating : Laboratory.Chimera.ECS.BreedingStatus.Cooldown,
                 BreedingReadiness = breedingResult.CompatibilityScore,
                 CourtshipProgress = breedingResult.Success ? 1f : 0f,
                 PartnerCompatibility = breedingResult.CompatibilityScore,
@@ -313,11 +315,11 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Get ECS-compatible biome data from existing biome config
         /// </summary>
-        public static BiomeComponent ToECSBiomeComponent(this ChimeraBiomeConfig biomeConfig, BiomeType biomeType)
+        public static Laboratory.Chimera.ECS.BiomeComponent ToECSBiomeComponent(this ChimeraBiomeConfig biomeConfig, BiomeType biomeType)
         {
             var biomeData = biomeConfig.GetBiomeData(biomeType.ToString());
 
-            return new BiomeComponent
+            return new Laboratory.Chimera.ECS.BiomeComponent
             {
                 BiomeType = biomeType,
                 Center = Vector3.zero, // Would be set based on world position
@@ -402,7 +404,7 @@ namespace Laboratory.Chimera.Integration
             }
         }
 
-        private static uint CalculateHashFromProfile(GeneticProfile profile)
+        private static uint CalculateHashFromProfile(Laboratory.Chimera.Genetics.GeneticProfile profile)
         {
             uint hash = 0;
             foreach (var gene in profile.Genes)

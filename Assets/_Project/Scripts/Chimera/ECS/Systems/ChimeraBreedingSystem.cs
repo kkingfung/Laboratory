@@ -8,6 +8,8 @@ using Unity.Burst.Intrinsics;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
+using Laboratory.Chimera.ECS;
+using ChimeraCreatureIdentity = Laboratory.Chimera.ECS.CreatureIdentityComponent;
 using UnityEngine;
 
 namespace Laboratory.Core.ECS.Systems
@@ -27,7 +29,7 @@ namespace Laboratory.Core.ECS.Systems
         private EntityQuery _caringQuery;
 
         // Spatial hash for mate finding
-        private NativeMultiHashMap<int, BreedingCandidate> _spatialBreedingHash;
+        private NativeParallelMultiHashMap<int, BreedingCandidate> _spatialBreedingHash;
 
         // Legacy system integration
         private Laboratory.Chimera.Breeding.BreedingSystem _legacyBreedingSystem;
@@ -43,20 +45,16 @@ namespace Laboratory.Core.ECS.Systems
             }
 
             // Create entity queries for different breeding states
-            _breedingReadyQuery = GetEntityQuery(new ComponentType[]
-            {
+            _breedingReadyQuery = GetEntityQuery(
                 ComponentType.ReadWrite<BreedingComponent>(),
                 ComponentType.ReadOnly<ChimeraGeneticDataComponent>(),
-                ComponentType.ReadOnly<CreatureIdentityComponent>(),
+                ComponentType.ReadOnly<ChimeraCreatureIdentity>(),
                 ComponentType.ReadOnly<SocialTerritoryComponent>(),
                 ComponentType.ReadOnly<EnvironmentalComponent>(),
                 ComponentType.ReadOnly<BehaviorStateComponent>(),
-                ComponentType.ReadOnly<LocalToWorld>()
-            }, new ComponentType[]
-            {
+                ComponentType.ReadOnly<LocalToWorld>(),
                 ComponentType.Exclude<PregnantTag>(),
-                ComponentType.Exclude<CaringTag>()
-            });
+                ComponentType.Exclude<CaringTag>());
 
             _pregnantQuery = GetEntityQuery(ComponentType.ReadWrite<BreedingComponent>(),
                                            ComponentType.ReadOnly<PregnantTag>());
@@ -65,7 +63,7 @@ namespace Laboratory.Core.ECS.Systems
                                          ComponentType.ReadOnly<CaringTag>());
 
             // Initialize spatial hash
-            _spatialBreedingHash = new NativeMultiHashMap<int, BreedingCandidate>(1000, Allocator.Persistent);
+            _spatialBreedingHash = new NativeParallelMultiHashMap<int, BreedingCandidate>(1000, Allocator.Persistent);
 
             // Initialize legacy system for complex breeding calculations
             _legacyBreedingSystem = new Laboratory.Chimera.Breeding.BreedingSystem(null);
@@ -142,7 +140,7 @@ namespace Laboratory.Core.ECS.Systems
                 transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
                 breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(true),
                 geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
-                identityTypeHandle = GetComponentTypeHandle<CreatureIdentityComponent>(true)
+                identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true)
             };
 
             var hashHandle = buildHashJob.ScheduleParallel(_breedingReadyQuery, Dependency);
@@ -161,7 +159,7 @@ namespace Laboratory.Core.ECS.Systems
                 transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
                 breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false),
                 geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
-                identityTypeHandle = GetComponentTypeHandle<CreatureIdentityComponent>(true),
+                identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true),
                 territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(true),
                 behaviorTypeHandle = GetComponentTypeHandle<BehaviorStateComponent>(true)
             };
@@ -172,13 +170,13 @@ namespace Laboratory.Core.ECS.Systems
 
         struct BuildBreedingSpatialHashJob : IJobChunk
         {
-            [WriteOnly] public NativeMultiHashMap<int, BreedingCandidate>.ParallelWriter spatialHash;
+            [WriteOnly] public NativeParallelMultiHashMap<int, BreedingCandidate>.ParallelWriter spatialHash;
             [ReadOnly] public float cellSize;
             [ReadOnly] public EntityTypeHandle entityTypeHandle;
             [ReadOnly] public ComponentTypeHandle<LocalToWorld> transformTypeHandle;
             [ReadOnly] public ComponentTypeHandle<BreedingComponent> breedingTypeHandle;
             [ReadOnly] public ComponentTypeHandle<ChimeraGeneticDataComponent> geneticsTypeHandle;
-            [ReadOnly] public ComponentTypeHandle<CreatureIdentityComponent> identityTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<ChimeraCreatureIdentity> identityTypeHandle;
 
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in Unity.Burst.Intrinsics.v128 chunkEnabledMask)
             {
@@ -195,14 +193,7 @@ namespace Laboratory.Core.ECS.Systems
                     var position = transforms[i].Position;
                     int cellKey = GetSpatialHashKey(position, cellSize);
 
-                    var candidate = new BreedingCandidate
-                    {
-                        entity = entities[i],
-                        position = position,
-                        genetics = genetics[i],
-                        identity = identities[i],
-                        breeding = breeding[i]
-                    };
+                    var candidate = new BreedingCandidate(entities[i], position, genetics[i], identities[i], breeding[i]);
 
                     spatialHash.Add(cellKey, candidate);
                 }
@@ -219,7 +210,7 @@ namespace Laboratory.Core.ECS.Systems
         struct BreedingAttemptJob : IJobChunk
         {
             [ReadOnly] public ChimeraUniverseConfiguration config;
-            [ReadOnly] public NativeMultiHashMap<int, BreedingCandidate> spatialHash;
+            [ReadOnly] public NativeParallelMultiHashMap<int, BreedingCandidate> spatialHash;
             [ReadOnly] public float deltaTime;
             [ReadOnly] public float currentTime;
             [ReadOnly] public uint randomSeed;
@@ -228,7 +219,7 @@ namespace Laboratory.Core.ECS.Systems
             [ReadOnly] public ComponentTypeHandle<LocalToWorld> transformTypeHandle;
             public ComponentTypeHandle<BreedingComponent> breedingTypeHandle;
             [ReadOnly] public ComponentTypeHandle<ChimeraGeneticDataComponent> geneticsTypeHandle;
-            [ReadOnly] public ComponentTypeHandle<CreatureIdentityComponent> identityTypeHandle;
+            [ReadOnly] public ComponentTypeHandle<ChimeraCreatureIdentity> identityTypeHandle;
             [ReadOnly] public ComponentTypeHandle<SocialTerritoryComponent> territoryTypeHandle;
             [ReadOnly] public ComponentTypeHandle<BehaviorStateComponent> behaviorTypeHandle;
 
@@ -288,11 +279,11 @@ namespace Laboratory.Core.ECS.Systems
             }
 
             private BreedingCandidate FindBestMate(Entity self, float3 position, ChimeraGeneticDataComponent selfGenetics,
-                                                 CreatureIdentityComponent selfIdentity, BreedingComponent selfBreeding,
+                                                 ChimeraCreatureIdentity selfIdentity, BreedingComponent selfBreeding,
                                                  ref Unity.Mathematics.Random random)
             {
                 int cellKey = GetSpatialHashKey(position, config.Performance.spatialHashCellSize);
-                var bestMate = new BreedingCandidate { entity = Entity.Null };
+                var bestMate = new BreedingCandidate(Entity.Null, float3.zero, default, default, default);
                 float bestScore = 0f;
 
                 // Check current and nearby cells
@@ -340,7 +331,7 @@ namespace Laboratory.Core.ECS.Systems
                 return species1.Equals(species2);
             }
 
-            private bool IsCompatibleAge(CreatureIdentityComponent identity1, CreatureIdentityComponent identity2)
+            private bool IsCompatibleAge(ChimeraCreatureIdentity identity1, ChimeraCreatureIdentity identity2)
             {
                 // Both must be adult
                 return identity1.CurrentLifeStage == LifeStage.Adult &&
@@ -348,7 +339,7 @@ namespace Laboratory.Core.ECS.Systems
             }
 
             private float CalculateMateScore(ChimeraGeneticDataComponent selfGenetics, ChimeraGeneticDataComponent mateGenetics,
-                                           CreatureIdentityComponent selfIdentity, CreatureIdentityComponent mateIdentity,
+                                           ChimeraCreatureIdentity selfIdentity, ChimeraCreatureIdentity mateIdentity,
                                            BreedingComponent selfBreeding, float distance)
             {
                 float score = 1f;
@@ -397,7 +388,7 @@ namespace Laboratory.Core.ECS.Systems
             }
 
             private float CalculateBreedingSuccessChance(ChimeraGeneticDataComponent parent1, ChimeraGeneticDataComponent parent2,
-                                                       CreatureIdentityComponent identity1, CreatureIdentityComponent identity2)
+                                                       ChimeraCreatureIdentity identity1, ChimeraCreatureIdentity identity2)
             {
                 float baseChance = 0.7f;
 
@@ -503,7 +494,7 @@ namespace Laboratory.Core.ECS.Systems
                     var baby = commandBuffer.CreateEntity(chunkIndex);
 
                     // Add basic components to offspring
-                    commandBuffer.AddComponent<CreatureIdentityComponent>(chunkIndex, baby, new CreatureIdentityComponent
+                    commandBuffer.AddComponent<ChimeraCreatureIdentity>(chunkIndex, baby, new ChimeraCreatureIdentity
                     {
                         Species = "OffspringSpecies", // Would be determined from parents
                         CreatureName = $"Baby_{offspring}",
@@ -525,7 +516,7 @@ namespace Laboratory.Core.ECS.Systems
                         Sociability = 0.5f,
                         Fertility = 0.5f,
                         Size = 0.3f, // Baby size
-                        NativeBiome = BiomeType.Grassland
+                        NativeBiome = Laboratory.Chimera.ECS.BiomeType.Grassland
                     });
 
                     commandBuffer.AddComponent<BehaviorStateComponent>(chunkIndex, baby);
@@ -579,13 +570,22 @@ namespace Laboratory.Core.ECS.Systems
     }
 
     // Supporting structures
-    public struct BreedingCandidate
+    public readonly struct BreedingCandidate
     {
-        public Entity entity;
-        public float3 position;
-        public ChimeraGeneticDataComponent genetics;
-        public CreatureIdentityComponent identity;
-        public BreedingComponent breeding;
+        public readonly Entity entity;
+        public readonly float3 position;
+        public readonly ChimeraGeneticDataComponent genetics;
+        public readonly ChimeraCreatureIdentity identity;
+        public readonly BreedingComponent breeding;
+
+        public BreedingCandidate(Entity ent, float3 pos, ChimeraGeneticDataComponent gen, ChimeraCreatureIdentity id, BreedingComponent breed)
+        {
+            entity = ent;
+            position = pos;
+            genetics = gen;
+            identity = id;
+            breeding = breed;
+        }
     }
 
     // Tag components for breeding states

@@ -72,7 +72,7 @@ namespace Laboratory.Core.Infrastructure
                     "System achieves meta-optimization through self-reflection",
                     "Transcends halting problem limitations for genetic processes"
                 },
-                ImplementationComplexity = ComplexityLevel.Transcendent,
+                ImplementationComplexity = PostGodelianComplexityLevel.Transcendent,
                 TheoreticalSoundness = 0.85f
             });
 
@@ -91,7 +91,7 @@ namespace Laboratory.Core.Infrastructure
                     "Perfect service matching through cardinal arithmetic",
                     "Transcends computational complexity hierarchy"
                 },
-                ImplementationComplexity = ComplexityLevel.Transcendent,
+                ImplementationComplexity = PostGodelianComplexityLevel.Transcendent,
                 TheoreticalSoundness = 0.72f
             });
 
@@ -110,7 +110,7 @@ namespace Laboratory.Core.Infrastructure
                     "Infinite-precision event ordering and causality",
                     "Transcends speed-of-light information propagation through hyperreal time"
                 },
-                ImplementationComplexity = ComplexityLevel.Transcendent,
+                ImplementationComplexity = PostGodelianComplexityLevel.Transcendent,
                 TheoreticalSoundness = 0.68f
             });
         }
@@ -505,7 +505,7 @@ namespace Laboratory.Core.Infrastructure
         public string TranscendenceMethod;
         public string GodelEscapeMechanism;
         public List<string> OptimizationImplications;
-        public ComplexityLevel ImplementationComplexity;
+        public PostGodelianComplexityLevel ImplementationComplexity;
         public float TheoreticalSoundness;
     }
 

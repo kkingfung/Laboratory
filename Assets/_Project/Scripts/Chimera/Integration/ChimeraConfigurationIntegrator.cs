@@ -1,6 +1,8 @@
 using UnityEngine;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Shared.Types;
+using Laboratory.Chimera.ECS;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -526,7 +528,7 @@ namespace Laboratory.Chimera.Integration
     {
         public string name;
         public float baseValue;
-        public TraitType type;
+        public Laboratory.Chimera.Genetics.TraitType type;
     }
     public class InheritanceRule { }
     public class SpeciesData
