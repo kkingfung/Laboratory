@@ -7,7 +7,7 @@ using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
 using Laboratory.AI.ECS;
 using Laboratory.Chimera.ECS;
-using Laboratory.Shared.Types;
+using Laboratory.Chimera.Genetics.Environmental;
 
 namespace Laboratory.Chimera.Genetics.Environmental
 {
@@ -138,7 +138,7 @@ namespace Laboratory.Chimera.Genetics.Environmental
                 ComponentType.ReadOnly<Unity.Transforms.LocalTransform>()
             );
 
-            _random = new Random((uint)System.DateTime.Now.Ticks);
+            _random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
             InitializeBiomeProfiles();
 
             RequireForUpdate(_environmentalGeneticQuery);
@@ -320,13 +320,13 @@ namespace Laboratory.Chimera.Genetics.Environmental
                 }
             }
 
-            Debug.Log($"Environmental trigger activated: {trigger.triggerType} affecting {trigger.affectedTrait}");
+            UnityEngine.Debug.Log($"Environmental trigger activated: {trigger.triggerType} affecting {trigger.affectedTrait}");
         }
 
         private void OnTriggerDeactivated(Entity entity, EnvironmentalTriggerComponent trigger)
         {
             // Gradually return to baseline expression
-            Debug.Log($"Environmental trigger deactivated: {trigger.triggerType}");
+            UnityEngine.Debug.Log($"Environmental trigger deactivated: {trigger.triggerType}");
         }
 
         private void ModifyTraitExpression(ref DynamicTraitExpressionComponent expression, EnvironmentalTriggerComponent trigger)
@@ -387,20 +387,20 @@ namespace Laboratory.Chimera.Genetics.Environmental
             // This would modify the actual expressed traits based on environmental conditions
             switch (expression.traitType)
             {
-                case TraitType.Speed:
-                    // Apply speed modification (example)
+                case TraitType.Physical:
+                    // Apply physical trait modification (includes speed/strength)
                     break;
 
-                case TraitType.Strength:
-                    // Apply strength modification (example)
+                case TraitType.Combat:
+                    // Apply combat trait modification
                     break;
 
-                case TraitType.Intelligence:
-                    // Apply intelligence modification (example)
+                case TraitType.Mental:
+                    // Apply mental trait modification (includes intelligence)
                     break;
 
-                case TraitType.Adaptability:
-                    // Apply adaptability modification (example)
+                case TraitType.Environmental:
+                    // Apply environmental adaptation modification
                     break;
             }
         }
@@ -448,7 +448,7 @@ namespace Laboratory.Chimera.Genetics.Environmental
                     memoryBuffer.Add(new AdaptationMemoryComponent
                     {
                         biome = envGenetic.currentBiome,
-                        trait = TraitType.Adaptability, // Primary adaptation trait
+                        trait = TraitType.Environmental, // Primary adaptation trait
                         adaptedValue = envGenetic.currentStress < 0.5f ? 1.2f : 0.8f,
                         adaptationStrength = 0.2f,
                         timeToAdapt = envGenetic.timeInCurrentBiome,
@@ -464,7 +464,7 @@ namespace Laboratory.Chimera.Genetics.Environmental
                 memoryBuffer.Add(new AdaptationMemoryComponent
                 {
                     biome = envGenetic.currentBiome,
-                    trait = TraitType.Adaptability,
+                    trait = TraitType.Environmental,
                     adaptedValue = 1.1f,
                     adaptationStrength = 0.2f,
                     timeToAdapt = envGenetic.timeInCurrentBiome,
@@ -473,7 +473,7 @@ namespace Laboratory.Chimera.Genetics.Environmental
                 });
             }
 
-            Debug.Log($"Entity {entity} adapted to {envGenetic.currentBiome} biome");
+            UnityEngine.Debug.Log($"Entity {entity} adapted to {envGenetic.currentBiome} biome");
         }
 
         private void InitializeBiomeProfiles()

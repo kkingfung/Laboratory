@@ -7,6 +7,7 @@ using Unity.Mathematics;
 using Unity.Jobs;
 using Unity.Burst;
 using Laboratory.Chimera.Ecosystem.Core;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Ecosystem
 {
@@ -125,8 +126,8 @@ namespace Laboratory.Chimera.Ecosystem
             transitionMatrix.SetTransition(BiomeType.Grassland, BiomeType.Desert, 0.2f, new ClimateCondition { temperature = 25f, precipitation = 300f });
             transitionMatrix.SetTransition(BiomeType.Forest, BiomeType.Grassland, 0.2f, new ClimateCondition { temperature = 20f, precipitation = 800f });
             transitionMatrix.SetTransition(BiomeType.Desert, BiomeType.Grassland, 0.1f, new ClimateCondition { temperature = 18f, precipitation = 600f });
-            transitionMatrix.SetTransition(BiomeType.Tundra, BiomeType.Taiga, 0.4f, new ClimateCondition { temperature = 0f, precipitation = 400f });
-            transitionMatrix.SetTransition(BiomeType.Wetland, BiomeType.Forest, 0.3f, new ClimateCondition { temperature = 15f, precipitation = 1500f });
+            transitionMatrix.SetTransition(BiomeType.Tundra, BiomeType.Temperate, 0.4f, new ClimateCondition { temperature = 0f, precipitation = 400f });
+            transitionMatrix.SetTransition(BiomeType.Swamp, BiomeType.Forest, 0.3f, new ClimateCondition { temperature = 15f, precipitation = 1500f });
         }
 
         /// <summary>
@@ -209,15 +210,15 @@ namespace Laboratory.Chimera.Ecosystem
         {
             return biomeType switch
             {
-                BiomeType.Tropical_Rainforest => new ClimateCondition { temperature = 27f, precipitation = 2500f, humidity = 0.9f },
-                BiomeType.Temperate_Forest => new ClimateCondition { temperature = 15f, precipitation = 1200f, humidity = 0.7f },
+                BiomeType.Tropical => new ClimateCondition { temperature = 27f, precipitation = 2500f, humidity = 0.9f },
+                BiomeType.Forest => new ClimateCondition { temperature = 15f, precipitation = 1200f, humidity = 0.7f },
                 BiomeType.Grassland => new ClimateCondition { temperature = 18f, precipitation = 800f, humidity = 0.5f },
                 BiomeType.Desert => new ClimateCondition { temperature = 25f, precipitation = 200f, humidity = 0.2f },
                 BiomeType.Tundra => new ClimateCondition { temperature = -10f, precipitation = 300f, humidity = 0.6f },
-                BiomeType.Taiga => new ClimateCondition { temperature = 2f, precipitation = 500f, humidity = 0.6f },
-                BiomeType.Wetland => new ClimateCondition { temperature = 12f, precipitation = 1500f, humidity = 0.95f },
+                BiomeType.Temperate => new ClimateCondition { temperature = 2f, precipitation = 500f, humidity = 0.6f },
+                BiomeType.Swamp => new ClimateCondition { temperature = 12f, precipitation = 1500f, humidity = 0.95f },
                 BiomeType.Mountain => new ClimateCondition { temperature = 8f, precipitation = 1000f, humidity = 0.6f },
-                BiomeType.Coastal => new ClimateCondition { temperature = 16f, precipitation = 1100f, humidity = 0.8f },
+                BiomeType.Ocean => new ClimateCondition { temperature = 16f, precipitation = 1100f, humidity = 0.8f },
                 _ => new ClimateCondition { temperature = 15f, precipitation = 1000f, humidity = 0.6f }
             };
         }
@@ -241,15 +242,15 @@ namespace Laboratory.Chimera.Ecosystem
         {
             float baseCapacity = biomeType switch
             {
-                BiomeType.Tropical_Rainforest => 100f,
-                BiomeType.Temperate_Forest => 80f,
+                BiomeType.Tropical => 100f,
+                BiomeType.Forest => 80f,
                 BiomeType.Grassland => 60f,
                 BiomeType.Desert => 20f,
                 BiomeType.Tundra => 30f,
-                BiomeType.Taiga => 50f,
-                BiomeType.Wetland => 90f,
+                BiomeType.Temperate => 50f,
+                BiomeType.Swamp => 90f,
                 BiomeType.Mountain => 40f,
-                BiomeType.Coastal => 70f,
+                BiomeType.Ocean => 70f,
                 _ => 50f
             };
 
@@ -1384,7 +1385,7 @@ namespace Laboratory.Chimera.Ecosystem
     public class BiomeAnalysis
     {
         public int totalBiomes;
-        public Dictionary<BiomeType, int> biomeTypeDistribution;
+        public Dictionary<Laboratory.Chimera.Core.BiomeType, int> biomeTypeDistribution;
         public float averageArea;
         public float averageStability;
         public float averageBiodiversity;

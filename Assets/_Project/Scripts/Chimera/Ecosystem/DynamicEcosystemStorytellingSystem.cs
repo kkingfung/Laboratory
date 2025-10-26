@@ -600,7 +600,7 @@ namespace Laboratory.Chimera.Ecosystem
             return weatherType switch
             {
                 WeatherEventType.StormSeason => allBiomes.Where(b => b != BiomeType.Desert).ToArray(),
-                WeatherEventType.Heatwave => new[] { BiomeType.Desert, BiomeType.TemperateForest },
+                WeatherEventType.Heatwave => new[] { BiomeType.Desert, BiomeType.Forest },
                 WeatherEventType.Blizzard => new[] { BiomeType.Tundra, BiomeType.Mountain },
                 WeatherEventType.AuroraDisplay => new[] { BiomeType.Tundra },
                 WeatherEventType.MeteorShower => allBiomes,

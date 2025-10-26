@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Subsystems.Ecosystem;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Subsystems.SaveLoad
 {
@@ -408,19 +409,6 @@ namespace Laboratory.Subsystems.SaveLoad
         Extreme
     }
 
-    public enum BiomeType
-    {
-        Forest,
-        Desert,
-        Ocean,
-        Mountain,
-        Grassland,
-        Wetland,
-        Arctic,
-        Volcanic,
-        Crystal,
-        Void
-    }
 
     public enum BiomeHealth
     {

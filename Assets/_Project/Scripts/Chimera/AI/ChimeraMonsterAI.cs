@@ -620,9 +620,88 @@ namespace Laboratory.Chimera.AI
                 ChangeState(AIBehaviorState.Idle);
             }
         }
-        
+
+        /// <summary>
+        /// Get genetics data for ECS integration
+        /// </summary>
+        public GeneticProfile GetGeneticsData()
+        {
+            var creatureComponent = GetComponent<CreatureInstanceComponent>();
+            return creatureComponent?.Instance?.GeneticProfile;
+        }
+
+        /// <summary>
+        /// Get current behavior type for ECS integration
+        /// </summary>
+        public AIBehaviorType GetCurrentBehaviorType()
+        {
+            return behaviorType;
+        }
+
+        /// <summary>
+        /// Get behavior intensity based on current state and genetics
+        /// </summary>
+        public float GetBehaviorIntensity()
+        {
+            float baseIntensity = currentState switch
+            {
+                AIBehaviorState.Attack => 1.0f,
+                AIBehaviorState.Chase => 0.8f,
+                AIBehaviorState.Patrol => 0.4f,
+                AIBehaviorState.Search => 0.6f,
+                AIBehaviorState.Follow => 0.5f,
+                _ => 0.2f
+            };
+
+            return baseIntensity * geneticAggressionModifier;
+        }
+
+        /// <summary>
+        /// Get current stress level for ECS integration
+        /// </summary>
+        public float GetStressLevel()
+        {
+            float stressLevel = currentState switch
+            {
+                AIBehaviorState.Attack => 0.9f,
+                AIBehaviorState.Chase => 0.7f,
+                AIBehaviorState.Search => 0.5f,
+                AIBehaviorState.Follow => 0.3f,
+                _ => 0.1f
+            };
+
+            return Mathf.Clamp01(stressLevel * (1f + (geneticAggressionModifier - 1f) * 0.5f));
+        }
+
+        /// <summary>
+        /// Get satisfaction level based on current state
+        /// </summary>
+        public float GetSatisfactionLevel()
+        {
+            float satisfaction = currentState switch
+            {
+                AIBehaviorState.Follow => 0.8f,
+                AIBehaviorState.Patrol => 0.6f,
+                AIBehaviorState.Idle => 0.5f,
+                AIBehaviorState.Search => 0.3f,
+                AIBehaviorState.Chase => 0.2f,
+                AIBehaviorState.Attack => 0.1f,
+                _ => 0.4f
+            };
+
+            return Mathf.Clamp01(satisfaction);
+        }
+
+        /// <summary>
+        /// Get behavior timer for current state
+        /// </summary>
+        public float GetBehaviorTimer()
+        {
+            return stateTimers.ContainsKey(currentState) ? stateTimers[currentState] : 0f;
+        }
+
         #endregion
-        
+
         #region Debug
         
         private void OnDrawGizmosSelected()

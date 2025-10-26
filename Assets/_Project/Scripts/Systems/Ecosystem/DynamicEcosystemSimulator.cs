@@ -4,6 +4,7 @@ using System.Linq;
 using Laboratory.Core;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Core.Debug;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Systems.Ecosystem
 {
@@ -861,8 +862,6 @@ namespace Laboratory.Systems.Ecosystem
         public float totalResourcesConsumed;
     }
 
-    // Enums and other supporting types...
-    public enum BiomeType { Temperate, Desert, Forest, Ocean, Mountain, Arctic }
     public enum ResourceType { Food, Water, Shelter, Territory }
     public enum EnvironmentalEventType { Drought, Flood, Pestilence, BiodiversityBoost, ClimateShift }
     public enum EnvironmentalModifierType { Temperature, Humidity, Biodiversity, SoilQuality }

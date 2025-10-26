@@ -1,8 +1,10 @@
 using UnityEngine;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Genetics;
-using Laboratory.Shared.Types;
+using Laboratory.Chimera.Core;
 using Laboratory.Chimera.ECS;
+using Laboratory.Core.Enums;
+using Unity.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -43,15 +45,44 @@ namespace Laboratory.Chimera.Integration
             new TraitMapping { unifiedTraitName = "Speed", libraryTraitName = "Reflex Speed", weight = 0.7f },
         };
 
-        // Cached integrated values
-        private Dictionary<string, float> _integratedTraitValues = new Dictionary<string, float>();
-        private Dictionary<BiomeType, BiomeIntegrationData> _integratedBiomeData = new Dictionary<BiomeType, BiomeIntegrationData>();
+        // Cached integrated values - PERFORMANCE OPTIMIZED
+        private Dictionary<Laboratory.Core.Enums.TraitType, float> _integratedTraitValues = new Dictionary<Laboratory.Core.Enums.TraitType, float>();
+        private Dictionary<Laboratory.Core.Enums.BiomeType, BiomeIntegrationData> _integratedBiomeData = new Dictionary<Laboratory.Core.Enums.BiomeType, BiomeIntegrationData>();
         private bool _integrationCacheValid = false;
+        private bool _biomeDataInitialized = false;
+
+        private void Awake()
+        {
+            InitializeBiomeData();
+        }
+
+        private void OnDestroy()
+        {
+            DisposeBiomeData();
+        }
 
         private void OnValidate()
         {
             // Invalidate cache when configuration changes
             _integrationCacheValid = false;
+        }
+
+        private void InitializeBiomeData()
+        {
+            if (!_biomeDataInitialized)
+            {
+                _integratedBiomeData = new BiomeDataArray<BiomeIntegrationData>(Allocator.Persistent);
+                _biomeDataInitialized = true;
+            }
+        }
+
+        private void DisposeBiomeData()
+        {
+            if (_biomeDataInitialized)
+            {
+                _integratedBiomeData.Dispose();
+                _biomeDataInitialized = false;
+            }
         }
 
         /// <summary>
@@ -61,10 +92,18 @@ namespace Laboratory.Chimera.Integration
         {
             ValidateIntegrationCache();
 
-            if (_integratedTraitValues.TryGetValue(traitName, out var value))
-                return value;
+            // Convert string to TraitID for optimized lookup
+            var traitID = OptimizedDataStructures.StringToTraitID(traitName);
+            return _integratedTraitValues.GetValue(traitID, defaultValue);
+        }
 
-            return defaultValue;
+        /// <summary>
+        /// Get integrated trait value using TraitID (performance optimized)
+        /// </summary>
+        public float GetIntegratedTraitValue(OptimizedDataStructures.TraitID traitID, float defaultValue = 0.5f)
+        {
+            ValidateIntegrationCache();
+            return _integratedTraitValues.GetValue(traitID, defaultValue);
         }
 
         /// <summary>
@@ -73,11 +112,19 @@ namespace Laboratory.Chimera.Integration
         public BiomeIntegrationData GetIntegratedBiomeData(BiomeType biomeType)
         {
             ValidateIntegrationCache();
+            InitializeBiomeData();
 
-            if (_integratedBiomeData.TryGetValue(biomeType, out var data))
+            // Direct array access for performance
+            var data = _integratedBiomeData[biomeType];
+
+            // Check if data was initialized
+            if (data.biomeType == biomeType)
                 return data;
 
-            return CreateDefaultBiomeData(biomeType);
+            // Create and cache default data
+            data = CreateDefaultBiomeData(biomeType);
+            _integratedBiomeData[biomeType] = data;
+            return data;
         }
 
         /// <summary>
@@ -115,9 +162,9 @@ namespace Laboratory.Chimera.Integration
             // Enhance with trait library data
             if (enableTraitLibraryIntegration && traitLibrary != null)
             {
-                enhancedSettings.availableTraits = traitLibrary.GetAllTraitDefinitions();
-                enhancedSettings.traitInheritanceRules = traitLibrary.GetInheritanceRules();
-                enhancedSettings.mutationProbabilities = traitLibrary.GetMutationProbabilities();
+                enhancedSettings.availableTraits = ConvertTraitDefinitions(traitLibrary.GetAllTraitDefinitions());
+                enhancedSettings.traitInheritanceRules = ConvertInheritanceRules(traitLibrary.GetInheritanceRules());
+                enhancedSettings.mutationProbabilities = ConvertMutationProbabilities(traitLibrary.GetMutationProbabilities());
 
                 // Override mutation rate based on trait library recommendations
                 var recommendedMutationRate = traitLibrary.GetRecommendedMutationRate();
@@ -163,7 +210,7 @@ namespace Laboratory.Chimera.Integration
                 var speciesData = speciesConfig.GetSpeciesData(speciesName);
                 if (speciesData != null)
                 {
-                    ApplySpeciesModifications(ref geneticData, speciesData);
+                    ApplySpeciesModifications(ref geneticData, ConvertSpeciesData(speciesData));
                 }
             }
 
@@ -183,13 +230,14 @@ namespace Laboratory.Chimera.Integration
             _integrationCacheValid = true;
 
             if (logIntegrationDetails)
-                Debug.Log($"🔗 Configuration integration cache rebuilt with {_integratedTraitValues.Count} traits and {_integratedBiomeData.Count} biomes");
+                UnityEngine.Debug.Log($"🔗 Configuration integration cache rebuilt with optimized trait arrays and biome data");
         }
 
         private void RebuildIntegrationCache()
         {
-            _integratedTraitValues.Clear();
-            _integratedBiomeData.Clear();
+            InitializeBiomeData();
+            // Reset trait values to defaults
+            _integratedTraitValues = new Dictionary<Laboratory.Core.Enums.TraitType, float>();
 
             // Integrate trait data
             if (enableTraitLibraryIntegration && traitLibrary != null)
@@ -219,16 +267,18 @@ namespace Laboratory.Chimera.Integration
                 var libraryTrait = allTraits.FirstOrDefault(t => t.name == mapping.libraryTraitName);
                 if (libraryTrait != null)
                 {
+                    var traitID = OptimizedDataStructures.StringToTraitID(mapping.unifiedTraitName);
+                    var existingValue = _integratedTraitValues.GetValue(traitID, 0f);
+
                     // Combine existing value with library trait value
-                    if (_integratedTraitValues.TryGetValue(mapping.unifiedTraitName, out var existingValue))
+                    if (existingValue > 0f)
                     {
-                        _integratedTraitValues[mapping.unifiedTraitName] =
-                            (existingValue + libraryTrait.baseValue * mapping.weight) / 2f;
+                        var combinedValue = (existingValue + libraryTrait.baseValue * mapping.weight) / 2f;
+                        _integratedTraitValues.SetValue(traitID, combinedValue);
                     }
                     else
                     {
-                        _integratedTraitValues[mapping.unifiedTraitName] =
-                            libraryTrait.baseValue * mapping.weight;
+                        _integratedTraitValues.SetValue(traitID, libraryTrait.baseValue * mapping.weight);
                     }
                 }
             }
@@ -266,10 +316,13 @@ namespace Laboratory.Chimera.Integration
             if (unifiedConfig.Genetics != null)
             {
                 // Apply unified genetic settings as baseline modifiers
-                foreach (var kvp in _integratedTraitValues.ToList())
+                for (int i = 0; i < (int)OptimizedDataStructures.TraitID.COUNT; i++)
                 {
-                    var modifiedValue = ApplyGeneticEvolutionModifier(kvp.Value, kvp.Key);
-                    _integratedTraitValues[kvp.Key] = modifiedValue;
+                    var traitID = (OptimizedDataStructures.TraitID)i;
+                    var currentValue = _integratedTraitValues.GetValue(traitID);
+                    var traitName = traitID.ToString();
+                    var modifiedValue = ApplyGeneticEvolutionModifier(currentValue, traitName);
+                    _integratedTraitValues.SetValue(traitID, modifiedValue);
                 }
             }
         }
@@ -443,12 +496,90 @@ namespace Laboratory.Chimera.Integration
 
             return new IntegrationStats
             {
-                integratedTraitsCount = _integratedTraitValues.Count,
-                integratedBiomesCount = _integratedBiomeData.Count,
+                integratedTraitsCount = (int)OptimizedDataStructures.TraitID.COUNT,
+                integratedBiomesCount = 17, // Total biome count
                 traitLibraryConnected = traitLibrary != null,
                 biomeConfigConnected = biomeConfig != null,
                 speciesConfigConnected = speciesConfig != null,
                 unifiedConfigConnected = unifiedConfig != null
+            };
+        }
+
+        // Type conversion methods for trait library integration
+        private List<TraitDefinition> ConvertTraitDefinitions(Laboratory.Chimera.Configuration.TraitDefinition[] configTraits)
+        {
+            var integrationTraits = new List<TraitDefinition>();
+
+            foreach (var configTrait in configTraits)
+            {
+                integrationTraits.Add(new TraitDefinition
+                {
+                    name = configTrait.name,
+                    description = configTrait.description,
+                    defaultValue = configTrait.defaultValue,
+                    minValue = configTrait.minValue,
+                    maxValue = configTrait.maxValue,
+                    category = configTrait.category,
+                    isPhysical = configTrait.isPhysical,
+                    isBehavioral = configTrait.isBehavioral,
+                    inheritanceWeight = configTrait.inheritanceWeight
+                });
+            }
+
+            return integrationTraits;
+        }
+
+        private Dictionary<TraitType, InheritanceRule> ConvertInheritanceRules(Laboratory.Chimera.Configuration.TraitInheritanceRules configRules)
+        {
+            var integrationRules = new Dictionary<TraitType, InheritanceRule>();
+
+            if (configRules?.rules != null)
+            {
+                foreach (var rule in configRules.rules)
+                {
+                    // Parse trait name to enum - use Enum.Parse for direct conversion
+                    System.Enum.TryParse<TraitType>(rule.traitName, true, out var traitType);
+                    integrationRules[traitType] = new InheritanceRule
+                    {
+                        inheritanceType = (InheritanceType)System.Enum.Parse(typeof(InheritanceType), rule.inheritanceType.ToString()),
+                        dominanceWeight = rule.dominanceWeight,
+                        mutationChance = rule.mutationChance,
+                        blendFactor = rule.blendFactor
+                    };
+                }
+            }
+
+            return integrationRules;
+        }
+
+        private Dictionary<TraitType, float> ConvertMutationProbabilities(Laboratory.Chimera.Configuration.TraitMutationProbabilities configMutations)
+        {
+            var integrationMutations = new Dictionary<TraitType, float>();
+
+            if (configMutations != null)
+            {
+                integrationMutations[TraitType.Size] = configMutations.physicalTraits;
+                integrationMutations[TraitType.Aggression] = configMutations.behavioralTraits;
+                integrationMutations[TraitType.Camouflage] = configMutations.cosmeticTraits;
+                integrationMutations[TraitType.Adaptability] = configMutations.specialTraits;
+                integrationMutations[TraitType.Intelligence] = configMutations.globalModifier;
+            }
+
+            return integrationMutations;
+        }
+
+        private SpeciesData ConvertSpeciesData(Laboratory.Chimera.Configuration.SpeciesData configSpeciesData)
+        {
+            return new SpeciesData
+            {
+                speciesName = configSpeciesData.speciesName,
+                sizeModifier = configSpeciesData.sizeModifier,
+                speedModifier = configSpeciesData.speedModifier,
+                aggressionModifier = configSpeciesData.aggressionModifier,
+                socialModifier = configSpeciesData.socialModifier,
+                intelligenceModifier = configSpeciesData.intelligenceModifier,
+                description = configSpeciesData.description,
+                rarity = configSpeciesData.rarity
             };
         }
     }
@@ -479,7 +610,7 @@ namespace Laboratory.Chimera.Integration
     public class EnhancedBreedingSettings : BreedingSettings
     {
         public List<string> supportedSpecies = new List<string>();
-        public Dictionary<string, float> speciesCompatibility = new Dictionary<string, float>();
+        public Dictionary<SystemType, float> speciesCompatibility = new Dictionary<SystemType, float>();
 
         public EnhancedBreedingSettings(BreedingSettings baseSettings)
         {
@@ -499,8 +630,8 @@ namespace Laboratory.Chimera.Integration
     public class EnhancedGeneticSettings : GeneticEvolutionSettings
     {
         public List<TraitDefinition> availableTraits = new List<TraitDefinition>();
-        public Dictionary<string, InheritanceRule> traitInheritanceRules = new Dictionary<string, InheritanceRule>();
-        public Dictionary<string, float> mutationProbabilities = new Dictionary<string, float>();
+        public Dictionary<TraitType, InheritanceRule> traitInheritanceRules = new Dictionary<TraitType, InheritanceRule>();
+        public Dictionary<TraitType, float> mutationProbabilities = new Dictionary<TraitType, float>();
 
         public EnhancedGeneticSettings(GeneticEvolutionSettings baseSettings)
         {

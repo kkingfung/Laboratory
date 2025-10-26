@@ -5,7 +5,7 @@ using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
 
 using EcoMetrics = Laboratory.Chimera.Ecosystem.Data.EcosystemMetrics;
-using EcoBiomeType = Laboratory.Chimera.Ecosystem.Data.BiomeType;
+using EcoBiomeType = Laboratory.Chimera.Core.BiomeType;
 using EcoTrophicLevel = Laboratory.Chimera.Ecosystem.Data.TrophicLevel;
 
 namespace Laboratory.Chimera.Ecosystem.Systems

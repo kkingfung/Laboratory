@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Chimera.Genetics;
 using System;
 
 namespace Laboratory.Chimera.Breeding
@@ -73,12 +74,12 @@ namespace Laboratory.Chimera.Breeding
         
         private void PredictIndividualTraits(BreedingPrediction prediction, GeneticProfile parent1, GeneticProfile parent2)
         {
-            // Get all unique trait names from both parents
-            var allTraitNames = GetAllTraitNames(parent1, parent2);
-            
-            foreach (var traitName in allTraitNames)
+            // Get all unique trait types from both parents
+            var allTraitTypes = GetAllTraitTypes(parent1, parent2);
+
+            foreach (var traitType in allTraitTypes)
             {
-                var traitPrediction = PredictSingleTrait(traitName, parent1, parent2);
+                var traitPrediction = PredictSingleTrait(traitType, parent1, parent2);
                 if (traitPrediction != null)
                 {
                     prediction.PredictedTraits.Add(traitPrediction);
@@ -86,24 +87,24 @@ namespace Laboratory.Chimera.Breeding
             }
         }
         
-        private TraitPrediction PredictSingleTrait(string traitName, GeneticProfile parent1, GeneticProfile parent2)
+        private TraitPrediction PredictSingleTrait(Laboratory.Chimera.Genetics.TraitType traitType, GeneticProfile parent1, GeneticProfile parent2)
         {
-            var parent1Trait = GetTraitExpression(parent1, traitName);
-            var parent2Trait = GetTraitExpression(parent2, traitName);
-            
+            var parent1Trait = GetTraitExpression(parent1, traitType);
+            var parent2Trait = GetTraitExpression(parent2, traitType);
+
             // If neither parent has this trait, return null
             if (parent1Trait == null && parent2Trait == null)
                 return null;
-            
+
             // Handle cases where only one parent has the trait
             if (parent1Trait == null)
-                parent1Trait = CreateDefaultTrait(traitName);
+                parent1Trait = CreateDefaultTrait(traitType);
             if (parent2Trait == null)
-                parent2Trait = CreateDefaultTrait(traitName);
+                parent2Trait = CreateDefaultTrait(traitType);
             
             var prediction = new TraitPrediction
             {
-                TraitName = traitName,
+                TraitType = traitType,
                 Parent1Value = parent1Trait.Value,
                 Parent2Value = parent2Trait.Value,
                 Parent1Dominance = parent1Trait.DominanceStrength,
@@ -170,9 +171,9 @@ namespace Laboratory.Chimera.Breeding
             // Analyze how multiple genes affect the same traits
             var polygenicGroups = new Dictionary<string, List<TraitPrediction>>
             {
-                ["Physical"] = prediction.PredictedTraits.Where(t => IsPhysicalTrait(t.TraitName)).ToList(),
-                ["Mental"] = prediction.PredictedTraits.Where(t => IsMentalTrait(t.TraitName)).ToList(),
-                ["Special"] = prediction.PredictedTraits.Where(t => IsSpecialTrait(t.TraitName)).ToList()
+                ["Physical"] = prediction.PredictedTraits.Where(t => IsPhysicalTrait(t.TraitType)).ToList(),
+                ["Mental"] = prediction.PredictedTraits.Where(t => IsMentalTrait(t.TraitType)).ToList(),
+                ["Special"] = prediction.PredictedTraits.Where(t => IsSpecialTrait(t.TraitType)).ToList()
             };
             
             foreach (var group in polygenicGroups)
@@ -217,19 +218,19 @@ namespace Laboratory.Chimera.Breeding
         private void AnalyzeEpistaticInteractions(BreedingPrediction prediction, GeneticProfile parent1, GeneticProfile parent2)
         {
             // Analyze how genes affect the expression of other genes
-            var epistaticPairs = new List<(string, string)>
+            var epistaticPairs = new List<(Laboratory.Chimera.Genetics.TraitType, Laboratory.Chimera.Genetics.TraitType)>
             {
-                ("Intelligence", "MagicalAffinity"),
-                ("Strength", "Aggression"),
-                ("Agility", "Intelligence"),
-                ("Constitution", "Health"),
-                ("Wisdom", "MagicalAffinity")
+                (Laboratory.Chimera.Genetics.TraitType.Mental, Laboratory.Chimera.Genetics.TraitType.Behavioral),
+                (Laboratory.Chimera.Genetics.TraitType.Physical, Laboratory.Chimera.Genetics.TraitType.Combat),
+                (Laboratory.Chimera.Genetics.TraitType.Movement, Laboratory.Chimera.Genetics.TraitType.Mental),
+                (Laboratory.Chimera.Genetics.TraitType.Vitality, Laboratory.Chimera.Genetics.TraitType.Physical),
+                (Laboratory.Chimera.Genetics.TraitType.Special, Laboratory.Chimera.Genetics.TraitType.Elemental)
             };
             
             foreach (var pair in epistaticPairs)
             {
-                var trait1 = prediction.PredictedTraits.FirstOrDefault(t => t.TraitName == pair.Item1);
-                var trait2 = prediction.PredictedTraits.FirstOrDefault(t => t.TraitName == pair.Item2);
+                var trait1 = prediction.PredictedTraits.FirstOrDefault(t => t.TraitType == pair.Item1);
+                var trait2 = prediction.PredictedTraits.FirstOrDefault(t => t.TraitType == pair.Item2);
                 
                 if (trait1 != null && trait2 != null)
                 {
@@ -271,22 +272,22 @@ namespace Laboratory.Chimera.Breeding
             // Apply biome-specific modifications
             foreach (var trait in prediction.PredictedTraits)
             {
-                float environmentalEffect = CalculateEnvironmentalEffect(trait.TraitName, currentBiome);
+                float environmentalEffect = CalculateEnvironmentalEffect(trait.TraitType, currentBiome);
                 trait.PredictedValue = Mathf.Clamp01(trait.PredictedValue + environmentalEffect);
                 trait.EnvironmentalEffect = environmentalEffect;
             }
         }
         
-        private float CalculateEnvironmentalEffect(string traitName, BiomeConfiguration biome)
+        private float CalculateEnvironmentalEffect(Laboratory.Chimera.Genetics.TraitType traitType, BiomeConfiguration biome)
         {
             // Different biomes favor different traits
-            return traitName switch
+            return traitType switch
             {
-                "Strength" when biome.BiomeType == Laboratory.Chimera.Core.BiomeType.Mountain => 0.1f,
-                "Agility" when biome.BiomeType == Laboratory.Chimera.Core.BiomeType.Forest => 0.1f,
-                "Intelligence" when biome.BiomeType == Laboratory.Chimera.Core.BiomeType.Arctic => 0.05f,
-                "Constitution" when biome.BiomeType == Laboratory.Chimera.Core.BiomeType.Desert => 0.15f,
-                "MagicalAffinity" when biome.BiomeType == Laboratory.Chimera.Core.BiomeType.Crystal => 0.2f,
+                Laboratory.Chimera.Genetics.TraitType.Physical when biome.BiomeType == Laboratory.Core.Enums.BiomeType.Mountain => 0.1f,
+                Laboratory.Chimera.Genetics.TraitType.Movement when biome.BiomeType == Laboratory.Core.Enums.BiomeType.Forest => 0.1f,
+                Laboratory.Chimera.Genetics.TraitType.Mental when biome.BiomeType == Laboratory.Core.Enums.BiomeType.Arctic => 0.05f,
+                Laboratory.Chimera.Genetics.TraitType.Vitality when biome.BiomeType == Laboratory.Core.Enums.BiomeType.Desert => 0.15f,
+                Laboratory.Chimera.Genetics.TraitType.Environmental when biome.BiomeType == Laboratory.Core.Enums.BiomeType.Magical => 0.2f,
                 _ => 0f
             };
         }
@@ -355,36 +356,36 @@ namespace Laboratory.Chimera.Breeding
         
         #region Utility Methods
         
-        private HashSet<string> GetAllTraitNames(GeneticProfile parent1, GeneticProfile parent2)
+        private HashSet<Laboratory.Chimera.Genetics.TraitType> GetAllTraitTypes(GeneticProfile parent1, GeneticProfile parent2)
         {
-            var traitNames = new HashSet<string>();
-            
+            var traitTypes = new HashSet<Laboratory.Chimera.Genetics.TraitType>();
+
             if (parent1?.TraitExpressions != null)
             {
                 foreach (var trait in parent1.TraitExpressions)
-                    traitNames.Add(trait.Key);
+                    traitTypes.Add(trait.Key);
             }
-            
+
             if (parent2?.TraitExpressions != null)
             {
                 foreach (var trait in parent2.TraitExpressions)
-                    traitNames.Add(trait.Key);
+                    traitTypes.Add(trait.Key);
             }
-            
-            return traitNames;
+
+            return traitTypes;
         }
         
-        private TraitExpression GetTraitExpression(GeneticProfile profile, string traitName)
+        private TraitExpression GetTraitExpression(GeneticProfile profile, Laboratory.Chimera.Genetics.TraitType traitType)
         {
-            return profile?.TraitExpressions?.TryGetValue(traitName, out var trait) == true ? trait : null;
+            return profile?.TraitExpressions?.TryGetValue(traitType, out var trait) == true ? trait : null;
         }
-        
-        private TraitExpression CreateDefaultTrait(string traitName)
+
+        private TraitExpression CreateDefaultTrait(Laboratory.Chimera.Genetics.TraitType traitType)
         {
             return new TraitExpression(
-                traitName,
+                traitType.ToString(),
                 0.5f,
-                TraitType.Physical
+                traitType
             )
             {
                 dominanceStrength = 0.5f
@@ -417,22 +418,22 @@ namespace Laboratory.Chimera.Breeding
             return prediction.PredictedTraits.Average(t => t.Confidence);
         }
         
-        private bool IsPhysicalTrait(string traitName)
+        private bool IsPhysicalTrait(Laboratory.Chimera.Genetics.TraitType traitType)
         {
-            var physicalTraits = new[] { "Strength", "Agility", "Constitution", "Size", "Speed" };
-            return physicalTraits.Contains(traitName);
+            var physicalTraits = new[] { Laboratory.Chimera.Genetics.TraitType.Physical, Laboratory.Chimera.Genetics.TraitType.Movement, Laboratory.Chimera.Genetics.TraitType.Vitality };
+            return physicalTraits.Contains(traitType);
         }
         
-        private bool IsMentalTrait(string traitName)
+        private bool IsMentalTrait(Laboratory.Chimera.Genetics.TraitType traitType)
         {
-            var mentalTraits = new[] { "Intelligence", "Wisdom", "Perception", "Memory" };
-            return mentalTraits.Contains(traitName);
+            var mentalTraits = new[] { Laboratory.Chimera.Genetics.TraitType.Mental, Laboratory.Chimera.Genetics.TraitType.Behavioral, Laboratory.Chimera.Genetics.TraitType.Social };
+            return mentalTraits.Contains(traitType);
         }
         
-        private bool IsSpecialTrait(string traitName)
+        private bool IsSpecialTrait(Laboratory.Chimera.Genetics.TraitType traitType)
         {
-            var specialTraits = new[] { "MagicalAffinity", "Charisma", "Luck", "Empathy" };
-            return specialTraits.Contains(traitName);
+            var specialTraits = new[] { Laboratory.Chimera.Genetics.TraitType.Special, Laboratory.Chimera.Genetics.TraitType.Elemental, Laboratory.Chimera.Genetics.TraitType.Mutation };
+            return specialTraits.Contains(traitType);
         }
         
         private float CalculateGeneticRarity(GeneticProfile genetics)
@@ -452,15 +453,15 @@ namespace Laboratory.Chimera.Breeding
         {
             if (genetics?.TraitExpressions == null || genetics.TraitExpressions.Count == 0) return 0f;
             
-            var importantTraits = new[] { "Strength", "Agility", "Intelligence", "Constitution" };
+            var importantTraits = new[] { TraitType.Physical, TraitType.Movement, TraitType.Mental, TraitType.Vitality };
             var values = importantTraits.Select(trait => GetTraitValue(genetics, trait)).ToArray();
             
             return values.Length > 0 ? values.Average() : 0f;
         }
         
-        private float GetTraitValue(GeneticProfile genetics, string traitName)
+        private float GetTraitValue(GeneticProfile genetics, Laboratory.Chimera.Genetics.TraitType traitType)
         {
-            var trait = GetTraitExpression(genetics, traitName);
+            var trait = GetTraitExpression(genetics, traitType);
             return trait?.Value ?? 0f;
         }
         
@@ -470,10 +471,10 @@ namespace Laboratory.Chimera.Breeding
             var commonTraits = GetCommonTraits(parent1, parent2);
             float diversityScore = 0f;
             
-            foreach (var traitName in commonTraits)
+            foreach (var traitType in commonTraits)
             {
-                var trait1 = GetTraitExpression(parent1, traitName);
-                var trait2 = GetTraitExpression(parent2, traitName);
+                var trait1 = GetTraitExpression(parent1, traitType);
+                var trait2 = GetTraitExpression(parent2, traitType);
                 
                 if (trait1 != null && trait2 != null)
                 {
@@ -485,11 +486,11 @@ namespace Laboratory.Chimera.Breeding
             return commonTraits.Count > 0 ? diversityScore / commonTraits.Count : 0f;
         }
         
-        private HashSet<string> GetCommonTraits(GeneticProfile parent1, GeneticProfile parent2)
+        private HashSet<Laboratory.Chimera.Genetics.TraitType> GetCommonTraits(GeneticProfile parent1, GeneticProfile parent2)
         {
-            var traits1 = parent1?.TraitExpressions?.Keys.ToHashSet() ?? new HashSet<string>();
-            var traits2 = parent2?.TraitExpressions?.Keys.ToHashSet() ?? new HashSet<string>();
-            
+            var traits1 = parent1?.TraitExpressions?.Keys.ToHashSet() ?? new HashSet<Laboratory.Chimera.Genetics.TraitType>();
+            var traits2 = parent2?.TraitExpressions?.Keys.ToHashSet() ?? new HashSet<Laboratory.Chimera.Genetics.TraitType>();
+
             traits1.IntersectWith(traits2);
             return traits1;
         }
@@ -599,15 +600,15 @@ namespace Laboratory.Chimera.Breeding
         
         private float AnalyzeGeneticDiversity(GeneticProfile parent1, GeneticProfile parent2)
         {
-            var commonTraits = GetCommonTraitNames(parent1, parent2);
+            var commonTraits = GetCommonTraitTypes(parent1, parent2);
             if (commonTraits.Count == 0) return 0.5f;
             
             float totalDiversity = 0f;
             
-            foreach (var traitName in commonTraits)
+            foreach (var traitType in commonTraits)
             {
-                var trait1 = GetTraitExpression(parent1, traitName);
-                var trait2 = GetTraitExpression(parent2, traitName);
+                var trait1 = GetTraitExpression(parent1, traitType);
+                var trait2 = GetTraitExpression(parent2, traitType);
                 
                 if (trait1 != null && trait2 != null)
                 {
@@ -624,12 +625,12 @@ namespace Laboratory.Chimera.Breeding
         private float AnalyzeTraitSynergy(GeneticProfile parent1, GeneticProfile parent2)
         {
             // Analyze how well the traits work together
-            var synergyPairs = new List<(string, string)>
+            var synergyPairs = new List<(Laboratory.Chimera.Genetics.TraitType, Laboratory.Chimera.Genetics.TraitType)>
             {
-                ("Strength", "Constitution"),
-                ("Intelligence", "Wisdom"),
-                ("Agility", "Speed"),
-                ("MagicalAffinity", "Intelligence")
+                (Laboratory.Chimera.Genetics.TraitType.Physical, Laboratory.Chimera.Genetics.TraitType.Vitality),
+                (Laboratory.Chimera.Genetics.TraitType.Mental, Laboratory.Chimera.Genetics.TraitType.Behavioral),
+                (Laboratory.Chimera.Genetics.TraitType.Movement, Laboratory.Chimera.Genetics.TraitType.Physical),
+                (Laboratory.Chimera.Genetics.TraitType.Mental, Laboratory.Chimera.Genetics.TraitType.Special)
             };
             
             float totalSynergy = 0f;
@@ -658,11 +659,11 @@ namespace Laboratory.Chimera.Breeding
         
         private float AnalyzeHealthCompatibility(GeneticProfile parent1, GeneticProfile parent2)
         {
-            // Check for genetic health compatibility
-            float health1 = GetTraitValue(parent1, "Health");
-            float health2 = GetTraitValue(parent2, "Health");
-            float constitution1 = GetTraitValue(parent1, "Constitution");
-            float constitution2 = GetTraitValue(parent2, "Constitution");
+            // Check for genetic health compatibility using available traits
+            float health1 = GetTraitValue(parent1, Laboratory.Chimera.Genetics.TraitType.Vitality);
+            float health2 = GetTraitValue(parent2, Laboratory.Chimera.Genetics.TraitType.Vitality);
+            float constitution1 = GetTraitValue(parent1, Laboratory.Chimera.Genetics.TraitType.Physical);
+            float constitution2 = GetTraitValue(parent2, Laboratory.Chimera.Genetics.TraitType.Physical);
             
             float averageHealth = (health1 + health2) / 2f;
             float averageConstitution = (constitution1 + constitution2) / 2f;
@@ -678,8 +679,8 @@ namespace Laboratory.Chimera.Breeding
         private float AnalyzeEnvironmentalSuitability(GeneticProfile parent1, GeneticProfile parent2)
         {
             // Check how well they adapt to current environment
-            float adaptation1 = GetTraitValue(parent1, "EnvironmentalAdaptation");
-            float adaptation2 = GetTraitValue(parent2, "EnvironmentalAdaptation");
+            float adaptation1 = GetTraitValue(parent1, Laboratory.Chimera.Genetics.TraitType.Environmental);
+            float adaptation2 = GetTraitValue(parent2, Laboratory.Chimera.Genetics.TraitType.Environmental);
             
             return (adaptation1 + adaptation2) / 2f;
         }
@@ -747,23 +748,23 @@ namespace Laboratory.Chimera.Breeding
         
         #region Utility Methods
         
-        private HashSet<string> GetCommonTraitNames(GeneticProfile parent1, GeneticProfile parent2)
+        private HashSet<Laboratory.Chimera.Genetics.TraitType> GetCommonTraitTypes(GeneticProfile parent1, GeneticProfile parent2)
         {
-            var traits1 = parent1?.TraitExpressions?.Keys.ToHashSet() ?? new HashSet<string>();
-            var traits2 = parent2?.TraitExpressions?.Keys.ToHashSet() ?? new HashSet<string>();
-            
+            var traits1 = parent1?.TraitExpressions?.Keys != null ? new HashSet<Laboratory.Chimera.Genetics.TraitType>(parent1.TraitExpressions.Keys) : new HashSet<Laboratory.Chimera.Genetics.TraitType>();
+            var traits2 = parent2?.TraitExpressions?.Keys != null ? new HashSet<Laboratory.Chimera.Genetics.TraitType>(parent2.TraitExpressions.Keys) : new HashSet<Laboratory.Chimera.Genetics.TraitType>();
+
             traits1.IntersectWith(traits2);
             return traits1;
         }
         
-        private TraitExpression GetTraitExpression(GeneticProfile profile, string traitName)
+        private TraitExpression GetTraitExpression(GeneticProfile profile, Laboratory.Chimera.Genetics.TraitType traitType)
         {
-            return profile?.TraitExpressions?.TryGetValue(traitName, out var trait) == true ? trait : null;
+            return profile?.TraitExpressions?.TryGetValue(traitType, out var trait) == true ? trait : null;
         }
-        
-        private float GetTraitValue(GeneticProfile profile, string traitName)
+
+        private float GetTraitValue(GeneticProfile profile, Laboratory.Chimera.Genetics.TraitType traitType)
         {
-            var trait = GetTraitExpression(profile, traitName);
+            var trait = GetTraitExpression(profile, traitType);
             return trait?.Value ?? 0f;
         }
         
@@ -789,7 +790,7 @@ namespace Laboratory.Chimera.Breeding
     [System.Serializable]
     public class TraitPrediction
     {
-        public string TraitName;
+        public Laboratory.Chimera.Genetics.TraitType TraitType;
         public float PredictedValue;
         public float Parent1Value;
         public float Parent2Value;
@@ -822,7 +823,7 @@ namespace Laboratory.Chimera.Breeding
     // Placeholder for BiomeConfiguration
     public class BiomeConfiguration
     {
-        public Laboratory.Chimera.Core.BiomeType BiomeType;
+        public Laboratory.Core.Enums.BiomeType BiomeType;
     }
     
     #endregion

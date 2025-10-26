@@ -100,16 +100,4 @@ namespace Laboratory.Core.ECS
         Resting = 8
     }
 
-    // Biome types enum - core version for basic environmental systems
-    public enum BiomeType : byte
-    {
-        Forest,
-        Desert,
-        Tundra,
-        Ocean,
-        Mountain,
-        Grassland,
-        Swamp,
-        Cave
-    }
 }

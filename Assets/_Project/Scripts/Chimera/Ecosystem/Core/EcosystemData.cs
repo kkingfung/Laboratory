@@ -1,4 +1,5 @@
 using System;
+using Laboratory.Chimera.Core;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using Unity.Entities;
@@ -86,14 +87,14 @@ namespace Laboratory.Chimera.Ecosystem.Core
         {
             return PrimaryBiome switch
             {
-                BiomeType.TropicalRainforest => 25f,
-                BiomeType.Savanna => 28f,
+                BiomeType.Tropical => 25f,
+                BiomeType.Grassland => 28f,
                 BiomeType.Desert => 35f,
-                BiomeType.TemperateForest => 15f,
-                BiomeType.BorealForest => 5f,
+                BiomeType.Forest => 15f,
+                BiomeType.Temperate => 5f,
                 BiomeType.Tundra => -10f,
                 BiomeType.Mountain => 0f,
-                BiomeType.Wetlands => 20f,
+                BiomeType.Swamp => 20f,
                 BiomeType.Ocean => 18f,
                 BiomeType.Volcanic => 40f,
                 _ => 20f
@@ -154,7 +155,7 @@ namespace Laboratory.Chimera.Ecosystem.Core
             {
                 BiomeType.Desert => 1.5f,
                 BiomeType.Tundra => 2.0f,
-                BiomeType.TropicalRainforest => 0.3f,
+                BiomeType.Tropical => 0.3f,
                 BiomeType.Ocean => 0.5f,
                 _ => 1.0f
             };
@@ -431,20 +432,6 @@ namespace Laboratory.Chimera.Ecosystem.Core
         public GeneticAdaptation RequiredAdaptation;
     }
 
-    // Enums and supporting structures
-    public enum BiomeType : byte
-    {
-        TropicalRainforest,
-        Savanna,
-        Desert,
-        TemperateForest,
-        BorealForest,
-        Tundra,
-        Mountain,
-        Wetlands,
-        Ocean,
-        Volcanic
-    }
 
     public enum Season : byte
     {

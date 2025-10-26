@@ -6,6 +6,7 @@ using Laboratory.Core.Events;
 using Laboratory.Core.MonsterTown.Integration;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Creatures;
+using Laboratory.Core.MonsterTown;
 
 namespace Laboratory.Core.Integration
 {

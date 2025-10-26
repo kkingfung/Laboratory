@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
-using EcoBiomeType = Laboratory.Chimera.Ecosystem.Data.BiomeType;
+using EcoBiomeType = Laboratory.Chimera.Core.BiomeType;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
 {
@@ -56,24 +56,24 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                     [EcoBiomeType.Grassland] = 0.1f,
                     [EcoBiomeType.Desert] = 0.05f,
                     [EcoBiomeType.Swamp] = 0.08f,
-                    [EcoBiomeType.Rainforest] = 0.15f
+                    [EcoBiomeType.Tropical] = 0.15f
                 },
                 [EcoBiomeType.Grassland] = new Dictionary<EcoBiomeType, float>
                 {
                     [EcoBiomeType.Forest] = 0.12f,
                     [EcoBiomeType.Desert] = 0.08f,
-                    [EcoBiomeType.Savanna] = 0.1f,
+                    [EcoBiomeType.Grassland] = 0.1f,
                     [EcoBiomeType.Swamp] = 0.05f
                 },
                 [EcoBiomeType.Desert] = new Dictionary<EcoBiomeType, float>
                 {
                     [EcoBiomeType.Grassland] = 0.06f,
-                    [EcoBiomeType.Savanna] = 0.08f,
+                    [EcoBiomeType.Grassland] = 0.08f,
                     [EcoBiomeType.Desert] = 0.15f
                 },
                 [EcoBiomeType.Tundra] = new Dictionary<EcoBiomeType, float>
                 {
-                    [EcoBiomeType.Taiga] = 0.1f,
+                    [EcoBiomeType.Temperate] = 0.1f,
                     [EcoBiomeType.Grassland] = 0.05f,
                     [EcoBiomeType.Mountain] = 0.03f
                 },
@@ -100,19 +100,19 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                     [EcoBiomeType.Desert] = 0.1f,
                     [EcoBiomeType.Void] = 0.3f
                 },
-                [EcoBiomeType.Rainforest] = new Dictionary<EcoBiomeType, float>
+                [EcoBiomeType.Tropical] = new Dictionary<EcoBiomeType, float>
                 {
                     [EcoBiomeType.Forest] = 0.08f,
                     [EcoBiomeType.Swamp] = 0.1f,
-                    [EcoBiomeType.Rainforest] = 0.15f
+                    [EcoBiomeType.Tropical] = 0.15f
                 },
-                [EcoBiomeType.Savanna] = new Dictionary<EcoBiomeType, float>
+                [EcoBiomeType.Grassland] = new Dictionary<EcoBiomeType, float>
                 {
                     [EcoBiomeType.Grassland] = 0.1f,
                     [EcoBiomeType.Desert] = 0.08f,
                     [EcoBiomeType.Forest] = 0.06f
                 },
-                [EcoBiomeType.Taiga] = new Dictionary<EcoBiomeType, float>
+                [EcoBiomeType.Temperate] = new Dictionary<EcoBiomeType, float>
                 {
                     [EcoBiomeType.Forest] = 0.1f,
                     [EcoBiomeType.Tundra] = 0.08f,
@@ -160,7 +160,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             {
                 if (location.y > 30f) return EcoBiomeType.Tundra;
                 if (location.y < -30f) return EcoBiomeType.Ocean;
-                return Random.value < 0.5f ? EcoBiomeType.Desert : EcoBiomeType.Savanna;
+                return Random.value < 0.5f ? EcoBiomeType.Desert : EcoBiomeType.Grassland;
             }
         }
 
@@ -278,12 +278,11 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             var optimalRanges = new Dictionary<EcoBiomeType, Vector2>
             {
                 [EcoBiomeType.Tundra] = new Vector2(-10f, 5f),
-                [EcoBiomeType.Taiga] = new Vector2(-5f, 10f),
+                [EcoBiomeType.Temperate] = new Vector2(-5f, 10f),
                 [EcoBiomeType.Forest] = new Vector2(5f, 25f),
                 [EcoBiomeType.Grassland] = new Vector2(10f, 30f),
                 [EcoBiomeType.Desert] = new Vector2(20f, 45f),
-                [EcoBiomeType.Rainforest] = new Vector2(20f, 35f),
-                [EcoBiomeType.Savanna] = new Vector2(15f, 35f),
+                [EcoBiomeType.Tropical] = new Vector2(20f, 35f),
                 [EcoBiomeType.Mountain] = new Vector2(-5f, 15f),
                 [EcoBiomeType.Ocean] = new Vector2(0f, 25f),
                 [EcoBiomeType.Swamp] = new Vector2(15f, 30f)
@@ -309,7 +308,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 [EcoBiomeType.Tundra] = 0.4f,
                 [EcoBiomeType.Grassland] = 0.5f,
                 [EcoBiomeType.Forest] = 0.7f,
-                [EcoBiomeType.Rainforest] = 0.9f,
+                [EcoBiomeType.Tropical] = 0.9f,
                 [EcoBiomeType.Swamp] = 0.95f,
                 [EcoBiomeType.Ocean] = 0.8f
             };
@@ -331,7 +330,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 [EcoBiomeType.Tundra] = 0.3f,
                 [EcoBiomeType.Grassland] = 0.5f,
                 [EcoBiomeType.Forest] = 0.7f,
-                [EcoBiomeType.Rainforest] = 0.9f,
+                [EcoBiomeType.Tropical] = 0.9f,
                 [EcoBiomeType.Swamp] = 0.8f
             };
 
@@ -398,7 +397,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 requirements.AddRange(new[] { "adequate_rainfall", "moderate_temperature", "soil_quality" });
             if (to == EcoBiomeType.Desert)
                 requirements.AddRange(new[] { "low_rainfall", "high_temperature", "low_humidity" });
-            if (to == EcoBiomeType.Rainforest)
+            if (to == EcoBiomeType.Tropical)
                 requirements.AddRange(new[] { "high_rainfall", "high_humidity", "warm_temperature" });
 
             return requirements;

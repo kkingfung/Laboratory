@@ -223,19 +223,6 @@ namespace Laboratory.Core.Progression
         TestReward
     }
 
-    public enum BiomeType
-    {
-        Forest,
-        Desert,
-        Arctic,
-        Volcanic,
-        DeepSea,
-        Mountain,
-        Temperate,
-        Tropical,
-        Tundra,
-        Swamp
-    }
 
     public enum ResearchType
     {

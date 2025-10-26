@@ -139,7 +139,7 @@ namespace Laboratory.Chimera.Configuration
         {
             Laboratory.Chimera.Core.BiomeType preferred = Laboratory.Chimera.Core.BiomeType.Forest;
             float maxPreference = 0f;
-            
+
             foreach (var pref in biomePreferences)
             {
                 if (pref.preference > maxPreference)
@@ -148,8 +148,25 @@ namespace Laboratory.Chimera.Configuration
                     preferred = pref.biome;
                 }
             }
-            
+
             return preferred;
+        }
+
+        /// <summary>
+        /// Gets species-specific data for breeding integration
+        /// </summary>
+        public SpeciesData GetSpeciesData(string requestedSpeciesName)
+        {
+            if (speciesName != requestedSpeciesName)
+                return null;
+
+            return new SpeciesData
+            {
+                gestationModifier = 1.0f + (fertilityRate - 0.5f) * 0.5f, // Base fertility affects gestation
+                offspringRange = new Vector2Int(1, maxOffspringPerBreeding),
+                territoryModifier = size == CreatureSize.Large ? 1.5f : size == CreatureSize.Small ? 0.7f : 1.0f,
+                diversityPreference = 0.6f + (baseStats.intelligence / 100f) * 0.4f // Intelligence affects diversity preference
+            };
         }
     }
     
@@ -238,5 +255,14 @@ namespace Laboratory.Chimera.Configuration
         [SerializeField] [Range(0f, 1f)] public float baseSocialNeed = 0.5f;
         [SerializeField] [Range(0f, 1f)] public float packInstinct = 0.5f;
         [SerializeField] [Range(0f, 1f)] public float territorialBehavior = 0.3f;
+    }
+
+    [System.Serializable]
+    public class SpeciesData
+    {
+        public float gestationModifier = 1.0f;
+        public Vector2Int offspringRange = new Vector2Int(1, 3);
+        public float territoryModifier = 1.0f;
+        public float diversityPreference = 0.6f;
     }
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Chimera.Visuals.Data;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Visuals.Systems
 {
@@ -134,9 +135,9 @@ namespace Laboratory.Chimera.Visuals.Systems
                 CamouflageEffectiveness = 0.2f
             };
 
-            biomeAdaptations[BiomeType.Cave] = new BiomeAdaptation
+            biomeAdaptations[BiomeType.Underground] = new BiomeAdaptation
             {
-                TargetBiome = BiomeType.Cave,
+                TargetBiome = BiomeType.Underground,
                 AdaptiveColor = new Color(0.3f, 0.3f, 0.4f, 1f),
                 AdaptationStrength = 0.6f,
                 BiomeModifiers = new Dictionary<string, float>
@@ -272,7 +273,7 @@ namespace Laboratory.Chimera.Visuals.Systems
                 case BiomeType.Volcanic:
                     ApplyVolcanicEffects(material, progress, traits);
                     break;
-                case BiomeType.Cave:
+                case BiomeType.Underground:
                     ApplyCaveEffects(material, progress);
                     break;
             }

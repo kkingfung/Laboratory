@@ -3,9 +3,10 @@ using Unity.Entities;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.AI;
 using Laboratory.Chimera.ECS;
+using Laboratory.Core.ECS.Systems;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
-using Laboratory.Shared.Types;
+using Laboratory.Chimera.Core;
 using System.Collections.Generic;
 
 namespace Laboratory.Chimera.Integration
@@ -64,8 +65,9 @@ namespace Laboratory.Chimera.Integration
         private void InitializeBridge()
         {
             // Get ECS system references
-            var world = World.DefaultGameObjectInjectionWorld;
-            _entityManager = world?.EntityManager;
+            var world = Unity.Entities.World.DefaultGameObjectInjectionWorld;
+            if (world != null)
+                _entityManager = world.EntityManager;
             _behaviorSystem = world?.GetOrCreateSystemManaged<ChimeraBehaviorSystem>();
             _breedingSystem = world?.GetOrCreateSystemManaged<ChimeraBreedingSystem>();
 
@@ -84,7 +86,7 @@ namespace Laboratory.Chimera.Integration
             CreateInitialBridges();
 
             if (logIntegrationEvents)
-                Debug.Log("🔗 ChimeraSystemBridge initialized - connecting ECS and MonoBehaviour systems");
+                UnityEngine.Debug.Log("🔗 ChimeraSystemBridge initialized - connecting ECS and MonoBehaviour systems");
         }
 
         private void CreateInitialBridges()
@@ -398,18 +400,18 @@ namespace Laboratory.Chimera.Integration
 
         #region Enum Conversion Methods
 
-        private LifeStage ConvertToLifeStage(string lifeStageString)
+        private Laboratory.Chimera.Core.LifeStage ConvertToLifeStage(string lifeStageString)
         {
-            if (System.Enum.TryParse<LifeStage>(lifeStageString, out var result))
+            if (System.Enum.TryParse<Laboratory.Chimera.Core.LifeStage>(lifeStageString, out var result))
                 return result;
-            return LifeStage.Adult;
+            return Laboratory.Chimera.Core.LifeStage.Adult;
         }
 
-        private RarityLevel ConvertToRarityLevel(string rarityString)
+        private Laboratory.Chimera.Core.RarityLevel ConvertToRarityLevel(string rarityString)
         {
-            if (System.Enum.TryParse<RarityLevel>(rarityString, out var result))
+            if (System.Enum.TryParse<Laboratory.Chimera.Core.RarityLevel>(rarityString, out var result))
                 return result;
-            return RarityLevel.Common;
+            return Laboratory.Chimera.Core.RarityLevel.Common;
         }
 
         private BiomeType ConvertToBiomeType(string biomeString)

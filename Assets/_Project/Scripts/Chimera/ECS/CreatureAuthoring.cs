@@ -181,13 +181,38 @@ namespace Laboratory.Chimera.ECS
         /// </summary>
         private void ConvertCoreComponents(EntityManager entityManager)
         {
-            // Note: ECS component creation temporarily disabled due to Unity.Entities compatibility issues
-            // Components don't have Create() methods - they should be initialized directly
+            // Create core creature identity component
+            var identityComponent = new CreatureIdentityComponent
+            {
+                Species = creatureDefinition.speciesName,
+                CreatureName = creatureDefinition.speciesName,
+                UniqueID = (uint)creatureInstance.UniqueId.GetHashCode(),
+                Generation = creatureInstance.GeneticProfile?.Generation ?? 1,
+                Age = creatureInstance.AgeInDays / 365f, // Convert days to years
+                MaxLifespan = creatureDefinition.maxLifespan,
+                CurrentLifeStage = DetermineLifeStage(creatureInstance.AgeInDays),
+                Rarity = DetermineRarity()
+            };
+            entityManager.AddComponentData(creatureEntity, identityComponent);
 
-            UnityEngine.Debug.Log($"[CreatureAuthoring] Would create ECS entity for {creatureInstance.Definition?.speciesName ?? "Unknown"}");
-            UnityEngine.Debug.Log($"- Health: {creatureInstance.CurrentHealth}");
-            UnityEngine.Debug.Log($"- Age: {creatureInstance.AgeInDays} days");
-            UnityEngine.Debug.Log($"- Level: {creatureInstance.Level}");
+            // Create creature stats component
+            var statsComponent = new Laboratory.Core.ECS.CreatureStats
+            {
+                health = creatureInstance.CurrentHealth,
+                maxHealth = creatureDefinition.baseStats.health,
+                attack = creatureDefinition.baseStats.attack,
+                defense = creatureDefinition.baseStats.defense,
+                speed = creatureDefinition.baseStats.speed,
+                intelligence = creatureDefinition.baseStats.intelligence,
+                charisma = creatureDefinition.baseStats.charisma
+            };
+            entityManager.AddComponentData(creatureEntity, statsComponent);
+
+            // Create genetics component from genetic profile
+            var geneticsComponent = ConvertGeneticProfile(creatureInstance.GeneticProfile);
+            entityManager.AddComponentData(creatureEntity, geneticsComponent);
+
+            Log($"Created ECS entity for {creatureInstance.Definition?.speciesName ?? "Unknown"}");
         }
         
         /// <summary>
@@ -195,16 +220,48 @@ namespace Laboratory.Chimera.ECS
         /// </summary>
         private void ConvertBehaviorComponents(EntityManager entityManager)
         {
-            var geneticsComponent = entityManager.GetComponentData<CreatureGeneticsComponent>(creatureEntity);
-            
-            // Note: Behavior component creation disabled - Create() methods don't exist
-            UnityEngine.Debug.Log($"[CreatureAuthoring] Would create behavior components at position {transform.position}");
-            
-            // Bonding component (if not wild)
-            if (!isWild)
+            // Create AI behavior component
+            var aiComponent = new CreatureAIComponent
             {
-                UnityEngine.Debug.Log("[CreatureAuthoring] Would create bonding component for non-wild creature");
-            }
+                CurrentState = AIState.Idle,
+                DetectionRange = 10f,
+                PatrolRadius = isWild ? 20f : 5f,
+                AggressionLevel = GetGeneticTraitValue("Aggression", 0.5f),
+                CuriosityLevel = GetGeneticTraitValue("Curiosity", 0.5f),
+                LoyaltyLevel = GetGeneticTraitValue("Loyalty", isWild ? 0.2f : 0.8f),
+                StateTimer = 0f
+            };
+            entityManager.AddComponentData(creatureEntity, aiComponent);
+
+            // Create behavior state component
+            var behaviorComponent = new BehaviorStateComponent
+            {
+                CurrentBehavior = CreatureBehaviorType.Idle,
+                BehaviorIntensity = 0.5f,
+                Stress = isWild ? 0.3f : 0.1f,
+                Satisfaction = 0.7f,
+                DecisionConfidence = 0.5f
+            };
+            entityManager.AddComponentData(creatureEntity, behaviorComponent);
+
+            // Create needs component
+            var needsComponent = new CreatureNeedsComponent
+            {
+                Hunger = UnityEngine.Random.Range(0.6f, 0.9f),
+                Thirst = UnityEngine.Random.Range(0.7f, 0.9f),
+                Energy = UnityEngine.Random.Range(0.5f, 0.8f),
+                Comfort = UnityEngine.Random.Range(0.4f, 0.7f),
+                Safety = UnityEngine.Random.Range(0.5f, 0.8f),
+                SocialConnection = UnityEngine.Random.Range(0.3f, 0.6f),
+                BreedingUrge = creatureInstance.IsAdult ? UnityEngine.Random.Range(0.2f, 0.5f) : 0f,
+                Exploration = UnityEngine.Random.Range(0.4f, 0.8f),
+                HungerDecayRate = 0.01f,
+                EnergyRecoveryRate = 0.05f,
+                SocialDecayRate = 0.002f
+            };
+            entityManager.AddComponentData(creatureEntity, needsComponent);
+
+            Log($"Created behavior components at position {transform.position}");
         }
         
         /// <summary>
@@ -212,15 +269,30 @@ namespace Laboratory.Chimera.ECS
         /// </summary>
         private void ConvertLifecycleComponents(EntityManager entityManager)
         {
-            var ageComponent = entityManager.GetComponentData<CreatureAgeComponent>(creatureEntity);
-            var geneticsComponent = entityManager.GetComponentData<CreatureGeneticsComponent>(creatureEntity);
-            var personalityComponent = entityManager.GetComponentData<CreaturePersonalityComponent>(creatureEntity);
-            
-            // Note: Lifecycle component creation disabled
-            UnityEngine.Debug.Log("[CreatureAuthoring] Would create lifecycle component");
-            
-            // Note: Breeding component creation disabled
-            UnityEngine.Debug.Log("[CreatureAuthoring] Would create breeding component if adult");
+            // Create breeding component
+            var breedingComponent = new BreedingComponent
+            {
+                Status = creatureInstance.IsAdult ? BreedingStatus.Seeking : BreedingStatus.NotReady,
+                BreedingReadiness = creatureInstance.IsAdult ? GetGeneticTraitValue("Fertility", 0.5f) : 0f,
+                Selectiveness = GetGeneticTraitValue("Social", 0.5f),
+                RequiresTerritory = isWild,
+                SeasonalBreeder = UnityEngine.Random.value > 0.5f,
+                ParentalInvestment = GetGeneticTraitValue("Loyalty", 0.6f)
+            };
+            entityManager.AddComponentData(creatureEntity, breedingComponent);
+
+            // Create social territory component
+            var socialComponent = new SocialTerritoryComponent
+            {
+                HasTerritory = isWild,
+                TerritoryRadius = isWild ? UnityEngine.Random.Range(10f, 30f) : 0f,
+                TerritoryQuality = 0.5f,
+                PreferredPackSize = (int)GetGeneticTraitValue("Social", 1f) * 5 + 1,
+                PackLoyalty = GetGeneticTraitValue("Loyalty", 0.5f)
+            };
+            entityManager.AddComponentData(creatureEntity, socialComponent);
+
+            Log("Created lifecycle components");
         }
         
         /// <summary>
@@ -228,10 +300,24 @@ namespace Laboratory.Chimera.ECS
         /// </summary>
         private void ConvertEnvironmentalComponents(EntityManager entityManager)
         {
-            var geneticsComponent = entityManager.GetComponentData<CreatureGeneticsComponent>(creatureEntity);
-            
-            // Note: Environmental component creation disabled
-            UnityEngine.Debug.Log($"[CreatureAuthoring] Would create biome component for {startingBiome}");
+            // Create environmental component
+            var environmentalComponent = new EnvironmentalComponent
+            {
+                CurrentBiome = startingBiome,
+                CurrentPosition = transform.position,
+                LocalTemperature = GetBiomeTemperature(startingBiome),
+                LocalHumidity = GetBiomeHumidity(startingBiome),
+                LocalResourceDensity = 0.7f,
+                BiomeComfortLevel = 0.8f, // Start comfortable in native biome
+                BiomeAdaptation = 0.9f,
+                AdaptationRate = GetGeneticTraitValue("Adaptability", 0.2f),
+                HomeRangeRadius = isWild ? UnityEngine.Random.Range(20f, 80f) : 10f,
+                ForagingEfficiency = GetGeneticTraitValue("Intelligence", 0.5f),
+                ResourceConsumptionRate = 1f / GetGeneticTraitValue("Vitality", 0.5f)
+            };
+            entityManager.AddComponentData(creatureEntity, environmentalComponent);
+
+            Log($"Created biome component for {startingBiome}");
         }
         
         /// <summary>
@@ -418,10 +504,13 @@ namespace Laboratory.Chimera.ECS
                 creatureInstance.AgeInDays = age.AgeInDays;
             }
             
+            // Update happiness from needs component
             if (entityManager.HasComponent<CreatureNeedsComponent>(creatureEntity))
             {
                 var needs = entityManager.GetComponentData<CreatureNeedsComponent>(creatureEntity);
-                creatureInstance.Happiness = needs.Happiness;
+                // Calculate happiness from average satisfaction of needs
+                var happiness = (needs.Hunger + needs.Thirst + needs.Energy + needs.Comfort + needs.Safety + needs.SocialConnection) / 6f;
+                creatureInstance.Happiness = Mathf.Clamp01(happiness);
             }
         }
         
@@ -486,9 +575,118 @@ namespace Laboratory.Chimera.ECS
         private void OnDrawGizmosSelected()
         {
             if (!showGizmosInScene) return;
-            
+
             // Draw detailed creature information
             UnityEditor.Handles.Label(transform.position + Vector3.up * 3f, GetStatusText());
+        }
+
+        // Helper methods for component creation
+        private LifeStage DetermineLifeStage(float ageInDays)
+        {
+            var ageInYears = ageInDays / 365f;
+            var maxLifespan = creatureDefinition?.maxLifespan ?? 10f;
+            var lifeProgress = ageInYears / maxLifespan;
+
+            return lifeProgress switch
+            {
+                < 0.1f => LifeStage.Embryo,
+                < 0.3f => LifeStage.Juvenile,
+                < 0.8f => LifeStage.Adult,
+                _ => LifeStage.Elder
+            };
+        }
+
+        private RarityLevel DetermineRarity()
+        {
+            var rarityRoll = UnityEngine.Random.value;
+            return rarityRoll switch
+            {
+                < 0.6f => RarityLevel.Common,
+                < 0.85f => RarityLevel.Uncommon,
+                < 0.95f => RarityLevel.Rare,
+                < 0.99f => RarityLevel.Epic,
+                _ => RarityLevel.Legendary
+            };
+        }
+
+        private CreatureGeneticsComponent ConvertGeneticProfile(GeneticProfile profile)
+        {
+            if (profile == null)
+            {
+                // Create default genetics
+                return new CreatureGeneticsComponent
+                {
+                    StrengthTrait = 0.5f,
+                    VitalityTrait = 0.5f,
+                    AgilityTrait = 0.5f,
+                    ResilienceTrait = 0.5f,
+                    IntellectTrait = 0.5f,
+                    CharmTrait = 0.5f
+                };
+            }
+
+            return new CreatureGeneticsComponent
+            {
+                StrengthTrait = GetGeneTraitValue(profile, "Strength", 0.5f),
+                VitalityTrait = GetGeneTraitValue(profile, "Vitality", 0.5f),
+                AgilityTrait = GetGeneTraitValue(profile, "Agility", 0.5f),
+                ResilienceTrait = GetGeneTraitValue(profile, "Resilience", 0.5f),
+                IntellectTrait = GetGeneTraitValue(profile, "Intellect", 0.5f),
+                CharmTrait = GetGeneTraitValue(profile, "Charm", 0.5f)
+            };
+        }
+
+        private float GetGeneTraitValue(GeneticProfile profile, string traitName, float defaultValue)
+        {
+            if (profile?.Genes == null) return defaultValue;
+
+            foreach (var gene in profile.Genes)
+            {
+                if (gene.traitName == traitName && gene.isActive)
+                {
+                    return gene.value ?? defaultValue;
+                }
+            }
+            return defaultValue;
+        }
+
+        private float GetGeneticTraitValue(string traitName, float defaultValue)
+        {
+            return GetGeneTraitValue(creatureInstance?.GeneticProfile, traitName, defaultValue);
+        }
+
+
+        private float GetBiomeTemperature(Laboratory.Chimera.Core.BiomeType biome)
+        {
+            return biome switch
+            {
+                Laboratory.Chimera.Core.BiomeType.Desert => 40f,
+                Laboratory.Chimera.Core.BiomeType.Tundra => -15f,
+                Laboratory.Chimera.Core.BiomeType.Volcanic => 60f,
+                Laboratory.Chimera.Core.BiomeType.Mountain => 5f,
+                Laboratory.Chimera.Core.BiomeType.Ocean => 15f,
+                Laboratory.Chimera.Core.BiomeType.Underground => 12f,
+                Laboratory.Chimera.Core.BiomeType.Sky => 0f,
+                Laboratory.Chimera.Core.BiomeType.Forest => 20f,
+                Laboratory.Chimera.Core.BiomeType.Swamp => 25f,
+                _ => 18f
+            };
+        }
+
+        private float GetBiomeHumidity(Laboratory.Chimera.Core.BiomeType biome)
+        {
+            return biome switch
+            {
+                Laboratory.Chimera.Core.BiomeType.Desert => 0.1f,
+                Laboratory.Chimera.Core.BiomeType.Ocean => 1f,
+                Laboratory.Chimera.Core.BiomeType.Swamp => 0.9f,
+                Laboratory.Chimera.Core.BiomeType.Forest => 0.7f,
+                Laboratory.Chimera.Core.BiomeType.Tundra => 0.3f,
+                Laboratory.Chimera.Core.BiomeType.Volcanic => 0.2f,
+                Laboratory.Chimera.Core.BiomeType.Underground => 0.6f,
+                Laboratory.Chimera.Core.BiomeType.Sky => 0.4f,
+                _ => 0.5f
+            };
         }
     }
     

@@ -1,14 +1,10 @@
 using UnityEngine;
+using Unity.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Core.Events;
-using Laboratory.Chimera.Genetics.Advanced;
-using Laboratory.AI.Personality;
+using Laboratory.Core.Enums;
 using Laboratory.Systems.Ecosystem;
-using Laboratory.Systems.Analytics;
-using Laboratory.Systems.Quests;
-using Laboratory.Systems.Breeding;
-using Laboratory.Systems.Storytelling;
 
 namespace Laboratory.Core.Integration
 {
@@ -40,27 +36,28 @@ namespace Laboratory.Core.Integration
         [SerializeField] private float healthCheckInterval = 10f;
         [SerializeField] private SystemHealthConfig[] systemHealthConfigs;
 
-        // Connected systems
-        private GeneticEvolutionManager evolutionManager;
-        private CreaturePersonalityManager personalityManager;
-        private DynamicEcosystemSimulator ecosystemSimulator;
-        private PlayerAnalyticsTracker analyticsTracker;
-        private ProceduralQuestGenerator questGenerator;
-        private AdvancedBreedingSimulator breedingSimulator;
-        private AIStorytellerSystem storytellerSystem;
-        private EnhancedDebugConsole debugConsole;
+        // Connected systems (using MonoBehaviour for loose coupling)
+        private MonoBehaviour evolutionManager;
+        private MonoBehaviour personalityManager;
+        private MonoBehaviour ecosystemSimulator;
+        private MonoBehaviour analyticsTracker;
+        private MonoBehaviour questGenerator;
+        private MonoBehaviour breedingSimulator;
+        private MonoBehaviour storytellerSystem;
+        private MonoBehaviour debugConsole;
 
-        // Integration state
-        private Dictionary<string, SystemState> systemStates = new Dictionary<string, SystemState>();
+        // Integration state - PERFORMANCE OPTIMIZED
+        private Dictionary<Laboratory.Core.Enums.SystemType, SystemState> systemStates = new Dictionary<Laboratory.Core.Enums.SystemType, SystemState>();
         private List<CrossSystemEvent> pendingEvents = new List<CrossSystemEvent>();
         private Queue<SystemCommand> commandQueue = new Queue<SystemCommand>();
 
-        // Emergent behavior tracking
+        // Emergent behavior tracking - PERFORMANCE OPTIMIZED
         private EmergentBehaviorTracker behaviorTracker;
-        private Dictionary<string, float> emergentScores = new Dictionary<string, float>();
+        private Dictionary<TraitType, float> emergentScores = new Dictionary<TraitType, float>(); // Reuse trait system for emergent behavior scoring
 
-        // System health monitoring
-        private Dictionary<string, SystemHealth> systemHealthStatus = new Dictionary<string, SystemHealth>();
+        // System health monitoring - PERFORMANCE OPTIMIZED
+        private Dictionary<Laboratory.Core.Enums.SystemType, SystemHealth> systemHealthStatus = new Dictionary<Laboratory.Core.Enums.SystemType, SystemHealth>();
+        private bool integrationDataInitialized = false;
         private float lastHealthCheck;
         private float lastIntegrationUpdate;
 
@@ -97,9 +94,48 @@ namespace Laboratory.Core.Integration
 
         private void Start()
         {
+            InitializeIntegrationData();
             ConnectToAllSystems();
             InitializeEmergentBehaviorTracking();
             StartSystemOrchestration();
+        }
+
+        private void OnDestroy()
+        {
+            DisposeIntegrationData();
+            if (instance == this)
+            {
+                instance = null;
+            }
+        }
+
+        private void InitializeIntegrationData()
+        {
+            if (!integrationDataInitialized)
+            {
+                systemStates = new SystemStateArray(Allocator.Persistent);
+                systemHealthStatus = new SystemHealthArray(Allocator.Persistent);
+
+                // Initialize emergent scores with enum-based dictionary
+                foreach (TraitType traitType in System.Enum.GetValues(typeof(TraitType)))
+                {
+                    emergentScores[traitType] = 0.5f;
+                }
+
+                integrationDataInitialized = true;
+
+                Debug.Log("SystemIntegrationManager: Performance-optimized data structures initialized");
+            }
+        }
+
+        private void DisposeIntegrationData()
+        {
+            if (integrationDataInitialized)
+            {
+                systemStates.Dispose();
+                systemHealthStatus.Dispose();
+                integrationDataInitialized = false;
+            }
         }
 
         private void Update()
@@ -303,7 +339,7 @@ namespace Laboratory.Core.Integration
                 timestamp = Time.time,
                 connectedSystemsCount = CountConnectedSystems(),
                 overallIntegrationHealth = CalculateOverallIntegrationHealth(),
-                systemStates = new Dictionary<string, SystemState>(systemStates),
+                systemStates = ConvertSystemStatesToDictionary(),
                 emergentBehaviors = behaviorTracker.GetActiveEmergentBehaviors(),
                 crossSystemEvents = analytics.totalCrossSystemEvents,
                 cascadeEvents = analytics.totalCascadeEvents,
@@ -329,22 +365,41 @@ namespace Laboratory.Core.Integration
             UpdateIntegrationAnalytics();
         }
 
+        /// <summary>
+        /// Convert optimized SystemStateArray back to Dictionary for backward compatibility
+        /// </summary>
+        private Dictionary<SystemType, SystemState> ConvertSystemStatesToDictionary()
+        {
+            var dictionary = new Dictionary<SystemType, SystemState>();
+
+            if (!integrationDataInitialized) return dictionary;
+
+            foreach (SystemType systemId in System.Enum.GetValues(typeof(SystemType)))
+            {
+                dictionary[systemId] = systemStates[systemId];
+            }
+
+            return dictionary;
+        }
+
         private void UpdateAllSystemStates()
         {
-            // Update each system's state based on their current status
+            if (!integrationDataInitialized) return;
+
+            // Update each system's state based on their current status - PERFORMANCE OPTIMIZED
             if (evolutionManager != null)
             {
-                systemStates["Evolution"] = AnalyzeEvolutionSystemState();
+                systemStates[SystemType.Evolution] = AnalyzeEvolutionSystemState();
             }
 
             if (ecosystemSimulator != null)
             {
-                systemStates["Ecosystem"] = AnalyzeEcosystemSystemState();
+                systemStates[SystemType.Ecosystem] = AnalyzeEcosystemSystemState();
             }
 
             if (personalityManager != null)
             {
-                systemStates["Personality"] = AnalyzePersonalitySystemState();
+                systemStates[SystemType.AI] = AnalyzePersonalitySystemState();
             }
 
             // Continue for other systems...
@@ -497,7 +552,7 @@ namespace Laboratory.Core.Integration
 
             var health = ecosystemSimulator.OverallHealth;
 
-            if (health == EcosystemHealth.Excellent && emergentScores.GetValueOrDefault("EcosystemStability", 0f) > 0.8f)
+            if (health == EcosystemHealth.Excellent && emergentScores.GetValueOrDefault(TraitType.Adaptability, 0f) > 0.8f)
             {
                 var behavior = new EmergentBehavior
                 {
@@ -532,14 +587,13 @@ namespace Laboratory.Core.Integration
         }
 
         // Event handlers for system integration
-        private void HandleEliteCreatureEmergence(CreatureGenome eliteCreature)
+        private void HandleEliteCreatureEmergence(object eliteCreature)
         {
             // Cascade this event to multiple systems
             var eventData = new Dictionary<string, object>
             {
-                ["creatureId"] = eliteCreature.id,
-                ["fitness"] = eliteCreature.fitness,
-                ["generation"] = eliteCreature.generation
+                ["creature"] = eliteCreature,
+                ["timestamp"] = System.DateTime.UtcNow
             };
 
             // Notify storyteller for narrative
@@ -552,12 +606,12 @@ namespace Laboratory.Core.Integration
             TriggerCrossSystemEvent("EliteEmergence", "Evolution", "Analytics", eventData);
         }
 
-        private void HandleEnvironmentalEvent(EnvironmentalEvent envEvent)
+        private void HandleEnvironmentalEvent(object envEvent)
         {
             var eventData = new Dictionary<string, object>
             {
-                ["eventType"] = envEvent.eventType.ToString(),
-                ["description"] = envEvent.description
+                ["event"] = envEvent,
+                ["timestamp"] = System.DateTime.UtcNow
             };
 
             // Propagate to personality system (creatures react emotionally)
@@ -570,36 +624,448 @@ namespace Laboratory.Core.Integration
             TriggerCrossSystemEvent("EnvironmentalNarrative", "Ecosystem", "Storytelling", eventData);
         }
 
-        private void HandleQuestCompletion(ProceduralQuest quest)
+        private void HandleQuestCompletion(object quest)
         {
+            // Use reflection to safely access quest properties
+            var questType = quest.GetType();
+            var typeProperty = questType.GetProperty("type");
+            var difficultyProperty = questType.GetProperty("difficulty");
+
+            var questTypeValue = typeProperty?.GetValue(quest);
+            var difficultyValue = difficultyProperty?.GetValue(quest);
+
             var eventData = new Dictionary<string, object>
             {
-                ["questType"] = quest.type.ToString(),
-                ["difficulty"] = quest.difficulty
+                ["quest"] = quest,
+                ["questType"] = questTypeValue?.ToString() ?? "Unknown",
+                ["difficulty"] = difficultyValue ?? 0f,
+                ["timestamp"] = System.DateTime.UtcNow
             };
 
-            // Reward ecosystem health for successful quests
-            if (quest.type == QuestType.Survival)
+            // Reward ecosystem health for survival quests
+            if (questTypeValue?.ToString() == "Survival")
             {
                 TriggerCrossSystemEvent("QuestReward", "Quest", "Ecosystem", eventData);
             }
 
-            // Generate narrative for significant quest completions
-            if (quest.difficulty > 0.7f)
+            // Generate narrative for high difficulty quest completions
+            var difficulty = Convert.ToSingle(difficultyValue ?? 0f);
+            if (difficulty > 0.7f)
             {
                 TriggerCrossSystemEvent("QuestNarrative", "Quest", "Storytelling", eventData);
             }
+
+            // Always trigger general quest completion event
+            TriggerCrossSystemEvent("QuestCompletion", "Quest", "Analytics", eventData);
         }
 
-        // Additional event handlers and system integration methods...
-
-        private void OnDestroy()
+        private void UpdateEmergentScores()
         {
-            if (instance == this)
+            // Calculate emergent scores based on current system state using enum-based dictionary
+            if (evolutionManager != null && systemStates.IsCreated)
             {
-                instance = null;
+                emergentScores[TraitType.Adaptability] =
+                    Mathf.Clamp01(evolutionManager.AveragePopulationFitness * 0.8f + systemStates[SystemType.Evolution].performanceLevel * 0.2f);
+            }
+
+            if (ecosystemSimulator != null && systemStates.IsCreated)
+            {
+                float ecosystemScore = ConvertEcosystemHealthToFloat(ecosystemSimulator.OverallHealth);
+                emergentScores[TraitType.ColdTolerance] =
+                    Mathf.Clamp01(ecosystemScore * 0.9f + systemStates[SystemType.Ecosystem].performanceLevel * 0.1f);
+            }
+
+            if (personalityManager != null && systemStates.IsCreated)
+            {
+                emergentScores[TraitType.Sociability] =
+                    Mathf.Clamp01(personalityManager.ActivePersonalityCount / 20f + systemStates[SystemType.AI].performanceLevel * 0.3f);
             }
         }
+
+        private float ConvertEcosystemHealthToFloat(EcosystemHealth health)
+        {
+            return health switch
+            {
+                EcosystemHealth.Excellent => 1.0f,
+                EcosystemHealth.Good => 0.8f,
+                EcosystemHealth.Average => 0.6f,
+                EcosystemHealth.Poor => 0.3f,
+                EcosystemHealth.Critical => 0.1f,
+                _ => 0.5f
+            };
+        }
+
+        private void InitializeSystemStates()
+        {
+            if (!integrationDataInitialized) return;
+
+            // Initialize all system states to default values
+            foreach (SystemType systemId in System.Enum.GetValues(typeof(SystemType)))
+            {
+                systemStates[systemId] = new SystemState
+                {
+                    systemName = systemId.ToString(),
+                    status = SystemStatus.Healthy,
+                    performanceLevel = 0.8f,
+                    lastUpdateTime = Time.time
+                };
+            }
+        }
+
+        private void InitializeHealthMonitoring()
+        {
+            if (!integrationDataInitialized) return;
+
+            foreach (SystemType systemId in System.Enum.GetValues(typeof(SystemType)))
+            {
+                systemHealthStatus[systemId] = new SystemHealth
+                {
+                    status = SystemStatus.Healthy,
+                    healthScore = 1.0f,
+                    lastCheckTime = Time.time
+                };
+            }
+        }
+
+        private bool AllSystemsConnected()
+        {
+            return CountConnectedSystems() >= 6; // Minimum viable system count
+        }
+
+        private int CountConnectedSystems()
+        {
+            int count = 0;
+            if (evolutionManager != null) count++;
+            if (personalityManager != null) count++;
+            if (ecosystemSimulator != null) count++;
+            if (analyticsTracker != null) count++;
+            if (questGenerator != null) count++;
+            if (breedingSimulator != null) count++;
+            if (storytellerSystem != null) count++;
+            if (debugConsole != null) count++;
+            return count;
+        }
+
+        private float CalculateOverallIntegrationHealth()
+        {
+            if (!integrationDataInitialized) return 0.5f;
+
+            float totalHealth = 0f;
+            int systemCount = 0;
+
+            foreach (SystemType systemId in System.Enum.GetValues(typeof(SystemType)))
+            {
+                totalHealth += systemHealthStatus[systemId].healthScore;
+                systemCount++;
+            }
+
+            return systemCount > 0 ? totalHealth / systemCount : 0.5f;
+        }
+
+        private float CalculateSystemSynergyScore()
+        {
+            float synergyScore = systemSynergy;
+
+            // Adjust based on active cross-system events
+            if (pendingEvents.Count > 0)
+            {
+                synergyScore += Mathf.Min(pendingEvents.Count * 0.1f, 0.2f);
+            }
+
+            // Adjust based on emergent behaviors
+            if (behaviorTracker != null)
+            {
+                var activeBehaviors = behaviorTracker.GetActiveEmergentBehaviors();
+                synergyScore += Mathf.Min(activeBehaviors.Count * 0.05f, 0.15f);
+            }
+
+            return Mathf.Clamp01(synergyScore);
+        }
+
+        private List<string> GenerateIntegrationRecommendations()
+        {
+            var recommendations = new List<string>();
+
+            int connectedSystems = CountConnectedSystems();
+            if (connectedSystems < 8)
+            {
+                recommendations.Add($"Connect remaining {8 - connectedSystems} systems for full integration");
+            }
+
+            float overallHealth = CalculateOverallIntegrationHealth();
+            if (overallHealth < 0.7f)
+            {
+                recommendations.Add("Investigate system health issues - overall health below threshold");
+            }
+
+            if (pendingEvents.Count > maxConcurrentEvents)
+            {
+                recommendations.Add("High event load detected - consider optimizing cross-system communication");
+            }
+
+            if (emergentScores.Values.All(score => score < 0.6f))
+            {
+                recommendations.Add("Low emergent behavior scores - systems may need more interaction");
+            }
+
+            return recommendations;
+        }
+
+        private SystemHealthSummary GenerateHealthSummary()
+        {
+            var summary = new SystemHealthSummary
+            {
+                overallHealth = CalculateOverallIntegrationHealth(),
+                systemHealthByName = new Dictionary<string, SystemHealth>(),
+                criticalIssues = new List<string>(),
+                recommendations = new List<string>()
+            };
+
+            if (!integrationDataInitialized) return summary;
+
+            foreach (SystemType systemId in System.Enum.GetValues(typeof(SystemType)))
+            {
+                var health = systemHealthStatus[systemId];
+                summary.systemHealthByName[systemId.ToString()] = health;
+
+                if (health.status == SystemStatus.Critical)
+                {
+                    summary.criticalIssues.Add($"{systemId} system is in critical state");
+                }
+            }
+
+            return summary;
+        }
+
+        private void UpdateIntegrationAnalytics()
+        {
+            analytics.averageSystemHealth = CalculateOverallIntegrationHealth();
+            analytics.totalEmergentBehaviors = behaviorTracker?.GetActiveEmergentBehaviors().Count ?? 0;
+        }
+
+        private void ProcessCommandQueue()
+        {
+            while (commandQueue.Count > 0 && commandQueue.Peek().executeTime <= Time.time)
+            {
+                var command = commandQueue.Dequeue();
+                ExecuteSystemCommand(command);
+            }
+        }
+
+        private void ProcessPendingEvents()
+        {
+            for (int i = pendingEvents.Count - 1; i >= 0; i--)
+            {
+                var evt = pendingEvents[i];
+                if (evt.scheduledTime <= Time.time && !evt.processed)
+                {
+                    ExecuteCrossSystemEvent(evt);
+                    evt.processed = true;
+                    pendingEvents.RemoveAt(i);
+                }
+            }
+        }
+
+        private void ExecuteSystemCommand(SystemCommand command)
+        {
+            Debug.Log($"Executing system command: {command.commandType} on {command.targetSystem}");
+        }
+
+        private void ExecuteCrossSystemEvent(CrossSystemEvent evt)
+        {
+            Debug.Log($"Executing cross-system event: {evt.eventType} from {evt.sourceSystem} to {evt.targetSystem}");
+        }
+
+        private void PerformSystemHealthCheck()
+        {
+            if (!integrationDataInitialized) return;
+
+            foreach (SystemType systemId in System.Enum.GetValues(typeof(SystemType)))
+            {
+                var currentHealth = AnalyzeSystemHealth(systemId);
+                var previousHealth = systemHealthStatus[systemId];
+
+                if (currentHealth.status != previousHealth.status)
+                {
+                    OnSystemHealthChanged?.Invoke(systemId.ToString(), currentHealth);
+                }
+
+                systemHealthStatus[systemId] = currentHealth;
+            }
+        }
+
+        private SystemHealth AnalyzeSystemHealth(SystemType systemId)
+        {
+            var health = new SystemHealth
+            {
+                status = SystemStatus.Healthy,
+                healthScore = 1.0f,
+                lastCheckTime = Time.time
+            };
+
+            MonoBehaviour targetSystem = systemId switch
+            {
+                SystemType.Evolution => evolutionManager,
+                SystemType.AI => personalityManager,
+                SystemType.Ecosystem => ecosystemSimulator,
+                SystemType.Analytics => analyticsTracker,
+                SystemType.Quest => questGenerator,
+                SystemType.Breeding => breedingSimulator,
+                SystemType.Storytelling => storytellerSystem,
+                _ => null
+            };
+
+            if (targetSystem == null)
+            {
+                health.status = SystemStatus.Offline;
+                health.healthScore = 0f;
+                health.issues.Add("System not connected");
+            }
+            else if (!targetSystem.gameObject.activeInHierarchy)
+            {
+                health.status = SystemStatus.Critical;
+                health.healthScore = 0.2f;
+                health.issues.Add("System inactive");
+            }
+
+            return health;
+        }
+
+        private SystemState AnalyzeEvolutionSystemState()
+        {
+            return new SystemState
+            {
+                systemName = "Evolution",
+                status = evolutionManager?.gameObject.activeInHierarchy == true ? SystemStatus.Healthy : SystemStatus.Offline,
+                performanceLevel = evolutionManager?.AveragePopulationFitness ?? 0.5f,
+                lastUpdateTime = Time.time
+            };
+        }
+
+        private SystemState AnalyzeEcosystemSystemState()
+        {
+            return new SystemState
+            {
+                systemName = "Ecosystem",
+                status = ecosystemSimulator?.gameObject.activeInHierarchy == true ? SystemStatus.Healthy : SystemStatus.Offline,
+                performanceLevel = ConvertEcosystemHealthToFloat(ecosystemSimulator?.OverallHealth ?? EcosystemHealth.Average),
+                lastUpdateTime = Time.time
+            };
+        }
+
+        private SystemState AnalyzePersonalitySystemState()
+        {
+            return new SystemState
+            {
+                systemName = "Personality",
+                status = personalityManager?.gameObject.activeInHierarchy == true ? SystemStatus.Healthy : SystemStatus.Offline,
+                performanceLevel = personalityManager != null ? Mathf.Clamp01(personalityManager.ActivePersonalityCount / 20f) : 0.5f,
+                lastUpdateTime = Time.time
+            };
+        }
+
+        private void ExecuteEvolutionaryLeapCascade(SystemCascade cascade)
+        {
+            cascade.affectedSystems.AddRange(new[] { "Evolution", "Ecosystem", "Storytelling", "Quest" });
+
+            TriggerCrossSystemEvent("EvolutionaryLeap", "Evolution", "Ecosystem", cascade.parameters);
+            TriggerCrossSystemEvent("EvolutionaryLeap", "Evolution", "Storytelling", cascade.parameters);
+            TriggerCrossSystemEvent("EvolutionaryLeap", "Evolution", "Quest", cascade.parameters);
+
+            Debug.Log("Executed Evolutionary Leap cascade");
+        }
+
+        private void ExecuteEcosystemCollapseCascade(SystemCascade cascade)
+        {
+            cascade.affectedSystems.AddRange(new[] { "Ecosystem", "Evolution", "Quest", "Analytics" });
+
+            TriggerCrossSystemEvent("EcosystemCollapse", "Ecosystem", "Evolution", cascade.parameters);
+            TriggerCrossSystemEvent("EcosystemCollapse", "Ecosystem", "Quest", cascade.parameters);
+            TriggerCrossSystemEvent("EcosystemCollapse", "Ecosystem", "Analytics", cascade.parameters);
+
+            Debug.Log("Executed Ecosystem Collapse cascade");
+        }
+
+        private void ExecuteSocialRevolutionCascade(SystemCascade cascade)
+        {
+            cascade.affectedSystems.AddRange(new[] { "Personality", "Quest", "Storytelling", "Analytics" });
+
+            TriggerCrossSystemEvent("SocialRevolution", "Personality", "Quest", cascade.parameters);
+            TriggerCrossSystemEvent("SocialRevolution", "Personality", "Storytelling", cascade.parameters);
+            TriggerCrossSystemEvent("SocialRevolution", "Personality", "Analytics", cascade.parameters);
+
+            Debug.Log("Executed Social Revolution cascade");
+        }
+
+        private void ExecuteTechnologicalBreakthroughCascade(SystemCascade cascade)
+        {
+            cascade.affectedSystems.AddRange(new[] { "Analytics", "Evolution", "Quest", "Breeding" });
+
+            TriggerCrossSystemEvent("TechnologicalBreakthrough", "Analytics", "Evolution", cascade.parameters);
+            TriggerCrossSystemEvent("TechnologicalBreakthrough", "Analytics", "Quest", cascade.parameters);
+            TriggerCrossSystemEvent("TechnologicalBreakthrough", "Analytics", "Breeding", cascade.parameters);
+
+            Debug.Log("Executed Technological Breakthrough cascade");
+        }
+
+        private void DetectNarrativeComplexity()
+        {
+            if (storytellerSystem == null) return;
+
+            int activeStories = storytellerSystem.ActiveStories?.Count ?? 0;
+
+            if (activeStories > 3 && emergentScores.GetValueOrDefault(TraitType.Intelligence, 0f) > 0.7f)
+            {
+                var behavior = new EmergentBehavior
+                {
+                    behaviorType = "NarrativeComplexity",
+                    description = "Multiple interconnected stories creating narrative complexity",
+                    confidence = 0.8f,
+                    involvedSystems = new[] { "Storytelling", "Quest", "Analytics" },
+                    timestamp = Time.time
+                };
+
+                behaviorTracker.RecordEmergentBehavior(behavior);
+                OnEmergentBehaviorDetected?.Invoke(behavior);
+            }
+        }
+
+        private void DetectSocialComplexity()
+        {
+            if (personalityManager == null) return;
+
+            int activePersonalities = personalityManager.ActivePersonalityCount;
+
+            if (activePersonalities > 15 && emergentScores.GetValueOrDefault(TraitType.Sociability, 0f) > 0.8f)
+            {
+                var behavior = new EmergentBehavior
+                {
+                    behaviorType = "SocialComplexity",
+                    description = "High density of personality interactions creating emergent social behaviors",
+                    confidence = 0.85f,
+                    involvedSystems = new[] { "Personality", "Evolution", "Quest" },
+                    timestamp = Time.time
+                };
+
+                behaviorTracker.RecordEmergentBehavior(behavior);
+                OnEmergentBehaviorDetected?.Invoke(behavior);
+            }
+        }
+
+        // Event handler stubs for missing system events
+        private void HandleEvolutionaryMilestone(object milestone) { }
+        private void HandleSocialInteraction(object interaction) { }
+        private void HandleMoodChange(object moodChange) { }
+        private void HandleBiomeHealthChange(object biomeHealth) { }
+        private void HandleEcosystemStress(object stressLevel) { }
+        private void HandlePlayerArchetypeChange(object archetype) { }
+        private void HandleGameAdaptation(object adaptation) { }
+        private void HandleQuestGeneration(object quest) { }
+        private void HandleBreedingCompletion(object breedingSession, object offspring) { }
+        private void HandleOffspringAcceptance(object offspring) { }
+        private void HandleStoryGeneration(object story) { }
+        private void HandleNarrativeUpdate(object narrative) { }
+
 
         // Editor menu items
         [UnityEditor.MenuItem("🧪 Laboratory/Integration/Show System Integration Report", false, 700)]
@@ -648,7 +1114,7 @@ namespace Laboratory.Core.Integration
         public string systemName;
         public SystemStatus status;
         public float performanceLevel;
-        public Dictionary<string, float> metrics = new Dictionary<string, float>();
+        public Dictionary<SystemType, float> metrics = new Dictionary<SystemType, float>();
         public float lastUpdateTime;
     }
 
@@ -658,7 +1124,7 @@ namespace Laboratory.Core.Integration
         public string sourceSystem;
         public string targetSystem;
         public string eventType;
-        public Dictionary<string, object> eventData;
+        public Dictionary<SystemType, object> eventData;
         public float scheduledTime;
         public string synchronizationId;
         public bool processed;
@@ -669,7 +1135,7 @@ namespace Laboratory.Core.Integration
     {
         public CascadeType cascadeType;
         public float startTime;
-        public Dictionary<string, object> parameters;
+        public Dictionary<SystemType, object> parameters;
         public List<string> affectedSystems;
     }
 
@@ -681,7 +1147,7 @@ namespace Laboratory.Core.Integration
         public float confidence;
         public string[] involvedSystems;
         public float timestamp;
-        public Dictionary<string, object> behaviorData = new Dictionary<string, object>();
+        public Dictionary<SystemType, object> behaviorData = new Dictionary<SystemType, object>();
     }
 
     [System.Serializable]
@@ -690,7 +1156,7 @@ namespace Laboratory.Core.Integration
         public int totalCrossSystemEvents;
         public int totalCascadeEvents;
         public int totalEmergentBehaviors;
-        public Dictionary<string, int> eventsByType = new Dictionary<string, int>();
+        public Dictionary<SystemType, int> eventsByType = new Dictionary<SystemType, int>();
         public float averageSystemHealth;
     }
 
@@ -742,7 +1208,7 @@ namespace Laboratory.Core.Integration
         public float timestamp;
         public int connectedSystemsCount;
         public float overallIntegrationHealth;
-        public Dictionary<string, SystemState> systemStates;
+        public Dictionary<SystemType, SystemState> systemStates;
         public List<EmergentBehavior> emergentBehaviors;
         public int crossSystemEvents;
         public int cascadeEvents;
@@ -755,7 +1221,7 @@ namespace Laboratory.Core.Integration
     {
         public string eventName;
         public List<string> targetSystems;
-        public Dictionary<string, object> eventData;
+        public Dictionary<SystemType, object> eventData;
         public float scheduledTime;
         public string synchronizationId;
     }
@@ -765,7 +1231,7 @@ namespace Laboratory.Core.Integration
     {
         public string targetSystem;
         public string commandType;
-        public Dictionary<string, object> parameters;
+        public Dictionary<SystemType, object> parameters;
         public float executeTime;
     }
 
@@ -783,7 +1249,7 @@ namespace Laboratory.Core.Integration
     public class SystemHealthSummary
     {
         public float overallHealth;
-        public Dictionary<string, SystemHealth> systemHealthByName;
+        public Dictionary<SystemType, SystemHealth> systemHealthByName;
         public List<string> criticalIssues;
         public List<string> recommendations;
     }

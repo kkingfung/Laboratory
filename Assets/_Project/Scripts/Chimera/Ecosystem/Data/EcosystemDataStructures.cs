@@ -1,4 +1,5 @@
 using System;
+using Laboratory.Chimera.Core;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -192,23 +193,6 @@ namespace Laboratory.Chimera.Ecosystem.Data
         Highland
     }
 
-    public enum BiomeType
-    {
-        Forest,
-        Desert,
-        Tundra,
-        Ocean,
-        Mountain,
-        Swamp,
-        Cave,
-        Volcanic,
-        Sky,
-        Void,
-        Grassland,
-        Rainforest,
-        Savanna,
-        Taiga
-    }
 
     public enum ResourceType
     {

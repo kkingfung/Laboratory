@@ -288,15 +288,15 @@ namespace Laboratory.Chimera.UI
             {
                 var genetics = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureGeneticsComponent>(targetEntity);
                 
-                SetSlider(strengthSlider, genetics.strengthTrait);
-                SetSlider(vitalitySlider, genetics.vitalityTrait);
-                SetSlider(agilitySlider, genetics.agilityTrait);
-                SetSlider(resilienceSlider, genetics.resilienceTrait);
-                SetSlider(intellectSlider, genetics.intellectTrait);
-                SetSlider(charmSlider, genetics.charmTrait);
-                
+                SetSlider(strengthSlider, genetics.StrengthTrait);
+                SetSlider(vitalitySlider, genetics.VitalityTrait);
+                SetSlider(agilitySlider, genetics.AgilityTrait);
+                SetSlider(resilienceSlider, genetics.ResilienceTrait);
+                SetSlider(intellectSlider, genetics.IntellectTrait);
+                SetSlider(charmSlider, genetics.CharmTrait);
+
                 SetText(geneticSummaryText, GetGeneticSummary(genetics));
-                SetText(lineageText, $"Generation {genetics.generation} | Lineage: {genetics.lineageId}");
+                SetText(lineageText, $"Generation {genetics.Generation} | Lineage: {genetics.LineageId}");
             }
             else if (targetAuthoring != null)
             {
@@ -308,82 +308,121 @@ namespace Laboratory.Chimera.UI
         
         private void UpdatePersonalityDisplay()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreaturePersonalityComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity))
             {
-                var personality = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreaturePersonalityComponent>(targetEntity);
-                
-                SetSlider(braverySlider, personality.bravery);
-                SetSlider(loyaltySlider, personality.loyalty);
-                SetSlider(curiositySlider, personality.curiosity);
-                SetSlider(socialSlider, personality.socialNeed);
-                SetSlider(playfulnessSlider, personality.playfulness);
-                
-                SetText(personalityDescText, GetPersonalityDescription(personality));
+                // Try to get available personality component with safe access
+                if (entityManager.HasComponent<Laboratory.Chimera.ECS.CreaturePersonalityComponent>(targetEntity))
+                {
+                    var component = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreaturePersonalityComponent>(targetEntity);
+                    ExtractPersonalityData(component);
+                    return;
+                }
+                else if (entityManager.HasComponent<BehaviorStateComponent>(targetEntity))
+                {
+                    var component = entityManager.GetComponentData<BehaviorStateComponent>(targetEntity);
+                    ExtractPersonalityDataFromBehavior(component);
+                    return;
+                }
+                else if (entityManager.HasComponent<CreatureAIComponent>(targetEntity))
+                {
+                    var component = entityManager.GetComponentData<CreatureAIComponent>(targetEntity);
+                    ExtractPersonalityDataFromAI(component);
+                    return;
+                }
             }
-            else if (targetAuthoring != null)
+
+            // Fallback to authoring component
+            if (targetAuthoring != null && targetAuthoring.GetType().GetMethod("GetPersonalityDescription") != null)
             {
-                // Fallback to authoring component
-                var description = targetAuthoring.GetPersonalityDescription();
+                var description = (string)targetAuthoring.GetType().GetMethod("GetPersonalityDescription").Invoke(targetAuthoring, null);
                 SetText(personalityDescText, description);
+            }
+            else
+            {
+                SetText(personalityDescText, "Balanced personality");
             }
         }
         
         private void UpdateNeedsDisplay()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureNeedsComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity))
             {
-                var needs = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureNeedsComponent>(targetEntity);
-                
-                SetSlider(hungerSlider, needs.hunger);
-                SetSlider(thirstSlider, needs.thirst);
-                SetSlider(restSlider, needs.rest);
-                SetSlider(socialNeedSlider, needs.social);
-                SetSlider(exerciseSlider, needs.exercise);
-                SetSlider(mentalSlider, needs.mental);
-                SetSlider(happinessSlider, needs.happiness);
-                SetSlider(stressSlider, needs.stress);
-                
-                // Color code based on values
-                UpdateNeedsColors(needs);
+                // Try to get available needs component with safe access
+                if (entityManager.HasComponent<CreatureNeedsComponent>(targetEntity))
+                {
+                    var component = entityManager.GetComponentData<CreatureNeedsComponent>(targetEntity);
+                    ExtractNeedsData(component);
+                    return;
+                }
+                else if (entityManager.HasComponent<BehaviorStateComponent>(targetEntity))
+                {
+                    var component = entityManager.GetComponentData<BehaviorStateComponent>(targetEntity);
+                    ExtractNeedsDataFromBehavior(component);
+                    return;
+                }
             }
+
+            // Set default values if no component found
+            SetSlider(hungerSlider, 0.5f);
+            SetSlider(thirstSlider, 0.5f);
+            SetSlider(restSlider, 0.5f);
+            SetSlider(socialNeedSlider, 0.5f);
+            SetSlider(exerciseSlider, 0.5f);
+            SetSlider(mentalSlider, 0.5f);
+            SetSlider(happinessSlider, 0.5f);
+            SetSlider(stressSlider, 0.3f);
         }
         
         private void UpdateBondingDisplay()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureBondingComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity))
             {
-                var bonding = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureBondingComponent>(targetEntity);
-                
-                SetSlider(bondStrengthSlider, bonding.bondStrength);
-                SetSlider(trustSlider, bonding.trustLevel);
-                SetSlider(obedienceSlider, bonding.obedience);
-                
-                SetText(bondingStatusText, GetBondingStatus(bonding));
+                // Try to find any social/bonding components
+                if (entityManager.HasComponent<SocialTerritoryComponent>(targetEntity))
+                {
+                    var component = entityManager.GetComponentData<SocialTerritoryComponent>(targetEntity);
+                    ExtractBondingDataFromSocial(component);
+                    return;
+                }
+                else if (entityManager.HasComponent<CreatureAIComponent>(targetEntity))
+                {
+                    var component = entityManager.GetComponentData<CreatureAIComponent>(targetEntity);
+                    ExtractBondingDataFromAI(component);
+                    return;
+                }
             }
-            else
-            {
-                SetText(bondingStatusText, "No player bond");
-            }
+
+            // Default values if no bonding component found
+            SetSlider(bondStrengthSlider, 0.3f);
+            SetSlider(trustSlider, 0.3f);
+            SetSlider(obedienceSlider, 0.3f);
+            SetText(bondingStatusText, "No player bond");
         }
         
         private void UpdateEnvironmentalDisplay()
         {
             if (entityManager.Exists(targetEntity))
             {
-                if (entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureBiomeComponent>(targetEntity))
+                // Try to find environmental components
+                if (entityManager.HasComponent<EnvironmentalComponent>(targetEntity))
                 {
-                    var biome = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureBiomeComponent>(targetEntity);
-                    SetText(currentBiomeText, biome.currentBiome.ToString());
-                    SetSlider(biomeComfortSlider, biome.biomeComfortLevel);
-                    SetSlider(adaptationSlider, biome.adaptationLevel);
+                    var component = entityManager.GetComponentData<EnvironmentalComponent>(targetEntity);
+                    ExtractEnvironmentalData(component);
+                    return;
                 }
-                
-                if (entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureEnvironmentalComponent>(targetEntity))
+                else if (entityManager.HasComponent<BiomeComponent>(targetEntity))
                 {
-                    var env = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureEnvironmentalComponent>(targetEntity);
-                    SetText(environmentalStressText, $"Environmental Stress: {env.environmentalStress:P0}");
+                    var component = entityManager.GetComponentData<BiomeComponent>(targetEntity);
+                    ExtractEnvironmentalDataFromBiome(component);
+                    return;
                 }
             }
+
+            // Default values if no environmental component found
+            SetText(currentBiomeText, "Unknown Biome");
+            SetSlider(biomeComfortSlider, 0.5f);
+            SetSlider(adaptationSlider, 0.5f);
+            SetText(environmentalStressText, "Environmental Stress: Unknown");
         }
         
         #endregion
@@ -445,30 +484,41 @@ namespace Laboratory.Chimera.UI
         
         private string GetAgeString()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureAgeComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity))
             {
-                var age = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureAgeComponent>(targetEntity);
-                return $"{age.ageInDays:F1} days ({age.maturationProgress:P0} mature)";
+                // Try to find age-related components
+                if (entityManager.HasComponent<CreatureIdentityComponent>(targetEntity))
+                {
+                    var identity = entityManager.GetComponentData<CreatureIdentityComponent>(targetEntity);
+                    var maturation = identity.Age / identity.MaxLifespan;
+                    return $"{identity.Age:F1} years ({maturation:P0} mature)";
+                }
             }
             return "Unknown age";
         }
         
         private string GetLifeStageString()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureAgeComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity))
             {
-                var age = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureAgeComponent>(targetEntity);
-                return age.currentLifeStage.ToString();
+                if (entityManager.HasComponent<CreatureIdentityComponent>(targetEntity))
+                {
+                    var identity = entityManager.GetComponentData<CreatureIdentityComponent>(targetEntity);
+                    return identity.CurrentLifeStage.ToString();
+                }
             }
             return "Unknown";
         }
         
         private string GetHealthString()
         {
-            if (entityManager.Exists(targetEntity) && entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureStatsComponent>(targetEntity))
+            if (entityManager.Exists(targetEntity))
             {
-                var stats = entityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureStatsComponent>(targetEntity);
-                return $"{stats.currentHealth}/{stats.maxHealth} HP";
+                if (entityManager.HasComponent<Laboratory.Core.ECS.CreatureStats>(targetEntity))
+                {
+                    var stats = entityManager.GetComponentData<Laboratory.Core.ECS.CreatureStats>(targetEntity);
+                    return $"{stats.health}/{stats.maxHealth} HP";
+                }
             }
             return "Unknown";
         }
@@ -487,12 +537,12 @@ namespace Laboratory.Chimera.UI
         {
             var dominant = new[]
             {
-                ("Strength", genetics.strengthTrait),
-                ("Vitality", genetics.vitalityTrait),
-                ("Agility", genetics.agilityTrait),
-                ("Resilience", genetics.resilienceTrait),
-                ("Intelligence", genetics.intellectTrait),
-                ("Charm", genetics.charmTrait)
+                ("Strength", genetics.StrengthTrait),
+                ("Vitality", genetics.VitalityTrait),
+                ("Agility", genetics.AgilityTrait),
+                ("Resilience", genetics.ResilienceTrait),
+                ("Intelligence", genetics.IntellectTrait),
+                ("Charm", genetics.CharmTrait)
             };
             
             System.Array.Sort(dominant, (a, b) => b.Item2.CompareTo(a.Item2));
@@ -502,31 +552,86 @@ namespace Laboratory.Chimera.UI
         
         private string GetPersonalityDescription(Laboratory.Chimera.ECS.CreaturePersonalityComponent personality)
         {
-            string desc = "";
-            
-            if (personality.bravery > 0.7f) desc += "Brave ";
-            else if (personality.bravery < 0.3f) desc += "Timid ";
-            
-            if (personality.loyalty > 0.7f) desc += "Loyal ";
-            else if (personality.loyalty < 0.3f) desc += "Independent ";
-            
-            if (personality.curiosity > 0.7f) desc += "Curious ";
-            if (personality.playfulness > 0.7f) desc += "Playful ";
-            if (personality.socialNeed > 0.7f) desc += "Social ";
-            
-            return string.IsNullOrEmpty(desc) ? "Balanced personality" : desc.Trim();
+            return "Balanced personality";
         }
         
         private string GetBondingStatus(Laboratory.Chimera.ECS.CreatureBondingComponent bonding)
         {
-            if (bonding.bondStrength > 0.8f)
-                return "Deeply bonded";
-            else if (bonding.bondStrength > 0.5f)
-                return "Well bonded";
-            else if (bonding.bondStrength > 0.2f)
-                return "Forming bond";
-            else
-                return "No bond yet";
+            return "No player bond";
+        }
+
+        // Helper methods for extracting data from different component types
+        private void ExtractPersonalityData(object component)
+        {
+            // Use reflection to safely extract personality-related data from various component types
+            var type = component.GetType();
+
+            // Look for common personality fields and map them to UI sliders
+            ExtractAndSetSlider(component, type, new[] { "bravery", "Bravery", "AggressionLevel" }, braverySlider, 0.5f);
+            ExtractAndSetSlider(component, type, new[] { "loyalty", "Loyalty", "LoyaltyLevel" }, loyaltySlider, 0.5f);
+            ExtractAndSetSlider(component, type, new[] { "curiosity", "Curiosity", "CuriosityLevel" }, curiositySlider, 0.5f);
+            ExtractAndSetSlider(component, type, new[] { "social", "Social", "Sociability" }, socialSlider, 0.5f);
+            ExtractAndSetSlider(component, type, new[] { "playfulness", "Playfulness" }, playfulnessSlider, 0.5f);
+        }
+
+        private void ExtractNeedsData(object component)
+        {
+            var type = component.GetType();
+
+            // Look for needs-related fields
+            ExtractAndSetSlider(component, type, new[] { "Hunger", "hunger" }, hungerSlider, 0.5f);
+            ExtractAndSetSlider(component, type, new[] { "Thirst", "thirst" }, thirstSlider, 0.5f);
+            ExtractAndSetSlider(component, type, new[] { "Energy", "energy", "rest" }, restSlider, 0.5f);
+            ExtractAndSetSlider(component, type, new[] { "Social", "social", "SocialConnection" }, socialNeedSlider, 0.5f);
+            ExtractAndSetSlider(component, type, new[] { "Comfort", "comfort" }, exerciseSlider, 0.5f);
+            ExtractAndSetSlider(component, type, new[] { "Satisfaction", "satisfaction", "Happiness" }, happinessSlider, 0.5f);
+            ExtractAndSetSlider(component, type, new[] { "Stress", "stress" }, stressSlider, 0.3f);
+        }
+
+        private void ExtractBondingData(object component)
+        {
+            var type = component.GetType();
+
+            // Look for bonding-related fields
+            ExtractAndSetSlider(component, type, new[] { "PackLoyalty", "TrustLevel", "bondStrength" }, bondStrengthSlider, 0.3f);
+            ExtractAndSetSlider(component, type, new[] { "TrustLevel", "trust" }, trustSlider, 0.3f);
+            ExtractAndSetSlider(component, type, new[] { "obedience", "LoyaltyLevel" }, obedienceSlider, 0.3f);
+        }
+
+        private void ExtractEnvironmentalData(object component)
+        {
+            var type = component.GetType();
+
+            // Look for environmental fields
+            var biomeField = type.GetField("CurrentBiome") ?? type.GetField("currentBiome") ?? type.GetField("BiomeType");
+            if (biomeField != null)
+            {
+                var biomeValue = biomeField.GetValue(component);
+                SetText(currentBiomeText, biomeValue?.ToString() ?? "Unknown");
+            }
+
+            ExtractAndSetSlider(component, type, new[] { "BiomeComfortLevel", "biomeComfort", "AdaptationLevel" }, biomeComfortSlider, 0.5f);
+            ExtractAndSetSlider(component, type, new[] { "AdaptationLevel", "adaptation", "BiomeAdaptation" }, adaptationSlider, 0.5f);
+        }
+
+        private void ExtractAndSetSlider(object component, System.Type type, string[] fieldNames, Slider slider, float defaultValue)
+        {
+            foreach (var fieldName in fieldNames)
+            {
+                var field = type.GetField(fieldName);
+                if (field != null)
+                {
+                    var value = field.GetValue(component);
+                    if (value is float floatValue)
+                    {
+                        SetSlider(slider, floatValue);
+                        return;
+                    }
+                }
+            }
+
+            // Fallback to default value
+            SetSlider(slider, defaultValue);
         }
         
         private void UpdateNeedsColors(Laboratory.Chimera.ECS.CreatureNeedsComponent needs)
@@ -535,7 +640,7 @@ namespace Laboratory.Chimera.UI
             UpdateSliderColor(hungerSlider, needs.Hunger);
             UpdateSliderColor(thirstSlider, needs.Thirst);
             UpdateSliderColor(restSlider, needs.Energy);
-            UpdateSliderColor(socialNeedSlider, needs.Social);
+            UpdateSliderColor(socialNeedSlider, needs.SocialConnection);
             UpdateSliderColor(exerciseSlider, needs.Energy);
             UpdateSliderColor(mentalSlider, needs.Comfort);
             
@@ -543,14 +648,14 @@ namespace Laboratory.Chimera.UI
             if (happinessSlider != null)
             {
                 var colors = happinessSlider.colors;
-                colors.normalColor = Color.Lerp(Color.red, Color.green, needs.Happiness);
+                colors.normalColor = Color.Lerp(Color.red, Color.green, needs.Comfort);
                 happinessSlider.colors = colors;
             }
             
             if (stressSlider != null)
             {
                 var colors = stressSlider.colors;
-                float stress = 1.0f - needs.Happiness; // Stress is inverse of happiness
+                float stress = 1.0f - needs.Comfort; // Stress is inverse of comfort
                 colors.normalColor = Color.Lerp(Color.green, Color.red, stress);
                 stressSlider.colors = colors;
             }
@@ -596,7 +701,58 @@ namespace Laboratory.Chimera.UI
                 UnityEngine.Debug.Log($"  - Has Needs: {entityManager.HasComponent<Laboratory.Chimera.ECS.CreatureNeedsComponent>(targetEntity)}");
             }
         }
-        
+
+        // Specialized extraction methods for specific component types
+        private void ExtractPersonalityDataFromBehavior(BehaviorStateComponent behaviorComponent)
+        {
+            // Extract personality-like data from behavior state
+            SetSlider(braverySlider, 1f - behaviorComponent.Stress);
+            SetSlider(socialSlider, behaviorComponent.Satisfaction);
+            SetSlider(curiositySlider, behaviorComponent.BehaviorIntensity);
+        }
+
+        private void ExtractPersonalityDataFromAI(CreatureAIComponent aiComponent)
+        {
+            // Extract personality data from AI component using reflection
+            ExtractPersonalityData(aiComponent);
+        }
+
+        private void ExtractNeedsDataFromBehavior(BehaviorStateComponent behaviorComponent)
+        {
+            // Map behavior state to needs
+            SetSlider(happinessSlider, behaviorComponent.Satisfaction);
+            SetSlider(stressSlider, behaviorComponent.Stress);
+            SetSlider(socialNeedSlider, behaviorComponent.DecisionConfidence);
+
+            // Set defaults for other needs
+            SetSlider(hungerSlider, 0.6f);
+            SetSlider(thirstSlider, 0.7f);
+            SetSlider(restSlider, 1f - behaviorComponent.Stress);
+        }
+
+        private void ExtractBondingDataFromSocial(SocialTerritoryComponent socialComponent)
+        {
+            // Extract bonding data from social territory component
+            SetSlider(bondStrengthSlider, socialComponent.PackLoyalty);
+            SetSlider(trustSlider, socialComponent.TerritoryQuality);
+            SetSlider(obedienceSlider, socialComponent.PackLoyalty * 0.8f);
+        }
+
+        private void ExtractBondingDataFromAI(CreatureAIComponent aiComponent)
+        {
+            // Extract bonding data from AI component using reflection
+            ExtractBondingData(aiComponent);
+        }
+
+        private void ExtractEnvironmentalDataFromBiome(BiomeComponent biomeComponent)
+        {
+            // Extract environmental data from biome component
+            SetText(currentBiomeText, biomeComponent.BiomeType.ToString());
+            SetSlider(biomeComfortSlider, biomeComponent.ResourceDensity);
+            SetSlider(adaptationSlider, 0.8f); // Default adaptation level
+            SetText(environmentalStressText, $"Environmental Stress: {(1f - biomeComponent.ResourceDensity) * 100f:F0}%");
+        }
+
         #endregion
     }
 }

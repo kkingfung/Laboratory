@@ -516,7 +516,7 @@ namespace Laboratory.Core.ECS.Systems
                         Sociability = 0.5f,
                         Fertility = 0.5f,
                         Size = 0.3f, // Baby size
-                        NativeBiome = Laboratory.Chimera.ECS.BiomeType.Grassland
+                        NativeBiome = Laboratory.Chimera.Core.BiomeType.Grassland
                     });
 
                     commandBuffer.AddComponent<BehaviorStateComponent>(chunkIndex, baby);

@@ -98,7 +98,7 @@ namespace Laboratory.Networking
     {
         public uint geneticHash;
         public float adaptationLevel;
-        public Laboratory.Core.ECS.BiomeType currentBiome;
+        public Laboratory.Chimera.Core.BiomeType currentBiome;
         public float environmentalStress;
         public uint geneticVersion;
         public bool isBreeding;
@@ -502,7 +502,7 @@ namespace Laboratory.Networking
                     geneticHash = (uint)UnityEngine.Random.Range(1000, 9999),
                     geneticVersion = 1,
                     adaptationLevel = 0f,
-                    currentBiome = Laboratory.Core.ECS.BiomeType.Forest,
+                    currentBiome = Laboratory.Chimera.Core.BiomeType.Forest,
                     environmentalStress = 0f,
                     isBreeding = false
                 });

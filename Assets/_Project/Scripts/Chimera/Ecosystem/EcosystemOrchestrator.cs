@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
 using Laboratory.Chimera.Ecosystem.Systems;
-using EcoBiomeType = Laboratory.Chimera.Ecosystem.Data.BiomeType;
+using EcoBiomeType = Laboratory.Chimera.Core.BiomeType;
 using EcoCatastropheType = Laboratory.Chimera.Ecosystem.Data.CatastropheType;
 
 namespace Laboratory.Chimera.Ecosystem

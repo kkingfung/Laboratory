@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using Laboratory.Core.Infrastructure;
 using System.Collections.Generic;
 using Laboratory.Core.MonsterTown.Integration;
+using Laboratory.Core.MonsterTown;
 
 namespace Laboratory.Core.Integration
 {
@@ -751,7 +752,7 @@ namespace Laboratory.Core.Integration
     #region Test Data Structures
 
     [System.Serializable]
-    public struct TestResult
+    public struct MonsterTownTestResult
     {
         public string TestName;
         public bool Success;

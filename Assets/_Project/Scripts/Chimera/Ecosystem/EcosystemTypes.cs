@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Ecosystem
 {
@@ -9,24 +10,6 @@ namespace Laboratory.Chimera.Ecosystem
     /// Shared types and enums for the ecosystem and conservation systems
     /// </summary>
 
-    public enum BiomeType
-    {
-        Forest,
-        TemperateForest,
-        Desert,
-        Ocean,
-        Mountains,
-        Mountain,
-        Grassland,
-        Tundra,
-        Arctic,
-        Wetland,
-        Urban,
-        Taiga,
-        Tropical_Rainforest,
-        Temperate_Forest,
-        Coastal
-    }
 
     public enum ConservationLevel
     {

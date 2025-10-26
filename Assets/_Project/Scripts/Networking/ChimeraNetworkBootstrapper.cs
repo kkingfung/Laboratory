@@ -60,7 +60,7 @@ namespace Laboratory.Networking
         public float spawnRadius = 50f;
 
         [Tooltip("Biome for test creature spawning")]
-        public Laboratory.Core.ECS.BiomeType testSpawnBiome = Laboratory.Core.ECS.BiomeType.Forest;
+        public Laboratory.Chimera.Core.BiomeType testSpawnBiome = Laboratory.Chimera.Core.BiomeType.Forest;
 
         [Header("System Integration")]
         [Tooltip("Initialize progression system")]

@@ -1,9 +1,21 @@
 using Unity.Mathematics;
-using Laboratory.Shared.Types;
 using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Genetics.Environmental
 {
+    /// <summary>
+    /// Interface for providing environmental data to genetic systems
+    /// </summary>
+    public interface IEnvironmentProvider
+    {
+        BiomeType GetBiomeAt(float3 position);
+        float GetTemperatureAt(float3 position);
+        float GetHumidityAt(float3 position);
+        float GetResourceDensityAt(float3 position);
+        float GetEnvironmentalPressure(float3 position);
+        bool IsPositionValid(float3 position);
+    }
+
     /// <summary>
     /// Concrete implementation of environment provider for genetic systems
     /// </summary>
@@ -77,6 +89,28 @@ namespace Laboratory.Chimera.Genetics.Environmental
             return GetBaseHumidityForBiome(biome);
         }
 
+        public float GetTemperatureAt(float3 position)
+        {
+            return GetTemperature(position);
+        }
+
+        public float GetHumidityAt(float3 position)
+        {
+            return GetHumidity(position);
+        }
+
+        public float GetResourceDensityAt(float3 position)
+        {
+            var biome = GetBiomeAt(position);
+            var baseDensity = GetBaseResourceDensityForBiome(biome);
+
+            // Add noise-based variation for more realistic distribution
+            var noise = math.sin(position.x * 0.1f) * math.cos(position.z * 0.1f);
+            var variation = noise * 0.2f; // ±20% variation
+
+            return math.clamp(baseDensity + variation, 0f, 2f);
+        }
+
         private BiomeType[] GenerateBiomeMap()
         {
             // This could be loaded from a file or generated procedurally
@@ -130,6 +164,24 @@ namespace Laboratory.Chimera.Genetics.Environmental
                 BiomeType.Ocean => 1.0f,
                 BiomeType.Volcanic => 0.3f,
                 _ => 0.5f
+            };
+        }
+
+        private float GetBaseResourceDensityForBiome(BiomeType biome)
+        {
+            return biome switch
+            {
+                BiomeType.Forest => 1.2f,      // Rich in organic resources
+                BiomeType.Mountain => 1.5f,    // Rich in minerals and rare materials
+                BiomeType.Ocean => 0.8f,       // Moderate resources, mainly food
+                BiomeType.Desert => 0.3f,      // Very limited resources
+                BiomeType.Swamp => 1.1f,       // Good biodiversity and materials
+                BiomeType.Temperate => 1.0f,   // Balanced resource availability
+                BiomeType.Arctic => 0.4f,      // Limited by harsh conditions
+                BiomeType.Volcanic => 1.8f,    // Very rich in rare minerals
+                BiomeType.Tropical => 1.3f,    // High biodiversity (jungle-like)
+                BiomeType.Grassland => 0.9f,   // Good for basic resources
+                _ => 0.7f                      // Default moderate density
             };
         }
     }

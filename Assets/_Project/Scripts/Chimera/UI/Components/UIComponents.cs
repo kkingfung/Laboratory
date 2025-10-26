@@ -765,11 +765,21 @@ namespace Laboratory.Chimera.UI.Components
         private float GetGeneticValue(GeneticProfile genetics, string traitName)
         {
             if (genetics?.TraitExpressions == null) return 0f;
-            
+
+            // Try to parse the trait name to a TraitType enum
+            if (System.Enum.TryParse<Laboratory.Chimera.Genetics.TraitType>(traitName, true, out var traitType))
+            {
+                if (genetics.TraitExpressions.TryGetValue(traitType, out var traitExpression))
+                {
+                    return traitExpression.Value;
+                }
+            }
+
+            // Fallback: search by string comparison with the enum name
             var trait = genetics.TraitExpressions.FirstOrDefault(t =>
-                t.Key.Equals(traitName, StringComparison.OrdinalIgnoreCase));
-            
-            return trait.Key != null ? trait.Value.Value : 0f;
+                string.Equals(t.Key.ToString(), traitName, StringComparison.OrdinalIgnoreCase));
+
+            return trait.Value?.Value ?? 0f;
         }
         
         private float CalculateGeneticRarity(GeneticProfile genetics)

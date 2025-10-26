@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Visuals.Data
 {
@@ -162,17 +163,4 @@ namespace Laboratory.Chimera.Visuals.Data
         Cosmic
     }
 
-    public enum BiomeType
-    {
-        Forest,
-        Desert,
-        Tundra,
-        Ocean,
-        Mountain,
-        Swamp,
-        Cave,
-        Volcanic,
-        Sky,
-        Void
-    }
 }

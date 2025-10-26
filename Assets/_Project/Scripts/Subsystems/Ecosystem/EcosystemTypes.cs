@@ -1,3 +1,5 @@
+using Laboratory.Shared.Types;
+
 namespace Laboratory.Subsystems.Ecosystem
 {
     /// <summary>
@@ -56,24 +58,6 @@ namespace Laboratory.Subsystems.Ecosystem
         Extinct
     }
 
-    /// <summary>
-    /// Biome types supported by the ecosystem
-    /// </summary>
-    public enum BiomeType
-    {
-        Forest,
-        Desert,
-        Ocean,
-        Mountains,
-        Mountain,
-        Grassland,
-        Tundra,
-        Arctic,
-        Wetland,
-        Swamp,
-        Urban,
-        Cave
-    }
 
     /// <summary>
     /// Types of biome changes that can occur

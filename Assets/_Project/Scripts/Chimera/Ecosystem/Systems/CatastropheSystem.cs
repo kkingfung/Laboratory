@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
 using EcoCatastropheType = Laboratory.Chimera.Ecosystem.Data.CatastropheType;
-using EcoBiomeType = Laboratory.Chimera.Ecosystem.Data.BiomeType;
+using EcoBiomeType = Laboratory.Chimera.Core.BiomeType;
 using EcoSeasonType = Laboratory.Chimera.Ecosystem.Data.SeasonType;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
@@ -157,8 +157,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                     BiomeModifier = new Dictionary<EcoBiomeType, float>
                     {
                         [EcoBiomeType.Desert] = 0.8f,
-                        [EcoBiomeType.Grassland] = 2.0f,
-                        [EcoBiomeType.Savanna] = 1.8f,
+                        [EcoBiomeType.Grassland] = 1.9f,
                         [EcoBiomeType.Forest] = 1.2f,
                         [EcoBiomeType.Swamp] = 0.3f
                     },

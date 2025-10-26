@@ -271,6 +271,51 @@ namespace Laboratory.Chimera.Configuration
         }
 
         /// <summary>
+        /// Get all trait definitions (alias for GetAllTraits for compatibility)
+        /// </summary>
+        public TraitDefinition[] GetAllTraitDefinitions()
+        {
+            return GetAllTraits();
+        }
+
+        /// <summary>
+        /// Get inheritance rules for traits
+        /// </summary>
+        public TraitInheritanceRules GetInheritanceRules()
+        {
+            return new TraitInheritanceRules
+            {
+                dominanceThreshold = 0.6f,
+                mutationRate = baseMutationRate,
+                crossoverProbability = 0.5f,
+                parentWeightBalance = 0.5f
+            };
+        }
+
+        /// <summary>
+        /// Get mutation probabilities for different trait types
+        /// </summary>
+        public TraitMutationProbabilities GetMutationProbabilities()
+        {
+            return new TraitMutationProbabilities
+            {
+                physicalTraits = 0.1f,
+                behavioralTraits = 0.15f,
+                cosmeticTraits = 0.2f,
+                specialTraits = 0.05f,
+                globalModifier = rarityMutationModifier
+            };
+        }
+
+        /// <summary>
+        /// Get recommended mutation rate for the library
+        /// </summary>
+        public float GetRecommendedMutationRate()
+        {
+            return baseMutationRate;
+        }
+
+        /// <summary>
         /// Apply random mutations to a genetic profile
         /// </summary>
         public void ApplyRandomMutations(GeneticProfile genetics)
@@ -577,5 +622,24 @@ namespace Laboratory.Chimera.Configuration
         {
             return Mathf.Clamp(value, minValue, maxValue);
         }
+    }
+
+    [System.Serializable]
+    public class TraitInheritanceRules
+    {
+        public float dominanceThreshold = 0.6f;
+        public float mutationRate = 0.05f;
+        public float crossoverProbability = 0.5f;
+        public float parentWeightBalance = 0.5f;
+    }
+
+    [System.Serializable]
+    public class TraitMutationProbabilities
+    {
+        public float physicalTraits = 0.1f;
+        public float behavioralTraits = 0.15f;
+        public float cosmeticTraits = 0.2f;
+        public float specialTraits = 0.05f;
+        public float globalModifier = 1.0f;
     }
 }

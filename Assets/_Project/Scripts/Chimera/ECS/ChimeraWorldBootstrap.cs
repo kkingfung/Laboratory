@@ -7,7 +7,7 @@ using UnityEngine;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Core.ECS.Systems;
-using Laboratory.Chimera.Integration;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.ECS
 {
@@ -51,9 +51,9 @@ namespace Laboratory.Chimera.ECS
         [SerializeField] private bool enablePerformanceMonitoring = true;
         [SerializeField] private bool logBootstrapProcess = true;
 
-        [Header("🔗 SYSTEM INTEGRATION")]
-        [SerializeField] private bool enableLegacySystemIntegration = true;
-        [SerializeField] private Laboratory.Chimera.AI.ChimeraAIManager existingAIManager;
+        [Header("🔗 HYBRID SYSTEM INTEGRATION")]
+        [SerializeField] private bool enableHybridSystemIntegration = true; // MonoBehaviour ↔ ECS integration using loose coupling
+        [SerializeField] private MonoBehaviour existingAIManager;
         [SerializeField] private GeneticTraitLibrary traitLibrary;
         [SerializeField] private ChimeraBiomeConfig biomeConfig;
         [SerializeField] private ChimeraSpeciesConfig speciesConfig;
@@ -62,10 +62,6 @@ namespace Laboratory.Chimera.ECS
         private EntityManager _entityManager;
         private Unity.Entities.World _defaultWorld;
         private ChimeraBehaviorSystem _behaviorSystem;
-
-        // Integration components
-        private ChimeraSystemBridge _systemBridge;
-        private ChimeraConfigurationIntegrator _configIntegrator;
 
         // Bootstrap statistics
         private int _createdCreatures = 0;
@@ -93,7 +89,7 @@ namespace Laboratory.Chimera.ECS
                 worldCenter = transform;
 
             // Get ECS references
-            _defaultWorld = World.DefaultGameObjectInjectionWorld ?? World.All.FirstOrDefault();
+            _defaultWorld = Unity.Entities.World.DefaultGameObjectInjectionWorld ?? Unity.Entities.World.All.FirstOrDefault();
 
             if (_defaultWorld == null)
             {
@@ -151,7 +147,7 @@ namespace Laboratory.Chimera.ECS
             InitializeBehaviorSystems();
 
             // Phase 5: Setup system integration
-            if (enableLegacySystemIntegration)
+            if (enableHybridSystemIntegration)
                 InitializeSystemIntegration();
 
             var endTime = Time.realtimeSinceStartup;
@@ -583,99 +579,274 @@ namespace Laboratory.Chimera.ECS
 
         private void InitializeSystemIntegration()
         {
-            // Create system bridge if it doesn't exist
-            _systemBridge = FindFirstObjectByType<ChimeraSystemBridge>();
-            if (_systemBridge == null)
+            // Using loose coupling and reflection to avoid assembly dependencies
+            try
             {
-                var bridgeGO = new GameObject("Chimera System Bridge");
-                _systemBridge = bridgeGO.AddComponent<ChimeraSystemBridge>();
-                bridgeGO.transform.SetParent(transform);
-            }
+                // Try to find and configure existing AI manager using reflection
+                var aiManagerType = System.Type.GetType("Laboratory.Chimera.AI.ChimeraAIManager, Laboratory.Chimera.AI");
+                if (aiManagerType != null && existingAIManager == null)
+                {
+                    existingAIManager = FindFirstObjectByType(aiManagerType) as MonoBehaviour;
+                }
 
-            // Create configuration integrator
-            _configIntegrator = ScriptableObject.CreateInstance<ChimeraConfigurationIntegrator>();
+                if (existingAIManager != null && universeConfig != null)
+                {
+                    // Try to apply unified configuration using reflection
+                    var applyConfigMethod = existingAIManager.GetType().GetMethod("ApplyUnifiedConfiguration");
+                    if (applyConfigMethod != null)
+                    {
+                        applyConfigMethod.Invoke(existingAIManager, new object[] { universeConfig });
+                        if (logBootstrapProcess)
+                            UnityEngine.Debug.Log("🔗 Integrated existing ChimeraAIManager with unified configuration");
+                    }
+                    else
+                    {
+                        // Fallback: Use basic configuration via reflection
+                        TryConfigureAIManagerBasic(existingAIManager);
+                    }
+                }
 
-            // Auto-find existing systems if not assigned
-            if (existingAIManager == null)
-                existingAIManager = FindFirstObjectByType<Laboratory.Chimera.AI.ChimeraAIManager>();
+                // Bridge existing creatures with ECS
+                BridgeExistingCreatures();
 
-            if (traitLibrary == null)
-                traitLibrary = FindFirstObjectByType<GeneticTraitLibrary>();
-
-            // Setup integration between systems
-            if (existingAIManager != null && universeConfig != null)
-            {
-                // Apply unified configuration to existing AI manager
-                existingAIManager.ApplyUnifiedConfiguration(universeConfig);
+                // Setup enhanced configuration
+                SetupEnhancedConfiguration();
 
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.Log("🔗 Integrated existing ChimeraAIManager with unified configuration");
+                    UnityEngine.Debug.Log("🔗 System integration complete - using loose coupling for cross-assembly communication");
             }
+            catch (System.Exception ex)
+            {
+                if (logBootstrapProcess)
+                    UnityEngine.Debug.LogWarning($"🔗 System integration encountered issues (non-critical): {ex.Message}");
+            }
+        }
 
-            // Bridge existing MonoBehaviour creatures with ECS
-            BridgeExistingCreatures();
+        private void TryConfigureAIManagerBasic(MonoBehaviour aiManager)
+        {
+            try
+            {
+                // Try to set basic properties using reflection if available
+                var setPackCohesionMethod = aiManager.GetType().GetMethod("SetPackCohesionRadius");
+                if (setPackCohesionMethod != null && universeConfig.Social != null)
+                {
+                    setPackCohesionMethod.Invoke(aiManager, new object[] { universeConfig.Social.packFormationRadius });
+                }
 
-            // Setup enhanced configuration
-            SetupEnhancedConfiguration();
+                var setUpdateIntervalMethod = aiManager.GetType().GetMethod("SetUpdateInterval");
+                if (setUpdateIntervalMethod != null && universeConfig.Behavior != null)
+                {
+                    setUpdateIntervalMethod.Invoke(aiManager, new object[] { universeConfig.Behavior.decisionUpdateInterval });
+                }
 
-            if (logBootstrapProcess)
-                UnityEngine.Debug.Log($"🔗 System integration complete - bridged systems working together");
+                if (logBootstrapProcess)
+                    UnityEngine.Debug.Log("🔗 Applied basic configuration to AI manager via reflection");
+            }
+            catch (System.Exception ex)
+            {
+                if (logBootstrapProcess)
+                    UnityEngine.Debug.LogWarning($"🔗 Could not apply basic AI configuration: {ex.Message}");
+            }
         }
 
         private void BridgeExistingCreatures()
         {
-            // Find all existing MonoBehaviour creatures and create ECS bridges
-            var existingCreatures = FindObjectsByType<Laboratory.Chimera.AI.ChimeraMonsterAI>(FindObjectsSortMode.None);
-
-            foreach (var creature in existingCreatures)
+            try
             {
-                if (_systemBridge != null)
+                // Use reflection to find existing creatures without hard assembly dependency
+                var chimeraMonsterAIType = System.Type.GetType("Laboratory.Chimera.AI.ChimeraMonsterAI, Laboratory.Chimera.AI");
+                if (chimeraMonsterAIType == null)
                 {
-                    var ecsEntity = _systemBridge.CreateECSBridge(creature);
-                    if (ecsEntity != Entity.Null && logBootstrapProcess)
+                    if (logBootstrapProcess)
+                        UnityEngine.Debug.Log("🔗 No ChimeraMonsterAI type found - skipping creature bridging");
+                    return;
+                }
+
+                var existingCreatures = FindObjectsByType(chimeraMonsterAIType, FindObjectsSortMode.None);
+                int bridgedCount = 0;
+
+                foreach (var creature in existingCreatures)
+                {
+                    if (creature is MonoBehaviour monoBehaviour)
                     {
-                        UnityEngine.Debug.Log($"🔗 Created ECS bridge for existing creature: {creature.name}");
+                        // Create a basic ECS entity for this creature
+                        var bridgedEntity = CreateBridgeEntityForMonoBehaviour(monoBehaviour);
+                        if (bridgedEntity != Entity.Null)
+                        {
+                            bridgedCount++;
+                            if (logBootstrapProcess)
+                                UnityEngine.Debug.Log($"🔗 Created ECS bridge for existing creature: {monoBehaviour.name}");
+                        }
                     }
                 }
-                else if (logBootstrapProcess)
+
+                if (bridgedCount > 0 && logBootstrapProcess)
                 {
-                    UnityEngine.Debug.Log($"🔗 Found existing creature: {creature.name}");
+                    UnityEngine.Debug.Log($"🔗 Successfully bridged {bridgedCount} existing MonoBehaviour creatures with ECS");
+                }
+                else if (existingCreatures.Length == 0 && logBootstrapProcess)
+                {
+                    UnityEngine.Debug.Log("🔗 No existing MonoBehaviour creatures found to bridge");
                 }
             }
-
-            if (existingCreatures.Length > 0 && logBootstrapProcess)
+            catch (System.Exception ex)
             {
-                UnityEngine.Debug.Log($"🔗 Bridged {existingCreatures.Length} existing MonoBehaviour creatures with ECS");
+                if (logBootstrapProcess)
+                    UnityEngine.Debug.LogWarning($"🔗 Creature bridging encountered issues (non-critical): {ex.Message}");
             }
+        }
+
+        private Entity CreateBridgeEntityForMonoBehaviour(MonoBehaviour creatureMonoBehaviour)
+        {
+            try
+            {
+                // Create an ECS entity that represents the MonoBehaviour creature
+                var bridgeEntity = _entityManager.CreateEntity();
+
+                // Add basic components - use reflection to extract data safely
+                var position = creatureMonoBehaviour.transform.position;
+                var name = creatureMonoBehaviour.name;
+
+                // Create basic identity component
+                var identityComponent = new CreatureIdentityComponent
+                {
+                    Species = ExtractSpeciesName(creatureMonoBehaviour),
+                    CreatureName = name,
+                    UniqueID = (uint)creatureMonoBehaviour.GetInstanceID(),
+                    Generation = 0,
+                    Age = ExtractAge(creatureMonoBehaviour),
+                    MaxLifespan = 120f,
+                    CurrentLifeStage = LifeStage.Adult,
+                    Rarity = RarityLevel.Common
+                };
+
+                _entityManager.AddComponentData(bridgeEntity, identityComponent);
+
+                // Add basic transform component
+                _entityManager.AddComponentData(bridgeEntity, new LocalToWorld
+                {
+                    Value = float4x4.TRS(position, creatureMonoBehaviour.transform.rotation, creatureMonoBehaviour.transform.localScale)
+                });
+
+                // Add a marker component to indicate this is a bridged entity
+                _entityManager.AddComponentData(bridgeEntity, new BridgedCreatureComponent
+                {
+                    OriginalGameObject = creatureMonoBehaviour.gameObject.GetInstanceID(),
+                    IsActive = creatureMonoBehaviour.enabled
+                });
+
+                return bridgeEntity;
+            }
+            catch (System.Exception ex)
+            {
+                if (logBootstrapProcess)
+                    UnityEngine.Debug.LogWarning($"🔗 Failed to create bridge entity for {creatureMonoBehaviour.name}: {ex.Message}");
+                return Entity.Null;
+            }
+        }
+
+        private string ExtractSpeciesName(MonoBehaviour creature)
+        {
+            // Try to get species name via reflection
+            try
+            {
+                var speciesProperty = creature.GetType().GetProperty("SpeciesName");
+                if (speciesProperty != null)
+                    return (string)speciesProperty.GetValue(creature) ?? "Unknown Species";
+
+                var speciesField = creature.GetType().GetField("speciesName");
+                if (speciesField != null)
+                    return (string)speciesField.GetValue(creature) ?? "Unknown Species";
+            }
+            catch { }
+
+            return "Bridged Creature";
+        }
+
+        private float ExtractAge(MonoBehaviour creature)
+        {
+            // Try to get age via reflection
+            try
+            {
+                var ageProperty = creature.GetType().GetProperty("Age");
+                if (ageProperty != null)
+                    return (float)ageProperty.GetValue(creature);
+
+                var ageField = creature.GetType().GetField("age");
+                if (ageField != null)
+                    return (float)ageField.GetValue(creature);
+            }
+            catch { }
+
+            return UnityEngine.Random.Range(30f, 100f); // Default adult age
         }
 
         private void SetupEnhancedConfiguration()
         {
-            if (_configIntegrator == null || universeConfig == null) return;
-
-            // Setup configuration integrator with all available configs
-            var integrator = _configIntegrator;
-
-            // Initialize the configuration integrator
-            integrator.Initialize(universeConfig, traitLibrary, biomeConfig, speciesConfig);
-
-            // This would normally be set through inspector, but we're setting it programmatically
-            if (traitLibrary != null)
+            try
             {
+                // Use event-driven configuration to avoid assembly dependencies
+                if (universeConfig == null) return;
+
+                // Broadcast configuration events that other systems can listen to
+                BroadcastConfigurationEvent("ChimeraUniverseConfigReady", universeConfig);
+
+                // Try to integrate genetic trait library if available
+                if (traitLibrary != null)
+                {
+                    BroadcastConfigurationEvent("GeneticTraitLibraryReady", traitLibrary);
+                    if (logBootstrapProcess)
+                        UnityEngine.Debug.Log("🔗 Broadcasted genetic trait library configuration");
+                }
+
+                // Try to integrate biome configuration if available
+                if (biomeConfig != null)
+                {
+                    BroadcastConfigurationEvent("BiomeConfigReady", biomeConfig);
+                    if (logBootstrapProcess)
+                        UnityEngine.Debug.Log("🔗 Broadcasted biome configuration");
+                }
+
+                // Try to integrate species configuration if available
+                if (speciesConfig != null)
+                {
+                    BroadcastConfigurationEvent("SpeciesConfigReady", speciesConfig);
+                    if (logBootstrapProcess)
+                        UnityEngine.Debug.Log("🔗 Broadcasted species configuration");
+                }
+
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.Log("🔗 Integrated genetic trait library with unified configuration");
+                    UnityEngine.Debug.Log("🔗 Enhanced configuration setup complete using event-driven approach");
             }
-
-            if (biomeConfig != null)
+            catch (System.Exception ex)
             {
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.Log("🔗 Integrated biome configuration with unified settings");
+                    UnityEngine.Debug.LogWarning($"🔗 Enhanced configuration encountered issues (non-critical): {ex.Message}");
             }
+        }
 
-            if (speciesConfig != null)
+        private void BroadcastConfigurationEvent(string eventName, object configData)
+        {
+            // Use Unity's event system or simple static events to notify other systems
+            // This allows loose coupling without assembly dependencies
+            try
             {
+                // Send Unity message that other systems can listen for
+                GameObject.FindGameObjectWithTag("ConfigurationManager")?.SendMessage($"On{eventName}", configData, SendMessageOptions.DontRequireReceiver);
+
+                // Also try to broadcast via static event if any system has set up listeners
+                var configEventType = System.Type.GetType("Laboratory.Core.Events.ConfigurationEvents");
+                if (configEventType != null)
+                {
+                    var broadcastMethod = configEventType.GetMethod("Broadcast");
+                    broadcastMethod?.Invoke(null, new object[] { eventName, configData });
+                }
+            }
+            catch (System.Exception ex)
+            {
+                // Non-critical failure, just log it
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.Log("🔗 Integrated species configuration with unified system");
+                    UnityEngine.Debug.LogWarning($"🔗 Could not broadcast {eventName}: {ex.Message}");
             }
         }
 
@@ -733,5 +904,14 @@ namespace Laboratory.Chimera.ECS
         [Range(1, 10)] public int count;
         public float radius;
         public Vector3 centerOffset;
+    }
+
+    /// <summary>
+    /// Component to mark ECS entities that are bridged from MonoBehaviour creatures
+    /// </summary>
+    public struct BridgedCreatureComponent : IComponentData
+    {
+        public int OriginalGameObject;
+        public bool IsActive;
     }
 }

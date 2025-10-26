@@ -5,6 +5,7 @@ using UnityEngine;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Visuals.Data;
 using Laboratory.Chimera.Visuals.Generators;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Visuals.Systems
 {

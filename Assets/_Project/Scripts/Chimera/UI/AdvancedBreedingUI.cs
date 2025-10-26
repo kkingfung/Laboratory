@@ -330,14 +330,14 @@ namespace Laboratory.Chimera.UI
             if (currentPrediction?.PredictedTraits == null) return;
             
             var statsText = "Predicted Stats:\n";
-            var importantTraits = new[] { "Strength", "Agility", "Intelligence", "Constitution" };
-            
-            foreach (var traitName in importantTraits)
+            var importantTraits = new[] { Laboratory.Chimera.Genetics.TraitType.Physical, Laboratory.Chimera.Genetics.TraitType.Movement, Laboratory.Chimera.Genetics.TraitType.Mental, Laboratory.Chimera.Genetics.TraitType.Vitality };
+
+            foreach (var traitType in importantTraits)
             {
-                var trait = currentPrediction.PredictedTraits.FirstOrDefault(t => t.TraitName == traitName);
+                var trait = currentPrediction.PredictedTraits.FirstOrDefault(t => t.TraitType == traitType);
                 if (trait != null)
                 {
-                    statsText += $"{traitName}: {trait.PredictedValue:F1} ({trait.Confidence:P0})\n";
+                    statsText += $"{traitType}: {trait.PredictedValue:F1} ({trait.Confidence:P0})\n";
                 }
             }
             

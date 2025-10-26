@@ -5,8 +5,8 @@ using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
-using Laboratory.Shared.Types;
 using Laboratory.Chimera.ECS;
+using Laboratory.Chimera.Core;
 using System.Collections.Generic;
 
 namespace Laboratory.Chimera.Integration
@@ -45,9 +45,9 @@ namespace Laboratory.Chimera.Integration
                 Adaptability = genetics.GetTraitValue("Adaptability", 0.6f),
                 Camouflage = genetics.GetTraitValue("Camouflage", 0.5f),
                 Caution = genetics.GetTraitValue("Caution", 0.5f),
-                OverallFitness = genetics.CalculateFitness(),
-                MutationRate = genetics.GetMutationRate(),
-                NativeBiome = ConvertStringToBiomeType(genetics.GetNativeBiome())
+                OverallFitness = genetics.CalculateFitness() ?? 0.5f,
+                MutationRate = genetics.GetMutationRate() ?? 0.02f,
+                NativeBiome = ConvertStringToBiomeType(genetics.GetNativeBiome() ?? "Grassland")
             };
         }
 

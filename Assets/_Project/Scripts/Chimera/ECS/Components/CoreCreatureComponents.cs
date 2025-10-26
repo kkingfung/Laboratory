@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.ECS
 {
@@ -332,19 +333,6 @@ namespace Laboratory.Chimera.ECS
         Mythic
     }
 
-    public enum BiomeType : byte
-    {
-        Grassland,
-        Forest,
-        Desert,
-        Mountain,
-        Ocean,
-        Swamp,
-        Tundra,
-        Volcanic,
-        Cave,
-        Sky
-    }
 
     public enum ResourceType : byte
     {

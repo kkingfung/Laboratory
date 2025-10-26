@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Unity.Collections;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Configuration;
+using Laboratory.Core.Enums;
 using Random = UnityEngine.Random;
 
 namespace Laboratory.Chimera.Genetics
@@ -22,6 +24,9 @@ namespace Laboratory.Chimera.Genetics
         [SerializeField] private int generationNumber = 1;
         [SerializeField] private string lineageId = "";
         [SerializeField] private string speciesId = "DefaultSpecies";
+
+        // PERFORMANCE OPTIMIZATION - Enum-based trait storage
+        [System.NonSerialized] private Dictionary<TraitType, float> _traitValuesByEnum;
         
         /// <summary>
         /// All genes in this genetic profile
@@ -59,20 +64,39 @@ namespace Laboratory.Chimera.Genetics
         public string ProfileId => lineageId;
         
         /// <summary>
-        /// Trait expressions for compatibility
+        /// Get trait values as enum-based dictionary - PERFORMANCE OPTIMIZED
         /// </summary>
-        public Dictionary<string, TraitExpression> TraitExpressions
+        public Dictionary<TraitType, float> GetTraitValuesByEnum()
         {
-            get
+            if (_traitValuesByEnum == null)
             {
-                var expressions = new Dictionary<string, TraitExpression>();
+                _traitValuesByEnum = new Dictionary<TraitType, float>();
                 foreach (var gene in genes)
                 {
                     if (gene.value.HasValue)
                     {
-                        expressions[gene.traitName] = new TraitExpression(
-                            gene.traitName, 
-                            gene.value.Value, 
+                        _traitValuesByEnum[gene.traitType] = gene.value.Value;
+                    }
+                }
+            }
+            return _traitValuesByEnum;
+        }
+
+        /// <summary>
+        /// Trait expressions for backward compatibility
+        /// </summary>
+        public Dictionary<TraitType, TraitExpression> TraitExpressions
+        {
+            get
+            {
+                var expressions = new Dictionary<TraitType, TraitExpression>();
+                foreach (var gene in genes)
+                {
+                    if (gene.value.HasValue)
+                    {
+                        expressions[gene.traitType] = new TraitExpression(
+                            gene.traitName,
+                            gene.value.Value,
                             gene.traitType)
                         {
                             dominanceStrength = gene.dominance
@@ -82,7 +106,28 @@ namespace Laboratory.Chimera.Genetics
                 return expressions;
             }
         }
-        
+
+        /// <summary>
+        /// Get trait value using performance-optimized enum lookup
+        /// </summary>
+        public float GetTraitValue(TraitType traitID, float defaultValue = 0.5f)
+        {
+            var traitValues = GetTraitValuesByEnum();
+            return traitValues.TryGetValue(traitID, out float value) ? value : defaultValue;
+        }
+
+        /// <summary>
+        /// Get trait value using string name (converts to enum internally)
+        /// </summary>
+        public float GetTraitValue(string traitName, float defaultValue = 0.5f)
+        {
+            if (System.Enum.TryParse<TraitType>(traitName, true, out var traitType))
+            {
+                return GetTraitValue(traitType, defaultValue);
+            }
+            return defaultValue;
+        }
+
         public GeneticProfile()
         {
             lineageId = Guid.NewGuid().ToString("N")[..8];
@@ -531,14 +576,6 @@ namespace Laboratory.Chimera.Genetics
             return genes.Where(g => g.isActive).Select(g => g.traitName).ToList();
         }
 
-        /// <summary>
-        /// Gets the value of a specific trait, with a default fallback
-        /// </summary>
-        public float GetTraitValue(string traitName, float defaultValue = 0f)
-        {
-            var gene = genes.FirstOrDefault(g => g.isActive && g.traitName == traitName);
-            return gene.value ?? defaultValue;
-        }
     }
     
     /// <summary>
@@ -547,7 +584,7 @@ namespace Laboratory.Chimera.Genetics
     [Serializable]
     public class EnvironmentalFactors
     {
-        [SerializeField] private Dictionary<string, float> traitBiases = new();
+        [SerializeField] private Dictionary<TraitType, float> traitBiases = new Dictionary<TraitType, float>();
         
         public float temperature = 20f; // Celsius
         public float humidity = 50f; // Percentage
@@ -556,19 +593,42 @@ namespace Laboratory.Chimera.Genetics
         public float socialDensity = 0.5f; // How crowded the environment is
         
         /// <summary>
-        /// Gets the environmental bias for a specific trait
+        /// Gets the environmental bias for a specific trait using enum key
+        /// </summary>
+        public float GetTraitBias(TraitType traitType)
+        {
+            return traitBiases.TryGetValue(traitType, out float bias) ? bias : 0f;
+        }
+
+        /// <summary>
+        /// Gets the environmental bias for a specific trait using string name
         /// </summary>
         public float GetTraitBias(string traitName)
         {
-            return traitBiases.TryGetValue(traitName, out float bias) ? bias : 0f;
+            if (System.Enum.TryParse<TraitType>(traitName, true, out var traitType))
+            {
+                return GetTraitBias(traitType);
+            }
+            return 0f;
         }
-        
+
         /// <summary>
-        /// Sets environmental pressure that favors certain traits
+        /// Sets environmental pressure that favors certain traits using enum key
+        /// </summary>
+        public void SetTraitBias(TraitType traitType, float bias)
+        {
+            traitBiases[traitType] = Mathf.Clamp(bias, -0.5f, 0.5f);
+        }
+
+        /// <summary>
+        /// Sets environmental pressure that favors certain traits using string name
         /// </summary>
         public void SetTraitBias(string traitName, float bias)
         {
-            traitBiases[traitName] = Mathf.Clamp(bias, -0.5f, 0.5f);
+            if (System.Enum.TryParse<TraitType>(traitName, true, out var traitType))
+            {
+                SetTraitBias(traitType, bias);
+            }
         }
         
         /// <summary>
