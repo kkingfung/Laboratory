@@ -8,6 +8,7 @@ using Unity.Jobs;
 using Unity.Burst;
 using Laboratory.Chimera.Ecosystem.Core;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Ecosystem
 {
@@ -1021,7 +1022,7 @@ namespace Laboratory.Chimera.Ecosystem
         private BiomeAnalysis AnalyzeBiomes()
         {
             var biomeTypeDistribution = activeBiomes.Values
-                .GroupBy(b => b.biomeType)
+                .GroupBy(b => System.Enum.Parse<Laboratory.Core.Enums.BiomeType>(b.biomeType.ToString()))
                 .ToDictionary(g => g.Key, g => g.Count());
 
             return new BiomeAnalysis
@@ -1385,7 +1386,7 @@ namespace Laboratory.Chimera.Ecosystem
     public class BiomeAnalysis
     {
         public int totalBiomes;
-        public Dictionary<Laboratory.Chimera.Core.BiomeType, int> biomeTypeDistribution;
+        public Dictionary<Laboratory.Core.Enums.BiomeType, int> biomeTypeDistribution;
         public float averageArea;
         public float averageStability;
         public float averageBiodiversity;

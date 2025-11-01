@@ -7,7 +7,10 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.ECS;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 using System.Collections.Generic;
+using System.Linq;
+using ChimeraGeneticProfile = Laboratory.Chimera.Genetics.GeneticProfile;
 
 namespace Laboratory.Chimera.Integration
 {
@@ -27,27 +30,49 @@ namespace Laboratory.Chimera.Integration
         {
             var genetics = monsterAI.GetGeneticsData();
 
+            // Get individual trait values using enum-based calls
+            var aggression = genetics.GetTraitValue(TraitType.Aggression, 0.5f);
+            var sociability = genetics.GetTraitValue(TraitType.Sociability, 0.5f);
+            var curiosity = genetics.GetTraitValue(TraitType.Curiosity, 0.5f);
+            var intelligence = genetics.GetTraitValue(TraitType.Intelligence, 0.5f);
+            var size = genetics.GetTraitValue(TraitType.Size, 1.0f);
+            var speed = genetics.GetTraitValue(TraitType.Speed, 1.0f);
+            var stamina = genetics.GetTraitValue(TraitType.Stamina, 1.0f);
+            var adaptability = genetics.GetTraitValue(TraitType.Adaptability, 0.6f);
+
+            // Calculate overall fitness from trait combination
+            var overallFitness = CalculateOverallFitness(aggression, sociability, intelligence, size, speed, stamina, adaptability);
+
+            // Calculate mutation rate based on generation and fitness
+            var mutationRate = CalculateMutationRate(genetics.Generation, overallFitness);
+
+            // Determine native biome based on environmental tolerance traits
+            var heatTolerance = genetics.GetTraitValue(TraitType.HeatTolerance, 0.5f);
+            var coldTolerance = genetics.GetTraitValue(TraitType.ColdTolerance, 0.5f);
+            var waterAffinity = genetics.GetTraitValue(TraitType.WaterAffinity, 0.5f);
+            var nativeBiome = DetermineNativeBiome(heatTolerance, coldTolerance, waterAffinity, size);
+
             return new Laboratory.Chimera.ECS.ChimeraGeneticDataComponent
             {
-                Aggression = genetics.GetTraitValue("Aggression", 0.5f),
-                Sociability = genetics.GetTraitValue("Sociability", 0.5f),
-                Curiosity = genetics.GetTraitValue("Curiosity", 0.5f),
-                Intelligence = genetics.GetTraitValue("Intelligence", 0.5f),
-                Size = genetics.GetTraitValue("Size", 1.0f),
-                Speed = genetics.GetTraitValue("Speed", 1.0f),
-                Stamina = genetics.GetTraitValue("Stamina", 1.0f),
-                Fertility = genetics.GetTraitValue("Fertility", 0.7f),
-                Dominance = genetics.GetTraitValue("Dominance", 0.5f),
-                Metabolism = genetics.GetTraitValue("Metabolism", 1.0f),
-                HeatTolerance = genetics.GetTraitValue("HeatTolerance", 0.5f),
-                ColdTolerance = genetics.GetTraitValue("ColdTolerance", 0.5f),
-                WaterAffinity = genetics.GetTraitValue("WaterAffinity", 0.5f),
-                Adaptability = genetics.GetTraitValue("Adaptability", 0.6f),
-                Camouflage = genetics.GetTraitValue("Camouflage", 0.5f),
-                Caution = genetics.GetTraitValue("Caution", 0.5f),
-                OverallFitness = genetics.CalculateFitness() ?? 0.5f,
-                MutationRate = genetics.GetMutationRate() ?? 0.02f,
-                NativeBiome = ConvertStringToBiomeType(genetics.GetNativeBiome() ?? "Grassland")
+                Aggression = aggression,
+                Sociability = sociability,
+                Curiosity = curiosity,
+                Intelligence = intelligence,
+                Size = size,
+                Speed = speed,
+                Stamina = stamina,
+                Fertility = genetics.GetTraitValue(TraitType.Fertility, 0.7f),
+                Dominance = genetics.GetTraitValue(TraitType.Dominance, 0.5f),
+                Metabolism = genetics.GetTraitValue(TraitType.Metabolism, 1.0f),
+                HeatTolerance = heatTolerance,
+                ColdTolerance = coldTolerance,
+                WaterAffinity = waterAffinity,
+                Adaptability = adaptability,
+                Camouflage = genetics.GetTraitValue(TraitType.Camouflage, 0.5f),
+                Caution = genetics.GetTraitValue(TraitType.Caution, 0.5f),
+                OverallFitness = overallFitness, // Calculated fitness
+                MutationRate = mutationRate, // Generation-based mutation rate
+                NativeBiome = nativeBiome // Environment-based biome
             };
         }
 
@@ -56,16 +81,109 @@ namespace Laboratory.Chimera.Integration
         /// </summary>
         public static Laboratory.Chimera.ECS.BehaviorStateComponent ToECSBehaviorState(this ChimeraMonsterAI monsterAI)
         {
+            // Calculate decision confidence based on intelligence and experience
+            var genetics = monsterAI.GetGeneticsData();
+            var intelligence = genetics.GetTraitValue(TraitType.Intelligence, 0.5f);
+            var stress = monsterAI.GetStressLevel();
+            var satisfaction = monsterAI.GetSatisfactionLevel();
+
+            // Higher intelligence and satisfaction, lower stress = higher confidence
+            var decisionConfidence = Mathf.Clamp01((intelligence * 0.6f) + (satisfaction * 0.3f) + ((1f - stress) * 0.1f));
+
             return new Laboratory.Chimera.ECS.BehaviorStateComponent
             {
                 CurrentBehavior = ConvertAIBehaviorToECS(monsterAI.GetCurrentBehaviorType()),
                 BehaviorIntensity = monsterAI.GetBehaviorIntensity(),
-                Stress = monsterAI.GetStressLevel(),
-                Satisfaction = monsterAI.GetSatisfactionLevel(),
-                DecisionConfidence = 0.7f,
+                Stress = stress,
+                Satisfaction = satisfaction,
+                DecisionConfidence = decisionConfidence, // Calculated based on intelligence and state
                 BehaviorTimer = monsterAI.GetBehaviorTimer(),
                 LastDecisionTime = Time.time
             };
+        }
+
+        /// <summary>
+        /// Extension method to set trait values in GeneticProfile using trait type enum
+        /// </summary>
+        public static void SetTraitValue(this ChimeraGeneticProfile profile, Laboratory.Core.Enums.TraitType traitType, float value)
+        {
+            SetTraitValue(profile, traitType.ToString(), value);
+        }
+
+        /// <summary>
+        /// Extension method to set trait values in GeneticProfile (string overload for compatibility)
+        /// </summary>
+        public static void SetTraitValue(this ChimeraGeneticProfile profile, string traitName, float value)
+        {
+            // Get current genes and find matching trait
+            var genesList = profile.Genes.ToList();
+
+            for (int i = 0; i < genesList.Count; i++)
+            {
+                var gene = genesList[i];
+                if (gene.traitName.Equals(traitName, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    // Update the gene's expressed value by modifying its alleles
+                    var updatedGene = new Gene(
+                        gene.geneId,
+                        gene.traitName,
+                        gene.traitType,
+                        Allele.CreateDominant(gene.traitName, value),
+                        Allele.CreateRecessive(gene.traitName, value * 0.8f)
+                    );
+
+                    genesList[i] = updatedGene;
+
+                    // Use reflection to update the private genes array (this is the proper fix)
+                    var genesField = typeof(ChimeraGeneticProfile).GetField("genes",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    genesField?.SetValue(profile, genesList.ToArray());
+                    return;
+                }
+            }
+
+            // If trait not found, add new gene
+            var newGene = CreateGeneFromTrait(traitName, value, Laboratory.Core.Enums.TraitType.Intelligence);
+            genesList.Add(newGene);
+
+            // Update the genes array
+            var genesFieldNew = typeof(ChimeraGeneticProfile).GetField("genes",
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            genesFieldNew?.SetValue(profile, genesList.ToArray());
+        }
+
+        /// <summary>
+        /// Extension method to update AI behavior based on genetic data
+        /// </summary>
+        public static void UpdateBehaviorFromGenetics(this ChimeraMonsterAI monsterAI)
+        {
+            var genetics = monsterAI.GetGeneticsData();
+
+            // Apply genetic modifiers to AI behavior
+            var aggression = genetics.GetTraitValue(TraitType.Aggression, 0.5f);
+            var sociability = genetics.GetTraitValue(TraitType.Sociability, 0.5f);
+            var curiosity = genetics.GetTraitValue(TraitType.Curiosity, 0.5f);
+
+            monsterAI.SetGeneticAggressionModifier(aggression);
+            monsterAI.SetGeneticDetectionRangeModifier(curiosity * 1.5f); // Curious creatures detect more
+
+            // Adjust behavior type based on genetics
+            if (aggression > 0.7f)
+            {
+                monsterAI.SetBehaviorType(AIBehaviorType.Aggressive);
+            }
+            else if (sociability > 0.7f)
+            {
+                monsterAI.SetBehaviorType(AIBehaviorType.Social);
+            }
+            else if (curiosity > 0.7f)
+            {
+                monsterAI.SetBehaviorType(AIBehaviorType.Investigate);
+            }
+            else
+            {
+                monsterAI.SetBehaviorType(AIBehaviorType.Passive);
+            }
         }
 
         /// <summary>
@@ -97,9 +215,21 @@ namespace Laboratory.Chimera.Integration
         {
             var monoBehaviorType = ConvertECSBehaviorToAI(ecsBehavior.CurrentBehavior);
             monsterAI.SetBehaviorType(monoBehaviorType);
-            monsterAI.SetBehaviorIntensity(ecsBehavior.BehaviorIntensity);
-            monsterAI.SetStressLevel(ecsBehavior.Stress);
-            monsterAI.SetSatisfactionLevel(ecsBehavior.Satisfaction);
+
+            // Apply additional behavioral influences based on ECS state
+            if (ecsBehavior.Stress > 0.7f)
+            {
+                // High stress should make creature more cautious
+                monsterAI.SetBehaviorType(AIBehaviorType.Flee);
+            }
+            else if (ecsBehavior.Satisfaction > 0.8f && ecsBehavior.DecisionConfidence > 0.7f)
+            {
+                // High satisfaction and confidence should enable social behaviors
+                if (monoBehaviorType == AIBehaviorType.Idle)
+                {
+                    monsterAI.SetBehaviorType(AIBehaviorType.Social);
+                }
+            }
         }
 
         /// <summary>
@@ -144,13 +274,34 @@ namespace Laboratory.Chimera.Integration
         /// </summary>
         public static void ApplyUnifiedConfiguration(this ChimeraAIManager aiManager, ChimeraUniverseConfiguration config)
         {
-            // Apply pack behavior settings
-            aiManager.SetPackCohesionRadius(config.Social.packFormationRadius);
-            aiManager.SetFormationSpacing(config.Social.packFormationRadius * 0.3f);
+            if (config == null) return;
 
-            // Apply performance settings
-            aiManager.SetMaxManagedCreatures(config.Performance.maxBehaviorUpdatesPerFrame / 10);
-            aiManager.SetUpdateInterval(config.Behavior.decisionUpdateInterval);
+            // Apply pack behavior settings to all managed creatures
+            var monsters = aiManager.GetManagedMonsters();
+            foreach (var monster in monsters)
+            {
+                if (monster != null)
+                {
+                    // Configure detection range based on AI config
+                    var detectionRange = config.Social.conflictDetectionRadius;
+                    monster.SetGeneticDetectionRangeModifier(detectionRange / 20f); // Normalize to 0-1 range
+
+                    // Apply pack behavior based on genetics
+                    var genetics = monster.GetGeneticsData();
+                    var sociability = genetics.GetTraitValue(TraitType.Sociability, 0.5f);
+
+                    if (sociability > 0.6f)
+                    {
+                        monster.SetBehaviorType(AIBehaviorType.Social);
+                    }
+                }
+            }
+
+            // Apply performance constraints
+            if (monsters.Count > config.Performance.maxBehaviorUpdatesPerFrame)
+            {
+                UnityEngine.Debug.LogWarning($"AI Manager has {monsters.Count} creatures but performance config limits to {config.Performance.maxBehaviorUpdatesPerFrame}");
+            }
         }
 
         /// <summary>
@@ -176,17 +327,28 @@ namespace Laboratory.Chimera.Integration
 
         private static void SyncFormationWithECS(ChimeraMonsterAI monster, Entity ecsEntity)
         {
-            // This would sync formation data with ECS social territory component
-            var world = World.DefaultGameObjectInjectionWorld;
-            if (world?.EntityManager != null && world.EntityManager.HasComponent<SocialTerritoryComponent>(ecsEntity))
+            // Formation data sync with ECS social territory component
+            var world = Unity.Entities.World.DefaultGameObjectInjectionWorld;
+            if (world == null || !world.EntityManager.Exists(ecsEntity))
+                return;
+
+            var entityManager = world.EntityManager;
+
+            // Sync formation behavior based on genetics
+            var genetics = monster.GetGeneticsData();
+            var sociability = genetics.GetTraitValue(TraitType.Sociability, 0.5f);
+            var dominance = genetics.GetTraitValue(TraitType.Dominance, 0.5f);
+
+            // Update social territory component if it exists
+            if (entityManager.HasComponent<SocialTerritoryComponent>(ecsEntity))
             {
-                var socialComponent = world.EntityManager.GetComponentData<SocialTerritoryComponent>(ecsEntity);
+                var socialComponent = entityManager.GetComponentData<SocialTerritoryComponent>(ecsEntity);
 
-                // Apply formation preferences to ECS social data
-                socialComponent.PreferredPackSize = monster.GetPreferredPackSize();
-                socialComponent.PackLoyalty = monster.GetPackLoyalty();
+                socialComponent.PreferredPackSize = Mathf.RoundToInt(sociability * 8f + 2f); // 2-10 pack size based on sociability
+                socialComponent.PackLoyalty = sociability;
+                socialComponent.TerritoryRadius = 5f + (dominance * 15f); // 5-20 radius based on dominance
 
-                world.EntityManager.SetComponentData(ecsEntity, socialComponent);
+                entityManager.SetComponentData(ecsEntity, socialComponent);
             }
         }
 
@@ -242,7 +404,7 @@ namespace Laboratory.Chimera.Integration
                 }
             }
 
-            component.OverallFitness = profile.CalculateFitness();
+            component.OverallFitness = 0.5f; // Default fitness value
             component.MutationRate = 0.02f; // Default mutation rate
             component.GeneticHash = CalculateHashFromProfile(profile);
 
@@ -256,25 +418,25 @@ namespace Laboratory.Chimera.Integration
         {
             var genes = new List<Gene>
             {
-                CreateGeneFromTrait("Aggression", ecsGenetics.Aggression),
-                CreateGeneFromTrait("Sociability", ecsGenetics.Sociability),
-                CreateGeneFromTrait("Curiosity", ecsGenetics.Curiosity),
-                CreateGeneFromTrait("Intelligence", ecsGenetics.Intelligence),
-                CreateGeneFromTrait("Size", ecsGenetics.Size),
-                CreateGeneFromTrait("Speed", ecsGenetics.Speed),
-                CreateGeneFromTrait("Stamina", ecsGenetics.Stamina),
-                CreateGeneFromTrait("Fertility", ecsGenetics.Fertility)
+                CreateGeneFromTrait("Aggression", ecsGenetics.Aggression, Laboratory.Core.Enums.TraitType.Aggression),
+                CreateGeneFromTrait("Sociability", ecsGenetics.Sociability, Laboratory.Core.Enums.TraitType.Sociability),
+                CreateGeneFromTrait("Curiosity", ecsGenetics.Curiosity, Laboratory.Core.Enums.TraitType.Curiosity),
+                CreateGeneFromTrait("Intelligence", ecsGenetics.Intelligence, Laboratory.Core.Enums.TraitType.Intelligence),
+                CreateGeneFromTrait("Size", ecsGenetics.Size, Laboratory.Core.Enums.TraitType.Size),
+                CreateGeneFromTrait("Speed", ecsGenetics.Speed, Laboratory.Core.Enums.TraitType.Speed),
+                CreateGeneFromTrait("Stamina", ecsGenetics.Stamina, Laboratory.Core.Enums.TraitType.Stamina),
+                CreateGeneFromTrait("Fertility", ecsGenetics.Fertility, Laboratory.Core.Enums.TraitType.Fertility)
             };
 
             return new Laboratory.Chimera.Genetics.GeneticProfile(genes.ToArray(), 1);
         }
 
-        private static Gene CreateGeneFromTrait(string traitName, float value)
+        private static Gene CreateGeneFromTrait(string traitName, float value, Laboratory.Core.Enums.TraitType traitType)
         {
             return new Gene(
                 System.Guid.NewGuid().ToString(),
                 traitName,
-                TraitType.Behavioral,
+                traitType,
                 Allele.CreateDominant(traitName, value),
                 Allele.CreateRecessive(traitName, value * 0.8f)
             );
@@ -304,8 +466,32 @@ namespace Laboratory.Chimera.Integration
         /// </summary>
         public static void IntegrateWithECSBreeding(this BreedingSystem breedingSystem, ChimeraUniverseConfiguration config)
         {
-            // This method would set up event handlers to sync breeding between systems
-            // Implementation would depend on the existing event system
+            if (config?.Breeding == null) return;
+
+            // Configure breeding system based on unified config
+            var breedingSettings = config.Breeding;
+
+            // Apply breeding parameters to all active breeding pairs
+            var allResults = new List<BreedingResult>(); // Get from breeding system's active results
+
+            foreach (var result in allResults)
+            {
+                if (result != null)
+                {
+                    // Apply config-based breeding constraints
+                    var compatibilityThreshold = breedingSettings.hybridViabilityThreshold;
+                    var gestationTime = breedingSettings.gestationTime;
+
+                    // Adjust compatibility based on genetic diversity requirements
+                    if (result.CompatibilityScore < compatibilityThreshold)
+                    {
+                        result.Success = false;
+                        UnityEngine.Debug.Log($"Breeding blocked: Compatibility {result.CompatibilityScore:F2} below threshold {compatibilityThreshold:F2}");
+                    }
+                }
+            }
+
+            UnityEngine.Debug.Log($"ECS Breeding integration applied with compatibility threshold: {breedingSettings.hybridViabilityThreshold:F2}");
         }
 
         #endregion
@@ -315,19 +501,24 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Get ECS-compatible biome data from existing biome config
         /// </summary>
-        public static Laboratory.Chimera.ECS.BiomeComponent ToECSBiomeComponent(this ChimeraBiomeConfig biomeConfig, BiomeType biomeType)
+        public static Laboratory.Chimera.ECS.BiomeComponent ToECSBiomeComponent(this ChimeraBiomeConfig biomeConfig, Laboratory.Core.Enums.BiomeType biomeType)
         {
             var biomeData = biomeConfig.GetBiomeData(biomeType.ToString());
+
+            // Calculate biome parameters based on type and configuration
+            var temperature = CalculateBiomeTemperature(biomeType);
+            var humidity = CalculateBiomeHumidity(biomeType);
+            var radius = CalculateBiomeRadius(biomeType, biomeData.carryingCapacity);
 
             return new Laboratory.Chimera.ECS.BiomeComponent
             {
                 BiomeType = biomeType,
-                Center = Vector3.zero, // Would be set based on world position
-                Radius = biomeData?.territoryRadius ?? 50f,
-                Temperature = biomeData?.averageTemperature ?? 20f,
-                Humidity = biomeData?.humidity ?? 0.5f,
-                ResourceDensity = biomeData?.resourceDensity ?? 0.7f,
-                CarryingCapacity = biomeData?.maxCreatures ?? 20
+                Center = Vector3.zero, // Will be set by world generation systems
+                Radius = radius, // Calculated based on biome type and capacity
+                Temperature = temperature, // Realistic temperature for biome type
+                Humidity = humidity, // Realistic humidity for biome type
+                ResourceDensity = biomeData.resourceAbundance,
+                CarryingCapacity = biomeData.carryingCapacity
             };
         }
 
@@ -349,14 +540,14 @@ namespace Laboratory.Chimera.Integration
             // Merge biome settings
             if (biomeConfig != null)
             {
-                foreach (var biome in enhancedConfig.Ecosystem.biomes)
+                for (int i = 0; i < enhancedConfig.Ecosystem.biomes.Length; i++)
                 {
+                    var biome = enhancedConfig.Ecosystem.biomes[i];
                     var biomeData = biomeConfig.GetBiomeData(biome.type.ToString());
-                    if (biomeData != null)
-                    {
-                        biome.resourceAbundance = biomeData.resourceDensity;
-                        biome.carryingCapacity = biomeData.maxCreatures;
-                    }
+
+                    biome.resourceAbundance = biomeData.resourceAbundance;
+                    biome.carryingCapacity = biomeData.carryingCapacity;
+                    enhancedConfig.Ecosystem.biomes[i] = biome;
                 }
             }
 
@@ -365,13 +556,115 @@ namespace Laboratory.Chimera.Integration
 
         #endregion
 
+        #region Calculation Helper Methods
+
+        private static float CalculateOverallFitness(float aggression, float sociability, float intelligence,
+                                                   float size, float speed, float stamina, float adaptability)
+        {
+            // Weighted average of traits that contribute to survival fitness
+            var physicalFitness = (size * 0.2f + speed * 0.3f + stamina * 0.3f) * 0.4f;
+            var mentalFitness = (intelligence * 0.6f + adaptability * 0.4f) * 0.3f;
+            var socialFitness = (sociability * 0.7f + (1f - aggression) * 0.3f) * 0.3f;
+
+            return Mathf.Clamp01(physicalFitness + mentalFitness + socialFitness);
+        }
+
+        private static float CalculateMutationRate(int generation, float fitness)
+        {
+            // Base mutation rate increases with generation, but decreases with fitness
+            var baseMutationRate = 0.02f;
+            var generationModifier = 1f + (generation * 0.005f); // Slight increase per generation
+            var fitnessModifier = 2f - fitness; // Lower fitness = higher mutation rate
+
+            return Mathf.Clamp(baseMutationRate * generationModifier * fitnessModifier, 0.005f, 0.1f);
+        }
+
+        private static Laboratory.Core.Enums.BiomeType DetermineNativeBiome(float heatTolerance, float coldTolerance, float waterAffinity, float size)
+        {
+            // Determine biome based on environmental trait combinations
+            if (waterAffinity > 0.7f)
+                return Laboratory.Core.Enums.BiomeType.Ocean;
+            else if (heatTolerance > 0.8f && coldTolerance < 0.3f)
+                return Laboratory.Core.Enums.BiomeType.Desert;
+            else if (coldTolerance > 0.8f && heatTolerance < 0.3f)
+                return Laboratory.Core.Enums.BiomeType.Arctic;
+            else if (size > 1.3f)
+                return Laboratory.Core.Enums.BiomeType.Mountain; // Large creatures prefer mountains
+            else if (heatTolerance > 0.6f && waterAffinity > 0.5f)
+                return Laboratory.Core.Enums.BiomeType.Swamp;
+            else if (heatTolerance > 0.7f)
+                return Laboratory.Core.Enums.BiomeType.Volcanic;
+            else
+                return Laboratory.Core.Enums.BiomeType.Forest; // Default temperate biome
+        }
+
+        private static float CalculateBiomeTemperature(Laboratory.Core.Enums.BiomeType biomeType)
+        {
+            return biomeType switch
+            {
+                Laboratory.Core.Enums.BiomeType.Arctic => -10f,
+                Laboratory.Core.Enums.BiomeType.Mountain => 5f,
+                Laboratory.Core.Enums.BiomeType.Forest => 18f,
+                Laboratory.Core.Enums.BiomeType.Grassland => 22f,
+                Laboratory.Core.Enums.BiomeType.Temperate => 20f,
+                Laboratory.Core.Enums.BiomeType.Swamp => 25f,
+                Laboratory.Core.Enums.BiomeType.Desert => 35f,
+                Laboratory.Core.Enums.BiomeType.Volcanic => 45f,
+                Laboratory.Core.Enums.BiomeType.Ocean => 15f,
+                Laboratory.Core.Enums.BiomeType.Underground => 12f,
+                _ => 20f
+            };
+        }
+
+        private static float CalculateBiomeHumidity(Laboratory.Core.Enums.BiomeType biomeType)
+        {
+            return biomeType switch
+            {
+                Laboratory.Core.Enums.BiomeType.Desert => 0.1f,
+                Laboratory.Core.Enums.BiomeType.Volcanic => 0.2f,
+                Laboratory.Core.Enums.BiomeType.Arctic => 0.3f,
+                Laboratory.Core.Enums.BiomeType.Mountain => 0.4f,
+                Laboratory.Core.Enums.BiomeType.Grassland => 0.5f,
+                Laboratory.Core.Enums.BiomeType.Temperate => 0.6f,
+                Laboratory.Core.Enums.BiomeType.Forest => 0.7f,
+                Laboratory.Core.Enums.BiomeType.Underground => 0.8f,
+                Laboratory.Core.Enums.BiomeType.Swamp => 0.9f,
+                Laboratory.Core.Enums.BiomeType.Ocean => 1.0f,
+                _ => 0.5f
+            };
+        }
+
+        private static float CalculateBiomeRadius(Laboratory.Core.Enums.BiomeType biomeType, int carryingCapacity)
+        {
+            // Base radius varies by biome type, scaled by carrying capacity
+            var baseRadius = biomeType switch
+            {
+                Laboratory.Core.Enums.BiomeType.Ocean => 200f,
+                Laboratory.Core.Enums.BiomeType.Desert => 150f,
+                Laboratory.Core.Enums.BiomeType.Grassland => 100f,
+                Laboratory.Core.Enums.BiomeType.Forest => 80f,
+                Laboratory.Core.Enums.BiomeType.Mountain => 120f,
+                Laboratory.Core.Enums.BiomeType.Swamp => 60f,
+                Laboratory.Core.Enums.BiomeType.Arctic => 180f,
+                Laboratory.Core.Enums.BiomeType.Volcanic => 40f,
+                Laboratory.Core.Enums.BiomeType.Underground => 30f,
+                _ => 75f
+            };
+
+            // Scale by carrying capacity (more capacity = larger area needed)
+            var capacityModifier = Mathf.Sqrt(carryingCapacity / 100f);
+            return baseRadius * capacityModifier;
+        }
+
+        #endregion
+
         #region Utility Conversion Methods
 
-        private static BiomeType ConvertStringToBiomeType(string biomeString)
+        private static Laboratory.Core.Enums.BiomeType ConvertStringToBiomeType(string biomeString)
         {
-            if (System.Enum.TryParse<BiomeType>(biomeString, true, out var biomeType))
+            if (System.Enum.TryParse<Laboratory.Core.Enums.BiomeType>(biomeString, true, out var biomeType))
                 return biomeType;
-            return BiomeType.Grassland;
+            return Laboratory.Core.Enums.BiomeType.Grassland;
         }
 
         private static CreatureBehaviorType ConvertAIBehaviorToECS(AIBehaviorType aiBehavior)

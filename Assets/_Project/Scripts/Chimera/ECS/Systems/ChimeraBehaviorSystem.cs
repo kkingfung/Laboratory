@@ -93,6 +93,7 @@ namespace Laboratory.Core.ECS.Systems
             {
                 spatialHash = _spatialHash.AsParallelWriter(),
                 cellSize = _config.Performance.spatialHashCellSize,
+                entityTypeHandle = GetEntityTypeHandle(),
                 transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
                 identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true),
                 geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
@@ -144,6 +145,7 @@ namespace Laboratory.Core.ECS.Systems
         {
             [WriteOnly] public NativeParallelMultiHashMap<int, CreatureData>.ParallelWriter spatialHash;
             [ReadOnly] public float cellSize;
+            [ReadOnly] public EntityTypeHandle entityTypeHandle;
             [ReadOnly] public ComponentTypeHandle<LocalToWorld> transformTypeHandle;
             [ReadOnly] public ComponentTypeHandle<ChimeraCreatureIdentity> identityTypeHandle;
             [ReadOnly] public ComponentTypeHandle<ChimeraGeneticDataComponent> geneticsTypeHandle;
@@ -151,6 +153,7 @@ namespace Laboratory.Core.ECS.Systems
 
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {
+                var entities = chunk.GetNativeArray(entityTypeHandle);
                 var transforms = chunk.GetNativeArray(ref transformTypeHandle);
                 var identities = chunk.GetNativeArray(ref identityTypeHandle);
                 var genetics = chunk.GetNativeArray(ref geneticsTypeHandle);
@@ -161,7 +164,7 @@ namespace Laboratory.Core.ECS.Systems
                     var position = transforms[i].Position;
                     int cellKey = GetSpatialHashKey(position, cellSize);
 
-                    var creatureData = new CreatureData(position, identities[i], genetics[i], territories[i]);
+                    var creatureData = new CreatureData(entities[i], position, identities[i].UniqueID, identities[i].Age, identities[i].CurrentLifeStage, genetics[i], territories[i].TerritoryRadius);
 
                     spatialHash.Add(cellKey, creatureData);
                 }
@@ -573,17 +576,23 @@ namespace Laboratory.Core.ECS.Systems
     // Supporting data structures
     public readonly struct CreatureData
     {
+        public readonly Entity entity;
         public readonly float3 position;
-        public readonly ChimeraCreatureIdentity identity;
+        public readonly uint uniqueID;
+        public readonly float age;
+        public readonly LifeStage lifeStage;
         public readonly ChimeraGeneticDataComponent genetics;
-        public readonly SocialTerritoryComponent territory;
+        public readonly float territoryRadius;
 
-        public CreatureData(float3 pos, ChimeraCreatureIdentity id, ChimeraGeneticDataComponent gen, SocialTerritoryComponent terr)
+        public CreatureData(Entity ent, float3 pos, uint id, float creatureAge, LifeStage stage, ChimeraGeneticDataComponent gen, float radius)
         {
+            entity = ent;
             position = pos;
-            identity = id;
+            uniqueID = id;
+            age = creatureAge;
+            lifeStage = stage;
             genetics = gen;
-            territory = terr;
+            territoryRadius = radius;
         }
     }
 

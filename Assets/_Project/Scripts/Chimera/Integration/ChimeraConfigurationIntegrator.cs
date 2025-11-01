@@ -7,6 +7,8 @@ using Laboratory.Core.Enums;
 using Unity.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using ChimeraBiomeType = Laboratory.Core.Enums.BiomeType;
+using CoreTraitType = Laboratory.Core.Enums.TraitType;
 
 namespace Laboratory.Chimera.Integration
 {
@@ -46,8 +48,8 @@ namespace Laboratory.Chimera.Integration
         };
 
         // Cached integrated values - PERFORMANCE OPTIMIZED
-        private Dictionary<Laboratory.Core.Enums.TraitType, float> _integratedTraitValues = new Dictionary<Laboratory.Core.Enums.TraitType, float>();
-        private Dictionary<Laboratory.Core.Enums.BiomeType, BiomeIntegrationData> _integratedBiomeData = new Dictionary<Laboratory.Core.Enums.BiomeType, BiomeIntegrationData>();
+        private Dictionary<CoreTraitType, float> _integratedTraitValues = new Dictionary<CoreTraitType, float>();
+        private Dictionary<ChimeraBiomeType, BiomeIntegrationData> _integratedBiomeData = new Dictionary<ChimeraBiomeType, BiomeIntegrationData>();
         private bool _integrationCacheValid = false;
         private bool _biomeDataInitialized = false;
 
@@ -71,7 +73,7 @@ namespace Laboratory.Chimera.Integration
         {
             if (!_biomeDataInitialized)
             {
-                _integratedBiomeData = new BiomeDataArray<BiomeIntegrationData>(Allocator.Persistent);
+                _integratedBiomeData = new Dictionary<Laboratory.Core.Enums.BiomeType, BiomeIntegrationData>();
                 _biomeDataInitialized = true;
             }
         }
@@ -80,7 +82,7 @@ namespace Laboratory.Chimera.Integration
         {
             if (_biomeDataInitialized)
             {
-                _integratedBiomeData.Dispose();
+                _integratedBiomeData.Clear();
                 _biomeDataInitialized = false;
             }
         }
@@ -93,23 +95,26 @@ namespace Laboratory.Chimera.Integration
             ValidateIntegrationCache();
 
             // Convert string to TraitID for optimized lookup
-            var traitID = OptimizedDataStructures.StringToTraitID(traitName);
-            return _integratedTraitValues.GetValue(traitID, defaultValue);
+            if (System.Enum.TryParse<CoreTraitType>(traitName, true, out var traitID))
+            {
+                return _integratedTraitValues.TryGetValue(traitID, out var value) ? value : defaultValue;
+            }
+            return defaultValue;
         }
 
         /// <summary>
         /// Get integrated trait value using TraitID (performance optimized)
         /// </summary>
-        public float GetIntegratedTraitValue(OptimizedDataStructures.TraitID traitID, float defaultValue = 0.5f)
+        public float GetIntegratedTraitValue(CoreTraitType traitID, float defaultValue = 0.5f)
         {
             ValidateIntegrationCache();
-            return _integratedTraitValues.GetValue(traitID, defaultValue);
+            return _integratedTraitValues.TryGetValue(traitID, out var value) ? value : defaultValue;
         }
 
         /// <summary>
         /// Get integrated biome data combining unified config and biome configs
         /// </summary>
-        public BiomeIntegrationData GetIntegratedBiomeData(BiomeType biomeType)
+        public BiomeIntegrationData GetIntegratedBiomeData(ChimeraBiomeType biomeType)
         {
             ValidateIntegrationCache();
             InitializeBiomeData();
@@ -237,7 +242,7 @@ namespace Laboratory.Chimera.Integration
         {
             InitializeBiomeData();
             // Reset trait values to defaults
-            _integratedTraitValues = new Dictionary<Laboratory.Core.Enums.TraitType, float>();
+            _integratedTraitValues = new Dictionary<CoreTraitType, float>();
 
             // Integrate trait data
             if (enableTraitLibraryIntegration && traitLibrary != null)
@@ -264,21 +269,23 @@ namespace Laboratory.Chimera.Integration
 
             foreach (var mapping in traitMappings)
             {
-                var libraryTrait = allTraits.FirstOrDefault(t => t.name == mapping.libraryTraitName);
+                var libraryTrait = allTraits.FirstOrDefault(t => t.traitName == mapping.libraryTraitName);
                 if (libraryTrait != null)
                 {
-                    var traitID = OptimizedDataStructures.StringToTraitID(mapping.unifiedTraitName);
-                    var existingValue = _integratedTraitValues.GetValue(traitID, 0f);
+                    if (System.Enum.TryParse<CoreTraitType>(mapping.unifiedTraitName, true, out var traitID))
+                    {
+                        var existingValue = _integratedTraitValues.TryGetValue(traitID, out var value) ? value : 0f;
 
-                    // Combine existing value with library trait value
-                    if (existingValue > 0f)
-                    {
-                        var combinedValue = (existingValue + libraryTrait.baseValue * mapping.weight) / 2f;
-                        _integratedTraitValues.SetValue(traitID, combinedValue);
-                    }
-                    else
-                    {
-                        _integratedTraitValues.SetValue(traitID, libraryTrait.baseValue * mapping.weight);
+                        // Combine existing value with library trait value
+                        if (existingValue > 0f)
+                        {
+                            var combinedValue = (existingValue + libraryTrait.baseValue * mapping.weight) / 2f;
+                            _integratedTraitValues[traitID] = combinedValue;
+                        }
+                        else
+                        {
+                            _integratedTraitValues[traitID] = libraryTrait.baseValue * mapping.weight;
+                        }
                     }
                 }
             }
@@ -286,7 +293,7 @@ namespace Laboratory.Chimera.Integration
 
         private void IntegrateBiomeConfiguration()
         {
-            var biomeTypes = System.Enum.GetValues(typeof(BiomeType)).Cast<BiomeType>();
+            var biomeTypes = System.Enum.GetValues(typeof(ChimeraBiomeType)).Cast<ChimeraBiomeType>();
 
             foreach (var biomeType in biomeTypes)
             {
@@ -296,13 +303,13 @@ namespace Laboratory.Chimera.Integration
                 var integratedData = new BiomeIntegrationData
                 {
                     biomeType = biomeType,
-                    resourceAbundance = unifiedBiome?.resourceAbundance ?? biomeData?.resourceDensity ?? 0.5f,
-                    carryingCapacity = unifiedBiome?.carryingCapacity ?? biomeData?.maxCreatures ?? 20,
-                    temperature = biomeData?.averageTemperature ?? GetDefaultTemperature(biomeType),
-                    humidity = biomeData?.humidity ?? GetDefaultHumidity(biomeType),
-                    predatorDanger = biomeData?.predatorLevel ?? 0.3f,
-                    resourceTypes = biomeData?.availableResources ?? GetDefaultResources(biomeType),
-                    specialFeatures = biomeData?.specialFeatures ?? new List<string>()
+                    resourceAbundance = unifiedBiome?.resourceAbundance ?? biomeData.resourceAbundance,
+                    carryingCapacity = unifiedBiome?.carryingCapacity ?? biomeData.carryingCapacity,
+                    temperature = GetDefaultTemperature(biomeType),
+                    humidity = GetDefaultHumidity(biomeType),
+                    predatorDanger = 0.3f,
+                    resourceTypes = GetDefaultResources(biomeType),
+                    specialFeatures = new List<string>()
                 };
 
                 _integratedBiomeData[biomeType] = integratedData;
@@ -316,13 +323,12 @@ namespace Laboratory.Chimera.Integration
             if (unifiedConfig.Genetics != null)
             {
                 // Apply unified genetic settings as baseline modifiers
-                for (int i = 0; i < (int)OptimizedDataStructures.TraitID.COUNT; i++)
+                foreach (CoreTraitType traitID in System.Enum.GetValues(typeof(CoreTraitType)))
                 {
-                    var traitID = (OptimizedDataStructures.TraitID)i;
-                    var currentValue = _integratedTraitValues.GetValue(traitID);
+                    var currentValue = _integratedTraitValues.TryGetValue(traitID, out var value) ? value : 0.5f;
                     var traitName = traitID.ToString();
                     var modifiedValue = ApplyGeneticEvolutionModifier(currentValue, traitName);
-                    _integratedTraitValues.SetValue(traitID, modifiedValue);
+                    _integratedTraitValues[traitID] = modifiedValue;
                 }
             }
         }
@@ -382,10 +388,10 @@ namespace Laboratory.Chimera.Integration
             return hash;
         }
 
-        private BiomeType DetermineBestBiome(ChimeraGeneticDataComponent genetics)
+        private ChimeraBiomeType DetermineBestBiome(ChimeraGeneticDataComponent genetics)
         {
             float bestScore = 0f;
-            BiomeType bestBiome = BiomeType.Grassland;
+            ChimeraBiomeType bestBiome = ChimeraBiomeType.Grassland;
 
             foreach (var biomeData in _integratedBiomeData.Values)
             {
@@ -420,7 +426,7 @@ namespace Laboratory.Chimera.Integration
             return score;
         }
 
-        private BiomeIntegrationData CreateDefaultBiomeData(BiomeType biomeType)
+        private BiomeIntegrationData CreateDefaultBiomeData(ChimeraBiomeType biomeType)
         {
             return new BiomeIntegrationData
             {
@@ -435,43 +441,43 @@ namespace Laboratory.Chimera.Integration
             };
         }
 
-        private float GetDefaultTemperature(BiomeType biome)
+        private float GetDefaultTemperature(ChimeraBiomeType biome)
         {
             switch (biome)
             {
-                case BiomeType.Desert: return 40f;
-                case BiomeType.Tundra: return -5f;
-                case BiomeType.Mountain: return 8f;
-                case BiomeType.Ocean: return 18f;
-                case BiomeType.Swamp: return 28f;
+                case ChimeraBiomeType.Desert: return 40f;
+                case ChimeraBiomeType.Tundra: return -5f;
+                case ChimeraBiomeType.Mountain: return 8f;
+                case ChimeraBiomeType.Ocean: return 18f;
+                case ChimeraBiomeType.Swamp: return 28f;
                 default: return 22f;
             }
         }
 
-        private float GetDefaultHumidity(BiomeType biome)
+        private float GetDefaultHumidity(ChimeraBiomeType biome)
         {
             switch (biome)
             {
-                case BiomeType.Desert: return 0.1f;
-                case BiomeType.Ocean: return 1.0f;
-                case BiomeType.Swamp: return 0.95f;
-                case BiomeType.Forest: return 0.8f;
-                case BiomeType.Tundra: return 0.4f;
+                case ChimeraBiomeType.Desert: return 0.1f;
+                case ChimeraBiomeType.Ocean: return 1.0f;
+                case ChimeraBiomeType.Swamp: return 0.95f;
+                case ChimeraBiomeType.Forest: return 0.8f;
+                case ChimeraBiomeType.Tundra: return 0.4f;
                 default: return 0.6f;
             }
         }
 
-        private List<string> GetDefaultResources(BiomeType biome)
+        private List<string> GetDefaultResources(ChimeraBiomeType biome)
         {
             switch (biome)
             {
-                case BiomeType.Forest:
+                case ChimeraBiomeType.Forest:
                     return new List<string> { "Wood", "Fruits", "Small Game", "Herbs" };
-                case BiomeType.Desert:
+                case ChimeraBiomeType.Desert:
                     return new List<string> { "Cacti", "Minerals", "Insects" };
-                case BiomeType.Ocean:
+                case ChimeraBiomeType.Ocean:
                     return new List<string> { "Fish", "Seaweed", "Coral" };
-                case BiomeType.Mountain:
+                case ChimeraBiomeType.Mountain:
                     return new List<string> { "Stone", "Rare Minerals", "Mountain Game" };
                 default:
                     return new List<string> { "Plants", "Water", "Small Game" };
@@ -496,7 +502,7 @@ namespace Laboratory.Chimera.Integration
 
             return new IntegrationStats
             {
-                integratedTraitsCount = (int)OptimizedDataStructures.TraitID.COUNT,
+                integratedTraitsCount = System.Enum.GetValues(typeof(CoreTraitType)).Length,
                 integratedBiomesCount = 17, // Total biome count
                 traitLibraryConnected = traitLibrary != null,
                 biomeConfigConnected = biomeConfig != null,
@@ -514,8 +520,7 @@ namespace Laboratory.Chimera.Integration
             {
                 integrationTraits.Add(new TraitDefinition
                 {
-                    name = configTrait.name,
-                    description = configTrait.description,
+                    name = configTrait.traitName,
                     defaultValue = configTrait.defaultValue,
                     minValue = configTrait.minValue,
                     maxValue = configTrait.maxValue,
@@ -529,22 +534,21 @@ namespace Laboratory.Chimera.Integration
             return integrationTraits;
         }
 
-        private Dictionary<TraitType, InheritanceRule> ConvertInheritanceRules(Laboratory.Chimera.Configuration.TraitInheritanceRules configRules)
+        private Dictionary<CoreTraitType, InheritanceRule> ConvertInheritanceRules(Laboratory.Chimera.Configuration.TraitInheritanceRules configRules)
         {
-            var integrationRules = new Dictionary<TraitType, InheritanceRule>();
+            var integrationRules = new Dictionary<CoreTraitType, InheritanceRule>();
 
-            if (configRules?.rules != null)
+            if (configRules != null)
             {
-                foreach (var rule in configRules.rules)
+                // Apply general inheritance rules to all trait types
+                foreach (CoreTraitType traitType in System.Enum.GetValues(typeof(CoreTraitType)))
                 {
-                    // Parse trait name to enum - use Enum.Parse for direct conversion
-                    System.Enum.TryParse<TraitType>(rule.traitName, true, out var traitType);
                     integrationRules[traitType] = new InheritanceRule
                     {
-                        inheritanceType = (InheritanceType)System.Enum.Parse(typeof(InheritanceType), rule.inheritanceType.ToString()),
-                        dominanceWeight = rule.dominanceWeight,
-                        mutationChance = rule.mutationChance,
-                        blendFactor = rule.blendFactor
+                        inheritanceType = configRules.dominanceThreshold > 0.5f ? InheritanceType.Dominant : InheritanceType.Blended,
+                        dominanceWeight = configRules.dominanceThreshold,
+                        mutationChance = configRules.mutationRate,
+                        blendFactor = configRules.parentWeightBalance
                     };
                 }
             }
@@ -552,17 +556,17 @@ namespace Laboratory.Chimera.Integration
             return integrationRules;
         }
 
-        private Dictionary<TraitType, float> ConvertMutationProbabilities(Laboratory.Chimera.Configuration.TraitMutationProbabilities configMutations)
+        private Dictionary<CoreTraitType, float> ConvertMutationProbabilities(Laboratory.Chimera.Configuration.TraitMutationProbabilities configMutations)
         {
-            var integrationMutations = new Dictionary<TraitType, float>();
+            var integrationMutations = new Dictionary<CoreTraitType, float>();
 
             if (configMutations != null)
             {
-                integrationMutations[TraitType.Size] = configMutations.physicalTraits;
-                integrationMutations[TraitType.Aggression] = configMutations.behavioralTraits;
-                integrationMutations[TraitType.Camouflage] = configMutations.cosmeticTraits;
-                integrationMutations[TraitType.Adaptability] = configMutations.specialTraits;
-                integrationMutations[TraitType.Intelligence] = configMutations.globalModifier;
+                integrationMutations[CoreTraitType.Size] = configMutations.physicalTraits;
+                integrationMutations[CoreTraitType.Aggression] = configMutations.behavioralTraits;
+                integrationMutations[CoreTraitType.Camouflage] = configMutations.cosmeticTraits;
+                integrationMutations[CoreTraitType.Adaptability] = configMutations.specialTraits;
+                integrationMutations[CoreTraitType.Intelligence] = configMutations.globalModifier;
             }
 
             return integrationMutations;
@@ -596,7 +600,7 @@ namespace Laboratory.Chimera.Integration
     [System.Serializable]
     public class BiomeIntegrationData
     {
-        public BiomeType biomeType;
+        public ChimeraBiomeType biomeType;
         public float resourceAbundance;
         public int carryingCapacity;
         public float temperature;
@@ -630,8 +634,8 @@ namespace Laboratory.Chimera.Integration
     public class EnhancedGeneticSettings : GeneticEvolutionSettings
     {
         public List<TraitDefinition> availableTraits = new List<TraitDefinition>();
-        public Dictionary<TraitType, InheritanceRule> traitInheritanceRules = new Dictionary<TraitType, InheritanceRule>();
-        public Dictionary<TraitType, float> mutationProbabilities = new Dictionary<TraitType, float>();
+        public Dictionary<CoreTraitType, InheritanceRule> traitInheritanceRules = new Dictionary<CoreTraitType, InheritanceRule>();
+        public Dictionary<CoreTraitType, float> mutationProbabilities = new Dictionary<CoreTraitType, float>();
 
         public EnhancedGeneticSettings(GeneticEvolutionSettings baseSettings)
         {
@@ -659,11 +663,43 @@ namespace Laboratory.Chimera.Integration
     {
         public string name;
         public float baseValue;
-        public Laboratory.Chimera.Genetics.TraitType type;
+        public float defaultValue;
+        public float minValue;
+        public float maxValue;
+        public string category;
+        public bool isPhysical;
+        public bool isBehavioral;
+        public float inheritanceWeight;
+        public Laboratory.Core.Enums.TraitType type;
     }
-    public class InheritanceRule { }
+    /// <summary>
+    /// Types of genetic inheritance patterns
+    /// </summary>
+    public enum InheritanceType
+    {
+        Dominant,
+        Recessive,
+        Codominant,
+        Blended,
+        XLinked,
+        Polygenic
+    }
+
+    /// <summary>
+    /// Rules for how traits are inherited and expressed
+    /// </summary>
+    public class InheritanceRule
+    {
+        public InheritanceType inheritanceType = InheritanceType.Dominant;
+        public float dominanceWeight = 1.0f;
+        public float mutationChance = 0.02f;
+        public float blendFactor = 0.5f;
+    }
     public class SpeciesData
     {
+        public string speciesName = "DefaultSpecies";
+        public string description = "A default species";
+        public float rarity = 0.5f;
         public float sizeModifier = 1f;
         public float speedModifier = 1f;
         public float aggressionModifier = 1f;

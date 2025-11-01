@@ -193,7 +193,7 @@ namespace Laboratory.Core.ECS.Systems
                     var position = transforms[i].Position;
                     int cellKey = GetSpatialHashKey(position, cellSize);
 
-                    var candidate = new BreedingCandidate(entities[i], position, genetics[i], identities[i], breeding[i]);
+                    var candidate = new BreedingCandidate(entities[i], position, genetics[i], identities[i].UniqueID, identities[i].Age, identities[i].CurrentLifeStage, breeding[i]);
 
                     spatialHash.Add(cellKey, candidate);
                 }
@@ -258,8 +258,15 @@ namespace Laboratory.Core.ECS.Systems
                     if (potentialMate.entity != Entity.Null)
                     {
                         // Calculate breeding success chance
+                        // Create temporary identity for compatibility check
+                        var potentialMateIdentity = new ChimeraCreatureIdentity
+                        {
+                            UniqueID = potentialMate.uniqueID,
+                            Age = potentialMate.age,
+                            CurrentLifeStage = potentialMate.lifeStage
+                        };
                         float successChance = CalculateBreedingSuccessChance(genetics[i], potentialMate.genetics,
-                                                                           identities[i], potentialMate.identity);
+                                                                           identities[i], potentialMateIdentity);
 
                         if (random.NextFloat() < successChance)
                         {
@@ -283,7 +290,7 @@ namespace Laboratory.Core.ECS.Systems
                                                  ref Unity.Mathematics.Random random)
             {
                 int cellKey = GetSpatialHashKey(position, config.Performance.spatialHashCellSize);
-                var bestMate = new BreedingCandidate(Entity.Null, float3.zero, default, default, default);
+                var bestMate = new BreedingCandidate(Entity.Null, float3.zero, default, 0, 0f, LifeStage.Embryo, default);
                 float bestScore = 0f;
 
                 // Check current and nearby cells
@@ -302,13 +309,19 @@ namespace Laboratory.Core.ECS.Systems
                                 float distance = math.distance(position, candidate.position);
                                 if (distance > config.Breeding.maxBreedingDistance) continue;
 
-                                // Check basic compatibility
-                                if (!IsCompatibleSpecies(selfIdentity.Species, candidate.identity.Species)) continue;
-                                if (!IsCompatibleAge(selfIdentity, candidate.identity)) continue;
+                                // Check basic compatibility - create temporary identity for the candidate
+                                var candidateIdentity = new ChimeraCreatureIdentity
+                                {
+                                    UniqueID = candidate.uniqueID,
+                                    Age = candidate.age,
+                                    CurrentLifeStage = candidate.lifeStage
+                                };
+                                if (!IsCompatibleSpecies(selfIdentity.Species, candidateIdentity.Species)) continue;
+                                if (!IsCompatibleAge(selfIdentity, candidateIdentity)) continue;
 
                                 // Calculate mate quality score
                                 float mateScore = CalculateMateScore(selfGenetics, candidate.genetics,
-                                                                   selfIdentity, candidate.identity,
+                                                                   selfIdentity, candidateIdentity,
                                                                    selfBreeding, distance);
 
                                 if (mateScore > bestScore)
@@ -516,7 +529,7 @@ namespace Laboratory.Core.ECS.Systems
                         Sociability = 0.5f,
                         Fertility = 0.5f,
                         Size = 0.3f, // Baby size
-                        NativeBiome = Laboratory.Chimera.Core.BiomeType.Grassland
+                        NativeBiome = Laboratory.Core.Enums.BiomeType.Grassland
                     });
 
                     commandBuffer.AddComponent<BehaviorStateComponent>(chunkIndex, baby);
@@ -575,15 +588,19 @@ namespace Laboratory.Core.ECS.Systems
         public readonly Entity entity;
         public readonly float3 position;
         public readonly ChimeraGeneticDataComponent genetics;
-        public readonly ChimeraCreatureIdentity identity;
+        public readonly uint uniqueID;
+        public readonly float age;
+        public readonly LifeStage lifeStage;
         public readonly BreedingComponent breeding;
 
-        public BreedingCandidate(Entity ent, float3 pos, ChimeraGeneticDataComponent gen, ChimeraCreatureIdentity id, BreedingComponent breed)
+        public BreedingCandidate(Entity ent, float3 pos, ChimeraGeneticDataComponent gen, uint id, float creatureAge, LifeStage stage, BreedingComponent breed)
         {
             entity = ent;
             position = pos;
             genetics = gen;
-            identity = id;
+            uniqueID = id;
+            age = creatureAge;
+            lifeStage = stage;
             breeding = breed;
         }
     }

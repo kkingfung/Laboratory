@@ -2,6 +2,7 @@ using UnityEngine;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 using System.Collections.Generic;
 
 namespace Laboratory.Chimera.Configuration
@@ -62,11 +63,11 @@ namespace Laboratory.Chimera.Configuration
         [Header("Environmental Preferences")]
         [SerializeField] public BiomePreference[] biomePreferences = new BiomePreference[]
         {
-            new BiomePreference { biome = Laboratory.Chimera.Core.BiomeType.Forest, preference = 1.0f },
-            new BiomePreference { biome = Laboratory.Chimera.Core.BiomeType.Desert, preference = 0.3f },
-            new BiomePreference { biome = Laboratory.Chimera.Core.BiomeType.Ocean, preference = 0.5f },
-            new BiomePreference { biome = Laboratory.Chimera.Core.BiomeType.Mountain, preference = 0.4f },
-            new BiomePreference { biome = Laboratory.Chimera.Core.BiomeType.Arctic, preference = 0.2f }
+            new BiomePreference { biome = Laboratory.Core.Enums.BiomeType.Forest, preference = 1.0f },
+            new BiomePreference { biome = Laboratory.Core.Enums.BiomeType.Desert, preference = 0.3f },
+            new BiomePreference { biome = Laboratory.Core.Enums.BiomeType.Ocean, preference = 0.5f },
+            new BiomePreference { biome = Laboratory.Core.Enums.BiomeType.Mountain, preference = 0.4f },
+            new BiomePreference { biome = Laboratory.Core.Enums.BiomeType.Arctic, preference = 0.2f }
         };
         
         [Header("AI Behavior Configuration")]
@@ -122,7 +123,7 @@ namespace Laboratory.Chimera.Configuration
         /// <summary>
         /// Gets biome preference value (0-1)
         /// </summary>
-        public float GetBiomePreference(Laboratory.Chimera.Core.BiomeType biome)
+        public float GetBiomePreference(Laboratory.Core.Enums.BiomeType biome)
         {
             foreach (var pref in biomePreferences)
             {
@@ -135,9 +136,9 @@ namespace Laboratory.Chimera.Configuration
         /// <summary>
         /// Gets most preferred biome for this species
         /// </summary>
-        public Laboratory.Chimera.Core.BiomeType GetPreferredBiome()
+        public Laboratory.Core.Enums.BiomeType GetPreferredBiome()
         {
-            Laboratory.Chimera.Core.BiomeType preferred = Laboratory.Chimera.Core.BiomeType.Forest;
+            Laboratory.Core.Enums.BiomeType preferred = Laboratory.Core.Enums.BiomeType.Forest;
             float maxPreference = 0f;
 
             foreach (var pref in biomePreferences)
@@ -177,7 +178,7 @@ namespace Laboratory.Chimera.Configuration
         [SerializeField] [Range(0f, 1f)] public float baseValue = 0.5f;
         [SerializeField] [Range(0f, 0.5f)] public float variance = 0.2f;
         [SerializeField] [Range(0f, 1f)] public float dominanceChance = 0.5f;
-        [SerializeField] public Laboratory.Chimera.Genetics.TraitType traitType = Laboratory.Chimera.Genetics.TraitType.Physical;
+        [SerializeField] public Laboratory.Core.Enums.TraitType traitType = Laboratory.Core.Enums.TraitType.Strength;
         
         public Gene GenerateGene()
         {
@@ -208,11 +209,11 @@ namespace Laboratory.Chimera.Configuration
         {
             float variation = Random.Range(-variance, variance);
             float finalValue = Mathf.Clamp01(baseValue + variation);
-            
+
             return new Gene
             {
                 traitName = traitName,
-                traitType = Laboratory.Chimera.Genetics.TraitType.Mental,
+                traitType = Laboratory.Core.Enums.TraitType.Intelligence,
                 value = finalValue,
                 dominance = Random.Range(0.3f, 0.7f),
                 expression = GeneExpression.Normal,
@@ -224,7 +225,7 @@ namespace Laboratory.Chimera.Configuration
     [System.Serializable]
     public class BiomePreference
     {
-        [SerializeField] public BiomeType biome = BiomeType.Forest;
+        [SerializeField] public Laboratory.Core.Enums.BiomeType biome = Laboratory.Core.Enums.BiomeType.Forest;
         [SerializeField] [Range(0f, 1f)] public float preference = 0.5f;
     }
     
@@ -260,6 +261,14 @@ namespace Laboratory.Chimera.Configuration
     [System.Serializable]
     public class SpeciesData
     {
+        public string speciesName = "DefaultSpecies";
+        public string description = "A default species";
+        public float rarity = 0.5f;
+        public float sizeModifier = 1.0f;
+        public float speedModifier = 1.0f;
+        public float aggressionModifier = 1.0f;
+        public float socialModifier = 1.0f;
+        public float intelligenceModifier = 1.0f;
         public float gestationModifier = 1.0f;
         public Vector2Int offspringRange = new Vector2Int(1, 3);
         public float territoryModifier = 1.0f;

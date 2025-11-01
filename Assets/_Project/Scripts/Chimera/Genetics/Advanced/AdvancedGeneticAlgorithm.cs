@@ -4,6 +4,8 @@ using System.Linq;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Mathematics;
+using Laboratory.Core.Enums;
+using ChimeraTraitType = Laboratory.Core.Enums.TraitType;
 
 namespace Laboratory.Chimera.Genetics.Advanced
 {
@@ -115,13 +117,20 @@ namespace Laboratory.Chimera.Genetics.Advanced
             };
 
             // Generate base traits with variation
-            genome.traits = new Dictionary<string, GeneticTrait>();
+            genome.traits = new Dictionary<Laboratory.Core.Enums.TraitType, GeneticTrait>();
 
             foreach (var baseTrait in speciesConfig.baseTraits)
             {
+                // Map trait name to TraitType enum
+                if (!System.Enum.TryParse<Laboratory.Core.Enums.TraitType>(baseTrait.name, true, out Laboratory.Core.Enums.TraitType traitType))
+                {
+                    // If parsing fails, skip this trait or use a default
+                    Laboratory.Chimera.Debug.DebugManager.LogWarning($"Unknown trait type: {baseTrait.name}. Skipping.");
+                    continue;
+                }
+
                 var trait = new GeneticTrait
                 {
-                    name = baseTrait.name,
                     value = baseTrait.baseValue + randomGenerator.NextFloat(-baseTrait.variation, baseTrait.variation),
                     dominance = randomGenerator.NextFloat(0f, 1f),
                     mutationRate = baseTrait.mutationRate,
@@ -129,7 +138,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
                 };
 
                 trait.value = math.clamp(trait.value, baseTrait.minValue, baseTrait.maxValue);
-                genome.traits[trait.name] = trait;
+                genome.traits[traitType] = trait;
             }
 
             // Calculate initial fitness
@@ -177,22 +186,22 @@ namespace Laboratory.Chimera.Genetics.Advanced
                 parentB = parentB.id,
                 birthTime = Time.time,
                 species = parentA.species,
-                traits = new Dictionary<string, GeneticTrait>()
+                traits = new Dictionary<Laboratory.Core.Enums.TraitType, GeneticTrait>()
             };
 
             // Inherit traits with crossover and mutation
-            var allTraitNames = parentA.traits.Keys.Union(parentB.traits.Keys).ToList();
+            var allTraitTypes = parentA.traits.Keys.Union(parentB.traits.Keys).ToList();
 
-            foreach (string traitName in allTraitNames)
+            foreach (Laboratory.Core.Enums.TraitType traitType in allTraitTypes)
             {
                 var inheritedTrait = InheritTrait(
-                    parentA.traits.GetValueOrDefault(traitName),
-                    parentB.traits.GetValueOrDefault(traitName),
-                    traitName,
+                    parentA.traits.GetValueOrDefault(traitType),
+                    parentB.traits.GetValueOrDefault(traitType),
+                    traitType,
                     inbreedingCoefficient
                 );
 
-                offspring.traits[traitName] = inheritedTrait;
+                offspring.traits[traitType] = inheritedTrait;
             }
 
             // Apply environmental mutations
@@ -204,16 +213,15 @@ namespace Laboratory.Chimera.Genetics.Advanced
             return offspring;
         }
 
-        private GeneticTrait InheritTrait(GeneticTrait traitA, GeneticTrait traitB, string traitName, float inbreedingCoefficient)
+        private GeneticTrait InheritTrait(GeneticTrait traitA, GeneticTrait traitB, Laboratory.Core.Enums.TraitType traitType, float inbreedingCoefficient)
         {
             // Handle case where one parent doesn't have this trait
             if (traitA == null && traitB == null) return null;
-            if (traitA == null) return ApplyMutation(traitB, inbreedingCoefficient);
-            if (traitB == null) return ApplyMutation(traitA, inbreedingCoefficient);
+            if (traitA == null) return ApplyMutation(traitB, traitType, inbreedingCoefficient);
+            if (traitB == null) return ApplyMutation(traitA, traitType, inbreedingCoefficient);
 
             var inheritedTrait = new GeneticTrait
             {
-                name = traitName,
                 mutationRate = math.lerp(traitA.mutationRate, traitB.mutationRate, 0.5f),
                 environmentalSensitivity = math.lerp(traitA.environmentalSensitivity, traitB.environmentalSensitivity, 0.5f)
             };
@@ -242,16 +250,15 @@ namespace Laboratory.Chimera.Genetics.Advanced
             }
 
             // Apply mutation
-            return ApplyMutation(inheritedTrait, inbreedingCoefficient);
+            return ApplyMutation(inheritedTrait, traitType, inbreedingCoefficient);
         }
 
-        private GeneticTrait ApplyMutation(GeneticTrait trait, float inbreedingCoefficient)
+        private GeneticTrait ApplyMutation(GeneticTrait trait, Laboratory.Core.Enums.TraitType traitType, float inbreedingCoefficient)
         {
             if (trait == null) return null;
 
             var mutatedTrait = new GeneticTrait
             {
-                name = trait.name,
                 value = trait.value,
                 dominance = trait.dominance,
                 mutationRate = trait.mutationRate,
@@ -267,12 +274,12 @@ namespace Laboratory.Chimera.Genetics.Advanced
                 mutatedTrait.value += mutationStrength;
 
                 // Beneficial mutation tracking
-                bool isBeneficial = mutationStrength > 0 && trait.name.Contains("Intelligence") ||
-                                   mutationStrength < 0 && trait.name.Contains("Aggression");
+                bool isBeneficial = mutationStrength > 0 && traitType == Laboratory.Core.Enums.TraitType.Intelligence ||
+                                   mutationStrength < 0 && traitType == Laboratory.Core.Enums.TraitType.Aggression;
 
                 if (math.abs(mutationStrength) > 0.05f)
                 {
-                    OnEvolutionaryEvent?.Invoke($"Significant mutation in {trait.name}: {mutationStrength:F3}");
+                    OnEvolutionaryEvent?.Invoke($"Significant mutation in {traitType}: {mutationStrength:F3}");
                 }
             }
 
@@ -283,8 +290,10 @@ namespace Laboratory.Chimera.Genetics.Advanced
         {
             if (!enableEnvironmentalPressure) return;
 
-            foreach (var trait in offspring.traits.Values.ToList())
+            foreach (var traitPair in offspring.traits.ToList())
             {
+                var traitType = traitPair.Key;
+                var trait = traitPair.Value;
                 float environmentalStress = CalculateEnvironmentalStress(trait);
 
                 if (randomGenerator.NextFloat() < environmentalStress * trait.environmentalSensitivity)
@@ -292,7 +301,8 @@ namespace Laboratory.Chimera.Genetics.Advanced
                     float adaptiveMutation = UnityEngine.Random.Range(-0.05f, 0.05f); // Gaussian approximation
                     trait.value += adaptiveMutation;
 
-                    Laboratory.Chimera.Debug.DebugManager.Log($"Environmental adaptation in {trait.name}: {adaptiveMutation:F3}");
+                    Laboratory.Chimera.Debug.DebugManager.Log($"Environmental adaptation in {traitType}: {adaptiveMutation:F3}");
+                    offspring.traits[traitType] = trait; // Update the trait back to the dictionary
                 }
             }
         }
@@ -388,10 +398,10 @@ namespace Laboratory.Chimera.Genetics.Advanced
         {
             float fitness = 0f;
 
-            foreach (var trait in genome.traits.Values)
+            foreach (var traitPair in genome.traits)
             {
                 // Base fitness contribution
-                fitness += CalculateTraitFitnessContribution(trait);
+                fitness += CalculateTraitFitnessContribution(traitPair.Value, traitPair.Key);
             }
 
             // Apply environmental pressures
@@ -408,17 +418,17 @@ namespace Laboratory.Chimera.Genetics.Advanced
             return math.max(0.001f, fitness); // Ensure minimum fitness
         }
 
-        private float CalculateTraitFitnessContribution(GeneticTrait trait)
+        private float CalculateTraitFitnessContribution(GeneticTrait trait, Laboratory.Core.Enums.TraitType traitType)
         {
             // Different traits contribute differently to fitness
-            return trait.name switch
+            return traitType switch
             {
-                "Health" => trait.value * 0.3f,
-                "Intelligence" => trait.value * 0.25f,
-                "Strength" => trait.value * 0.2f,
-                "Agility" => trait.value * 0.15f,
-                "Fertility" => trait.value * 0.1f,
-                _ => trait.value * 0.05f // Unknown traits have minimal impact
+                Laboratory.Core.Enums.TraitType.Metabolism => trait.value * 0.3f,
+                Laboratory.Core.Enums.TraitType.Intelligence => trait.value * 0.25f,
+                Laboratory.Core.Enums.TraitType.Speed => trait.value * 0.2f,
+                Laboratory.Core.Enums.TraitType.Stamina => trait.value * 0.15f,
+                Laboratory.Core.Enums.TraitType.Fertility => trait.value * 0.1f,
+                _ => trait.value * 0.05f // Other traits have minimal impact
             };
         }
 
@@ -430,7 +440,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             modifier *= 1f - (currentPressure.resourceCompetition * 0.2f);
 
             // Environmental stress affects sensitive creatures more
-            if (genome.traits.TryGetValue("Environmental Resistance", out var resistance))
+            if (genome.traits.TryGetValue(Laboratory.Core.Enums.TraitType.Adaptability, out var resistance))
             {
                 modifier *= 1f - (currentPressure.environmentalStress * (1f - resistance.value));
             }
@@ -508,13 +518,13 @@ namespace Laboratory.Chimera.Genetics.Advanced
 
             // Calculate diversity based on trait variance
             float totalDiversity = 0f;
-            var allTraitNames = population.SelectMany(c => c.traits.Keys).Distinct().ToList();
+            var allTraitTypes = population.SelectMany(c => c.traits.Keys).Distinct().ToList();
 
-            foreach (string traitName in allTraitNames)
+            foreach (Laboratory.Core.Enums.TraitType traitType in allTraitTypes)
             {
                 var traitValues = population
-                    .Where(c => c.traits.ContainsKey(traitName))
-                    .Select(c => c.traits[traitName].value)
+                    .Where(c => c.traits.ContainsKey(traitType))
+                    .Select(c => c.traits[traitType].value)
                     .ToList();
 
                 if (traitValues.Count > 1)
@@ -524,7 +534,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
                 }
             }
 
-            return allTraitNames.Count > 0 ? totalDiversity / allTraitNames.Count : 0f;
+            return allTraitTypes.Count > 0 ? totalDiversity / allTraitTypes.Count : 0f;
         }
 
         private float CalculateVariance(List<float> values)
@@ -656,7 +666,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         public string species;
         public float fitness;
         public float birthTime;
-        public Dictionary<string, GeneticTrait> traits;
+        public Dictionary<Laboratory.Core.Enums.TraitType, GeneticTrait> traits;
     }
 
     [System.Serializable]

@@ -5,7 +5,7 @@ using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
 using Laboratory.Chimera.Debug;
 
-using EcoBiomeType = Laboratory.Chimera.Core.BiomeType;
+using EcoBiomeType = Laboratory.Core.Enums.BiomeType;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
 {

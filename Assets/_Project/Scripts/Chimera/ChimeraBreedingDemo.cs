@@ -8,6 +8,7 @@ using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
+using Laboratory.Core.Enums;
 using System;
 
 namespace Laboratory.Chimera
@@ -23,7 +24,7 @@ namespace Laboratory.Chimera
         [SerializeField] private bool autoStartDemo = false;
         [SerializeField] private float demoInterval = 2f;
         [SerializeField] private int maxGenerations = 3;
-        [SerializeField] private Laboratory.Chimera.Core.BiomeType demoBiome = Laboratory.Chimera.Core.BiomeType.Forest;
+        [SerializeField] private Laboratory.Core.Enums.BiomeType demoBiome = Laboratory.Core.Enums.BiomeType.Forest;
         [SerializeField] private bool enableDetailedLogging = true;
         
         private IBreedingSystem _breedingSystem;
@@ -265,7 +266,7 @@ namespace Laboratory.Chimera
                 intelligence = UnityEngine.Random.Range(3, 10),
                 charisma = UnityEngine.Random.Range(3, 10)
             };
-            definition.preferredBiomes = new Laboratory.Chimera.Core.BiomeType[] { Laboratory.Chimera.Core.BiomeType.Forest };
+            definition.preferredBiomes = new Laboratory.Core.Enums.BiomeType[] { Laboratory.Core.Enums.BiomeType.Forest };
             definition.biomeCompatibility = new float[] { 1.0f };
             
             return definition;
@@ -323,15 +324,15 @@ namespace Laboratory.Chimera
             return pairs;
         }
         
-        private float GetBiomeTemperature(Laboratory.Chimera.Core.BiomeType biome)
+        private float GetBiomeTemperature(Laboratory.Core.Enums.BiomeType biome)
         {
             return biome switch
             {
-                Laboratory.Chimera.Core.BiomeType.Desert => UnityEngine.Random.Range(35f, 50f),
-                Laboratory.Chimera.Core.BiomeType.Arctic => UnityEngine.Random.Range(-20f, 5f),
-                Laboratory.Chimera.Core.BiomeType.Forest => UnityEngine.Random.Range(15f, 25f),
-                Laboratory.Chimera.Core.BiomeType.Mountain => UnityEngine.Random.Range(0f, 15f),
-                Laboratory.Chimera.Core.BiomeType.Ocean => UnityEngine.Random.Range(10f, 20f),
+                Laboratory.Core.Enums.BiomeType.Desert => UnityEngine.Random.Range(35f, 50f),
+                Laboratory.Core.Enums.BiomeType.Arctic => UnityEngine.Random.Range(-20f, 5f),
+                Laboratory.Core.Enums.BiomeType.Forest => UnityEngine.Random.Range(15f, 25f),
+                Laboratory.Core.Enums.BiomeType.Mountain => UnityEngine.Random.Range(0f, 15f),
+                Laboratory.Core.Enums.BiomeType.Ocean => UnityEngine.Random.Range(10f, 20f),
                 _ => UnityEngine.Random.Range(18f, 25f)
             };
         }

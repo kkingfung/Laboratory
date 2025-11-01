@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
-using EcoBiomeType = Laboratory.Chimera.Core.BiomeType;
+using EcoBiomeType = Laboratory.Core.Enums.BiomeType;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
 {
@@ -199,7 +199,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             }
         }
 
-        private EcosystemState GetEnvironmentalConditions(Vector2 location)
+        private EnvironmentalState GetEnvironmentalConditions(Vector2 location)
         {
             // Get current climate data
             var climate = climateSystem?.GetCurrentClimate() ?? new ClimateData();
@@ -209,7 +209,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             float temperatureModifier = CalculateLocationTemperatureModifier(location);
             float humidityModifier = CalculateLocationHumidityModifier(location);
 
-            return new EcosystemState
+            return new EnvironmentalState
             {
                 Temperature = climate.GlobalTemperature + temperatureModifier,
                 Humidity = 0.5f + humidityModifier,
@@ -260,7 +260,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return ClimateType.Continental;
         }
 
-        private float CalculateBiomeStability(EcoBiomeType biome, EcosystemState conditions)
+        private float CalculateBiomeStability(EcoBiomeType biome, EnvironmentalState conditions)
         {
             float temperatureStability = GetTemperatureStability(biome, conditions.Temperature);
             float humidityStability = GetHumidityStability(biome, conditions.Humidity);
@@ -343,7 +343,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             return 0.5f;
         }
 
-        private EcoBiomeType? DeterminePotentialTransition(EcoBiomeType currentBiome, EcosystemState conditions)
+        private EcoBiomeType? DeterminePotentialTransition(EcoBiomeType currentBiome, EnvironmentalState conditions)
         {
             if (!transitionProbabilities.TryGetValue(currentBiome, out var possibleTransitions))
                 return null;

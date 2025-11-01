@@ -149,40 +149,28 @@ namespace Laboratory.Chimera.Genetics
         /// </summary>
         public static GeneticProfile CreateRandom(Laboratory.Chimera.Creatures.CreatureStats baseStats)
         {
-            var traits = new[]
+            var traitTypes = new[]
             {
-                "Strength", "Agility", "Intelligence", "Constitution", "Charisma", 
-                "Size", "Speed", "Color", "Pattern", "Aggression", "Curiosity", "Loyalty"
+                TraitType.Strength, TraitType.Agility, TraitType.Intelligence, TraitType.Stamina, TraitType.Sociability,
+                TraitType.Size, TraitType.Speed, TraitType.ColorPattern, TraitType.BodyMarkings, TraitType.Aggression,
+                TraitType.Curiosity, TraitType.Loyalty
             };
-            
+
             var genes = new List<Gene>();
-            foreach (var trait in traits)
+            foreach (var traitType in traitTypes)
             {
                 genes.Add(new Gene
                 {
-                    traitName = trait,
-                    traitType = GetTraitTypeForName(trait),
+                    traitName = traitType.ToString(),
+                    traitType = traitType,
                     dominance = Random.Range(0.3f, 0.8f),
                     value = Random.Range(0.2f, 0.9f),
                     expression = GeneExpression.Normal,
                     isActive = true
                 });
             }
-            
+
             return new GeneticProfile(genes.ToArray());
-        }
-        
-        private static TraitType GetTraitTypeForName(string traitName)
-        {
-            return traitName switch
-            {
-                "Strength" or "Agility" or "Constitution" or "Size" or "Speed" => TraitType.Physical,
-                "Intelligence" or "Curiosity" => TraitType.Mental,
-                "Charisma" or "Loyalty" => TraitType.Social,
-                "Color" or "Pattern" => TraitType.Physical,
-                "Aggression" => TraitType.Behavioral,
-                _ => TraitType.Physical
-            };
         }
         
         /// <summary>
@@ -422,24 +410,24 @@ namespace Laboratory.Chimera.Genetics
                 
                 float modifier = CalculateGeneModifier(gene);
                 
-                switch (gene.traitName)
+                switch (gene.traitType)
                 {
-                    case "Strength":
+                    case TraitType.Strength:
                         modifiedStats.attack = Mathf.RoundToInt(modifiedStats.attack * modifier);
                         break;
-                    case "Vitality":
+                    case TraitType.Vitality:
                         modifiedStats.health = Mathf.RoundToInt(modifiedStats.health * modifier);
                         break;
-                    case "Agility":
+                    case TraitType.Agility:
                         modifiedStats.speed = Mathf.RoundToInt(modifiedStats.speed * modifier);
                         break;
-                    case "Resilience":
+                    case TraitType.Stamina:
                         modifiedStats.defense = Mathf.RoundToInt(modifiedStats.defense * modifier);
                         break;
-                    case "Intellect":
+                    case TraitType.Intelligence:
                         modifiedStats.intelligence = Mathf.RoundToInt(modifiedStats.intelligence * modifier);
                         break;
-                    case "Charm":
+                    case TraitType.Sociability:
                         modifiedStats.charisma = Mathf.RoundToInt(modifiedStats.charisma * modifier);
                         break;
                 }
@@ -541,7 +529,7 @@ namespace Laboratory.Chimera.Genetics
                 var newGene = new Gene
                 {
                     traitName = adaptationType,
-                    traitType = TraitType.Physical,
+                    traitType = TraitType.Adaptability,
                     dominance = 0.7f,
                     value = 0.5f + mutation.severity,
                     expression = GeneExpression.Normal,
@@ -649,13 +637,13 @@ namespace Laboratory.Chimera.Genetics
         /// <summary>
         /// Creates environmental factors based on biome conditions
         /// </summary>
-        public static EnvironmentalFactors FromBiome(Laboratory.Chimera.Core.BiomeType biome)
+        public static EnvironmentalFactors FromBiome(Laboratory.Core.Enums.BiomeType biome)
         {
             var factors = new EnvironmentalFactors();
             
             switch (biome)
             {
-                case Laboratory.Chimera.Core.BiomeType.Desert:
+                case Laboratory.Core.Enums.BiomeType.Desert:
                     factors.temperature = 45f;
                     factors.humidity = 15f;
                     factors.foodAvailability = 0.3f;
@@ -663,7 +651,7 @@ namespace Laboratory.Chimera.Genetics
                     factors.SetTraitBias("Water Conservation", 0.4f);
                     break;
                     
-                case Laboratory.Chimera.Core.BiomeType.Arctic:
+                case Laboratory.Core.Enums.BiomeType.Arctic:
                     factors.temperature = -10f;
                     factors.humidity = 40f;
                     factors.foodAvailability = 0.4f;
@@ -671,7 +659,7 @@ namespace Laboratory.Chimera.Genetics
                     factors.SetTraitBias("Thick Fur", 0.3f);
                     break;
                     
-                case Laboratory.Chimera.Core.BiomeType.Ocean:
+                case Laboratory.Core.Enums.BiomeType.Ocean:
                     factors.temperature = 15f;
                     factors.humidity = 100f;
                     factors.foodAvailability = 0.7f;
@@ -679,7 +667,7 @@ namespace Laboratory.Chimera.Genetics
                     factors.SetTraitBias("Pressure Resistance", 0.2f);
                     break;
                     
-                case Laboratory.Chimera.Core.BiomeType.Forest:
+                case Laboratory.Core.Enums.BiomeType.Forest:
                     factors.temperature = 22f;
                     factors.humidity = 65f;
                     factors.foodAvailability = 0.8f;
@@ -687,7 +675,7 @@ namespace Laboratory.Chimera.Genetics
                     factors.SetTraitBias("Camouflage", 0.2f);
                     break;
                     
-                case Laboratory.Chimera.Core.BiomeType.Mountain:
+                case Laboratory.Core.Enums.BiomeType.Mountain:
                     factors.temperature = 5f;
                     factors.humidity = 45f;
                     factors.foodAvailability = 0.5f;

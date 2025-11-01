@@ -1,5 +1,6 @@
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Core.Enums;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections;
@@ -243,10 +244,9 @@ namespace Laboratory.Chimera.Visuals
         private void ApplyBiomeAdaptations(GeneticProfile genetics)
         {
             // Apply visual adaptations based on biome-specific genes
-            var biomeGenes = genetics.Genes.Where(g => 
-                g.traitName.ToLower().Contains("adaptation") || 
-                g.traitName.ToLower().Contains("biome") ||
-                g.traitName.ToLower().Contains("environment"))
+            var biomeGenes = genetics.Genes.Where(g =>
+                g.traitType == TraitType.Environmental ||
+                g.traitType == TraitType.BiomeAdaptation)
                 .ToArray();
             
             foreach (var gene in biomeGenes)
@@ -286,11 +286,10 @@ namespace Laboratory.Chimera.Visuals
         private void ApplyMagicalTraits(GeneticProfile genetics)
         {
             // Apply visual manifestations of magical abilities
-            var magicalGenes = genetics.Genes.Where(g => 
-                g.traitType == TraitType.Elemental || 
-                g.traitName.ToLower().Contains("magic") ||
-                g.traitName.ToLower().Contains("elemental") ||
-                g.traitName.ToLower().Contains("arcane"))
+            var magicalGenes = genetics.Genes.Where(g =>
+                g.traitType == TraitType.Elemental ||
+                g.traitType == TraitType.Magical ||
+                g.traitType == TraitType.Arcane)
                 .ToArray();
             
             float totalMagicalPower = 0f;
@@ -556,7 +555,7 @@ namespace Laboratory.Chimera.Visuals
         private string DeterminePatternType(GeneticProfile genetics)
         {
             // Check for specific pattern genes
-            var patternGenes = genetics.Genes.Where(g => g.traitName.ToLower().Contains("pattern")).ToArray();
+            var patternGenes = genetics.Genes.Where(g => g.traitType == TraitType.BodyMarkings || g.traitType == TraitType.ColorPattern).ToArray();
             
             if (patternGenes.Length > 0)
             {
@@ -611,7 +610,7 @@ namespace Laboratory.Chimera.Visuals
         private string ApplyEnvironmentalPatternInfluence(GeneticProfile genetics, string basePattern)
         {
             // Check for environmental adaptation genes
-            var envGenes = genetics.Genes.Where(g => g.traitName.ToLower().Contains("adaptation")).ToArray();
+            var envGenes = genetics.Genes.Where(g => g.traitType == TraitType.Environmental).ToArray();
             
             foreach (var gene in envGenes)
             {
@@ -817,7 +816,7 @@ namespace Laboratory.Chimera.Visuals
         private void ApplyEnvironmentalParticleEffects(GeneticProfile genetics)
         {
             // Apply particle effects based on environmental adaptations
-            var envGenes = genetics.Genes.Where(g => g.traitName.ToLower().Contains("adaptation")).ToArray();
+            var envGenes = genetics.Genes.Where(g => g.traitType == TraitType.Environmental).ToArray();
             
             foreach (var gene in envGenes)
             {
@@ -895,7 +894,7 @@ namespace Laboratory.Chimera.Visuals
         
         private void ApplyEnvironmentalAdaptations(GeneticProfile genetics)
         {
-            var envGenes = genetics.Genes.Where(g => g.traitName.ToLower().Contains("adaptation")).ToArray();
+            var envGenes = genetics.Genes.Where(g => g.traitType == TraitType.Environmental).ToArray();
             
             foreach (var gene in envGenes)
             {

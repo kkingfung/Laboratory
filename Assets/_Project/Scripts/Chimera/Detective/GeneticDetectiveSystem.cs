@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Core.Enums;
 using Random = UnityEngine.Random;
 
 namespace Laboratory.Chimera.Detective
@@ -747,7 +748,7 @@ namespace Laboratory.Chimera.Detective
                 unknownGenes.Add(new Gene
                 {
                     traitName = trait,
-                    traitType = TraitType.Physical,
+                    traitType = TraitType.PrimaryColor,
                     value = Random.Range(0.3f, 0.9f),
                     dominance = Random.Range(0.4f, 0.8f),
                     isActive = true,
@@ -764,7 +765,7 @@ namespace Laboratory.Chimera.Detective
                     unknownGenes.Add(new Gene
                     {
                         traitName = trait,
-                        traitType = TraitType.Physical,
+                        traitType = TraitType.PrimaryColor,
                         value = Random.Range(0.5f, 1f),
                         dominance = Random.Range(0.2f, 0.9f),
                         isActive = true,

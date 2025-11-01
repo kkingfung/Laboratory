@@ -26,7 +26,7 @@ namespace Laboratory.Chimera.ECS
         [SerializeField] private bool mixWildAndDomestic = true;
         
         [Header("Environment")]
-        [SerializeField] private Laboratory.Chimera.Core.BiomeType sceneBiome = Laboratory.Chimera.Core.BiomeType.Forest;
+        [SerializeField] private Laboratory.Core.Enums.BiomeType sceneBiome = Laboratory.Core.Enums.BiomeType.Forest;
         [SerializeField] private bool enableECSSimulation = true;
         
         [Header("Debug")]
@@ -283,19 +283,19 @@ namespace Laboratory.Chimera.ECS
             Gizmos.DrawWireCube(spawnCenter + Vector3.up * 5f, Vector3.one);
         }
         
-        private Color GetBiomeColor(Laboratory.Chimera.Core.BiomeType biome)
+        private Color GetBiomeColor(Laboratory.Core.Enums.BiomeType biome)
         {
             return biome switch
             {
-                Laboratory.Chimera.Core.BiomeType.Forest => Color.green,
-                Laboratory.Chimera.Core.BiomeType.Desert => Color.yellow,
-                Laboratory.Chimera.Core.BiomeType.Ocean => Color.blue,
-                Laboratory.Chimera.Core.BiomeType.Mountain => Color.gray,
-                Laboratory.Chimera.Core.BiomeType.Tundra => Color.white,
-                Laboratory.Chimera.Core.BiomeType.Swamp => new Color(0.4f, 0.6f, 0.3f),
-                Laboratory.Chimera.Core.BiomeType.Volcanic => Color.red,
-                Laboratory.Chimera.Core.BiomeType.Underground => Color.black,
-                Laboratory.Chimera.Core.BiomeType.Sky => Color.cyan,
+                Laboratory.Core.Enums.BiomeType.Forest => Color.green,
+                Laboratory.Core.Enums.BiomeType.Desert => Color.yellow,
+                Laboratory.Core.Enums.BiomeType.Ocean => Color.blue,
+                Laboratory.Core.Enums.BiomeType.Mountain => Color.gray,
+                Laboratory.Core.Enums.BiomeType.Tundra => Color.white,
+                Laboratory.Core.Enums.BiomeType.Swamp => new Color(0.4f, 0.6f, 0.3f),
+                Laboratory.Core.Enums.BiomeType.Volcanic => Color.red,
+                Laboratory.Core.Enums.BiomeType.Underground => Color.black,
+                Laboratory.Core.Enums.BiomeType.Sky => Color.cyan,
                 _ => Color.magenta
             };
         }

@@ -8,6 +8,7 @@ using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Core.Events;
+using Laboratory.Core.Enums;
 using System;
 
 namespace Laboratory.Tests.Unit.Chimera
@@ -216,7 +217,7 @@ namespace Laboratory.Tests.Unit.Chimera
             var originalGene = new Gene
             {
                 traitName = "Test Trait",
-                traitType = Laboratory.Chimera.Genetics.TraitType.Physical,
+                traitType = Laboratory.Core.Enums.TraitType.Strength,
                 dominance = 0.7f,
                 value = 0.8f,
                 expression = GeneExpression.Enhanced,

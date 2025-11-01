@@ -4,7 +4,7 @@ using Unity.Mathematics;
 namespace Laboratory.Shared.Types
 {
     /// <summary>
-    /// Biome types - synchronized with Laboratory.Chimera.Core.BiomeType
+    /// Biome types - synchronized with Laboratory.Core.Enums.BiomeType
     /// Note: This mirrors the canonical enum due to assembly reference constraints
     /// </summary>
     public enum BiomeType : byte

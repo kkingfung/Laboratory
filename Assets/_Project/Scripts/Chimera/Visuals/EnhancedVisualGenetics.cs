@@ -1,5 +1,6 @@
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Core.Enums;
 using System.Linq;
 
 namespace Laboratory.Chimera.Visuals
@@ -51,9 +52,9 @@ namespace Laboratory.Chimera.Visuals
         private static void ApplyAdvancedSizing(CreatureInstanceComponent creature, GeneticProfile genetics)
         {
             // Base size from genetics (improved version of existing system)
-            var sizeGene = genetics.Genes.FirstOrDefault(g => g.traitName == "Size");
-            var strengthGene = genetics.Genes.FirstOrDefault(g => g.traitName == "Strength");
-            var agilityGene = genetics.Genes.FirstOrDefault(g => g.traitName == "Agility");
+            var sizeGene = genetics.Genes.FirstOrDefault(g => g.traitType == TraitType.Size);
+            var strengthGene = genetics.Genes.FirstOrDefault(g => g.traitType == TraitType.Strength);
+            var agilityGene = genetics.Genes.FirstOrDefault(g => g.traitType == TraitType.Agility);
             
             float baseSize = 1.0f;
             if (!string.IsNullOrEmpty(sizeGene.traitName) && sizeGene.value.HasValue)
@@ -86,7 +87,7 @@ namespace Laboratory.Chimera.Visuals
                 // Different body parts scale differently based on genetics
                 if (child.name.ToLower().Contains("head"))
                 {
-                    var intelligenceGene = genetics.Genes.FirstOrDefault(g => g.traitName == "Intelligence");
+                    var intelligenceGene = genetics.Genes.FirstOrDefault(g => g.traitType == TraitType.Intelligence);
                     if (!string.IsNullOrEmpty(intelligenceGene.traitName) && intelligenceGene.value.HasValue)
                     {
                         proportionalScale *= (1f + intelligenceGene.value.Value * 0.15f);
@@ -94,7 +95,7 @@ namespace Laboratory.Chimera.Visuals
                 }
                 else if (child.name.ToLower().Contains("muscle") || child.name.ToLower().Contains("chest"))
                 {
-                    var strengthGene = genetics.Genes.FirstOrDefault(g => g.traitName == "Strength");
+                    var strengthGene = genetics.Genes.FirstOrDefault(g => g.traitType == TraitType.Strength);
                     if (!string.IsNullOrEmpty(strengthGene.traitName) && strengthGene.value.HasValue)
                     {
                         proportionalScale *= (1f + strengthGene.value.Value * 0.2f);
@@ -102,7 +103,7 @@ namespace Laboratory.Chimera.Visuals
                 }
                 else if (child.name.ToLower().Contains("leg") || child.name.ToLower().Contains("limb"))
                 {
-                    var agilityGene = genetics.Genes.FirstOrDefault(g => g.traitName == "Agility");
+                    var agilityGene = genetics.Genes.FirstOrDefault(g => g.traitType == TraitType.Agility);
                     if (!string.IsNullOrEmpty(agilityGene.traitName) && agilityGene.value.HasValue)
                     {
                         proportionalScale.y *= (1f + agilityGene.value.Value * 0.1f); // Longer legs
@@ -120,9 +121,9 @@ namespace Laboratory.Chimera.Visuals
         private static void ApplyAdvancedColoring(CreatureInstanceComponent creature, GeneticProfile genetics, Renderer[] renderers)
         {
             // Extract multiple color genes
-            var primaryColorGene = genetics.Genes.FirstOrDefault(g => g.traitName == "Primary Color" || g.traitName == "Color");
-            var secondaryColorGene = genetics.Genes.FirstOrDefault(g => g.traitName == "Secondary Color");
-            var eyeColorGene = genetics.Genes.FirstOrDefault(g => g.traitName == "Eye Color");
+            var primaryColorGene = genetics.Genes.FirstOrDefault(g => g.traitType == TraitType.ColorPattern);
+            var secondaryColorGene = genetics.Genes.FirstOrDefault(g => g.traitType == TraitType.BodyMarkings);
+            var eyeColorGene = genetics.Genes.FirstOrDefault(g => g.traitType == TraitType.EyeColor);
             
             // Generate primary color
             Color primaryColor = Color.white;
@@ -160,7 +161,7 @@ namespace Laboratory.Chimera.Visuals
         
         private static void ApplyBiomeInfluence(GeneticProfile genetics, ref Color primary, ref Color secondary)
         {
-            var envGenes = genetics.Genes.Where(g => g.traitName.Contains("Adaptation")).ToArray();
+            var envGenes = genetics.Genes.Where(g => g.traitType == TraitType.Environmental).ToArray();
             
             foreach (var gene in envGenes)
             {
@@ -226,7 +227,7 @@ namespace Laboratory.Chimera.Visuals
                 material.color = eyeColor;
                 
                 // Add glow for high intelligence
-                var intelligenceGene = genetics.Genes.FirstOrDefault(g => g.traitName == "Intelligence");
+                var intelligenceGene = genetics.Genes.FirstOrDefault(g => g.traitType == TraitType.Intelligence);
                 if (!string.IsNullOrEmpty(intelligenceGene.traitName) && intelligenceGene.value.HasValue && intelligenceGene.value.Value > 0.7f)
                 {
                     material.EnableKeyword("_EMISSION");
@@ -243,11 +244,10 @@ namespace Laboratory.Chimera.Visuals
         
         private static void ApplyPatternGenetics(CreatureInstanceComponent creature, GeneticProfile genetics, Renderer[] renderers)
         {
-            var patternGenes = genetics.Genes.Where(g => 
-                g.traitName.Contains("Pattern") || 
-                g.traitName.Contains("Stripe") || 
-                g.traitName.Contains("Spot") ||
-                g.traitName.Contains("Camouflage")).ToArray();
+            var patternGenes = genetics.Genes.Where(g =>
+                g.traitType == TraitType.BodyMarkings ||
+                g.traitType == TraitType.ColorPattern ||
+                g.traitType == TraitType.Camouflage).ToArray();
             
             if (patternGenes.Length == 0) return;
             
@@ -319,11 +319,10 @@ namespace Laboratory.Chimera.Visuals
         
         private static void ApplyMaterialGenetics(CreatureInstanceComponent creature, GeneticProfile genetics, Renderer[] renderers)
         {
-            var materialGenes = genetics.Genes.Where(g => 
-                g.traitName.Contains("Metallic") || 
-                g.traitName.Contains("Hardness") ||
-                g.traitName.Contains("Shine") ||
-                g.traitName.Contains("Armor")).ToArray();
+            var materialGenes = genetics.Genes.Where(g =>
+                g.traitType == TraitType.Metallic ||
+                g.traitType == TraitType.Armor ||
+                g.traitType == TraitType.Hardness).ToArray();
             
             foreach (var gene in materialGenes)
             {
@@ -375,7 +374,7 @@ namespace Laboratory.Chimera.Visuals
             var lights = creature.GetComponentsInChildren<Light>();
             
             // Apply magical trait effects
-            var magicalGenes = genetics.Genes.Where(g => g.traitType == TraitType.Magical).ToArray();
+            var magicalGenes = genetics.Genes.Where(g => g.traitType.GetCategory() == TraitCategory.Special).ToArray();
             
             foreach (var gene in magicalGenes)
             {

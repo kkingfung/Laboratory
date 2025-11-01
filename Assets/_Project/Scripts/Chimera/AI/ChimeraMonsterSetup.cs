@@ -196,64 +196,64 @@ namespace Laboratory.Chimera.AI
             {
                 new Laboratory.Chimera.Genetics.Gene 
                 { 
-                    traitName = "Aggression", 
-                    traitType = Laboratory.Chimera.Genetics.TraitType.Mental,
+                    traitName = "Aggression",
+                    traitType = Laboratory.Core.Enums.TraitType.Aggression,
                     value = Random.Range(0.2f, 0.8f), 
                     dominance = Random.Range(0.3f, 0.7f), 
                     isActive = true 
                 },
                 new Laboratory.Chimera.Genetics.Gene 
                 { 
-                    traitName = "Intelligence", 
-                    traitType = Laboratory.Chimera.Genetics.TraitType.Mental,
+                    traitName = "Intelligence",
+                    traitType = Laboratory.Core.Enums.TraitType.Intelligence,
                     value = Random.Range(0.3f, 0.9f), 
                     dominance = Random.Range(0.4f, 0.8f), 
                     isActive = true 
                 },
                 new Laboratory.Chimera.Genetics.Gene 
                 { 
-                    traitName = "Loyalty", 
-                    traitType = Laboratory.Chimera.Genetics.TraitType.Social,
+                    traitName = "Loyalty",
+                    traitType = Laboratory.Core.Enums.TraitType.Loyalty,
                     value = Random.Range(0.4f, 0.9f), 
                     dominance = Random.Range(0.3f, 0.7f), 
                     isActive = true 
                 },
                 new Laboratory.Chimera.Genetics.Gene 
                 { 
-                    traitName = "Curiosity", 
-                    traitType = Laboratory.Chimera.Genetics.TraitType.Mental,
+                    traitName = "Curiosity",
+                    traitType = Laboratory.Core.Enums.TraitType.Curiosity,
                     value = Random.Range(0.2f, 0.8f), 
                     dominance = Random.Range(0.2f, 0.6f), 
                     isActive = true 
                 },
                 new Laboratory.Chimera.Genetics.Gene 
                 { 
-                    traitName = "Speed", 
-                    traitType = Laboratory.Chimera.Genetics.TraitType.Physical,
+                    traitName = "Speed",
+                    traitType = Laboratory.Core.Enums.TraitType.Speed,
                     value = Random.Range(0.3f, 0.9f), 
                     dominance = Random.Range(0.4f, 0.8f), 
                     isActive = true 
                 },
                 new Laboratory.Chimera.Genetics.Gene 
                 { 
-                    traitName = "Strength", 
-                    traitType = Laboratory.Chimera.Genetics.TraitType.Physical,
+                    traitName = "Strength",
+                    traitType = Laboratory.Core.Enums.TraitType.Strength,
                     value = Random.Range(0.3f, 0.9f), 
                     dominance = Random.Range(0.4f, 0.8f), 
                     isActive = true 
                 },
                 new Laboratory.Chimera.Genetics.Gene 
                 { 
-                    traitName = "Size", 
-                    traitType = Laboratory.Chimera.Genetics.TraitType.Physical,
+                    traitName = "Size",
+                    traitType = Laboratory.Core.Enums.TraitType.Size,
                     value = Random.Range(0.4f, 0.8f), 
                     dominance = Random.Range(0.5f, 0.9f), 
                     isActive = true 
                 },
                 new Laboratory.Chimera.Genetics.Gene 
                 { 
-                    traitName = "Color", 
-                    traitType = Laboratory.Chimera.Genetics.TraitType.Physical,
+                    traitName = "Color",
+                    traitType = Laboratory.Core.Enums.TraitType.PrimaryColor,
                     value = Random.Range(0.0f, 1.0f), // Full hue range for colors
                     dominance = Random.Range(0.3f, 0.7f), 
                     isActive = true 

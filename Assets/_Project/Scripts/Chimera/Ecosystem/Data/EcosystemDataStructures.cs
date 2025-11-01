@@ -1,5 +1,6 @@
 using System;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,10 +8,32 @@ namespace Laboratory.Chimera.Ecosystem.Data
 {
     /// <summary>
     /// Core data structures for ecosystem evolution simulation
+    ///
+    /// STATE ARCHITECTURE OVERVIEW:
+    ///
+    /// EnvironmentalState: Pure environmental/climate tracking (temperature, humidity, seasons)
+    /// - Used for: Weather systems, climate simulation, seasonal changes
+    /// - Contains: Temperature, humidity, rainfall, seasons, climate zones
+    ///
+    /// BiomeResourceState: Resource management for individual biomes (defined in separate file)
+    /// - Used for: Resource distribution, population limits, biome sustainability
+    /// - Contains: Resource levels, carrying capacity, biome health
+    ///
+    /// EcosystemState (ECS Component): Complete ecosystem simulation state for entities
+    /// - Used for: ECS-based ecosystem simulation, entity ecosystem components
+    /// - Contains: All ecosystem data for entity-based simulation
+    /// - Location: Laboratory.Chimera.Ecosystem.Core.EcosystemData.cs
+    ///
+    /// This separation provides clear responsibilities and prevents data structure conflicts.
     /// </summary>
 
+    /// <summary>
+    /// Pure environmental and climate tracking state.
+    /// Handles weather, seasons, and natural environmental conditions.
+    /// Used for: Climate simulation, seasonal changes, weather effects.
+    /// </summary>
     [Serializable]
-    public struct EcosystemState
+    public struct EnvironmentalState
     {
         public float Temperature;
         public float Humidity;
@@ -27,8 +50,8 @@ namespace Laboratory.Chimera.Ecosystem.Data
     [Serializable]
     public struct BiomeTransition
     {
-        public BiomeType FromBiome;
-        public BiomeType ToBiome;
+        public Laboratory.Core.Enums.BiomeType FromBiome;
+        public Laboratory.Core.Enums.BiomeType ToBiome;
         public float TransitionRate;
         public float RequiredTime;
         public float Progress;
@@ -142,7 +165,7 @@ namespace Laboratory.Chimera.Ecosystem.Data
         public float CarryingCapacityUtilization;
         public float GeneticDiversity;
         public float EcosystemResilience;
-        public Dictionary<BiomeType, float> BiomeDistribution;
+        public Dictionary<Laboratory.Core.Enums.BiomeType, float> BiomeDistribution;
         public Dictionary<TrophicLevel, int> TrophicDistribution;
     }
 
@@ -164,9 +187,9 @@ namespace Laboratory.Chimera.Ecosystem.Data
     [Serializable]
     public class EcosystemCache
     {
-        public Dictionary<Vector2, EcosystemState> RegionalStates = new();
+        public Dictionary<Vector2, EnvironmentalState> RegionalStates = new();
         public Dictionary<uint, List<SpeciesInteraction>> SpeciesInteractions = new();
-        public Dictionary<BiomeType, List<ResourceFlow>> BiomeResources = new();
+        public Dictionary<Laboratory.Core.Enums.BiomeType, List<ResourceFlow>> BiomeResources = new();
         public List<CatastrophicEvent> ActiveEvents = new();
         public List<MigrationPattern> ActiveMigrations = new();
         public DateTime LastCacheUpdate;
@@ -194,19 +217,6 @@ namespace Laboratory.Chimera.Ecosystem.Data
     }
 
 
-    public enum ResourceType
-    {
-        Water,
-        Food,
-        Shelter,
-        Minerals,
-        Energy,
-        Territory,
-        MatingPartners,
-        Sunlight,
-        Nutrients,
-        Oxygen
-    }
 
     public enum InteractionType
     {

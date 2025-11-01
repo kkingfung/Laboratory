@@ -108,9 +108,9 @@ namespace Laboratory.AI.Personality
             {
                 creatureId = creatureId,
                 genome = genome,
-                personalityTraits = personalitySystem.GetPersonalityTraits(),
-                currentMood = personalitySystem.GetCurrentMood(),
-                behavioralTendencies = personalitySystem.GetBehavioralTendencies(),
+                personalityTraits = ConvertProfileToPersonalityTrait(personalitySystem.Profile),
+                currentMood = personalitySystem.CurrentMood,
+                behavioralTendencies = personalitySystem.Profile.behaviorTendencies,
                 registrationTime = Time.time
             };
 
@@ -160,7 +160,7 @@ namespace Laboratory.AI.Personality
 
             // Apply mood modifications
             var mood = profile.currentMood;
-            modifiers.speedMultiplier = 1f + (mood.energy - 0.5f) * 0.5f;
+            modifiers.speedMultiplier = 1f + (mood.excitement - 0.5f) * 0.5f;
             modifiers.decisionSpeed = 1f + (mood.confidence - 0.5f) * 0.3f;
             modifiers.riskTolerance = traits.openness * mood.confidence;
 
@@ -194,13 +194,15 @@ namespace Laboratory.AI.Personality
             if (socialHistory.ContainsKey(creatureA))
             {
                 socialHistory[creatureA].Add(interaction);
-                personalitySystem.ProcessSocialInteraction(interaction, true);
+                var contextA = CreateSocialInteractionContext(interaction, creatureB);
+                personalitySystem.ProcessSocialInteraction(contextA);
             }
 
             if (socialHistory.ContainsKey(creatureB))
             {
                 socialHistory[creatureB].Add(interaction);
-                personalitySystem.ProcessSocialInteraction(interaction, false);
+                var contextB = CreateSocialInteractionContext(interaction, creatureA);
+                personalitySystem.ProcessSocialInteraction(contextB);
             }
 
             // Update mood based on interaction
@@ -226,7 +228,7 @@ namespace Laboratory.AI.Personality
             personalitySystem.ApplyEnvironmentalStimulus(stimulus);
 
             // Update profile with new mood
-            profile.currentMood = personalitySystem.GetCurrentMood();
+            profile.currentMood = personalitySystem.CurrentMood;
 
             OnMoodChanged?.Invoke(creatureId, profile.currentMood);
         }
@@ -265,7 +267,7 @@ namespace Laboratory.AI.Personality
                 personalitySystem.SetCurrentCreature(creatureId, profile.personalityTraits, profile.currentMood);
                 personalitySystem.UpdateMood(moodDecayRate);
 
-                profile.currentMood = personalitySystem.GetCurrentMood();
+                profile.currentMood = personalitySystem.CurrentMood;
 
                 // Check for significant mood changes
                 CheckForMoodChanges(creatureId, profile);
@@ -353,12 +355,12 @@ namespace Laboratory.AI.Personality
 
                 case SocialInteractionType.Conflict:
                     mood.stress += success ? -0.05f : 0.15f;
-                    mood.agitation += 0.1f;
+                    mood.stress += 0.1f;
                     break;
 
                 case SocialInteractionType.Play:
                     mood.happiness += 0.15f;
-                    mood.energy += 0.1f;
+                    mood.excitement += 0.1f;
                     mood.stress -= 0.1f;
                     break;
             }
@@ -367,8 +369,8 @@ namespace Laboratory.AI.Personality
             mood.happiness = Mathf.Clamp01(mood.happiness);
             mood.stress = Mathf.Clamp01(mood.stress);
             mood.confidence = Mathf.Clamp01(mood.confidence);
-            mood.agitation = Mathf.Clamp01(mood.agitation);
-            mood.energy = Mathf.Clamp01(mood.energy);
+            mood.stress = Mathf.Clamp01(mood.stress);
+            mood.excitement = Mathf.Clamp01(mood.excitement);
         }
 
         private void CheckForMoodChanges(uint creatureId, CreaturePersonalityProfile profile)
@@ -492,6 +494,54 @@ namespace Laboratory.AI.Personality
                 instance = null;
             }
         }
+
+        /// <summary>
+        /// Converts CreatureGenome from Advanced genetics to GeneticProfile for personality system
+        /// </summary>
+        private Laboratory.Chimera.Genetics.GeneticProfile ConvertGenomeToGeneticProfile(CreatureGenome genome)
+        {
+            var geneticProfile = new Laboratory.Chimera.Genetics.GeneticProfile();
+
+            // Copy basic data (using reflection or available setters)
+            // This is a simplified conversion - in a real implementation you'd want more sophisticated mapping
+
+            return geneticProfile;
+        }
+
+        /// <summary>
+        /// Convert PersonalityProfile to PersonalityTrait for compatibility
+        /// </summary>
+        private PersonalityTrait ConvertProfileToPersonalityTrait(PersonalityProfile profile)
+        {
+            return new PersonalityTrait
+            {
+                name = "Combined",
+                value = (profile.extraversion + profile.agreeableness + profile.conscientiousness + profile.neuroticism + profile.openness) / 5f,
+                baseValue = 0.5f,
+                modifier = 0f,
+                extroversion = profile.extraversion,
+                agreeableness = profile.agreeableness,
+                conscientiousness = profile.conscientiousness,
+                neuroticism = profile.neuroticism,
+                openness = profile.openness,
+                aggressiveness = profile.dominance
+            };
+        }
+
+        /// <summary>
+        /// Convert SocialInteraction to SocialInteractionContext for GeneticPersonalitySystem
+        /// </summary>
+        private SocialInteractionContext CreateSocialInteractionContext(SocialInteraction interaction, uint otherCreatureId)
+        {
+            return new SocialInteractionContext
+            {
+                otherCreatureId = otherCreatureId,
+                interactionType = interaction.interactionType.ToString(),
+                location = Vector3.zero, // Default location - could be enhanced with actual positions
+                duration = Time.time - interaction.timestamp,
+                isGroupInteraction = false // Could be determined based on interaction type
+            };
+        }
     }
 
     // Supporting data structures
@@ -557,19 +607,6 @@ namespace Laboratory.AI.Personality
         public float probability;
     }
 
-        /// <summary>
-        /// Converts CreatureGenome from Advanced genetics to GeneticProfile for personality system
-        /// </summary>
-        private Laboratory.Chimera.Genetics.GeneticProfile ConvertGenomeToGeneticProfile(CreatureGenome genome)
-        {
-            var geneticProfile = new Laboratory.Chimera.Genetics.GeneticProfile();
-
-            // Copy basic data (using reflection or available setters)
-            // This is a simplified conversion - in a real implementation you'd want more sophisticated mapping
-
-            return geneticProfile;
-        }
-    }
 
     [System.Serializable]
     public struct EnvironmentalStimulus
@@ -602,14 +639,26 @@ namespace Laboratory.AI.Personality
     [System.Serializable]
     public struct BehavioralTendency
     {
-        public float Aggression;
-        public float Sociability;
-        public float Curiosity;
-        public float Caution;
-        public float Playfulness;
-        public float Intelligence;
-        public float Dominance;
-        public float Adaptability;
+        // Movement patterns
+        public float ExplorationTendency;
+        public float TerritorialPatrol;
+        public float SocialSeeking;
+        public float HidingTendency;
+
+        // Combat behaviors
+        public float AggressionThreshold;
+        public float FlightResponse;
+        public float PackDefense;
+
+        // Social behaviors
+        public float CooperationWillingness;
+        public float LeadershipDesire;
+        public float SubmissionTendency;
+
+        // Learning behaviors
+        public float RoutinePreference;
+        public float InnovationSeeking;
+        public float ImitationLearning;
     }
 
     public enum PersonalityType

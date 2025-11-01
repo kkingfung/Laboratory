@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Genetics.Advanced
 {
@@ -450,7 +451,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             {
                 geneId = $"ANCIENT_{name.Replace(" ", "_").ToUpper()}",
                 traitName = name,
-                traitType = TraitType.Physical,
+                traitType = TraitType.PrimaryColor,
                 value = UnityEngine.Random.Range(0.6f, 0.95f), // Ancient traits were often strong
                 dominance = UnityEngine.Random.Range(0.4f, 0.8f),
                 expression = GeneExpression.Normal,

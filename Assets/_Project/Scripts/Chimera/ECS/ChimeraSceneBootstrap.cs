@@ -521,8 +521,8 @@ namespace Laboratory.Chimera.ECS
             var lifecycleComp = CreatureLifecycleComponent.Create(ageComp, geneticsComp);
             var biomeComp = new CreatureBiomeComponent
             {
-                HomeBiome = Laboratory.Chimera.Core.BiomeType.Forest,
-                CurrentBiome = Laboratory.Chimera.Core.BiomeType.Forest,
+                HomeBiome = Laboratory.Core.Enums.BiomeType.Forest,
+                CurrentBiome = Laboratory.Core.Enums.BiomeType.Forest,
                 BiomeComfort = 0.8f
             };
             var envComp = CreatureEnvironmentalComponent.Create(null, geneticsComp);
@@ -767,7 +767,7 @@ namespace Laboratory.Chimera.ECS
     // Additional ECS Components needed for the bootstrap
     public struct ChimeraBiomeComponent : IComponentData
     {
-        public Laboratory.Chimera.Core.BiomeType biomeType;
+        public Laboratory.Core.Enums.BiomeType biomeType;
         public float temperature;
         public float humidity;
         public float foodAvailability;

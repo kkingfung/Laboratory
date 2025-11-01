@@ -9,6 +9,7 @@ using Laboratory.Chimera.UI.Components;
 using Laboratory.Core.Events;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Core.Enums;
 using BreedingHistoryEntry = Laboratory.Chimera.UI.Components.BreedingHistoryEntry;
 
 namespace Laboratory.Chimera.UI
@@ -236,7 +237,7 @@ namespace Laboratory.Chimera.UI
                 entry.HasRareTraits = offspring.CreatureData.GeneticProfile.Genes
                     .Any(g => g.isActive && g.value.HasValue && g.value.Value > 0.9f);
                 entry.HasMagicalTraits = offspring.CreatureData.GeneticProfile.Genes
-                    .Any(g => g.traitType == TraitType.Magical && g.isActive);
+                    .Any(g => g.traitType.GetCategory() == Laboratory.Core.Enums.TraitCategory.Special && g.isActive);
             }
             
             AddHistoryEntry(entry);
@@ -730,10 +731,10 @@ namespace Laboratory.Chimera.UI
             UnityEngine.Debug.Log($"📊 Showing {filteredHistory.Count} of {breedingHistory.Count} breeding records");
         }
         
-        private Laboratory.Chimera.Core.BiomeType GetCurrentBiome()
+        private Laboratory.Core.Enums.BiomeType GetCurrentBiome()
         {
             // Get current biome from environment or settings
-            return Laboratory.Chimera.Core.BiomeType.Temperate; // Default
+            return Laboratory.Core.Enums.BiomeType.Temperate; // Default
         }
         
         /// <summary>

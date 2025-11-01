@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Visuals.Data
 {

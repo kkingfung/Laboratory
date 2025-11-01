@@ -64,7 +64,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                     SpeciesId = 1,
                     Name = "Forest Herbivore",
                     TrophicLevel = Laboratory.Chimera.Ecosystem.Data.TrophicLevel.PrimaryConsumer,
-                    PreferredBiomes = new List<Laboratory.Chimera.Core.BiomeType> { Laboratory.Chimera.Core.BiomeType.Forest, Laboratory.Chimera.Core.BiomeType.Grassland },
+                    PreferredBiomes = new List<Laboratory.Core.Enums.BiomeType> { Laboratory.Core.Enums.BiomeType.Forest, Laboratory.Core.Enums.BiomeType.Grassland },
                     PrimaryResources = new List<Laboratory.Chimera.Ecosystem.Data.ResourceType> { Laboratory.Chimera.Ecosystem.Data.ResourceType.Food, Laboratory.Chimera.Ecosystem.Data.ResourceType.Water, Laboratory.Chimera.Ecosystem.Data.ResourceType.Shelter },
                     SocialBehavior = SocialBehaviorType.Herd,
                     TerritorialLevel = 0.3f,
@@ -78,7 +78,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                     SpeciesId = 2,
                     Name = "Forest Predator",
                     TrophicLevel = Laboratory.Chimera.Ecosystem.Data.TrophicLevel.SecondaryConsumer,
-                    PreferredBiomes = new List<Laboratory.Chimera.Core.BiomeType> { Laboratory.Chimera.Core.BiomeType.Forest },
+                    PreferredBiomes = new List<Laboratory.Core.Enums.BiomeType> { Laboratory.Core.Enums.BiomeType.Forest },
                     PrimaryResources = new List<Laboratory.Chimera.Ecosystem.Data.ResourceType> { Laboratory.Chimera.Ecosystem.Data.ResourceType.Food, Laboratory.Chimera.Ecosystem.Data.ResourceType.Territory },
                     SocialBehavior = SocialBehaviorType.Solitary,
                     TerritorialLevel = 0.8f,
@@ -92,7 +92,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                     SpeciesId = 3,
                     Name = "Desert Scavenger",
                     TrophicLevel = Laboratory.Chimera.Ecosystem.Data.TrophicLevel.Omnivore,
-                    PreferredBiomes = new List<Laboratory.Chimera.Core.BiomeType> { Laboratory.Chimera.Core.BiomeType.Desert, Laboratory.Chimera.Core.BiomeType.Tropical },
+                    PreferredBiomes = new List<Laboratory.Core.Enums.BiomeType> { Laboratory.Core.Enums.BiomeType.Desert, Laboratory.Core.Enums.BiomeType.Tropical },
                     PrimaryResources = new List<Laboratory.Chimera.Ecosystem.Data.ResourceType> { Laboratory.Chimera.Ecosystem.Data.ResourceType.Food, Laboratory.Chimera.Ecosystem.Data.ResourceType.Water },
                     SocialBehavior = SocialBehaviorType.Pack,
                     TerritorialLevel = 0.5f,
@@ -620,7 +620,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         public uint SpeciesId;
         public string Name;
         public Laboratory.Chimera.Ecosystem.Data.TrophicLevel TrophicLevel;
-        public List<Laboratory.Chimera.Core.BiomeType> PreferredBiomes;
+        public List<Laboratory.Core.Enums.BiomeType> PreferredBiomes;
         public List<Laboratory.Chimera.Ecosystem.Data.ResourceType> PrimaryResources;
         public SocialBehaviorType SocialBehavior;
         public float TerritorialLevel;

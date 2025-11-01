@@ -1,4 +1,5 @@
 using UnityEngine;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Genetics
 {

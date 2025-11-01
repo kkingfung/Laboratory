@@ -6,6 +6,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Visuals.Data;
 using Laboratory.Chimera.Visuals.Generators;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Visuals.Systems
 {

@@ -234,7 +234,7 @@ namespace Laboratory.Chimera.UI
                             DominantTraits.Add(gene.traitName);
                         }
 
-                        if (gene.traitType == Laboratory.Chimera.Genetics.TraitType.Elemental)
+                        if (gene.traitType == Laboratory.Core.Enums.TraitType.Elemental)
                         {
                             HasMagicalTraits = true;
                         }

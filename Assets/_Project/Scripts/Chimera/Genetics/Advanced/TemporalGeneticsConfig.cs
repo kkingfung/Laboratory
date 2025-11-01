@@ -122,7 +122,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         {
             new BiomeAncientTraitConfig
             {
-                biome = Laboratory.Chimera.Core.BiomeType.Forest,
+                biome = Laboratory.Core.Enums.BiomeType.Forest,
                 ancientTraits = new[]
                 {
                     "Photosynthetic Patches", "Bark Skin", "Root Network Communication",
@@ -131,7 +131,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             },
             new BiomeAncientTraitConfig
             {
-                biome = Laboratory.Chimera.Core.BiomeType.Desert,
+                biome = Laboratory.Core.Enums.BiomeType.Desert,
                 ancientTraits = new[]
                 {
                     "Water Storage Organs", "Sand Burrowing", "Heat Absorption",
@@ -140,7 +140,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             },
             new BiomeAncientTraitConfig
             {
-                biome = Laboratory.Chimera.Core.BiomeType.Ocean,
+                biome = Laboratory.Core.Enums.BiomeType.Ocean,
                 ancientTraits = new[]
                 {
                     "Pressure Immunity", "Echolocation", "Bioluminescence",
@@ -149,7 +149,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             },
             new BiomeAncientTraitConfig
             {
-                biome = Laboratory.Chimera.Core.BiomeType.Mountain,
+                biome = Laboratory.Core.Enums.BiomeType.Mountain,
                 ancientTraits = new[]
                 {
                     "Altitude Adaptation", "Rock Climbing Claws", "Thin Air Breathing",
@@ -158,7 +158,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             },
             new BiomeAncientTraitConfig
             {
-                biome = Laboratory.Chimera.Core.BiomeType.Arctic,
+                biome = Laboratory.Core.Enums.BiomeType.Arctic,
                 ancientTraits = new[]
                 {
                     "Antifreeze Blood", "Blubber Insulation", "Ice Walking",
@@ -206,7 +206,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         /// <summary>
         /// Gets ancient traits for a specific biome
         /// </summary>
-        public string[] GetAncientTraitsForBiome(Laboratory.Chimera.Core.BiomeType biome)
+        public string[] GetAncientTraitsForBiome(Laboratory.Core.Enums.BiomeType biome)
         {
             foreach (var config in biomeAncientTraits)
             {
@@ -297,7 +297,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
     [Serializable]
     public struct BiomeAncientTraitConfig
     {
-        public Laboratory.Chimera.Core.BiomeType biome;
+        public Laboratory.Core.Enums.BiomeType biome;
         public string[] ancientTraits;
     }
 

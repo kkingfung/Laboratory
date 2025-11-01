@@ -330,7 +330,7 @@ namespace Laboratory.Chimera.UI
             if (currentPrediction?.PredictedTraits == null) return;
             
             var statsText = "Predicted Stats:\n";
-            var importantTraits = new[] { Laboratory.Chimera.Genetics.TraitType.Physical, Laboratory.Chimera.Genetics.TraitType.Movement, Laboratory.Chimera.Genetics.TraitType.Mental, Laboratory.Chimera.Genetics.TraitType.Vitality };
+            var importantTraits = new[] { Laboratory.Core.Enums.TraitType.Strength, Laboratory.Core.Enums.TraitType.Speed, Laboratory.Core.Enums.TraitType.Intelligence, Laboratory.Core.Enums.TraitType.Stamina };
 
             foreach (var traitType in importantTraits)
             {

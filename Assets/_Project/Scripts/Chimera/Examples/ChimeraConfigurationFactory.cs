@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Creatures;
-using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Examples
 {
@@ -58,10 +58,10 @@ namespace Laboratory.Chimera.Examples
             // Seasonal variations
             biome.seasonalVariations = new SeasonalConfig[]
             {
-                new SeasonalConfig { season = Season.Spring, temperatureModifier = 0f, humidityModifier = 0.1f, foodModifier = 0.3f },
-                new SeasonalConfig { season = Season.Summer, temperatureModifier = 0.15f, humidityModifier = -0.05f, foodModifier = 0.2f },
-                new SeasonalConfig { season = Season.Autumn, temperatureModifier = -0.1f, humidityModifier = 0f, foodModifier = -0.1f },
-                new SeasonalConfig { season = Season.Winter, temperatureModifier = -0.25f, humidityModifier = -0.15f, foodModifier = -0.4f }
+                new SeasonalConfig { season = Laboratory.Chimera.Configuration.Season.Spring, temperatureModifier = 0f, humidityModifier = 0.1f, foodModifier = 0.3f },
+                new SeasonalConfig { season = Laboratory.Chimera.Configuration.Season.Summer, temperatureModifier = 0.15f, humidityModifier = -0.05f, foodModifier = 0.2f },
+                new SeasonalConfig { season = Laboratory.Chimera.Configuration.Season.Autumn, temperatureModifier = -0.1f, humidityModifier = 0f, foodModifier = -0.1f },
+                new SeasonalConfig { season = Laboratory.Chimera.Configuration.Season.Winter, temperatureModifier = -0.25f, humidityModifier = -0.15f, foodModifier = -0.4f }
             };
             
             // Resource spawns

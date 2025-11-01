@@ -3,6 +3,7 @@ using Laboratory.Chimera.Genetics;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Visuals
 {
@@ -747,7 +748,7 @@ namespace Laboratory.Chimera.Visuals
             if (creatureInstance?.CreatureData?.GeneticProfile != null)
             {
                 var camouflageTraits = creatureInstance.CreatureData.GeneticProfile.Genes
-                    .Where(g => g.traitName.ToLower().Contains("camouflage"))
+                    .Where(g => g.traitType == TraitType.Camouflage)
                     .ToArray();
                 
                 if (camouflageTraits.Length > 0)
@@ -816,7 +817,7 @@ namespace Laboratory.Chimera.Visuals
             List<Color> palette = new List<Color>();
             
             // Extract colors from genetic traits
-            var colorGenes = genetics.Genes.Where(g => g.traitName.ToLower().Contains("color")).ToArray();
+            var colorGenes = genetics.Genes.Where(g => g.traitType == TraitType.ColorPattern || g.traitType == TraitType.EyeColor).ToArray();
             
             foreach (var gene in colorGenes)
             {

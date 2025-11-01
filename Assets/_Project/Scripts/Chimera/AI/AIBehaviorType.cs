@@ -36,6 +36,8 @@ namespace Laboratory.Chimera.AI
         Defensive = 26,
         Herbivore = 27,
         Wild = 28,
+        Foraging = 29,
+        Flee = 30,
         Custom = 255
     }
 

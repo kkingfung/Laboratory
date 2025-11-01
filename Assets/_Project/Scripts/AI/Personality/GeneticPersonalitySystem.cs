@@ -25,7 +25,7 @@ namespace Laboratory.AI.Personality
 
         // Core personality traits derived from genetics
         private PersonalityProfile personalityProfile;
-        private Dictionary<string, float> baseTraits = new Dictionary<string, float>();
+        private PersonalityTraits baseTraits = new PersonalityTraits();
         private Dictionary<string, float> learnedBehaviors = new Dictionary<string, float>();
         private List<PersonalityMemory> memories = new List<PersonalityMemory>();
 
@@ -115,10 +115,12 @@ namespace Laboratory.AI.Personality
 
             foreach (var kvp in traitMappings)
             {
-                string geneticTrait = kvp.Key;
+                string geneticTraitName = kvp.Key;
                 string[] personalityTraits = kvp.Value;
 
-                if (genome.TraitExpressions.TryGetValue(geneticTrait, out var geneValue))
+                // Convert string trait name to TraitType enum
+                if (System.Enum.TryParse<Laboratory.Core.Enums.TraitType>(geneticTraitName, out var geneticTrait) &&
+                    genome.TraitExpressions.TryGetValue(geneticTrait, out var geneValue))
                 {
                     foreach (string personalityTrait in personalityTraits)
                     {
@@ -126,7 +128,7 @@ namespace Laboratory.AI.Personality
                         float geneticComponent = geneValue.Value * geneticInfluenceStrength;
                         float environmentalComponent = UnityEngine.Random.Range(0f, 1f) * environmentalInfluence;
                         float traitValue = Mathf.Clamp01(geneticComponent + environmentalComponent);
-                        baseTraits[personalityTrait] = traitValue;
+                        SetTraitValue(personalityTrait, traitValue);
                     }
                 }
             }
@@ -138,22 +140,22 @@ namespace Laboratory.AI.Personality
         private void GenerateEmergentTraits(GeneticProfile genome)
         {
             // Emergent traits from genetic combinations
-            if (genome.TraitExpressions.TryGetValue("Intelligence", out var intel) &&
-                genome.TraitExpressions.TryGetValue("Curiosity", out var curiosity))
+            if (genome.TraitExpressions.TryGetValue(Laboratory.Core.Enums.TraitType.Intelligence, out var intel) &&
+                genome.TraitExpressions.TryGetValue(Laboratory.Core.Enums.TraitType.Curiosity, out var curiosity))
             {
                 float creativity = (intel.Value + curiosity.Value) * 0.5f;
                 float geneticCreativity = creativity * geneticInfluenceStrength;
                 float environmentalCreativity = UnityEngine.Random.Range(0f, 0.5f) * environmentalInfluence;
-                baseTraits["Creativity"] = Mathf.Clamp01(geneticCreativity + environmentalCreativity);
+                SetTraitValue(PersonalityTraitType.Creativity, Mathf.Clamp01(geneticCreativity + environmentalCreativity));
             }
 
-            if (genome.TraitExpressions.TryGetValue("Aggression", out var aggr) &&
-                genome.TraitExpressions.TryGetValue("Fear", out var fear))
+            if (genome.TraitExpressions.TryGetValue(Laboratory.Core.Enums.TraitType.Aggression, out var aggr) &&
+                genome.TraitExpressions.TryGetValue(Laboratory.Core.Enums.TraitType.Caution, out var fear))
             {
                 float boldness = Mathf.Clamp01(aggr.Value - fear.Value + 0.5f);
                 float geneticBoldness = boldness * geneticInfluenceStrength;
                 float environmentalBoldness = UnityEngine.Random.Range(0f, 0.3f) * environmentalInfluence;
-                baseTraits["Boldness"] = Mathf.Clamp01(geneticBoldness + environmentalBoldness);
+                SetTraitValue(PersonalityTraitType.Boldness, Mathf.Clamp01(geneticBoldness + environmentalBoldness));
             }
 
             if (genome.TraitExpressions.TryGetValue("Social", out var social) &&
@@ -162,7 +164,7 @@ namespace Laboratory.AI.Personality
                 float leadership = (social.Value + intel2.Value) * 0.4f;
                 float geneticLeadership = leadership * geneticInfluenceStrength;
                 float environmentalLeadership = UnityEngine.Random.Range(0f, 0.4f) * environmentalInfluence;
-                baseTraits["Leadership"] = Mathf.Clamp01(geneticLeadership + environmentalLeadership);
+                SetTraitValue(PersonalityTraitType.Leadership, Mathf.Clamp01(geneticLeadership + environmentalLeadership));
             }
         }
 
@@ -176,9 +178,9 @@ namespace Laboratory.AI.Personality
             personalityProfile.neuroticism = CalculatePersonalityDimension("Stress_Response", "Fear", "Anxiety");
 
             // Creature-specific dimensions
-            personalityProfile.dominance = GetTraitValue("Dominance");
+            personalityProfile.dominance = GetTraitValue(PersonalityTraitType.Dominance);
             personalityProfile.playfulness = CalculatePersonalityDimension("Curiosity", "Energy", "Creativity") * 0.8f;
-            personalityProfile.territoriality = GetTraitValue("Territoriality");
+            personalityProfile.territoriality = GetTraitValue(PersonalityTraitType.Territoriality);
             personalityProfile.parentalInstinct = CalculatePersonalityDimension("Empathy", "Protectiveness", "Nurturing");
         }
 
@@ -199,35 +201,139 @@ namespace Laboratory.AI.Personality
             return count > 0 ? sum / count : 0.5f; // Default to neutral if no traits found
         }
 
-        private float GetTraitValue(string traitName)
+        private float GetTraitValue(PersonalityTraitType traitType)
         {
-            return baseTraits.GetValueOrDefault(traitName, 0.5f);
+            // Direct type-safe access to struct properties using enum
+            switch (traitType)
+            {
+                // Intelligence-related traits
+                case PersonalityTraitType.Curiosity: return baseTraits.Curiosity;
+                case PersonalityTraitType.LearningSpeed: return baseTraits.LearningSpeed;
+                case PersonalityTraitType.ProblemSolving: return baseTraits.ProblemSolving;
+                case PersonalityTraitType.Creativity: return baseTraits.Creativity;
+
+                // Social traits
+                case PersonalityTraitType.Empathy: return baseTraits.Empathy;
+                case PersonalityTraitType.Communication: return baseTraits.Communication;
+                case PersonalityTraitType.PackBonding: return baseTraits.PackBonding;
+                case PersonalityTraitType.Leadership: return baseTraits.Leadership;
+
+                // Behavioral traits
+                case PersonalityTraitType.Dominance: return baseTraits.Dominance;
+                case PersonalityTraitType.Territoriality: return baseTraits.Territoriality;
+                case PersonalityTraitType.Competitiveness: return baseTraits.Competitiveness;
+                case PersonalityTraitType.Aggression: return baseTraits.Aggression;
+
+                // Caution/Risk traits
+                case PersonalityTraitType.Caution: return baseTraits.Caution;
+                case PersonalityTraitType.RiskAversion: return baseTraits.RiskAversion;
+                case PersonalityTraitType.StressResponse: return baseTraits.StressResponse;
+                case PersonalityTraitType.Boldness: return baseTraits.Boldness;
+
+                // Activity traits
+                case PersonalityTraitType.ActivityLevel: return baseTraits.ActivityLevel;
+                case PersonalityTraitType.Persistence: return baseTraits.Persistence;
+                case PersonalityTraitType.Stamina: return baseTraits.Stamina;
+
+                // Adaptation traits
+                case PersonalityTraitType.Flexibility: return baseTraits.Flexibility;
+                case PersonalityTraitType.Exploration: return baseTraits.Exploration;
+                case PersonalityTraitType.ChangeTolerance: return baseTraits.ChangeTolerance;
+                case PersonalityTraitType.Adaptability: return baseTraits.Adaptability;
+
+                // Derived/Emergent traits
+                case PersonalityTraitType.Fear: return baseTraits.Fear;
+
+                // Default fallback
+                default: return 0.5f;
+            }
+        }
+
+        private void SetTraitValue(PersonalityTraitType traitType, float value)
+        {
+            // Direct type-safe access to struct properties using enum
+            switch (traitType)
+            {
+                // Intelligence-related traits
+                case PersonalityTraitType.Curiosity: baseTraits.Curiosity = value; break;
+                case PersonalityTraitType.LearningSpeed: baseTraits.LearningSpeed = value; break;
+                case PersonalityTraitType.ProblemSolving: baseTraits.ProblemSolving = value; break;
+                case PersonalityTraitType.Creativity: baseTraits.Creativity = value; break;
+
+                // Social traits
+                case PersonalityTraitType.Empathy: baseTraits.Empathy = value; break;
+                case PersonalityTraitType.Communication: baseTraits.Communication = value; break;
+                case PersonalityTraitType.PackBonding: baseTraits.PackBonding = value; break;
+                case PersonalityTraitType.Leadership: baseTraits.Leadership = value; break;
+
+                // Behavioral traits
+                case PersonalityTraitType.Dominance: baseTraits.Dominance = value; break;
+                case PersonalityTraitType.Territoriality: baseTraits.Territoriality = value; break;
+                case PersonalityTraitType.Competitiveness: baseTraits.Competitiveness = value; break;
+                case PersonalityTraitType.Aggression: baseTraits.Aggression = value; break;
+
+                // Caution/Risk traits
+                case PersonalityTraitType.Caution: baseTraits.Caution = value; break;
+                case PersonalityTraitType.RiskAversion: baseTraits.RiskAversion = value; break;
+                case PersonalityTraitType.StressResponse: baseTraits.StressResponse = value; break;
+                case PersonalityTraitType.Boldness: baseTraits.Boldness = value; break;
+
+                // Activity traits
+                case PersonalityTraitType.ActivityLevel: baseTraits.ActivityLevel = value; break;
+                case PersonalityTraitType.Persistence: baseTraits.Persistence = value; break;
+                case PersonalityTraitType.Stamina: baseTraits.Stamina = value; break;
+
+                // Adaptation traits
+                case PersonalityTraitType.Flexibility: baseTraits.Flexibility = value; break;
+                case PersonalityTraitType.Exploration: baseTraits.Exploration = value; break;
+                case PersonalityTraitType.ChangeTolerance: baseTraits.ChangeTolerance = value; break;
+                case PersonalityTraitType.Adaptability: baseTraits.Adaptability = value; break;
+
+                // Derived/Emergent traits
+                case PersonalityTraitType.Fear: baseTraits.Fear = value; break;
+
+                // Default case
+                default: UnityEngine.Debug.LogWarning($"Unknown personality trait: {traitType}"); break;
+            }
+        }
+
+        private void SetTraitValue(string traitName, float value)
+        {
+            // Legacy string-based overload - converts to enum and calls type-safe version
+            if (TryParseTraitType(traitName, out PersonalityTraitType traitType))
+            {
+                SetTraitValue(traitType, value);
+            }
+            else
+            {
+                UnityEngine.Debug.LogWarning($"Unknown personality trait: {traitName}");
+            }
         }
 
         private void InitializeBehavioralTendencies()
         {
-            personalityProfile.behaviorTendencies = new Dictionary<string, float>
+            personalityProfile.behaviorTendencies = new BehavioralTendency
             {
                 // Movement patterns
-                ["Exploration_Tendency"] = personalityProfile.openness * 0.8f + GetTraitValue("Curiosity") * 0.2f,
-                ["Territorial_Patrol"] = personalityProfile.territoriality,
-                ["Social_Seeking"] = personalityProfile.extraversion,
-                ["Hiding_Tendency"] = personalityProfile.neuroticism * 0.6f + GetTraitValue("Caution") * 0.4f,
+                ExplorationTendency = personalityProfile.openness * 0.8f + GetTraitValue(PersonalityTraitType.Curiosity) * 0.2f,
+                TerritorialPatrol = personalityProfile.territoriality,
+                SocialSeeking = personalityProfile.extraversion,
+                HidingTendency = personalityProfile.neuroticism * 0.6f + GetTraitValue(PersonalityTraitType.Caution) * 0.4f,
 
                 // Combat behaviors
-                ["Aggression_Threshold"] = 1f - personalityProfile.agreeableness,
-                ["Flight_Response"] = personalityProfile.neuroticism * 0.7f + GetTraitValue("Fear") * 0.3f,
-                ["Pack_Defense"] = GetTraitValue("Pack_Bonding") * 0.8f + personalityProfile.agreeableness * 0.2f,
+                AggressionThreshold = 1f - personalityProfile.agreeableness,
+                FlightResponse = personalityProfile.neuroticism * 0.7f + GetTraitValue(PersonalityTraitType.Fear) * 0.3f,
+                PackDefense = GetTraitValue(PersonalityTraitType.PackBonding) * 0.8f + personalityProfile.agreeableness * 0.2f,
 
                 // Social behaviors
-                ["Cooperation_Willingness"] = personalityProfile.agreeableness,
-                ["Leadership_Desire"] = GetTraitValue("Leadership"),
-                ["Submission_Tendency"] = 1f - personalityProfile.dominance,
+                CooperationWillingness = personalityProfile.agreeableness,
+                LeadershipDesire = GetTraitValue(PersonalityTraitType.Leadership),
+                SubmissionTendency = 1f - personalityProfile.dominance,
 
                 // Learning behaviors
-                ["Routine_Preference"] = personalityProfile.conscientiousness,
-                ["Innovation_Seeking"] = personalityProfile.openness * 0.6f + GetTraitValue("Creativity") * 0.4f,
-                ["Imitation_Learning"] = personalityProfile.extraversion * 0.5f + GetTraitValue("Learning_Speed") * 0.5f
+                RoutinePreference = personalityProfile.conscientiousness,
+                InnovationSeeking = personalityProfile.openness * 0.6f + GetTraitValue(PersonalityTraitType.Creativity) * 0.4f,
+                ImitationLearning = personalityProfile.extraversion * 0.5f + GetTraitValue(PersonalityTraitType.LearningSpeed) * 0.5f
             };
         }
 
@@ -236,11 +342,11 @@ namespace Laboratory.AI.Personality
             decisionEngine.Configure(new DecisionMakingConfig
             {
                 impulsiveness = 1f - personalityProfile.conscientiousness,
-                riskTolerance = GetTraitValue("Boldness"),
+                riskTolerance = GetTraitValue(PersonalityTraitType.Boldness),
                 socialInfluence = personalityProfile.extraversion,
                 emotionalWeight = personalityProfile.neuroticism,
-                logicalWeight = GetTraitValue("Problem_Solving"),
-                memoryInfluence = GetTraitValue("Learning_Speed")
+                logicalWeight = GetTraitValue(PersonalityTraitType.ProblemSolving),
+                memoryInfluence = GetTraitValue(PersonalityTraitType.LearningSpeed)
             });
         }
 
@@ -249,11 +355,11 @@ namespace Laboratory.AI.Personality
             personalityProfile.socialPreferences = new SocialPreferences
             {
                 preferredGroupSize = CalculatePreferredGroupSize(),
-                leadershipDesire = GetTraitValue("Leadership"),
+                leadershipDesire = GetTraitValue(PersonalityTraitType.Leadership),
                 submissionTendency = 1f - personalityProfile.dominance,
                 trustBuilding = personalityProfile.agreeableness,
-                conflictAvoidance = personalityProfile.agreeableness * 0.7f + GetTraitValue("Caution") * 0.3f,
-                empathyLevel = GetTraitValue("Empathy"),
+                conflictAvoidance = personalityProfile.agreeableness * 0.7f + GetTraitValue(PersonalityTraitType.Caution) * 0.3f,
+                empathyLevel = GetTraitValue(PersonalityTraitType.Empathy),
                 communicationStyle = CalculateCommunicationStyle()
             };
         }
@@ -281,7 +387,7 @@ namespace Laboratory.AI.Personality
         {
             float dominance = personalityProfile.dominance;
             float social = personalityProfile.extraversion;
-            float aggressive = GetTraitValue("Aggression");
+            float aggressive = GetTraitValue(PersonalityTraitType.Aggression);
 
             if (dominance > 0.7f && aggressive > 0.6f)
                 return CommunicationStyle.Dominant;
@@ -346,7 +452,7 @@ namespace Laboratory.AI.Personality
 
         private void ProcessMemoryForLearning(PersonalityMemory memory, float deltaTime)
         {
-            float learningRate = GetTraitValue("Learning_Speed") * deltaTime * 0.01f;
+            float learningRate = GetTraitValue(PersonalityTraitType.LearningSpeed) * deltaTime * 0.01f;
 
             // Adjust behaviors based on memory outcomes
             switch (memory.type)
@@ -549,11 +655,49 @@ namespace Laboratory.AI.Personality
         /// </summary>
         public float GetEffectiveTrait(string traitName)
         {
-            float baseValue = GetTraitValue(traitName);
-            float learnedModifier = learnedBehaviors.GetValueOrDefault(traitName, 0f);
-            float temporaryModifier = temporaryTraitModifiers.GetValueOrDefault(traitName, 0f);
+            if (TryParseTraitType(traitName, out PersonalityTraitType traitType))
+            {
+                float baseValue = GetTraitValue(traitType);
+                float learnedModifier = learnedBehaviors.GetValueOrDefault(traitName, 0f);
+                float temporaryModifier = temporaryTraitModifiers.GetValueOrDefault(traitName, 0f);
 
-            return Mathf.Clamp01(baseValue + learnedModifier + temporaryModifier);
+                return Mathf.Clamp01(baseValue + learnedModifier + temporaryModifier);
+            }
+
+            return 0.5f; // Default fallback
+        }
+
+        private bool TryParseTraitType(string traitName, out PersonalityTraitType traitType)
+        {
+            // Map legacy string names to enum values
+            switch (traitName)
+            {
+                case "Curiosity": traitType = PersonalityTraitType.Curiosity; return true;
+                case "Learning_Speed": traitType = PersonalityTraitType.LearningSpeed; return true;
+                case "Problem_Solving": traitType = PersonalityTraitType.ProblemSolving; return true;
+                case "Creativity": traitType = PersonalityTraitType.Creativity; return true;
+                case "Empathy": traitType = PersonalityTraitType.Empathy; return true;
+                case "Communication": traitType = PersonalityTraitType.Communication; return true;
+                case "Pack_Bonding": traitType = PersonalityTraitType.PackBonding; return true;
+                case "Leadership": traitType = PersonalityTraitType.Leadership; return true;
+                case "Dominance": traitType = PersonalityTraitType.Dominance; return true;
+                case "Territoriality": traitType = PersonalityTraitType.Territoriality; return true;
+                case "Competitiveness": traitType = PersonalityTraitType.Competitiveness; return true;
+                case "Aggression": traitType = PersonalityTraitType.Aggression; return true;
+                case "Caution": traitType = PersonalityTraitType.Caution; return true;
+                case "Risk_Aversion": traitType = PersonalityTraitType.RiskAversion; return true;
+                case "Stress_Response": traitType = PersonalityTraitType.StressResponse; return true;
+                case "Boldness": traitType = PersonalityTraitType.Boldness; return true;
+                case "Activity_Level": traitType = PersonalityTraitType.ActivityLevel; return true;
+                case "Persistence": traitType = PersonalityTraitType.Persistence; return true;
+                case "Stamina": traitType = PersonalityTraitType.Stamina; return true;
+                case "Flexibility": traitType = PersonalityTraitType.Flexibility; return true;
+                case "Exploration": traitType = PersonalityTraitType.Exploration; return true;
+                case "Change_Tolerance": traitType = PersonalityTraitType.ChangeTolerance; return true;
+                case "Adaptability": traitType = PersonalityTraitType.Adaptability; return true;
+                case "Fear": traitType = PersonalityTraitType.Fear; return true;
+                default: traitType = PersonalityTraitType.Curiosity; return false;
+            }
         }
 
         /// <summary>
@@ -617,6 +761,86 @@ namespace Laboratory.AI.Personality
             temporaryTraitModifiers[traitName] = modifier;
             UnityEngine.Debug.Log($"Temporary trait modifier applied: {traitName} += {modifier:F2}");
         }
+
+        /// <summary>
+        /// Sets the current creature context for personality processing
+        /// </summary>
+        public void SetCurrentCreature(uint creatureId, PersonalityTrait traits, MoodState mood)
+        {
+            // Update internal state to match the provided creature
+            currentMood = mood;
+
+            // Apply any trait overrides from the provided personality traits
+            if (personalityProfile != null)
+            {
+                personalityProfile.extraversion = traits.extroversion;
+                personalityProfile.agreeableness = traits.agreeableness;
+                personalityProfile.conscientiousness = traits.conscientiousness;
+                personalityProfile.neuroticism = traits.neuroticism;
+                personalityProfile.openness = traits.openness;
+                personalityProfile.dominance = traits.aggressiveness;
+            }
+
+            UnityEngine.Debug.Log($"Current creature set to {creatureId}");
+        }
+
+        /// <summary>
+        /// Applies environmental stimulus to affect mood and behavior
+        /// </summary>
+        public void ApplyEnvironmentalStimulus(EnvironmentalStimulus stimulus)
+        {
+            if (!enableMoodSystem) return;
+
+            // Apply stimulus effects to current mood based on stimulus type and intensity
+            switch (stimulus.type)
+            {
+                case EnvironmentalStimulusType.Temperature:
+                    // Temperature affects comfort and energy
+                    float temperatureEffect = Mathf.Abs(stimulus.intensity - 0.5f) * 2f; // Extreme temps are stressful
+                    currentMood.comfort = Mathf.Clamp01(currentMood.comfort - temperatureEffect * 0.1f);
+                    break;
+
+                case EnvironmentalStimulusType.Food:
+                    // Food increases satisfaction and energy
+                    currentMood.satisfaction = Mathf.Clamp01(currentMood.satisfaction + stimulus.intensity * 0.2f);
+                    currentMood.comfort = Mathf.Clamp01(currentMood.comfort + stimulus.intensity * 0.1f);
+                    break;
+
+                case EnvironmentalStimulusType.Threat:
+                    // Threats increase stress and reduce comfort
+                    currentMood.comfort = Mathf.Clamp01(currentMood.comfort - stimulus.intensity * 0.3f);
+                    currentMood.satisfaction = Mathf.Clamp01(currentMood.satisfaction - stimulus.intensity * 0.1f);
+                    break;
+
+                case EnvironmentalStimulusType.Social:
+                    // Social interactions affect mood based on personality
+                    float socialEffect = personalityProfile?.extraversion ?? 0.5f;
+                    currentMood.satisfaction = Mathf.Clamp01(currentMood.satisfaction + stimulus.intensity * socialEffect * 0.15f);
+                    break;
+            }
+
+            UnityEngine.Debug.Log($"Environmental stimulus applied: {stimulus.type} with intensity {stimulus.intensity:F2}");
+        }
+
+        /// <summary>
+        /// Updates mood over time with decay and normalization
+        /// </summary>
+        public void UpdateMood(float deltaTime)
+        {
+            if (!enableMoodSystem) return;
+
+            // Apply mood decay toward neutral values
+            float decayRate = memoryDecayRate * deltaTime;
+
+            currentMood.satisfaction = Mathf.Lerp(currentMood.satisfaction, 0.5f, decayRate);
+            currentMood.comfort = Mathf.Lerp(currentMood.comfort, 0.5f, decayRate);
+
+            // Ensure mood values stay within valid range
+            currentMood.satisfaction = Mathf.Clamp01(currentMood.satisfaction);
+            currentMood.comfort = Mathf.Clamp01(currentMood.comfort);
+
+            lastPersonalityUpdate = Time.time;
+        }
     }
 
     // Supporting data structures
@@ -641,7 +865,7 @@ namespace Laboratory.AI.Personality
         public float parentalInstinct;
 
         // Behavioral tendencies
-        public Dictionary<string, float> behaviorTendencies;
+        public BehavioralTendency behaviorTendencies;
         public SocialPreferences socialPreferences;
     }
 
@@ -850,5 +1074,88 @@ namespace Laboratory.AI.Personality
         public string type;
         public float intensity;
         public float duration;
+    }
+
+    public enum PersonalityTraitType
+    {
+        // Intelligence-related traits
+        Curiosity,
+        LearningSpeed,
+        ProblemSolving,
+        Creativity,
+
+        // Social traits
+        Empathy,
+        Communication,
+        PackBonding,
+        Leadership,
+
+        // Behavioral traits
+        Dominance,
+        Territoriality,
+        Competitiveness,
+        Aggression,
+
+        // Caution/Risk traits
+        Caution,
+        RiskAversion,
+        StressResponse,
+        Boldness,
+
+        // Activity traits
+        ActivityLevel,
+        Persistence,
+        Stamina,
+
+        // Adaptation traits
+        Flexibility,
+        Exploration,
+        ChangeTolerance,
+        Adaptability,
+
+        // Derived/Emergent traits
+        Fear
+    }
+
+    [System.Serializable]
+    public struct PersonalityTraits
+    {
+        // Intelligence-related traits
+        public float Curiosity;
+        public float LearningSpeed;
+        public float ProblemSolving;
+        public float Creativity;
+
+        // Social traits
+        public float Empathy;
+        public float Communication;
+        public float PackBonding;
+        public float Leadership;
+
+        // Behavioral traits
+        public float Dominance;
+        public float Territoriality;
+        public float Competitiveness;
+        public float Aggression;
+
+        // Caution/Risk traits
+        public float Caution;
+        public float RiskAversion;
+        public float StressResponse;
+        public float Boldness;
+
+        // Activity traits
+        public float ActivityLevel;
+        public float Persistence;
+        public float Stamina;
+
+        // Adaptation traits
+        public float Flexibility;
+        public float Exploration;
+        public float ChangeTolerance;
+        public float Adaptability;
+
+        // Derived/Emergent traits
+        public float Fear;
     }
 }

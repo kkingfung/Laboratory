@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
 using Laboratory.Chimera.Ecosystem.Systems;
-using EcoBiomeType = Laboratory.Chimera.Core.BiomeType;
+using EcoBiomeType = Laboratory.Core.Enums.BiomeType;
 using EcoCatastropheType = Laboratory.Chimera.Ecosystem.Data.CatastropheType;
 
 namespace Laboratory.Chimera.Ecosystem
@@ -42,10 +42,10 @@ namespace Laboratory.Chimera.Ecosystem
         // Orchestrator state
         private bool isInitialized = false;
         private float simulationTime = 0f;
-        private EcosystemState globalState;
+        private EnvironmentalState globalState;
 
         // Events
-        public System.Action<EcosystemState> OnEcosystemStateChanged;
+        public System.Action<EnvironmentalState> OnEcosystemStateChanged;
         public System.Action<string> OnSystemStatusChanged;
         public System.Action<float> OnSimulationTimeUpdated;
 
@@ -177,7 +177,7 @@ namespace Laboratory.Chimera.Ecosystem
 
         private void InitializeGlobalState()
         {
-            globalState = new EcosystemState
+            globalState = new EnvironmentalState
             {
                 Temperature = 15.0f,
                 Humidity = 0.6f,
@@ -411,7 +411,7 @@ namespace Laboratory.Chimera.Ecosystem
 
         #region Query Methods
 
-        public EcosystemState GetGlobalState() => globalState;
+        public EnvironmentalState GetGlobalState() => globalState;
 
         public bool IsInitialized => isInitialized;
 

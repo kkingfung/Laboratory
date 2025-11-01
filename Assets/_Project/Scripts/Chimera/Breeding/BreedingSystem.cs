@@ -6,6 +6,7 @@ using UnityEngine;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Core.Events;
+using Laboratory.Core.Enums;
 using Laboratory.Chimera.Breeding;
 
 namespace Laboratory.Chimera.Breeding
@@ -425,10 +426,10 @@ namespace Laboratory.Chimera.Breeding
             // Convert base stats to genes
             if (genetics?.BaseStats != null)
             {
-                genesList.Add(CreateGeneFromStat("Strength", genetics.BaseStats.attack));
-                genesList.Add(CreateGeneFromStat("Agility", genetics.BaseStats.speed));
-                genesList.Add(CreateGeneFromStat("Intelligence", genetics.BaseStats.intelligence));
-                genesList.Add(CreateGeneFromStat("Endurance", genetics.BaseStats.defense));
+                genesList.Add(CreateGeneFromStat(TraitType.Strength, genetics.BaseStats.attack));
+                genesList.Add(CreateGeneFromStat(TraitType.Agility, genetics.BaseStats.speed));
+                genesList.Add(CreateGeneFromStat(TraitType.Intelligence, genetics.BaseStats.intelligence));
+                genesList.Add(CreateGeneFromStat(TraitType.Stamina, genetics.BaseStats.defense));
             }
             
             // Create the genetic profile with the genes array and generation info
@@ -437,17 +438,20 @@ namespace Laboratory.Chimera.Breeding
             return profile;
         }
         
-        private Gene CreateGeneFromStat(string statName, float statValue)
+        private Gene CreateGeneFromStat(TraitType traitType, float statValue)
         {
             // Normalize stat value to 0-1 range (assuming max stat is around 50)
             float normalizedValue = Mathf.Clamp01(statValue / 50f);
-            
+
+            // Use trait type display name for UI purposes only
+            string displayName = traitType.ToString();
+
             return new Gene(
                 Guid.NewGuid().ToString(),
-                statName,
-                TraitType.Physical,
-                Allele.CreateDominant(statName, normalizedValue),
-                Allele.CreateRecessive(statName, normalizedValue * 0.8f)
+                displayName,
+                traitType,
+                Allele.CreateDominant(displayName, normalizedValue),
+                Allele.CreateRecessive(displayName, normalizedValue * 0.8f)
             );
         }
         

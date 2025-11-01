@@ -4,6 +4,7 @@ using Laboratory.Chimera;
 using Laboratory.Core.ECS;
 using System.Collections.Generic;
 using System.Linq;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.AI
 {
@@ -24,7 +25,7 @@ namespace Laboratory.Chimera.AI
             var genes = genetics.Genes;
             
             // Apply aggression modifiers
-            var aggressionGene = genes.FirstOrDefault(g => g.traitName == "Aggression" && g.isActive);
+            var aggressionGene = genes.FirstOrDefault(g => g.traitType == TraitType.Aggression && g.isActive);
             if (aggressionGene.traitName != null && aggressionGene.value.HasValue)
             {
                 float aggressionModifier = 0.5f + aggressionGene.value.Value;
@@ -32,7 +33,7 @@ namespace Laboratory.Chimera.AI
             }
             
             // Apply intelligence modifiers
-            var intelligenceGene = genes.FirstOrDefault(g => g.traitName == "Intelligence" && g.isActive);
+            var intelligenceGene = genes.FirstOrDefault(g => g.traitType == TraitType.Intelligence && g.isActive);
             if (intelligenceGene.traitName != null && intelligenceGene.value.HasValue)
             {
                 float detectionModifier = 0.5f + intelligenceGene.value.Value;
@@ -40,7 +41,7 @@ namespace Laboratory.Chimera.AI
             }
             
             // Apply loyalty modifiers
-            var loyaltyGene = genes.FirstOrDefault(g => g.traitName == "Loyalty" && g.isActive);
+            var loyaltyGene = genes.FirstOrDefault(g => g.traitType == TraitType.Loyalty && g.isActive);
             if (loyaltyGene.traitName != null && loyaltyGene.value.HasValue)
             {
                 float followDistance = Mathf.Lerp(10f, 2f, loyaltyGene.value.Value);

@@ -7,12 +7,25 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Ecosystem.Core
 {
     /// <summary>
-    /// Core ecosystem data structures for living, breathing creature populations
-    /// Supports dynamic biomes, resource management, and natural selection
+    /// ECS ecosystem component for entity-based ecosystem simulation.
+    /// This is the COMPLETE ecosystem state used as an Entity Component.
+    ///
+    /// ARCHITECTURAL PURPOSE:
+    /// This EcosystemState is specifically for ECS-based ecosystem simulation
+    /// and is different from:
+    /// - EnvironmentalState: Pure environmental/climate tracking (Data namespace)
+    /// - BiomeResourceState: Resource management for biomes (Data namespace)
+    ///
+    /// This component contains ALL ecosystem data needed for entity-based
+    /// ecosystem simulation including environmental conditions, resources,
+    /// population dynamics, and genetic tracking.
+    ///
+    /// Used for: ECS ecosystem entities, complete ecosystem simulation state
     /// </summary>
     [Serializable]
     public struct EcosystemState : IComponentData

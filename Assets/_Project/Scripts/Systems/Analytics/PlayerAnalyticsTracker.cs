@@ -1,196 +1,195 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
-using Unity.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections;
+using Unity.Entities;
+using Laboratory.Core;
+using Laboratory.Core.Enums;
+using Laboratory.Core.Events;
+using Laboratory.Core.Debug;
 using Laboratory.Systems.Quests;
 using Laboratory.Systems.Breeding;
 using Laboratory.Systems.Ecosystem;
-using Laboratory.Chimera.Genetics.Advanced;
-using Laboratory.Core.Enums;
 
 namespace Laboratory.Systems.Analytics
 {
     /// <summary>
-    /// Comprehensive player analytics and behavior tracking system that monitors
-    /// player actions, preferences, and patterns to provide insights and adapt
-    /// the game experience dynamically based on individual play styles.
+    /// Advanced player analytics system that tracks gameplay patterns,
+    /// emotional responses, and adaptation metrics to provide personalized
+    /// gaming experiences and behavioral insights.
     /// </summary>
     public class PlayerAnalyticsTracker : MonoBehaviour
     {
         [Header("Analytics Configuration")]
-        [SerializeField] private bool enableAnalyticsTracking = true;
-        [SerializeField] private bool enableRealTimeAnalysis = true;
-        [SerializeField] private float analyticsUpdateInterval = 5f;
-        [SerializeField] private int maxSessionHistoryLength = 100;
+        [SerializeField] private bool enableAnalytics = true;
+        [SerializeField] private bool enableAdaptiveGameplay = true;
+        [SerializeField] private bool enableBehaviorAnalysis = true;
+        [SerializeField] private float adaptationResponseThreshold = 0.7f;
 
         [Header("Data Collection Settings")]
-        [SerializeField] private bool trackInputPatterns = true;
-        [SerializeField] private bool trackUIInteractions = true;
-        [SerializeField] private bool trackGameplayChoices = true;
-        [SerializeField] private bool trackPerformanceMetrics = true;
-        [SerializeField] private bool trackEmotionalResponse = true;
+        [SerializeField] private float actionTrackingInterval = 0.1f;
+        [SerializeField] private int maxSessionActions = 10000;
+        [SerializeField] private bool trackDetailedInputMetrics = true;
+        [SerializeField] private bool enableRealTimeAnalysis = true;
 
         [Header("Privacy Settings")]
-        [SerializeField] private bool anonymizeData = true;
-        [SerializeField] private bool localStorageOnly = true;
-        [SerializeField] private int dataRetentionDays = 30;
+        [SerializeField] private bool anonymizePlayerData = true;
+        [SerializeField] private bool enableDataExport = false;
 
         [Header("Adaptation Settings")]
-        [SerializeField] private bool enableDynamicAdaptation = true;
-        [SerializeField, Range(0f, 1f)] private float adaptationSensitivity = 0.5f;
-        [SerializeField] private float adaptationCooldown = 60f;
+        [SerializeField] private float difficultyAdaptationSensitivity = 0.5f;
+        [SerializeField] private bool enableContentRecommendations = true;
 
         [Header("Behavioral Analysis")]
-        [SerializeField] private PlayerArchetype[] playerArchetypes;
-        [SerializeField] private BehaviorPattern[] behaviorPatterns;
-        [SerializeField] private EngagementMetric[] engagementMetrics;
+        [SerializeField] private bool enablePersonalityProfiling = true;
+        [SerializeField] private bool enableEmotionalAnalysis = true;
+        [SerializeField] private float behaviorAnalysisInterval = 30f;
 
-        // Core analytics data - PERFORMANCE OPTIMIZED WITH ENUMS
+        // Core Analytics Data
         private PlayerProfile currentPlayerProfile;
-        private List<GameplaySession> sessionHistory = new List<GameplaySession>();
-        private Dictionary<ActionType, ActionMetrics> actionMetrics = new Dictionary<ActionType, ActionMetrics>();
-        private Dictionary<TraitType, float> behaviorScores = new Dictionary<TraitType, float>();
-
-        // Real-time tracking
         private GameplaySession currentSession;
         private List<PlayerAction> currentSessionActions = new List<PlayerAction>();
+        private List<GameplaySession> sessionHistory = new List<GameplaySession>();
+
+        // Real-time Analysis
+        private Dictionary<MetricType, float> currentMetrics = new Dictionary<MetricType, float>();
+        private Dictionary<PlayerBehaviorTrait, float> behaviorTraits = new Dictionary<PlayerBehaviorTrait, float>();
+        private Queue<PlayerAction> recentActions = new Queue<PlayerAction>(100);
+
+        // Adaptation System
+        private GameAdaptationEngine adaptationEngine;
+        private List<MilestoneType> sessionMilestones = new List<MilestoneType>();
+        private List<string> currentInsights = new List<string>();
+
+        // Performance Tracking
         private float sessionStartTime;
-        private float lastAnalyticsUpdate;
-        private float lastAdaptation;
-        private bool analyticsInitialized = false;
-        private float currentEngagement = 0.5f;
+        private int totalActionCount;
+        private Dictionary<ActionType, int> actionTypeCounters = new Dictionary<ActionType, int>();
 
-        // Input tracking
-        private InputActionAsset playerInput;
-        private Dictionary<ActionType, InputMetrics> inputMetrics = new Dictionary<ActionType, InputMetrics>();
+        // Input Analytics
+        private InputMetricsTracker inputTracker;
+        private Dictionary<InputType, float> inputPatterns = new Dictionary<InputType, float>();
 
-        // Behavioral analysis
-        private PlayerBehaviorAnalyzer behaviorAnalyzer;
-        private EngagementAnalyzer engagementAnalyzer;
-        private PreferenceAnalyzer preferenceAnalyzer;
+        // Emotional State Tracking
+        private Dictionary<EmotionalState, float> emotionalHistory = new Dictionary<EmotionalState, float>();
+        private float lastEmotionalUpdate;
 
-        // Events
-        public System.Action<PlayerProfile> OnPlayerProfileUpdated;
-        public System.Action<PlayerArchetype> OnPlayerArchetypeIdentified;
-        public System.Action<GameplaySession> OnSessionCompleted;
-        public System.Action<BehaviorInsight> OnBehaviorInsightGenerated;
-        public System.Action<PlayerAdaptation> OnGameAdaptationTriggered;
+        // Integration Hooks
+        private PersonalityProfiler personalityProfiler;
+        private List<string> playerPreferences = new List<string>();
 
-        // Singleton access
-        private static PlayerAnalyticsTracker instance;
-        public static PlayerAnalyticsTracker Instance => instance;
+        #region Initialization & Lifecycle
 
-        public PlayerProfile CurrentProfile => currentPlayerProfile;
-        public GameplaySession CurrentSession => currentSession;
-        public bool IsTrackingActive => enableAnalyticsTracking && currentSession != null;
-
-        private void Awake()
+        void Awake()
         {
-            if (instance == null)
+            InitializeAnalyticsSystem();
+        }
+
+        void Start()
+        {
+            if (enableAnalytics)
             {
-                instance = this;
-                DontDestroyOnLoad(gameObject);
-                InitializeAnalytics();
-            }
-            else
-            {
-                Destroy(gameObject);
+                StartNewGameplaySession();
+                Debug.Log("Initializing Player Analytics Tracker - Performance Optimized");
             }
         }
 
-        private void Start()
+        void OnDestroy()
         {
-            StartNewSession();
-            SetupInputTracking();
-            ConnectToGameSystems();
-        }
-
-        private void OnDestroy()
-        {
-            DisposeAnalytics();
-        }
-
-        private void DisposeAnalytics()
-        {
-            analyticsInitialized = false;
-        }
-
-        private void Update()
-        {
-            if (!enableAnalyticsTracking) return;
-
-            UpdateCurrentSession();
-
-            // Periodic analytics processing
-            if (Time.time - lastAnalyticsUpdate >= analyticsUpdateInterval)
+            if (currentSession != null)
             {
-                ProcessAnalyticsData();
-                lastAnalyticsUpdate = Time.time;
+                EndCurrentSession();
             }
+            SaveAnalyticsData();
+        }
 
-            // Dynamic adaptation check
-            if (enableDynamicAdaptation && Time.time - lastAdaptation >= adaptationCooldown)
+        void OnApplicationPause(bool pauseStatus)
+        {
+            if (pauseStatus && currentSession != null)
             {
-                CheckForAdaptationOpportunities();
+                currentSession.pauseTime = Time.time;
+            }
+            else if (!pauseStatus && currentSession != null && currentSession.pauseTime > 0)
+            {
+                currentSession.totalPauseTime += Time.time - currentSession.pauseTime;
             }
         }
 
-        private void InitializeAnalytics()
+        #endregion
+
+        #region Core Analytics System
+
+        private void InitializeAnalyticsSystem()
         {
-            Debug.Log("Initializing Player Analytics Tracker - Performance Optimized");
+            // Load or create player profile
+            LoadPlayerProfile();
 
-            // Initialize performance-optimized data structures
-            if (!analyticsInitialized)
+            // Initialize sub-systems
+            adaptationEngine = new GameAdaptationEngine();
+            inputTracker = new InputMetricsTracker();
+            personalityProfiler = FindObjectOfType<PersonalityProfiler>();
+
+            // Initialize behavior trait tracking
+            InitializeBehaviorTraits();
+
+            // Initialize emotional state tracking
+            InitializeEmotionalTracking();
+
+            if (currentPlayerProfile != null)
             {
-                // Initialize enum-based dictionaries for performance
-                foreach (ActionType actionType in System.Enum.GetValues(typeof(ActionType)))
-                {
-                    actionMetrics[actionType] = new ActionMetrics();
-                }
-
-                foreach (TraitType traitType in System.Enum.GetValues(typeof(TraitType)))
-                {
-                    behaviorScores[traitType] = 0.5f;
-                }
-
-                analyticsInitialized = true;
+                Debug.Log($"Player Analytics initialized for player: {currentPlayerProfile.playerId}");
             }
-
-            // Initialize player profile
-            currentPlayerProfile = LoadOrCreatePlayerProfile();
-
-            // Initialize analyzers
-            behaviorAnalyzer = new PlayerBehaviorAnalyzer();
-            engagementAnalyzer = new EngagementAnalyzer();
-            preferenceAnalyzer = new PreferenceAnalyzer();
-
-            // Load historical data
-            LoadSessionHistory();
-
-            Debug.Log($"Player Analytics initialized for player: {currentPlayerProfile.playerId}");
         }
 
-        /// <summary>
-        /// Tracks a player action with contextual data - PERFORMANCE OPTIMIZED with enum
-        /// </summary>
-        public void TrackAction(ActionType actionType, Dictionary<ParamKey, object> parameters = null)
+        private void InitializeBehaviorTraits()
         {
-            if (!enableAnalyticsTracking) return;
+            foreach (PlayerBehaviorTrait trait in System.Enum.GetValues(typeof(PlayerBehaviorTrait)))
+            {
+                behaviorTraits[trait] = 0.5f; // Start neutral
+            }
+        }
+
+        private void InitializeEmotionalTracking()
+        {
+            foreach (EmotionalState state in System.Enum.GetValues(typeof(EmotionalState)))
+            {
+                emotionalHistory[state] = 0f;
+            }
+        }
+
+        #endregion
+
+        #region Action Tracking
+
+        public void TrackPlayerAction(string actionType, string context, Dictionary<ParamKey, object> parameters = null)
+        {
+            if (!enableAnalytics) return;
 
             var action = new PlayerAction
             {
-                actionType = actionType.ToString(),
+                actionType = actionType,
                 timestamp = Time.time,
-                sessionTime = Time.time - sessionStartTime,
-                parameters = parameters ?? new Dictionary<ParamKey, object>(),
-                context = CaptureCurrentContext()
+                context = new ActionContext
+                {
+                    currentActivity = context,
+                    sessionTime = Time.time - sessionStartTime
+                },
+                parameters = parameters ?? new Dictionary<ParamKey, object>()
             };
 
             currentSessionActions.Add(action);
+            recentActions.Enqueue(action);
 
-            // Update optimized action metrics
-            UpdateActionMetrics(actionType);
+            if (recentActions.Count > 100)
+                recentActions.Dequeue();
+
+            // Update counters
+            totalActionCount++;
+            if (!actionTypeCounters.ContainsKey(actionType))
+                actionTypeCounters[actionType] = 0;
+            actionTypeCounters[actionType]++;
+
+            Debug.Log($"Tracked action: {actionType} (Session actions: {currentSessionActions.Count})");
 
             // Real-time analysis
             if (enableRealTimeAnalysis)
@@ -198,518 +197,439 @@ namespace Laboratory.Systems.Analytics
                 AnalyzeActionInRealTime(action);
             }
 
-            Debug.Log($"Tracked action: {actionType} (Session actions: {currentSessionActions.Count})");
-        }
+            // Check for behavior pattern changes
+            UpdateBehaviorTraits(action);
 
-        /// <summary>
-        /// Update action metrics using optimized enum-based dictionary
-        /// </summary>
-        private void UpdateActionMetrics(ActionType actionID)
-        {
-            if (!analyticsInitialized) return;
-
-            if (actionMetrics.ContainsKey(actionID))
+            // Check for adaptive responses
+            if (enableAdaptiveGameplay)
             {
-                var metrics = actionMetrics[actionID];
-                metrics.totalCount++;
-                metrics.lastUsed = Time.time;
-                actionMetrics[actionID] = metrics;
-            }
-            else
-            {
-                actionMetrics[actionID] = new ActionMetrics { totalCount = 1, lastUsed = Time.time };
+                CheckForAdaptationTriggers(action);
             }
         }
 
-        /// <summary>
-        /// Tracks UI interaction with detailed metrics
-        /// </summary>
-        public void TrackUIInteraction(string elementName, string interactionType, float interactionTime = 0f)
+        public void TrackGameplayChoice(ChoiceCategory category, string choice, Dictionary<ParamKey, object> context = null)
         {
-            if (!trackUIInteractions) return;
+            var parameters = context ?? new Dictionary<ParamKey, object>();
+            parameters[ParamKey.Category] = category;
+            parameters[ParamKey.Choice] = choice;
 
-            var parameters = new Dictionary<ParamKey, object>
-            {
-                [ParamKey.ElementName] = elementName,
-                [ParamKey.InteractionType] = interactionType,
-                [ParamKey.InteractionTime] = interactionTime
-            };
+            TrackPlayerAction($"Choice_{category}", "DecisionMaking", parameters);
 
-            TrackAction(ActionType.UI, parameters);
-
-            // Update UI-specific metrics
-            UpdateUIMetrics(elementName, interactionType, interactionTime);
+            // Analyze choice pattern
+            AnalyzeChoicePattern(category, choice, context);
         }
 
-        /// <summary>
-        /// Tracks gameplay choice with decision context
-        /// </summary>
-        public void TrackGameplayChoice(ChoiceCategory choiceCategory, string choiceValue, Dictionary<ParamKey, object> decisionContext = null)
+        public void TrackUIInteraction(string elementName, string interactionType, Dictionary<ParamKey, object> context = null)
         {
-            if (!trackGameplayChoices) return;
+            var parameters = context ?? new Dictionary<ParamKey, object>();
+            parameters[ParamKey.ElementName] = elementName;
+            parameters[ParamKey.InteractionType] = interactionType;
 
-            var parameters = new Dictionary<ParamKey, object>
-            {
-                [ParamKey.ChoiceCategory] = choiceCategory,
-                [ParamKey.ChoiceValue] = choiceValue,
-                [ParamKey.DecisionContext] = decisionContext ?? new Dictionary<ParamKey, object>()
-            };
+            TrackPlayerAction("UI_Interaction", "UserInterface", parameters);
 
-            TrackAction(ActionType.Social, parameters);
-
-            // Update choice preferences
-            UpdateChoicePreferences(choiceCategory, choiceValue);
+            // Update UI usage patterns
+            UpdateUIPatterns(elementName, interactionType);
         }
 
-        /// <summary>
-        /// Tracks emotional response indicators
-        /// </summary>
         public void TrackEmotionalResponse(EmotionalState emotionalState, float intensity, string trigger = "")
         {
-            if (!trackEmotionalResponse) return;
+            emotionalHistory[emotionalState] = Mathf.Max(emotionalHistory[emotionalState], intensity);
+            lastEmotionalUpdate = Time.time;
 
             var parameters = new Dictionary<ParamKey, object>
             {
-                [ParamKey.EmotionalState] = emotionalState.ToString(),
-                [ParamKey.Intensity] = intensity.ToString(),
+                [ParamKey.EmotionalState] = emotionalState,
+                [ParamKey.Intensity] = intensity,
                 [ParamKey.Trigger] = trigger
             };
 
-            TrackAction(ActionType.Social, parameters);
+            TrackPlayerAction("Emotional_Response", "EmotionalSystem", parameters);
 
-            // Update emotional profile
-            UpdateEmotionalProfile(emotionalState, intensity);
+            // Update personality profile if available
+            if (personalityProfiler != null)
+            {
+                personalityProfiler.RecordEmotionalResponse(emotionalState, intensity);
+            }
         }
 
-        // ===== CHIMERA SYSTEM INTEGRATION METHODS =====
+        #endregion
 
-        /// <summary>
-        /// Tracks creature breeding activities and outcomes
-        /// </summary>
-        public void TrackBreedingAction(BreedingType breedingType, string parentSpecies1, string parentSpecies2, bool success, Dictionary<ParamKey, object> additionalData = null)
+        #region Behavior Analysis
+
+        private void AnalyzeActionInRealTime(PlayerAction action)
         {
-            var parameters = new Dictionary<ParamKey, object>
-            {
-                [ParamKey.BreedingType] = breedingType,
-                [ParamKey.ParentSpecies1] = parentSpecies1,
-                [ParamKey.ParentSpecies2] = parentSpecies2,
-                [ParamKey.Success] = success
-            };
+            // Update real-time metrics
+            UpdateRealTimeMetrics(action);
 
-            if (additionalData != null)
+            // Detect behavior patterns
+            DetectBehaviorPatterns(action);
+
+            // Update player archetype
+            UpdatePlayerArchetype(action);
+        }
+
+        private void UpdateRealTimeMetrics(PlayerAction action)
+        {
+            // Calculate session metrics
+            float sessionDuration = Time.time - sessionStartTime;
+            currentMetrics[MetricType.SessionDuration] = sessionDuration;
+            currentMetrics[MetricType.ActionsPerMinute] = totalActionCount / Mathf.Max(sessionDuration / 60f, 0.1f);
+            currentMetrics[MetricType.OverallEngagement] = recentActions.Count;
+
+            // Calculate performance metrics
+            var recentSuccesses = recentActions.Count(a =>
+                a.parameters.ContainsKey(ParamKey.Success) &&
+                a.parameters[ParamKey.Success].ToString().ToLower() == "true");
+            currentMetrics[MetricType.RecentSuccessRate] = recentActions.Count > 0 ?
+                (float)recentSuccesses / recentActions.Count : 0.5f;
+        }
+
+        private void DetectBehaviorPatterns(PlayerAction action)
+        {
+            // Detect repetitive behavior
+            var recentSimilarActions = recentActions.Count(a => a.actionType == action.actionType);
+            if (recentSimilarActions > 10)
             {
-                foreach (var kvp in additionalData)
-                {
-                    parameters[kvp.Key] = kvp.Value;
-                }
+                behaviorTraits[PlayerBehaviorTrait.Repetitive] = Mathf.Min(1f, behaviorTraits[PlayerBehaviorTrait.Repetitive] + 0.1f);
             }
 
-            TrackAction(ActionType.Breeding, parameters);
-        }
-
-        /// <summary>
-        /// Tracks creature exploration and discovery
-        /// </summary>
-        public void TrackCreatureInteraction(string creatureSpecies, string interactionType, string biome, bool firstDiscovery = false)
-        {
-            var parameters = new Dictionary<ParamKey, object>
+            // Detect exploration behavior
+            var uniqueActionTypes = recentActions.Select(a => a.actionType).Distinct().Count();
+            if (uniqueActionTypes > 5)
             {
-                [ParamKey.Species] = creatureSpecies,
-                [ParamKey.InteractionType] = interactionType,
-                [ParamKey.Biome] = biome,
-                [ParamKey.FirstDiscovery] = firstDiscovery
-            };
+                behaviorTraits[PlayerBehaviorTrait.Exploratory] = Mathf.Min(1f, behaviorTraits[PlayerBehaviorTrait.Exploratory] + 0.05f);
+            }
 
-            TrackAction(ActionType.Social, parameters);
-        }
-
-        /// <summary>
-        /// Tracks ecosystem exploration and biome preferences
-        /// </summary>
-        public void TrackBiomeExploration(string biomeType, float timeSpent, int creaturesDiscovered, int resourcesGathered)
-        {
-            var parameters = new Dictionary<ParamKey, object>
+            // Detect focused behavior
+            var dominantActionType = recentActions.GroupBy(a => a.actionType)
+                .OrderByDescending(g => g.Count()).FirstOrDefault()?.Key;
+            if (dominantActionType != null)
             {
-                [ParamKey.Biome] = biomeType,
-                [ParamKey.TimeSpent] = timeSpent,
-                [ParamKey.CreaturesDiscovered] = creaturesDiscovered,
-                [ParamKey.ResourcesGathered] = resourcesGathered
-            };
-
-            TrackAction(ActionType.Exploration, parameters);
+                var dominantCount = recentActions.Count(a => a.actionType == dominantActionType);
+                if (dominantCount > recentActions.Count * 0.6f)
+                {
+                    behaviorTraits[PlayerBehaviorTrait.Focused] = Mathf.Min(1f, behaviorTraits[PlayerBehaviorTrait.Focused] + 0.05f);
+                }
+            }
         }
 
-        /// <summary>
-        /// Tracks genetic research and experimentation
-        /// </summary>
-        public void TrackGeneticResearch(string researchType, string targetTrait, bool breakthrough, float researchTime)
+        private void UpdatePlayerArchetype(PlayerAction action)
         {
-            var parameters = new Dictionary<ParamKey, object>
+            ArchetypeType currentArchetype = DeterminePlayerArchetype();
+
+            if (currentPlayerProfile.dominantArchetype != currentArchetype)
             {
-                [ParamKey.ResearchType] = researchType,
-                [ParamKey.TargetTrait] = targetTrait,
-                [ParamKey.Breakthrough] = breakthrough,
-                [ParamKey.ResearchTime] = researchTime
-            };
+                currentPlayerProfile.previousArchetypes.Add(currentPlayerProfile.dominantArchetype);
+                currentPlayerProfile.dominantArchetype = currentArchetype;
+                currentPlayerProfile.archetypeUpdateTime = Time.time;
 
-            TrackAction(ActionType.Research, parameters);
+                OnPlayerArchetypeChanged(currentArchetype);
+            }
         }
 
-        /// <summary>
-        /// Tracks quest completion and preferences
-        /// </summary>
-        public void TrackQuestProgress(string questType, string questId, float progress, bool completed)
-        {
-            var parameters = new Dictionary<ParamKey, object>
-            {
-                [ParamKey.QuestType] = questType,
-                [ParamKey.QuestId] = questId,
-                [ParamKey.Progress] = progress,
-                [ParamKey.Completed] = completed
-            };
+        #endregion
 
-            TrackAction(ActionType.Quest, parameters);
-        }
-
-        /// <summary>
-        /// Gets personalized recommendations for the player
-        /// </summary>
-        public List<string> GetPersonalizedRecommendations()
-        {
-            return GenerateGameplayRecommendations();
-        }
-
-        /// <summary>
-        /// Gets the current player engagement level (0-1)
-        /// </summary>
-        public float GetCurrentEngagementLevel()
-        {
-            return engagementAnalyzer.CalculateCurrentEngagement();
-        }
+        #region Player Preferences & Insights
 
         /// <summary>
         /// Gets player's preferred biomes based on analytics
         /// </summary>
-        public List<string> GetPreferredBiomes()
+        public Dictionary<BiomeType, float> GetPlayerBiomePreferences()
         {
-            var biomeActions = currentSessionActions.Where(a => a.actionType == "Chimera_Exploration");
+            var biomeActions = currentSessionActions.Where(a => a.actionType == ActionType.Exploration);
             var biomePreferences = new Dictionary<BiomeType, float>();
 
             foreach (var action in biomeActions)
             {
-                if (action.parameters.ContainsKey("biomeType"))
+                if (action.parameters.ContainsKey(ParamKey.Biome))
                 {
-                    string biome = action.parameters["biomeType"].ToString();
-                    float timeSpent = action.parameters.ContainsKey("timeSpent") ?
-                        float.Parse(action.parameters["timeSpent"].ToString()) : 1f;
+                    if (action.parameters[ParamKey.Biome] is BiomeType biomeType)
+                    {
+                        float timeSpent = action.parameters.ContainsKey(ParamKey.TimeSpent) ?
+                            float.Parse(action.parameters[ParamKey.TimeSpent].ToString()) : 1f;
 
-                    if (!biomePreferences.ContainsKey(biome))
-                        biomePreferences[biome] = 0f;
+                        if (!biomePreferences.ContainsKey(biomeType))
+                            biomePreferences[biomeType] = 0f;
 
-                    biomePreferences[biome] += timeSpent;
+                        biomePreferences[biomeType] += timeSpent;
+                    }
                 }
             }
 
-            return biomePreferences.OrderByDescending(kvp => kvp.Value)
-                                  .Take(3)
-                                  .Select(kvp => kvp.Key)
-                                  .ToList();
+            // Normalize preferences
+            float total = biomePreferences.Values.Sum();
+            if (total > 0)
+            {
+                var normalizedPrefs = new Dictionary<BiomeType, float>();
+                foreach (var pref in biomePreferences)
+                {
+                    normalizedPrefs[pref.Key] = pref.Value / total;
+                }
+                return normalizedPrefs;
+            }
+
+            return biomePreferences;
         }
 
         /// <summary>
         /// Gets player's preferred creature types based on interactions
         /// </summary>
-        public List<string> GetPreferredCreatureTypes()
+        public Dictionary<string, float> GetPlayerCreaturePreferences()
         {
-            var creatureActions = currentSessionActions.Where(a => a.actionType == "Chimera_Interaction" || a.actionType == "Chimera_Breeding");
-            var speciesPreferences = new Dictionary<SystemType, int>();
+            var creatureActions = currentSessionActions.Where(a => a.actionType == ActionType.Social || a.actionType == ActionType.Breeding);
+            var creaturePreferences = new Dictionary<string, float>();
 
             foreach (var action in creatureActions)
             {
-                if (action.parameters.ContainsKey("species"))
+                if (action.parameters.ContainsKey(ParamKey.Species))
                 {
-                    string species = action.parameters["species"].ToString();
-                    speciesPreferences[species] = speciesPreferences.GetValueOrDefault(species, 0) + 1;
+                    string species = action.parameters[ParamKey.Species].ToString();
+                    creaturePreferences[species] = creaturePreferences.GetValueOrDefault(species, 0f) + 1f;
                 }
-                if (action.parameters.ContainsKey("parentSpecies1"))
+                if (action.parameters.ContainsKey(ParamKey.ParentSpecies1))
                 {
-                    string species = action.parameters["parentSpecies1"].ToString();
-                    speciesPreferences[species] = speciesPreferences.GetValueOrDefault(species, 0) + 1;
+                    string species = action.parameters[ParamKey.ParentSpecies1].ToString();
+                    creaturePreferences[species] = creaturePreferences.GetValueOrDefault(species, 0f) + 0.5f;
                 }
-                if (action.parameters.ContainsKey("parentSpecies2"))
+                if (action.parameters.ContainsKey(ParamKey.ParentSpecies2))
                 {
-                    string species = action.parameters["parentSpecies2"].ToString();
-                    speciesPreferences[species] = speciesPreferences.GetValueOrDefault(species, 0) + 1;
+                    string species = action.parameters[ParamKey.ParentSpecies2].ToString();
+                    creaturePreferences[species] = creaturePreferences.GetValueOrDefault(species, 0f) + 0.5f;
                 }
             }
 
-            return speciesPreferences.OrderByDescending(kvp => kvp.Value)
-                                    .Take(5)
-                                    .Select(kvp => kvp.Key)
-                                    .ToList();
+            return creaturePreferences;
         }
 
-        /// <summary>
-        /// Gets player behavior analysis with insights
-        /// </summary>
-        public PlayerBehaviorAnalysis GetBehaviorAnalysis()
-        {
-            var analysis = new PlayerBehaviorAnalysis
-            {
-                playerId = currentPlayerProfile.playerId,
-                analysisTime = Time.time,
-                dominantArchetype = DetermineDominantArchetype(),
-                behaviorScores = ConvertBehaviorScoresToEnumDict(),
-                playStyle = AnalyzePlayStyle(),
-                engagementLevel = engagementAnalyzer.CalculateCurrentEngagement(),
-                preferences = preferenceAnalyzer.GetCurrentPreferences(),
-                insights = GenerateBehaviorInsights(),
-                recommendations = GenerateGameplayRecommendations()
-            };
+        #endregion
 
-            return analysis;
+        #region Adaptive Gameplay
+
+        private void CheckForAdaptationTriggers(PlayerAction action)
+        {
+            // Check for difficulty adaptation needs
+            float successRate = currentMetrics.GetValueOrDefault("RecentSuccessRate", 0.5f);
+
+            if (successRate < 0.3f && Time.time - currentPlayerProfile.lastAdaptation > 60f)
+            {
+                TriggerGameAdaptation("DifficultyReduction", 0.3f);
+            }
+            else if (successRate > 0.8f && Time.time - currentPlayerProfile.lastAdaptation > 120f)
+            {
+                TriggerGameAdaptation("DifficultyIncrease", 0.2f);
+            }
+
+            // Check for content recommendation triggers
+            CheckContentRecommendationTriggers();
         }
 
-        /// <summary>
-        /// Gets detailed session analytics
-        /// </summary>
-        public SessionAnalytics GetSessionAnalytics()
+        private void CheckContentRecommendationTriggers()
         {
-            if (currentSession == null) return null;
+            float sessionDuration = Time.time - sessionStartTime;
 
-            var analytics = new SessionAnalytics
+            // Long session without exploration
+            if (sessionDuration > 300f) // 5 minutes
             {
-                sessionId = currentSession.sessionId,
-                sessionDuration = Time.time - sessionStartTime,
-                totalActions = currentSessionActions.Count,
-                actionsPerMinute = CalculateActionsPerMinute(),
-                dominantActivities = GetDominantActivities(),
-                engagementMetrics = CalculateEngagementMetrics(),
-                performanceMetrics = CalculatePerformanceMetrics(),
-                emotionalJourney = AnalyzeEmotionalJourney(),
-                keyMoments = IdentifyKeyMoments()
-            };
-
-            return analytics;
+                var explorationActions = currentSessionActions.Count(a => a.actionType == ActionType.Exploration);
+                if (explorationActions < 3)
+                {
+                    TriggerGameAdaptation("ExplorationRecommendation", 0.4f);
+                }
+            }
         }
 
-        /// <summary>
-        /// Triggers game adaptation based on player behavior
-        /// </summary>
-        public PlayerAdaptation TriggerGameAdaptation(AdaptationType adaptationType, float intensity = 1f)
+        private void TriggerGameAdaptation(string adaptationType, float intensity)
         {
-            if (!enableDynamicAdaptation) return null;
+            currentPlayerProfile.lastAdaptation = Time.time;
 
-            var adaptation = new PlayerAdaptation
+            var adaptationData = new Dictionary<AdaptationKey, object>
             {
-                adaptationType = adaptationType,
-                intensity = intensity,
-                timestamp = Time.time,
-                reason = DetermineAdaptationReason(),
-                playerArchetype = DetermineDominantArchetype(),
-                expectedImpact = CalculateExpectedImpact(adaptationType, intensity)
+                [AdaptationKey.Type] = adaptationType,
+                [AdaptationKey.Intensity] = intensity,
+                [AdaptationKey.Trigger] = "AutomaticAnalysis",
+                [AdaptationKey.PlayerArchetype] = currentPlayerProfile.dominantArchetype
             };
-
-            ApplyGameAdaptation(adaptation);
-            lastAdaptation = Time.time;
-
-            OnGameAdaptationTriggered?.Invoke(adaptation);
 
             Debug.Log($"Game adaptation triggered: {adaptationType} (Intensity: {intensity:F2})");
 
-            return adaptation;
+            // Notify adaptation engine
+            adaptationEngine?.ProcessAdaptation(adaptationType, intensity, adaptationData);
         }
 
-        private void StartNewSession()
+        #endregion
+
+        #region Session Management
+
+        private void StartNewGameplaySession()
         {
             currentSession = new GameplaySession
             {
-                sessionId = System.Guid.NewGuid().ToString(),
+                sessionId = (uint)UnityEngine.Random.Range(1000000, 9999999),
                 startTime = Time.time,
-                playerProfile = currentPlayerProfile
+                playerArchetype = currentPlayerProfile?.dominantArchetype ?? ArchetypeType.Unknown
             };
 
-            currentSessionActions.Clear();
             sessionStartTime = Time.time;
+            currentSessionActions.Clear();
+            sessionMilestones.Clear();
 
             Debug.Log($"Started new gameplay session: {currentSession.sessionId}");
         }
 
-        private void UpdateCurrentSession()
+        private void EndCurrentSession()
         {
             if (currentSession == null) return;
 
-            currentSession.duration = Time.time - sessionStartTime;
-            currentSession.actionCount = currentSessionActions.Count;
-            currentSession.lastActivityTime = Time.time;
+            currentSession.endTime = Time.time;
+            currentSession.duration = currentSession.endTime - currentSession.startTime - currentSession.totalPauseTime;
+            currentSession.totalActions = currentSessionActions.Count;
+            currentSession.uniqueActionTypes = currentSessionActions.Select(a => a.actionType).Distinct().Count();
+            currentSession.actions = new List<PlayerAction>(currentSessionActions);
 
-            // Update session metrics
-            UpdateSessionMetrics();
-        }
+            // Calculate session metrics
+            currentSession.engagementMetrics = CalculateEngagementMetrics();
+            currentSession.behaviorMetrics = CalculateBehaviorMetrics();
+            currentSession.emotionalProfile = new Dictionary<EmotionalState, float>(emotionalHistory);
 
-        private void ProcessAnalyticsData()
-        {
-            if (currentSessionActions.Count == 0) return;
-
-            // Analyze recent actions
-            var recentActions = GetRecentActions(analyticsUpdateInterval);
-
-            // Update behavior scores
-            UpdateBehaviorScoresFromActions(recentActions);
+            // Add to history
+            sessionHistory.Add(currentSession);
 
             // Update player profile
-            UpdatePlayerProfile();
+            UpdatePlayerProfileFromSession();
 
-            // Generate insights
-            if (enableRealTimeAnalysis)
-            {
-                GenerateRealTimeInsights();
-            }
+            currentSession = null;
         }
 
-        private void CheckForAdaptationOpportunities()
+        private EngagementMetrics CalculateEngagementMetrics()
         {
-            var analysis = GetBehaviorAnalysis();
+            float sessionDuration = currentSession.duration;
+            int actionCount = currentSessionActions.Count;
 
-            // Check for engagement drops
-            if (analysis.engagementLevel < 0.3f)
+            return new EngagementMetrics
             {
-                TriggerGameAdaptation(AdaptationType.EngagementBoost, 0.7f);
-                return;
-            }
-
-            // Check for difficulty mismatches
-            var performanceMetrics = CalculatePerformanceMetrics();
-            if (performanceMetrics.successRate > 0.9f)
-            {
-                TriggerGameAdaptation(AdaptationType.DifficultyIncrease, 0.5f);
-            }
-            else if (performanceMetrics.successRate < 0.3f)
-            {
-                TriggerGameAdaptation(AdaptationType.DifficultyDecrease, 0.5f);
-            }
-
-            // Check for content preferences
-            var preferences = analysis.preferences;
-            if (preferences.ContainsKey("explorationPreference") && preferences["explorationPreference"] > 0.8f)
-            {
-                TriggerGameAdaptation(AdaptationType.ContentFocus, 0.6f);
-            }
+                sessionDuration = sessionDuration,
+                actionsPerMinute = actionCount / Mathf.Max(sessionDuration / 60f, 0.1f),
+                overallEngagement = CalculateOverallEngagement(),
+                focusLevel = CalculateFocusLevel(),
+                explorationLevel = CalculateExplorationLevel()
+            };
         }
 
-        private void SetupInputTracking()
+        private float CalculateOverallEngagement()
         {
-            if (!trackInputPatterns) return;
+            // Combine multiple factors for engagement score
+            float activityLevel = Mathf.Clamp01(currentSessionActions.Count / 100f);
+            float varietyLevel = Mathf.Clamp01(currentSessionActions.Select(a => a.actionType).Distinct().Count() / 10f);
+            float sessionLength = Mathf.Clamp01((Time.time - sessionStartTime) / 600f); // 10 minutes = full engagement
 
-            // This would integrate with Unity's Input System
-            // For now, we'll set up basic input metric tracking
-            InitializeInputMetrics();
+            return (activityLevel + varietyLevel + sessionLength) / 3f;
         }
 
-        private void ConnectToGameSystems()
+        private float CalculateFocusLevel()
         {
-            // Connect to quest system
-            if (ProceduralQuestGenerator.Instance != null)
-            {
-                ProceduralQuestGenerator.Instance.OnQuestCompleted += HandleQuestCompleted;
-                ProceduralQuestGenerator.Instance.OnQuestGenerated += HandleQuestGenerated;
-            }
+            if (currentSessionActions.Count == 0) return 0.5f;
 
-            // Connect to breeding system
-            if (AdvancedBreedingSimulator.Instance != null)
-            {
-                AdvancedBreedingSimulator.Instance.OnBreedingCompleted += HandleBreedingCompleted;
-                AdvancedBreedingSimulator.Instance.OnOffspringAccepted += HandleOffspringAccepted;
-            }
+            var actionGroups = currentSessionActions.GroupBy(a => a.actionType);
+            var largestGroup = actionGroups.OrderByDescending(g => g.Count()).FirstOrDefault();
 
-            // Connect to ecosystem system
-            if (DynamicEcosystemSimulator.Instance != null)
-            {
-                DynamicEcosystemSimulator.Instance.OnEnvironmentalEventStarted += HandleEnvironmentalEvent;
-            }
+            return largestGroup != null ? (float)largestGroup.Count() / currentSessionActions.Count : 0f;
         }
 
-        private void HandleQuestCompleted(ProceduralQuest quest)
+        private float CalculateExplorationLevel()
         {
-            TrackGameplayChoice(ChoiceCategory.QuestCompletion, quest.type.ToString(), new Dictionary<ParamKey, object>
+            if (currentSessionActions.Count == 0) return 0f;
+
+            return (float)currentSessionActions.Select(a => a.actionType).Distinct().Count() / currentSessionActions.Count;
+        }
+
+        #endregion
+
+        #region Data Integration
+
+        public void OnQuestCompleted(QuestData quest)
+        {
+            TrackPlayerAction("Quest_Completed", "Questing", new Dictionary<ParamKey, object>
             {
-                ["questDifficulty"] = quest.difficulty,
-                ["completionTime"] = Time.time - quest.generatedTime
+                [ParamKey.QuestId] = quest.questId,
+                [ParamKey.QuestType] = quest.type,
+                [ParamKey.QuestDifficulty] = quest.difficulty,
+                [ParamKey.QuestGeneratedTime] = Time.time - quest.generatedTime
             });
 
-            // Track emotional response to quest completion
             TrackEmotionalResponse(EmotionalState.Satisfaction, 0.7f, "QuestComplete");
         }
 
-        private void HandleQuestGenerated(ProceduralQuest quest)
+        public void OnQuestFailed(QuestData quest)
         {
-            TrackAction(ActionType.Quest, new Dictionary<ParamKey, object>
+            TrackPlayerAction("Quest_Failed", "Questing", new Dictionary<ParamKey, object>
             {
-                ["questType"] = quest.type.ToString(),
-                ["questDifficulty"] = quest.difficulty
+                [ParamKey.QuestId] = quest.questId,
+                [ParamKey.QuestType] = quest.type,
+                [ParamKey.QuestDifficulty] = quest.difficulty
             });
+
+            TrackEmotionalResponse(EmotionalState.Frustration, 0.6f, "QuestFailure");
         }
 
-        private void HandleBreedingCompleted(BreedingSession session, CreatureGenome offspring)
+        public void OnBreedingCompleted(BreedingSession session, CreatureInstance offspring)
         {
             TrackGameplayChoice(ChoiceCategory.BreedingChoice, "Completed", new Dictionary<ParamKey, object>
             {
-                ["parentAFitness"] = session.parentA.fitness,
-                ["parentBFitness"] = session.parentB.fitness,
-                ["offspringFitness"] = offspring.fitness,
-                ["breedingTime"] = session.completionTime - session.startTime
+                [ParamKey.ParentAFitness] = session.parentA.fitness,
+                [ParamKey.ParentBFitness] = session.parentB.fitness,
+                [ParamKey.OffspringFitness] = offspring.fitness,
+                [ParamKey.BreedingTime] = session.completionTime - session.startTime
             });
 
-            // Determine emotional response based on breeding success
-            bool exceeded = offspring.fitness > Mathf.Max(session.parentA.fitness, session.parentB.fitness);
-            TrackEmotionalResponse(
-                exceeded ? EmotionalState.Excitement : EmotionalState.Curiosity,
-                exceeded ? 0.8f : 0.5f,
+            TrackEmotionalResponse(EmotionalState.Pride,
+                Mathf.Lerp(0.4f, 0.9f, offspring.fitness),
                 "BreedingResult"
             );
         }
 
-        private void HandleOffspringAccepted(CreatureGenome offspring)
+        public void OnOffspringDecision(CreatureInstance offspring, bool accepted)
         {
-            TrackGameplayChoice(ChoiceCategory.OffspringDecision, "Accepted", new Dictionary<ParamKey, object>
+            TrackGameplayChoice(ChoiceCategory.OffspringDecision, accepted ? "Accepted" : "Rejected", new Dictionary<ParamKey, object>
             {
-                ["offspringFitness"] = offspring.fitness,
-                ["offspringGeneration"] = offspring.generation
+                [ParamKey.OffspringFitness] = offspring.fitness,
+                [ParamKey.Generation] = offspring.generation
             });
         }
 
-        private void HandleEnvironmentalEvent(EnvironmentalEvent envEvent)
+        public void OnEnvironmentalEvent(EcosystemEvent envEvent)
         {
-            TrackAction(ActionType.Exploration, new Dictionary<ParamKey, object>
+            TrackPlayerAction("Environmental_Event", "WorldEvents", new Dictionary<ParamKey, object>
             {
-                ["eventType"] = envEvent.eventType.ToString()
+                [ParamKey.EventType] = envEvent.eventType
             });
 
-            // Environmental events might cause stress or excitement
             TrackEmotionalResponse(EmotionalState.Anticipation, 0.6f, "EnvironmentalEvent");
         }
 
-        // Additional helper methods for analytics processing...
-        // (Implementation continues with detailed analysis algorithms)
+        #endregion
 
-        private void OnDestroy()
+        #region Debug and Editor Tools
+
+        [System.Diagnostics.Conditional("UNITY_EDITOR")]
+        private void OnGUI()
         {
-            if (instance == this)
-            {
-                // Save session data before destroying
-                SaveCurrentSession();
-                instance = null;
-            }
+            if (!Application.isPlaying || !enableAnalytics) return;
+
+            // Simple debug display
+            GUILayout.BeginArea(new Rect(10, 10, 300, 200));
+            GUILayout.Label($"Session Actions: {currentSessionActions.Count}");
+            GUILayout.Label($"Archetype: {currentPlayerProfile?.dominantArchetype.ToString() ?? "Unknown"}");
+            GUILayout.Label($"Engagement: {CalculateOverallEngagement():F2}");
+            GUILayout.EndArea();
         }
 
-        // Editor menu items
-#if UNITY_EDITOR
         [UnityEditor.MenuItem("🧪 Laboratory/Analytics/Show Player Behavior Analysis", false, 500)]
-        private static void MenuShowBehaviorAnalysis()
+        private static void ShowPlayerBehaviorAnalysis()
         {
-            if (Application.isPlaying && Instance != null)
+            var tracker = FindObjectOfType<PlayerAnalyticsTracker>();
+            if (tracker != null)
             {
-                var analysis = Instance.GetBehaviorAnalysis();
+                var analysis = tracker.GeneratePlayerBehaviorAnalysis();
                 Debug.Log($"Player Behavior Analysis:\n" +
                          $"Dominant Archetype: {analysis.dominantArchetype}\n" +
                          $"Play Style: {analysis.playStyle}\n" +
@@ -719,1422 +639,545 @@ namespace Laboratory.Systems.Analytics
         }
 
         [UnityEditor.MenuItem("🧪 Laboratory/Analytics/Show Session Analytics", false, 501)]
-        private static void MenuShowSessionAnalytics()
+        private static void ShowSessionAnalytics()
         {
-            if (Application.isPlaying && Instance != null)
+            var tracker = FindObjectOfType<PlayerAnalyticsTracker>();
+            if (tracker?.currentSession != null)
             {
-                var analytics = Instance.GetSessionAnalytics();
+                var analytics = tracker.CalculateEngagementMetrics();
                 if (analytics != null)
                 {
                     Debug.Log($"Session Analytics:\n" +
                              $"Duration: {analytics.sessionDuration:F1}s\n" +
                              $"Total Actions: {analytics.totalActions}\n" +
                              $"Actions/Min: {analytics.actionsPerMinute:F1}\n" +
-                             $"Engagement: {analytics.engagementMetrics.overallEngagement:F2}");
+                             $"Engagement: {analytics.overallEngagement:F2}");
                 }
             }
         }
 
         [UnityEditor.MenuItem("🧪 Laboratory/Analytics/Trigger Test Adaptation", false, 502)]
-        private static void MenuTriggerTestAdaptation()
+        private static void TriggerTestAdaptation()
         {
-            if (Application.isPlaying && Instance != null)
+            var tracker = FindObjectOfType<PlayerAnalyticsTracker>();
+            if (tracker != null)
             {
-                Instance.TriggerGameAdaptation(AdaptationType.EngagementBoost, 0.5f);
+                tracker.TriggerGameAdaptation("TestAdaptation", 0.5f);
                 Debug.Log("Triggered test game adaptation");
             }
         }
-#endif
-    }
 
-    // Supporting data structures for analytics
-    [System.Serializable]
-    public class PlayerProfile
-    {
-        public string playerId;
-        public string playerName;
-        public float totalPlayTime;
-        public int totalSessions;
-        public int sessionsCompleted;
-        public PlayStyle preferredPlayStyle;
-        public float skillLevel;
-        public Dictionary<ConfigKey, float> preferences = new Dictionary<ConfigKey, float>();
-        public Dictionary<ActionType, int> achievements = new Dictionary<ActionType, int>();
-        public PlayerArchetype dominantArchetype;
-        public float createdTime;
-        public float lastUpdated;
-    }
+        #endregion
 
-    [System.Serializable]
-    public class GameplaySession
-    {
-        public string sessionId;
-        public float startTime;
-        public float endTime;
-        public float duration;
-        public PlayerProfile playerProfile;
-        public int actionCount;
-        public int totalActions;
-        public float lastActivityTime;
-        public SessionAnalytics analytics;
-        public Dictionary<ParamKey, object> sessionData = new Dictionary<ParamKey, object>();
-    }
+        #region Advanced Analytics Methods
 
-    [System.Serializable]
-    public class PlayerAction
-    {
-        public string actionType;
-        public float timestamp;
-        public float sessionTime;
-        public Dictionary<ParamKey, object> parameters = new Dictionary<ParamKey, object>();
-        public GameplayContext context;
-    }
-
-    [System.Serializable]
-    public class ActionMetrics
-    {
-        public int totalCount;
-        public float lastUsed;
-        public float averageInterval;
-        public float peakUsagePeriod;
-    }
-
-    [System.Serializable]
-    public class PlayerBehaviorAnalysis
-    {
-        public string playerId;
-        public float analysisTime;
-        public PlayerArchetype dominantArchetype;
-        public Dictionary<TraitType, float> behaviorScores;
-        public PlayStyle playStyle;
-        public float engagementLevel;
-        public Dictionary<ConfigKey, float> preferences;
-        public List<BehaviorInsight> insights;
-        public List<string> recommendations;
-    }
-
-    [System.Serializable]
-    public class SessionAnalytics
-    {
-        public string sessionId;
-        public float sessionDuration;
-        public int totalActions;
-        public float actionsPerMinute;
-        public Dictionary<ActionType, float> dominantActivities;
-        public EngagementMetrics engagementMetrics;
-        public PerformanceMetrics performanceMetrics;
-        public List<EmotionalDataPoint> emotionalJourney;
-        public List<KeyMoment> keyMoments;
-    }
-
-    [System.Serializable]
-    public class PlayerAdaptation
-    {
-        public AdaptationType adaptationType;
-        public float intensity;
-        public float timestamp;
-        public string reason;
-        public PlayerArchetype playerArchetype;
-        public Dictionary<SystemType, float> expectedImpact;
-    }
-
-    // Enums and supporting types for analytics
-    public enum PlayerArchetype { Explorer, Achiever, Socializer, Experimenter, Completionist }
-    public enum PlayStyle { Casual, Focused, Intensive, Strategic, Creative }
-    public enum EmotionalState { Excitement, Satisfaction, Frustration, Curiosity, Anticipation, Boredom }
-    public enum AdaptationType { DifficultyIncrease, DifficultyDecrease, ContentFocus, EngagementBoost, PersonalizationUpdate }
-
-    [System.Serializable]
-    public class BehaviorPattern
-    {
-        public string patternName;
-        public string[] requiredActions;
-        public float minimumFrequency;
-        public float patternScore;
-    }
-
-    [System.Serializable]
-    public class EngagementMetric
-    {
-        public string metricName;
-        public float weight;
-        public float currentValue;
-    }
-
-    [System.Serializable]
-    public class BehaviorInsight
-    {
-        public string insightType;
-        public string message;
-        public float confidence;
-        public float timestamp;
-    }
-
-    [System.Serializable]
-    public class GameplayContext
-    {
-        public string currentScene;
-        public string currentActivity;
-        public Dictionary<ParamKey, object> environmentalFactors;
-    }
-
-    [System.Serializable]
-    public class EngagementMetrics
-    {
-        public float overallEngagement;
-        public float sessionEngagement;
-        public float activityEngagement;
-        public List<float> engagementOverTime;
-    }
-
-    [System.Serializable]
-    public class PerformanceMetrics
-    {
-        public float successRate;
-        public float averageCompletionTime;
-        public float difficultyRating;
-        public int retryCount;
-    }
-
-    [System.Serializable]
-    public class EmotionalDataPoint
-    {
-        public float timestamp;
-        public EmotionalState state;
-        public float intensity;
-        public string trigger;
-    }
-
-    [System.Serializable]
-    public class KeyMoment
-    {
-        public float timestamp;
-        public string momentType;
-        public string description;
-        public float significance;
-    }
-
-        private PlayerProfile LoadOrCreatePlayerProfile()
+        /// <summary>
+        /// Generates comprehensive behavior analysis
+        /// </summary>
+        public PlayerBehaviorAnalysis GeneratePlayerBehaviorAnalysis()
         {
-            string profilePath = GetAnalyticsDataPath("player_profile.json");
-
-            if (System.IO.File.Exists(profilePath))
+            var analysis = new PlayerBehaviorAnalysis
             {
-                try
-                {
-                    string json = System.IO.File.ReadAllText(profilePath);
-                    var profile = JsonUtility.FromJson<PlayerProfile>(json);
-                    profile.lastUpdated = Time.time;
-                    return profile;
-                }
-                catch (System.Exception e)
-                {
-                    Debug.LogWarning($"Failed to load player profile: {e.Message}");
-                }
-            }
-
-            // Create new profile
-            var newProfile = new PlayerProfile
-            {
-                playerId = GeneratePlayerId(),
-                createdTime = Time.time,
-                lastUpdated = Time.time,
-                totalPlayTime = 0f,
-                sessionsCompleted = 0,
-                preferredPlayStyle = PlayStyle.Casual,
-                skillLevel = 0.5f
+                playerId = currentPlayerProfile.playerId,
+                dominantArchetype = currentPlayerProfile.dominantArchetype,
+                playStyle = AnalyzePlayStyle(),
+                engagementLevel = CalculateOverallEngagement(),
+                behaviorTraits = new Dictionary<PlayerBehaviorTrait, float>(behaviorTraits),
+                insights = GenerateInsights(),
+                recommendations = GenerateRecommendations(),
+                emotionalProfile = new Dictionary<EmotionalState, float>(emotionalHistory),
+                sessionMetrics = currentSession != null ? CalculateEngagementMetrics().engagementMetrics : new Dictionary<string, float>()
             };
 
-            SavePlayerProfile(newProfile);
-            return newProfile;
-        }
-
-        private string GetAnalyticsDataPath(string filename)
-        {
-            string dataPath = System.IO.Path.Combine(Application.persistentDataPath, "Analytics");
-            if (!System.IO.Directory.Exists(dataPath))
-            {
-                System.IO.Directory.CreateDirectory(dataPath);
-            }
-            return System.IO.Path.Combine(dataPath, filename);
-        }
-
-        private string GeneratePlayerId()
-        {
-            // Generate anonymous but consistent player ID
-            if (anonymizeData)
-            {
-                return System.Guid.NewGuid().ToString().Substring(0, 8);
-            }
-            else
-            {
-                return $"player_{System.DateTime.Now.Ticks}";
-            }
-        }
-
-        private void SavePlayerProfile(PlayerProfile profile)
-        {
-            try
-            {
-                string json = JsonUtility.ToJson(profile, true);
-                System.IO.File.WriteAllText(GetAnalyticsDataPath("player_profile.json"), json);
-            }
-            catch (System.Exception e)
-            {
-                Debug.LogError($"Failed to save player profile: {e.Message}");
-            }
-        }
-
-        private Dictionary<TraitType, float> ConvertBehaviorScoresToEnumDict()
-        {
-            return new Dictionary<TraitType, float>(behaviorScores);
-        }
-
-        private void LoadSessionHistory()
-        {
-            string historyPath = GetAnalyticsDataPath("session_history.json");
-            sessionHistory.Clear();
-
-            if (System.IO.File.Exists(historyPath))
-            {
-                try
-                {
-                    string json = System.IO.File.ReadAllText(historyPath);
-                    var wrapper = JsonUtility.FromJson<SessionHistoryWrapper>(json);
-                    sessionHistory = wrapper.sessions ?? new List<GameplaySession>();
-
-                    // Clean up old sessions based on retention settings
-                    CleanupOldSessions();
-
-                    Debug.Log($"Loaded {sessionHistory.Count} sessions from history");
-                }
-                catch (System.Exception e)
-                {
-                    Debug.LogWarning($"Failed to load session history: {e.Message}");
-                    sessionHistory = new List<GameplaySession>();
-                }
-            }
-        }
-
-        private void CleanupOldSessions()
-        {
-            if (dataRetentionDays <= 0) return;
-
-            float cutoffTime = Time.time - (dataRetentionDays * 24 * 3600);
-            sessionHistory.RemoveAll(session => session.startTime < cutoffTime);
-        }
-
-        private GameplayContext CaptureCurrentContext()
-        {
-            var context = new GameplayContext
-            {
-                currentScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name,
-                currentActivity = DetermineCurrentActivity(),
-                environmentalFactors = new Dictionary<ParamKey, object>()
-            };
-
-            // Capture environmental factors
-            context.environmentalFactors[ParamKey.SessionTime] = Time.time - sessionStartTime;
-            context.environmentalFactors[ParamKey.TotalActions] = currentSessionActions.Count;
-            context.environmentalFactors[ParamKey.FrameRate] = Application.targetFrameRate;
-
-            // Capture Chimera-specific context
-            var chimeraManager = FindFirstObjectByType<Laboratory.Chimera.AI.ChimeraAIManager>();
-            if (chimeraManager != null)
-            {
-                context.environmentalFactors[ParamKey.ActiveCreatures] = GetActiveCreatureCount();
-                context.environmentalFactors[ParamKey.CurrentBiome] = GetCurrentBiome();
-            }
-
-            // Capture quest context
-            var questSystem = FindFirstObjectByType<Laboratory.Systems.Quests.QuestManager>();
-            if (questSystem != null)
-            {
-                context.environmentalFactors[ParamKey.ActiveQuests] = GetActiveQuestCount();
-                context.environmentalFactors[ParamKey.QuestProgress] = GetCurrentQuestProgress();
-            }
-
-            return context;
-        }
-
-        private string DetermineCurrentActivity()
-        {
-            // Determine activity based on recent actions
-            var recentActions = GetRecentActions(30f); // Last 30 seconds
-            if (recentActions.Count == 0) return "Idle";
-
-            var actionCounts = recentActions.GroupBy(a => a.actionType)
-                .ToDictionary(g => g.Key, g => g.Count());
-
-            var dominantAction = actionCounts.OrderByDescending(kvp => kvp.Value).First().Key;
-
-            // Map actions to activities
-            if (dominantAction.Contains("breed") || dominantAction.Contains("genetics")) return "Breeding";
-            if (dominantAction.Contains("quest") || dominantAction.Contains("mission")) return "Questing";
-            if (dominantAction.Contains("explore") || dominantAction.Contains("move")) return "Exploration";
-            if (dominantAction.Contains("menu") || dominantAction.Contains("ui")) return "MenuNavigation";
-            if (dominantAction.Contains("battle") || dominantAction.Contains("combat")) return "Combat";
-
-            return "General";
-        }
-
-        private int GetActiveCreatureCount()
-        {
-            var creatures = FindObjectsByType<Laboratory.Chimera.AI.ChimeraMonsterAI>(FindObjectsSortMode.None);
-            return creatures?.Length ?? 0;
-        }
-
-        private string GetCurrentBiome()
-        {
-            // Try to determine current biome from environment
-            var biomeManager = FindFirstObjectByType<Laboratory.Subsystems.Ecosystem.Services.BiomeManager>();
-            if (biomeManager != null)
-            {
-                // Try to get current biome from recent exploration actions
-                var recentExploration = actionHistory
-                    .Where(a => a.actionType == ActionType.Exploration &&
-                               a.parameters.ContainsKey(ParamKey.Biome) &&
-                               (DateTime.UtcNow - a.timestamp).TotalMinutes < 30)
-                    .OrderByDescending(a => a.timestamp)
-                    .FirstOrDefault();
-
-                if (recentExploration != null && recentExploration.parameters.TryGetValue(ParamKey.Biome, out var biomeValue))
-                {
-                    return biomeValue.ToString();
-                }
-
-                // Fallback to most commonly visited biome
-                var biomeVisits = actionHistory
-                    .Where(a => a.actionType == ActionType.Exploration && a.parameters.ContainsKey(ParamKey.Biome))
-                    .GroupBy(a => a.parameters[ParamKey.Biome].ToString())
-                    .OrderByDescending(g => g.Count())
-                    .FirstOrDefault();
-
-                if (biomeVisits != null)
-                {
-                    return biomeVisits.Key;
-                }
-            }
-
-            // Default to Forest biome if no data available
-            return BiomeType.Forest.ToString();
-        }
-
-        private int GetActiveQuestCount()
-        {
-            var questManager = FindFirstObjectByType<Laboratory.Systems.Quests.QuestManager>();
-            if (questManager != null)
-            {
-                // Count active quests from recent quest actions
-                var activeQuestIds = actionHistory
-                    .Where(a => a.actionType == ActionType.Quest &&
-                               a.parameters.ContainsKey(ParamKey.QuestId) &&
-                               a.parameters.ContainsKey(ParamKey.Completed) &&
-                               !(bool)a.parameters[ParamKey.Completed] &&
-                               (DateTime.UtcNow - a.timestamp).TotalHours < 24)
-                    .Select(a => a.parameters[ParamKey.QuestId].ToString())
-                    .Distinct()
-                    .Count();
-
-                return Math.Max(activeQuestIds, 1); // Assume at least 1 quest active for new players
-            }
-
-            // Default quest count for new players
-            return 1;
-        }
-
-        private float GetCurrentQuestProgress()
-        {
-            var questManager = FindFirstObjectByType<Laboratory.Systems.Quests.QuestManager>();
-            if (questManager != null)
-            {
-                // Calculate quest completion from recent quest actions
-                var questActions = actionHistory
-                    .Where(a => a.actionType == ActionType.Quest &&
-                               a.parameters.ContainsKey(ParamKey.Progress))
-                    .ToList();
-
-                if (questActions.Count > 0)
-                {
-                    // Get the most recent progress for each quest
-                    var questProgress = questActions
-                        .GroupBy(a => a.parameters.GetValueOrDefault(ParamKey.QuestId, "default").ToString())
-                        .Select(g => g.OrderByDescending(a => a.timestamp).First())
-                        .Select(a => Convert.ToSingle(a.parameters[ParamKey.Progress]))
-                        .ToList();
-
-                    if (questProgress.Count > 0)
-                    {
-                        return questProgress.Average() / 100f; // Convert percentage to 0-1 range
-                    }
-                }
-
-                // Check for completed quests
-                var completedQuests = actionHistory
-                    .Where(a => a.actionType == ActionType.Quest &&
-                               a.parameters.ContainsKey(ParamKey.Completed) &&
-                               (bool)a.parameters[ParamKey.Completed])
-                    .Count();
-
-                var totalQuests = Math.Max(actionHistory
-                    .Where(a => a.actionType == ActionType.Quest && a.parameters.ContainsKey(ParamKey.QuestId))
-                    .Select(a => a.parameters[ParamKey.QuestId].ToString())
-                    .Distinct()
-                    .Count(), 1);
-
-                return (float)completedQuests / totalQuests;
-            }
-
-            // Default progress for new players
-            return 0.1f;
-        }
-
-        private float CalculateAverageInterval(string actionType)
-        {
-            // Calculate average time between actions of this type from recent session data
-            var typeActions = actionHistory
-                .Where(a => a.actionType == actionType)
-                .OrderBy(a => a.timestamp)
-                .ToList();
-
-            if (typeActions.Count < 2) return 5f; // Default 5 second interval for new action types
-
-            var intervals = new List<float>();
-            for (int i = 1; i < typeActions.Count; i++)
-            {
-                var interval = (float)(typeActions[i].timestamp - typeActions[i-1].timestamp).TotalSeconds;
-                intervals.Add(interval);
-            }
-
-            return intervals.Count > 0 ? intervals.Average() : 5f;
-            var actionsOfType = currentSessionActions.Where(a => a.actionType == actionType).ToList();
-            return actionsOfType.Count > 1 ? 1.0f : 0.0f;
-        }
-
-        private void AnalyzeActionInRealTime(PlayerAction action)
-        {
-            // Update behavior scores based on action type
-            UpdateBehaviorScoresFromAction(action);
-
-            // Check for interesting patterns
-            DetectActionPatterns(action);
-
-            // Update engagement metrics
-            UpdateEngagementFromAction(action);
-
-            if (enableRealTimeAnalysis)
-            {
-                Debug.Log($"Analyzed action: {action.actionType} in {action.context.currentActivity}");
-            }
-        }
-
-        private SessionAnalytics AnalyzeCurrentSession()
-        {
-            if (currentSession == null) return new SessionAnalytics();
-
-            var analytics = new SessionAnalytics
-            {
-                startTime = currentSession.startTime,
-                duration = Time.time - currentSession.startTime,
-                totalActions = currentSessionActions.Count,
-                actionsPerMinute = CalculateActionsPerMinute(),
-                dominantActivities = GetDominantActivities(),
-                engagementScore = engagementAnalyzer.CalculateCurrentEngagement(),
-                successRate = CalculateSessionSuccessRate(),
-                insights = GenerateBehaviorInsights()
-            };
-
-            return analytics;
-        }
-
-        private void UpdateBehaviorScoresFromAction(PlayerAction action)
-        {
-            if (!analyticsInitialized) return;
-
-            string actionLower = action.actionType.ToLower();
-
-            if (actionLower.Contains("explore") || actionLower.Contains("move"))
-            {
-                if (behaviorScores.ContainsKey(TraitType.Curiosity))
-                    behaviorScores[TraitType.Curiosity] = Mathf.Clamp01(behaviorScores[TraitType.Curiosity] + 0.01f);
-            }
-            else if (actionLower.Contains("breed") || actionLower.Contains("genetics"))
-            {
-                if (behaviorScores.ContainsKey(TraitType.Intelligence))
-                    behaviorScores[TraitType.Intelligence] = Mathf.Clamp01(behaviorScores[TraitType.Intelligence] + 0.01f);
-            }
-            else if (actionLower.Contains("social") || actionLower.Contains("interact"))
-            {
-                if (behaviorScores.ContainsKey(TraitType.Sociability))
-                    behaviorScores[TraitType.Sociability] = Mathf.Clamp01(behaviorScores[TraitType.Sociability] + 0.01f);
-            }
-            else if (actionLower.Contains("quest") || actionLower.Contains("achievement"))
-            {
-                if (behaviorScores.ContainsKey(TraitType.Dominance))
-                    behaviorScores[TraitType.Dominance] = Mathf.Clamp01(behaviorScores[TraitType.Dominance] + 0.01f);
-            }
-        }
-
-        private void DetectActionPatterns(PlayerAction action)
-        {
-            // Look for rapid consecutive actions (might indicate frustration or high engagement)
-            var recentActions = GetRecentActions(10f);
-            if (recentActions.Count > 20)
-            {
-                Debug.Log("High activity detected - player is highly engaged");
-            }
-
-            // Look for repetitive actions (might indicate grinding or confusion)
-            var sameTypeActions = recentActions.Where(a => a.actionType == action.actionType).Count();
-            if (sameTypeActions > 10)
-            {
-                Debug.Log($"Repetitive {action.actionType} actions detected - possible grinding behavior");
-            }
-        }
-
-        private void UpdateEngagementFromAction(PlayerAction action)
-        {
-            // Simple engagement tracking based on action frequency and variety
-            // Action type is already enum-based, parse from string for compatibility
-            System.Enum.TryParse<ActionType>(action.actionType, out var actionID);
-            if (!actionMetrics.ContainsKey(actionID))
-            {
-                // New action type increases engagement
-                currentEngagement = Mathf.Clamp01(currentEngagement + 0.05f);
-            }
-        }
-
-        private float CalculateSessionSuccessRate()
-        {
-            // Calculate success based on completed vs attempted actions
-            var completedActions = currentSessionActions.Where(a =>
-                a.parameters.ContainsKey("success") &&
-                a.parameters["success"].ToString().ToLower() == "true").Count();
-
-            if (currentSessionActions.Count == 0) return 0.5f;
-            return (float)completedActions / currentSessionActions.Count;
-        }
-
-        private void UpdateUIMetrics(string elementName, string interactionType, float interactionTime)
-        {
-            if (!trackUIInteractions) return;
-
-            // Track UI element usage frequency
-            var uiKey = $"{elementName}_{interactionType}";
-            if (!inputMetrics.ContainsKey(ActionType.UI))
-            {
-                inputMetrics[ActionType.UI] = new InputMetrics();
-            }
-
-            var metrics = inputMetrics[ActionType.UI];
-            metrics.totalInputs++;
-            metrics.averageInputRate = CalculateInputRate(ActionType.UI);
-
-            if (!metrics.inputTypes.ContainsKey(ActionType.UI))
-                metrics.inputTypes[ActionType.UI] = 0;
-            metrics.inputTypes[ActionType.UI]++;
-
-            // Update behavior scores based on UI interaction patterns
-            if (interactionTime > 5f) // Long interaction suggests careful consideration
-            {
-                behaviorScores[TraitType.Caution] = Mathf.Clamp01(behaviorScores[TraitType.Caution] + 0.002f);
-            }
-            else if (interactionTime < 1f) // Quick interaction suggests efficiency
-            {
-                behaviorScores[TraitType.Speed] = Mathf.Clamp01(behaviorScores[TraitType.Speed] + 0.002f);
-            }
-        }
-
-        private void UpdateChoicePreferences(ChoiceCategory choiceCategory, string choiceValue)
-        {
-            if (!trackGameplayChoices) return;
-
-            // Update player profile preferences based on choices
-            if (!currentPlayerProfile.preferences.ContainsKey(ConfigKey.Difficulty))
-                currentPlayerProfile.preferences[ConfigKey.Difficulty] = 0.5f;
-
-            switch (choiceCategory)
-            {
-                case ChoiceCategory.QuestCompletion:
-                    // Successful quest completion increases confidence in current difficulty
-                    if (choiceValue.Contains("Success") || choiceValue.Contains("Complete"))
-                    {
-                        behaviorScores[TraitType.Dominance] = Mathf.Clamp01(behaviorScores[TraitType.Dominance] + 0.01f);
-                        currentPlayerProfile.preferences[ConfigKey.Difficulty] =
-                            Mathf.Clamp01(currentPlayerProfile.preferences[ConfigKey.Difficulty] + 0.02f);
-                    }
-                    break;
-
-                case ChoiceCategory.BreedingChoice:
-                    // Breeding choices indicate experimentation vs optimization preference
-                    if (choiceValue.Contains("Experimental"))
-                    {
-                        behaviorScores[TraitType.Curiosity] = Mathf.Clamp01(behaviorScores[TraitType.Curiosity] + 0.015f);
-                    }
-                    else if (choiceValue.Contains("Optimal") || choiceValue.Contains("Safe"))
-                    {
-                        behaviorScores[TraitType.Caution] = Mathf.Clamp01(behaviorScores[TraitType.Caution] + 0.015f);
-                    }
-                    break;
-
-                case ChoiceCategory.SocialInteraction:
-                    // Social choices affect sociability scores
-                    behaviorScores[TraitType.Sociability] = Mathf.Clamp01(behaviorScores[TraitType.Sociability] + 0.01f);
-                    break;
-            }
-        }
-
-        private void UpdateEmotionalProfile(EmotionalState emotionalState, float intensity)
-        {
-            if (!trackEmotionalResponse) return;
-
-            // Update behavior scores based on emotional responses
-            switch (emotionalState)
-            {
-                case EmotionalState.Excitement:
-                    behaviorScores[TraitType.Curiosity] = Mathf.Clamp01(behaviorScores[TraitType.Curiosity] + intensity * 0.01f);
-                    behaviorScores[TraitType.Adaptability] = Mathf.Clamp01(behaviorScores[TraitType.Adaptability] + intensity * 0.005f);
-                    break;
-
-                case EmotionalState.Satisfaction:
-                    behaviorScores[TraitType.Dominance] = Mathf.Clamp01(behaviorScores[TraitType.Dominance] + intensity * 0.008f);
-                    break;
-
-                case EmotionalState.Frustration:
-                    behaviorScores[TraitType.Caution] = Mathf.Clamp01(behaviorScores[TraitType.Caution] + intensity * 0.01f);
-                    // Reduce difficulty preference if frustrated
-                    if (currentPlayerProfile.preferences.ContainsKey(ConfigKey.Difficulty))
-                    {
-                        currentPlayerProfile.preferences[ConfigKey.Difficulty] =
-                            Mathf.Clamp01(currentPlayerProfile.preferences[ConfigKey.Difficulty] - intensity * 0.05f);
-                    }
-                    break;
-
-                case EmotionalState.Curiosity:
-                    behaviorScores[TraitType.Curiosity] = Mathf.Clamp01(behaviorScores[TraitType.Curiosity] + intensity * 0.012f);
-                    behaviorScores[TraitType.Intelligence] = Mathf.Clamp01(behaviorScores[TraitType.Intelligence] + intensity * 0.005f);
-                    break;
-
-                case EmotionalState.Anticipation:
-                    behaviorScores[TraitType.Speed] = Mathf.Clamp01(behaviorScores[TraitType.Speed] + intensity * 0.007f);
-                    break;
-
-                case EmotionalState.Boredom:
-                    // Boredom suggests need for more variety or challenge
-                    if (currentPlayerProfile.preferences.ContainsKey(ConfigKey.Difficulty))
-                    {
-                        currentPlayerProfile.preferences[ConfigKey.Difficulty] =
-                            Mathf.Clamp01(currentPlayerProfile.preferences[ConfigKey.Difficulty] + intensity * 0.03f);
-                    }
-                    break;
-            }
-
-            // Track emotional pattern for archetype determination
-            if (intensity > 0.7f) // Strong emotional response
-            {
-                behaviorScores[TraitType.Sociability] = Mathf.Clamp01(behaviorScores[TraitType.Sociability] + 0.005f);
-            }
-        }
-
-        private PlayerArchetype DetermineDominantArchetype()
-        {
-            if (behaviorScores.Count == 0) return PlayerArchetype.Explorer;
-
-            // Analyze behavior patterns to determine archetype
-            float explorationScore = behaviorScores.GetValueOrDefault(TraitType.Curiosity, 0f) +
-                                    behaviorScores.GetValueOrDefault(TraitType.Adaptability, 0f);
-
-            float achieverScore = behaviorScores.GetValueOrDefault(TraitType.Dominance, 0f) +
-                                behaviorScores.GetValueOrDefault(TraitType.Intelligence, 0f);
-
-            float socializerScore = behaviorScores.GetValueOrDefault(TraitType.Sociability, 0f) * 2f;
-
-            float experimenterScore = behaviorScores.GetValueOrDefault(TraitType.Curiosity, 0f) +
-                                     behaviorScores.GetValueOrDefault(TraitType.Intelligence, 0f);
-
-            float completionistScore = behaviorScores.GetValueOrDefault(TraitType.Caution, 0f) +
-                                      behaviorScores.GetValueOrDefault(TraitType.Dominance, 0f);
-
-            // Count quest/achievement oriented actions
-            var questActions = currentSessionActions.Count(a => a.actionType.Contains("Quest") || a.actionType.Contains("Achievement"));
-            if (questActions > currentSessionActions.Count * 0.4f)
-            {
-                completionistScore += 0.3f;
-            }
-
-            // Count exploration actions
-            var explorationActions = currentSessionActions.Count(a => a.actionType.Contains("Exploration") || a.actionType.Contains("Discovery"));
-            if (explorationActions > currentSessionActions.Count * 0.3f)
-            {
-                explorationScore += 0.2f;
-            }
-
-            // Count social actions
-            var socialActions = currentSessionActions.Count(a => a.actionType.Contains("Social") || a.actionType.Contains("Interaction"));
-            if (socialActions > currentSessionActions.Count * 0.2f)
-            {
-                socializerScore += 0.2f;
-            }
-
-            // Return highest scoring archetype
-            var scores = new Dictionary<PlayerArchetype, float>
-            {
-                [PlayerArchetype.Explorer] = explorationScore,
-                [PlayerArchetype.Achiever] = achieverScore,
-                [PlayerArchetype.Socializer] = socializerScore,
-                [PlayerArchetype.Experimenter] = experimenterScore,
-                [PlayerArchetype.Completionist] = completionistScore
-            };
-
-            return scores.OrderByDescending(kvp => kvp.Value).First().Key;
+            return analysis;
         }
 
         private PlayStyle AnalyzePlayStyle()
         {
-            if (currentSessionActions.Count == 0) return PlayStyle.Casual;
+            var recentActions = currentSessionActions.TakeLast(100).ToList();
 
-            float sessionDuration = Time.time - sessionStartTime;
-            float actionsPerMinute = sessionDuration > 0 ? (currentSessionActions.Count / sessionDuration) * 60f : 0f;
-
-            // Analyze action frequency and session patterns
-            var recentSessions = sessionHistory.TakeLast(5).ToList();
-            float avgSessionLength = recentSessions.Count > 0 ? recentSessions.Average(s => s.duration) : sessionDuration;
-
-            // Calculate focus metrics
-            var actionTypes = currentSessionActions.GroupBy(a => a.actionType).Count();
-            float focusScore = actionTypes > 0 ? (float)currentSessionActions.Count / actionTypes : 1f;
-
-            // Determine play style based on metrics
-            if (actionsPerMinute > 15f && avgSessionLength > 3600f) // High APM, long sessions
+            return new PlayStyle
             {
-                return focusScore > 10f ? PlayStyle.Intensive : PlayStyle.Focused;
-            }
-            else if (actionsPerMinute > 10f)
-            {
-                return focusScore > 8f ? PlayStyle.Focused : PlayStyle.Strategic;
-            }
-            else if (avgSessionLength > 1800f && focusScore > 12f) // Long focused sessions
-            {
-                return PlayStyle.Strategic;
-            }
-            else if (actionTypes > 6) // High variety of actions
-            {
-                return PlayStyle.Creative;
-            }
-
-            return PlayStyle.Casual;
+                explorationFocus = CalculateExplorationFocus(recentActions),
+                breedingFocus = CalculateBreedingFocus(recentActions),
+                questFocus = CalculateQuestFocus(recentActions),
+                socialFocus = CalculateSocialFocus(recentActions),
+                competitiveFocus = CalculateCompetitiveFocus(recentActions),
+                creativeFocus = CalculateCreativeFocus(recentActions)
+            };
         }
 
-        private List<BehaviorInsight> GenerateBehaviorInsights()
+        private float CalculateExplorationFocus(List<PlayerAction> actions)
+        {
+            if (actions.Count == 0) return 0f;
+            return (float)actions.Count(a => a.actionType == ActionType.Exploration) / actions.Count;
+        }
+
+        private float CalculateBreedingFocus(List<PlayerAction> actions)
+        {
+            if (actions.Count == 0) return 0f;
+            return (float)actions.Count(a => a.actionType == ActionType.Breeding || a.actionType == ActionType.Research) / actions.Count;
+        }
+
+        private float CalculateQuestFocus(List<PlayerAction> actions)
+        {
+            if (actions.Count == 0) return 0f;
+            return (float)actions.Count(a => a.actionType == ActionType.Quest) / actions.Count;
+        }
+
+        private float CalculateSocialFocus(List<PlayerAction> actions)
+        {
+            if (actions.Count == 0) return 0f;
+            return (float)actions.Count(a => a.actionType == ActionType.Social) / actions.Count;
+        }
+
+        private float CalculateCompetitiveFocus(List<PlayerAction> actions)
+        {
+            if (actions.Count == 0) return 0f;
+            return (float)actions.Count(a => a.actionType == ActionType.Combat) / actions.Count;
+        }
+
+        private float CalculateCreativeFocus(List<PlayerAction> actions)
+        {
+            if (actions.Count == 0) return 0f;
+            return (float)actions.Count(a => a.actionType == ActionType.Research) / actions.Count;
+        }
+
+        private List<BehaviorInsight> GenerateInsights()
         {
             var insights = new List<BehaviorInsight>();
 
-            if (behaviorScores.Count == 0) return insights;
-
-            // Analyze high trait scores for insights
-            foreach (var trait in behaviorScores)
-            {
-                if (trait.Value > 0.8f)
-                {
-                    insights.Add(new BehaviorInsight
-                    {
-                        insightType = "HighTrait",
-                        message = $"Player shows strong {trait.Key.ToString().ToLower()} tendencies (Score: {trait.Value:F2})",
-                        confidence = trait.Value,
-                        timestamp = Time.time
-                    });
-                }
-                else if (trait.Value < 0.2f)
-                {
-                    insights.Add(new BehaviorInsight
-                    {
-                        insightType = "LowTrait",
-                        message = $"Player avoids {trait.Key.ToString().ToLower()}-based activities (Score: {trait.Value:F2})",
-                        confidence = 1f - trait.Value,
-                        timestamp = Time.time
-                    });
-                }
-            }
-
-            // Analyze session patterns
-            float sessionDuration = Time.time - sessionStartTime;
-            if (sessionDuration > 7200f) // 2+ hour session
+            // High trait insights
+            foreach (var trait in behaviorTraits.Where(t => t.Value > 0.7f))
             {
                 insights.Add(new BehaviorInsight
                 {
-                    insightType = "LongSession",
+                    insightType = InsightType.HighTrait,
+                    message = $"Player shows strong {trait.Key.ToString().ToLower()} tendencies (Score: {trait.Value:F2})",
+                    confidence = trait.Value
+                });
+            }
+
+            // Low trait insights
+            foreach (var trait in behaviorTraits.Where(t => t.Value < 0.3f))
+            {
+                insights.Add(new BehaviorInsight
+                {
+                    insightType = InsightType.LowTrait,
+                    message = $"Player avoids {trait.Key.ToString().ToLower()}-based activities (Score: {trait.Value:F2})",
+                    confidence = 1f - trait.Value
+                });
+            }
+
+            // Session length insights
+            if (currentSession != null && (Time.time - sessionStartTime) > 600f) // 10+ minutes
+            {
+                insights.Add(new BehaviorInsight
+                {
+                    insightType = InsightType.LongSession,
                     message = "Player demonstrates high engagement with extended play sessions",
-                    confidence = Mathf.Clamp01(sessionDuration / 10800f), // Confidence increases up to 3 hours
-                    timestamp = Time.time
+                    confidence = 0.8f
                 });
             }
 
-            // Analyze action variety
-            var actionTypes = currentSessionActions.GroupBy(a => a.actionType).Count();
-            if (actionTypes > 8)
+            // Variety insights
+            var uniqueActionTypes = currentSessionActions.Select(a => a.actionType).Distinct().Count();
+            if (uniqueActionTypes > 8)
             {
                 insights.Add(new BehaviorInsight
                 {
-                    insightType = "HighVariety",
-                    message = $"Player explores diverse gameplay mechanics ({actionTypes} different action types)",
-                    confidence = Mathf.Clamp01(actionTypes / 12f),
-                    timestamp = Time.time
+                    insightType = InsightType.HighVariety,
+                    message = $"Player explores diverse gameplay mechanics ({uniqueActionTypes} different action types)",
+                    confidence = Mathf.Clamp01(uniqueActionTypes / 15f)
                 });
             }
-            else if (actionTypes < 3 && currentSessionActions.Count > 20)
+            else if (uniqueActionTypes <= 3 && currentSessionActions.Count > 20)
             {
                 insights.Add(new BehaviorInsight
                 {
-                    insightType = "Focused",
+                    insightType = InsightType.Focused,
                     message = "Player shows focused behavior, concentrating on specific activities",
-                    confidence = 0.8f,
-                    timestamp = Time.time
+                    confidence = 0.7f
                 });
             }
 
-            // Analyze difficulty preference patterns
-            var archetype = DetermineDominantArchetype();
-            if (archetype == PlayerArchetype.Achiever && behaviorScores.GetValueOrDefault(TraitType.Dominance, 0f) > 0.7f)
+            // Success pattern insights
+            var successfulActions = currentSessionActions.Count(a =>
+                a.parameters.ContainsKey(ParamKey.Success) &&
+                a.parameters[ParamKey.Success].ToString().ToLower() == "true");
+
+            if (successfulActions > currentSessionActions.Count * 0.8f && currentSessionActions.Count > 10)
             {
                 insights.Add(new BehaviorInsight
                 {
-                    insightType = "Achievement",
+                    insightType = InsightType.Achievement,
                     message = "Player thrives on challenges and achievement completion",
-                    confidence = behaviorScores[TraitType.Dominance],
-                    timestamp = Time.time
+                    confidence = (float)successfulActions / currentSessionActions.Count
                 });
             }
 
-            return insights.OrderByDescending(i => i.confidence).Take(5).ToList();
+            return insights;
         }
 
-        private List<string> GenerateGameplayRecommendations()
+        private List<string> GenerateRecommendations()
         {
             var recommendations = new List<string>();
+            var preferences = GetAnalyzedPreferences();
 
-            // Analyze player preferences
-            var preferences = preferenceAnalyzer.GetCurrentPreferences();
-            var recentActivity = DetermineCurrentActivity();
-            var skillLevel = CalculatePlayerSkillLevel();
-
-            // Generate breeding recommendations
-            if (preferences.ContainsKey("breedingPreference") && preferences["breedingPreference"] > 0.6f)
+            // Breeding recommendations
+            if (preferences.ContainsKey(PreferenceType.Breeding) && preferences[PreferenceType.Breeding] > 0.6f)
             {
                 recommendations.Add("Try breeding creatures with complementary traits for stronger offspring");
                 recommendations.Add("Experiment with rare genetic combinations you haven't tried yet");
 
-                if (skillLevel > 0.7f)
+                if (behaviorTraits[PlayerBehaviorTrait.Exploratory] > 0.7f)
                 {
                     recommendations.Add("Challenge yourself with complex multi-generational breeding projects");
                 }
             }
 
-            // Generate exploration recommendations
-            if (preferences.ContainsKey("explorationPreference") && preferences["explorationPreference"] > 0.6f)
+            // Exploration recommendations
+            if (preferences.ContainsKey(PreferenceType.Exploration) && preferences[PreferenceType.Exploration] > 0.6f)
             {
                 recommendations.Add("Explore new biomes to discover unique creatures and resources");
                 recommendations.Add("Search for rare environmental interactions and hidden areas");
             }
 
-            // Generate quest recommendations
+            // Quest recommendations
             if (preferences.ContainsKey("questPreference") && preferences["questPreference"] > 0.5f)
             {
                 recommendations.Add("Take on quests that match your favorite creature types");
                 recommendations.Add("Try cooperative quests to experience different gameplay dynamics");
             }
 
-            // Generate skill-based recommendations
-            if (skillLevel < 0.4f)
+            // Skill level based recommendations
+            float overallSuccessRate = currentMetrics.GetValueOrDefault("RecentSuccessRate", 0.5f);
+            if (overallSuccessRate < 0.4f)
             {
                 recommendations.Add("Focus on basic creature care to build foundational skills");
                 recommendations.Add("Practice with easier breeding combinations first");
             }
-            else if (skillLevel > 0.8f)
+            else if (overallSuccessRate > 0.8f)
             {
                 recommendations.Add("Take on expert-level challenges for rare rewards");
                 recommendations.Add("Mentor newer players to expand your knowledge");
             }
 
-            // Activity-specific recommendations
-            switch (recentActivity)
+            // Play style specific recommendations
+            ActionType dominantActivity = GetDominantActivity();
+            switch (dominantActivity)
             {
-                case "Breeding":
+                case ActionType.Breeding:
                     recommendations.Add("Document your successful breeding strategies for future reference");
                     break;
-                case "Exploration":
+                case ActionType.Exploration:
                     recommendations.Add("Create a map of your discoveries to track progress");
                     break;
-                case "Questing":
+                case ActionType.Quest:
                     recommendations.Add("Try varying your quest approach for different outcomes");
                     break;
-                case "Idle":
+                case ActionType.Menu:
                     recommendations.Add("Consider setting a short-term goal to stay engaged");
                     break;
             }
 
-            // Engagement-based recommendations
-            var currentEngagement = engagementAnalyzer.CalculateCurrentEngagement();
-            if (currentEngagement < 0.5f)
+            // Engagement based recommendations
+            if (CalculateOverallEngagement() < 0.4f)
             {
                 recommendations.Add("Take a break and try a different activity to refresh your interest");
                 recommendations.Add("Set small, achievable goals to rebuild momentum");
             }
 
-            return recommendations.Take(5).ToList(); // Limit to top 5 recommendations
+            return recommendations;
         }
 
-        private float CalculatePlayerSkillLevel()
+        #endregion
+
+        #region Performance Metrics
+
+        private BehaviorMetrics CalculateBehaviorMetrics()
         {
-            if (sessionHistory.Count == 0) return 0.5f;
-
-            // Calculate based on performance metrics from recent sessions
-            var recentSessions = sessionHistory.TakeLast(10);
-            float avgSuccessRate = 0f;
-            float avgActionsPerMinute = 0f;
-            int sessionCount = 0;
-
-            foreach (var session in recentSessions)
+            return new BehaviorMetrics
             {
-                if (session.analytics != null)
-                {
-                    avgSuccessRate += session.analytics.successRate;
-                    avgActionsPerMinute += session.analytics.actionsPerMinute;
-                    sessionCount++;
-                }
-            }
-
-            if (sessionCount > 0)
-            {
-                avgSuccessRate /= sessionCount;
-                avgActionsPerMinute /= sessionCount;
-
-                // Combine metrics to determine skill level
-                float skillLevel = (avgSuccessRate * 0.7f) + (Mathf.Clamp01(avgActionsPerMinute / 10f) * 0.3f);
-                return Mathf.Clamp01(skillLevel);
-            }
-
-            return currentPlayerProfile.skillLevel;
-        }
-
-        private float CalculateActionsPerMinute()
-        {
-            if (sessionStartTime == null) return 0f;
-
-            var sessionDuration = (float)(DateTime.UtcNow - sessionStartTime.Value).TotalMinutes;
-            return sessionDuration > 0 ? totalActionCount / sessionDuration : 0f;
-        }
-
-        private Dictionary<ActionType, float> GetDominantActivities()
-        {
-            // Calculate dominant activities based on action metrics
-            var activities = new Dictionary<ActionType, float>();
-            foreach (var kvp in actionMetrics)
-            {
-                activities[kvp.Key] = kvp.Value.totalCount;
-            }
-            return activities;
-        }
-
-        private EngagementMetrics CalculateEngagementMetrics()
-        {
-            float sessionDuration = Time.time - sessionStartTime;
-
-            // Calculate session engagement based on action frequency
-            float sessionEngagement = 0.5f;
-            if (sessionDuration > 0)
-            {
-                float actionsPerMinute = (currentSessionActions.Count / sessionDuration) * 60f;
-                sessionEngagement = Mathf.Clamp01(actionsPerMinute / 10f); // Target: 10 actions per minute for full engagement
-            }
-
-            // Calculate activity engagement based on variety and completion
-            float activityEngagement = 0.5f;
-            if (currentSessionActions.Count > 0)
-            {
-                var actionTypes = currentSessionActions.GroupBy(a => a.actionType).Count();
-                var completedActions = currentSessionActions.Count(a =>
-                    a.parameters != null &&
-                    a.parameters.ContainsKey(ParamKey.Success) &&
-                    a.parameters[ParamKey.Success].ToString().ToLower() == "true");
-
-                float varietyScore = Mathf.Clamp01(actionTypes / 8f); // Target: 8+ action types
-                float completionRate = currentSessionActions.Count > 0 ?
-                    (float)completedActions / currentSessionActions.Count : 0f;
-
-                activityEngagement = (varietyScore * 0.6f) + (completionRate * 0.4f);
-            }
-
-            // Calculate overall engagement from recent sessions
-            float overallEngagement = 0.5f;
-            var recentSessions = sessionHistory.TakeLast(10).ToList();
-            if (recentSessions.Count > 0)
-            {
-                float avgSessionDuration = recentSessions.Average(s => s.duration);
-                float avgActionsPerSession = recentSessions.Average(s => s.actionCount);
-
-                float durationScore = Mathf.Clamp01(avgSessionDuration / 3600f); // Target: 1 hour sessions
-                float activityScore = Mathf.Clamp01(avgActionsPerSession / 100f); // Target: 100+ actions per session
-
-                overallEngagement = (durationScore * 0.5f) + (activityScore * 0.3f) + (sessionEngagement * 0.2f);
-            }
-
-            // Track engagement over time (last 10 data points)
-            var engagementOverTime = new List<float>();
-            if (recentSessions.Count > 0)
-            {
-                foreach (var session in recentSessions.TakeLast(10))
-                {
-                    float sessionScore = session.duration > 0 ?
-                        Mathf.Clamp01((session.actionCount / session.duration) * 60f / 10f) : 0f;
-                    engagementOverTime.Add(sessionScore);
-                }
-            }
-            else
-            {
-                engagementOverTime.Add(sessionEngagement);
-            }
-
-            return new EngagementMetrics
-            {
-                overallEngagement = Mathf.Clamp01(overallEngagement),
-                sessionEngagement = Mathf.Clamp01(sessionEngagement),
-                activityEngagement = Mathf.Clamp01(activityEngagement),
-                engagementOverTime = engagementOverTime
+                dominantBehaviorType = GetDominantActivity(),
+                behaviorVariety = currentSessionActions.Select(a => a.actionType).Distinct().Count(),
+                averageSessionLength = sessionHistory.Count > 0 ?
+                    sessionHistory.Average(s => s.duration) : (Time.time - sessionStartTime),
+                preferredGameplayStyle = DeterminePreferredGameplayStyle(),
+                performanceConsistency = CalculatePerformanceConsistency(),
+                learningCurveProgression = CalculateLearningProgression()
             };
         }
 
-        private PerformanceMetrics CalculatePerformanceMetrics()
+        private float CalculatePerformanceConsistency()
         {
-            float successRate = 0.5f;
-            float averageCompletionTime = 60f;
-            float difficultyRating = 0.5f;
-            int retryCount = 0;
+            var recentPerformances = currentSessionActions
+                .Where(a => a.parameters.ContainsKey(ParamKey.Success))
+                .TakeLast(20)
+                .Select(a => a.parameters[ParamKey.Success].ToString().ToLower() == "true" ? 1f : 0f)
+                .ToList();
 
-            if (currentSessionActions.Count > 0)
+            if (recentPerformances.Count < 5) return 0.5f;
+
+            float mean = recentPerformances.Average();
+            float variance = recentPerformances.Sum(x => Mathf.Pow(x - mean, 2)) / recentPerformances.Count;
+
+            return 1f - Mathf.Clamp01(variance); // Lower variance = higher consistency
+        }
+
+        private float CalculateLearningProgression()
+        {
+            if (sessionHistory.Count < 2) return 0.5f;
+
+            var recentSessions = sessionHistory.TakeLast(5).ToList();
+            var oldSessions = sessionHistory.Take(5).ToList();
+
+            float recentSuccess = CalculateAverageSuccessRate(recentSessions);
+            float oldSuccess = CalculateAverageSuccessRate(oldSessions);
+
+            return Mathf.Clamp01(0.5f + (recentSuccess - oldSuccess));
+        }
+
+        private float CalculateAverageSuccessRate(List<GameplaySession> sessions)
+        {
+            var allActions = sessions.SelectMany(s => s.actions ?? new List<PlayerAction>());
+            var successfulActions = allActions.Count(a =>
+                a.parameters.ContainsKey(ParamKey.Success) &&
+                a.parameters[ParamKey.Success].ToString().ToLower() == "true");
+
+            var totalActionsWithSuccess = allActions.Count(a => a.parameters.ContainsKey(ParamKey.Success));
+
+            return totalActionsWithSuccess > 0 ? (float)successfulActions / totalActionsWithSuccess : 0.5f;
+        }
+
+        #endregion
+
+        #region Emotional Analysis
+
+        private void UpdateBehaviorTraits(PlayerAction action)
+        {
+            // Update traits based on action patterns
+            if (action.actionType == ActionType.Exploration)
             {
-                // Calculate success rate from completed actions
-                var actionsWithResults = currentSessionActions.Where(a =>
-                    a.parameters != null && a.parameters.ContainsKey(ParamKey.Success)).ToList();
+                behaviorTraits[PlayerBehaviorTrait.Exploratory] = Mathf.Min(1f, behaviorTraits[PlayerBehaviorTrait.Exploratory] + 0.02f);
+            }
 
-                if (actionsWithResults.Count > 0)
+            if (action.actionType == ActionType.Social)
+            {
+                behaviorTraits[PlayerBehaviorTrait.Social] = Mathf.Min(1f, behaviorTraits[PlayerBehaviorTrait.Social] + 0.02f);
+            }
+
+            if (action.parameters.ContainsKey(ParamKey.Success))
+            {
+                bool success = action.parameters[ParamKey.Success].ToString().ToLower() == "true";
+                if (success)
                 {
-                    var successfulActions = actionsWithResults.Count(a =>
-                        a.parameters[ParamKey.Success].ToString().ToLower() == "true");
-                    successRate = (float)successfulActions / actionsWithResults.Count;
+                    behaviorTraits[PlayerBehaviorTrait.Persistent] = Mathf.Min(1f, behaviorTraits[PlayerBehaviorTrait.Persistent] + 0.01f);
                 }
+            }
 
-                // Calculate average completion time for breeding/quest actions
-                var timedActions = currentSessionActions.Where(a =>
-                    a.parameters != null && a.parameters.ContainsKey(ParamKey.ResearchTime)).ToList();
+            // Decay unused traits slightly
+            foreach (var trait in behaviorTraits.Keys.ToList())
+            {
+                behaviorTraits[trait] = Mathf.Max(0f, behaviorTraits[trait] - 0.001f);
+            }
+        }
 
-                if (timedActions.Count > 0)
+        private List<EmotionalMoment> DetectEmotionalMoments()
+        {
+            var moments = new List<EmotionalMoment>();
+            var recentActions = currentSessionActions.TakeLast(50).ToList();
+
+            // Success/failure patterns
+            for (int i = 1; i < recentActions.Count; i++)
+            {
+                var current = recentActions[i];
+                var previous = recentActions[i - 1];
+
+                if (current.parameters.ContainsKey(ParamKey.Success) && previous.parameters.ContainsKey(ParamKey.Success))
                 {
-                    var completionTimes = timedActions.Select(a =>
-                        float.Parse(a.parameters[ParamKey.ResearchTime].ToString())).ToList();
-                    averageCompletionTime = completionTimes.Average();
-                }
+                    bool currentSuccess = current.parameters[ParamKey.Success].ToString().ToLower() == "true";
+                    bool previousSuccess = previous.parameters[ParamKey.Success].ToString().ToLower() == "true";
 
-                // Estimate difficulty rating based on player behavior
-                float cautionScore = behaviorScores.GetValueOrDefault(TraitType.Caution, 0.5f);
-                float dominanceScore = behaviorScores.GetValueOrDefault(TraitType.Dominance, 0.5f);
-
-                // High caution + low dominance = prefers easier content
-                // Low caution + high dominance = prefers harder content
-                difficultyRating = (dominanceScore + (1f - cautionScore)) / 2f;
-
-                // Count retry patterns (same action type within short time)
-                var groupedActions = currentSessionActions
-                    .GroupBy(a => a.actionType)
-                    .Where(g => g.Count() > 1);
-
-                foreach (var group in groupedActions)
-                {
-                    var sortedActions = group.OrderBy(a => a.timestamp).ToList();
-                    for (int i = 1; i < sortedActions.Count; i++)
+                    if (currentSuccess && !previousSuccess)
                     {
-                        if (sortedActions[i].timestamp - sortedActions[i - 1].timestamp < 300f) // 5 minutes
+                        moments.Add(new EmotionalMoment
                         {
-                            retryCount++;
-                        }
+                            timestamp = current.timestamp,
+                            momentType = MomentType.Breakthrough,
+                            description = $"Player achieved success in {current.actionType} after previous attempt",
+                            intensity = 0.7f,
+                            actionContext = current.actionType.ToString()
+                        });
                     }
                 }
             }
 
-            // Factor in historical performance from recent sessions
-            var recentSessions = sessionHistory.TakeLast(5).Where(s => s.analytics != null).ToList();
-            if (recentSessions.Count > 0)
+            // Discovery moments
+            var discoveryActions = recentActions.Where(a =>
+                a.parameters.ContainsKey(ParamKey.FirstDiscovery) &&
+                a.parameters[ParamKey.FirstDiscovery].ToString().ToLower() == "true").ToList();
+
+            foreach (var discovery in discoveryActions)
             {
-                float historicalSuccessRate = recentSessions.Average(s => s.analytics.performanceMetrics.successRate);
-                successRate = (successRate * 0.7f) + (historicalSuccessRate * 0.3f); // Weight current session more
-            }
-
-            return new PerformanceMetrics
-            {
-                successRate = Mathf.Clamp01(successRate),
-                averageCompletionTime = Mathf.Max(1f, averageCompletionTime),
-                difficultyRating = Mathf.Clamp01(difficultyRating),
-                retryCount = retryCount
-            };
-        }
-
-        private List<EmotionalDataPoint> AnalyzeEmotionalJourney()
-        {
-            var emotionalJourney = new List<EmotionalDataPoint>();
-
-            if (!trackEmotionalResponse) return emotionalJourney;
-
-            // Extract emotional responses from session actions
-            var emotionalActions = currentSessionActions.Where(a =>
-                a.parameters != null && a.parameters.ContainsKey(ParamKey.EmotionalState)).ToList();
-
-            foreach (var action in emotionalActions)
-            {
-                if (System.Enum.TryParse<EmotionalState>(action.parameters[ParamKey.EmotionalState].ToString(), out var state))
+                moments.Add(new EmotionalMoment
                 {
-                    float intensity = 0.5f;
-                    if (action.parameters.ContainsKey(ParamKey.Intensity))
-                    {
-                        float.TryParse(action.parameters[ParamKey.Intensity].ToString(), out intensity);
-                    }
-
-                    string trigger = "Unknown";
-                    if (action.parameters.ContainsKey(ParamKey.Trigger))
-                    {
-                        trigger = action.parameters[ParamKey.Trigger].ToString();
-                    }
-
-                    emotionalJourney.Add(new EmotionalDataPoint
-                    {
-                        timestamp = action.timestamp,
-                        state = state,
-                        intensity = intensity,
-                        trigger = trigger
-                    });
-                }
-            }
-
-            // Infer emotional states from performance patterns
-            if (currentSessionActions.Count > 10)
-            {
-                var recentActions = currentSessionActions.TakeLast(5).ToList();
-                var successfulActions = recentActions.Count(a =>
-                    a.parameters != null &&
-                    a.parameters.ContainsKey(ParamKey.Success) &&
-                    a.parameters[ParamKey.Success].ToString().ToLower() == "true");
-
-                float recentSuccessRate = recentActions.Count > 0 ? (float)successfulActions / recentActions.Count : 0.5f;
-
-                // Infer satisfaction from success streaks
-                if (recentSuccessRate > 0.8f)
-                {
-                    emotionalJourney.Add(new EmotionalDataPoint
-                    {
-                        timestamp = Time.time,
-                        state = EmotionalState.Satisfaction,
-                        intensity = recentSuccessRate,
-                        trigger = "SuccessStreak"
-                    });
-                }
-                // Infer frustration from failure patterns
-                else if (recentSuccessRate < 0.3f)
-                {
-                    emotionalJourney.Add(new EmotionalDataPoint
-                    {
-                        timestamp = Time.time,
-                        state = EmotionalState.Frustration,
-                        intensity = 1f - recentSuccessRate,
-                        trigger = "FailurePattern"
-                    });
-                }
-            }
-
-            return emotionalJourney.OrderBy(e => e.timestamp).ToList();
-        }
-
-        private List<KeyMoment> IdentifyKeyMoments()
-        {
-            var keyMoments = new List<KeyMoment>();
-
-            if (currentSessionActions.Count < 5) return keyMoments;
-
-            // Identify breakthrough moments (first success after failures)
-            var actionsWithResults = currentSessionActions.Where(a =>
-                a.parameters != null && a.parameters.ContainsKey(ParamKey.Success)).ToList();
-
-            for (int i = 1; i < actionsWithResults.Count; i++)
-            {
-                var current = actionsWithResults[i];
-                var previous = actionsWithResults[i - 1];
-
-                bool currentSuccess = current.parameters[ParamKey.Success].ToString().ToLower() == "true";
-                bool previousSuccess = previous.parameters[ParamKey.Success].ToString().ToLower() == "true";
-
-                if (currentSuccess && !previousSuccess)
-                {
-                    keyMoments.Add(new KeyMoment
-                    {
-                        timestamp = current.timestamp,
-                        momentType = "Breakthrough",
-                        description = $"Player achieved success in {current.actionType} after previous attempt",
-                        significance = 0.7f
-                    });
-                }
-            }
-
-            // Identify discovery moments (first time actions)
-            var firstTimeActions = currentSessionActions
-                .GroupBy(a => a.actionType)
-                .Where(g => g.Count() == 1)
-                .Select(g => g.First())
-                .ToList();
-
-            foreach (var action in firstTimeActions)
-            {
-                if (action.parameters != null && action.parameters.ContainsKey(ParamKey.FirstDiscovery) &&
-                    action.parameters[ParamKey.FirstDiscovery].ToString().ToLower() == "true")
-                {
-                    keyMoments.Add(new KeyMoment
-                    {
-                        timestamp = action.timestamp,
-                        momentType = "Discovery",
-                        description = $"Player discovered new content: {action.actionType}",
-                        significance = 0.8f
-                    });
-                }
-            }
-
-            // Identify mastery moments (consistent success in complex actions)
-            var complexActions = currentSessionActions.Where(a =>
-                a.actionType.Contains("Breeding") || a.actionType.Contains("Research")).ToList();
-
-            if (complexActions.Count >= 3)
-            {
-                var recentComplex = complexActions.TakeLast(3).ToList();
-                var allSuccessful = recentComplex.All(a =>
-                    a.parameters != null &&
-                    a.parameters.ContainsKey(ParamKey.Success) &&
-                    a.parameters[ParamKey.Success].ToString().ToLower() == "true");
-
-                if (allSuccessful)
-                {
-                    keyMoments.Add(new KeyMoment
-                    {
-                        timestamp = recentComplex.Last().timestamp,
-                        momentType = "Mastery",
-                        description = "Player demonstrates mastery of complex mechanics",
-                        significance = 0.9f
-                    });
-                }
-            }
-
-            // Identify engagement spikes (high activity periods)
-            var timeWindows = currentSessionActions
-                .GroupBy(a => Mathf.FloorToInt(a.sessionTime / 300f)) // 5-minute windows
-                .Where(g => g.Count() > 15) // High activity threshold
-                .ToList();
-
-            foreach (var window in timeWindows)
-            {
-                var windowActions = window.ToList();
-                keyMoments.Add(new KeyMoment
-                {
-                    timestamp = windowActions.First().timestamp,
-                    momentType = "EngagementSpike",
-                    description = $"High engagement period with {windowActions.Count} actions in 5 minutes",
-                    significance = Mathf.Clamp01(windowActions.Count / 25f)
+                    timestamp = discovery.timestamp,
+                    momentType = MomentType.Discovery,
+                    description = $"Player discovered new content: {discovery.actionType}",
+                    intensity = 0.8f,
+                    actionContext = discovery.actionType.ToString()
                 });
             }
 
-            return keyMoments.OrderByDescending(k => k.significance).Take(5).ToList();
+            // Mastery moments (consistent success in complex actions)
+            var complexActions = recentActions.Where(a =>
+                a.actionType == ActionType.Breeding || a.actionType == ActionType.Research).ToList();
+
+            if (complexActions.Count >= 5)
+            {
+                var successfulComplex = complexActions.Count(a =>
+                    a.parameters.ContainsKey(ParamKey.Success) &&
+                    a.parameters[ParamKey.Success].ToString().ToLower() == "true");
+
+                if (successfulComplex >= complexActions.Count * 0.8f)
+                {
+                    moments.Add(new EmotionalMoment
+                    {
+                        timestamp = complexActions.Last().timestamp,
+                        momentType = MomentType.Mastery,
+                        description = "Player demonstrates mastery of complex mechanics",
+                        intensity = 0.9f,
+                        actionContext = "ComplexGameplay"
+                    });
+                }
+            }
+
+            return moments;
         }
 
-        private string DetermineAdaptationReason()
+        private void ProcessEmotionalMoments()
         {
-            var recentActions = GetRecentActions(600f); // Last 10 minutes
+            var moments = DetectEmotionalMoments();
+
+            foreach (var moment in moments)
+            {
+                // Track the emotional moment
+                TrackPlayerAction("Emotional_Moment", "EmotionalSystem", new Dictionary<ParamKey, object>
+                {
+                    [ParamKey.MomentType] = moment.momentType,
+                    [ParamKey.Intensity] = moment.intensity,
+                    [ParamKey.Context] = moment.actionContext
+                });
+
+                // Update emotional state
+                switch (moment.momentType)
+                {
+                    case MomentType.Breakthrough:
+                        TrackEmotionalResponse(EmotionalState.Pride, moment.intensity, "Breakthrough");
+                        break;
+                    case MomentType.Discovery:
+                        TrackEmotionalResponse(EmotionalState.Excitement, moment.intensity, "Discovery");
+                        break;
+                    case MomentType.Mastery:
+                        TrackEmotionalResponse(EmotionalState.Satisfaction, moment.intensity, "Mastery");
+                        break;
+                }
+            }
+
+            // Detect engagement spikes
+            var actionWindow = recentActions.Where(a => a.timestamp > Time.time - 300f).ToList(); // 5 minute window
+            if (actionWindow.Count > 20) // High activity
+            {
+                moments.Add(new EmotionalMoment
+                {
+                    timestamp = Time.time,
+                    momentType = MomentType.EngagementSpike,
+                    description = $"High engagement period with {actionWindow.Count} actions in 5 minutes",
+                    intensity = 0.6f,
+                    actionContext = "HighActivity"
+                });
+            }
+        }
+
+        #endregion
+
+        #region Real-time Insights
+
+        private string GenerateRealTimeInsight()
+        {
+            var recentActions = this.recentActions.ToList();
             if (recentActions.Count == 0) return "Insufficient recent activity";
 
-            // Analyze recent performance
-            var actionsWithResults = recentActions.Where(a =>
-                a.parameters != null && a.parameters.ContainsKey(ParamKey.Success)).ToList();
-
-            if (actionsWithResults.Count > 0)
+            // Performance analysis
+            var actionsWithResults = recentActions.Where(a => a.parameters.ContainsKey(ParamKey.Success)).ToList();
+            if (actionsWithResults.Count >= 5)
             {
-                var successfulActions = actionsWithResults.Count(a =>
+                var successCount = actionsWithResults.Count(a =>
                     a.parameters[ParamKey.Success].ToString().ToLower() == "true");
-                float recentSuccessRate = (float)successfulActions / actionsWithResults.Count;
+                var successRate = (float)successCount / actionsWithResults.Count;
 
-                if (recentSuccessRate < 0.3f)
+                if (successRate < 0.3f)
                 {
                     return "Low success rate detected - player may need assistance or reduced difficulty";
                 }
-                else if (recentSuccessRate > 0.9f)
+                else if (successRate > 0.9f)
                 {
                     return "High success rate detected - player may benefit from increased challenge";
                 }
             }
 
-            // Analyze engagement patterns
-            float actionsPerMinute = recentActions.Count / 10f;
-            if (actionsPerMinute < 0.5f)
+            // Activity level analysis
+            if (recentActions.Count < 5)
             {
                 return "Low activity detected - player may be disengaged or need new content";
             }
-            else if (actionsPerMinute > 3f)
+            else if (recentActions.Count > 15)
             {
                 return "High activity detected - player is highly engaged";
             }
 
-            // Analyze behavior pattern changes
-            var currentArchetype = DetermineDominantArchetype();
-            if (currentPlayerProfile.dominantArchetype != currentArchetype)
+            // Behavior pattern analysis
+            ArchetypeType currentArchetype = DeterminePlayerArchetype();
+            if (currentArchetype != currentPlayerProfile.dominantArchetype)
             {
                 return $"Behavior shift detected - player transitioning from {currentPlayerProfile.dominantArchetype} to {currentArchetype}";
             }
 
-            // Analyze trait score changes
-            var significantTraitChanges = behaviorScores.Where(kvp =>
-                Mathf.Abs(kvp.Value - 0.5f) > 0.3f).ToList();
-
-            if (significantTraitChanges.Count > 0)
+            // Trait dominance analysis
+            var dominantTrait = behaviorTraits.OrderByDescending(t => t.Value).FirstOrDefault();
+            if (dominantTrait.Value > 0.8f)
             {
-                var dominantTrait = significantTraitChanges.OrderByDescending(kvp => kvp.Value).First();
                 return $"Strong {dominantTrait.Key.ToString().ToLower()} behavior pattern emerging";
             }
 
             return "Routine behavior analysis and optimization";
         }
 
-        private Dictionary<SystemType, float> CalculateExpectedImpact(AdaptationType adaptationType, float intensity)
+        private void ProcessRealTimeAdaptations()
         {
-            // Calculate expected impact on different systems
-            var impact = new Dictionary<SystemType, float>();
-            impact[SystemType.Analytics] = intensity * 0.8f;
-            impact[SystemType.AI] = intensity * 0.6f;
-            impact[SystemType.UI] = intensity * 0.4f;
-            return impact;
-        }
+            string insight = GenerateRealTimeInsight();
+            currentInsights.Add(insight);
 
-        private void ApplyGameAdaptation(PlayerAdaptation adaptation)
-        {
-            var insights = GenerateBehaviorInsights();
-            var engagement = CalculateEngagementMetrics();
-            var performance = CalculatePerformanceMetrics();
-
-            // Adapt difficulty based on performance
-            if (performance.successRate < 0.3f && engagement.frustrationLevel > 0.7f)
+            // Keep only recent insights
+            if (currentInsights.Count > 10)
             {
-                // Suggest easier content
-                TrackAction(ActionType.UI, new Dictionary<ParamKey, object>
+                currentInsights.RemoveAt(0);
+            }
+
+            // Trigger specific adaptations based on insights
+            if (insight.Contains("Low success rate"))
+            {
+                TrackUIInteraction("DifficultyAdaptation", "SuggestEasier", new Dictionary<ParamKey, object>
                 {
                     [ParamKey.ElementName] = "DifficultyAdaptation",
                     [ParamKey.InteractionType] = "SuggestEasier",
                     [ParamKey.Trigger] = "LowPerformance"
                 });
             }
-            else if (performance.successRate > 0.8f && engagement.flowState > 0.8f)
+            else if (insight.Contains("High success rate"))
             {
-                // Suggest more challenging content
-                TrackAction(ActionType.UI, new Dictionary<ParamKey, object>
+                TrackUIInteraction("DifficultyAdaptation", "SuggestHarder", new Dictionary<ParamKey, object>
                 {
                     [ParamKey.ElementName] = "DifficultyAdaptation",
                     [ParamKey.InteractionType] = "SuggestHarder",
@@ -2142,22 +1185,20 @@ namespace Laboratory.Systems.Analytics
                 });
             }
 
-            // Adapt content based on play style
-            var playStyle = AnalyzePlayStyle();
-            if (playStyle.explorationFocus > 0.7f)
+            // Content recommendations
+            if (behaviorTraits[PlayerBehaviorTrait.Exploratory] > 0.7f)
             {
-                // Highlight exploration opportunities
-                TrackAction(ActionType.UI, new Dictionary<ParamKey, object>
+                TrackUIInteraction("ContentRecommendation", "HighlightExploration", new Dictionary<ParamKey, object>
                 {
                     [ParamKey.ElementName] = "ContentRecommendation",
                     [ParamKey.InteractionType] = "HighlightExploration",
                     [ParamKey.Trigger] = "ExplorationPreference"
                 });
             }
-            else if (playStyle.socialFocus > 0.7f)
+
+            if (behaviorTraits[PlayerBehaviorTrait.Social] > 0.6f)
             {
-                // Suggest social interactions
-                TrackAction(ActionType.UI, new Dictionary<ParamKey, object>
+                TrackUIInteraction("ContentRecommendation", "SuggestSocial", new Dictionary<ParamKey, object>
                 {
                     [ParamKey.ElementName] = "ContentRecommendation",
                     [ParamKey.InteractionType] = "SuggestSocial",
@@ -2166,193 +1207,120 @@ namespace Laboratory.Systems.Analytics
             }
         }
 
-        private void UpdateSessionMetrics()
+        #endregion
+
+        #region Update and Monitoring
+
+        void Update()
         {
-            if (sessionStartTime == null) return;
+            if (!enableAnalytics || currentSession == null) return;
 
-            var currentTime = DateTime.UtcNow;
-            var sessionDuration = (float)(currentTime - sessionStartTime.Value).TotalMinutes;
+            // Update real-time metrics
+            UpdateRealTimeMetrics(null);
 
-            // Update session-level metrics
-            sessionMetrics[ParamKey.SessionTime] = sessionDuration;
-            sessionMetrics[ParamKey.TotalActions] = totalActionCount;
+            // Check for session milestones
+            CheckSessionMilestones();
 
-            // Calculate actions per minute
-            var actionsPerMinute = sessionDuration > 0 ? totalActionCount / sessionDuration : 0f;
-            sessionMetrics[ParamKey.FrameRate] = actionsPerMinute; // Repurpose for action rate
-
-            // Update peak concurrent activity
-            var currentActivity = actionHistory.Count(a => (currentTime - a.timestamp).TotalMinutes < 5);
-            if (currentActivity > peakConcurrentActivity)
+            // Process real-time adaptations
+            if (enableRealTimeAnalysis && Time.time - lastEmotionalUpdate > behaviorAnalysisInterval)
             {
-                peakConcurrentActivity = currentActivity;
+                ProcessRealTimeAdaptations();
+                ProcessEmotionalMoments();
+                lastEmotionalUpdate = Time.time;
             }
 
-            // Update behavior scores based on recent activity
-            UpdateBehaviorScoresFromActions();
+            // Update player preferences
+            UpdatePlayerPreferences();
+        }
 
-            // Track significant session milestones
-            if (sessionDuration >= 30f && !sessionMilestones.Contains("LongSession"))
+        private void CheckSessionMilestones()
+        {
+            float sessionDuration = Time.time - sessionStartTime;
+            int totalActionCount = currentSessionActions.Count;
+
+            // Long session milestone
+            if (sessionDuration >= 30f && !sessionMilestones.Contains(MilestoneType.LongSession))
             {
-                sessionMilestones.Add("LongSession");
-                TrackAction(ActionType.UI, new Dictionary<ParamKey, object>
+                sessionMilestones.Add(MilestoneType.LongSession);
+                TrackPlayerAction("Session_Milestone", "SessionManagement", new Dictionary<ParamKey, object>
                 {
                     [ParamKey.ElementName] = "SessionMilestone",
                     [ParamKey.InteractionType] = "LongSession",
-                    [ParamKey.TimeSpent] = sessionDuration
+                    [ParamKey.Intensity] = 0.6f
                 });
             }
 
-            if (totalActionCount >= 100 && !sessionMilestones.Contains("HighActivity"))
+            // High activity milestone
+            if (totalActionCount >= 100 && !sessionMilestones.Contains(MilestoneType.HighActivity))
             {
-                sessionMilestones.Add("HighActivity");
-                TrackAction(ActionType.UI, new Dictionary<ParamKey, object>
+                sessionMilestones.Add(MilestoneType.HighActivity);
+                TrackPlayerAction("Session_Milestone", "SessionManagement", new Dictionary<ParamKey, object>
                 {
                     [ParamKey.ElementName] = "SessionMilestone",
                     [ParamKey.InteractionType] = "HighActivity",
-                    [ParamKey.TotalActions] = totalActionCount
+                    [ParamKey.Intensity] = 0.7f
                 });
             }
         }
 
-        private List<PlayerAction> GetRecentActions(float timeWindow)
+        private void UpdatePlayerPreferences()
         {
-            var cutoffTime = DateTime.UtcNow.AddMinutes(-timeWindow);
-            return actionHistory.Where(a => a.timestamp >= cutoffTime).ToList();
-        }
-
-        private void UpdateBehaviorScoresFromActions(List<PlayerAction> actions)
-        {
-            if (actions == null || actions.Count == 0) return;
-
-            // Analyze action patterns to update behavior scores
-            var actionCounts = actions.GroupBy(a => a.actionType)
-                                     .ToDictionary(g => g.Key, g => g.Count());
-
-            var totalActions = actions.Count;
-
-            // Update behavior scores based on action distribution
-            if (actionCounts.ContainsKey(ActionType.Exploration))
-            {
-                var explorationRatio = (float)actionCounts[ActionType.Exploration] / totalActions;
-                behaviorScores[TraitType.Curiosity] = Mathf.Lerp(
-                    behaviorScores.GetValueOrDefault(TraitType.Curiosity, 0.5f),
-                    explorationRatio,
-                    0.1f
-                );
-            }
-
-            if (actionCounts.ContainsKey(ActionType.Social))
-            {
-                var socialRatio = (float)actionCounts[ActionType.Social] / totalActions;
-                behaviorScores[TraitType.Sociability] = Mathf.Lerp(
-                    behaviorScores.GetValueOrDefault(TraitType.Sociability, 0.5f),
-                    socialRatio,
-                    0.1f
-                );
-            }
-
-            if (actionCounts.ContainsKey(ActionType.Combat))
-            {
-                var combatRatio = (float)actionCounts[ActionType.Combat] / totalActions;
-                behaviorScores[TraitType.Aggression] = Mathf.Lerp(
-                    behaviorScores.GetValueOrDefault(TraitType.Aggression, 0.5f),
-                    combatRatio,
-                    0.1f
-                );
-            }
-
-            if (actionCounts.ContainsKey(ActionType.Research))
-            {
-                var researchRatio = (float)actionCounts[ActionType.Research] / totalActions;
-                behaviorScores[TraitType.Intelligence] = Mathf.Lerp(
-                    behaviorScores.GetValueOrDefault(TraitType.Intelligence, 0.5f),
-                    researchRatio,
-                    0.1f
-                );
-            }
-
-            // Analyze action timing patterns for caution/adaptability
-            var actionIntervals = new List<float>();
-            for (int i = 1; i < actions.Count; i++)
-            {
-                var interval = actions[i].timestamp - actions[i-1].timestamp;
-                actionIntervals.Add(interval);
-            }
-
-            if (actionIntervals.Count > 0)
-            {
-                var avgInterval = actionIntervals.Average();
-                var cautionScore = Mathf.Clamp01(avgInterval / 10f); // Longer intervals = more cautious
-                behaviorScores[TraitType.Caution] = Mathf.Lerp(
-                    behaviorScores.GetValueOrDefault(TraitType.Caution, 0.5f),
-                    cautionScore,
-                    0.05f
-                );
-
-                var intervalVariance = actionIntervals.Select(i => Mathf.Pow(i - avgInterval, 2)).Average();
-                var adaptabilityScore = Mathf.Clamp01(intervalVariance / 25f); // Higher variance = more adaptable
-                behaviorScores[TraitType.Adaptability] = Mathf.Lerp(
-                    behaviorScores.GetValueOrDefault(TraitType.Adaptability, 0.5f),
-                    adaptabilityScore,
-                    0.05f
-                );
-            }
-        }
-
-        private void UpdatePlayerProfile()
-        {
-            var currentArchetype = DetermineDominantArchetype();
+            // Update preferences based on recent behavior
             var playStyle = AnalyzePlayStyle();
-            var engagement = CalculateEngagementMetrics();
-            var performance = CalculatePerformanceMetrics();
 
-            // Update player archetype if it has changed significantly
-            if (currentPlayerArchetype != currentArchetype)
+            currentPlayerProfile.preferredGameplayStyle = DeterminePreferredGameplayStyle();
+
+            // Track significant preference changes
+            CheckForPreferenceChanges(playStyle);
+        }
+
+        private void CheckForPreferenceChanges(PlayStyle playStyle)
+        {
+            // Track archetype evolution
+            ArchetypeType newArchetype = DeterminePlayerArchetype();
+            if (newArchetype != currentPlayerProfile.dominantArchetype &&
+                Time.time - currentPlayerProfile.archetypeUpdateTime > 300f) // 5 minute cooldown
             {
-                var previousArchetype = currentPlayerArchetype;
-                currentPlayerArchetype = currentArchetype;
-
-                TrackAction(ActionType.UI, new Dictionary<ParamKey, object>
+                TrackPlayerAction("Player_Evolution", "BehaviorAnalysis", new Dictionary<ParamKey, object>
                 {
                     [ParamKey.ElementName] = "PlayerArchetypeChange",
                     [ParamKey.InteractionType] = "ArchetypeEvolution",
-                    [ParamKey.ChoiceCategory] = ChoiceCategory.SocialInteraction,
-                    [ParamKey.ChoiceValue] = currentArchetype.ToString()
+                    [ParamKey.PreviousValue] = currentPlayerProfile.dominantArchetype,
+                    [ParamKey.NewValue] = newArchetype
                 });
+
+                OnPlayerArchetypeChanged(newArchetype);
             }
 
-            // Update skill progression
-            var currentSkillLevel = DetermineSkillLevel();
-            if (currentSkillLevel > playerSkillLevel)
+            // Track skill progression
+            float currentSkillLevel = CalculateOverallSkillLevel();
+            if (Mathf.Abs(currentSkillLevel - currentPlayerProfile.skillLevel) > 0.1f)
             {
-                var skillGain = currentSkillLevel - playerSkillLevel;
-                playerSkillLevel = currentSkillLevel;
-
-                TrackAction(ActionType.UI, new Dictionary<ParamKey, object>
+                TrackPlayerAction("Skill_Progression", "SkillAnalysis", new Dictionary<ParamKey, object>
                 {
                     [ParamKey.ElementName] = "SkillProgression",
                     [ParamKey.InteractionType] = "SkillLevelUp",
-                    [ParamKey.Progress] = playerSkillLevel,
-                    [ParamKey.Intensity] = skillGain
+                    [ParamKey.PreviousValue] = currentPlayerProfile.skillLevel,
+                    [ParamKey.NewValue] = currentSkillLevel
                 });
+
+                currentPlayerProfile.skillLevel = currentSkillLevel;
             }
 
-            // Update preferences based on behavior patterns
-            var preferredBiome = DeterminePreferredBiome();
-            if (preferredBiome != mostPreferredBiome)
+            // Track biome preference changes
+            var biomePreferences = GetPlayerBiomePreferences();
+            var dominantBiome = biomePreferences.OrderByDescending(b => b.Value).FirstOrDefault();
+            if (dominantBiome.Key != BiomeType.Unknown) // Check if we have a valid biome preference
             {
-                mostPreferredBiome = preferredBiome;
-                TrackAction(ActionType.Exploration, new Dictionary<ParamKey, object>
+                TrackPlayerAction("Preference_Change", "PreferenceAnalysis", new Dictionary<ParamKey, object>
                 {
                     [ParamKey.ElementName] = "BiomePreference",
                     [ParamKey.InteractionType] = "PreferenceChange",
-                    [ParamKey.Biome] = preferredBiome.ToString(),
-                    [ParamKey.FirstDiscovery] = false
+                    [ParamKey.NewValue] = dominantBiome.Key
                 });
             }
 
-            // Update social interaction preferences
+            // Update social preference tracking
             if (playStyle.socialFocus > 0.6f && !playerPreferences.Contains("Social"))
             {
                 playerPreferences.Add("Social");
@@ -2362,7 +1330,7 @@ namespace Laboratory.Systems.Analytics
                 playerPreferences.Remove("Social");
             }
 
-            // Update exploration preferences
+            // Update exploration preference tracking
             if (playStyle.explorationFocus > 0.6f && !playerPreferences.Contains("Explorer"))
             {
                 playerPreferences.Add("Explorer");
@@ -2372,7 +1340,7 @@ namespace Laboratory.Systems.Analytics
                 playerPreferences.Remove("Explorer");
             }
 
-            // Update competitive preferences
+            // Update competitive preference tracking
             if (playStyle.competitiveFocus > 0.6f && !playerPreferences.Contains("Competitive"))
             {
                 playerPreferences.Add("Competitive");
@@ -2381,19 +1349,19 @@ namespace Laboratory.Systems.Analytics
             {
                 playerPreferences.Remove("Competitive");
             }
-
-            currentPlayerProfile.lastUpdated = Time.time;
         }
 
-        private void GenerateRealTimeInsights()
+        private void OnPlayerArchetypeChanged(ArchetypeType newArchetype)
         {
-            var insights = GenerateRealTimeInsights();
+            currentPlayerProfile.dominantArchetype = newArchetype;
+            currentPlayerProfile.archetypeUpdateTime = Time.time;
 
-            // Apply insights to game systems
-            if (insights.riskFactors.Any(r => r.Contains("frustration") || r.Contains("disengagement")))
+            // Trigger adaptive responses based on new archetype
+            var insights = GeneratePlayerBehaviorAnalysis();
+            if (insights.riskFactors.Any(r => r == RiskFactorType.Frustration || r == RiskFactorType.Disengagement))
             {
-                // Trigger adaptive difficulty adjustment
-                TrackAction(ActionType.UI, new Dictionary<ParamKey, object>
+                // Player may be struggling - offer easier content
+                TrackPlayerAction("Adaptive_Response", "ArchetypeAdaptation", new Dictionary<ParamKey, object>
                 {
                     [ParamKey.ElementName] = "AdaptiveDifficulty",
                     [ParamKey.InteractionType] = "FrustrationResponse",
@@ -2401,10 +1369,10 @@ namespace Laboratory.Systems.Analytics
                 });
             }
 
-            if (insights.strengthAreas.Any(s => s.Contains("flow") || s.Contains("performance")))
+            if (insights.strengthAreas.Any(s => s == StrengthAreaType.Flow || s == StrengthAreaType.Performance))
             {
-                // Celebrate player success and suggest progression
-                TrackAction(ActionType.UI, new Dictionary<ParamKey, object>
+                // Player is doing well - suggest progression
+                TrackPlayerAction("Adaptive_Response", "ArchetypeAdaptation", new Dictionary<ParamKey, object>
                 {
                     [ParamKey.ElementName] = "ProgressionSuggestion",
                     [ParamKey.InteractionType] = "SuccessRecognition",
@@ -2412,42 +1380,34 @@ namespace Laboratory.Systems.Analytics
                 });
             }
 
-            // Update recommendations based on insights
-            foreach (var recommendation in insights.recommendedActions)
+            // Generate personalized recommendations
+            var recommendations = GenerateRecommendations();
+            foreach (var recommendation in recommendations.Take(3)) // Top 3 recommendations
             {
-                TrackAction(ActionType.UI, new Dictionary<ParamKey, object>
+                TrackPlayerAction("Personalized_Recommendation", "RecommendationSystem", new Dictionary<ParamKey, object>
                 {
                     [ParamKey.ElementName] = "PersonalizedRecommendation",
                     [ParamKey.InteractionType] = "RealTimeInsight",
-                    [ParamKey.ChoiceValue] = recommendation
+                    [ParamKey.Content] = recommendation
                 });
             }
         }
 
+        #endregion
+
+        #region Input Metrics
+
         private void InitializeInputMetrics()
         {
-            inputMetrics = new Dictionary<ParamKey, object>();
-
-            // Initialize input tracking metrics
-            inputMetrics[ParamKey.TotalActions] = 0;
-            inputMetrics[ParamKey.SessionTime] = 0f;
-            inputMetrics[ParamKey.InteractionTime] = 0f;
-
-            // Initialize input pattern tracking
-            lastInputTime = null;
-            inputPatterns = new List<InputPattern>();
-
-            // Initialize device-specific metrics
-            var inputDevices = new Dictionary<string, int>
+            inputPatterns = new Dictionary<InputType, float>
             {
-                ["Mouse"] = 0,
-                ["Keyboard"] = 0,
-                ["Gamepad"] = 0,
-                ["Touch"] = 0
+                [InputType.Mouse] = 0,
+                [InputType.Keyboard] = 0,
+                [InputType.Gamepad] = 0,
+                [InputType.Touch] = 0
             };
 
-            // Initialize gesture and interaction type tracking
-            var gestureTypes = new Dictionary<string, int>
+            var inputMetrics = new Dictionary<string, float>
             {
                 ["Click"] = 0,
                 ["Drag"] = 0,
@@ -2457,7 +1417,6 @@ namespace Laboratory.Systems.Analytics
                 ["KeyCombo"] = 0
             };
 
-            // Initialize timing metrics
             var timingMetrics = new Dictionary<string, float>
             {
                 ["AverageClickTime"] = 0f,
@@ -2467,7 +1426,6 @@ namespace Laboratory.Systems.Analytics
                 ["ResponseTime"] = 0f
             };
 
-            // Initialize accuracy metrics
             var accuracyMetrics = new Dictionary<string, float>
             {
                 ["ClickAccuracy"] = 1.0f,
@@ -2476,7 +1434,6 @@ namespace Laboratory.Systems.Analytics
                 ["AccidentalActions"] = 0f
             };
 
-            // Initialize behavioral pattern metrics
             var behaviorMetrics = new Dictionary<string, float>
             {
                 ["Impulsiveness"] = 0.5f,
@@ -2486,91 +1443,236 @@ namespace Laboratory.Systems.Analytics
                 ["Persistence"] = 0.5f
             };
 
-            // Store all metrics in the main dictionary
-            inputMetrics[ParamKey.ElementName] = inputDevices;
-            inputMetrics[ParamKey.InteractionType] = gestureTypes;
-            inputMetrics[ParamKey.Intensity] = timingMetrics;
-            inputMetrics[ParamKey.Success] = accuracyMetrics;
-            inputMetrics[ParamKey.EmotionalState] = behaviorMetrics;
+            inputTracker = new InputMetricsTracker();
+            inputTracker.Initialize();
 
             Debug.Log("Input metrics initialized for player analytics tracking");
         }
 
-        private void SaveCurrentSession()
+        #endregion
+
+        #region Data Persistence
+
+        private void SaveAnalyticsData()
         {
             if (currentSession != null)
             {
-                // Finalize current session
-                currentSession.endTime = Time.time;
-                currentSession.duration = currentSession.endTime - currentSession.startTime;
-                currentSession.totalActions = currentSessionActions.Count;
-                currentSession.analytics = AnalyzeCurrentSession();
+                EndCurrentSession();
+            }
 
-                // Add to history
-                sessionHistory.Add(currentSession);
+            SavePlayerProfile();
+            SaveSessionHistory();
+        }
 
-                // Limit history size
-                if (sessionHistory.Count > maxSessionHistoryLength)
-                {
-                    sessionHistory.RemoveAt(0);
-                }
-
-                // Save to file
-                SaveSessionHistoryToFile();
-
-                // Update player profile
-                currentPlayerProfile.totalPlayTime += currentSession.duration;
-                currentPlayerProfile.sessionsCompleted++;
-                currentPlayerProfile.lastUpdated = Time.time;
-                SavePlayerProfile(currentPlayerProfile);
+        private void SavePlayerProfile()
+        {
+            try
+            {
+                string json = JsonUtility.ToJson(currentPlayerProfile, true);
+                System.IO.File.WriteAllText(AnalyticsHelpers.GetAnalyticsDataPath("player_profile.json"), json);
 
                 Debug.Log($"Session saved - Duration: {currentSession.duration:F1}s, Actions: {currentSession.totalActions}");
             }
+            catch (System.Exception e)
+            {
+                Debug.LogError($"Failed to save player profile: {e.Message}");
+            }
         }
 
-        private void SaveSessionHistoryToFile()
+        private void SaveSessionHistory()
         {
             try
             {
                 var wrapper = new SessionHistoryWrapper { sessions = sessionHistory };
                 string json = JsonUtility.ToJson(wrapper, true);
-                System.IO.File.WriteAllText(GetAnalyticsDataPath("session_history.json"), json);
+                System.IO.File.WriteAllText(AnalyticsHelpers.GetAnalyticsDataPath("session_history.json"), json);
             }
             catch (System.Exception e)
             {
                 Debug.LogError($"Failed to save session history: {e.Message}");
             }
         }
+
+        private ArchetypeType DeterminePlayerArchetype()
+        {
+            return ArchetypeType.Explorer; // Default archetype
+        }
+
+        private string DeterminePreferredGameplayStyle()
+        {
+            return "Exploration"; // Default style
+        }
+
+        private float CalculateOverallSkillLevel()
+        {
+            return 1.0f; // Default skill level
+        }
+
+        private ActionType GetDominantActivity()
+        {
+            if (currentSessionActions.Count == 0) return ActionType.Menu;
+
+            var activityCounts = currentSessionActions
+                .GroupBy(a => a.actionType)
+                .OrderByDescending(g => g.Count())
+                .FirstOrDefault();
+
+            return activityCounts?.Key ?? ActionType.Menu;
+        }
+
+        private Dictionary<PreferenceType, float> GetAnalyzedPreferences()
+        {
+            return new Dictionary<PreferenceType, float>
+            {
+                [PreferenceType.Exploration] = 0.7f,
+                [PreferenceType.Social] = 0.5f,
+                [PreferenceType.Competition] = 0.3f,
+                [PreferenceType.Creative] = 0.6f
+            };
+        }
+
+        private void UpdatePlayerProfileFromSession()
+        {
+            // Update player profile based on current session data
+            if (currentPlayerProfile != null && currentSession != null)
+            {
+                currentPlayerProfile.playtime += currentSession.duration;
+                // Additional profile updates can be added here
+            }
+        }
+
+
+        #endregion
+
+        #region Analyzer Classes
+
+        public class PlayerBehaviorAnalyzer
+        {
+            public float CalculateCurrentEngagement() { return Random.Range(0.4f, 0.9f); }
+        }
+
+        public class EngagementAnalyzer
+        {
+            public float CalculateCurrentEngagement() { return Random.Range(0.4f, 0.9f); }
+        }
+
+        public class PreferenceAnalyzer
+        {
+            public Dictionary<ActionType, float> GetCurrentPreferences()
+            {
+                return new Dictionary<ActionType, float>
+                {
+                    [ActionType.Exploration] = Random.Range(0f, 1f),
+                    [ActionType.Breeding] = Random.Range(0f, 1f),
+                    [ActionType.Quest] = Random.Range(0f, 1f)
+                };
+            }
+        }
+    }
+
+    public enum PlayerBehaviorTrait
+    {
+        Exploratory,
+        Social,
+        Competitive,
+        Creative,
+        Repetitive,
+        Adaptive,
+        Focused,
+        Impulsive,
+        Persistent
     }
 
     [System.Serializable]
-    public class SessionHistoryWrapper
+    public class PlayerProfile
     {
-        public List<GameplaySession> sessions;
+        public string playerId;
+        public float playtime;
+        public Dictionary<PreferenceType, float> preferences = new Dictionary<PreferenceType, float>();
+        public Dictionary<PlayerBehaviorTrait, float> traits = new Dictionary<PlayerBehaviorTrait, float>();
+        public float skill_level;
+        public List<string> achievements = new List<string>();
+        public string favoriteSpecies;
+        public ArchetypeType dominantArchetype;
+        public float archetypeUpdateTime;
+        public List<ArchetypeType> previousArchetypes = new List<ArchetypeType>();
+        public GameplayStyle preferredGameplayStyle;
+        public float skillLevel;
+        public float lastAdaptation;
     }
 
-    // Analyzer classes (simplified for brevity)
-    public class PlayerBehaviorAnalyzer
+    [System.Serializable]
+    public class GameplaySession
     {
-        // Behavior analysis implementation
+        public float startTime;
+        public float endTime;
+        public int actionCount;
+        public List<string> achievements = new List<string>();
+        public Dictionary<MetricType, float> sessionMetrics = new Dictionary<MetricType, float>();
+        public float Duration => endTime - startTime;
+        public float duration;
+        public int totalActions;
+        public List<PlayerAction> actions = new List<PlayerAction>();
+        public int uniqueActionTypes;
+        public EngagementMetrics engagementMetrics;
+        public BehaviorMetrics behaviorMetrics;
+        public Dictionary<EmotionalState, float> emotionalProfile = new Dictionary<EmotionalState, float>();
+        public uint sessionId;
+        public ArchetypeType playerArchetype;
+        public float totalPauseTime;
     }
 
-    public class EngagementAnalyzer
+    [System.Serializable]
+    public class PlayerAction
     {
-        public float CalculateCurrentEngagement() { return Random.Range(0.4f, 0.9f); }
+        public ActionType actionType;
+        public float timestamp;
+        public Vector3 position;
+        public Dictionary<ParamKey, object> parameters = new Dictionary<ParamKey, object>();
+        public float intensity;
+        public bool successful;
     }
 
-    public class PreferenceAnalyzer
+    public class GameAdaptationEngine
     {
-        public Dictionary<ActionType, float> GetCurrentPreferences()
-        {
-            return new Dictionary<ActionType, float>
-            {
-                [ActionType.Exploration] = Random.Range(0f, 1f),
-                [ActionType.Breeding] = Random.Range(0f, 1f),
-                [ActionType.Quest] = Random.Range(0f, 1f)
-            };
-        }
+        public void ProcessPlayerData(PlayerProfile profile) { }
+        public List<string> GetRecommendations() => new List<string>();
+        public void UpdateDifficulty(float adjustment) { }
+        public float GetCurrentDifficulty() => 1.0f;
+        public void ProcessAdaptation(PlayerProfile profile) { }
+    }
+
+    public class InputMetricsTracker
+    {
+        public Dictionary<ActionType, int> inputCounts = new Dictionary<ActionType, int>();
+        public float averageInputRate;
+        public void TrackInput(ActionType type) { }
+        public void Reset() { }
+        public void Initialize() { }
+    }
+
+    public enum EmotionalState
+    {
+        Neutral,
+        Excited,
+        Frustrated,
+        Relaxed,
+        Focused,
+        Overwhelmed,
+        Satisfied,
+        Curious,
+        Pride,
+        Excitement,
+        Satisfaction,
+        Anticipation,
+        Frustration
+    }
+
+    public class PersonalityProfiler
+    {
+        public Dictionary<PlayerBehaviorTrait, float> GetPersonalityTraits() => new Dictionary<PlayerBehaviorTrait, float>();
+        public void UpdateProfile(List<PlayerAction> actions) { }
+        public PersonalityType GetPersonalityType() => PersonalityType.Balanced;
     }
 
     public class InputMetrics
@@ -2579,4 +1681,163 @@ namespace Laboratory.Systems.Analytics
         public float averageInputRate;
         public Dictionary<ActionType, int> inputTypes = new Dictionary<ActionType, int>();
     }
+
+    [System.Serializable]
+    public class EngagementMetrics
+    {
+        public float sessionDuration;
+        public int interactionCount;
+        public float focusScore;
+        public float satisfactionLevel;
+        public Dictionary<EngagementType, float> engagementFactors = new Dictionary<EngagementType, float>();
+        public int totalActions;
+        public float actionsPerMinute;
+        public Dictionary<EngagementType, float> engagementMetrics = new Dictionary<EngagementType, float>();
+        public float overallEngagement;
+        public float focusLevel;
+        public float explorationLevel;
+    }
+
+    [System.Serializable]
+    public class QuestData
+    {
+        public string questId;
+        public string questName;
+        public float progress;
+        public bool isCompleted;
+        public Dictionary<QuestKey, object> questParameters = new Dictionary<QuestKey, object>();
+        public float timeSpent;
+        public Laboratory.Core.Enums.QuestType type;
+        public float difficulty;
+        public float generatedTime;
+    }
+
+    [System.Serializable]
+    public class CreatureInstance
+    {
+        public uint creatureId;
+        public string speciesName;
+        public Vector3 position;
+        public Dictionary<string, float> traits = new Dictionary<string, float>();
+        public float age;
+        public bool isAlive;
+        public float fitness;
+        public int generation;
+    }
+
+    [System.Serializable]
+    public class BreedingSession
+    {
+        public CreatureInstance parentA;
+        public CreatureInstance parentB;
+        public float startTime;
+        public float completionTime;
+        public bool successful;
+        public Dictionary<ParamKey, object> parameters = new Dictionary<ParamKey, object>();
+    }
+
+    [System.Serializable]
+    public class EcosystemEvent
+    {
+        public Laboratory.Core.Enums.EventType eventType;
+        public float timestamp;
+        public Vector3 location;
+        public Dictionary<EventKey, object> eventData = new Dictionary<EventKey, object>();
+        public float impact;
+    }
+
+    [System.Serializable]
+    public struct PlayerBehaviorAnalysis
+    {
+        public float explorationFocus;
+        public float socialFocus;
+        public float competitiveFocus;
+        public float creativeFocus;
+        public float repetitiveScore;
+        public float adaptabilityScore;
+        public List<RiskFactorType> riskFactors;
+        public List<StrengthAreaType> strengthAreas;
+        public float engagementLevel;
+        public Dictionary<PlayerBehaviorTrait, float> behaviorTraits;
+        public List<BehaviorInsight> insights;
+        public List<string> recommendations;
+        public Dictionary<EmotionalState, float> emotionalProfile;
+        public Dictionary<MetricType, float> sessionMetrics;
+        public string playerId;
+        public ArchetypeType dominantArchetype;
+        public PlayStyle playStyle;
+    }
+
+    [System.Serializable]
+    public class PlayStyle
+    {
+        public float explorationFocus;
+        public float socialFocus;
+        public float competitiveFocus;
+        public float creativeFocus;
+        public float patienceLevel;
+        public float riskTolerance;
+        public Dictionary<string, float> preferences = new Dictionary<string, float>();
+        public float questFocus;
+        public float breedingFocus;
+    }
+
+    [System.Serializable]
+    public class BehaviorInsight
+    {
+        public string insight;
+        public float confidence;
+        public string category;
+        public Dictionary<ContextType, object> supportingData = new Dictionary<ContextType, object>();
+        public float timestamp;
+        public InsightType insightType;
+        public string message;
+    }
+
+    [System.Serializable]
+    public class BehaviorMetrics
+    {
+        public Dictionary<PlayerBehaviorTrait, float> traitScores = new Dictionary<PlayerBehaviorTrait, float>();
+        public float consistency;
+        public float adaptability;
+        public float engagement;
+        public List<PatternType> patterns = new List<PatternType>();
+        public float behaviorVariety;
+        public float averageSessionLength;
+        public GameplayStyle preferredGameplayStyle;
+        public float performanceConsistency;
+        public float learningCurveProgression;
+        public ActionType dominantBehaviorType;
+    }
+
+    [System.Serializable]
+    public class EmotionalMoment
+    {
+        public EmotionalState state;
+        public float intensity;
+        public float timestamp;
+        public string trigger;
+        public Vector3 location;
+        public Dictionary<ContextType, object> context = new Dictionary<ContextType, object>();
+        public string description;
+        public string actionContext;
+        public MomentType momentType;
+    }
+
+    [System.Serializable]
+    public class SessionHistoryWrapper
+    {
+        public List<GameplaySession> sessions = new List<GameplaySession>();
+    }
+
+    // Helper methods for PlayerAnalyticsTracker
+    public static class AnalyticsHelpers
+    {
+        public static string GetAnalyticsDataPath(string filename)
+        {
+            return Application.persistentDataPath + "/" + filename;
+        }
+    }
+
+    #endregion
 }

@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Genetics
 {
@@ -18,7 +19,7 @@ namespace Laboratory.Chimera.Genetics
         public string traitName;
 
         /// <summary>Category of trait this gene represents (Physical, Mental, Magical, etc.)</summary>
-        public TraitType traitType;
+        public Laboratory.Core.Enums.TraitType traitType;
 
         /// <summary>Dominant allele - expressed when present with either dominant or recessive</summary>
         public Allele dominantAllele;
@@ -63,7 +64,7 @@ namespace Laboratory.Chimera.Genetics
         public bool isMutation { get; set; }
         public int mutationGeneration { get; set; }
         
-        public Gene(string id, string name, TraitType type, Allele dominant, Allele recessive)
+        public Gene(string id, string name, Laboratory.Core.Enums.TraitType type, Allele dominant, Allele recessive)
         {
             geneId = id;
             traitName = name;
@@ -138,7 +139,20 @@ namespace Laboratory.Chimera.Genetics
         {
             return !(left == right);
         }
-        
+
+        /// <summary>
+        /// Gets the expressed value as a float (alias for GetTraitValue for compatibility)
+        /// </summary>
+        public float GetExpressedValue()
+        {
+            return GetTraitValue();
+        }
+
+        /// <summary>
+        /// Gets the trait name (property for compatibility)
+        /// </summary>
+        public string TraitName => traitName;
+
         public override bool Equals(object obj)
         {
             return obj is Gene other && this == other;
@@ -282,7 +296,7 @@ namespace Laboratory.Chimera.Genetics
         [Header("Basic Information")]
         public string traitId;
         public string displayName;
-        public TraitType category;
+        public Laboratory.Core.Enums.TraitType category;
         [TextArea(2, 4)]
         public string description;
         

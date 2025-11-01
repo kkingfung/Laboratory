@@ -51,15 +51,7 @@ namespace Laboratory.Chimera.UI
         
         private Color GetTraitColor(TraitType traitType)
         {
-            switch (traitType)
-            {
-                case TraitType.Physical: return Color.green;
-                case TraitType.Mental: return Color.blue;
-                case TraitType.Magical: return Color.magenta;
-                case TraitType.Social: return Color.yellow;
-                case TraitType.Combat: return Color.red;
-                default: return Color.gray;
-            }
+            return traitType.GetCategory().GetCategoryColor();
         }
 
         public void SetupTraitPreview(object traitPrediction, bool isAdvancedMode)

@@ -2,9 +2,11 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Core;
+using Laboratory.Core.Enums;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Systems.Analytics;
 using Laboratory.Systems.Ecosystem;
+using Laboratory.AI.Personality;
 
 namespace Laboratory.Systems.Storytelling
 {
@@ -46,6 +48,9 @@ namespace Laboratory.Systems.Storytelling
         [SerializeField] private bool trackCreaturePersonalities = true;
         [SerializeField] private float adaptationThreshold = 0.5f;
 
+        [Header("Debug Settings")]
+        [SerializeField] private bool logPersonalityEvents = false;
+
         // Core storytelling components
         private List<DynamicStory> activeStories = new List<DynamicStory>();
         private List<StoryFragment> storyHistory = new List<StoryFragment>();
@@ -60,12 +65,13 @@ namespace Laboratory.Systems.Storytelling
         // Tracking and analysis
         private float lastStoryUpdate;
         private StoryAnalytics analytics = new StoryAnalytics();
-        private Dictionary<string, float> themePopularity = new Dictionary<string, float>();
+        private Dictionary<NarrativeTheme, float> themePopularity = new Dictionary<NarrativeTheme, float>();
 
         // Connected systems
         private PlayerAnalyticsTracker analyticsTracker;
         private DynamicEcosystemSimulator ecosystemSimulator;
         private GeneticEvolutionManager evolutionManager;
+        private CreaturePersonalityManager personalityManager;
 
         // Events
         public System.Action<DynamicStory> OnStoryGenerated;
@@ -405,10 +411,10 @@ namespace Laboratory.Systems.Storytelling
                 description = $"Environmental event occurred: {envEvent.eventType}",
                 significance = 0.7f,
                 timestamp = Time.time,
-                eventData = new Dictionary<string, object>
+                eventData = new Dictionary<ParamKey, object>
                 {
-                    ["eventType"] = envEvent.eventType,
-                    ["description"] = envEvent.description
+                    [ParamKey.EventType] = envEvent.eventType,
+                    [ParamKey.EventDescription] = envEvent.description
                 }
             };
 
@@ -438,11 +444,11 @@ namespace Laboratory.Systems.Storytelling
                 significance = 0.9f,
                 timestamp = Time.time,
                 primaryCreatureId = eliteCreature.id,
-                eventData = new Dictionary<string, object>
+                eventData = new Dictionary<ParamKey, object>
                 {
-                    ["fitness"] = eliteCreature.fitness,
-                    ["generation"] = eliteCreature.generation,
-                    ["traits"] = eliteCreature.traits
+                    [ParamKey.OffspringFitness] = eliteCreature.fitness,
+                    [ParamKey.Generation] = eliteCreature.generation,
+                    [ParamKey.Content] = eliteCreature.traits.Count
                 }
             };
 
@@ -463,9 +469,9 @@ namespace Laboratory.Systems.Storytelling
                 timestamp = Time.time,
                 primaryCreatureId = creatureA,
                 secondaryCreatureId = creatureB,
-                eventData = new Dictionary<string, object>
+                eventData = new Dictionary<ParamKey, object>
                 {
-                    ["interactionType"] = interactionType
+                    [ParamKey.InteractionType] = interactionType
                 }
             };
 
@@ -508,11 +514,11 @@ namespace Laboratory.Systems.Storytelling
                     significance = 0.5f,
                     timestamp = Time.time,
                     primaryCreatureId = creatureId,
-                    eventData = new Dictionary<string, object>
+                    eventData = new Dictionary<ParamKey, object>
                     {
-                        ["mood"] = newMood,
-                        ["stress"] = newMood.stress,
-                        ["happiness"] = newMood.happiness
+                        [ParamKey.EmotionalState] = newMood,
+                        [ParamKey.Content] = newMood.stress,
+                        [ParamKey.Intensity] = newMood.happiness
                     }
                 };
 
@@ -570,8 +576,451 @@ namespace Laboratory.Systems.Storytelling
             };
         }
 
-        // Additional helper methods for story generation, character development, and narrative analysis...
-        // (Implementation continues with sophisticated storytelling algorithms)
+        private Dictionary<EnvironmentalCondition, float> GetCurrentEnvironmentalConditions()
+        {
+            var conditions = new Dictionary<EnvironmentalCondition, float>();
+
+            if (ecosystemSimulator != null)
+            {
+                conditions[EnvironmentalCondition.Temperature] = Random.Range(0f, 1f);
+                conditions[EnvironmentalCondition.Humidity] = Random.Range(0f, 1f);
+                conditions[EnvironmentalCondition.ResourceAvailability] = Random.Range(0f, 1f);
+                conditions[EnvironmentalCondition.PopulationDensity] = Random.Range(0f, 1f);
+            }
+            else
+            {
+                // Default values when ecosystem simulator is not available
+                conditions[EnvironmentalCondition.Temperature] = 0.5f;
+                conditions[EnvironmentalCondition.Humidity] = 0.5f;
+                conditions[EnvironmentalCondition.ResourceAvailability] = 0.5f;
+                conditions[EnvironmentalCondition.PopulationDensity] = 0.3f;
+            }
+
+            return conditions;
+        }
+
+        private Dictionary<NarrativePreference, float> GetPlayerNarrativePreferences()
+        {
+            var preferences = new Dictionary<NarrativePreference, float>();
+
+            if (analyticsTracker != null)
+            {
+                var behaviorAnalysis = analyticsTracker.GetBehaviorAnalysis();
+                preferences[NarrativePreference.DramaticIntensity] = behaviorAnalysis.competitiveFocus;
+                preferences[NarrativePreference.HumorLevel] = behaviorAnalysis.socialFocus * 0.7f;
+                preferences[NarrativePreference.TechnicalDetail] = behaviorAnalysis.explorationFocus;
+                preferences[NarrativePreference.CharacterFocus] = behaviorAnalysis.socialFocus;
+            }
+            else
+            {
+                // Default preferences
+                preferences[NarrativePreference.DramaticIntensity] = dramaticIntensity;
+                preferences[NarrativePreference.HumorLevel] = humorLevel;
+                preferences[NarrativePreference.TechnicalDetail] = technicalDetail;
+                preferences[NarrativePreference.CharacterFocus] = 0.6f;
+            }
+
+            return preferences;
+        }
+
+        private List<GameEvent> GetRecentGameEvents()
+        {
+            var events = new List<GameEvent>();
+
+            // Get recent events from the last 60 seconds
+            float cutoffTime = Time.time - 60f;
+
+            foreach (var fragment in storyHistory)
+            {
+                if (fragment.timestamp > cutoffTime)
+                {
+                    events.Add(new GameEvent
+                    {
+                        eventType = fragment.eventType,
+                        description = fragment.content,
+                        significance = fragment.significanceLevel,
+                        timestamp = fragment.timestamp
+                    });
+                }
+            }
+
+            return events;
+        }
+
+        private StoryTemplate SelectAppropriateTemplate(StoryGenerationContext context)
+        {
+            if (storyTemplates == null || storyTemplates.Length == 0)
+                return null;
+
+            float bestScore = 0f;
+            StoryTemplate bestTemplate = null;
+
+            foreach (var template in storyTemplates)
+            {
+                float score = CalculateTemplateSuitability(template, context);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestTemplate = template;
+                }
+            }
+
+            return bestTemplate;
+        }
+
+        private float CalculateTemplateSuitability(StoryTemplate template, StoryGenerationContext context)
+        {
+            float suitability = 0.5f; // Base suitability
+
+            // Factor in ecosystem state
+            switch (template.storyType)
+            {
+                case StoryType.Survival:
+                    if (context.ecosystemState == EcosystemHealth.Poor)
+                        suitability += 0.3f;
+                    break;
+                case StoryType.Evolution:
+                    if (context.activeCreatures.Count > 5)
+                        suitability += 0.2f;
+                    break;
+                case StoryType.Social:
+                    if (context.activeCreatures.Count > 2)
+                        suitability += 0.25f;
+                    break;
+            }
+
+            // Factor in recent events
+            if (context.triggeringEvent != null && context.triggeringEvent.significance > 0.7f)
+                suitability += 0.2f;
+
+            return Mathf.Clamp01(suitability);
+        }
+
+        private List<CharacterProfile> SelectMainCharacters(StoryGenerationContext context)
+        {
+            var characters = new List<CharacterProfile>();
+
+            // Select up to 3 main characters from active creatures
+            int maxCharacters = Mathf.Min(3, context.activeCreatures.Count);
+
+            for (int i = 0; i < maxCharacters; i++)
+            {
+                var creatureData = context.activeCreatures[i];
+                characters.Add(creatureData.characterProfile ?? GetOrCreateCharacterProfile(creatureData.creatureId));
+            }
+
+            return characters;
+        }
+
+        private StorySetting DetermineStorySetting(StoryGenerationContext context)
+        {
+            // Create a basic story setting based on context
+            return new StorySetting();
+        }
+
+        private PlotStructure GeneratePlotStructure(StoryTemplate template)
+        {
+            // Generate plot structure based on template
+            return new PlotStructure();
+        }
+
+        private EventImpact AnalyzeEventImpact(DynamicStory story, GameEvent gameEvent)
+        {
+            var impact = new EventImpact
+            {
+                significanceLevel = gameEvent.significance
+            };
+
+            // Find affected characters
+            if (gameEvent.primaryCreatureId != 0)
+            {
+                impact.affectedCharacters.Add(gameEvent.primaryCreatureId);
+            }
+            if (gameEvent.secondaryCreatureId != 0)
+            {
+                impact.affectedCharacters.Add(gameEvent.secondaryCreatureId);
+            }
+
+            return impact;
+        }
+
+        private void UpdateCharacterDevelopment(DynamicStory story, GameEvent gameEvent, EventImpact impact)
+        {
+            foreach (var characterId in impact.affectedCharacters)
+            {
+                var character = story.mainCharacters.FirstOrDefault(c => c.creatureId == characterId);
+                if (character != null)
+                {
+                    character.developmentLevel += impact.significanceLevel * 0.1f;
+                    character.characterArc.Add($"Experienced {gameEvent.eventType} at {gameEvent.timestamp:F1}s");
+
+                    OnCharacterDevelopment?.Invoke(character);
+                }
+            }
+        }
+
+        private void CheckStoryCompletion(DynamicStory story)
+        {
+            // Check if story has reached natural completion
+            if (story.fragments.Count >= 10 ||
+                (Time.time - story.generationTime) > 300f || // 5 minutes
+                story.plotStructure == null)
+            {
+                story.status = StoryStatus.Completed;
+                story.completionTime = Time.time;
+                activeStories.Remove(story);
+                analytics.totalStoriesCompleted++;
+
+                OnStoryCompleted?.Invoke(story);
+            }
+        }
+
+        private void UpdateStoryProgression(DynamicStory story)
+        {
+            // Update story progression logic
+            float progressTime = Time.time - story.generationTime;
+
+            // Stories naturally progress over time
+            if (progressTime > 30f && story.fragments.Count == 0)
+            {
+                // Generate a progression event if story has been stagnant
+                var progressEvent = new GameEvent
+                {
+                    eventType = "StoryProgression",
+                    description = "The story naturally develops",
+                    significance = 0.4f,
+                    timestamp = Time.time
+                };
+
+                UpdateStoryNarrative(story.id, progressEvent);
+            }
+        }
+
+        private void CheckForNaturalStoryEvents(DynamicStory story)
+        {
+            // Check for natural story events based on characters and setting
+            foreach (var character in story.mainCharacters)
+            {
+                if (Random.Range(0f, 1f) < 0.05f) // 5% chance per update
+                {
+                    var naturalEvent = new GameEvent
+                    {
+                        eventType = "CharacterMoment",
+                        description = $"Character {character.characterName} has a significant moment",
+                        significance = 0.3f,
+                        timestamp = Time.time,
+                        primaryCreatureId = character.creatureId
+                    };
+
+                    UpdateStoryNarrative(story.id, naturalEvent);
+                }
+            }
+        }
+
+        private void UpdateCharacterArcs(DynamicStory story)
+        {
+            // Update character development arcs
+            foreach (var character in story.mainCharacters)
+            {
+                if (personalityManager != null)
+                {
+                    var personalityProfile = personalityManager.AnalyzeCreaturePersonality(character.creatureId);
+                    if (personalityProfile != null)
+                    {
+                        // Update character based on personality analysis
+                        character.currentMood = personalityProfile.currentMoodState.ToString();
+                    }
+                }
+            }
+        }
+
+        private bool HasSignificantRecentEvents(StoryGenerationContext context)
+        {
+            return context.recentEvents.Any(e => e.significance > 0.6f) ||
+                   context.triggeringEvent != null;
+        }
+
+        private void HandlePlayerArchetypeChange(string newArchetype)
+        {
+            // Adjust storytelling style based on player archetype
+            if (logPersonalityEvents)
+            {
+                Debug.Log($"Player archetype changed to: {newArchetype}. Adjusting narrative style.");
+            }
+        }
+
+        private void HandleBehaviorInsight(string insight)
+        {
+            // Use behavior insights to inform story generation
+            if (logPersonalityEvents)
+            {
+                Debug.Log($"Behavior insight: {insight}");
+            }
+        }
+
+        private void HandleBiomeHealthChange(string biome, EcosystemHealth newHealth)
+        {
+            var gameEvent = new GameEvent
+            {
+                eventType = "BiomeHealthChange",
+                description = $"Biome {biome} health changed to {newHealth}",
+                significance = 0.6f,
+                timestamp = Time.time,
+                eventData = new Dictionary<ParamKey, object>
+                {
+                    [ParamKey.Biome] = biome,
+                    [ParamKey.Content] = newHealth
+                }
+            };
+
+            // Update relevant stories
+            foreach (var story in activeStories)
+            {
+                UpdateStoryNarrative(story.id, gameEvent);
+            }
+        }
+
+        private void HandleEvolutionaryMilestone(string milestone)
+        {
+            var gameEvent = new GameEvent
+            {
+                eventType = "EvolutionaryMilestone",
+                description = $"Evolutionary milestone achieved: {milestone}",
+                significance = 0.8f,
+                timestamp = Time.time,
+                eventData = new Dictionary<ParamKey, object>
+                {
+                    [ParamKey.Content] = milestone
+                }
+            };
+
+            // This is significant enough for a new story
+            var context = CreateStoryContextFromGameState();
+            context.triggeringEvent = gameEvent;
+            GenerateStory(context);
+        }
+
+        private void InitializeThemePopularity()
+        {
+            themePopularity[NarrativeTheme.Discovery] = 0.5f;
+            themePopularity[NarrativeTheme.Evolution] = 0.6f;
+            themePopularity[NarrativeTheme.Social] = 0.4f;
+            themePopularity[NarrativeTheme.Survival] = 0.5f;
+            themePopularity[NarrativeTheme.Mystery] = 0.3f;
+            themePopularity[NarrativeTheme.Adventure] = 0.4f;
+        }
+
+        private Dictionary<NarrativeTheme, float> GetDominantThemes()
+        {
+            return themePopularity.OrderByDescending(kvp => kvp.Value)
+                                 .Take(3)
+                                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        private List<CharacterArc> GetActiveCharacterArcs()
+        {
+            var arcs = new List<CharacterArc>();
+
+            foreach (var story in activeStories)
+            {
+                foreach (var character in story.mainCharacters)
+                {
+                    // Create character arc representation
+                    arcs.Add(new CharacterArc());
+                }
+            }
+
+            return arcs;
+        }
+
+        private float CalculateNarrativeComplexity()
+        {
+            if (activeStories.Count == 0) return 0f;
+
+            float totalComplexity = 0f;
+
+            foreach (var story in activeStories)
+            {
+                float storyComplexity = story.fragments.Count * 0.1f +
+                                      story.mainCharacters.Count * 0.2f;
+                totalComplexity += storyComplexity;
+            }
+
+            return totalComplexity / activeStories.Count;
+        }
+
+        private float PredictPlayerEngagement()
+        {
+            if (analyticsTracker != null)
+            {
+                var behavior = analyticsTracker.GetBehaviorAnalysis();
+                return (behavior.explorationFocus + behavior.socialFocus + behavior.creativeFocus) / 3f;
+            }
+            return 0.5f; // Default moderate engagement
+        }
+
+        private StoryQualityMetrics CalculateStoryQuality()
+        {
+            return new StoryQualityMetrics();
+        }
+
+        private List<string> GenerateStorytellingRecommendations()
+        {
+            var recommendations = new List<string>();
+
+            if (activeStories.Count < maxActiveStories / 2)
+            {
+                recommendations.Add("Consider generating more concurrent stories");
+            }
+
+            if (analytics.averagePlayerEngagement < 0.4f)
+            {
+                recommendations.Add("Increase dramatic intensity to boost engagement");
+            }
+
+            var dominantThemes = GetDominantThemes();
+            if (dominantThemes.Values.Max() > 0.8f)
+            {
+                recommendations.Add("Diversify story themes for variety");
+            }
+
+            return recommendations;
+        }
+
+        private int EstimateNarrativeLength(StoryTemplate template, StoryGenerationContext context)
+        {
+            return template.estimatedLength switch
+            {
+                StoryLength.Short => Random.Range(3, 6),
+                StoryLength.Medium => Random.Range(6, 12),
+                StoryLength.Long => Random.Range(12, 20),
+                StoryLength.Epic => Random.Range(20, 35),
+                _ => 8
+            };
+        }
+
+        private float CalculateThematicRelevance(StoryTemplate template, StoryGenerationContext context)
+        {
+            float relevance = 0.5f;
+
+            // Check if template themes match current context
+            if (template.storyType == StoryType.Social && context.activeCreatures.Count > 2)
+                relevance += 0.2f;
+
+            if (template.storyType == StoryType.Survival && context.ecosystemState == EcosystemHealth.Poor)
+                relevance += 0.3f;
+
+            if (template.storyType == StoryType.Evolution && context.recentEvents.Any(e => e.eventType.Contains("Evolution")))
+                relevance += 0.25f;
+
+            return Mathf.Clamp01(relevance);
+        }
+
+        private void SaveStoryHistory()
+        {
+            // Save story history to persistent storage
+            Debug.Log($"Saving story history: {storyHistory.Count} fragments, {analytics.totalStoriesGenerated} total stories");
+        }
 
         private void OnDestroy()
         {
@@ -665,11 +1114,22 @@ namespace Laboratory.Systems.Storytelling
         public uint creatureId;
         public string characterName;
         public CharacterArchetype archetype;
-        public Dictionary<string, float> personalityTraits = new Dictionary<string, float>();
+        public PersonalityTrait personalityTraits;
         public string currentMood;
         public List<string> characterArc = new List<string>();
         public Dictionary<uint, string> relationships = new Dictionary<uint, string>();
         public float developmentLevel;
+    }
+
+    [System.Serializable]
+    public struct PlayerBehaviorAnalysis
+    {
+        public float explorationFocus;
+        public float socialFocus;
+        public float competitiveFocus;
+        public float creativeFocus;
+        public float repetitiveScore;
+        public float adaptabilityScore;
     }
 
     [System.Serializable]
@@ -680,8 +1140,8 @@ namespace Laboratory.Systems.Storytelling
         public EcosystemHealth ecosystemState;
         public List<CreatureData> activeCreatures = new List<CreatureData>();
         public List<GameEvent> recentEvents = new List<GameEvent>();
-        public Dictionary<string, float> environmentalConditions = new Dictionary<string, float>();
-        public Dictionary<string, float> playerPreferences = new Dictionary<string, float>();
+        public Dictionary<EnvironmentalCondition, float> environmentalConditions = new Dictionary<EnvironmentalCondition, float>();
+        public Dictionary<NarrativePreference, float> playerPreferences = new Dictionary<NarrativePreference, float>();
         public GameEvent triggeringEvent;
         public uint focusCreature;
     }
@@ -695,7 +1155,7 @@ namespace Laboratory.Systems.Storytelling
         public float timestamp;
         public uint primaryCreatureId;
         public uint secondaryCreatureId;
-        public Dictionary<string, object> eventData = new Dictionary<string, object>();
+        public Dictionary<ParamKey, object> eventData = new Dictionary<ParamKey, object>();
     }
 
     [System.Serializable]
@@ -758,7 +1218,7 @@ namespace Laboratory.Systems.Storytelling
     {
         public uint creatureId;
         public CharacterProfile characterProfile;
-        public Dictionary<string, float> personalityTraits;
+        public PersonalityTrait personalityTraits;
         public string currentMood;
     }
 
@@ -778,7 +1238,7 @@ namespace Laboratory.Systems.Storytelling
         public float analysisTime;
         public int activeStoryCount;
         public int totalNarrativeFragments;
-        public Dictionary<string, float> dominantThemes;
+        public Dictionary<NarrativeTheme, float> dominantThemes;
         public List<CharacterArc> characterDevelopmentArcs;
         public float narrativeComplexity;
         public float playerEngagementPrediction;
@@ -852,13 +1312,16 @@ namespace Laboratory.Systems.Storytelling
             };
         }
 
-        private Dictionary<string, float> GeneratePersonalityTraits()
+        private PersonalityTrait GeneratePersonalityTraits()
         {
-            return new Dictionary<string, float>
+            return new PersonalityTrait
             {
-                ["curiosity"] = Random.Range(0f, 1f),
-                ["social"] = Random.Range(0f, 1f),
-                ["courage"] = Random.Range(0f, 1f)
+                openness = Random.Range(0f, 1f),
+                extroversion = Random.Range(0f, 1f),
+                agreeableness = Random.Range(0f, 1f),
+                conscientiousness = Random.Range(0f, 1f),
+                neuroticism = Random.Range(0f, 1f),
+                aggressiveness = Random.Range(0f, 1f)
             };
         }
     }

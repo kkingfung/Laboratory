@@ -767,7 +767,7 @@ namespace Laboratory.Chimera.UI.Components
             if (genetics?.TraitExpressions == null) return 0f;
 
             // Try to parse the trait name to a TraitType enum
-            if (System.Enum.TryParse<Laboratory.Chimera.Genetics.TraitType>(traitName, true, out var traitType))
+            if (System.Enum.TryParse<Laboratory.Core.Enums.TraitType>(traitName, true, out var traitType))
             {
                 if (genetics.TraitExpressions.TryGetValue(traitType, out var traitExpression))
                 {
@@ -970,7 +970,7 @@ namespace Laboratory.Chimera.UI.Components
         public string OffspringTraits;
         public bool HasRareTraits;
         public bool HasMagicalTraits;
-        public Laboratory.Chimera.Core.BiomeType BiomeType;
+        public Laboratory.Core.Enums.BiomeType BiomeType;
         public bool IsFavorite;
     }
 

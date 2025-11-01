@@ -578,25 +578,25 @@ namespace Laboratory.Subsystems.Ecosystem
         #region Utility Methods
 
         /// <summary>
-        /// Converts from Laboratory.Subsystems.Ecosystem.BiomeType to Laboratory.Chimera.Core.BiomeType
+        /// Converts from Laboratory.Subsystems.Ecosystem.BiomeType to Laboratory.Core.Enums.BiomeType
         /// </summary>
-        private Laboratory.Chimera.Core.BiomeType ConvertToChimeraBiomeType(BiomeType ecosystemBiomeType)
+        private Laboratory.Core.Enums.BiomeType ConvertToChimeraBiomeType(BiomeType ecosystemBiomeType)
         {
             return ecosystemBiomeType switch
             {
-                BiomeType.Forest => Laboratory.Chimera.Core.BiomeType.Forest,
-                BiomeType.Desert => Laboratory.Chimera.Core.BiomeType.Desert,
-                BiomeType.Ocean => Laboratory.Chimera.Core.BiomeType.Ocean,
-                BiomeType.Mountain => Laboratory.Chimera.Core.BiomeType.Mountain,
-                BiomeType.Mountains => Laboratory.Chimera.Core.BiomeType.Mountain, // Map Mountains to Mountain
-                BiomeType.Grassland => Laboratory.Chimera.Core.BiomeType.Grassland,
-                BiomeType.Tundra => Laboratory.Chimera.Core.BiomeType.Tundra,
-                BiomeType.Arctic => Laboratory.Chimera.Core.BiomeType.Arctic,
-                BiomeType.Wetland => Laboratory.Chimera.Core.BiomeType.Swamp, // Map Wetland to Swamp
-                BiomeType.Swamp => Laboratory.Chimera.Core.BiomeType.Swamp,
-                BiomeType.Cave => Laboratory.Chimera.Core.BiomeType.Underground, // Map Cave to Underground
-                BiomeType.Urban => Laboratory.Chimera.Core.BiomeType.Temperate, // Map Urban to Temperate as fallback
-                _ => Laboratory.Chimera.Core.BiomeType.Grassland // Default fallback
+                BiomeType.Forest => Laboratory.Core.Enums.BiomeType.Forest,
+                BiomeType.Desert => Laboratory.Core.Enums.BiomeType.Desert,
+                BiomeType.Ocean => Laboratory.Core.Enums.BiomeType.Ocean,
+                BiomeType.Mountain => Laboratory.Core.Enums.BiomeType.Mountain,
+                BiomeType.Mountains => Laboratory.Core.Enums.BiomeType.Mountain, // Map Mountains to Mountain
+                BiomeType.Grassland => Laboratory.Core.Enums.BiomeType.Grassland,
+                BiomeType.Tundra => Laboratory.Core.Enums.BiomeType.Tundra,
+                BiomeType.Arctic => Laboratory.Core.Enums.BiomeType.Arctic,
+                BiomeType.Wetland => Laboratory.Core.Enums.BiomeType.Swamp, // Map Wetland to Swamp
+                BiomeType.Swamp => Laboratory.Core.Enums.BiomeType.Swamp,
+                BiomeType.Cave => Laboratory.Core.Enums.BiomeType.Underground, // Map Cave to Underground
+                BiomeType.Urban => Laboratory.Core.Enums.BiomeType.Temperate, // Map Urban to Temperate as fallback
+                _ => Laboratory.Core.Enums.BiomeType.Grassland // Default fallback
             };
         }
 

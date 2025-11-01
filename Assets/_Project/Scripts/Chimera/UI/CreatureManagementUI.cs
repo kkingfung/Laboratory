@@ -1045,15 +1045,7 @@ namespace Laboratory.Chimera.UI
         
         private Color GetTraitColor(Gene trait)
         {
-            switch (trait.traitType)
-            {
-                case TraitType.Physical: return Color.green;
-                case TraitType.Mental: return Color.blue;
-                case TraitType.Magical: return Color.magenta;
-                case TraitType.Social: return Color.yellow;
-                case TraitType.Combat: return Color.red;
-                default: return Color.white;
-            }
+            return trait.traitType.GetCategory().GetCategoryColor();
         }
         
         private void HideAllPanels()

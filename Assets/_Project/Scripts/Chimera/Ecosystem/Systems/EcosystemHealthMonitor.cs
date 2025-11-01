@@ -5,7 +5,7 @@ using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
 
 using EcoMetrics = Laboratory.Chimera.Ecosystem.Data.EcosystemMetrics;
-using EcoBiomeType = Laboratory.Chimera.Core.BiomeType;
+using EcoBiomeType = Laboratory.Core.Enums.BiomeType;
 using EcoTrophicLevel = Laboratory.Chimera.Ecosystem.Data.TrophicLevel;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
@@ -170,7 +170,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             {
                 var biomeDistribution = biomeSystem.GetBiomeDistribution();
                 metrics.BiomeDistribution = biomeDistribution.ToDictionary(
-                    kvp => kvp.Key,
+                    kvp => System.Enum.Parse<Laboratory.Core.Enums.BiomeType>(kvp.Key.ToString()),
                     kvp => kvp.Value / (float)biomeDistribution.Values.Sum()
                 );
             }

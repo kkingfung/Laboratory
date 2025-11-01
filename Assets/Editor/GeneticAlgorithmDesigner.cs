@@ -37,7 +37,7 @@ namespace Laboratory.Editor.Tools
         private Dictionary<string, Color> traitColors = new Dictionary<string, Color>();
 
         // Gene pool analytics
-        private Dictionary<Laboratory.Chimera.Genetics.TraitType, float> traitDistribution = new Dictionary<Laboratory.Chimera.Genetics.TraitType, float>();
+        private Dictionary<Laboratory.Core.Enums.TraitType, float> traitDistribution = new Dictionary<Laboratory.Core.Enums.TraitType, float>();
         private List<MutationEvent> recentMutations = new List<MutationEvent>();
 
         #endregion
@@ -164,7 +164,7 @@ namespace Laboratory.Editor.Tools
         {
             EditorGUI.indentLevel++;
 
-            gene.traitType = (Laboratory.Chimera.Genetics.TraitType)EditorGUILayout.EnumPopup("Trait Type:", gene.traitType);
+            gene.traitType = (Laboratory.Core.Enums.TraitType)EditorGUILayout.EnumPopup("Trait Type:", gene.traitType);
             gene.dominance = EditorGUILayout.Slider("Dominance:", gene.dominance, 0f, 1f);
             gene.isActive = EditorGUILayout.Toggle("Active:", gene.isActive);
             // Note: Mutation rate is handled at the profile level, not individual genes
@@ -320,14 +320,14 @@ namespace Laboratory.Editor.Tools
 
         private void GenerateTraitColors()
         {
-            var traitTypes = System.Enum.GetValues(typeof(Laboratory.Chimera.Genetics.TraitType)).Cast<Laboratory.Chimera.Genetics.TraitType>();
+            var traitTypes = System.Enum.GetValues(typeof(Laboratory.Core.Enums.TraitType)).Cast<Laboratory.Core.Enums.TraitType>();
             foreach (var trait in traitTypes)
             {
                 traitColors[trait.ToString()] = UnityEngine.Random.ColorHSV(0f, 1f, 0.5f, 1f, 0.7f, 1f);
             }
         }
 
-        private Color GetTraitColor(Laboratory.Chimera.Genetics.TraitType traitType)
+        private Color GetTraitColor(Laboratory.Core.Enums.TraitType traitType)
         {
             return traitColors.TryGetValue(traitType.ToString(), out var color) ? color : Color.gray;
         }
@@ -342,7 +342,7 @@ namespace Laboratory.Editor.Tools
 
         private void GenerateRandomProfile()
         {
-            var traitTypes = System.Enum.GetValues(typeof(Laboratory.Chimera.Genetics.TraitType)).Cast<Laboratory.Chimera.Genetics.TraitType>().ToArray();
+            var traitTypes = System.Enum.GetValues(typeof(Laboratory.Core.Enums.TraitType)).Cast<Laboratory.Core.Enums.TraitType>().ToArray();
             int geneCount = UnityEngine.Random.Range(5, 15);
 
             var genes = new List<Gene>();
@@ -372,7 +372,7 @@ namespace Laboratory.Editor.Tools
             var newGene = new Gene(
                 System.Guid.NewGuid().ToString(),
                 "NewTrait",
-                Laboratory.Chimera.Genetics.TraitType.Physical,
+                Laboratory.Core.Enums.TraitType.Physical,
                 Allele.CreateDominant("Dominant_NewTrait", 0.7f),
                 Allele.CreateRecessive("Recessive_NewTrait", 0.3f)
             );
@@ -457,7 +457,7 @@ namespace Laboratory.Editor.Tools
 
         private GeneticProfile GenerateRandomGeneticProfile()
         {
-            var traitTypes = System.Enum.GetValues(typeof(Laboratory.Chimera.Genetics.TraitType)).Cast<Laboratory.Chimera.Genetics.TraitType>().ToArray();
+            var traitTypes = System.Enum.GetValues(typeof(Laboratory.Core.Enums.TraitType)).Cast<Laboratory.Core.Enums.TraitType>().ToArray();
             int geneCount = UnityEngine.Random.Range(5, 12);
 
             var genes = new Gene[geneCount];
@@ -548,9 +548,9 @@ namespace Laboratory.Editor.Tools
             traitDistribution.Clear();
 
             // Simulated analysis results
-            traitDistribution[Laboratory.Chimera.Genetics.TraitType.Physical] = 0.75f;
-            traitDistribution[Laboratory.Chimera.Genetics.TraitType.Mental] = 0.60f;
-            traitDistribution[Laboratory.Chimera.Genetics.TraitType.Behavioral] = 0.45f;
+            traitDistribution[Laboratory.Core.Enums.TraitType.Physical] = 0.75f;
+            traitDistribution[Laboratory.Core.Enums.TraitType.Mental] = 0.60f;
+            traitDistribution[Laboratory.Core.Enums.TraitType.Behavioral] = 0.45f;
 
             Debug.Log("Gene pool analysis completed!");
         }
@@ -562,7 +562,7 @@ namespace Laboratory.Editor.Tools
         [System.Serializable]
         public struct MutationEvent
         {
-            public Laboratory.Chimera.Genetics.TraitType traitType;
+            public Laboratory.Core.Enums.TraitType traitType;
             public string description;
         }
 

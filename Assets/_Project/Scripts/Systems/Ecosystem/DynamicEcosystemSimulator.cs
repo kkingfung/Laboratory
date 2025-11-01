@@ -2,9 +2,11 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Core;
+using Laboratory.Core.Enums;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Core.Debug;
-using Laboratory.Shared.Types;
+using Laboratory.Chimera.Ecosystem.Core;
+using Laboratory.Chimera.Ecosystem.Data;
 
 namespace Laboratory.Systems.Ecosystem
 {
@@ -49,6 +51,7 @@ namespace Laboratory.Systems.Ecosystem
 
         // Core ecosystem data
         private Dictionary<BiomeType, EcosystemNode> ecosystemNodes = new Dictionary<BiomeType, EcosystemNode>();
+        private Dictionary<BiomeType, BiomeResourceState> activeBiomes = new Dictionary<BiomeType, BiomeResourceState>();
         private Dictionary<ResourceType, GlobalResourceState> globalResources = new Dictionary<ResourceType, GlobalResourceState>();
         private List<ActiveEnvironmentalEvent> activeEvents = new List<ActiveEnvironmentalEvent>();
 
@@ -97,6 +100,9 @@ namespace Laboratory.Systems.Ecosystem
 
             // Initialize biome nodes
             InitializeBiomeNodes();
+
+            // Initialize active biomes with resource states
+            InitializeActiveBiomes();
 
             // Initialize global resources
             InitializeGlobalResources();
@@ -159,7 +165,7 @@ namespace Laboratory.Systems.Ecosystem
                 biomePopulations[biome] = new PopulationData();
             }
             biomePopulations[biome].totalPopulation++;
-            biomePopulations[biome].totalBiomass += genome.traits.GetValueOrDefault("size", 1f);
+            biomePopulations[biome].totalBiomass += genome.traits.ContainsKey(TraitType.Size) ? genome.traits[TraitType.Size].value : 1f;
 
             Debug.Log($"Creature {creatureId} registered in {biome} biome");
         }
@@ -180,7 +186,7 @@ namespace Laboratory.Systems.Ecosystem
                     if (biomePopulations.ContainsKey(oldBiome))
                     {
                         biomePopulations[oldBiome].totalPopulation--;
-                        biomePopulations[oldBiome].totalBiomass -= data.genome.traits.GetValueOrDefault("size", 1f);
+                        biomePopulations[oldBiome].totalBiomass -= data.genome.traits.ContainsKey(TraitType.Size) ? data.genome.traits[TraitType.Size].value : 1f;
                     }
 
                     if (!biomePopulations.ContainsKey(newBiome))
@@ -188,7 +194,7 @@ namespace Laboratory.Systems.Ecosystem
                         biomePopulations[newBiome] = new PopulationData();
                     }
                     biomePopulations[newBiome].totalPopulation++;
-                    biomePopulations[newBiome].totalBiomass += data.genome.traits.GetValueOrDefault("size", 1f);
+                    biomePopulations[newBiome].totalBiomass += data.genome.traits.ContainsKey(TraitType.Size) ? data.genome.traits[TraitType.Size].value : 1f;
 
                     data.currentBiome = newBiome;
                 }
@@ -208,7 +214,7 @@ namespace Laboratory.Systems.Ecosystem
                 if (biomePopulations.ContainsKey(data.currentBiome))
                 {
                     biomePopulations[data.currentBiome].totalPopulation--;
-                    biomePopulations[data.currentBiome].totalBiomass -= data.genome.traits.GetValueOrDefault("size", 1f);
+                    biomePopulations[data.currentBiome].totalBiomass -= data.genome.traits.ContainsKey(TraitType.Size) ? data.genome.traits[TraitType.Size].value : 1f;
                 }
 
                 creatureEcosystemData.Remove(creatureId);
@@ -222,7 +228,7 @@ namespace Laboratory.Systems.Ecosystem
         public EnvironmentalConditions GetEnvironmentalConditions(Vector3 position)
         {
             var biome = GetBiomeAtPosition(position);
-            var node = ecosystemNodes.GetValueOrDefault(biome);
+            var node = ecosystemNodes.ContainsKey(biome) ? ecosystemNodes[biome] : null;
 
             var conditions = new EnvironmentalConditions
             {
@@ -251,7 +257,7 @@ namespace Laboratory.Systems.Ecosystem
             // Check availability
             foreach (var kvp in consumption)
             {
-                var available = node.resourceAvailability.GetValueOrDefault(kvp.Key, 0f);
+                var available = node.resourceAvailability.ContainsKey(kvp.Key) ? node.resourceAvailability[kvp.Key] : 0f;
                 if (available < kvp.Value)
                 {
                     canConsume = false;
@@ -316,8 +322,8 @@ namespace Laboratory.Systems.Ecosystem
                 overallStressLevel = CalculateOverallStressLevel(),
                 biomeStressLevels = new Dictionary<BiomeType, float>(),
                 resourceStressLevels = new Dictionary<ResourceType, float>(),
-                stressFactors = new List<string>(),
-                recommendations = new List<string>()
+                stressFactors = new List<EcosystemStressFactor>(),
+                recommendations = new List<EcosystemRecommendation>()
             };
 
             // Analyze biome stress
@@ -328,8 +334,8 @@ namespace Laboratory.Systems.Ecosystem
 
                 if (biomeStress > 0.7f)
                 {
-                    analysis.stressFactors.Add($"{kvp.Key} biome under severe stress");
-                    analysis.recommendations.Add($"Reduce activity in {kvp.Key} biome");
+                    analysis.stressFactors.Add(EcosystemStressFactor.BiomeDegradation);
+                    analysis.recommendations.Add(EcosystemRecommendation.RestoreBiomeHealth);
                 }
             }
 
@@ -341,9 +347,36 @@ namespace Laboratory.Systems.Ecosystem
 
                 if (resourceStress > 0.6f)
                 {
-                    analysis.stressFactors.Add($"{kvp.Key} resources critically low");
-                    analysis.recommendations.Add($"Focus on {kvp.Key} resource regeneration");
+                    analysis.stressFactors.Add(EcosystemStressFactor.ResourceDepletion);
+                    analysis.recommendations.Add(EcosystemRecommendation.IncreaseResourceGeneration);
+                    analysis.recommendations.Add(EcosystemRecommendation.MonitorResourceLevels);
                 }
+            }
+
+            // Check for overpopulation stress
+            foreach (var kvp in biomePopulations)
+            {
+                var populationData = kvp.Value;
+                var ecosystemNode = ecosystemNodes.ContainsKey(kvp.Key) ? ecosystemNodes[kvp.Key] : null;
+
+                if (ecosystemNode != null)
+                {
+                    float overpopulationPressure = populationData.totalPopulation / (carryingCapacityBase * ecosystemNode.carryingCapacityModifier);
+                    if (overpopulationPressure > 1.2f)
+                    {
+                        analysis.stressFactors.Add(EcosystemStressFactor.OverpopulationStress);
+                        analysis.recommendations.Add(EcosystemRecommendation.ReducePopulationDensity);
+                    }
+                }
+            }
+
+            // Check for temperature extremes
+            float currentTemp = CalculateCurrentTemperature();
+            if (currentTemp > 0.9f || currentTemp < 0.1f)
+            {
+                analysis.stressFactors.Add(EcosystemStressFactor.TemperatureExtreme);
+                analysis.recommendations.Add(EcosystemRecommendation.RegulateTemperature);
+                analysis.recommendations.Add(EcosystemRecommendation.StabilizeClimate);
             }
 
             return analysis;
@@ -390,7 +423,7 @@ namespace Laboratory.Systems.Ecosystem
             foreach (var kvp in ecosystemNodes)
             {
                 var node = kvp.Value;
-                var populationData = biomePopulations.GetValueOrDefault(kvp.Key, new PopulationData());
+                var populationData = biomePopulations.ContainsKey(kvp.Key) ? biomePopulations[kvp.Key] : new PopulationData();
 
                 // Calculate carrying capacity pressure
                 float carryingCapacityPressure = populationData.totalPopulation / (carryingCapacityBase * node.carryingCapacityModifier);
@@ -414,7 +447,7 @@ namespace Laboratory.Systems.Ecosystem
             foreach (var kvp in biomePopulations)
             {
                 var populationData = kvp.Value;
-                var ecosystemNode = ecosystemNodes.GetValueOrDefault(kvp.Key);
+                var ecosystemNode = ecosystemNodes.ContainsKey(kvp.Key) ? ecosystemNodes[kvp.Key] : null;
 
                 if (ecosystemNode != null)
                 {
@@ -496,7 +529,7 @@ namespace Laboratory.Systems.Ecosystem
                 // Initialize resource availability
                 foreach (ResourceType resourceType in System.Enum.GetValues(typeof(ResourceType)))
                 {
-                    node.resourceAvailability[resourceType] = biomeConfig.baseResourceLevels?.GetValueOrDefault(resourceType, 0.5f) ?? 0.5f;
+                    node.resourceAvailability[resourceType] = biomeConfig.baseResourceLevels?.ContainsKey(resourceType) == true ? biomeConfig.baseResourceLevels[resourceType] : 0.5f;
                 }
 
                 ecosystemNodes[biomeConfig.biomeType] = node;
@@ -531,6 +564,25 @@ namespace Laboratory.Systems.Ecosystem
             }
         }
 
+        private void InitializeActiveBiomes()
+        {
+            foreach (var biomeConfig in availableBiomes)
+            {
+                var biomeResourceState = BiomeResourceState.CreateDefault(biomeConfig.biomeType);
+
+                // Set initial resource levels from config
+                if (biomeConfig.baseResourceLevels != null)
+                {
+                    foreach (var kvp in biomeConfig.baseResourceLevels)
+                    {
+                        biomeResourceState.SetResourceLevel(kvp.Key, kvp.Value);
+                    }
+                }
+
+                activeBiomes[biomeConfig.biomeType] = biomeResourceState;
+            }
+        }
+
         private BiomeType GetBiomeAtPosition(Vector3 position)
         {
             if (biomeRegions == null || biomeRegions.Length == 0)
@@ -562,7 +614,7 @@ namespace Laboratory.Systems.Ecosystem
         private float CalculateLocalTemperature(BiomeType biome, Vector3 position)
         {
             float baseTemp = CalculateCurrentTemperature();
-            var node = ecosystemNodes.GetValueOrDefault(biome);
+            var node = ecosystemNodes.ContainsKey(biome) ? ecosystemNodes[biome] : null;
 
             if (node != null && node.environmentalModifiers.TryGetValue(EnvironmentalModifierType.Temperature, out float tempModifier))
             {
@@ -575,7 +627,7 @@ namespace Laboratory.Systems.Ecosystem
         private float CalculateLocalHumidity(BiomeType biome, Vector3 position)
         {
             float baseHumidity = globalHumidity;
-            var node = ecosystemNodes.GetValueOrDefault(biome);
+            var node = ecosystemNodes.ContainsKey(biome) ? ecosystemNodes[biome] : null;
 
             if (node != null && node.environmentalModifiers.TryGetValue(EnvironmentalModifierType.Humidity, out float humidityModifier))
             {
@@ -588,7 +640,7 @@ namespace Laboratory.Systems.Ecosystem
         private Dictionary<ResourceType, float> CalculateResourceConsumption(CreatureGenome genome)
         {
             var consumption = new Dictionary<ResourceType, float>();
-            float baseConsumption = genome.traits.GetValueOrDefault("metabolism", 1f);
+            float baseConsumption = genome.traits.ContainsKey(TraitType.Metabolism) ? genome.traits[TraitType.Metabolism].value : 1f;
 
             consumption[ResourceType.Food] = baseConsumption * 0.1f;
             consumption[ResourceType.Water] = baseConsumption * 0.05f;
@@ -600,7 +652,7 @@ namespace Laboratory.Systems.Ecosystem
         private Dictionary<EnvironmentalModifierType, float> CalculateEnvironmentalImpact(CreatureGenome genome)
         {
             var impact = new Dictionary<EnvironmentalModifierType, float>();
-            float size = genome.traits.GetValueOrDefault("size", 1f);
+            float size = genome.traits.ContainsKey(TraitType.Size) ? genome.traits[TraitType.Size].value : 1f;
 
             impact[EnvironmentalModifierType.Biodiversity] = -size * 0.01f; // Larger creatures have more impact
             impact[EnvironmentalModifierType.SoilQuality] = size * 0.005f; // But also contribute to soil health
@@ -691,7 +743,7 @@ namespace Laboratory.Systems.Ecosystem
                 // Positive interaction improves local environment slightly
                 if (creatureEcosystemData.TryGetValue(creatureA, out var dataA))
                 {
-                    var node = ecosystemNodes.GetValueOrDefault(dataA.currentBiome);
+                    var node = ecosystemNodes.ContainsKey(dataA.currentBiome) ? ecosystemNodes[dataA.currentBiome] : null;
                     if (node != null)
                     {
                         node.health += 0.001f; // Very small improvement
@@ -750,14 +802,142 @@ namespace Laboratory.Systems.Ecosystem
             analytics.totalRegisteredCreatures = creatureEcosystemData.Count;
 
             // Update debug data
-            DebugManager.SetDebugData("Ecosystem.OverallHealth", analytics.currentOverallHealth.ToString());
-            DebugManager.SetDebugData("Ecosystem.StressLevel", analytics.currentStressLevel.ToString());
-            DebugManager.SetDebugData("Ecosystem.ActiveEvents", analytics.totalActiveEvents.ToString());
-            DebugManager.SetDebugData("Ecosystem.Temperature", CalculateCurrentTemperature().ToString());
+            DebugManager.SetDebugData("Ecosystem.OverallHealth", analytics.currentOverallHealth);
+            DebugManager.SetDebugData("Ecosystem.StressLevel", analytics.currentStressLevel);
+            DebugManager.SetDebugData("Ecosystem.ActiveEvents", analytics.totalActiveEvents);
+            DebugManager.SetDebugData("Ecosystem.Temperature", CalculateCurrentTemperature());
         }
 
-        // Additional helper methods would continue here...
-        // (Truncated for length, but the pattern continues with all the supporting methods)
+        private float CalculateEnvironmentalModifier(ResourceType resourceType)
+        {
+            float modifier = 1f;
+
+            // Calculate modifier based on environmental conditions
+            foreach (var biome in activeBiomes.Values)
+            {
+                // Check biome health impact on resources
+                switch (resourceType)
+                {
+                    case ResourceType.Water:
+                        if (biome.biomeType == BiomeType.Wetland || biome.biomeType == BiomeType.River)
+                            modifier += (biome.healthLevel - 0.5f) * 0.3f;
+                        break;
+                    case ResourceType.Food:
+                        if (biome.biomeType == BiomeType.Forest || biome.biomeType == BiomeType.Grassland)
+                            modifier += (biome.healthLevel - 0.5f) * 0.4f;
+                        break;
+                    case ResourceType.Shelter:
+                        if (biome.biomeType == BiomeType.Cave || biome.biomeType == BiomeType.Forest)
+                            modifier += (biome.healthLevel - 0.5f) * 0.2f;
+                        break;
+                    case ResourceType.Territory:
+                        modifier += (biome.healthLevel - 0.5f) * 0.1f;
+                        break;
+                }
+            }
+
+            // Apply weather effects based on seasonal and temperature conditions
+            float currentTemp = CalculateCurrentTemperature();
+            float humidity = globalHumidity;
+            float seasonalModifier = seasonalCycle.Evaluate(seasonalTime % 1f);
+
+            switch (resourceType)
+            {
+                case ResourceType.Water:
+                    // Rain and humidity affect water availability
+                    if (humidity > 0.7f || seasonalModifier > 0.6f) // High humidity or wet season
+                        modifier *= 1.2f;
+                    else if (humidity < 0.3f && seasonalModifier < 0.3f) // Dry conditions
+                        modifier *= 0.7f;
+                    break;
+                case ResourceType.Food:
+                    // Extreme temperatures hurt food production
+                    if (currentTemp > 0.8f || currentTemp < 0.2f)
+                        modifier *= 0.8f;
+                    // Growing season (spring/summer) boosts food
+                    else if (seasonalModifier > 0.5f)
+                        modifier *= 1.1f;
+                    break;
+                case ResourceType.Vegetation:
+                    // Vegetation is highly seasonal
+                    modifier *= 0.7f + (seasonalModifier * 0.6f); // Range 0.7-1.3
+                    if (humidity > 0.6f) modifier *= 1.1f;
+                    break;
+                case ResourceType.Energy:
+                    // Energy availability varies by season (sunlight)
+                    modifier *= 0.8f + (seasonalModifier * 0.4f); // Range 0.8-1.2
+                    break;
+            }
+
+            return Mathf.Clamp(modifier, 0.1f, 2f);
+        }
+
+        private void DistributeResourceToBiomes(ResourceType resourceType, float amount)
+        {
+            if (activeBiomes.Count == 0) return;
+
+            float amountPerBiome = amount / activeBiomes.Count;
+
+            foreach (var kvp in activeBiomes)
+            {
+                var biome = kvp.Value;
+
+                // Each biome gets a share based on its capacity and health
+                float distributedAmount = amountPerBiome * biome.healthLevel * biome.carryingCapacity;
+
+                // Apply the resource to the biome
+                var updatedBiome = biome;
+                updatedBiome.ModifyResource(resourceType, distributedAmount);
+                activeBiomes[kvp.Key] = updatedBiome;
+
+                // Update biome health based on resource availability
+                UpdateBiomeHealthFromResource(updatedBiome, resourceType, distributedAmount);
+            }
+        }
+
+        private void ApplyResourceToBiome(BiomeResourceState biome, ResourceType resourceType, float amount)
+        {
+            // Apply resource using the new BiomeResourceState methods
+            var updatedBiome = biome;
+            updatedBiome.ModifyResource(resourceType, amount);
+            activeBiomes[biome.biomeType] = updatedBiome;
+
+            // Log significant resource changes
+            if (amount > 0.1f)
+            {
+                Debug.Log($"Applied {amount:F2} {resourceType} to {biome.biomeType} biome");
+            }
+        }
+
+        private void UpdateBiomeHealthFromResource(BiomeResourceState biome, ResourceType resourceType, float amount)
+        {
+            // Resource abundance affects biome health
+            float healthImpact = 0f;
+
+            float resourceLevel = biome.GetResourceLevel(resourceType);
+            float carryingCapacity = biome.carryingCapacity;
+
+            if (carryingCapacity > 0)
+            {
+                float resourceRatio = resourceLevel / carryingCapacity;
+
+                if (resourceRatio > 0.8f)
+                    healthImpact = 0.01f; // Abundant resources boost health
+                else if (resourceRatio < 0.2f)
+                    healthImpact = -0.02f; // Scarce resources hurt health
+            }
+
+            float newHealth = Mathf.Clamp01(biome.healthLevel + healthImpact);
+            var updatedBiome = biome;
+            updatedBiome.healthLevel = newHealth;
+            activeBiomes[biome.biomeType] = updatedBiome;
+
+            // Trigger health change event if significant
+            if (Mathf.Abs(healthImpact) > 0.005f)
+            {
+                OnBiomeHealthChanged?.Invoke(biome.biomeType, newHealth);
+            }
+        }
 
         private void OnDestroy()
         {
@@ -862,10 +1042,9 @@ namespace Laboratory.Systems.Ecosystem
         public float totalResourcesConsumed;
     }
 
-    public enum ResourceType { Food, Water, Shelter, Territory }
+    public enum ResourceType { Food, Water, Shelter, Territory, Medicine, Energy, Minerals, Vegetation }
     public enum EnvironmentalEventType { Drought, Flood, Pestilence, BiodiversityBoost, ClimateShift }
     public enum EnvironmentalModifierType { Temperature, Humidity, Biodiversity, SoilQuality }
-    public enum EcosystemHealth { Critical, Poor, Fair, Good, Excellent }
     public enum EcosystemStressLevel { Low, Moderate, High, Critical }
 
     [System.Serializable]
@@ -928,7 +1107,20 @@ namespace Laboratory.Systems.Ecosystem
         public EcosystemStressLevel overallStressLevel;
         public Dictionary<BiomeType, float> biomeStressLevels;
         public Dictionary<ResourceType, float> resourceStressLevels;
-        public List<string> stressFactors;
-        public List<string> recommendations;
+        public List<EcosystemStressFactor> stressFactors;
+        public List<EcosystemRecommendation> recommendations;
+    }
+
+    /// <summary>
+    /// Overall health status of the ecosystem
+    /// </summary>
+    public enum EcosystemHealth
+    {
+        Critical = 0,
+        Poor = 1,
+        Fair = 2,
+        Average = 3,
+        Good = 4,
+        Excellent = 5
     }
 }

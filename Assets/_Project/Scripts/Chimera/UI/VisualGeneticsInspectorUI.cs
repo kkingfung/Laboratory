@@ -276,7 +276,7 @@ namespace Laboratory.Chimera.UI
             }
             
             // Magical traits
-            var magicalGenes = genetics.Genes.Where(g => g.traitType == TraitType.Magical).ToArray();
+            var magicalGenes = genetics.Genes.Where(g => g.traitType.GetCategory() == TraitCategory.Special).ToArray();
             if (magicalGenes.Length > 0)
             {
                 visualInfo.AppendLine($"\n<b>Magical Traits:</b>");
@@ -415,18 +415,7 @@ namespace Laboratory.Chimera.UI
         
         private Color GetTraitTypeColor(TraitType traitType)
         {
-            switch (traitType)
-            {
-                case TraitType.Physical: return Color.green;
-                case TraitType.Mental: return Color.blue;
-                case TraitType.Magical: return Color.magenta;
-                case TraitType.Social: return Color.yellow;
-                case TraitType.Combat: return Color.red;
-                case TraitType.Utility: return Color.cyan;
-                case TraitType.Metabolic: return Color.orange;
-                case TraitType.Sensory: return new Color(0.5f, 0f, 0.5f); // Purple
-                case TraitType.Behavioral: return new Color(1f, 0.5f, 0.8f); // Pink
-                default: return Color.gray;
+            return traitType.GetCategory().GetCategoryColor();
             }
         }
         

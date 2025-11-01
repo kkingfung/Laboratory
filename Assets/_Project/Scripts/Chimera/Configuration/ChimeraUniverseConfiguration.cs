@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Collections;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Configuration
 {

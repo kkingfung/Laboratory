@@ -8,6 +8,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.AI.ECS;
 using Laboratory.Chimera.ECS;
 using Laboratory.Chimera.Genetics.Environmental;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Genetics.Environmental
 {
@@ -385,17 +386,17 @@ namespace Laboratory.Chimera.Genetics.Environmental
         {
             // Apply environmental expression to the genetic profile
             // This would modify the actual expressed traits based on environmental conditions
-            switch (expression.traitType)
+            switch (expression.traitType.GetCategory())
             {
-                case TraitType.Physical:
+                case TraitCategory.Physical:
                     // Apply physical trait modification (includes speed/strength)
                     break;
 
-                case TraitType.Combat:
+                case TraitCategory.Combat:
                     // Apply combat trait modification
                     break;
 
-                case TraitType.Mental:
+                case TraitCategory.Mental:
                     // Apply mental trait modification (includes intelligence)
                     break;
 

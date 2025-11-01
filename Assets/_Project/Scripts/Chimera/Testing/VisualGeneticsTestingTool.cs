@@ -3,8 +3,8 @@ using UnityEditor;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Visuals;
 using Laboratory.Chimera.Configuration;
-using GeneticsTraitType = Laboratory.Chimera.Genetics.TraitType;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 using System.Linq;
 
 namespace Laboratory.Chimera.Testing
@@ -23,7 +23,7 @@ namespace Laboratory.Chimera.Testing
         
         [Header("Spawn Settings")]
         [SerializeField] private int numberOfCreatures = 5;
-        [SerializeField] private Laboratory.Chimera.Core.BiomeType testBiome = Laboratory.Chimera.Core.BiomeType.Temperate;
+        [SerializeField] private Laboratory.Core.Enums.BiomeType testBiome = Laboratory.Core.Enums.BiomeType.Temperate;
         [SerializeField] private bool enableMutations = true;
         [SerializeField] private bool showDebugInfo = true;
         
@@ -134,8 +134,8 @@ namespace Laboratory.Chimera.Testing
             UnityEngine.Debug.Log("👨‍👩‍👧‍👦 Testing breeding combinations...");
             
             // Create two diverse parent genetics
-            var parent1Genetics = traitLibrary.CreateRichGeneticProfile(BiomeType.Desert, 1);
-            var parent2Genetics = traitLibrary.CreateRichGeneticProfile(BiomeType.Arctic, 1);
+            var parent1Genetics = traitLibrary.CreateRichGeneticProfile(Laboratory.Core.Enums.BiomeType.Desert, 1);
+            var parent2Genetics = traitLibrary.CreateRichGeneticProfile(Laboratory.Core.Enums.BiomeType.Arctic, 1);
             
             // Create offspring genetics
             var offspringGenetics = GeneticProfile.CreateOffspring(parent1Genetics, parent2Genetics);
@@ -311,7 +311,7 @@ namespace Laboratory.Chimera.Testing
                 new Gene
                 {
                     traitName = "Intelligence",
-                    traitType = GeneticsTraitType.Mental,
+                    traitType = TraitType.Intelligence,
                     value = 0.95f, // Very high intelligence
                     dominance = 0.8f,
                     expression = GeneExpression.Enhanced,
@@ -320,7 +320,7 @@ namespace Laboratory.Chimera.Testing
                 new Gene
                 {
                     traitName = "Enhanced Vision",
-                    traitType = GeneticsTraitType.Sensory,
+                    traitType = TraitType.Vision,
                     value = 0.9f,
                     dominance = 0.7f,
                     expression = GeneExpression.Enhanced,
@@ -334,7 +334,7 @@ namespace Laboratory.Chimera.Testing
                 genes.Add(new Gene
                 {
                     traitName = "Primary Color",
-                    traitType = GeneticsTraitType.Physical,
+                    traitType = TraitType.PrimaryColor,
                     value = 0.6f, // Blue-ish hue
                     dominance = 0.8f,
                     expression = GeneExpression.Normal,
@@ -348,7 +348,7 @@ namespace Laboratory.Chimera.Testing
                 genes.Add(new Gene
                 {
                     traitName = "Size Modifier",
-                    traitType = GeneticsTraitType.Physical,
+                    traitType = TraitType.Size,
                     value = Random.Range(0.8f, 1.2f),
                     dominance = 0.7f,
                     expression = GeneExpression.Normal,
@@ -362,7 +362,7 @@ namespace Laboratory.Chimera.Testing
                 genes.Add(new Gene
                 {
                     traitName = "Pattern Intensity",
-                    traitType = GeneticsTraitType.Physical,
+                    traitType = TraitType.ColorPattern,
                     value = Random.Range(0.5f, 0.9f),
                     dominance = 0.6f,
                     expression = GeneExpression.Normal,
@@ -376,7 +376,7 @@ namespace Laboratory.Chimera.Testing
                 genes.Add(new Gene
                 {
                     traitName = "Mystical Aura",
-                    traitType = GeneticsTraitType.Magical,
+                    traitType = TraitType.MagicalAffinity,
                     value = Random.Range(0.3f, 0.8f),
                     dominance = 0.5f,
                     expression = GeneExpression.Enhanced,
@@ -402,7 +402,7 @@ namespace Laboratory.Chimera.Testing
                 new Gene
                 {
                     traitName = "Fire Affinity",
-                    traitType = GeneticsTraitType.Magical,
+                    traitType = TraitType.ElementalPower,
                     value = 0.9f, // Strong fire magic
                     dominance = 0.8f,
                     expression = GeneExpression.Enhanced,
@@ -411,7 +411,7 @@ namespace Laboratory.Chimera.Testing
                 new Gene
                 {
                     traitName = "Primary Color",
-                    traitType = GeneticsTraitType.Physical,
+                    traitType = TraitType.PrimaryColor,
                     value = 0.05f, // Red hue
                     dominance = 0.8f,
                     expression = GeneExpression.Normal,
@@ -420,7 +420,7 @@ namespace Laboratory.Chimera.Testing
                 new Gene
                 {
                     traitName = "Metallic Properties",
-                    traitType = GeneticsTraitType.Physical,
+                    traitType = TraitType.SkinTexture,
                     value = 0.6f,
                     dominance = 0.5f,
                     expression = GeneExpression.Normal,
@@ -438,7 +438,7 @@ namespace Laboratory.Chimera.Testing
                 new Gene
                 {
                     traitName = "Desert Adaptation",
-                    traitType = GeneticsTraitType.Physical,
+                    traitType = TraitType.Adaptability,
                     value = 0.95f,
                     dominance = 0.9f,
                     expression = GeneExpression.Enhanced,
@@ -447,7 +447,7 @@ namespace Laboratory.Chimera.Testing
                 new Gene
                 {
                     traitName = "Primary Color",
-                    traitType = GeneticsTraitType.Physical,
+                    traitType = TraitType.PrimaryColor,
                     value = 0.1f, // Sandy yellow
                     dominance = 0.8f,
                     expression = GeneExpression.Normal,
@@ -456,7 +456,7 @@ namespace Laboratory.Chimera.Testing
                 new Gene
                 {
                     traitName = "Heat Resistance",
-                    traitType = GeneticsTraitType.Metabolic,
+                    traitType = TraitType.HeatTolerance,
                     value = 0.9f,
                     dominance = 0.7f,
                     expression = GeneExpression.Enhanced,
@@ -474,7 +474,7 @@ namespace Laboratory.Chimera.Testing
                 new Gene
                 {
                     traitName = "Metallic Properties",
-                    traitType = GeneticsTraitType.Physical,
+                    traitType = TraitType.SkinTexture,
                     value = 0.95f, // Very metallic
                     dominance = 0.9f,
                     expression = GeneExpression.Enhanced,
@@ -483,7 +483,7 @@ namespace Laboratory.Chimera.Testing
                 new Gene
                 {
                     traitName = "Hardness",
-                    traitType = GeneticsTraitType.Physical,
+                    traitType = TraitType.Strength,
                     value = 0.9f,
                     dominance = 0.8f,
                     expression = GeneExpression.Enhanced,
@@ -492,7 +492,7 @@ namespace Laboratory.Chimera.Testing
                 new Gene
                 {
                     traitName = "Armor Plating",
-                    traitType = GeneticsTraitType.Combat,
+                    traitType = TraitType.DefensiveAbility,
                     value = 0.8f,
                     dominance = 0.7f,
                     expression = GeneExpression.Normal,
@@ -587,5 +587,6 @@ namespace Laboratory.Chimera.Testing
         }
         
         #endregion
+
     }
 }

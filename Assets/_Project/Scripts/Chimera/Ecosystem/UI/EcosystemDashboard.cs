@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Chimera.Ecosystem.Core;
 using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Core.Enums;
 using Unity.Entities;
 
 namespace Laboratory.Chimera.Ecosystem.UI
@@ -647,7 +648,7 @@ namespace Laboratory.Chimera.Ecosystem.UI
             _entityManager.AddComponentData(ecosystemEntity, new EcosystemState
             {
                 EcosystemID = new Unity.Collections.FixedString64Bytes("MockEcosystem001"),
-                PrimaryBiome = Laboratory.Chimera.Core.BiomeType.Temperate,
+                PrimaryBiome = BiomeType.Temperate,
                 Temperature = 18f,
                 Humidity = 0.6f,
                 Oxygen = 0.21f,

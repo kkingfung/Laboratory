@@ -4,25 +4,12 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Configuration
 {
-    /// <summary>
-    /// Types of genetic traits
-    /// </summary>
-    public enum TraitType
-    {
-        Physical,   // Size, strength, agility
-        Mental,     // Intelligence, memory
-        Behavioral, // Aggression, curiosity
-        Social,     // Pack behavior, loyalty
-        Cosmetic,   // Color, patterns
-        Special,    // Magical abilities
-        Combat,     // Fighting abilities
-        Utility,    // Special skills
-        Sensory,    // Vision, hearing, smell
-        Metabolic   // Digestion, energy, healing
-    }
+    // Note: TraitCategory enum removed - now using ConsolidatedTraitCategory from Laboratory.Core.Enums
+    // Legacy trait categories are mapped to ConsolidatedTraitCategory through TraitCategory
     /// <summary>
     /// Central library for genetic traits and their properties
     /// Manages trait definitions, inheritance patterns, and mutation rules
@@ -49,7 +36,7 @@ namespace Laboratory.Chimera.Configuration
         
         // Cached collections for performance
         private Dictionary<string, TraitDefinition> traitLookup;
-        private Dictionary<TraitType, TraitDefinition[]> traitsByType;
+        private Dictionary<TraitCategory, TraitDefinition[]> traitsByType;
         private bool isInitialized = false;
         
         #region Initialization
@@ -95,9 +82,9 @@ namespace Laboratory.Chimera.Configuration
         
         private void BuildTraitsByType()
         {
-            traitsByType = new Dictionary<TraitType, TraitDefinition[]>();
+            traitsByType = new Dictionary<TraitCategory, TraitDefinition[]>();
             
-            foreach (TraitType type in Enum.GetValues(typeof(TraitType)))
+            foreach (TraitCategory type in Enum.GetValues(typeof(TraitCategory)))
             {
                 var traitsOfType = GetAllTraits().Where(t => t.traitType == type).ToArray();
                 traitsByType[type] = traitsOfType;
@@ -133,7 +120,7 @@ namespace Laboratory.Chimera.Configuration
         /// <summary>
         /// Get all traits of a specific type
         /// </summary>
-        public TraitDefinition[] GetTraitsByType(TraitType type)
+        public TraitDefinition[] GetTraitsByType(TraitCategory type)
         {
             InitializeLibrary();
             return traitsByType.TryGetValue(type, out var traits) ? traits : Array.Empty<TraitDefinition>();
@@ -173,7 +160,7 @@ namespace Laboratory.Chimera.Configuration
         /// <summary>
         /// Generate a random trait of a specific type
         /// </summary>
-        public TraitDefinition GetRandomTraitOfType(TraitType type, RarityLevel maxRarity = RarityLevel.Legendary)
+        public TraitDefinition GetRandomTraitOfType(TraitCategory type, RarityLevel maxRarity = RarityLevel.Legendary)
         {
             var availableTraits = GetTraitsByType(type)
                 .Where(t => t.rarity <= maxRarity)
@@ -254,7 +241,7 @@ namespace Laboratory.Chimera.Configuration
         /// <summary>
         /// Create a rich genetic profile with diverse traits suitable for the given biome
         /// </summary>
-        public GeneticProfile CreateRichGeneticProfile(BiomeType biome, int generation = 1)
+        public GeneticProfile CreateRichGeneticProfile(Laboratory.Core.Enums.BiomeType biome, int generation = 1)
         {
             var genes = new List<Gene>();
 
@@ -417,7 +404,7 @@ namespace Laboratory.Chimera.Configuration
             };
         }
 
-        private Gene[] CreateCoreGenes(BiomeType biome)
+        private Gene[] CreateCoreGenes(Laboratory.Core.Enums.BiomeType biome)
         {
             var coreGenes = new List<Gene>();
 
@@ -434,33 +421,33 @@ namespace Laboratory.Chimera.Configuration
             return coreGenes.ToArray();
         }
 
-        private Gene[] CreateBiomeSpecificGenes(BiomeType biome)
+        private Gene[] CreateBiomeSpecificGenes(Laboratory.Core.Enums.BiomeType biome)
         {
             var biomeGenes = new List<Gene>();
 
             switch (biome)
             {
-                case BiomeType.Arctic:
+                case Laboratory.Core.Enums.BiomeType.Arctic:
                     biomeGenes.Add(CreateGene("ColdResistance", UnityEngine.Random.Range(0.7f, 1.0f)));
                     biomeGenes.Add(CreateGene("ThickFur", UnityEngine.Random.Range(0.6f, 1.0f)));
                     break;
 
-                case BiomeType.Desert:
+                case Laboratory.Core.Enums.BiomeType.Desert:
                     biomeGenes.Add(CreateGene("HeatResistance", UnityEngine.Random.Range(0.7f, 1.0f)));
                     biomeGenes.Add(CreateGene("WaterConservation", UnityEngine.Random.Range(0.6f, 1.0f)));
                     break;
 
-                case BiomeType.Forest:
+                case Laboratory.Core.Enums.BiomeType.Forest:
                     biomeGenes.Add(CreateGene("Camouflage", UnityEngine.Random.Range(0.5f, 0.8f)));
                     biomeGenes.Add(CreateGene("Climbing", UnityEngine.Random.Range(0.4f, 0.9f)));
                     break;
 
-                case BiomeType.Ocean:
+                case Laboratory.Core.Enums.BiomeType.Ocean:
                     biomeGenes.Add(CreateGene("Swimming", UnityEngine.Random.Range(0.8f, 1.0f)));
                     biomeGenes.Add(CreateGene("WaterBreathing", UnityEngine.Random.Range(0.7f, 1.0f)));
                     break;
 
-                case BiomeType.Mountain:
+                case Laboratory.Core.Enums.BiomeType.Mountain:
                     biomeGenes.Add(CreateGene("HighAltitudeAdaptation", UnityEngine.Random.Range(0.6f, 0.9f)));
                     biomeGenes.Add(CreateGene("RockClimbing", UnityEngine.Random.Range(0.5f, 0.8f)));
                     break;
@@ -524,41 +511,41 @@ namespace Laboratory.Chimera.Configuration
         {
             coreTraits = new TraitDefinition[]
             {
-                CreateTraitDefinition("Strength", TraitType.Physical, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("Agility", TraitType.Physical, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("Intelligence", TraitType.Mental, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("Constitution", TraitType.Physical, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("Charisma", TraitType.Social, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("Perception", TraitType.Mental, RarityLevel.Common, 0f, 1f)
+                CreateTraitDefinition("Strength", TraitCategory.Physical, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("Agility", TraitCategory.Physical, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("Intelligence", TraitCategory.Mental, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("Constitution", TraitCategory.Physical, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("Charisma", TraitCategory.Social, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("Perception", TraitCategory.Mental, RarityLevel.Common, 0f, 1f)
             };
             
             physicalTraits = new TraitDefinition[]
             {
-                CreateTraitDefinition("Size", TraitType.Physical, RarityLevel.Common, 0.5f, 2f),
-                CreateTraitDefinition("Speed", TraitType.Physical, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("Endurance", TraitType.Physical, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("PrimaryColor", TraitType.Cosmetic, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("SecondaryColor", TraitType.Cosmetic, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("Pattern", TraitType.Cosmetic, RarityLevel.Uncommon, 0f, 1f)
+                CreateTraitDefinition("Size", TraitCategory.Physical, RarityLevel.Common, 0.5f, 2f),
+                CreateTraitDefinition("Speed", TraitCategory.Physical, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("Endurance", TraitCategory.Physical, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("PrimaryColor", TraitCategory.Cosmetic, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("SecondaryColor", TraitCategory.Cosmetic, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("Pattern", TraitCategory.Cosmetic, RarityLevel.Uncommon, 0f, 1f)
             };
             
             behavioralTraits = new TraitDefinition[]
             {
-                CreateTraitDefinition("Aggression", TraitType.Behavioral, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("Curiosity", TraitType.Behavioral, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("Loyalty", TraitType.Social, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("Independence", TraitType.Behavioral, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("Playfulness", TraitType.Social, RarityLevel.Common, 0f, 1f),
-                CreateTraitDefinition("Territorial", TraitType.Behavioral, RarityLevel.Uncommon, 0f, 1f)
+                CreateTraitDefinition("Aggression", TraitCategory.Behavioral, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("Curiosity", TraitCategory.Behavioral, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("Loyalty", TraitCategory.Social, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("Independence", TraitCategory.Behavioral, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("Playfulness", TraitCategory.Social, RarityLevel.Common, 0f, 1f),
+                CreateTraitDefinition("Territorial", TraitCategory.Behavioral, RarityLevel.Uncommon, 0f, 1f)
             };
             
             specialTraits = new TraitDefinition[]
             {
-                CreateTraitDefinition("Regeneration", TraitType.Special, RarityLevel.Rare, 0f, 1f),
-                CreateTraitDefinition("Camouflage", TraitType.Special, RarityLevel.Rare, 0f, 1f),
-                CreateTraitDefinition("Telepathy", TraitType.Special, RarityLevel.Epic, 0f, 1f),
-                CreateTraitDefinition("ElementalAffinity", TraitType.Special, RarityLevel.Epic, 0f, 1f),
-                CreateTraitDefinition("TimeManipulation", TraitType.Special, RarityLevel.Legendary, 0f, 1f)
+                CreateTraitDefinition("Regeneration", TraitCategory.Special, RarityLevel.Rare, 0f, 1f),
+                CreateTraitDefinition("Camouflage", TraitCategory.Special, RarityLevel.Rare, 0f, 1f),
+                CreateTraitDefinition("Telepathy", TraitCategory.Special, RarityLevel.Epic, 0f, 1f),
+                CreateTraitDefinition("ElementalAffinity", TraitCategory.Special, RarityLevel.Epic, 0f, 1f),
+                CreateTraitDefinition("TimeManipulation", TraitCategory.Special, RarityLevel.Legendary, 0f, 1f)
             };
             
 #if UNITY_EDITOR
@@ -566,7 +553,7 @@ namespace Laboratory.Chimera.Configuration
 #endif
         }
         
-        private TraitDefinition CreateTraitDefinition(string name, TraitType type, RarityLevel rarity, float min, float max)
+        private TraitDefinition CreateTraitDefinition(string name, TraitCategory type, RarityLevel rarity, float min, float max)
         {
             return new TraitDefinition
             {
@@ -592,18 +579,27 @@ namespace Laboratory.Chimera.Configuration
     {
         [Header("Basic Information")]
         public string traitName;
-        public TraitType traitType;
+        public TraitCategory traitType;
         public RarityLevel rarity;
         
         [Header("Value Range")]
         public float minValue;
         public float maxValue;
-        
+        public float defaultValue = 0.5f;
+        public float baseValue = 0.5f;
+
+        [Header("Trait Category")]
+        public string category = "General";
+        public bool isPhysical = false;
+        public bool isBehavioral = false;
+
         [Header("Inheritance")]
         [Range(0f, 1f)]
         public float inheritanceProbability = 0.5f;
         [Range(0f, 1f)]
         public float dominanceModifier = 1f;
+        [Range(0f, 1f)]
+        public float inheritanceWeight = 1f;
         
         [Header("Description")]
         [TextArea(2, 4)]

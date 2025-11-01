@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
 using Laboratory.Chimera.Genetics;
-using CoreBiomeType = Laboratory.Chimera.Core.BiomeType;
+using CoreBiomeType = Laboratory.Core.Enums.BiomeType;
 
 namespace Laboratory.Chimera.Creatures
 {
@@ -191,7 +191,7 @@ namespace Laboratory.Chimera.Creatures
     public struct TraitPotential
     {
         public string traitName;
-        public Laboratory.Chimera.Genetics.TraitType traitType;
+        public Laboratory.Core.Enums.TraitType traitType;
         [Range(0f, 1f)]
         public float inheritanceProbability;
         public float minValue;

@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
 using EcoCatastropheType = Laboratory.Chimera.Ecosystem.Data.CatastropheType;
-using EcoBiomeType = Laboratory.Chimera.Core.BiomeType;
+using EcoBiomeType = Laboratory.Core.Enums.BiomeType;
 using EcoSeasonType = Laboratory.Chimera.Ecosystem.Data.SeasonType;
 
 namespace Laboratory.Chimera.Ecosystem.Systems

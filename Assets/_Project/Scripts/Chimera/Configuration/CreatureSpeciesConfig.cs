@@ -4,6 +4,8 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Breeding;
+using Laboratory.Core.Enums;
+using CoreTraitType = Laboratory.Core.Enums.TraitType;
 
 namespace Laboratory.Chimera.Configuration
 {
@@ -29,8 +31,8 @@ namespace Laboratory.Chimera.Configuration
         public CreatureSize baseSize = CreatureSize.Medium;
         [Range(0.1f, 10f)]
         public float sizeVariation = 0.2f; // ±20% size variation
-        public Laboratory.Chimera.Core.BiomeType nativeBiome = Laboratory.Chimera.Core.BiomeType.Forest;
-        public Laboratory.Chimera.Core.BiomeType[] compatibleBiomes = { Laboratory.Chimera.Core.BiomeType.Forest, Laboratory.Chimera.Core.BiomeType.Grassland };
+        public Laboratory.Core.Enums.BiomeType nativeBiome = Laboratory.Core.Enums.BiomeType.Forest;
+        public Laboratory.Core.Enums.BiomeType[] compatibleBiomes = { Laboratory.Core.Enums.BiomeType.Forest, Laboratory.Core.Enums.BiomeType.Grassland };
         
         [Header("Base Stats")]
         public CreatureStats baseStats = new CreatureStats
@@ -79,8 +81,8 @@ namespace Laboratory.Chimera.Configuration
         public DietType ecosystemRole = DietType.Herbivore;
         [Range(1f, 100f)]
         public float biomassContribution = 10f;
-        public string[] preferredFoods = { "Grass", "Berries", "Insects" };
-        public string[] predators = { "Large Predator Species" };
+        public FoodType[] preferredFoods = { FoodType.Grass, FoodType.Berries, FoodType.Insects };
+        public PredatorType[] predators = { PredatorType.LargeMammal };
         
         [Header("Audio")]
         public AudioClip[] idleSounds;
@@ -171,13 +173,13 @@ namespace Laboratory.Chimera.Configuration
             // Create some default genes if none configured
             if (availableGenes.Length == 0)
             {
-                selectedGenes.Add(CreateDefaultGene("Strength", Laboratory.Chimera.Genetics.TraitType.Physical));
-                selectedGenes.Add(CreateDefaultGene("Agility", Laboratory.Chimera.Genetics.TraitType.Physical));
-                selectedGenes.Add(CreateDefaultGene("Intelligence", Laboratory.Chimera.Genetics.TraitType.Mental));
-                selectedGenes.Add(CreateDefaultGene("Aggression", Laboratory.Chimera.Genetics.TraitType.Behavioral));
-                selectedGenes.Add(CreateDefaultGene("Loyalty", Laboratory.Chimera.Genetics.TraitType.Social));
-                selectedGenes.Add(CreateDefaultGene("Color", Laboratory.Chimera.Genetics.TraitType.Physical));
-                selectedGenes.Add(CreateDefaultGene("Size", Laboratory.Chimera.Genetics.TraitType.Physical));
+                selectedGenes.Add(CreateDefaultGene(CoreTraitType.Strength));
+                selectedGenes.Add(CreateDefaultGene(CoreTraitType.Agility));
+                selectedGenes.Add(CreateDefaultGene(CoreTraitType.Intelligence));
+                selectedGenes.Add(CreateDefaultGene(CoreTraitType.Aggression));
+                selectedGenes.Add(CreateDefaultGene(CoreTraitType.Loyalty));
+                selectedGenes.Add(CreateDefaultGene(CoreTraitType.ColorPattern));
+                selectedGenes.Add(CreateDefaultGene(CoreTraitType.Size));
             }
             else
             {
@@ -195,11 +197,11 @@ namespace Laboratory.Chimera.Configuration
             return new GeneticProfile(selectedGenes.ToArray(), 1, "");
         }
         
-        private Gene CreateDefaultGene(string traitName, Laboratory.Chimera.Genetics.TraitType traitType)
+        private Gene CreateDefaultGene(CoreTraitType traitType)
         {
             return new Gene
             {
-                traitName = traitName,
+                traitName = traitType.GetDisplayName(),
                 traitType = traitType,
                 value = UnityEngine.Random.Range(0.2f, 0.8f),
                 dominance = UnityEngine.Random.Range(0.3f, 0.7f),
@@ -219,8 +221,7 @@ namespace Laboratory.Chimera.Configuration
     [System.Serializable]
     public class GeneConfig
     {
-        public string traitName = "Unnamed Trait";
-        public Laboratory.Chimera.Genetics.TraitType traitType = Laboratory.Chimera.Genetics.TraitType.Physical;
+        public CoreTraitType traitType = CoreTraitType.Size;
         [Range(0f, 1f)]
         public float minValue = 0.2f;
         [Range(0f, 1f)]
@@ -237,7 +238,7 @@ namespace Laboratory.Chimera.Configuration
         {
             return new Gene
             {
-                traitName = traitName,
+                traitName = traitType.GetDisplayName(),
                 traitType = traitType,
                 value = UnityEngine.Random.Range(minValue, maxValue),
                 dominance = Mathf.Clamp01(baseDominance + UnityEngine.Random.Range(-dominanceVariation, dominanceVariation)),

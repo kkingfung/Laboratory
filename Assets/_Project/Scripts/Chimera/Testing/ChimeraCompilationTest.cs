@@ -3,6 +3,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.AI;
 using Laboratory.AI.Pathfinding;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Testing
 {
@@ -50,7 +51,7 @@ namespace Laboratory.Chimera.Testing
             // Create a test gene
             var allele1 = new Allele("Red", 1.0f, true, true);
             var allele2 = new Allele("Blue", 0.5f, true, false);
-            var gene = new Gene("color_01", "Primary Color", TraitType.Physical, allele1, allele2);
+            var gene = new Gene("color_01", "Primary Color", TraitType.PrimaryColor, allele1, allele2);
             
             // Test gene expression
             var expressed = gene.GetExpressedAllele();

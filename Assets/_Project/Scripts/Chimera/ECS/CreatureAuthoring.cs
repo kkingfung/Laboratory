@@ -8,6 +8,7 @@ using Laboratory.Chimera.Genetics;
 using GeneticProfile = Laboratory.Chimera.Genetics.GeneticProfile;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.ECS
 {
@@ -23,7 +24,7 @@ namespace Laboratory.Chimera.ECS
         [SerializeField] private CreatureDefinition creatureDefinition;
         [SerializeField] private bool convertToECS = true;
         [SerializeField] private bool isWild = true;
-        [SerializeField] private Laboratory.Chimera.Core.BiomeType startingBiome = Laboratory.Chimera.Core.BiomeType.Forest;
+        [SerializeField] private Laboratory.Core.Enums.BiomeType startingBiome = Laboratory.Core.Enums.BiomeType.Forest;
         
         [Header("Initial Stats Override (Optional)")]
         [SerializeField] private bool overrideStats = false;
@@ -343,33 +344,33 @@ namespace Laboratory.Chimera.ECS
             var genes = new List<Gene>();
             
             // Core physical traits
-            genes.Add(CreateRandomGene("Strength", TraitType.Physical));
-            genes.Add(CreateRandomGene("Vitality", TraitType.Physical));
-            genes.Add(CreateRandomGene("Agility", TraitType.Physical));
-            genes.Add(CreateRandomGene("Resilience", TraitType.Physical));
+            genes.Add(CreateRandomGene("Strength", TraitType.Strength));
+            genes.Add(CreateRandomGene("Vitality", TraitType.Stamina));
+            genes.Add(CreateRandomGene("Agility", TraitType.Agility));
+            genes.Add(CreateRandomGene("Resilience", TraitType.Strength));
             
             // Mental traits
-            genes.Add(CreateRandomGene("Intellect", TraitType.Mental));
-            genes.Add(CreateRandomGene("Charm", TraitType.Social));
+            genes.Add(CreateRandomGene("Intellect", TraitType.Intelligence));
+            genes.Add(CreateRandomGene("Charm", TraitType.Communication));
             
             // Behavioral traits
-            genes.Add(CreateRandomGene("Aggression", TraitType.Combat));
-            genes.Add(CreateRandomGene("Loyalty", TraitType.Social));
-            genes.Add(CreateRandomGene("Curiosity", TraitType.Mental));
-            genes.Add(CreateRandomGene("Social", TraitType.Social));
+            genes.Add(CreateRandomGene("Aggression", TraitType.Aggression));
+            genes.Add(CreateRandomGene("Loyalty", TraitType.Loyalty));
+            genes.Add(CreateRandomGene("Curiosity", TraitType.Curiosity));
+            genes.Add(CreateRandomGene("Social", TraitType.Sociability));
             
             // Environmental adaptation traits
             genes.Add(CreateBiomeAdaptationGene(startingBiome));
             
             // Rare traits (10% chance each)
             if (UnityEngine.Random.value < 0.1f)
-                genes.Add(CreateRandomGene("Night Vision", TraitType.Sensory));
+                genes.Add(CreateRandomGene("Night Vision", TraitType.NightVision));
             
             if (UnityEngine.Random.value < 0.1f)
-                genes.Add(CreateRandomGene("Pack Leader", TraitType.Social));
+                genes.Add(CreateRandomGene("Pack Leader", TraitType.Leadership));
             
             if (UnityEngine.Random.value < 0.1f)
-                genes.Add(CreateRandomGene("Magical Affinity", TraitType.Magical));
+                genes.Add(CreateRandomGene("Magical Affinity", TraitType.MagicalAffinity));
             
             return new GeneticProfile(genes.ToArray(), 1, "wild");
         }
@@ -382,18 +383,18 @@ namespace Laboratory.Chimera.ECS
             var genes = new List<Gene>();
             
             // More balanced traits for bred creatures
-            genes.Add(CreateBalancedGene("Strength", TraitType.Physical, 0.5f));
-            genes.Add(CreateBalancedGene("Vitality", TraitType.Physical, 0.6f));
-            genes.Add(CreateBalancedGene("Agility", TraitType.Physical, 0.5f));
-            genes.Add(CreateBalancedGene("Resilience", TraitType.Physical, 0.5f));
-            genes.Add(CreateBalancedGene("Intellect", TraitType.Mental, 0.4f));
-            genes.Add(CreateBalancedGene("Charm", TraitType.Social, 0.4f));
+            genes.Add(CreateBalancedGene("Strength", TraitType.Strength, 0.5f));
+            genes.Add(CreateBalancedGene("Vitality", TraitType.Stamina, 0.6f));
+            genes.Add(CreateBalancedGene("Agility", TraitType.Agility, 0.5f));
+            genes.Add(CreateBalancedGene("Resilience", TraitType.Strength, 0.5f));
+            genes.Add(CreateBalancedGene("Intellect", TraitType.Intelligence, 0.4f));
+            genes.Add(CreateBalancedGene("Charm", TraitType.Communication, 0.4f));
             
             // Higher loyalty for bred creatures
-            genes.Add(CreateBalancedGene("Loyalty", TraitType.Social, 0.8f));
-            genes.Add(CreateBalancedGene("Aggression", TraitType.Combat, 0.3f));
-            genes.Add(CreateBalancedGene("Curiosity", TraitType.Mental, 0.6f));
-            genes.Add(CreateBalancedGene("Social", TraitType.Social, 0.7f));
+            genes.Add(CreateBalancedGene("Loyalty", TraitType.Loyalty, 0.8f));
+            genes.Add(CreateBalancedGene("Aggression", TraitType.Aggression, 0.3f));
+            genes.Add(CreateBalancedGene("Curiosity", TraitType.Curiosity, 0.6f));
+            genes.Add(CreateBalancedGene("Social", TraitType.Sociability, 0.7f));
             
             return new GeneticProfile(genes.ToArray(), 1, "domestic");
         }
@@ -433,26 +434,26 @@ namespace Laboratory.Chimera.ECS
         /// <summary>
         /// Create biome-specific adaptation gene
         /// </summary>
-        private Gene CreateBiomeAdaptationGene(Laboratory.Chimera.Core.BiomeType biome)
+        private Gene CreateBiomeAdaptationGene(Laboratory.Core.Enums.BiomeType biome)
         {
             string traitName = biome switch
             {
-                Laboratory.Chimera.Core.BiomeType.Desert => "Heat Resistance",
-                Laboratory.Chimera.Core.BiomeType.Tundra => "Cold Resistance",
-                Laboratory.Chimera.Core.BiomeType.Ocean => "Swimming",
-                Laboratory.Chimera.Core.BiomeType.Mountain => "Climbing",
-                Laboratory.Chimera.Core.BiomeType.Forest => "Camouflage",
-                Laboratory.Chimera.Core.BiomeType.Volcanic => "Fire Resistance",
-                Laboratory.Chimera.Core.BiomeType.Swamp => "Poison Resistance",
-                Laboratory.Chimera.Core.BiomeType.Underground => "Dark Vision",
-                Laboratory.Chimera.Core.BiomeType.Sky => "Flight",
+                Laboratory.Core.Enums.BiomeType.Desert => "Heat Resistance",
+                Laboratory.Core.Enums.BiomeType.Tundra => "Cold Resistance",
+                Laboratory.Core.Enums.BiomeType.Ocean => "Swimming",
+                Laboratory.Core.Enums.BiomeType.Mountain => "Climbing",
+                Laboratory.Core.Enums.BiomeType.Forest => "Camouflage",
+                Laboratory.Core.Enums.BiomeType.Volcanic => "Fire Resistance",
+                Laboratory.Core.Enums.BiomeType.Swamp => "Poison Resistance",
+                Laboratory.Core.Enums.BiomeType.Underground => "Dark Vision",
+                Laboratory.Core.Enums.BiomeType.Sky => "Flight",
                 _ => "Adaptability"
             };
             
             return new Gene
             {
                 traitName = traitName,
-                traitType = TraitType.Physical,
+                traitType = TraitType.PrimaryColor,
                 dominance = UnityEngine.Random.Range(0.6f, 0.9f), // Biome adaptation is usually dominant
                 value = UnityEngine.Random.Range(0.7f, 0.95f), // High adaptation to native biome
                 expression = GeneExpression.Normal,
@@ -656,35 +657,35 @@ namespace Laboratory.Chimera.ECS
         }
 
 
-        private float GetBiomeTemperature(Laboratory.Chimera.Core.BiomeType biome)
+        private float GetBiomeTemperature(Laboratory.Core.Enums.BiomeType biome)
         {
             return biome switch
             {
-                Laboratory.Chimera.Core.BiomeType.Desert => 40f,
-                Laboratory.Chimera.Core.BiomeType.Tundra => -15f,
-                Laboratory.Chimera.Core.BiomeType.Volcanic => 60f,
-                Laboratory.Chimera.Core.BiomeType.Mountain => 5f,
-                Laboratory.Chimera.Core.BiomeType.Ocean => 15f,
-                Laboratory.Chimera.Core.BiomeType.Underground => 12f,
-                Laboratory.Chimera.Core.BiomeType.Sky => 0f,
-                Laboratory.Chimera.Core.BiomeType.Forest => 20f,
-                Laboratory.Chimera.Core.BiomeType.Swamp => 25f,
+                Laboratory.Core.Enums.BiomeType.Desert => 40f,
+                Laboratory.Core.Enums.BiomeType.Tundra => -15f,
+                Laboratory.Core.Enums.BiomeType.Volcanic => 60f,
+                Laboratory.Core.Enums.BiomeType.Mountain => 5f,
+                Laboratory.Core.Enums.BiomeType.Ocean => 15f,
+                Laboratory.Core.Enums.BiomeType.Underground => 12f,
+                Laboratory.Core.Enums.BiomeType.Sky => 0f,
+                Laboratory.Core.Enums.BiomeType.Forest => 20f,
+                Laboratory.Core.Enums.BiomeType.Swamp => 25f,
                 _ => 18f
             };
         }
 
-        private float GetBiomeHumidity(Laboratory.Chimera.Core.BiomeType biome)
+        private float GetBiomeHumidity(Laboratory.Core.Enums.BiomeType biome)
         {
             return biome switch
             {
-                Laboratory.Chimera.Core.BiomeType.Desert => 0.1f,
-                Laboratory.Chimera.Core.BiomeType.Ocean => 1f,
-                Laboratory.Chimera.Core.BiomeType.Swamp => 0.9f,
-                Laboratory.Chimera.Core.BiomeType.Forest => 0.7f,
-                Laboratory.Chimera.Core.BiomeType.Tundra => 0.3f,
-                Laboratory.Chimera.Core.BiomeType.Volcanic => 0.2f,
-                Laboratory.Chimera.Core.BiomeType.Underground => 0.6f,
-                Laboratory.Chimera.Core.BiomeType.Sky => 0.4f,
+                Laboratory.Core.Enums.BiomeType.Desert => 0.1f,
+                Laboratory.Core.Enums.BiomeType.Ocean => 1f,
+                Laboratory.Core.Enums.BiomeType.Swamp => 0.9f,
+                Laboratory.Core.Enums.BiomeType.Forest => 0.7f,
+                Laboratory.Core.Enums.BiomeType.Tundra => 0.3f,
+                Laboratory.Core.Enums.BiomeType.Volcanic => 0.2f,
+                Laboratory.Core.Enums.BiomeType.Underground => 0.6f,
+                Laboratory.Core.Enums.BiomeType.Sky => 0.4f,
                 _ => 0.5f
             };
         }
@@ -719,23 +720,23 @@ namespace Laboratory.Chimera.ECS
         {
             var genes = new List<Gene>();
             
-            genes.Add(CreateGene("Strength", TraitType.Physical, strength));
-            genes.Add(CreateGene("Vitality", TraitType.Physical, vitality));
-            genes.Add(CreateGene("Agility", TraitType.Physical, agility));
-            genes.Add(CreateGene("Resilience", TraitType.Physical, resilience));
-            genes.Add(CreateGene("Intellect", TraitType.Mental, intellect));
-            genes.Add(CreateGene("Charm", TraitType.Social, charm));
-            genes.Add(CreateGene("Aggression", TraitType.Combat, aggression));
-            genes.Add(CreateGene("Loyalty", TraitType.Social, loyalty));
-            genes.Add(CreateGene("Curiosity", TraitType.Mental, curiosity));
-            genes.Add(CreateGene("Social", TraitType.Social, social));
+            genes.Add(CreateGene("Strength", TraitType.Strength, strength));
+            genes.Add(CreateGene("Vitality", TraitType.Stamina, vitality));
+            genes.Add(CreateGene("Agility", TraitType.Agility, agility));
+            genes.Add(CreateGene("Resilience", TraitType.Strength, resilience));
+            genes.Add(CreateGene("Intellect", TraitType.Intelligence, intellect));
+            genes.Add(CreateGene("Charm", TraitType.Communication, charm));
+            genes.Add(CreateGene("Aggression", TraitType.Aggression, aggression));
+            genes.Add(CreateGene("Loyalty", TraitType.Loyalty, loyalty));
+            genes.Add(CreateGene("Curiosity", TraitType.Curiosity, curiosity));
+            genes.Add(CreateGene("Social", TraitType.Sociability, social));
             
             if (nightVision > 0f)
-                genes.Add(CreateGene("Night Vision", TraitType.Sensory, nightVision));
+                genes.Add(CreateGene("Night Vision", TraitType.NightVision, nightVision));
             if (magicalAffinity > 0f)
-                genes.Add(CreateGene("Magical Affinity", TraitType.Magical, magicalAffinity));
+                genes.Add(CreateGene("Magical Affinity", TraitType.MagicalAffinity, magicalAffinity));
             if (packLeader > 0f)
-                genes.Add(CreateGene("Pack Leader", TraitType.Social, packLeader));
+                genes.Add(CreateGene("Pack Leader", TraitType.Leadership, packLeader));
             
             return new GeneticProfile(genes.ToArray(), 1, "custom");
         }

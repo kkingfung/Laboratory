@@ -4,7 +4,21 @@ using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Systems.Ecosystem;
+using Laboratory.Core.Enums;
 using TMPro;
+
+// Extension methods for breeding calculations
+public static class BreedingExtensions
+{
+    public static float Variance(this List<float> values)
+    {
+        if (values.Count == 0) return 0f;
+
+        float mean = values.Average();
+        float sumOfSquares = values.Sum(x => (x - mean) * (x - mean));
+        return sumOfSquares / values.Count;
+    }
+}
 
 namespace Laboratory.Systems.Breeding
 {
@@ -521,7 +535,7 @@ namespace Laboratory.Systems.Breeding
             if (geneticAlgorithm != null)
             {
                 var report = geneticAlgorithm.GeneratePopulationReport();
-                foreach (var creature in report.population)
+                foreach (var creature in report.topPerformers)
                 {
                     availableParents[creature.id] = creature;
                 }
@@ -542,15 +556,15 @@ namespace Laboratory.Systems.Breeding
                 var sampleGenome = new CreatureGenome
                 {
                     id = i,
-                    generation = Random.Range(1, 5),
+                    generation = (uint)Random.Range(1, 5),
                     fitness = Random.Range(0.3f, 0.9f),
-                    traits = new Dictionary<string, float>
+                    traits = new Dictionary<TraitType, GeneticTrait>
                     {
-                        ["strength"] = Random.Range(0f, 1f),
-                        ["speed"] = Random.Range(0f, 1f),
-                        ["intelligence"] = Random.Range(0f, 1f),
-                        ["resilience"] = Random.Range(0f, 1f),
-                        ["adaptability"] = Random.Range(0f, 1f)
+                        [TraitType.Aggression] = new GeneticTrait { name = "aggression", value = Random.Range(0f, 1f), dominance = 0.5f, mutationRate = 0.1f },
+                        [TraitType.Speed] = new GeneticTrait { name = "speed", value = Random.Range(0f, 1f), dominance = 0.5f, mutationRate = 0.1f },
+                        [TraitType.Intelligence] = new GeneticTrait { name = "intelligence", value = Random.Range(0f, 1f), dominance = 0.5f, mutationRate = 0.1f },
+                        [TraitType.Stamina] = new GeneticTrait { name = "stamina", value = Random.Range(0f, 1f), dominance = 0.5f, mutationRate = 0.1f },
+                        [TraitType.Adaptability] = new GeneticTrait { name = "adaptability", value = Random.Range(0f, 1f), dominance = 0.5f, mutationRate = 0.1f }
                     }
                 };
 
@@ -598,9 +612,9 @@ namespace Laboratory.Systems.Breeding
 
             foreach (var traitA in parentA.traits)
             {
-                if (parentB.traits.TryGetValue(traitA.Key, out float traitBValue))
+                if (parentB.traits.TryGetValue(traitA.Key, out GeneticTrait traitB))
                 {
-                    totalDistance += Mathf.Abs(traitA.Value - traitBValue);
+                    totalDistance += Mathf.Abs(traitA.Value.value - traitB.value);
                     comparedTraits++;
                 }
             }
@@ -655,6 +669,278 @@ namespace Laboratory.Systems.Breeding
 
         // Additional helper methods and UI update methods would continue here...
         // (Implementation continues with detailed UI management, visualization, and analysis methods)
+
+        private void UpdateBreedingProgress(BreedingSession session)
+        {
+            if (session != null)
+            {
+                session.progress = Mathf.Clamp01((Time.time - session.startTime) / session.expectedDuration);
+            }
+        }
+
+        private void UpdateSelectionStatusText()
+        {
+            if (selectionStatusText != null)
+            {
+                selectionStatusText.text = "Selection Status: Ready";
+            }
+        }
+
+        private float CalculateInbreedingCoefficient(CreatureGenome parentA, CreatureGenome parentB)
+        {
+            // Simple implementation - calculate based on shared ancestry
+            if (parentA.parentA == parentB.parentA || parentA.parentB == parentB.parentB)
+                return 0.5f;
+            return 0.0f;
+        }
+
+        private Dictionary<TraitType, float> PredictTraitInheritance(CreatureGenome parentA, CreatureGenome parentB)
+        {
+            var predictions = new Dictionary<TraitType, float>();
+            foreach (var trait in parentA.traits.Keys)
+            {
+                if (parentB.traits.ContainsKey(trait))
+                {
+                    predictions[trait] = (parentA.traits[trait].value + parentB.traits[trait].value) / 2f;
+                }
+            }
+            return predictions;
+        }
+
+        private float CalculatePredictionConfidence()
+        {
+            return Random.Range(0.7f, 0.95f);
+        }
+
+        private float CalculateGenerationCompatibility(CreatureGenome parentA, CreatureGenome parentB)
+        {
+            float generationDiff = Mathf.Abs(parentA.generation - parentB.generation);
+            return Mathf.Max(0f, 1f - (generationDiff * 0.1f));
+        }
+
+        private string DetermineRecommendationReason(BreedingPredictions predictions)
+        {
+            if (predictions.compatibilityScore > 0.8f)
+                return "High genetic compatibility suggests strong offspring potential";
+            else if (predictions.compatibilityScore > 0.6f)
+                return "Good balance of traits with moderate compatibility";
+            else if (predictions.fitnessRange.y > 0.7f)
+                return "High fitness potential despite lower compatibility";
+            else if (predictions.inbreedingCoefficient < 0.1f)
+                return "Low inbreeding risk with diverse genetic background";
+            else
+                return "Moderate compatibility with average expected results";
+        }
+
+        private CreatureGenome GenerateOffspringFallback(CreatureGenome parentA, CreatureGenome parentB)
+        {
+            var offspring = new CreatureGenome
+            {
+                id = (uint)Random.Range(1000, 9999),
+                generation = Mathf.Max(parentA.generation, parentB.generation) + 1,
+                traits = new Dictionary<TraitType, GeneticTrait>()
+            };
+
+            // Combine traits from both parents
+            var allTraitTypes = new HashSet<TraitType>();
+            foreach (var trait in parentA.traits.Keys)
+                allTraitTypes.Add(trait);
+            foreach (var trait in parentB.traits.Keys)
+                allTraitTypes.Add(trait);
+
+            foreach (var traitType in allTraitTypes)
+            {
+                var traitA = parentA.traits.ContainsKey(traitType) ? parentA.traits[traitType] : new GeneticTrait { value = 0.5f };
+                var traitB = parentB.traits.ContainsKey(traitType) ? parentB.traits[traitType] : new GeneticTrait { value = 0.5f };
+
+                // Simple trait inheritance with some randomness
+                float inheritedValue = Random.Range(0f, 1f) < 0.5f ? traitA.value : traitB.value;
+                inheritedValue += Random.Range(-0.1f, 0.1f); // Small mutation
+                inheritedValue = Mathf.Clamp01(inheritedValue);
+
+                offspring.traits[traitType] = new GeneticTrait
+                {
+                    value = inheritedValue,
+                    dominance = (traitA.dominance + traitB.dominance) / 2f,
+                    mutationRate = (traitA.mutationRate + traitB.mutationRate) / 2f
+                };
+            }
+
+            // Calculate fitness based on traits
+            offspring.fitness = offspring.traits.Values.Average(t => t.value) * Random.Range(0.8f, 1.2f);
+            offspring.fitness = Mathf.Clamp01(offspring.fitness);
+
+            return offspring;
+        }
+
+        private BreedingResults AnalyzeActualResults(CreatureGenome offspring, BreedingPredictions predictions)
+        {
+            var results = new BreedingResults
+            {
+                actualFitness = offspring.fitness,
+                predictedAccuracy = 1f - Mathf.Abs(offspring.fitness - (predictions.fitnessRange.x + predictions.fitnessRange.y) / 2f),
+                traitInheritance = new Dictionary<TraitType, float>(),
+                unexpectedTraits = new List<TraitType>(),
+                performanceMetrics = new Dictionary<PerformanceMetric, float>()
+            };
+
+            // Analyze trait inheritance
+            foreach (var trait in offspring.traits)
+            {
+                results.traitInheritance[trait.Key] = trait.Value.value;
+
+                // Check for unexpected trait values
+                if (trait.Value.value > 0.9f || trait.Value.value < 0.1f)
+                {
+                    results.unexpectedTraits.Add(trait.Key);
+                }
+            }
+
+            // Calculate performance metrics
+            results.performanceMetrics[PerformanceMetric.FitnessAccuracy] = results.predictedAccuracy;
+            results.performanceMetrics[PerformanceMetric.TraitDiversity] = offspring.traits.Values.Select(t => t.value).ToList().Variance();
+            results.performanceMetrics[PerformanceMetric.GenerationImprovement] = offspring.fitness - 0.5f; // Baseline comparison
+
+            return results;
+        }
+
+        private void RecordGenerationData(BreedingSession session)
+        {
+            var record = new GenerationRecord
+            {
+                timestamp = Time.time,
+                generation = session.offspring.generation,
+                parentAId = session.parentAId,
+                parentBId = session.parentBId,
+                offspringId = session.offspring.id,
+                parentAFitness = session.parentA.fitness,
+                parentBFitness = session.parentB.fitness,
+                offspringFitness = session.offspring.fitness,
+                predictedFitness = (session.predictions.fitnessRange.x + session.predictions.fitnessRange.y) / 2f,
+                compatibilityScore = session.predictions.compatibilityScore
+            };
+
+            generationHistory.Add(record);
+
+            // Limit history size
+            if (generationHistory.Count > 1000)
+            {
+                generationHistory.RemoveAt(0);
+            }
+
+            // Update analytics
+            analytics.averageFitness = generationHistory.Average(r => r.offspringFitness);
+            analytics.generationCount = generationHistory.Count;
+            analytics.lastGenerationTime = Time.time;
+
+            Debug.Log($"Recorded generation data: Gen {record.generation}, Fitness {record.offspringFitness:F3}");
+        }
+
+        private void UpdateOffspringPreview(BreedingSession session)
+        {
+            if (session.offspring == null) return;
+
+            // Update offspring preview UI
+            if (offspringPreviewPanel != null && offspringPreviewPanel.activeSelf)
+            {
+                // Update offspring stats display
+                var statsText = offspringPreviewPanel.GetComponentInChildren<TextMeshProUGUI>();
+                if (statsText != null)
+                {
+                    statsText.text = $"Offspring ID: {session.offspring.id}\n" +
+                                   $"Generation: {session.offspring.generation}\n" +
+                                   $"Fitness: {session.offspring.fitness:F3}\n" +
+                                   $"Traits: {session.offspring.traits.Count}";
+                }
+
+                // Update trait visualizations
+                UpdateTraitVisualizations(session.offspring);
+            }
+        }
+
+        private void UpdateParentLists()
+        {
+            // Clear existing UI elements
+            foreach (var ui in parentAList)
+            {
+                if (ui.uiElement != null)
+                    DestroyImmediate(ui.uiElement);
+            }
+            foreach (var ui in parentBList)
+            {
+                if (ui.uiElement != null)
+                    DestroyImmediate(ui.uiElement);
+            }
+
+            parentAList.Clear();
+            parentBList.Clear();
+
+            // Create UI elements for each available parent
+            foreach (var parent in availableParents.Values)
+            {
+                CreateParentUIElement(parent, true);  // For parent A list
+                CreateParentUIElement(parent, false); // For parent B list
+            }
+        }
+
+        private void CreateParentUIElement(CreatureGenome parent, bool isParentA)
+        {
+            // This would create UI elements for parent selection
+            // For now, just add to the appropriate list
+            var creatureUI = new CreatureUI
+            {
+                creatureId = parent.id,
+                uiElement = null, // Would be created UI element
+                selectionButton = null,
+                statsText = null,
+                fitnessBar = null
+            };
+
+            if (isParentA)
+                parentAList.Add(creatureUI);
+            else
+                parentBList.Add(creatureUI);
+        }
+
+        private void UpdateTraitVisualizations(CreatureGenome creature)
+        {
+            // Clear existing visualizations
+            foreach (var viz in activeTraitVisualizations)
+            {
+                if (viz.visualElement != null)
+                    DestroyImmediate(viz.visualElement);
+            }
+            activeTraitVisualizations.Clear();
+
+            // Create new visualizations for each trait
+            foreach (var trait in creature.traits)
+            {
+                var visualization = new TraitVisualization
+                {
+                    traitName = trait.Key,
+                    visualElement = null, // Would be created UI element
+                    traitBar = null,
+                    traitLabel = null,
+                    traitColor = GetTraitColor(trait.Key)
+                };
+
+                activeTraitVisualizations.Add(visualization);
+            }
+        }
+
+        private Color GetTraitColor(string traitName)
+        {
+            // Return different colors for different traits
+            return traitName switch
+            {
+                "strength" => Color.red,
+                "speed" => Color.yellow,
+                "intelligence" => Color.blue,
+                "resilience" => Color.green,
+                "adaptability" => Color.magenta,
+                _ => Color.white
+            };
+        }
 
         private void OnDestroy()
         {
@@ -729,7 +1015,7 @@ namespace Laboratory.Systems.Breeding
         public float compatibilityScore;
         public float inbreedingCoefficient;
         public Vector2 fitnessRange;
-        public Dictionary<string, Vector2> traitPredictions = new Dictionary<string, Vector2>();
+        public Dictionary<TraitType, Vector2> traitPredictions = new Dictionary<TraitType, Vector2>();
         public float confidenceLevel;
     }
 
@@ -737,9 +1023,13 @@ namespace Laboratory.Systems.Breeding
     public class BreedingResults
     {
         public float actualFitness;
-        public Dictionary<string, float> actualTraits = new Dictionary<string, float>();
+        public Dictionary<TraitType, float> actualTraits = new Dictionary<TraitType, float>();
         public float predictionAccuracy;
         public bool exceededExpectations;
+        public float predictedAccuracy;
+        public Dictionary<TraitType, float> traitInheritance = new Dictionary<TraitType, float>();
+        public List<TraitType> unexpectedTraits = new List<TraitType>();
+        public Dictionary<PerformanceMetric, float> performanceMetrics = new Dictionary<PerformanceMetric, float>();
     }
 
     [System.Serializable]

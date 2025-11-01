@@ -6,7 +6,7 @@ using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.AI;
-using GeneticsTraitType = Laboratory.Chimera.Genetics.TraitType;
+using Laboratory.Core.Enums;
 using CreatureArchetype = Laboratory.Chimera.Configuration.CreatureAIBehaviorType;
 
 namespace Laboratory.Chimera.Testing
@@ -24,7 +24,7 @@ namespace Laboratory.Chimera.Testing
         [SerializeField] private int spawnCount = 1;
         [SerializeField] private float spawnRadius = 5f;
         [SerializeField] private CreatureArchetype selectedArchetype = CreatureArchetype.Predator;
-        [SerializeField] private Laboratory.Chimera.Core.BiomeType currentBiome = Laboratory.Chimera.Core.BiomeType.Temperate;
+        [SerializeField] private Laboratory.Core.Enums.BiomeType currentBiome = Laboratory.Core.Enums.BiomeType.Temperate;
         
         [Header("🎨 Visual Enhancement Settings")]
         [SerializeField] private bool useAdvancedVisuals = true;
@@ -483,8 +483,8 @@ namespace Laboratory.Chimera.Testing
             {
                 new Gene
                 {
-                    traitName = "Primary Color",
-                    traitType = GeneticsTraitType.Physical,
+                    traitName = TraitType.PrimaryColor.GetDisplayName(),
+                    traitType = TraitType.PrimaryColor,
                     value = hue,
                     dominance = 0.8f,
                     expression = GeneExpression.Normal,
@@ -492,8 +492,8 @@ namespace Laboratory.Chimera.Testing
                 },
                 new Gene
                 {
-                    traitName = "Secondary Color",
-                    traitType = GeneticsTraitType.Physical,
+                    traitName = TraitType.SecondaryColor.GetDisplayName(),
+                    traitType = TraitType.SecondaryColor,
                     value = (hue + 0.3f) % 1f, // Complementary
                     dominance = 0.6f,
                     expression = GeneExpression.Normal,
@@ -501,8 +501,8 @@ namespace Laboratory.Chimera.Testing
                 },
                 new Gene
                 {
-                    traitName = "Eye Color",
-                    traitType = GeneticsTraitType.Physical,
+                    traitName = TraitType.EyeColor.GetDisplayName(),
+                    traitType = TraitType.EyeColor,
                     value = Random.value,
                     dominance = 0.7f,
                     expression = GeneExpression.Normal,
@@ -522,7 +522,7 @@ namespace Laboratory.Chimera.Testing
                     new Gene
                     {
                         traitName = patterns[Random.Range(0, patterns.Length)],
-                        traitType = GeneticsTraitType.Physical,
+                        traitType = TraitType.Physical,
                         value = Random.Range(0.4f, 0.8f),
                         dominance = Random.Range(0.4f, 0.7f),
                         expression = GeneExpression.Normal,
@@ -544,7 +544,7 @@ namespace Laboratory.Chimera.Testing
                 new Gene
                 {
                     traitName = chosenMagic,
-                    traitType = GeneticsTraitType.Magical,
+                    traitType = TraitType.Magical,
                     value = Random.Range(0.5f, 0.9f),
                     dominance = Random.Range(0.5f, 0.8f),
                     expression = Random.value > 0.8f ? GeneExpression.Enhanced : GeneExpression.Normal,
@@ -553,29 +553,29 @@ namespace Laboratory.Chimera.Testing
             };
         }
 
-        private Gene[] CreateBiomeGenes(BiomeType biome)
+        private Gene[] CreateBiomeGenes(Laboratory.Core.Enums.BiomeType biome)
         {
             switch (biome)
             {
-                case BiomeType.Desert:
+                case Laboratory.Core.Enums.BiomeType.Desert:
                     return new Gene[]
                     {
-                        new Gene { traitName = "Desert Adaptation", traitType = GeneticsTraitType.Physical, value = 0.8f, dominance = 0.7f, isActive = true },
-                        new Gene { traitName = "Heat Resistance", traitType = GeneticsTraitType.Metabolic, value = 0.7f, dominance = 0.6f, isActive = true }
+                        new Gene { traitName = "Desert Adaptation", traitType = TraitType.Physical, value = 0.8f, dominance = 0.7f, isActive = true },
+                        new Gene { traitName = TraitType.HeatTolerance.GetDisplayName(), traitType = TraitType.Metabolic, value = 0.7f, dominance = 0.6f, isActive = true }
                     };
-                    
-                case BiomeType.Arctic:
+
+                case Laboratory.Core.Enums.BiomeType.Arctic:
                     return new Gene[]
                     {
-                        new Gene { traitName = "Arctic Adaptation", traitType = GeneticsTraitType.Physical, value = 0.8f, dominance = 0.7f, isActive = true },
-                        new Gene { traitName = "Cold Resistance", traitType = GeneticsTraitType.Metabolic, value = 0.7f, dominance = 0.6f, isActive = true }
+                        new Gene { traitName = "Arctic Adaptation", traitType = TraitType.Physical, value = 0.8f, dominance = 0.7f, isActive = true },
+                        new Gene { traitName = TraitType.ColdTolerance.GetDisplayName(), traitType = TraitType.Metabolic, value = 0.7f, dominance = 0.6f, isActive = true }
                     };
-                    
-                case BiomeType.Ocean:
+
+                case Laboratory.Core.Enums.BiomeType.Ocean:
                     return new Gene[]
                     {
-                        new Gene { traitName = "Ocean Adaptation", traitType = GeneticsTraitType.Physical, value = 0.8f, dominance = 0.7f, isActive = true },
-                        new Gene { traitName = "Swimming", traitType = GeneticsTraitType.Utility, value = 0.9f, dominance = 0.8f, isActive = true }
+                        new Gene { traitName = "Ocean Adaptation", traitType = TraitType.Physical, value = 0.8f, dominance = 0.7f, isActive = true },
+                        new Gene { traitName = TraitType.WaterAffinity.GetDisplayName(), traitType = TraitType.Utility, value = 0.9f, dominance = 0.8f, isActive = true }
                     };
                     
                 default:
@@ -730,20 +730,20 @@ namespace Laboratory.Chimera.Testing
         {
             return new Gene[]
             {
-                new Gene { traitName = "Aggression", value = aggression >= 0 ? aggression : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "Curiosity", value = curiosity >= 0 ? curiosity : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "Intelligence", value = intelligence >= 0 ? intelligence : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "Loyalty", value = loyalty >= 0 ? loyalty : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "Social", value = social >= 0 ? social : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "Playfulness", value = playfulness >= 0 ? playfulness : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "Courage", value = courage >= 0 ? courage : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "Territoriality", value = territoriality >= 0 ? territoriality : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "PackInstinct", value = packInstinct >= 0 ? packInstinct : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "HuntingDrive", value = huntingDrive >= 0 ? huntingDrive : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "ParentalCare", value = parentalCare >= 0 ? parentalCare : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "Dominance", value = dominance >= 0 ? dominance : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "NightVision", value = nightVision >= 0 ? nightVision : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
-                new Gene { traitName = "Size", value = size >= 0 ? size : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true }
+                new Gene { traitName = TraitType.Aggression.GetDisplayName(), value = aggression >= 0 ? aggression : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.Curiosity.GetDisplayName(), value = curiosity >= 0 ? curiosity : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.Intelligence.GetDisplayName(), value = intelligence >= 0 ? intelligence : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.Loyalty.GetDisplayName(), value = loyalty >= 0 ? loyalty : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.Sociability.GetDisplayName(), value = social >= 0 ? social : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.Playfulness.GetDisplayName(), value = playfulness >= 0 ? playfulness : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.Courage.GetDisplayName(), value = courage >= 0 ? courage : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.Territoriality.GetDisplayName(), value = territoriality >= 0 ? territoriality : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.PackBehavior.GetDisplayName(), value = packInstinct >= 0 ? packInstinct : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.HuntingDrive.GetDisplayName(), value = huntingDrive >= 0 ? huntingDrive : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.ParentalCare.GetDisplayName(), value = parentalCare >= 0 ? parentalCare : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.Dominance.GetDisplayName(), value = dominance >= 0 ? dominance : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.NightVision.GetDisplayName(), value = nightVision >= 0 ? nightVision : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true },
+                new Gene { traitName = TraitType.Size.GetDisplayName(), value = size >= 0 ? size : Random.Range(0.3f, 0.7f), dominance = 0.5f, isActive = true }
             };
         }
 
@@ -766,5 +766,6 @@ namespace Laboratory.Chimera.Testing
         }
 
         #endregion
+
     }
 }

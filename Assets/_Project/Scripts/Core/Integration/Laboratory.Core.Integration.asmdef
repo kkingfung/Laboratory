@@ -10,6 +10,7 @@
         "Laboratory.Chimera.AI",
         "Laboratory.Chimera.ECS",
         "Laboratory.Shared",
+        "Laboratory.Systems",
         "UniTask"
     ],
     "includePlatforms": [],

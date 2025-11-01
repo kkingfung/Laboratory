@@ -5,6 +5,7 @@ using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Events;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Testing
 {

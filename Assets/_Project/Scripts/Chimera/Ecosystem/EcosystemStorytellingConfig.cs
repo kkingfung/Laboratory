@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Ecosystem
 {

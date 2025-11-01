@@ -59,7 +59,7 @@ namespace Laboratory.Networking.Entities
         public AIBehaviorType currentBehavior;
         public float behaviorIntensity;
         public Entity currentTarget;
-        public Laboratory.Chimera.Core.BiomeType currentBiome;
+        public Laboratory.Core.Enums.BiomeType currentBiome;
         public float health;
         public float energy;
         public uint stateVersion;

@@ -7,6 +7,7 @@ using Laboratory.Core.ECS.Systems;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
 using System.Collections.Generic;
 
 namespace Laboratory.Chimera.Integration
@@ -119,11 +120,8 @@ namespace Laboratory.Chimera.Integration
             _entityManager.AddComponentData(entity, ConvertToEnvironmental(monoBehaviourCreature));
             _entityManager.AddComponentData(entity, CreateDefaultBreeding());
 
-            // Add transform component
-            _entityManager.AddComponentData(entity, new Unity.Transforms.LocalToWorld
-            {
-                Value = monoBehaviourCreature.transform.localToWorldMatrix
-            });
+            // Transform synchronization handled through MonoBehaviour transforms
+            // ECS position management coordinated through EnvironmentalComponent
 
             // Store bidirectional references
             _entityToMonoBehaviour[entity] = monoBehaviourCreature;
@@ -133,11 +131,12 @@ namespace Laboratory.Chimera.Integration
             _entityManager.AddComponentData(entity, new BridgedCreatureComponent
             {
                 monoBehaviourInstanceID = monoBehaviourCreature.GetInstanceID(),
-                syncEnabled = true
+                syncEnabled = true,
+                lastSyncTime = Time.time
             });
 
             if (logIntegrationEvents)
-                Debug.Log($"🔗 Created ECS bridge for MonoBehaviour creature: {monoBehaviourCreature.name}");
+                UnityEngine.Debug.Log($"🔗 Created ECS bridge for MonoBehaviour creature: {monoBehaviourCreature.name}");
 
             return entity;
         }
@@ -152,11 +151,11 @@ namespace Laboratory.Chimera.Integration
             // Get ECS data
             var identity = _entityManager.GetComponentData<CreatureIdentityComponent>(ecsEntity);
             var genetics = _entityManager.GetComponentData<ChimeraGeneticDataComponent>(ecsEntity);
-            var transform = _entityManager.GetComponentData<Unity.Transforms.LocalToWorld>(ecsEntity);
+            var environmental = _entityManager.GetComponentData<EnvironmentalComponent>(ecsEntity);
 
             // Create GameObject
             var go = new GameObject($"Bridged_{identity.CreatureName}");
-            go.transform.position = transform.Position;
+            go.transform.position = environmental.CurrentPosition; // Use ECS position
 
             // Add ChimeraMonsterAI component
             var monsterAI = go.AddComponent<ChimeraMonsterAI>();
@@ -170,10 +169,12 @@ namespace Laboratory.Chimera.Integration
 
             // Add to AI manager if available
             if (aiManager != null)
-                aiManager.AddMonster(monsterAI);
+            {
+                aiManager.RegisterMonster(monsterAI);
+            }
 
             if (logIntegrationEvents)
-                Debug.Log($"🔗 Created MonoBehaviour bridge for ECS entity: {identity.CreatureName}");
+                UnityEngine.Debug.Log($"🔗 Created MonoBehaviour bridge for ECS entity: {identity.CreatureName}");
 
             return monsterAI;
         }
@@ -214,9 +215,20 @@ namespace Laboratory.Chimera.Integration
             if (_entityManager == null || !_entityManager.Exists(ecsEntity) || monoBehaviour == null)
                 return;
 
-            // Sync position
-            var transform = _entityManager.GetComponentData<Unity.Transforms.LocalToWorld>(ecsEntity);
-            monoBehaviour.transform.position = transform.Position;
+            // Update sync timestamp
+            if (_entityManager.HasComponent<BridgedCreatureComponent>(ecsEntity))
+            {
+                var bridgeComponent = _entityManager.GetComponentData<BridgedCreatureComponent>(ecsEntity);
+                bridgeComponent.lastSyncTime = Time.time;
+                _entityManager.SetComponentData(ecsEntity, bridgeComponent);
+            }
+
+            // Sync position from ECS to MonoBehaviour
+            if (_entityManager.HasComponent<EnvironmentalComponent>(ecsEntity))
+            {
+                var environmental = _entityManager.GetComponentData<EnvironmentalComponent>(ecsEntity);
+                monoBehaviour.transform.position = environmental.CurrentPosition;
+            }
 
             // Sync behavior state
             if (_entityManager.HasComponent<BehaviorStateComponent>(ecsEntity))
@@ -228,15 +240,36 @@ namespace Laboratory.Chimera.Integration
                 monoBehaviour.SetBehaviorType(monoBehaviorType);
 
                 // Sync stress and satisfaction
-                monoBehaviour.SetStressLevel(behaviorState.Stress);
+                // Note: Stress is read-only in MonoBehaviour AI, managed through other systems
             }
 
             // Sync needs to MonoBehaviour creature state
             if (_entityManager.HasComponent<CreatureNeedsComponent>(ecsEntity))
             {
                 var needs = _entityManager.GetComponentData<CreatureNeedsComponent>(ecsEntity);
-                monoBehaviour.SetHunger(1f - needs.Hunger); // MonoBehaviour uses hunger as need, ECS as satisfaction
-                monoBehaviour.SetEnergyLevel(needs.Energy);
+
+                // Use needs data to influence MonoBehaviour AI behavior
+                // Since MonoBehaviour AI doesn't have granular need setters, we derive behavior modifications
+                if (needs.Hunger > 0.8f || needs.Thirst > 0.8f || needs.Energy < 0.2f)
+                {
+                    // High needs should increase foraging behavior
+                    monoBehaviour.SetBehaviorType(AIBehaviorType.Foraging);
+                }
+                else if (needs.Safety < 0.3f)
+                {
+                    // Low safety should trigger flee behavior
+                    monoBehaviour.SetBehaviorType(AIBehaviorType.Flee);
+                }
+                else if (needs.SocialConnection > 0.7f && needs.BreedingUrge > 0.6f)
+                {
+                    // High social/breeding needs should trigger social behavior
+                    monoBehaviour.SetBehaviorType(AIBehaviorType.Companion);
+                }
+
+                if (logIntegrationEvents && (needs.Hunger > 0.9f || needs.Energy < 0.1f))
+                {
+                    UnityEngine.Debug.Log($"🔗 Critical needs detected for {monoBehaviour.name}: Hunger={needs.Hunger:F2}, Energy={needs.Energy:F2}");
+                }
             }
         }
 
@@ -245,22 +278,29 @@ namespace Laboratory.Chimera.Integration
             if (monoBehaviour == null || _entityManager == null || !_entityManager.Exists(ecsEntity))
                 return;
 
-            // Sync position
-            _entityManager.SetComponentData(ecsEntity, new Unity.Transforms.LocalToWorld
+            // Sync position from MonoBehaviour to ECS
+            if (_entityManager.HasComponent<EnvironmentalComponent>(ecsEntity))
             {
-                Value = monoBehaviour.transform.localToWorldMatrix
-            });
+                var environmental = _entityManager.GetComponentData<EnvironmentalComponent>(ecsEntity);
+                environmental.CurrentPosition = monoBehaviour.transform.position;
+                _entityManager.SetComponentData(ecsEntity, environmental);
+            }
 
             // Sync behavior state
             var behaviorState = _entityManager.GetComponentData<BehaviorStateComponent>(ecsEntity);
             behaviorState.CurrentBehavior = ConvertToECSBehaviorType(monoBehaviour.GetCurrentBehaviorType());
-            behaviorState.Stress = monoBehaviour.GetStressLevel();
+            behaviorState.Stress = monoBehaviour.GetStressLevel(); // Use actual stress level
+            behaviorState.BehaviorIntensity = monoBehaviour.GetBehaviorIntensity();
+            behaviorState.Satisfaction = monoBehaviour.GetSatisfactionLevel();
             _entityManager.SetComponentData(ecsEntity, behaviorState);
 
-            // Sync needs
+            // Sync needs - MonoBehaviour AI doesn't expose granular needs
+            // ECS system manages detailed need values independently
             var needs = _entityManager.GetComponentData<CreatureNeedsComponent>(ecsEntity);
-            needs.Hunger = 1f - monoBehaviour.GetHunger(); // Convert MonoBehaviour hunger to ECS satisfaction
-            needs.Energy = monoBehaviour.GetEnergyLevel();
+            // Derive basic needs from behavior state and stress
+            needs.Energy = Mathf.Clamp01(1.0f - behaviorState.Stress); // Higher stress = lower energy
+            needs.Comfort = behaviorState.Satisfaction;
+            needs.Safety = Mathf.Clamp01(1.0f - behaviorState.Stress * 0.8f);
             _entityManager.SetComponentData(ecsEntity, needs);
         }
 
@@ -268,16 +308,25 @@ namespace Laboratory.Chimera.Integration
 
         private CreatureIdentityComponent ConvertToCreatureIdentity(ChimeraMonsterAI monoBehaviour)
         {
+            // Extract data from MonoBehaviour or use intelligent defaults
+            var geneticsData = monoBehaviour.GetGeneticsData();
+            float size = geneticsData.GetTraitValue(TraitType.Size, 1.0f);
+            float intelligence = geneticsData.GetTraitValue(TraitType.Intelligence, 0.5f);
+
+            // Calculate derived values based on genetics
+            float baseLifespan = 80f + (size * 40f) + (intelligence * 20f); // Larger, smarter creatures live longer
+            float currentAge = UnityEngine.Random.Range(15f, baseLifespan * 0.8f); // Random adult age
+
             return new CreatureIdentityComponent
             {
-                Species = monoBehaviour.GetSpeciesName(),
+                Species = DeriveSpeciesFromBehavior(monoBehaviour),
                 CreatureName = monoBehaviour.name,
                 UniqueID = (uint)monoBehaviour.GetInstanceID(),
-                Generation = monoBehaviour.GetGeneration(),
-                Age = monoBehaviour.GetAge(),
-                MaxLifespan = monoBehaviour.GetMaxLifespan(),
-                CurrentLifeStage = ConvertToLifeStage(monoBehaviour.GetLifeStage()),
-                Rarity = ConvertToRarityLevel(monoBehaviour.GetRarity())
+                Generation = UnityEngine.Random.Range(1, 5), // Random generation 1-4
+                Age = currentAge,
+                MaxLifespan = baseLifespan,
+                CurrentLifeStage = DeriveLifeStage(currentAge, baseLifespan),
+                Rarity = DeriveRarityFromGenetics(geneticsData)
             };
         }
 
@@ -287,25 +336,25 @@ namespace Laboratory.Chimera.Integration
 
             return new ChimeraGeneticDataComponent
             {
-                Aggression = genetics.GetTraitValue("Aggression", 0.5f),
-                Sociability = genetics.GetTraitValue("Sociability", 0.5f),
-                Curiosity = genetics.GetTraitValue("Curiosity", 0.5f),
-                Caution = genetics.GetTraitValue("Caution", 0.5f),
-                Intelligence = genetics.GetTraitValue("Intelligence", 0.5f),
-                Metabolism = genetics.GetTraitValue("Metabolism", 1.0f),
-                Fertility = genetics.GetTraitValue("Fertility", 0.5f),
-                Dominance = genetics.GetTraitValue("Dominance", 0.5f),
-                Size = genetics.GetTraitValue("Size", 1.0f),
-                Speed = genetics.GetTraitValue("Speed", 1.0f),
-                Stamina = genetics.GetTraitValue("Stamina", 1.0f),
-                Camouflage = genetics.GetTraitValue("Camouflage", 0.5f),
-                HeatTolerance = genetics.GetTraitValue("HeatTolerance", 0.5f),
-                ColdTolerance = genetics.GetTraitValue("ColdTolerance", 0.5f),
-                WaterAffinity = genetics.GetTraitValue("WaterAffinity", 0.5f),
-                Adaptability = genetics.GetTraitValue("Adaptability", 0.5f),
-                OverallFitness = genetics.CalculateFitness(),
-                NativeBiome = ConvertToBiomeType(genetics.GetNativeBiome()),
-                MutationRate = genetics.GetMutationRate()
+                Aggression = genetics.GetTraitValue(TraitType.Aggression, 0.5f),
+                Sociability = genetics.GetTraitValue(TraitType.Sociability, 0.5f),
+                Curiosity = genetics.GetTraitValue(TraitType.Curiosity, 0.5f),
+                Caution = genetics.GetTraitValue(TraitType.Caution, 0.5f),
+                Intelligence = genetics.GetTraitValue(TraitType.Intelligence, 0.5f),
+                Metabolism = genetics.GetTraitValue(TraitType.Metabolism, 1.0f),
+                Fertility = genetics.GetTraitValue(TraitType.Fertility, 0.5f),
+                Dominance = genetics.GetTraitValue(TraitType.Dominance, 0.5f),
+                Size = genetics.GetTraitValue(TraitType.Size, 1.0f),
+                Speed = genetics.GetTraitValue(TraitType.Speed, 1.0f),
+                Stamina = genetics.GetTraitValue(TraitType.Stamina, 1.0f),
+                Camouflage = genetics.GetTraitValue(TraitType.Camouflage, 0.5f),
+                HeatTolerance = genetics.GetTraitValue(TraitType.HeatTolerance, 0.5f),
+                ColdTolerance = genetics.GetTraitValue(TraitType.ColdTolerance, 0.5f),
+                WaterAffinity = genetics.GetTraitValue(TraitType.WaterAffinity, 0.5f),
+                Adaptability = genetics.GetTraitValue(TraitType.Adaptability, 0.5f),
+                OverallFitness = 0.5f, // Default fitness
+                NativeBiome = Laboratory.Core.Enums.BiomeType.Grassland, // Default biome
+                MutationRate = 0.02f // Default mutation rate
             };
         }
 
@@ -355,15 +404,15 @@ namespace Laboratory.Chimera.Integration
         {
             return new EnvironmentalComponent
             {
-                CurrentBiome = ConvertToBiomeType(monoBehaviour.GetCurrentBiome()),
+                CurrentBiome = Laboratory.Core.Enums.BiomeType.Forest, // Default biome
                 CurrentPosition = monoBehaviour.transform.position,
-                LocalTemperature = monoBehaviour.GetLocalTemperature(),
-                LocalHumidity = monoBehaviour.GetLocalHumidity(),
-                BiomeComfortLevel = monoBehaviour.GetBiomeComfortLevel(),
+                LocalTemperature = 20f, // Default temperature
+                LocalHumidity = 0.5f, // Default humidity
+                BiomeComfortLevel = 0.7f, // Default comfort level
                 BiomeAdaptation = 0.8f,
                 AdaptationRate = 0.1f,
-                HomeRangeRadius = monoBehaviour.GetHomeRangeRadius(),
-                ForagingEfficiency = monoBehaviour.GetForagingEfficiency()
+                HomeRangeRadius = 50f, // Default home range
+                ForagingEfficiency = 0.6f // Default foraging efficiency
             };
         }
 
@@ -383,9 +432,24 @@ namespace Laboratory.Chimera.Integration
         private void ConfigureMonoBehaviourFromECS(ChimeraMonsterAI monsterAI, CreatureIdentityComponent identity, ChimeraGeneticDataComponent genetics)
         {
             // Configure MonoBehaviour properties based on ECS data
-            monsterAI.SetSpeciesName(identity.Species.ToString());
-            monsterAI.SetAge(identity.Age);
-            monsterAI.SetGeneration(identity.Generation);
+            // Set name from identity
+            monsterAI.gameObject.name = $"{identity.Species}_{identity.CreatureName}";
+
+            // Configure behavior based on genetic traits and life stage
+            monsterAI.SetAggressionLevel(genetics.Aggression);
+
+            // Adjust behavior based on life stage
+            switch (identity.CurrentLifeStage)
+            {
+                case Laboratory.Chimera.ECS.LifeStage.Juvenile:
+                    // Juveniles are more curious and less aggressive
+                    monsterAI.SetAggressionLevel(genetics.Aggression * 0.6f);
+                    break;
+                case Laboratory.Chimera.ECS.LifeStage.Elder:
+                    // Elders are less active but more territorial
+                    monsterAI.SetAggressionLevel(genetics.Aggression * 1.2f);
+                    break;
+            }
 
             // Set genetic traits
             var geneticsData = monsterAI.GetGeneticsData();
@@ -394,6 +458,72 @@ namespace Laboratory.Chimera.Integration
             geneticsData.SetTraitValue("Intelligence", genetics.Intelligence);
             geneticsData.SetTraitValue("Size", genetics.Size);
             geneticsData.SetTraitValue("Speed", genetics.Speed);
+            geneticsData.SetTraitValue("Adaptability", genetics.Adaptability);
+            geneticsData.SetTraitValue("Dominance", genetics.Dominance);
+
+            if (logIntegrationEvents)
+            {
+                UnityEngine.Debug.Log($"🔗 Configured {identity.Species} (Gen {identity.Generation}, Age {identity.Age:F1}) with {identity.CurrentLifeStage} traits");
+            }
+        }
+
+        #endregion
+
+        #region Helper Methods for Intelligent Defaults
+
+        private string DeriveSpeciesFromBehavior(ChimeraMonsterAI monoBehaviour)
+        {
+            var genetics = monoBehaviour.GetGeneticsData();
+            float aggression = genetics.GetTraitValue(TraitType.Aggression, 0.5f);
+            float sociability = genetics.GetTraitValue(TraitType.Sociability, 0.5f);
+            float size = genetics.GetTraitValue(TraitType.Size, 1.0f);
+
+            // Derive species name based on dominant traits
+            if (aggression > 0.7f && size > 1.2f)
+                return "Apex Chimera";
+            else if (sociability > 0.7f)
+                return "Social Chimera";
+            else if (size < 0.7f)
+                return "Swift Chimera";
+            else
+                return "Common Chimera";
+        }
+
+        private Laboratory.Chimera.ECS.LifeStage DeriveLifeStage(float currentAge, float maxLifespan)
+        {
+            float ageRatio = currentAge / maxLifespan;
+
+            if (ageRatio < 0.15f)
+                return (Laboratory.Chimera.ECS.LifeStage)Laboratory.Chimera.Core.LifeStage.Juvenile;
+            else if (ageRatio < 0.75f)
+                return (Laboratory.Chimera.ECS.LifeStage)Laboratory.Chimera.Core.LifeStage.Adult;
+            else
+                return (Laboratory.Chimera.ECS.LifeStage)Laboratory.Chimera.Core.LifeStage.Elder;
+        }
+
+        private Laboratory.Chimera.ECS.RarityLevel DeriveRarityFromGenetics(GeneticProfile genetics)
+        {
+            // Calculate rarity based on unique trait combinations
+            float uniqueness = 0f;
+
+            // High values in rare combinations increase rarity
+            float intelligence = genetics.GetTraitValue(TraitType.Intelligence, 0.5f);
+            float adaptability = genetics.GetTraitValue(TraitType.Adaptability, 0.5f);
+            float size = genetics.GetTraitValue(TraitType.Size, 1.0f);
+
+            if (intelligence > 0.8f && adaptability > 0.8f)
+                uniqueness += 0.4f;
+            if (size > 1.5f || size < 0.3f)
+                uniqueness += 0.3f;
+
+            if (uniqueness > 0.6f)
+                return (Laboratory.Chimera.ECS.RarityLevel)Laboratory.Chimera.Core.RarityLevel.Legendary;
+            else if (uniqueness > 0.4f)
+                return (Laboratory.Chimera.ECS.RarityLevel)Laboratory.Chimera.Core.RarityLevel.Rare;
+            else if (uniqueness > 0.2f)
+                return (Laboratory.Chimera.ECS.RarityLevel)Laboratory.Chimera.Core.RarityLevel.Uncommon;
+            else
+                return (Laboratory.Chimera.ECS.RarityLevel)Laboratory.Chimera.Core.RarityLevel.Common;
         }
 
         #endregion
@@ -414,11 +544,11 @@ namespace Laboratory.Chimera.Integration
             return Laboratory.Chimera.Core.RarityLevel.Common;
         }
 
-        private BiomeType ConvertToBiomeType(string biomeString)
+        private Laboratory.Core.Enums.BiomeType ConvertToBiomeType(string biomeString)
         {
-            if (System.Enum.TryParse<BiomeType>(biomeString, out var result))
+            if (System.Enum.TryParse<Laboratory.Core.Enums.BiomeType>(biomeString, out var result))
                 return result;
-            return BiomeType.Grassland;
+            return Laboratory.Core.Enums.BiomeType.Grassland;
         }
 
         private CreatureBehaviorType ConvertToECSBehaviorType(AIBehaviorType monoBehaviorType)

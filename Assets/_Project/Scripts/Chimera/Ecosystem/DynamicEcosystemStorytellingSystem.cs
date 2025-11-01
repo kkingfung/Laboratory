@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Core.Enums;
 using Random = UnityEngine.Random;
 
 namespace Laboratory.Chimera.Ecosystem
