@@ -281,42 +281,75 @@ namespace Laboratory.Core.Performance
         }
 
         /// <summary>
+        /// Behavior weight set - Burst compatible
+        /// </summary>
+        public struct BehaviorWeightSet
+        {
+            public float idle;
+            public float foraging;
+            public float exploring;
+            public float social;
+            public float territorial;
+            public float breeding;
+            public float migrating;
+            public float parenting;
+        }
+
+        /// <summary>
         /// Behavior settings - Burst compatible
         /// </summary>
         public struct BehaviorConfigData
         {
-            // State Transition
-            public float idleStateWeight;
-            public float patrolStateWeight;
-            public float feedingStateWeight;
-            public float socialStateWeight;
-            public float stateTransitionSpeed;
-            public float stateRetentionBias;
+            // Decision Making
+            public float decisionUpdateInterval;
+            public float stressInfluenceOnDecisions;
+            public float behaviorRandomness;
 
-            // Movement
-            public float wanderRadius;
-            public float maxWanderDistance;
-            public float territoryCheckInterval;
-
-            // Detection
-            public float detectionRadius;
-            public float memoryDuration;
+            // Behavior Weights
+            public BehaviorWeightSet defaultWeights;
+            public BehaviorWeightSet juvenileModifiers;
+            public BehaviorWeightSet elderModifiers;
 
             public static BehaviorConfigData Extract(BehaviorSettings settings)
             {
                 return new BehaviorConfigData
                 {
-                    idleStateWeight = settings.IdleStateWeight,
-                    patrolStateWeight = settings.PatrolStateWeight,
-                    feedingStateWeight = settings.FeedingStateWeight,
-                    socialStateWeight = settings.SocialStateWeight,
-                    stateTransitionSpeed = settings.StateTransitionSpeed,
-                    stateRetentionBias = settings.StateRetentionBias,
-                    wanderRadius = settings.WanderRadius,
-                    maxWanderDistance = settings.MaxWanderDistance,
-                    territoryCheckInterval = settings.TerritoryCheckInterval,
-                    detectionRadius = settings.DetectionRadius,
-                    memoryDuration = settings.MemoryDuration
+                    decisionUpdateInterval = settings.decisionUpdateInterval,
+                    stressInfluenceOnDecisions = settings.stressInfluenceOnDecisions,
+                    behaviorRandomness = settings.behaviorRandomness,
+                    defaultWeights = new BehaviorWeightSet
+                    {
+                        idle = settings.defaultWeights.idle,
+                        foraging = settings.defaultWeights.foraging,
+                        exploring = settings.defaultWeights.exploring,
+                        social = settings.defaultWeights.social,
+                        territorial = settings.defaultWeights.territorial,
+                        breeding = settings.defaultWeights.breeding,
+                        migrating = settings.defaultWeights.migrating,
+                        parenting = settings.defaultWeights.parenting
+                    },
+                    juvenileModifiers = new BehaviorWeightSet
+                    {
+                        idle = settings.juvenileModifiers.idle,
+                        foraging = settings.juvenileModifiers.foraging,
+                        exploring = settings.juvenileModifiers.exploring,
+                        social = settings.juvenileModifiers.social,
+                        territorial = settings.juvenileModifiers.territorial,
+                        breeding = settings.juvenileModifiers.breeding,
+                        migrating = settings.juvenileModifiers.migrating,
+                        parenting = settings.juvenileModifiers.parenting
+                    },
+                    elderModifiers = new BehaviorWeightSet
+                    {
+                        idle = settings.elderModifiers.idle,
+                        foraging = settings.elderModifiers.foraging,
+                        exploring = settings.elderModifiers.exploring,
+                        social = settings.elderModifiers.social,
+                        territorial = settings.elderModifiers.territorial,
+                        breeding = settings.elderModifiers.breeding,
+                        migrating = settings.elderModifiers.migrating,
+                        parenting = settings.elderModifiers.parenting
+                    }
                 };
             }
 
@@ -324,17 +357,42 @@ namespace Laboratory.Core.Performance
             {
                 return new BehaviorConfigData
                 {
-                    idleStateWeight = 0.3f,
-                    patrolStateWeight = 0.3f,
-                    feedingStateWeight = 0.2f,
-                    socialStateWeight = 0.2f,
-                    stateTransitionSpeed = 0.1f,
-                    stateRetentionBias = 0.8f,
-                    wanderRadius = 20f,
-                    maxWanderDistance = 50f,
-                    territoryCheckInterval = 5f,
-                    detectionRadius = 15f,
-                    memoryDuration = 30f
+                    decisionUpdateInterval = 2f,
+                    stressInfluenceOnDecisions = 0.3f,
+                    behaviorRandomness = 0.1f,
+                    defaultWeights = new BehaviorWeightSet
+                    {
+                        idle = 0.2f,
+                        foraging = 0.3f,
+                        exploring = 0.15f,
+                        social = 0.15f,
+                        territorial = 0.1f,
+                        breeding = 0.05f,
+                        migrating = 0.03f,
+                        parenting = 0.02f
+                    },
+                    juvenileModifiers = new BehaviorWeightSet
+                    {
+                        idle = 0.8f,
+                        foraging = 1.2f,
+                        exploring = 1.8f,
+                        social = 1.5f,
+                        territorial = 0.3f,
+                        breeding = 0f,
+                        migrating = 0.5f,
+                        parenting = 0f
+                    },
+                    elderModifiers = new BehaviorWeightSet
+                    {
+                        idle = 1.5f,
+                        foraging = 1.1f,
+                        exploring = 0.6f,
+                        social = 0.9f,
+                        territorial = 1.3f,
+                        breeding = 0.4f,
+                        migrating = 0.7f,
+                        parenting = 1.2f
+                    }
                 };
             }
         }
