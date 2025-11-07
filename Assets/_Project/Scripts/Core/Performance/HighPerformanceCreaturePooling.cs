@@ -179,6 +179,7 @@ namespace Laboratory.Core.Performance
         /// <summary>
         /// SIMD-optimized LOD updates for parallel processing
         /// </summary>
+        [BurstCompile]
         private struct CreatureLODUpdateJob : IJobParallelFor
         {
             [ReadOnly] public NativeArray<float3> creaturePositions;
@@ -188,6 +189,7 @@ namespace Laboratory.Core.Performance
             [ReadOnly] public float lowLODDistance;
             public NativeArray<CreatureLOD> creatureLODs;
 
+            [BurstCompile]
             public void Execute(int index)
             {
                 float3 position = creaturePositions[index];
@@ -232,6 +234,7 @@ namespace Laboratory.Core.Performance
         /// <summary>
         /// Distance-based culling to maintain performance
         /// </summary>
+        [BurstCompile]
         private struct DistanceCullingJob : IJob
         {
             [ReadOnly] public NativeArray<float3> creaturePositions;
@@ -241,6 +244,7 @@ namespace Laboratory.Core.Performance
             [ReadOnly] public float cullingDistanceSquared;
             public NativeQueue<int>.ParallelWriter cullQueue;
 
+            [BurstCompile]
             public void Execute()
             {
                 for (int i = 0; i < creaturePositions.Length; i++)
