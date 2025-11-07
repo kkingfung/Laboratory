@@ -183,6 +183,7 @@ namespace Laboratory.Networking.Entities
     /// Master Network Manager for Netcode for Entities Integration
     /// Handles connection management, authority distribution, and system coordination
     /// </summary>
+    [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup), OrderFirst = true)]
     public partial class NetcodeEntityManager : SystemBase
     {
@@ -519,7 +520,7 @@ namespace Laboratory.Networking.Entities
     /// <summary>
     /// High-performance job for network state synchronization
     /// </summary>
-
+    [BurstCompile]
     public struct NetworkSynchronizationJob : IJobChunk
     {
         [ReadOnly] public float currentTime;
@@ -529,6 +530,7 @@ namespace Laboratory.Networking.Entities
         public ComponentTypeHandle<NetworkSyncPriority> syncPriorityHandle;
         [ReadOnly] public ComponentTypeHandle<LocalTransform> transformHandle;
 
+        [BurstCompile]
         public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
         {
             var replicatedStates = chunk.GetNativeArray(ref replicatedStateHandle);

@@ -12,14 +12,15 @@ namespace Laboratory.Models.ECS.Systems
     /// <summary>
     /// Job that processes player state updates in parallel.
     /// </summary>
-
+    [BurstCompile]
     public struct PlayerStateJob : IJobChunk
     {
         public float DeltaTime;
         public float StaminaRegenRate;
-        
+
         public ComponentTypeHandle<PlayerStateComponent> PlayerStateHandle;
 
+        [BurstCompile]
         public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
         {
             var stateArray = chunk.GetNativeArray(ref PlayerStateHandle);
@@ -56,6 +57,7 @@ namespace Laboratory.Models.ECS.Systems
     /// Manages player state updates including stamina regeneration, death detection, and status effects.
     /// Runs during simulation group and processes all living players for state changes.
     /// </summary>
+    [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class PlayerStateSystem : SystemBase
     {

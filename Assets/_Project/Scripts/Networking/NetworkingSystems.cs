@@ -1,8 +1,9 @@
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
-using UnityEngine;
+using Unity.Burst;
 using Unity.Burst.Intrinsics;
+using UnityEngine;
 using Laboratory.AI.ECS;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.AI;
@@ -146,6 +147,7 @@ namespace Laboratory.Networking
     /// <summary>
     /// High-performance network batching and compression system
     /// </summary>
+    [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class OptimizedNetworkSyncSystem : SystemBase
     {
@@ -196,6 +198,7 @@ namespace Laboratory.Networking
             ProcessNetworkBatches();
         }
 
+            [BurstCompile]
             private struct NetworkStateBatchingJob : IJobChunk
         {
             [ReadOnly] public float currentTime;
@@ -203,6 +206,7 @@ namespace Laboratory.Networking
             public NativeHashMap<uint, CompressedStateData> stateCache;
             [ReadOnly] public ComponentTypeHandle<NetworkedAIStateComponent> aiStateHandle;
 
+            [BurstCompile]
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
             {
                 var aiStates = chunk.GetNativeArray(ref aiStateHandle);
