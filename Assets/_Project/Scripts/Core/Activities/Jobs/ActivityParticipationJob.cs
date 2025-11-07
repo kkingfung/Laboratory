@@ -9,7 +9,7 @@ using Laboratory.Core.ECS.Components;
 
 namespace Laboratory.Core.Activities.Jobs
 {
-
+    [BurstCompile]
     public partial struct ActivityParticipationJob : IJobEntity
     {
         public float DeltaTime;
@@ -127,7 +127,9 @@ namespace Laboratory.Core.Activities.Jobs
                 _ => 10f
             };
 
-            return (int)(baseExp * performance * UnityEngine.Random.Range(0.8f, 1.2f));
+            // Burst-compatible variation using performance-based pseudo-randomness
+            float variation = 0.8f + (performance * 0.4f);
+            return (int)(baseExp * performance * math.clamp(variation, 0.8f, 1.2f));
         }
     }
 }
