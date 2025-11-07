@@ -541,6 +541,10 @@ namespace Laboratory.Core.Performance
             public float lodDistance1;
             public float lodDistance2;
 
+            // Flow field specific settings
+            public int maxFlowFields;
+            public int maxFlowFieldRequestsPerFrame;
+
             public static PerformanceConfigData Extract(PerformanceSettings settings)
             {
                 return new PerformanceConfigData
@@ -550,7 +554,27 @@ namespace Laboratory.Core.Performance
                     jobBatchSize = settings.jobBatchSize,
                     enableLOD = settings.enableLOD,
                     lodDistance1 = settings.lodDistance1,
-                    lodDistance2 = settings.lodDistance2
+                    lodDistance2 = settings.lodDistance2,
+                    maxFlowFields = 100,
+                    maxFlowFieldRequestsPerFrame = 5
+                };
+            }
+
+            /// <summary>
+            /// Extract from global PerformanceConfiguration (for pathfinding systems)
+            /// </summary>
+            public static PerformanceConfigData ExtractGlobal(Configuration.PerformanceConfiguration config)
+            {
+                return new PerformanceConfigData
+                {
+                    spatialHashCellSize = config.spatialCellSize,
+                    maxEntitiesPerBatch = 1000,
+                    jobBatchSize = 32,
+                    enableLOD = true,
+                    lodDistance1 = 30f,
+                    lodDistance2 = 100f,
+                    maxFlowFields = config.maxFlowFields,
+                    maxFlowFieldRequestsPerFrame = config.maxFlowFieldRequestsPerFrame
                 };
             }
 
@@ -563,7 +587,9 @@ namespace Laboratory.Core.Performance
                     jobBatchSize = 32,
                     enableLOD = true,
                     lodDistance1 = 30f,
-                    lodDistance2 = 100f
+                    lodDistance2 = 100f,
+                    maxFlowFields = 100,
+                    maxFlowFieldRequestsPerFrame = 5
                 };
             }
         }

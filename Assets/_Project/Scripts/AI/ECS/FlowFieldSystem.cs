@@ -3,11 +3,13 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Jobs;
 using Unity.Transforms;
+using Unity.Burst;
 using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Laboratory.AI.Pathfinding;
 using Laboratory.Core.Configuration;
+using Laboratory.Core.Performance;
 
 namespace Laboratory.AI.ECS
 {
@@ -65,6 +67,7 @@ namespace Laboratory.AI.ECS
         Minimal = 3  // 5 FPS - Very far, minimal updates
     }
 
+    [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(Unity.Transforms.TransformSystemGroup))]
     public partial class FlowFieldSystem : SystemBase
@@ -77,10 +80,8 @@ namespace Laboratory.AI.ECS
         private NativeParallelMultiHashMap<int, FlowFieldData> _flowFieldSpatialMap;
         private NativeQueue<FlowFieldGenerationRequest> _generationRequests;
 
-        // Performance settings (loaded from configuration)
-        private float _spatialCellSize = 25f;
-        private int _maxFlowFields = 100;
-        private int _maxGenerationRequestsPerFrame = 5;
+        // Performance settings (Burst-compatible)
+        private BurstCompatibleConfigs.PerformanceConfigData _performanceConfig;
 
         // Flow field generation job handles
         private JobHandle _generationJobHandle;
@@ -105,9 +106,9 @@ namespace Laboratory.AI.ECS
             );
 
             _spatialHashMap = new NativeParallelMultiHashMap<int, Entity>(5000, Allocator.Persistent);
-            _flowFieldSpatialMap = new NativeParallelMultiHashMap<int, FlowFieldData>(_maxFlowFields, Allocator.Persistent);
+            _flowFieldSpatialMap = new NativeParallelMultiHashMap<int, FlowFieldData>(_performanceConfig.maxFlowFields, Allocator.Persistent);
             _generationRequests = new NativeQueue<FlowFieldGenerationRequest>(Allocator.Persistent);
-            _flowFieldCache = new NativeHashMap<uint, Entity>(_maxFlowFields, Allocator.Persistent);
+            _flowFieldCache = new NativeHashMap<uint, Entity>(_performanceConfig.maxFlowFields, Allocator.Persistent);
 
             // Initialize NativeArray pools for zero-allocation pathfinding
             _int2ArrayPool = new NativeArrayPool<int2>(Allocator.Persistent, 50);
@@ -120,16 +121,12 @@ namespace Laboratory.AI.ECS
             try
             {
                 var config = Config.Performance;
-                _spatialCellSize = config.spatialCellSize;
-                _maxFlowFields = config.maxFlowFields;
-                _maxGenerationRequestsPerFrame = config.maxFlowFieldRequestsPerFrame;
+                _performanceConfig = BurstCompatibleConfigs.PerformanceConfigData.ExtractGlobal(config);
             }
             catch (System.Exception)
             {
                 // Use defaults if configuration fails
-                _spatialCellSize = 25f;
-                _maxFlowFields = 100;
-                _maxGenerationRequestsPerFrame = 5;
+                _performanceConfig = BurstCompatibleConfigs.PerformanceConfigData.CreateDefault();
             }
         }
 
@@ -198,6 +195,7 @@ namespace Laboratory.AI.ECS
         /// <summary>
         /// Optimized spatial hashing job
         /// </summary>
+        [BurstCompile]
         private struct SpatialHashingJob : IJobChunk
         {
             public NativeParallelMultiHashMap<int, Entity>.ParallelWriter spatialHashMap;
@@ -205,6 +203,7 @@ namespace Laboratory.AI.ECS
             [ReadOnly] public EntityTypeHandle entityTypeHandle;
             [ReadOnly] public float spatialCellSize;
 
+            [BurstCompile]
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in Unity.Burst.Intrinsics.v128 chunkEnabledMask)
             {
                 var transforms = chunk.GetNativeArray(ref transformTypeHandle);
@@ -237,7 +236,7 @@ namespace Laboratory.AI.ECS
                 spatialHashMap = _spatialHashMap.AsParallelWriter(),
                 transformTypeHandle = GetComponentTypeHandle<LocalTransform>(true),
                 entityTypeHandle = GetEntityTypeHandle(),
-                spatialCellSize = _spatialCellSize
+                spatialCellSize = _performanceConfig.spatialHashCellSize
             };
 
             var followerQuery = GetEntityQuery(ComponentType.ReadOnly<LocalTransform>(), ComponentType.ReadOnly<FlowFieldFollowerComponent>());
@@ -245,7 +244,7 @@ namespace Laboratory.AI.ECS
 
             // Simple flow field spatial hashing (less entities, so keep simple)
             var flowFieldSpatialMap = _flowFieldSpatialMap;
-            var spatialCellSize = _spatialCellSize;
+            var spatialCellSize = _performanceConfig.spatialHashCellSize;
 
             Entities
                 .WithAll<FlowFieldComponent>()
@@ -275,7 +274,7 @@ namespace Laboratory.AI.ECS
         {
             int processedRequests = 0;
 
-            while (_generationRequests.Count > 0 && processedRequests < _maxGenerationRequestsPerFrame)
+            while (_generationRequests.Count > 0 && processedRequests < _performanceConfig.maxFlowFieldRequestsPerFrame)
             {
                 var request = _generationRequests.Dequeue();
                 CreateFlowField(request, currentTime);
@@ -344,6 +343,7 @@ namespace Laboratory.AI.ECS
         /// <summary>
         /// Job for parallel flow field generation using Dijkstra's algorithm
         /// </summary>
+        [BurstCompile]
         private struct FlowFieldGenerationJob : IJob
         {
             public NativeArray<float3> directions;
@@ -354,6 +354,7 @@ namespace Laboratory.AI.ECS
             [ReadOnly] public float3 destination;
             [ReadOnly] public NativeArray<int2> tempOpenSet;
 
+            [BurstCompile]
             public void Execute()
             {
                 // Initialize costs with high values
@@ -598,6 +599,7 @@ namespace Laboratory.AI.ECS
         /// <summary>
         /// LOD-based movement job for hierarchical pathfinding optimization
         /// </summary>
+        [BurstCompile]
         private struct LODFlowFieldMovementJob : IJobChunk
         {
             public ComponentTypeHandle<LocalTransform> transformTypeHandle;
@@ -606,6 +608,7 @@ namespace Laboratory.AI.ECS
             [ReadOnly] public float deltaTime;
             [ReadOnly] public float currentTime;
 
+            [BurstCompile]
             public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in Unity.Burst.Intrinsics.v128 chunkEnabledMask)
             {
                 var transforms = chunk.GetNativeArray(ref transformTypeHandle);
@@ -763,7 +766,7 @@ namespace Laboratory.AI.ECS
                 destination = destination,
                 radius = radius,
                 cellSize = 2f,
-                spatialHash = CalculateSpatialHash(center, _spatialCellSize)
+                spatialHash = CalculateSpatialHash(center, _performanceConfig.spatialHashCellSize)
             };
 
             _generationRequests.Enqueue(request);

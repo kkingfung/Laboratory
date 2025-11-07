@@ -65,6 +65,7 @@ namespace Laboratory.AI.ECS
     }
 
     // Main ECS Pathfinding System
+    [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateBefore(typeof(TransformSystemGroup))]
     public partial class UnifiedECSPathfindingSystem : SystemBase
@@ -246,7 +247,9 @@ namespace Laboratory.AI.ECS
             var spatialHashJob = new SpatialHashJob
             {
                 spatialHash = _spatialHashMap.AsParallelWriter(),
-                cellSize = SPATIAL_CELL_SIZE
+                cellSize = SPATIAL_CELL_SIZE,
+                entityTypeHandle = GetEntityTypeHandle(),
+                transformTypeHandle = GetComponentTypeHandle<LocalTransform>(true)
             };
 
             Dependency = spatialHashJob.ScheduleParallel(_activePathfindingQuery, Dependency);
@@ -258,7 +261,9 @@ namespace Laboratory.AI.ECS
             {
                 deltaTime = deltaTime,
                 currentTime = currentTime,
-                spatialHash = _spatialHashMap
+                spatialHash = _spatialHashMap,
+                pathfindingTypeHandle = GetComponentTypeHandle<PathfindingComponent>(),
+                transformTypeHandle = GetComponentTypeHandle<LocalTransform>(true)
             };
 
             Dependency = updateJob.ScheduleParallel(_activePathfindingQuery, Dependency);
@@ -320,7 +325,10 @@ namespace Laboratory.AI.ECS
         {
             var pathfollowingJob = new PathfollowingJob
             {
-                deltaTime = deltaTime
+                deltaTime = deltaTime,
+                pathfindingTypeHandle = GetComponentTypeHandle<PathfindingComponent>(),
+                transformTypeHandle = GetComponentTypeHandle<LocalTransform>(),
+                pathBufferTypeHandle = GetBufferTypeHandle<PathNodeComponent>(true)
             };
 
             Dependency = pathfollowingJob.ScheduleParallel(_activePathfindingQuery, Dependency);
@@ -378,6 +386,7 @@ namespace Laboratory.AI.ECS
 
     // Supporting Jobs
 
+    [BurstCompile]
     struct SpatialHashJob : IJobChunk
     {
         [WriteOnly] public NativeParallelMultiHashMap<int, Entity>.ParallelWriter spatialHash;
@@ -385,6 +394,7 @@ namespace Laboratory.AI.ECS
         [ReadOnly] public EntityTypeHandle entityTypeHandle;
         [ReadOnly] public ComponentTypeHandle<LocalTransform> transformTypeHandle;
 
+        [BurstCompile]
         public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
         {
             var entities = chunk.GetNativeArray(entityTypeHandle);
@@ -405,6 +415,7 @@ namespace Laboratory.AI.ECS
     }
 
 
+    [BurstCompile]
     struct PathfindingUpdateJob : IJobChunk
     {
         [ReadOnly] public float deltaTime;
@@ -413,6 +424,7 @@ namespace Laboratory.AI.ECS
         public ComponentTypeHandle<PathfindingComponent> pathfindingTypeHandle;
         [ReadOnly] public ComponentTypeHandle<LocalTransform> transformTypeHandle;
 
+        [BurstCompile]
         public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
         {
             var pathfindingComponents = chunk.GetNativeArray(ref pathfindingTypeHandle);
@@ -444,6 +456,7 @@ namespace Laboratory.AI.ECS
     }
 
 
+    [BurstCompile]
     struct PathfollowingJob : IJobChunk
     {
         [ReadOnly] public float deltaTime;
@@ -451,6 +464,7 @@ namespace Laboratory.AI.ECS
         public ComponentTypeHandle<LocalTransform> transformTypeHandle;
         [ReadOnly] public BufferTypeHandle<PathNodeComponent> pathBufferTypeHandle;
 
+        [BurstCompile]
         public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
         {
             var pathfindingComponents = chunk.GetNativeArray(ref pathfindingTypeHandle);
