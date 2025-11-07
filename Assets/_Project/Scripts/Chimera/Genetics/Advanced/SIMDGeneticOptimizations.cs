@@ -1,6 +1,7 @@
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
+using Unity.Burst;
 using UnityEngine;
 
 namespace Laboratory.Chimera.Genetics.Advanced
@@ -16,6 +17,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         /// Vectorized trait blending for multiple creature pairs simultaneously
         /// Processes 4 creatures at once using SIMD float4 operations for maximum performance
         /// </summary>
+        [BurstCompile]
         public struct SIMDTraitBlendingJob : IJobParallelFor
         {
             [ReadOnly] public NativeArray<float4> parent1Traits; // Primary parent traits: [Strength, Vitality, Agility, Resilience]
@@ -23,6 +25,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             [ReadOnly] public NativeArray<float> blendFactors; // Interpolation factors (0.0 = parent1, 1.0 = parent2)
             [WriteOnly] public NativeArray<float4> offspringTraits; // Resulting offspring trait combinations
 
+            [BurstCompile]
             public void Execute(int index)
             {
                 // SIMD vectorized trait blending
@@ -53,6 +56,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         /// High-performance fitness evaluation using SIMD operations
         /// Evaluates multiple creatures' survival fitness scores simultaneously based on environmental factors
         /// </summary>
+        [BurstCompile]
         public struct SIMDFitnessEvaluationJob : IJobParallelFor
         {
             [ReadOnly] public NativeArray<float4> creatureTraits; // Creature trait vectors for fitness calculation
@@ -60,6 +64,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             [ReadOnly] public NativeArray<float4> fitnessWeights; // Importance weights for each trait in fitness calculation
             [WriteOnly] public NativeArray<float> fitnessScores; // Calculated fitness scores (higher = better survival chance)
 
+            [BurstCompile]
             public void Execute(int index)
             {
                 float4 traits = creatureTraits[index];
@@ -87,11 +92,13 @@ namespace Laboratory.Chimera.Genetics.Advanced
         /// Vectorized genetic diversity calculation for population analysis
         /// Processes trait diversity across multiple creatures using SIMD
         /// </summary>
+        [BurstCompile]
         public struct SIMDDiversityAnalysisJob : IJob
         {
             [ReadOnly] public NativeArray<float4> populationTraits;
             [WriteOnly] public NativeArray<float> diversityMetrics; // [Trait1Diversity, Trait2Diversity, Trait3Diversity, Trait4Diversity]
 
+            [BurstCompile]
             public void Execute()
             {
                 int populationSize = populationTraits.Length;
@@ -127,6 +134,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         /// SIMD-optimized selection pressure application
         /// Applies environmental pressure to multiple creatures simultaneously
         /// </summary>
+        [BurstCompile]
         public struct SIMDSelectionPressureJob : IJobParallelFor
         {
             public NativeArray<float4> creatureTraits;
@@ -134,6 +142,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             [ReadOnly] public float pressureIntensity;
             [ReadOnly] public float deltaTime;
 
+            [BurstCompile]
             public void Execute(int index)
             {
                 float4 traits = creatureTraits[index];
@@ -165,6 +174,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         /// High-performance mating compatibility calculation using SIMD
         /// Evaluates compatibility between multiple creature pairs simultaneously
         /// </summary>
+        [BurstCompile]
         public struct SIMDMatingCompatibilityJob : IJobParallelFor
         {
             [ReadOnly] public NativeArray<float4> creature1Traits;
@@ -173,6 +183,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             [ReadOnly] public NativeArray<int> creature2Generations;
             [WriteOnly] public NativeArray<float> compatibilityScores;
 
+            [BurstCompile]
             public void Execute(int index)
             {
                 float4 traits1 = creature1Traits[index];
