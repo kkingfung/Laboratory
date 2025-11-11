@@ -1262,10 +1262,6 @@ namespace Laboratory.Subsystems.AIDirector
                     return multipleBiomes.Any(biome =>
                         string.Equals(playerCurrentBiome, biome, StringComparison.OrdinalIgnoreCase));
 
-                case List<string> biomeList:
-                    return biomeList.Any(biome =>
-                        string.Equals(playerCurrentBiome, biome, StringComparison.OrdinalIgnoreCase));
-
                 default:
                     // Try to convert to string as fallback
                     var affectedBiomeStr = affectedArea.ToString();
