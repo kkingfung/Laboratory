@@ -516,6 +516,7 @@ namespace Laboratory.Core.Activities.Adventure
     }
 
 
+    [BurstCompile]
     public partial struct GuildUpdateJob : IJobEntity
     {
         public float DeltaTime;
@@ -663,6 +664,7 @@ namespace Laboratory.Core.Activities.Adventure
     }
 
 
+    [BurstCompile]
     public partial struct AdventureExplorationJob : IJobEntity
     {
         public float DeltaTime;
@@ -1063,6 +1065,7 @@ namespace Laboratory.Core.Activities.Adventure
     }
 
 
+    [BurstCompile]
     public partial struct CompetitionUpdateJob : IJobEntity
     {
         public float DeltaTime;
@@ -1245,6 +1248,7 @@ namespace Laboratory.Core.Activities.Adventure
     }
 
 
+    [BurstCompile]
     public partial struct TerritoryControlJob : IJobEntity
     {
         public float DeltaTime;

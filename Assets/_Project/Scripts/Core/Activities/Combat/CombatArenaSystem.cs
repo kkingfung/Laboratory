@@ -265,6 +265,7 @@ namespace Laboratory.Core.Activities.Combat
     }
 
 
+    [BurstCompile]
     public partial struct ArenaUpdateJob : IJobEntity
     {
         public float DeltaTime;
@@ -447,6 +448,7 @@ namespace Laboratory.Core.Activities.Combat
     }
 
 
+    [BurstCompile]
     public partial struct CombatMechanicsJob : IJobEntity
     {
         public float DeltaTime;

@@ -189,6 +189,7 @@ namespace Laboratory.Core.Activities.Platforming
     }
 
 
+    [BurstCompile]
     public partial struct PlatformingMovementJob : IJobEntity
     {
         public float DeltaTime;

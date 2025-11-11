@@ -336,6 +336,7 @@ namespace Laboratory.Core.Activities.Strategy
 
 
 
+    [BurstCompile]
     public partial struct CommandCenterUpdateJob : IJobEntity
     {
         public float DeltaTime;
@@ -533,6 +534,7 @@ namespace Laboratory.Core.Activities.Strategy
 
 
 
+    [BurstCompile]
     public partial struct StrategicDecisionJob : IJobEntity
     {
         public float DeltaTime;
