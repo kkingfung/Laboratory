@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
 using Unity.Jobs;
+using Unity.Burst;
 using Unity.Mathematics;
 using Object = UnityEngine.Object;
 
@@ -448,6 +449,7 @@ namespace Laboratory.UI.Performance
 
     #region Jobs and Data Structures
 
+    [BurstCompile]
     [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
     public struct UpdateUIElementsJob : IJobParallelFor
     {
@@ -459,6 +461,7 @@ namespace Laboratory.UI.Performance
         [ReadOnly] public NativeArray<float3> elementPositions;
         [WriteOnly] public NativeArray<float> elementDistances;
 
+        [BurstCompile]
         public void Execute(int index)
         {
             if (index >= elementPositions.Length || index >= elementDistances.Length)

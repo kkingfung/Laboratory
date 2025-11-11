@@ -191,7 +191,7 @@ namespace Laboratory.UI.Performance
         /// <summary>
         /// SIMD-optimized UI animation system
         /// </summary>
-
+        [BurstCompile]
         private struct UIAnimationUpdateJob : IJobParallelFor
         {
             public NativeArray<UIAnimationData> animations;
@@ -199,6 +199,7 @@ namespace Laboratory.UI.Performance
             [ReadOnly] public float deltaTime;
             [ReadOnly] public float currentTime;
 
+            [BurstCompile]
             public void Execute(int index)
             {
                 var animation = animations[index];
@@ -276,7 +277,7 @@ namespace Laboratory.UI.Performance
         /// <summary>
         /// Burst-optimized UI culling and batching
         /// </summary>
-
+        [BurstCompile]
         private struct UIBatchingJob : IJob
         {
             [ReadOnly] public NativeArray<ECSUIElementData> elements;
@@ -285,6 +286,7 @@ namespace Laboratory.UI.Performance
             [ReadOnly] public float cullingDistance;
             public NativeList<UIBatchData> batches;
 
+            [BurstCompile]
             public void Execute()
             {
                 batches.Clear();
