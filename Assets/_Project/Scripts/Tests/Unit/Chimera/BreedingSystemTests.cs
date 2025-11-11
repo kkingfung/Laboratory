@@ -8,7 +8,7 @@ using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Core.Events;
-using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 using System;
 
 namespace Laboratory.Tests.Unit.Chimera

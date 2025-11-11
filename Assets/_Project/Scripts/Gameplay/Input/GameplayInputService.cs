@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Laboratory.Infrastructure.Core;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 

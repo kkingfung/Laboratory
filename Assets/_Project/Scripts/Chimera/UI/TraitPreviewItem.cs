@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.UI
 {

@@ -13,6 +13,7 @@ using Laboratory.Chimera.ECS;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Core.Progression;
 using Laboratory.Economy;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Networking.Entities
 {
@@ -56,10 +57,10 @@ namespace Laboratory.Networking.Entities
         public float3 position;
         public quaternion rotation;
         public float3 velocity;
-        public AIBehaviorType currentBehavior;
+        public Laboratory.Shared.Types.AIBehaviorType currentBehavior;
         public float behaviorIntensity;
         public Entity currentTarget;
-        public Laboratory.Core.Enums.BiomeType currentBiome;
+        public BiomeType currentBiome;
         public float health;
         public float energy;
         public uint stateVersion;
@@ -340,7 +341,7 @@ namespace Laboratory.Networking.Entities
             var replicatedState = EntityManager.GetComponentData<ReplicatedCreatureState>(command.targetEntity);
 
             // Update AI behavior based on command parameter
-            var newBehavior = (AIBehaviorType)(int)command.commandParameter;
+            var newBehavior = (Laboratory.Shared.Types.AIBehaviorType)(int)command.commandParameter;
             replicatedState.currentBehavior = newBehavior;
             replicatedState.behaviorIntensity = 1.0f; // Full intensity for player commands
             replicatedState.stateVersion++;

@@ -6,6 +6,8 @@ using System.Linq;
 using Laboratory.Chimera.Customization;
 using Laboratory.Core.Equipment.Types;
 using Laboratory.Core.Equipment;
+using Laboratory.Core.MonsterTown;
+using EquipmentType = Laboratory.Core.MonsterTown.EquipmentType;
 
 namespace Laboratory.Chimera.UI
 {
@@ -168,13 +170,13 @@ namespace Laboratory.Chimera.UI
         private void ValidateUIReferences()
         {
             if (mainPanel == null)
-                Debug.LogWarning("ChimeraCustomizationUI: Main panel not assigned");
+                UnityEngine.Debug.LogWarning("ChimeraCustomizationUI: Main panel not assigned");
 
             if (customizationManager == null)
-                Debug.LogWarning("ChimeraCustomizationUI: No ChimeraCustomizationManager found in scene");
+                UnityEngine.Debug.LogWarning("ChimeraCustomizationUI: No ChimeraCustomizationManager found in scene");
 
             if (equipmentManager == null)
-                Debug.LogWarning("ChimeraCustomizationUI: No EquipmentManager found in scene");
+                UnityEngine.Debug.LogWarning("ChimeraCustomizationUI: No EquipmentManager found in scene");
         }
 
         #endregion
@@ -806,7 +808,7 @@ namespace Laboratory.Chimera.UI
                 Laboratory.Core.MonsterTown.EquipmentType.Armor => EquipmentType.Armor,
                 Laboratory.Core.MonsterTown.EquipmentType.Weapon => EquipmentType.Weapon,
                 Laboratory.Core.MonsterTown.EquipmentType.Accessory => EquipmentType.Accessory,
-                Laboratory.Core.MonsterTown.EquipmentType.RidingGear => EquipmentType.RidingGear,
+                Laboratory.Core.MonsterTown.EquipmentType.Vehicle => EquipmentType.Vehicle,
                 _ => EquipmentType.Accessory
             };
         }
@@ -818,7 +820,7 @@ namespace Laboratory.Chimera.UI
                 EquipmentType.Armor => Laboratory.Core.MonsterTown.EquipmentType.Armor,
                 EquipmentType.Weapon => Laboratory.Core.MonsterTown.EquipmentType.Weapon,
                 EquipmentType.Accessory => Laboratory.Core.MonsterTown.EquipmentType.Accessory,
-                EquipmentType.RidingGear => Laboratory.Core.MonsterTown.EquipmentType.RidingGear,
+                EquipmentType.Vehicle => Laboratory.Core.MonsterTown.EquipmentType.Vehicle,
                 _ => Laboratory.Core.MonsterTown.EquipmentType.Accessory
             };
         }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Laboratory.Core.Enums;
 using Laboratory.Chimera.Genetics;
 
 namespace Laboratory.Subsystems.Genetics

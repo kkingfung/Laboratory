@@ -4,6 +4,7 @@ using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Core;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.ECS
 {
@@ -26,7 +27,7 @@ namespace Laboratory.Chimera.ECS
         [SerializeField] private bool mixWildAndDomestic = true;
         
         [Header("Environment")]
-        [SerializeField] private Laboratory.Core.Enums.BiomeType sceneBiome = Laboratory.Core.Enums.BiomeType.Forest;
+        [SerializeField] private BiomeType sceneBiome = BiomeType.Forest;
         [SerializeField] private bool enableECSSimulation = true;
         
         [Header("Debug")]
@@ -283,19 +284,19 @@ namespace Laboratory.Chimera.ECS
             Gizmos.DrawWireCube(spawnCenter + Vector3.up * 5f, Vector3.one);
         }
         
-        private Color GetBiomeColor(Laboratory.Core.Enums.BiomeType biome)
+        private Color GetBiomeColor(BiomeType biome)
         {
             return biome switch
             {
-                Laboratory.Core.Enums.BiomeType.Forest => Color.green,
-                Laboratory.Core.Enums.BiomeType.Desert => Color.yellow,
-                Laboratory.Core.Enums.BiomeType.Ocean => Color.blue,
-                Laboratory.Core.Enums.BiomeType.Mountain => Color.gray,
-                Laboratory.Core.Enums.BiomeType.Tundra => Color.white,
-                Laboratory.Core.Enums.BiomeType.Swamp => new Color(0.4f, 0.6f, 0.3f),
-                Laboratory.Core.Enums.BiomeType.Volcanic => Color.red,
-                Laboratory.Core.Enums.BiomeType.Underground => Color.black,
-                Laboratory.Core.Enums.BiomeType.Sky => Color.cyan,
+                BiomeType.Forest => Color.green,
+                BiomeType.Desert => Color.yellow,
+                BiomeType.Ocean => Color.blue,
+                BiomeType.Mountain => Color.gray,
+                BiomeType.Tundra => Color.white,
+                BiomeType.Swamp => new Color(0.4f, 0.6f, 0.3f),
+                BiomeType.Volcanic => Color.red,
+                BiomeType.Underground => Color.black,
+                BiomeType.Sky => Color.cyan,
                 _ => Color.magenta
             };
         }

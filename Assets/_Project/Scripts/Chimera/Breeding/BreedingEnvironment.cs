@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Breeding
 {
@@ -11,7 +12,7 @@ namespace Laboratory.Chimera.Breeding
     public class BreedingEnvironment
     {
         [Header("Biome Information")]
-        [SerializeField] private Laboratory.Core.Enums.BiomeType biomeType = Laboratory.Core.Enums.BiomeType.Temperate;
+        [SerializeField] private BiomeType biomeType = BiomeType.Temperate;
         
         [Header("Environmental Conditions")]
         [SerializeField] private float temperature = 22f; // Celsius
@@ -42,7 +43,7 @@ namespace Laboratory.Chimera.Breeding
         /// <summary>
         /// BiomeType for this environment
         /// </summary>
-        public Laboratory.Core.Enums.BiomeType BiomeType 
+        public BiomeType BiomeType 
         {
             get => biomeType;
             set => biomeType = value;
@@ -147,7 +148,7 @@ namespace Laboratory.Chimera.Breeding
         public BreedingEnvironment()
         {
             // Default to good breeding conditions
-            biomeType = Laboratory.Core.Enums.BiomeType.Temperate;
+            biomeType = BiomeType.Temperate;
             temperature = 22f;
             humidity = 60f;
             lightLevel = 0.8f;
@@ -170,7 +171,7 @@ namespace Laboratory.Chimera.Breeding
         /// </summary>
         public BreedingEnvironment(float temp, float humid, float food, float water, float comfort)
         {
-            biomeType = Laboratory.Core.Enums.BiomeType.Temperate;
+            biomeType = BiomeType.Temperate;
             temperature = temp;
             humidity = humid;
             lightLevel = 0.8f;
@@ -270,7 +271,7 @@ namespace Laboratory.Chimera.Breeding
         {
             return new BreedingEnvironment
             {
-                biomeType = Laboratory.Core.Enums.BiomeType.Temperate,
+                biomeType = BiomeType.Temperate,
                 temperature = 22f,
                 humidity = 60f,
                 lightLevel = 0.8f,
@@ -294,7 +295,7 @@ namespace Laboratory.Chimera.Breeding
         {
             return new BreedingEnvironment
             {
-                biomeType = Laboratory.Core.Enums.BiomeType.Desert,
+                biomeType = BiomeType.Desert,
                 temperature = 35f, // Too hot
                 humidity = 90f,    // Too humid
                 lightLevel = 0.3f,

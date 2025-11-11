@@ -48,13 +48,13 @@ namespace Laboratory.Subsystems.Debug
                 _isInitialized = true;
 
                 if (_config.enableDebugLogging)
-                    Debug.Log("[DebugVisualizationService] Initialized successfully");
+                    UnityEngine.Debug.Log("[DebugVisualizationService] Initialized successfully");
 
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[DebugVisualizationService] Failed to initialize: {ex.Message}");
+                UnityEngine.Debug.LogError($"[DebugVisualizationService] Failed to initialize: {ex.Message}");
                 return false;
             }
         }
@@ -118,7 +118,7 @@ namespace Laboratory.Subsystems.Debug
             _persistentVisualizations.Clear();
 
             if (_config.enableDebugLogging)
-                Debug.Log("[DebugVisualizationService] Visualizations cleared");
+                UnityEngine.Debug.Log("[DebugVisualizationService] Visualizations cleared");
         }
 
         public void SetVisualizationEnabled(bool enabled)
@@ -129,7 +129,7 @@ namespace Laboratory.Subsystems.Debug
             _visualizationEnabled = enabled;
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[DebugVisualizationService] Visualization {(enabled ? "enabled" : "disabled")}");
+                UnityEngine.Debug.Log($"[DebugVisualizationService] Visualization {(enabled ? "enabled" : "disabled")}");
         }
 
         public void RegisterVisualizationRenderer(VisualizationType type, Action<DebugVisualizationData> renderer)
@@ -140,7 +140,7 @@ namespace Laboratory.Subsystems.Debug
             _visualizationRenderers[type] = renderer;
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[DebugVisualizationService] Registered custom renderer for: {type}");
+                UnityEngine.Debug.Log($"[DebugVisualizationService] Registered custom renderer for: {type}");
         }
 
         #endregion
@@ -270,7 +270,7 @@ namespace Laboratory.Subsystems.Debug
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[DebugVisualizationService] Error rendering {data.visualizationType}: {ex.Message}");
+                    UnityEngine.Debug.LogError($"[DebugVisualizationService] Error rendering {data.visualizationType}: {ex.Message}");
                 }
             }
         }
@@ -283,18 +283,18 @@ namespace Laboratory.Subsystems.Debug
             var position = data.worldPosition;
 
             // Draw rays in multiple directions to create a point visualization
-            Debug.DrawRay(position, Vector3.up * radius, data.color);
-            Debug.DrawRay(position, Vector3.down * radius, data.color);
-            Debug.DrawRay(position, Vector3.left * radius, data.color);
-            Debug.DrawRay(position, Vector3.right * radius, data.color);
-            Debug.DrawRay(position, Vector3.forward * radius, data.color);
-            Debug.DrawRay(position, Vector3.back * radius, data.color);
+            UnityEngine.Debug.DrawRay(position, Vector3.up * radius, data.color);
+            UnityEngine.Debug.DrawRay(position, Vector3.down * radius, data.color);
+            UnityEngine.Debug.DrawRay(position, Vector3.left * radius, data.color);
+            UnityEngine.Debug.DrawRay(position, Vector3.right * radius, data.color);
+            UnityEngine.Debug.DrawRay(position, Vector3.forward * radius, data.color);
+            UnityEngine.Debug.DrawRay(position, Vector3.back * radius, data.color);
         }
 
         private void RenderLine(DebugVisualizationData data)
         {
             var endPosition = data.data.TryGetValue("endPosition", out var end) ? (Vector3)end : data.worldPosition + Vector3.forward;
-            Debug.DrawLine(data.worldPosition, endPosition, data.color);
+            UnityEngine.Debug.DrawLine(data.worldPosition, endPosition, data.color);
         }
 
         private void RenderSphere(DebugVisualizationData data)
@@ -327,22 +327,22 @@ namespace Laboratory.Subsystems.Debug
 
             // Draw edges
             // Bottom face
-            Debug.DrawLine(vertices[0], vertices[1], data.color);
-            Debug.DrawLine(vertices[1], vertices[2], data.color);
-            Debug.DrawLine(vertices[2], vertices[3], data.color);
-            Debug.DrawLine(vertices[3], vertices[0], data.color);
+            UnityEngine.Debug.DrawLine(vertices[0], vertices[1], data.color);
+            UnityEngine.Debug.DrawLine(vertices[1], vertices[2], data.color);
+            UnityEngine.Debug.DrawLine(vertices[2], vertices[3], data.color);
+            UnityEngine.Debug.DrawLine(vertices[3], vertices[0], data.color);
 
             // Top face
-            Debug.DrawLine(vertices[4], vertices[5], data.color);
-            Debug.DrawLine(vertices[5], vertices[6], data.color);
-            Debug.DrawLine(vertices[6], vertices[7], data.color);
-            Debug.DrawLine(vertices[7], vertices[4], data.color);
+            UnityEngine.Debug.DrawLine(vertices[4], vertices[5], data.color);
+            UnityEngine.Debug.DrawLine(vertices[5], vertices[6], data.color);
+            UnityEngine.Debug.DrawLine(vertices[6], vertices[7], data.color);
+            UnityEngine.Debug.DrawLine(vertices[7], vertices[4], data.color);
 
             // Vertical edges
-            Debug.DrawLine(vertices[0], vertices[4], data.color);
-            Debug.DrawLine(vertices[1], vertices[5], data.color);
-            Debug.DrawLine(vertices[2], vertices[6], data.color);
-            Debug.DrawLine(vertices[3], vertices[7], data.color);
+            UnityEngine.Debug.DrawLine(vertices[0], vertices[4], data.color);
+            UnityEngine.Debug.DrawLine(vertices[1], vertices[5], data.color);
+            UnityEngine.Debug.DrawLine(vertices[2], vertices[6], data.color);
+            UnityEngine.Debug.DrawLine(vertices[3], vertices[7], data.color);
         }
 
         private void RenderArrow(DebugVisualizationData data)
@@ -355,16 +355,16 @@ namespace Laboratory.Subsystems.Debug
             var to = from + direction * length;
 
             // Draw main line
-            Debug.DrawLine(from, to, data.color);
+            UnityEngine.Debug.DrawLine(from, to, data.color);
 
             // Draw arrow head
             var right = Vector3.Cross(direction, Vector3.up).normalized * arrowHeadSize;
             var up = Vector3.Cross(right, direction).normalized * arrowHeadSize;
 
-            Debug.DrawLine(to, to - direction * arrowHeadSize + right, data.color);
-            Debug.DrawLine(to, to - direction * arrowHeadSize - right, data.color);
-            Debug.DrawLine(to, to - direction * arrowHeadSize + up, data.color);
-            Debug.DrawLine(to, to - direction * arrowHeadSize - up, data.color);
+            UnityEngine.Debug.DrawLine(to, to - direction * arrowHeadSize + right, data.color);
+            UnityEngine.Debug.DrawLine(to, to - direction * arrowHeadSize - right, data.color);
+            UnityEngine.Debug.DrawLine(to, to - direction * arrowHeadSize + up, data.color);
+            UnityEngine.Debug.DrawLine(to, to - direction * arrowHeadSize - up, data.color);
         }
 
         private void RenderText(DebugVisualizationData data)
@@ -374,8 +374,8 @@ namespace Laboratory.Subsystems.Debug
             var position = data.worldPosition;
             var size = 0.1f;
 
-            Debug.DrawLine(position - Vector3.right * size, position + Vector3.right * size, data.color);
-            Debug.DrawLine(position - Vector3.up * size, position + Vector3.up * size, data.color);
+            UnityEngine.Debug.DrawLine(position - Vector3.right * size, position + Vector3.right * size, data.color);
+            UnityEngine.Debug.DrawLine(position - Vector3.up * size, position + Vector3.up * size, data.color);
 
             // In a full implementation, this would render actual text using GUI or TextMesh
         }
@@ -404,7 +404,7 @@ namespace Laboratory.Subsystems.Debug
                 var y = Mathf.Sin(angle) * radius;
                 var currentPoint = center + right * x + up * y;
 
-                Debug.DrawLine(prevPoint, currentPoint, color);
+                UnityEngine.Debug.DrawLine(prevPoint, currentPoint, color);
                 prevPoint = currentPoint;
             }
         }

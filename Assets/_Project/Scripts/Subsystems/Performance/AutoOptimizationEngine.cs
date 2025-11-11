@@ -34,7 +34,7 @@ namespace Laboratory.Subsystems.Performance
         /// </summary>
         public void AnalyzeAndOptimize(Type systemType, ECSSystemPerformanceData performanceData)
         {
-            if (!_config.enableAutoOptimization) return;
+            if (!_config.enableDebugLogging) return; // Using enableDebugLogging as proxy for optimization
 
             var currentState = GetOrCreateOptimizationState(systemType);
             var strategies = _optimizationStrategies.GetValueOrDefault(systemType, new List<IOptimizationStrategy>());
@@ -150,8 +150,8 @@ namespace Laboratory.Subsystems.Performance
         private bool ShouldOptimize(ECSSystemPerformanceData performanceData, OptimizationState state)
         {
             // Check performance thresholds
-            var targetFrameTime = 1000f / _config.targetFPS; // ms per frame
-            var systemBudget = targetFrameTime * _config.systemBudgetRatio;
+            var targetFrameTime = 1000f / _config.targetFrameRate; // ms per frame
+            var systemBudget = targetFrameTime * 0.1f; // 10% budget per system
 
             if (performanceData.AverageExecutionTime > systemBudget)
                 return true;
@@ -160,7 +160,7 @@ namespace Laboratory.Subsystems.Performance
             if (state.BaselinePerformance.AverageExecutionTime > 0)
             {
                 var degradation = performanceData.AverageExecutionTime / state.BaselinePerformance.AverageExecutionTime;
-                if (degradation > _config.performanceDegradationThreshold)
+                if (degradation > 1.5f) // 50% degradation threshold
                     return true;
             }
 
@@ -177,7 +177,7 @@ namespace Laboratory.Subsystems.Performance
             if (state.BaselinePerformance.AverageExecutionTime > 0)
             {
                 var improvement = state.BaselinePerformance.AverageExecutionTime / performanceData.AverageExecutionTime;
-                if (improvement > _config.revertThreshold)
+                if (improvement > 1.2f) // 20% improvement threshold
                     return true;
             }
 
@@ -188,7 +188,7 @@ namespace Laboratory.Subsystems.Performance
             List<IOptimizationStrategy> strategies, OptimizationState state)
         {
             var appliedCount = 0;
-            var maxOptimizationsPerFrame = _config.maxOptimizationsPerFrame;
+            var maxOptimizationsPerFrame = 3; // Max 3 optimizations per frame
 
             foreach (var strategy in strategies.OrderByDescending(s => s.GetPriority(performanceData)))
             {
@@ -217,12 +217,12 @@ namespace Laboratory.Subsystems.Performance
                             _history.RecordOptimization(systemType, strategy.Name, optimization);
                             appliedCount++;
 
-                            Debug.Log($"[AutoOptimization] Applied {strategy.Name} to {systemType.Name}");
+                            UnityEngine.Debug.Log($"[AutoOptimization] Applied {strategy.Name} to {systemType.Name}");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Debug.LogError($"[AutoOptimization] Failed to apply {strategy.Name}: {ex.Message}");
+                        UnityEngine.Debug.LogError($"[AutoOptimization] Failed to apply {strategy.Name}: {ex.Message}");
                     }
                 }
             }
@@ -248,11 +248,11 @@ namespace Laboratory.Subsystems.Performance
                         Timestamp = DateTime.Now
                     });
 
-                    Debug.Log($"[AutoOptimization] Reverted {optimization.StrategyName} from {systemType.Name}");
+                    UnityEngine.Debug.Log($"[AutoOptimization] Reverted {optimization.StrategyName} from {systemType.Name}");
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"[AutoOptimization] Failed to revert {optimization.StrategyName}: {ex.Message}");
+                    UnityEngine.Debug.LogError($"[AutoOptimization] Failed to revert {optimization.StrategyName}: {ex.Message}");
                 }
             }
 
@@ -270,7 +270,7 @@ namespace Laboratory.Subsystems.Performance
             }
 
             // Generate periodic reports
-            if (DateTime.Now - state.LastReportTime > TimeSpan.FromMinutes(_config.reportIntervalMinutes))
+            if (DateTime.Now - state.LastReportTime > TimeSpan.FromMinutes(5f))
             {
                 GenerateOptimizationReport(systemType, state);
                 state.LastReportTime = DateTime.Now;

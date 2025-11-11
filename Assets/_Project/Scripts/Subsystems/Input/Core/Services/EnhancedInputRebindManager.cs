@@ -3,6 +3,7 @@ using UnityEngine;
 using Laboratory.Core.Input.Interfaces;
 using Laboratory.Core.Input.Events;
 using Laboratory.Infrastructure.Core;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Core.Input.Services
 {

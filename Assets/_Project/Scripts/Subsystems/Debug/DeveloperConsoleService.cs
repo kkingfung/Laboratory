@@ -48,13 +48,13 @@ namespace Laboratory.Subsystems.Debug
                 _isInitialized = true;
 
                 if (_config.enableDebugLogging)
-                    Debug.Log("[DeveloperConsoleService] Initialized successfully");
+                    UnityEngine.Debug.Log("[DeveloperConsoleService] Initialized successfully");
 
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[DeveloperConsoleService] Failed to initialize: {ex.Message}");
+                UnityEngine.Debug.LogError($"[DeveloperConsoleService] Failed to initialize: {ex.Message}");
                 return false;
             }
         }
@@ -67,7 +67,7 @@ namespace Laboratory.Subsystems.Debug
             _registeredCommands[command.commandName.ToLower()] = command;
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[DeveloperConsoleService] Registered command: {command.commandName}");
+                UnityEngine.Debug.Log($"[DeveloperConsoleService] Registered command: {command.commandName}");
         }
 
         public void UnregisterCommand(string commandName)
@@ -78,7 +78,7 @@ namespace Laboratory.Subsystems.Debug
             if (_registeredCommands.Remove(commandName.ToLower()))
             {
                 if (_config.enableDebugLogging)
-                    Debug.Log($"[DeveloperConsoleService] Unregistered command: {commandName}");
+                    UnityEngine.Debug.Log($"[DeveloperConsoleService] Unregistered command: {commandName}");
             }
         }
 
@@ -108,7 +108,7 @@ namespace Laboratory.Subsystems.Debug
 
                 // Execute command
                 var result = ExecuteCommandWithParameters(command, parseResult.parameters);
-                return result.success ? (result.result ?? result.message) : result.errorMessage;
+                return result.success ? (result.result ?? "Command executed successfully") : result.errorMessage;
             }
             catch (Exception ex)
             {
@@ -140,7 +140,7 @@ namespace Laboratory.Subsystems.Debug
             _commandHistory.Clear();
 
             if (_config.enableDebugLogging)
-                Debug.Log("[DeveloperConsoleService] Command history cleared");
+                UnityEngine.Debug.Log("[DeveloperConsoleService] Command history cleared");
         }
 
         public void SetVariable(string name, object value)
@@ -151,7 +151,7 @@ namespace Laboratory.Subsystems.Debug
             _variables[name] = value;
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[DeveloperConsoleService] Set variable {name} = {value}");
+                UnityEngine.Debug.Log($"[DeveloperConsoleService] Set variable {name} = {value}");
         }
 
         public object GetVariable(string name)

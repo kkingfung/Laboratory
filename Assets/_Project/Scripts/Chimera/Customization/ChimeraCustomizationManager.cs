@@ -8,6 +8,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Visuals;
 using Laboratory.Core.Equipment.Types;
 using Laboratory.Core.MonsterTown;
+using Laboratory.Core.Enums;
 using EquipmentItem = Laboratory.Core.MonsterTown.Equipment;
 
 namespace Laboratory.Chimera.Customization
@@ -55,7 +56,7 @@ namespace Laboratory.Chimera.Customization
 
         // Customization state
         private ChimeraCustomizationData currentCustomization;
-        private Dictionary<EquipmentType, GameObject> equippedVisuals = new();
+        private Dictionary<Laboratory.Core.MonsterTown.EquipmentType, GameObject> equippedVisuals = new();
         private Dictionary<string, GameObject> customOutfits = new();
         private Dictionary<string, Material> materialCache = new();
 
@@ -81,9 +82,9 @@ namespace Laboratory.Chimera.Customization
         {
             isActive = active;
 
-            if (config?.enableDebugLogging == true)
+            if (config?.EnableDebugLogging == true)
             {
-                Debug.Log($"ChimeraCustomizationManager: Active state changed to {active}");
+                UnityEngine.Debug.Log($"ChimeraCustomizationManager: Active state changed to {active}");
             }
         }
 
@@ -137,13 +138,13 @@ namespace Laboratory.Chimera.Customization
         {
             if (creatureInstance?.CreatureData?.GeneticProfile == null)
             {
-                Debug.LogWarning("ChimeraCustomizationManager: No genetic profile found, skipping initialization");
+                UnityEngine.Debug.LogWarning("ChimeraCustomizationManager: No genetic profile found, skipping initialization");
                 return;
             }
 
             currentCustomization = new ChimeraCustomizationData
             {
-                CreatureId = creatureInstance.CreatureData.CreatureId,
+                CreatureId = creatureInstance.CreatureData.UniqueId,
                 GeneticAppearance = GenerateGeneticAppearance(),
                 EquippedItems = new List<EquippedItemVisual>(),
                 CustomPatterns = new List<CustomPattern>(),
@@ -155,9 +156,9 @@ namespace Laboratory.Chimera.Customization
 
             isInitialized = true;
 
-            if (config?.enableDebugLogging == true)
+            if (config?.EnableDebugLogging == true)
             {
-                Debug.Log($"🎭 ChimeraCustomizationManager initialized for {creatureInstance.CreatureData.CreatureId}");
+                UnityEngine.Debug.Log($"🎭 ChimeraCustomizationManager initialized for {creatureInstance.CreatureData.UniqueId}");
             }
         }
 
@@ -213,9 +214,9 @@ namespace Laboratory.Chimera.Customization
         private Vector3 CalculateBodyScale(GeneticProfile genetics)
         {
             // Use genetic traits to determine body proportions
-            float sizeGene = GetGeneticValue(genetics, "Size", 1.0f);
-            float strengthGene = GetGeneticValue(genetics, "Strength", 1.0f);
-            float agilityGene = GetGeneticValue(genetics, "Agility", 1.0f);
+            float sizeGene = GetGeneticValue(genetics, TraitType.Size, 1.0f);
+            float strengthGene = GetGeneticValue(genetics, TraitType.Strength, 1.0f);
+            float agilityGene = GetGeneticValue(genetics, TraitType.Agility, 1.0f);
 
             return new Vector3(
                 0.8f + (strengthGene * 0.4f),  // Width influenced by strength
@@ -228,8 +229,8 @@ namespace Laboratory.Chimera.Customization
         {
             var proportions = new Dictionary<string, Vector3>();
 
-            float agilityFactor = GetGeneticValue(genetics, "Agility", 1.0f);
-            float strengthFactor = GetGeneticValue(genetics, "Strength", 1.0f);
+            float agilityFactor = GetGeneticValue(genetics, TraitType.Agility, 1.0f);
+            float strengthFactor = GetGeneticValue(genetics, TraitType.Strength, 1.0f);
 
             proportions["legs"] = new Vector3(1.0f, 0.8f + (agilityFactor * 0.4f), 1.0f);
             proportions["arms"] = new Vector3(0.8f + (strengthFactor * 0.4f), 1.0f, 1.0f);
@@ -243,16 +244,16 @@ namespace Laboratory.Chimera.Customization
             var colors = new List<Color>();
 
             // Base genetic color determination
-            float hue = GetGeneticValue(genetics, $"Color_{colorType}_Hue", 0.5f);
-            float saturation = GetGeneticValue(genetics, $"Color_{colorType}_Saturation", 0.8f);
-            float brightness = GetGeneticValue(genetics, $"Color_{colorType}_Brightness", 0.7f);
+            float hue = GetColorGeneticValue(genetics, colorType, "Hue", 0.5f);
+            float saturation = GetColorGeneticValue(genetics, colorType, "Saturation", 0.8f);
+            float brightness = GetColorGeneticValue(genetics, colorType, "Brightness", 0.7f);
 
             // Generate primary color
             Color baseColor = Color.HSVToRGB(hue, saturation, brightness);
             colors.Add(baseColor);
 
             // Generate complementary colors based on genetic diversity
-            int colorCount = Mathf.RoundToInt(GetGeneticValue(genetics, "ColorComplexity", 2.0f));
+            int colorCount = Mathf.RoundToInt(GetGeneticValue(genetics, TraitType.ColorComplexity, 2.0f));
             for (int i = 1; i < colorCount; i++)
             {
                 float hueShift = (i * 120f) / 360f; // Shift hue for complementary colors
@@ -268,13 +269,13 @@ namespace Laboratory.Chimera.Customization
             var patterns = new List<string>();
 
             // Determine pattern types based on genetic traits
-            if (GetGeneticValue(genetics, "Predator", 0.5f) > 0.6f)
+            if (GetGeneticValue(genetics, TraitType.HuntingDrive, 0.5f) > 0.6f) // Predator behavior
                 patterns.Add("stripes");
-            if (GetGeneticValue(genetics, "Camouflage", 0.5f) > 0.6f)
+            if (GetGeneticValue(genetics, TraitType.Camouflage, 0.5f) > 0.6f)
                 patterns.Add("spots");
-            if (GetGeneticValue(genetics, "Social", 0.5f) > 0.7f)
+            if (GetGeneticValue(genetics, TraitType.Sociability, 0.5f) > 0.7f) // Using Sociability as closest match
                 patterns.Add("geometric");
-            if (GetGeneticValue(genetics, "Magical", 0.5f) > 0.5f)
+            if (GetGeneticValue(genetics, TraitType.Magical, 0.5f) > 0.5f)
                 patterns.Add("runes");
 
             return patterns.ToArray();
@@ -283,8 +284,8 @@ namespace Laboratory.Chimera.Customization
         private float CalculatePatternIntensity(GeneticProfile genetics)
         {
             // Pattern intensity based on genetic expression strength
-            float diversityScore = GetGeneticValue(genetics, "Diversity", 0.5f);
-            float expressionStrength = GetGeneticValue(genetics, "Expression", 0.5f);
+            float diversityScore = GetGeneticValue(genetics, TraitType.Diversity, 0.5f);
+            float expressionStrength = GetGeneticValue(genetics, TraitType.Expression, 0.5f);
 
             return Mathf.Clamp01(diversityScore * expressionStrength * patternComplexity);
         }
@@ -293,7 +294,7 @@ namespace Laboratory.Chimera.Customization
         {
             var aura = new MagicalAuraData();
 
-            float magicalPotency = GetGeneticValue(genetics, "Magical", 0.0f);
+            float magicalPotency = GetGeneticValue(genetics, TraitType.Magical, 0.0f);
             if (magicalPotency > 0.3f)
             {
                 aura.HasAura = true;
@@ -307,10 +308,10 @@ namespace Laboratory.Chimera.Customization
 
         private string DetermineEffectType(GeneticProfile genetics)
         {
-            float fireAffinity = GetGeneticValue(genetics, "Fire", 0.0f);
-            float waterAffinity = GetGeneticValue(genetics, "Water", 0.0f);
-            float earthAffinity = GetGeneticValue(genetics, "Earth", 0.0f);
-            float airAffinity = GetGeneticValue(genetics, "Air", 0.0f);
+            float fireAffinity = GetGeneticValue(genetics, TraitType.FireAffinity, 0.0f);
+            float waterAffinity = GetGeneticValue(genetics, TraitType.WaterAffinity, 0.0f);
+            float earthAffinity = GetGeneticValue(genetics, TraitType.EarthAffinity, 0.0f);
+            float airAffinity = GetGeneticValue(genetics, TraitType.AirAffinity, 0.0f);
 
             var affinities = new Dictionary<string, float>
             {
@@ -323,13 +324,21 @@ namespace Laboratory.Chimera.Customization
             return affinities.OrderByDescending(kvp => kvp.Value).First().Key;
         }
 
-        private float GetGeneticValue(GeneticProfile genetics, string traitName, float defaultValue)
+        private float GetGeneticValue(GeneticProfile genetics, TraitType traitType, float defaultValue)
         {
-            // Extract value from genetic profile (simplified - would need proper genetic system integration)
-            if (genetics.TraitExpressions.ContainsKey(traitName))
+            if (genetics.TraitExpressions.ContainsKey(traitType))
             {
-                return genetics.TraitExpressions[traitName].Value;
+                return genetics.TraitExpressions[traitType].Value;
             }
+            return defaultValue + UnityEngine.Random.Range(-0.2f, 0.2f);
+        }
+
+        // Method for handling color-specific genetic traits
+        private float GetColorGeneticValue(GeneticProfile genetics, string colorType, string component, float defaultValue)
+        {
+            // Handle dynamic color traits like "Color_Primary_Hue"
+            // This is acceptable for highly dynamic composite traits
+            // Could be improved with a ColorTraitType enum in the future
             return defaultValue + UnityEngine.Random.Range(-0.2f, 0.2f);
         }
 
@@ -366,9 +375,9 @@ namespace Laboratory.Chimera.Customization
             currentCustomization.EquippedItems.RemoveAll(e => e.EquipmentType == equipment.Type);
             currentCustomization.EquippedItems.Add(equippedVisual);
 
-            if (config?.enableDebugLogging == true)
+            if (config?.EnableDebugLogging == true)
             {
-                Debug.Log($"🎒 Equipped {equipment.Name} on {creatureInstance.CreatureData.CreatureId}");
+                UnityEngine.Debug.Log($"🎒 Equipped {equipment.Name} on {creatureInstance.CreatureData.UniqueId}");
             }
         }
 
@@ -396,9 +405,9 @@ namespace Laboratory.Chimera.Customization
             // Update customization data
             currentCustomization.EquippedItems.RemoveAll(e => e.EquipmentType == equipmentType);
 
-            if (config?.enableDebugLogging == true)
+            if (config?.EnableDebugLogging == true)
             {
-                Debug.Log($"🎒 Unequipped {equipmentType} from {creatureInstance.CreatureData.CreatureId}");
+                UnityEngine.Debug.Log($"🎒 Unequipped {equipmentType} from {creatureInstance.CreatureData.UniqueId}");
             }
         }
 
@@ -409,7 +418,7 @@ namespace Laboratory.Chimera.Customization
 
             if (visualPrefab == null)
             {
-                Debug.LogWarning($"No visual found for equipment: {equipment.ItemId} at path: {visualPath}");
+                UnityEngine.Debug.LogWarning($"No visual found for equipment: {equipment.ItemId} at path: {visualPath}");
                 return;
             }
 
@@ -420,16 +429,15 @@ namespace Laboratory.Chimera.Customization
             ApplyEquipmentModifications(visual, equipment);
 
             // Cache the visual
-            equippedVisuals[ConvertToEquipmentType(equipment.Type)] = visual;
+            equippedVisuals[equipment.Type] = visual;
         }
 
         private void RemoveEquipmentVisual(Laboratory.Core.MonsterTown.EquipmentType equipmentType)
         {
-            var convertedType = ConvertToEquipmentType(equipmentType);
-            if (equippedVisuals.TryGetValue(convertedType, out GameObject visual))
+            if (equippedVisuals.TryGetValue(equipmentType, out GameObject visual))
             {
                 DestroyImmediate(visual);
-                equippedVisuals.Remove(convertedType);
+                equippedVisuals.Remove(equipmentType);
             }
         }
 
@@ -445,22 +453,11 @@ namespace Laboratory.Chimera.Customization
                 Laboratory.Core.MonsterTown.EquipmentType.Armor => armorParent,
                 Laboratory.Core.MonsterTown.EquipmentType.Weapon => weaponParent,
                 Laboratory.Core.MonsterTown.EquipmentType.Accessory => accessoryParent,
-                Laboratory.Core.MonsterTown.EquipmentType.RidingGear => ridingGearParent,
+                Laboratory.Core.MonsterTown.EquipmentType.Vehicle => ridingGearParent, // Vehicle is the closest equivalent to RidingGear
                 _ => accessoryParent
             };
         }
 
-        private EquipmentType ConvertToEquipmentType(Laboratory.Core.MonsterTown.EquipmentType monsterTownType)
-        {
-            return monsterTownType switch
-            {
-                Laboratory.Core.MonsterTown.EquipmentType.Armor => EquipmentType.Armor,
-                Laboratory.Core.MonsterTown.EquipmentType.Weapon => EquipmentType.Weapon,
-                Laboratory.Core.MonsterTown.EquipmentType.Accessory => EquipmentType.Accessory,
-                Laboratory.Core.MonsterTown.EquipmentType.RidingGear => EquipmentType.RidingGear,
-                _ => EquipmentType.Accessory
-            };
-        }
 
         private void ApplyEquipmentModifications(GameObject visual, EquipmentItem equipment)
         {
@@ -502,19 +499,19 @@ namespace Laboratory.Chimera.Customization
             visual.transform.localScale *= scale;
         }
 
-        private void ApplyStatEffects(GameObject visual, Dictionary<StatType, float> statBonuses)
+        private void ApplyStatEffects(GameObject visual, Dictionary<Laboratory.Core.MonsterTown.StatType, float> statBonuses)
         {
             foreach (var statBonus in statBonuses)
             {
                 switch (statBonus.Key)
                 {
-                    case StatType.Strength:
+                    case Laboratory.Core.MonsterTown.StatType.Strength:
                         AddStatEffect(visual, "strength_aura", statBonus.Value);
                         break;
-                    case StatType.Agility:
+                    case Laboratory.Core.MonsterTown.StatType.Agility:
                         AddStatEffect(visual, "speed_trails", statBonus.Value);
                         break;
-                    case StatType.Intelligence:
+                    case Laboratory.Core.MonsterTown.StatType.Intelligence:
                         AddStatEffect(visual, "wisdom_glow", statBonus.Value);
                         break;
                 }
@@ -544,9 +541,9 @@ namespace Laboratory.Chimera.Customization
 
             currentCustomization.CustomOutfit = outfit;
 
-            if (config?.enableDebugLogging == true)
+            if (config?.EnableDebugLogging == true)
             {
-                Debug.Log($"🎭 Applied custom outfit '{outfit.OutfitName}' to {creatureInstance.CreatureData.CreatureId}");
+                UnityEngine.Debug.Log($"🎭 Applied custom outfit '{outfit.OutfitName}' to {creatureInstance.CreatureData.UniqueId}");
             }
         }
 
@@ -555,7 +552,7 @@ namespace Laboratory.Chimera.Customization
             GameObject piecePrefab = Resources.Load<GameObject>(piece.PrefabPath);
             if (piecePrefab == null)
             {
-                Debug.LogWarning($"Custom outfit piece not found: {piece.PrefabPath}");
+                UnityEngine.Debug.LogWarning($"Custom outfit piece not found: {piece.PrefabPath}");
                 return;
             }
 
@@ -796,8 +793,7 @@ namespace Laboratory.Chimera.Customization
             // Check for newly equipped items
             foreach (var equipment in monster.Equipment.Where(e => e.IsEquipped))
             {
-                var convertedType = ConvertToEquipmentType(equipment.Type);
-                if (!equippedVisuals.ContainsKey(convertedType))
+                if (!equippedVisuals.ContainsKey(equipment.Type))
                 {
                     CreateEquipmentVisual(equipment);
                 }
@@ -805,27 +801,16 @@ namespace Laboratory.Chimera.Customization
 
             // Check for removed items
             var equippedTypes = monster.Equipment.Where(e => e.IsEquipped)
-                                              .Select(e => ConvertToEquipmentType(e.Type))
+                                              .Select(e => e.Type)
                                               .ToHashSet();
 
             var visualsToRemove = equippedVisuals.Keys.Where(type => !equippedTypes.Contains(type)).ToList();
             foreach (var type in visualsToRemove)
             {
-                RemoveEquipmentVisual(ConvertToMonsterTownEquipmentType(type));
+                RemoveEquipmentVisual(type);
             }
         }
 
-        private Laboratory.Core.MonsterTown.EquipmentType ConvertToMonsterTownEquipmentType(EquipmentType equipmentType)
-        {
-            return equipmentType switch
-            {
-                EquipmentType.Armor => Laboratory.Core.MonsterTown.EquipmentType.Armor,
-                EquipmentType.Weapon => Laboratory.Core.MonsterTown.EquipmentType.Weapon,
-                EquipmentType.Accessory => Laboratory.Core.MonsterTown.EquipmentType.Accessory,
-                EquipmentType.RidingGear => Laboratory.Core.MonsterTown.EquipmentType.RidingGear,
-                _ => Laboratory.Core.MonsterTown.EquipmentType.Accessory
-            };
-        }
 
         private Monster GetMonsterFromCreature()
         {
@@ -835,8 +820,8 @@ namespace Laboratory.Chimera.Customization
 
             return new Monster
             {
-                UniqueId = creatureInstance.CreatureData.CreatureId,
-                Name = creatureInstance.CreatureData.CreatureName ?? "Unnamed Chimera",
+                UniqueId = creatureInstance.CreatureData.UniqueId,
+                Name = creatureInstance.CreatureData.Definition?.speciesName ?? "Unnamed Chimera",
                 Level = 1, // Would get from creature level system
                 Equipment = new List<EquipmentItem>()
             };
@@ -911,15 +896,15 @@ namespace Laboratory.Chimera.Customization
             PlayerPrefs.SetString(key, json);
             PlayerPrefs.Save();
 
-            if (config?.enableDebugLogging == true)
+            if (config?.EnableDebugLogging == true)
             {
-                Debug.Log($"💾 Saved customization for {currentCustomization.CreatureId}");
+                UnityEngine.Debug.Log($"💾 Saved customization for {currentCustomization.CreatureId}");
             }
         }
 
         public bool LoadCustomization(string creatureId = null)
         {
-            string targetId = creatureId ?? creatureInstance?.CreatureData?.CreatureId;
+            string targetId = creatureId ?? creatureInstance?.CreatureData?.UniqueId;
             if (string.IsNullOrEmpty(targetId)) return false;
 
             string key = $"ChimeraCustomization_{targetId}";
@@ -938,7 +923,7 @@ namespace Laboratory.Chimera.Customization
             }
             catch (Exception e)
             {
-                Debug.LogError($"Failed to load customization for {targetId}: {e.Message}");
+                UnityEngine.Debug.LogError($"Failed to load customization for {targetId}: {e.Message}");
             }
 
             return false;
@@ -975,9 +960,9 @@ namespace Laboratory.Chimera.Customization
                 ApplyCustomColors(customization.ColorOverrides);
             }
 
-            if (config?.enableDebugLogging == true)
+            if (config?.EnableDebugLogging == true)
             {
-                Debug.Log($"🎭 Applied customization data for {customization.CreatureId}");
+                UnityEngine.Debug.Log($"🎭 Applied customization data for {customization.CreatureId}");
             }
         }
 
@@ -994,7 +979,7 @@ namespace Laboratory.Chimera.Customization
             // Apply stored modifications
             ApplyStoredModifications(visual, equippedItem.Modifications);
 
-            equippedVisuals[ConvertToEquipmentType(equippedItem.EquipmentType)] = visual;
+            equippedVisuals[equippedItem.EquipmentType] = visual;
         }
 
         private void ApplyStoredModifications(GameObject visual, Dictionary<string, object> modifications)
@@ -1048,16 +1033,16 @@ namespace Laboratory.Chimera.Customization
 
             ApplyGeneticAppearance();
 
-            if (config?.enableDebugLogging == true)
+            if (config?.EnableDebugLogging == true)
             {
-                Debug.Log($"🔄 Reset {creatureInstance.CreatureData.CreatureId} to genetic defaults");
+                UnityEngine.Debug.Log($"🔄 Reset {creatureInstance.CreatureData.UniqueId} to genetic defaults");
             }
         }
 
         /// <summary>
         /// Get list of all available equipment visuals for this chimera
         /// </summary>
-        public List<string> GetAvailableEquipmentVisuals(EquipmentType equipmentType)
+        public List<string> GetAvailableEquipmentVisuals(Laboratory.Core.MonsterTown.EquipmentType equipmentType)
         {
             var availableVisuals = new List<string>();
             // Implementation would scan Resources folder for available equipment visuals

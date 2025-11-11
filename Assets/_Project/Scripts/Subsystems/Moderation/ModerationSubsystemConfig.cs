@@ -230,7 +230,7 @@ namespace Laboratory.Subsystems.Moderation
                 return false;
 
             // Check profanity filter
-            return profanityFilter.Contains(lowerWord);
+            return profanityFilter.blacklist.Contains(lowerWord);
         }
 
         /// <summary>

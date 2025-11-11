@@ -4,45 +4,107 @@ using Unity.Mathematics;
 namespace Laboratory.Shared.Types
 {
     /// <summary>
-    /// Biome types - synchronized with Laboratory.Core.Enums.BiomeType
-    /// Note: This mirrors the canonical enum due to assembly reference constraints
+    /// Unified biome system: comprehensive biome types for ecosystem management
+    /// High-performance enum for dictionary indexing: Dictionary<BiomeType, T>
     /// </summary>
     public enum BiomeType : byte
     {
-        /// <summary>Open plains with moderate temperature and abundant plant life. Good for most creature types.</summary>
+        // Terrestrial Biomes (0-31)
         Grassland = 0,
-        /// <summary>Dense woodland areas with rich biodiversity. Favors agile and intelligent creatures.</summary>
         Forest = 1,
-        /// <summary>Arid environments with extreme temperatures. Requires high resilience and water efficiency.</summary>
         Desert = 2,
-        /// <summary>Cold, barren landscapes with limited vegetation. Demands high endurance and cold resistance.</summary>
         Tundra = 3,
-        /// <summary>Aquatic environments supporting marine life. Requires swimming abilities and water breathing.</summary>
-        Ocean = 4,
-        /// <summary>High-altitude rocky terrain with thin air. Favors creatures with climbing abilities.</summary>
-        Mountain = 5,
-        /// <summary>Wetland areas with murky water and dense vegetation. Supports amphibious creatures.</summary>
-        Swamp = 6,
-        /// <summary>Moderate climate zones with balanced seasons. Ideal for creature development and breeding.</summary>
-        Temperate = 7,
-        /// <summary>Hot, humid environments with lush vegetation. Supports high biodiversity and rapid evolution.</summary>
-        Tropical = 8,
-        /// <summary>Permanently frozen landscapes with extreme cold. Only the hardiest creatures survive.</summary>
-        Arctic = 9,
-        /// <summary>Geologically active areas with lava flows and extreme heat. Favors fire-resistant creatures.</summary>
-        Volcanic = 10,
-        /// <summary>Mystical environments with crystalline formations. Enhances magical creature abilities.</summary>
-        Crystal = 11,
-        /// <summary>Dark, mysterious realms that corrupt or transform creatures. Increases shadow affinity.</summary>
-        Shadow = 12,
-        /// <summary>Radiant environments that purify and heal. Enhances light-based creature abilities.</summary>
-        Light = 13,
-        /// <summary>Chaotic null-space that defies natural laws. Unpredictable effects on creature genetics.</summary>
-        Void = 14,
-        /// <summary>Subterranean cave systems and tunnels. Favors creatures with enhanced senses and burrowing.</summary>
-        Underground = 15,
-        /// <summary>Floating islands and aerial environments. Requires flight capabilities or levitation.</summary>
-        Sky = 16
+        Mountain = 4,
+        Swamp = 5,
+        Temperate = 6,
+        Tropical = 7,
+        Arctic = 8,
+        Savanna = 9,
+        Prairie = 10,
+        Taiga = 11,
+        Steppe = 12,
+        Shrubland = 13,
+        Badlands = 14,
+        Canyon = 15,
+
+        // Aquatic Biomes (32-47)
+        Ocean = 32,
+        Lake = 33,
+        River = 34,
+        Wetland = 35,
+        Reef = 36,
+        DeepSea = 37,
+        Coastal = 38,
+        Estuary = 39,
+
+        // Underground Biomes (48-63)
+        Underground = 48,
+        Cave = 49,
+        Cavern = 50,
+        TunnelSystem = 51,
+        UndergroundLake = 52,
+        GeothermalCave = 53,
+        CrystalCave = 54,
+        DeepMine = 55,
+
+        // Aerial Biomes (56-79)
+        Sky = 64,
+        CloudLayer = 65,
+        HighAltitude = 66,
+        FloatingIsland = 67,
+        Stratosphere = 68,
+
+        // Extreme Biomes (80-95)
+        Volcanic = 80,
+        Lava = 81,
+        Geothermal = 82,
+        IceCap = 83,
+        Glacier = 84,
+        Permafrost = 85,
+
+        // Magical Biomes (96-111)
+        Crystal = 96,
+        Magical = 97,
+        Enchanted = 98,
+        ArcaneForest = 99,
+        MysticLake = 100,
+        RuneStone = 101,
+
+        // Dimensional Biomes (112-127)
+        Shadow = 112,
+        Light = 113,
+        Void = 114,
+        Ethereal = 115,
+        Astral = 116,
+        Temporal = 117,
+
+        // Corrupted/Altered Biomes (128-143)
+        Corrupted = 128,
+        Poisoned = 129,
+        Radioactive = 130,
+        Blighted = 131,
+        Cursed = 132,
+
+        // Artificial Biomes (144-159)
+        Urban = 144,
+        Laboratory = 145,
+        Facility = 146,
+        Greenhouse = 147,
+        Biodome = 148,
+
+        // Hybrid/Special Biomes (160-175)
+        Hybrid = 160,
+        Transitional = 161,
+        Seasonal = 162,
+        Unknown = 163,
+        Experimental = 164,
+
+        // Celestial Biomes (176-191)
+        Celestial = 176,
+        Lunar = 177,
+        Solar = 178,
+        Stellar = 179,
+        Cosmic = 180
     }
 
     /// <summary>

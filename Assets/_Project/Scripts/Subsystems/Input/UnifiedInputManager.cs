@@ -9,6 +9,7 @@ using Laboratory.Core.Input.Events;
 using Laboratory.Infrastructure.Core;
 using Laboratory.Infrastructure.Input;
 using Laboratory.Models.Input; // For PlayerControls
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Infrastructure.Input
 {

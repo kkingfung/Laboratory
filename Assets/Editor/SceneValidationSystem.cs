@@ -346,7 +346,7 @@ namespace Laboratory.Editor.Tools
                     }
                 }
 
-                Debug.Log($"Scene validation completed: {validationResults.Count} issues found in {scene.name}");
+                UnityEngine.Debug.Log($"Scene validation completed: {validationResults.Count} issues found in {scene.name}");
             }
             finally
             {
@@ -680,7 +680,7 @@ namespace Laboratory.Editor.Tools
                     RemoveMissingScripts(result.target as GameObject);
                     break;
                 default:
-                    Debug.LogWarning($"Auto-fix not implemented for: {result.category}");
+                    UnityEngine.Debug.LogWarning($"Auto-fix not implemented for: {result.category}");
                     break;
             }
         }
@@ -705,7 +705,7 @@ namespace Laboratory.Editor.Tools
         {
             if (validationResults.Count == 0)
             {
-                Debug.LogWarning("No validation results to report");
+                UnityEngine.Debug.LogWarning("No validation results to report");
                 return;
             }
 
@@ -725,11 +725,11 @@ namespace Laboratory.Editor.Tools
                 report += "\n";
             }
 
-            Debug.Log(report);
+            UnityEngine.Debug.Log(report);
 
             var filePath = $"Scene_Validation_Report_{System.DateTime.Now:yyyyMMdd_HHmmss}.txt";
             System.IO.File.WriteAllText(filePath, report);
-            Debug.Log($"Validation report saved to: {filePath}");
+            UnityEngine.Debug.Log($"Validation report saved to: {filePath}");
         }
 
         private void ExportValidationSettings()
@@ -754,7 +754,7 @@ namespace Laboratory.Editor.Tools
             if (!string.IsNullOrEmpty(path))
             {
                 System.IO.File.WriteAllText(path, json);
-                Debug.Log($"Validation settings exported to: {path}");
+                UnityEngine.Debug.Log($"Validation settings exported to: {path}");
             }
         }
 

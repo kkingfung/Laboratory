@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
+using Laboratory.Shared.Types;
 using EcoCatastropheType = Laboratory.Chimera.Ecosystem.Data.CatastropheType;
-using EcoBiomeType = Laboratory.Core.Enums.BiomeType;
 using EcoSeasonType = Laboratory.Chimera.Ecosystem.Data.SeasonType;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
@@ -89,12 +89,12 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                         [EcoSeasonType.Spring] = 0.8f,
                         [EcoSeasonType.Winter] = 0.3f
                     },
-                    BiomeModifier = new Dictionary<EcoBiomeType, float>
+                    BiomeModifier = new Dictionary<BiomeType, float>
                     {
-                        [EcoBiomeType.Forest] = 2.0f,
-                        [EcoBiomeType.Grassland] = 1.5f,
-                        [EcoBiomeType.Desert] = 0.8f,
-                        [EcoBiomeType.Swamp] = 0.3f
+                        [BiomeType.Forest] = 2.0f,
+                        [BiomeType.Grassland] = 1.5f,
+                        [BiomeType.Desert] = 0.8f,
+                        [BiomeType.Swamp] = 0.3f
                     },
                     Effects = new Dictionary<string, float>
                     {
@@ -121,13 +121,13 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                         [EcoSeasonType.Summer] = 0.7f,
                         [EcoSeasonType.Winter] = 1.2f
                     },
-                    BiomeModifier = new Dictionary<EcoBiomeType, float>
+                    BiomeModifier = new Dictionary<BiomeType, float>
                     {
-                        [EcoBiomeType.Grassland] = 1.8f,
-                        [EcoBiomeType.Forest] = 1.2f,
-                        [EcoBiomeType.Swamp] = 0.5f,
-                        [EcoBiomeType.Desert] = 0.2f,
-                        [EcoBiomeType.Mountain] = 0.3f
+                        [BiomeType.Grassland] = 1.8f,
+                        [BiomeType.Forest] = 1.2f,
+                        [BiomeType.Swamp] = 0.5f,
+                        [BiomeType.Desert] = 0.2f,
+                        [BiomeType.Mountain] = 0.3f
                     },
                     Effects = new Dictionary<string, float>
                     {
@@ -154,12 +154,12 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                         [EcoSeasonType.Spring] = 0.5f,
                         [EcoSeasonType.Winter] = 0.2f
                     },
-                    BiomeModifier = new Dictionary<EcoBiomeType, float>
+                    BiomeModifier = new Dictionary<BiomeType, float>
                     {
-                        [EcoBiomeType.Desert] = 0.8f,
-                        [EcoBiomeType.Grassland] = 1.9f,
-                        [EcoBiomeType.Forest] = 1.2f,
-                        [EcoBiomeType.Swamp] = 0.3f
+                        [BiomeType.Desert] = 0.8f,
+                        [BiomeType.Grassland] = 1.9f,
+                        [BiomeType.Forest] = 1.2f,
+                        [BiomeType.Swamp] = 0.3f
                     },
                     Effects = new Dictionary<string, float>
                     {
@@ -186,12 +186,12 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                         [EcoSeasonType.Autumn] = 1.1f,
                         [EcoSeasonType.Winter] = 0.9f
                     },
-                    BiomeModifier = new Dictionary<EcoBiomeType, float>
+                    BiomeModifier = new Dictionary<BiomeType, float>
                     {
-                        [EcoBiomeType.Volcanic] = 3.0f,
-                        [EcoBiomeType.Mountain] = 1.5f,
-                        [EcoBiomeType.Desert] = 0.8f,
-                        [EcoBiomeType.Ocean] = 0.3f
+                        [BiomeType.Volcanic] = 3.0f,
+                        [BiomeType.Mountain] = 1.5f,
+                        [BiomeType.Desert] = 0.8f,
+                        [BiomeType.Ocean] = 0.3f
                     },
                     Effects = new Dictionary<string, float>
                     {
@@ -218,13 +218,13 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                         [EcoSeasonType.Autumn] = 1.2f,
                         [EcoSeasonType.Winter] = 0.6f
                     },
-                    BiomeModifier = new Dictionary<EcoBiomeType, float>
+                    BiomeModifier = new Dictionary<BiomeType, float>
                     {
-                        [EcoBiomeType.Swamp] = 2.0f,
-                        [EcoBiomeType.Forest] = 1.5f,
-                        [EcoBiomeType.Grassland] = 1.3f,
-                        [EcoBiomeType.Desert] = 0.7f,
-                        [EcoBiomeType.Tundra] = 0.5f
+                        [BiomeType.Swamp] = 2.0f,
+                        [BiomeType.Forest] = 1.5f,
+                        [BiomeType.Grassland] = 1.3f,
+                        [BiomeType.Desert] = 0.7f,
+                        [BiomeType.Tundra] = 0.5f
                     },
                     Effects = new Dictionary<string, float>
                     {
@@ -702,7 +702,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         public float MinRadius = 10f;
         public float MaxRadius = 50f;
         public Dictionary<EcoSeasonType, float> SeasonalModifier = new();
-        public Dictionary<EcoBiomeType, float> BiomeModifier = new();
+        public Dictionary<BiomeType, float> BiomeModifier = new();
         public Dictionary<string, float> Effects = new();
     }
 }

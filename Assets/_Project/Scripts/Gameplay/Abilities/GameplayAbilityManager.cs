@@ -4,7 +4,7 @@ using UnityEngine;
 using Laboratory.Core.Abilities.Interfaces;
 using Laboratory.Core.Abilities.Components;
 using Laboratory.Core.Events;
-using Laboratory.Infrastructure.Core;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Gameplay.Abilities
 {

@@ -8,6 +8,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.AI;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.ECS;
+using Laboratory.Shared.Types;
 using Laboratory.Chimera.ECS;
 
 namespace Laboratory.Networking
@@ -98,7 +99,7 @@ namespace Laboratory.Networking
     {
         public uint geneticHash;
         public float adaptationLevel;
-        public Laboratory.Core.Enums.BiomeType currentBiome;
+        public BiomeType currentBiome;
         public float environmentalStress;
         public uint geneticVersion;
         public bool isBreeding;
@@ -502,7 +503,7 @@ namespace Laboratory.Networking
                     geneticHash = (uint)UnityEngine.Random.Range(1000, 9999),
                     geneticVersion = 1,
                     adaptationLevel = 0f,
-                    currentBiome = Laboratory.Core.Enums.BiomeType.Forest,
+                    currentBiome = BiomeType.Forest,
                     environmentalStress = 0f,
                     isBreeding = false
                 });

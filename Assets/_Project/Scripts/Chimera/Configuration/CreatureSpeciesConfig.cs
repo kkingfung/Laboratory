@@ -5,6 +5,7 @@ using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 using CoreTraitType = Laboratory.Core.Enums.TraitType;
 
 namespace Laboratory.Chimera.Configuration
@@ -31,8 +32,8 @@ namespace Laboratory.Chimera.Configuration
         public CreatureSize baseSize = CreatureSize.Medium;
         [Range(0.1f, 10f)]
         public float sizeVariation = 0.2f; // ±20% size variation
-        public Laboratory.Core.Enums.BiomeType nativeBiome = Laboratory.Core.Enums.BiomeType.Forest;
-        public Laboratory.Core.Enums.BiomeType[] compatibleBiomes = { Laboratory.Core.Enums.BiomeType.Forest, Laboratory.Core.Enums.BiomeType.Grassland };
+        public BiomeType nativeBiome = BiomeType.Forest;
+        public BiomeType[] compatibleBiomes = { BiomeType.Forest, BiomeType.Grassland };
         
         [Header("Base Stats")]
         public CreatureStats baseStats = new CreatureStats

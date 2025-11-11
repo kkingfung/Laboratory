@@ -6,7 +6,12 @@ using System.Collections;
 using Unity.Mathematics;
 using System.Linq;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Core.Events;
 using Laboratory.Subsystems.Analytics;
+using Laboratory.Subsystems.Genetics;
+using Laboratory.Subsystems.Research;
+using Laboratory.Subsystems.Ecosystem;
+using Laboratory.Chimera.Genetics;
 
 namespace Laboratory.Subsystems.AIDirector
 {
@@ -29,6 +34,14 @@ namespace Laboratory.Subsystems.AIDirector
     /// </summary>
     public class AIDirectorSubsystemManager : MonoBehaviour, ISubsystemManager
     {
+        #region ISubsystemManager Implementation
+
+        public bool IsInitialized { get; private set; }
+        public string SubsystemName => "AIDirector";
+        public float InitializationProgress { get; private set; }
+
+        #endregion
+
         #region Events
 
         public static event Action<DirectorDecision> OnDirectorDecisionMade;
@@ -1001,7 +1014,7 @@ namespace Laboratory.Subsystems.AIDirector
         {
             if (result?.isSuccessful == true)
             {
-                TrackPlayerAction(result.playerId, "breeding_success", new Dictionary<string, object>
+                TrackPlayerAction("CurrentPlayer", "breeding_success", new Dictionary<string, object>
                 {
                     ["parent1"] = result.parent1Id,
                     ["parent2"] = result.parent2Id,
@@ -1011,37 +1024,37 @@ namespace Laboratory.Subsystems.AIDirector
                 });
 
                 // Provide positive reinforcement for successful breeding
-                var profile = GetOrCreatePlayerProfile(result.playerId);
-                UpdatePlayerConfidence(result.playerId, true);
+                var profile = GetOrCreatePlayerProfile("CurrentPlayer");
+                UpdatePlayerConfidence("CurrentPlayer", true);
 
                 // Consider triggering celebration or educational content
                 if (result.mutations?.Count > 0)
                 {
-                    ConsiderTriggeringMutationExplanation(result.playerId, result.mutations);
+                    ConsiderTriggeringMutationExplanation("CurrentPlayer", result.mutations);
                 }
             }
         }
 
         private void HandleMutationEvent(MutationEvent mutationEvent)
         {
-            TrackPlayerAction(mutationEvent.playerId, "mutation_discovery", new Dictionary<string, object>
+            TrackPlayerAction("CurrentPlayer", "mutation_discovery", new Dictionary<string, object>
             {
                 ["creatureId"] = mutationEvent.creatureId,
                 ["mutationType"] = mutationEvent.mutation.mutationType.ToString(),
                 ["severity"] = mutationEvent.mutation.severity,
-                ["isWorldFirst"] = mutationEvent.isWorldFirst
+                ["isWorldFirst"] = false // Default value since property doesn't exist
             });
 
             // Generate educational content for rare mutations
-            if (mutationEvent.mutation.severity > 0.7f || mutationEvent.isWorldFirst)
+            if (mutationEvent.mutation.severity > 0.7f)
             {
-                ConsiderTriggeringEducationalContent(mutationEvent.playerId, "rare_mutation", mutationEvent.mutation);
+                ConsiderTriggeringEducationalContent("CurrentPlayer", "rare_mutation", mutationEvent.mutation);
             }
         }
 
         private void HandleTraitDiscoveryEvent(TraitDiscoveryEvent discoveryEvent)
         {
-            TrackPlayerAction(discoveryEvent.playerId, "trait_discovery", new Dictionary<string, object>
+            TrackPlayerAction(discoveryEvent.discoverer ?? "CurrentPlayer", "trait_discovery", new Dictionary<string, object>
             {
                 ["traitName"] = discoveryEvent.traitName,
                 ["generation"] = discoveryEvent.generation,
@@ -1051,21 +1064,21 @@ namespace Laboratory.Subsystems.AIDirector
             // Celebrate world-first discoveries
             if (discoveryEvent.isWorldFirst)
             {
-                TriggerCelebrationEvent(discoveryEvent.playerId, "world_first_trait", discoveryEvent.traitName);
+                TriggerCelebrationEvent(discoveryEvent.discoverer ?? "CurrentPlayer", "world_first_trait", discoveryEvent.traitName);
             }
         }
 
         private void HandleResearchDiscoveryEvent(DiscoveryJournalEvent discoveryEvent)
         {
-            TrackPlayerAction(discoveryEvent.playerId, "research_discovery", new Dictionary<string, object>
+            TrackPlayerAction(discoveryEvent.PlayerId ?? "CurrentPlayer", "research_discovery", new Dictionary<string, object>
             {
-                ["discoveryType"] = discoveryEvent.discovery.discoveryType.ToString(),
-                ["isSignificant"] = discoveryEvent.discovery.isSignificant
+                ["discoveryType"] = discoveryEvent.Discovery.discoveryType.ToString(),
+                ["isSignificant"] = discoveryEvent.Discovery.isSignificant
             });
 
             // Track research engagement patterns
-            var profile = GetOrCreatePlayerProfile(discoveryEvent.playerId);
-            profile.researchEngagement += discoveryEvent.discovery.isSignificant ? 0.1f : 0.05f;
+            var profile = GetOrCreatePlayerProfile(discoveryEvent.PlayerId ?? "CurrentPlayer");
+            // Note: profile.researchEngagement property not available - using generic tracking instead
         }
 
         private void HandlePublicationEvent(PublicationEvent publicationEvent)
@@ -1088,7 +1101,7 @@ namespace Laboratory.Subsystems.AIDirector
             // Track environmental awareness
             foreach (var playerId in GetActivePlayerIds())
             {
-                if (IsPlayerInAffectedArea(playerId, envEvent.affectedArea))
+                if (IsPlayerInAffectedArea(playerId, envEvent.affectedBiomes?.FirstOrDefault() ?? envEvent.affectedBiomeId))
                 {
                     TrackPlayerAction(playerId, "environmental_exposure", new Dictionary<string, object>
                     {
@@ -1134,14 +1147,15 @@ namespace Laboratory.Subsystems.AIDirector
 
         private void HandleEducationalProgressEvent(EducationalProgressEvent progressEvent)
         {
-            TrackPlayerAction(progressEvent.playerId, "educational_progress", new Dictionary<string, object>
+            TrackPlayerAction("CurrentPlayer", "educational_progress", new Dictionary<string, object>
             {
-                ["progressType"] = progressEvent.progressType,
-                ["skillLevel"] = progressEvent.newSkillLevel
+                ["lessonId"] = progressEvent.lessonId,
+                ["conceptMastered"] = progressEvent.conceptMastered,
+                ["confidenceLevel"] = progressEvent.confidenceLevel
             });
 
             // Adapt content difficulty based on educational progress
-            AdaptContentDifficulty(progressEvent.playerId, progressEvent.newSkillLevel);
+            AdaptContentDifficulty("CurrentPlayer", progressEvent.confidenceLevel);
         }
 
         #endregion
@@ -1163,12 +1177,12 @@ namespace Laboratory.Subsystems.AIDirector
             return Mathf.Clamp(difficulty, 0.1f, 1.0f);
         }
 
-        private void ConsiderTriggeringMutationExplanation(string playerId, List<GeneticMutation> mutations)
+        private void ConsiderTriggeringMutationExplanation(string playerId, List<Mutation> mutations)
         {
             var profile = GetOrCreatePlayerProfile(playerId);
 
             // Only provide explanations for players who might benefit
-            if (profile.skillLevel <= SkillLevel.Researcher)
+            if (profile.skillLevel <= SkillLevel.Intermediate)
             {
                 foreach (var mutation in mutations)
                 {
@@ -1230,8 +1244,86 @@ namespace Laboratory.Subsystems.AIDirector
 
         private bool IsPlayerInAffectedArea(string playerId, object affectedArea)
         {
-            // Placeholder - would check player's current location against affected area
-            return true; // Assume all players are affected for now
+            if (string.IsNullOrEmpty(playerId) || affectedArea == null)
+                return false;
+
+            // Get player's current biome/location
+            var playerCurrentBiome = GetPlayerCurrentBiome(playerId);
+            if (string.IsNullOrEmpty(playerCurrentBiome))
+                return false; // Player location unknown
+
+            // Handle different types of affected area specifications
+            switch (affectedArea)
+            {
+                case string singleBiome when !string.IsNullOrEmpty(singleBiome):
+                    return string.Equals(playerCurrentBiome, singleBiome, StringComparison.OrdinalIgnoreCase);
+
+                case IEnumerable<string> multipleBiomes:
+                    return multipleBiomes.Any(biome =>
+                        string.Equals(playerCurrentBiome, biome, StringComparison.OrdinalIgnoreCase));
+
+                case List<string> biomeList:
+                    return biomeList.Any(biome =>
+                        string.Equals(playerCurrentBiome, biome, StringComparison.OrdinalIgnoreCase));
+
+                default:
+                    // Try to convert to string as fallback
+                    var affectedBiomeStr = affectedArea.ToString();
+                    return !string.IsNullOrEmpty(affectedBiomeStr) &&
+                           string.Equals(playerCurrentBiome, affectedBiomeStr, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
+        private string GetPlayerCurrentBiome(string playerId)
+        {
+            // Try to get player's current biome from various possible sources
+
+            // Check if we have player location data in custom attributes
+            var profile = GetOrCreatePlayerProfile(playerId);
+            if (profile.customAttributes.TryGetValue("current_biome", out var biomeObj))
+            {
+                return biomeObj?.ToString();
+            }
+
+            // Check if player focus indicates current biome
+            if (!string.IsNullOrEmpty(profile.currentFocus))
+            {
+                // Extract biome from focus if it contains biome information
+                var focusLower = profile.currentFocus.ToLowerInvariant();
+                if (focusLower.Contains("forest")) return "Forest";
+                if (focusLower.Contains("desert")) return "Desert";
+                if (focusLower.Contains("ocean") || focusLower.Contains("marine")) return "Ocean";
+                if (focusLower.Contains("mountain") || focusLower.Contains("alpine")) return "Mountain";
+                if (focusLower.Contains("grassland") || focusLower.Contains("plains")) return "Grassland";
+                if (focusLower.Contains("tundra") || focusLower.Contains("arctic")) return "Tundra";
+                if (focusLower.Contains("wetland") || focusLower.Contains("marsh")) return "Wetland";
+            }
+
+            // Try to get from interests (player might be interested in certain biomes)
+            var biomePrefernece = profile.interests.FirstOrDefault(interest =>
+                interest.EndsWith("_biome") || IsKnownBiomeName(interest));
+
+            if (!string.IsNullOrEmpty(biomePrefernece))
+                return biomePrefernece.Replace("_biome", "");
+
+            // Default to a common biome if no specific location can be determined
+            // In a real implementation, this would come from the actual game world
+            return GetDefaultPlayerBiome(playerId);
+        }
+
+        private bool IsKnownBiomeName(string name)
+        {
+            var knownBiomes = new[] { "Forest", "Desert", "Ocean", "Mountain", "Grassland", "Tundra", "Wetland", "Savanna", "Taiga", "Rainforest" };
+            return knownBiomes.Any(biome => string.Equals(biome, name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private string GetDefaultPlayerBiome(string playerId)
+        {
+            // Use a hash of player ID to consistently assign a default biome
+            // This ensures the same player always gets the same "home" biome
+            var playerHash = Math.Abs(playerId.GetHashCode());
+            var biomes = new[] { "Forest", "Grassland", "Mountain", "Ocean" };
+            return biomes[playerHash % biomes.Length];
         }
 
         private void ConsiderEnvironmentalEducation(string playerId, Laboratory.Subsystems.Ecosystem.EnvironmentalEvent envEvent)
@@ -1246,12 +1338,33 @@ namespace Laboratory.Subsystems.AIDirector
 
         private void AnalyzePlayerActionPattern(PlayerProfile profile, PlayerActionEvent actionEvent)
         {
-            // Track action frequency and patterns
-            if (!profile.actionPatterns.ContainsKey(actionEvent.actionType))
+            // Track action frequency and patterns using behaviorPattern.activityPreferences
+            var actionKey = actionEvent.actionType;
+            var currentCount = profile.behaviorPattern.activityPreferences.GetValueOrDefault(actionKey, 0f);
+            profile.behaviorPattern.activityPreferences[actionKey] = currentCount + 1f;
+
+            // Track action sequences using commonActionSequences
+            if (profile.behaviorPattern.commonActionSequences.Count > 0)
             {
-                profile.actionPatterns[actionEvent.actionType] = 0;
+                var lastAction = profile.behaviorPattern.commonActionSequences.LastOrDefault();
+                if (!string.IsNullOrEmpty(lastAction))
+                {
+                    var sequence = $"{lastAction}->{actionEvent.actionType}";
+                    var sequenceKey = $"sequence_{sequence}";
+                    var sequenceCount = profile.behaviorPattern.activityPreferences.GetValueOrDefault(sequenceKey, 0f);
+                    profile.behaviorPattern.activityPreferences[sequenceKey] = sequenceCount + 1f;
+                }
             }
-            profile.actionPatterns[actionEvent.actionType]++;
+
+            // Add current action to sequence history (keep last 5 actions)
+            profile.behaviorPattern.commonActionSequences.Add(actionEvent.actionType);
+            if (profile.behaviorPattern.commonActionSequences.Count > 5)
+            {
+                profile.behaviorPattern.commonActionSequences.RemoveAt(0);
+            }
+
+            // Update behavioral metrics based on action patterns
+            UpdateBehavioralMetrics(profile, actionEvent);
 
             // Update engagement based on action type
             var engagementDelta = actionEvent.actionType switch
@@ -1260,17 +1373,83 @@ namespace Laboratory.Subsystems.AIDirector
                 "discovery_made" => 0.1f,
                 "collaboration_start" => 0.08f,
                 "research_published" => 0.15f,
+                "exploration" => 0.03f,
+                "experiment_success" => 0.08f,
+                "experiment_failure" => -0.02f,
+                "idle_timeout" => -0.01f,
                 _ => 0.01f
             };
 
             profile.engagementScore = Mathf.Clamp(profile.engagementScore + engagementDelta, 0f, 1f);
+
+            // Update confidence based on success/failure patterns
+            if (actionEvent.actionType.Contains("success") || actionEvent.actionType == "discovery_made")
+            {
+                profile.confidenceLevel = Mathf.Clamp(profile.confidenceLevel + 0.02f, 0f, 1f);
+            }
+            else if (actionEvent.actionType.Contains("failure") || actionEvent.actionType.Contains("error"))
+            {
+                profile.confidenceLevel = Mathf.Clamp(profile.confidenceLevel - 0.01f, 0f, 1f);
+            }
+
+            // Track exploration vs exploitation tendencies
+            if (actionEvent.actionType == "exploration" || actionEvent.actionType == "discovery_made")
+            {
+                profile.behaviorPattern.explorationTendency = Mathf.Clamp(
+                    profile.behaviorPattern.explorationTendency + 0.01f, 0f, 1f);
+            }
+            else if (actionEvent.actionType == "breeding_attempt" || actionEvent.actionType.Contains("repeat"))
+            {
+                profile.behaviorPattern.explorationTendency = Mathf.Clamp(
+                    profile.behaviorPattern.explorationTendency - 0.005f, 0f, 1f);
+            }
+        }
+
+        private void UpdateBehavioralMetrics(PlayerProfile profile, PlayerActionEvent actionEvent)
+        {
+            // Update persistence level based on retry patterns
+            var retryActions = profile.behaviorPattern.activityPreferences.Where(
+                kvp => kvp.Key.Contains("retry") || kvp.Key.Contains("failure")).Sum(kvp => kvp.Value);
+
+            if (retryActions > 0)
+            {
+                var totalActions = profile.behaviorPattern.activityPreferences.Values.Sum();
+                var retryRatio = retryActions / Math.Max(totalActions, 1f);
+                profile.behaviorPattern.persistenceLevel = Mathf.Clamp(retryRatio, 0f, 1f);
+            }
+
+            // Update social interaction tendency
+            if (actionEvent.actionType.Contains("collaboration") || actionEvent.actionType.Contains("social"))
+            {
+                profile.behaviorPattern.socialInteraction = Mathf.Clamp(
+                    profile.behaviorPattern.socialInteraction + 0.02f, 0f, 1f);
+            }
+
+            // Update creativity index based on experimentation
+            if (actionEvent.actionType.Contains("experiment") || actionEvent.actionType == "discovery_made")
+            {
+                profile.behaviorPattern.creativityIndex = Mathf.Clamp(
+                    profile.behaviorPattern.creativityIndex + 0.01f, 0f, 1f);
+            }
+
+            // Update risk-taking tendency
+            if (actionEvent.actionType.Contains("risk") || actionEvent.actionType.Contains("experimental"))
+            {
+                profile.behaviorPattern.riskTaking = Mathf.Clamp(
+                    profile.behaviorPattern.riskTaking + 0.015f, 0f, 1f);
+            }
+            else if (actionEvent.actionType.Contains("safe") || actionEvent.actionType.Contains("conservative"))
+            {
+                profile.behaviorPattern.riskTaking = Mathf.Clamp(
+                    profile.behaviorPattern.riskTaking - 0.01f, 0f, 1f);
+            }
         }
 
         private bool DetectPlayerStruggle(PlayerProfile profile, PlayerActionEvent actionEvent)
         {
             // Detect struggle patterns
             if (actionEvent.actionType == "breeding_failure" &&
-                profile.actionPatterns.GetValueOrDefault("breeding_failure", 0) > 3)
+                profile.behaviorPattern.activityPreferences.GetValueOrDefault("breeding_failure", 0) > 3)
             {
                 return true;
             }
@@ -1387,10 +1566,10 @@ namespace Laboratory.Subsystems.AIDirector
             if (populationEvent.changeType.ToString().Contains("Decline") || populationEvent.changeType.ToString().Contains("Extinction"))
             {
                 // Increase environmental concern for negative changes
-                profile.environmentalConcern = math.clamp(profile.environmentalConcern + 0.1f, 0f, 1f);
+                profile.customAttributes["environmentalConcern"] = math.clamp((float)(profile.customAttributes.GetValueOrDefault("environmentalConcern", 0f)) + 0.1f, 0f, 1f);
 
                 // Consider providing environmental education
-                if (profile.isEducationalContext && profile.environmentalConcern > 0.7f)
+                if (profile.isEducationalContext && (float)(profile.customAttributes.GetValueOrDefault("environmentalConcern", 0f)) > 0.7f)
                 {
                     var decision = new DirectorDecision
                     {

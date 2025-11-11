@@ -9,6 +9,7 @@ using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.ECS;
+using Laboratory.Shared.Types;
 using ChimeraCreatureIdentity = Laboratory.Chimera.ECS.CreatureIdentityComponent;
 using UnityEngine;
 
@@ -529,7 +530,7 @@ namespace Laboratory.Core.ECS.Systems
                         Sociability = 0.5f,
                         Fertility = 0.5f,
                         Size = 0.3f, // Baby size
-                        NativeBiome = Laboratory.Core.Enums.BiomeType.Grassland
+                        NativeBiome = BiomeType.Forest
                     });
 
                     commandBuffer.AddComponent<BehaviorStateComponent>(chunkIndex, baby);

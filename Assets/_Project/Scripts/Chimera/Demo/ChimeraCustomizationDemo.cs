@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections;
 using Laboratory.Chimera.Customization;
-using Laboratory.Chimera.Integration;
 using Laboratory.Core.Equipment;
 using Laboratory.Core.Equipment.Types;
 
@@ -50,7 +49,6 @@ namespace Laboratory.Chimera.Demo
 
         private GameObject currentChimera;
         private ChimeraCustomizationManager customizationManager;
-        private ChimeraCustomizationIntegrator integrator;
         private EquipmentManager equipmentManager;
 
         private int currentDemoStep = 0;
@@ -84,7 +82,7 @@ namespace Laboratory.Chimera.Demo
 
             yield return new WaitForSeconds(1f);
 
-            Debug.Log("🎭 Starting Chimera Customization Demo!");
+            UnityEngine.Debug.Log("🎭 Starting Chimera Customization Demo!");
 
             // Step 1: Spawn demo chimera
             yield return StartCoroutine(DemoStep_SpawnChimera());
@@ -110,14 +108,14 @@ namespace Laboratory.Chimera.Demo
             yield return StartCoroutine(DemoStep_SaveLoad());
             yield return new WaitForSeconds(demoStepDelay);
 
-            Debug.Log("🎉 Chimera Customization Demo Complete!");
+            UnityEngine.Debug.Log("🎉 Chimera Customization Demo Complete!");
             demoRunning = false;
         }
 
         private IEnumerator DemoStep_SpawnChimera()
         {
             currentDemoStep = 1;
-            Debug.Log("📍 Demo Step 1: Spawning Chimera");
+            UnityEngine.Debug.Log("📍 Demo Step 1: Spawning Chimera");
 
             if (chimeraPrefab != null && spawnPoint != null)
             {
@@ -125,7 +123,6 @@ namespace Laboratory.Chimera.Demo
 
                 // Get components
                 customizationManager = currentChimera.GetComponent<ChimeraCustomizationManager>();
-                integrator = currentChimera.GetComponent<ChimeraCustomizationIntegrator>();
                 equipmentManager = FindObjectOfType<EquipmentManager>();
 
                 // Initialize if needed
@@ -134,11 +131,11 @@ namespace Laboratory.Chimera.Demo
                     yield return new WaitForSeconds(0.5f); // Allow initialization
                 }
 
-                Debug.Log("✅ Demo chimera spawned and initialized");
+                UnityEngine.Debug.Log("✅ Demo chimera spawned and initialized");
             }
             else
             {
-                Debug.LogWarning("⚠️ Chimera prefab or spawn point not assigned");
+                UnityEngine.Debug.LogWarning("⚠️ Chimera prefab or spawn point not assigned");
             }
 
             yield return null;
@@ -147,11 +144,11 @@ namespace Laboratory.Chimera.Demo
         private IEnumerator DemoStep_GeneticAppearance()
         {
             currentDemoStep = 2;
-            Debug.Log("🧬 Demo Step 2: Genetic Appearance Demonstration");
+            UnityEngine.Debug.Log("🧬 Demo Step 2: Genetic Appearance Demonstration");
 
             if (customizationManager != null)
             {
-                Debug.Log("Demonstrating genetic appearance generation...");
+                UnityEngine.Debug.Log("Demonstrating genetic appearance generation...");
 
                 // Show original genetic appearance
                 yield return new WaitForSeconds(1f);
@@ -159,12 +156,12 @@ namespace Laboratory.Chimera.Demo
                 // Regenerate appearance 3 times
                 for (int i = 0; i < 3; i++)
                 {
-                    Debug.Log($"Generating genetic variant {i + 1}...");
+                    UnityEngine.Debug.Log($"Generating genetic variant {i + 1}...");
                     customizationManager.ResetToGeneticDefaults();
                     yield return new WaitForSeconds(1.5f);
                 }
 
-                Debug.Log("✅ Genetic appearance demonstration complete");
+                UnityEngine.Debug.Log("✅ Genetic appearance demonstration complete");
             }
 
             yield return null;
@@ -173,15 +170,15 @@ namespace Laboratory.Chimera.Demo
         private IEnumerator DemoStep_EquipmentSystem()
         {
             currentDemoStep = 3;
-            Debug.Log("🎒 Demo Step 3: Equipment System Demonstration");
+            UnityEngine.Debug.Log("🎒 Demo Step 3: Equipment System Demonstration");
 
             if (customizationManager != null && equipmentManager != null)
             {
-                Debug.Log("Demonstrating equipment system...");
+                UnityEngine.Debug.Log("Demonstrating equipment system...");
 
                 foreach (string equipmentId in demoEquipmentIds)
                 {
-                    Debug.Log($"Equipping demo item: {equipmentId}");
+                    UnityEngine.Debug.Log($"Equipping demo item: {equipmentId}");
 
                     // Create demo equipment item
                     var demoItem = CreateDemoEquipmentItem(equipmentId);
@@ -192,21 +189,18 @@ namespace Laboratory.Chimera.Demo
                     }
                 }
 
-                Debug.Log("Demonstrating equipment removal...");
+                UnityEngine.Debug.Log("Demonstrating equipment removal...");
                 yield return new WaitForSeconds(1f);
 
                 // Remove all equipment
                 foreach (var equipmentType in System.Enum.GetValues(typeof(Laboratory.Core.MonsterTown.EquipmentType)))
                 {
                     var type = (Laboratory.Core.MonsterTown.EquipmentType)equipmentType;
-                    if (type != Laboratory.Core.MonsterTown.EquipmentType.None)
-                    {
-                        customizationManager.UnequipItem(type);
-                        yield return new WaitForSeconds(0.5f);
-                    }
+                    customizationManager.UnequipItem(type);
+                    yield return new WaitForSeconds(0.5f);
                 }
 
-                Debug.Log("✅ Equipment system demonstration complete");
+                UnityEngine.Debug.Log("✅ Equipment system demonstration complete");
             }
 
             yield return null;
@@ -215,15 +209,15 @@ namespace Laboratory.Chimera.Demo
         private IEnumerator DemoStep_ColorCustomization()
         {
             currentDemoStep = 4;
-            Debug.Log("🌈 Demo Step 4: Color Customization Demonstration");
+            UnityEngine.Debug.Log("🌈 Demo Step 4: Color Customization Demonstration");
 
             if (customizationManager != null)
             {
-                Debug.Log("Demonstrating color customization...");
+                UnityEngine.Debug.Log("Demonstrating color customization...");
 
                 foreach (Color color in demoColors)
                 {
-                    Debug.Log($"Applying color: {color}");
+                    UnityEngine.Debug.Log($"Applying color: {color}");
 
                     customizationManager.SetPrimaryColor(color);
                     yield return new WaitForSeconds(0.8f);
@@ -235,7 +229,7 @@ namespace Laboratory.Chimera.Demo
                     yield return new WaitForSeconds(0.8f);
                 }
 
-                Debug.Log("✅ Color customization demonstration complete");
+                UnityEngine.Debug.Log("✅ Color customization demonstration complete");
             }
 
             yield return null;
@@ -244,15 +238,15 @@ namespace Laboratory.Chimera.Demo
         private IEnumerator DemoStep_CustomOutfits()
         {
             currentDemoStep = 5;
-            Debug.Log("👗 Demo Step 5: Custom Outfits Demonstration");
+            UnityEngine.Debug.Log("👗 Demo Step 5: Custom Outfits Demonstration");
 
             if (customizationManager != null)
             {
-                Debug.Log("Demonstrating custom outfits...");
+                UnityEngine.Debug.Log("Demonstrating custom outfits...");
 
                 foreach (string outfitId in demoOutfitIds)
                 {
-                    Debug.Log($"Applying demo outfit: {outfitId}");
+                    UnityEngine.Debug.Log($"Applying demo outfit: {outfitId}");
 
                     var demoOutfit = CreateDemoOutfit(outfitId);
                     if (demoOutfit != null)
@@ -262,11 +256,11 @@ namespace Laboratory.Chimera.Demo
                     }
                 }
 
-                Debug.Log("Removing all custom outfits...");
+                UnityEngine.Debug.Log("Removing all custom outfits...");
                 customizationManager.RemoveAllCustomOutfits();
                 yield return new WaitForSeconds(1f);
 
-                Debug.Log("✅ Custom outfits demonstration complete");
+                UnityEngine.Debug.Log("✅ Custom outfits demonstration complete");
             }
 
             yield return null;
@@ -275,11 +269,11 @@ namespace Laboratory.Chimera.Demo
         private IEnumerator DemoStep_SaveLoad()
         {
             currentDemoStep = 6;
-            Debug.Log("💾 Demo Step 6: Save/Load Demonstration");
+            UnityEngine.Debug.Log("💾 Demo Step 6: Save/Load Demonstration");
 
             if (customizationManager != null)
             {
-                Debug.Log("Setting up custom appearance for save test...");
+                UnityEngine.Debug.Log("Setting up custom appearance for save test...");
 
                 // Apply some customizations
                 customizationManager.SetPrimaryColor(Color.magenta);
@@ -293,27 +287,27 @@ namespace Laboratory.Chimera.Demo
 
                 yield return new WaitForSeconds(1f);
 
-                Debug.Log("Saving customization...");
+                UnityEngine.Debug.Log("Saving customization...");
                 customizationManager.SaveCustomization();
                 yield return new WaitForSeconds(1f);
 
-                Debug.Log("Resetting to defaults...");
+                UnityEngine.Debug.Log("Resetting to defaults...");
                 customizationManager.ResetToGeneticDefaults();
                 yield return new WaitForSeconds(1f);
 
-                Debug.Log("Loading saved customization...");
+                UnityEngine.Debug.Log("Loading saved customization...");
                 bool loaded = customizationManager.LoadCustomization();
                 if (loaded)
                 {
-                    Debug.Log("✅ Save/Load successful!");
+                    UnityEngine.Debug.Log("✅ Save/Load successful!");
                 }
                 else
                 {
-                    Debug.LogWarning("⚠️ Save/Load failed");
+                    UnityEngine.Debug.LogWarning("⚠️ Save/Load failed");
                 }
 
                 yield return new WaitForSeconds(1f);
-                Debug.Log("✅ Save/Load demonstration complete");
+                UnityEngine.Debug.Log("✅ Save/Load demonstration complete");
             }
 
             yield return null;
@@ -335,10 +329,10 @@ namespace Laboratory.Chimera.Demo
                 Rarity = Laboratory.Core.MonsterTown.EquipmentRarity.Rare,
                 Level = 1,
                 IsEquipped = false,
-                StatBonuses = new System.Collections.Generic.Dictionary<Laboratory.Core.Equipment.Types.StatType, float>
+                StatBonuses = new System.Collections.Generic.Dictionary<Laboratory.Core.MonsterTown.StatType, float>
                 {
-                    [Laboratory.Core.Equipment.Types.StatType.Strength] = 10f,
-                    [Laboratory.Core.Equipment.Types.StatType.Agility] = 5f
+                    [Laboratory.Core.MonsterTown.StatType.Strength] = 10f,
+                    [Laboratory.Core.MonsterTown.StatType.Agility] = 5f
                 },
                 ActivityBonuses = new System.Collections.Generic.List<Laboratory.Core.MonsterTown.ActivityType>
                 {
@@ -358,7 +352,7 @@ namespace Laboratory.Chimera.Demo
             if (itemId.Contains("accessory"))
                 return Laboratory.Core.MonsterTown.EquipmentType.Accessory;
             if (itemId.Contains("riding"))
-                return Laboratory.Core.MonsterTown.EquipmentType.RidingGear;
+                return Laboratory.Core.MonsterTown.EquipmentType.Vehicle;
 
             return Laboratory.Core.MonsterTown.EquipmentType.Accessory;
         }
@@ -504,7 +498,6 @@ namespace Laboratory.Chimera.Demo
             }
 
             customizationManager = null;
-            integrator = null;
             demoRunning = false;
             currentDemoStep = 0;
         }
@@ -520,7 +513,7 @@ namespace Laboratory.Chimera.Demo
             GUILayout.BeginArea(new Rect(10, 10, 300, 400));
             GUILayout.BeginVertical("box");
 
-            GUILayout.Label("🎭 Chimera Customization Demo", EditorGUIUtility.ObjectGUIStyle);
+            GUILayout.Label("🎭 Chimera Customization Demo");
             GUILayout.Space(10);
 
             if (demoRunning)

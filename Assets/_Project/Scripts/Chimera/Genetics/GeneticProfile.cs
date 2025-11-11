@@ -6,6 +6,7 @@ using Unity.Collections;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 using Random = UnityEngine.Random;
 
 namespace Laboratory.Chimera.Genetics
@@ -16,7 +17,7 @@ namespace Laboratory.Chimera.Genetics
     /// mutations, environmental adaptation, and emergent trait combinations.
     /// </summary>
     [Serializable]
-    public class GeneticProfile
+    public partial class GeneticProfile
     {
         [SerializeField] private Gene[] genes = Array.Empty<Gene>();
         [SerializeField] private Mutation[] mutations = Array.Empty<Mutation>();
@@ -637,13 +638,13 @@ namespace Laboratory.Chimera.Genetics
         /// <summary>
         /// Creates environmental factors based on biome conditions
         /// </summary>
-        public static EnvironmentalFactors FromBiome(Laboratory.Core.Enums.BiomeType biome)
+        public static EnvironmentalFactors FromBiome(BiomeType biome)
         {
             var factors = new EnvironmentalFactors();
             
             switch (biome)
             {
-                case Laboratory.Core.Enums.BiomeType.Desert:
+                case BiomeType.Desert:
                     factors.temperature = 45f;
                     factors.humidity = 15f;
                     factors.foodAvailability = 0.3f;
@@ -651,7 +652,7 @@ namespace Laboratory.Chimera.Genetics
                     factors.SetTraitBias("Water Conservation", 0.4f);
                     break;
                     
-                case Laboratory.Core.Enums.BiomeType.Arctic:
+                case BiomeType.Arctic:
                     factors.temperature = -10f;
                     factors.humidity = 40f;
                     factors.foodAvailability = 0.4f;
@@ -659,7 +660,7 @@ namespace Laboratory.Chimera.Genetics
                     factors.SetTraitBias("Thick Fur", 0.3f);
                     break;
                     
-                case Laboratory.Core.Enums.BiomeType.Ocean:
+                case BiomeType.Ocean:
                     factors.temperature = 15f;
                     factors.humidity = 100f;
                     factors.foodAvailability = 0.7f;
@@ -667,7 +668,7 @@ namespace Laboratory.Chimera.Genetics
                     factors.SetTraitBias("Pressure Resistance", 0.2f);
                     break;
                     
-                case Laboratory.Core.Enums.BiomeType.Forest:
+                case BiomeType.Forest:
                     factors.temperature = 22f;
                     factors.humidity = 65f;
                     factors.foodAvailability = 0.8f;
@@ -675,7 +676,7 @@ namespace Laboratory.Chimera.Genetics
                     factors.SetTraitBias("Camouflage", 0.2f);
                     break;
                     
-                case Laboratory.Core.Enums.BiomeType.Mountain:
+                case BiomeType.Mountain:
                     factors.temperature = 5f;
                     factors.humidity = 45f;
                     factors.foodAvailability = 0.5f;
@@ -688,8 +689,170 @@ namespace Laboratory.Chimera.Genetics
                     // Temperate defaults already set
                     break;
             }
-            
+
             return factors;
         }
+    }
+
+    // Extension of the GeneticProfile class
+    public partial class GeneticProfile
+    {
+        #region Ancestral Trait Activation (from Temporal Genetics)
+
+        /// <summary>
+        /// Activates dormant ancestral traits under stress conditions
+        /// </summary>
+        public bool TryActivateAncestralTrait(float stressLevel, BiomeType currentBiome)
+        {
+            if (stressLevel < 0.7f) return false; // Stress threshold
+
+            var ancestralTraits = GetPossibleAncientTraits(currentBiome);
+            if (ancestralTraits.Length == 0) return false;
+
+            // Higher stress = higher activation chance
+            float activationChance = Mathf.Clamp01((stressLevel - 0.7f) * 0.3f);
+
+            if (Random.value < activationChance)
+            {
+                var selectedTrait = ancestralTraits[Random.Range(0, ancestralTraits.Length)];
+                ActivateAncestralTrait(selectedTrait);
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Adds an ancestral trait to this genetic profile
+        /// </summary>
+        private void ActivateAncestralTrait(Gene ancestralTrait)
+        {
+            var newGene = ancestralTrait;
+            newGene.expression = GeneExpression.Enhanced; // Stress-activated traits are over-expressed
+            newGene.mutationGeneration = generationNumber;
+            newGene.isMutation = true; // Mark as reactivated ancestral trait
+
+            var genesList = genes.ToList();
+            genesList.Add(newGene);
+            genes = genesList.ToArray();
+
+            UnityEngine.Debug.Log($"Ancestral trait '{ancestralTrait.traitName}' activated due to stress in lineage {lineageId}");
+        }
+
+        /// <summary>
+        /// Gets possible ancient traits for a specific biome
+        /// </summary>
+        private Gene[] GetPossibleAncientTraits(BiomeType biome)
+        {
+            var traits = new List<Gene>();
+
+            switch (biome)
+            {
+                case BiomeType.Forest:
+                    traits.AddRange(CreateAncientTraits("Ancient Bark Skin", "Photosynthetic Boost", "Deep Root Network"));
+                    break;
+                case BiomeType.Desert:
+                    traits.AddRange(CreateAncientTraits("Sand Camouflage", "Water Storage", "Heat Absorption"));
+                    break;
+                case BiomeType.Ocean:
+                    traits.AddRange(CreateAncientTraits("Pressure Immunity", "Echolocation", "Bioluminescent Display"));
+                    break;
+                case BiomeType.Mountain:
+                    traits.AddRange(CreateAncientTraits("Altitude Adaptation", "Rock Climbing", "Thin Air Breathing"));
+                    break;
+                case BiomeType.Arctic:
+                    traits.AddRange(CreateAncientTraits("Antifreeze Blood", "Hibernation", "Thick Blubber"));
+                    break;
+                case BiomeType.Volcanic:
+                    traits.AddRange(CreateAncientTraits("Heat Immunity", "Lava Walking", "Fire Breathing"));
+                    break;
+                case BiomeType.Swamp:
+                    traits.AddRange(CreateAncientTraits("Poison Immunity", "Amphibious", "Mud Camouflage"));
+                    break;
+                default:
+                    traits.AddRange(CreateAncientTraits("Ancient Wisdom", "Longevity", "Primal Instincts"));
+                    break;
+            }
+
+            return traits.ToArray();
+        }
+
+        /// <summary>
+        /// Creates ancient trait genes from trait names
+        /// </summary>
+        private Gene[] CreateAncientTraits(params string[] traitNames)
+        {
+            return traitNames.Select(traitName =>
+            {
+                var dominantValue = Random.Range(0.7f, 0.9f);
+                var recessiveValue = Random.Range(0.1f, 0.3f);
+
+                var dominantAllele = new Allele(traitName + "_Dom", dominantValue, true, true);
+                var recessiveAllele = new Allele(traitName + "_Rec", recessiveValue, true, false);
+
+                return new Gene(
+                    Guid.NewGuid().ToString(),
+                    traitName,
+                    Laboratory.Core.Enums.TraitType.Physical, // Default to physical
+                    dominantAllele,
+                    recessiveAllele
+                )
+                {
+                    expression = GeneExpression.Normal,
+                    mutationGeneration = -1, // Mark as ancient
+                    isMutation = false,
+                    expressionStrength = Random.Range(0.8f, 1.0f) // Ancient traits are usually strongly expressed
+                };
+            }).ToArray();
+        }
+
+        /// <summary>
+        /// Calculates stress level based on environmental conditions
+        /// </summary>
+        public float CalculateStressLevel(EnvironmentalFactors environment)
+        {
+            float stress = 0f;
+
+            // Temperature stress
+            float optimalTemp = GetOptimalTemperature();
+            float tempDiff = Mathf.Abs(environment.temperature - optimalTemp);
+            stress += Mathf.Clamp01(tempDiff / 30f) * 0.3f;
+
+            // Food availability stress
+            stress += Mathf.Clamp01((1f - environment.foodAvailability) * 0.4f);
+
+            // Predator pressure stress
+            stress += environment.predatorPressure * 0.3f;
+
+            return Mathf.Clamp01(stress);
+        }
+
+        /// <summary>
+        /// Gets optimal temperature for this genetic profile
+        /// </summary>
+        private float GetOptimalTemperature()
+        {
+            float temp = 20f; // Default temperate
+
+            // Adjust based on genetic traits
+            foreach (var gene in genes)
+            {
+                switch (gene.traitName)
+                {
+                    case "Heat Resistance":
+                    case "Desert Adaptation":
+                        temp += 10f * gene.dominance;
+                        break;
+                    case "Cold Resistance":
+                    case "Arctic Adaptation":
+                        temp -= 15f * gene.dominance;
+                        break;
+                }
+            }
+
+            return temp;
+        }
+
+        #endregion
     }
 }

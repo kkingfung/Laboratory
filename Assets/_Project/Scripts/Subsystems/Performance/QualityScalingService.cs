@@ -12,6 +12,12 @@ namespace Laboratory.Subsystems.Performance
     /// </summary>
     public class QualityScalingService : IQualityScalingService
     {
+        #region Events
+
+        public event Action<QualityLevelChange> OnQualityLevelChanged;
+
+        #endregion
+
         #region Fields
 
         private readonly PerformanceSubsystemConfig _config;
@@ -59,13 +65,13 @@ namespace Laboratory.Subsystems.Performance
                 _isInitialized = true;
 
                 if (_config.enableDebugLogging)
-                    Debug.Log("[QualityScalingService] Initialized successfully");
+                    UnityEngine.Debug.Log("[QualityScalingService] Initialized successfully");
 
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[QualityScalingService] Failed to initialize: {ex.Message}");
+                UnityEngine.Debug.LogError($"[QualityScalingService] Failed to initialize: {ex.Message}");
                 return false;
             }
         }
@@ -94,10 +100,10 @@ namespace Laboratory.Subsystems.Performance
                     performanceGain = EstimatePerformanceGain(previousLevel, level)
                 };
 
-                PerformanceSubsystemManager.OnQualityLevelChanged?.Invoke(qualityChange);
+                OnQualityLevelChanged?.Invoke(qualityChange);
 
                 if (_config.enableDebugLogging)
-                    Debug.Log($"[QualityScalingService] Quality level changed from {previousLevel} to {level}");
+                    UnityEngine.Debug.Log($"[QualityScalingService] Quality level changed from {previousLevel} to {level}");
             }
         }
 
@@ -127,10 +133,10 @@ namespace Laboratory.Subsystems.Performance
                     performanceGain = EstimatePerformanceGain(previousLevel, newLevel)
                 };
 
-                PerformanceSubsystemManager.OnQualityLevelChanged?.Invoke(qualityChange);
+                OnQualityLevelChanged?.Invoke(qualityChange);
 
                 if (_config.enableDebugLogging)
-                    Debug.Log($"[QualityScalingService] Reduced quality level from {previousLevel} to {newLevel}");
+                    UnityEngine.Debug.Log($"[QualityScalingService] Reduced quality level from {previousLevel} to {newLevel}");
             }
         }
 
@@ -160,10 +166,10 @@ namespace Laboratory.Subsystems.Performance
                     performanceGain = EstimatePerformanceGain(previousLevel, newLevel)
                 };
 
-                PerformanceSubsystemManager.OnQualityLevelChanged?.Invoke(qualityChange);
+                OnQualityLevelChanged?.Invoke(qualityChange);
 
                 if (_config.enableDebugLogging)
-                    Debug.Log($"[QualityScalingService] Increased quality level from {previousLevel} to {newLevel}");
+                    UnityEngine.Debug.Log($"[QualityScalingService] Increased quality level from {previousLevel} to {newLevel}");
             }
         }
 
@@ -194,7 +200,7 @@ namespace Laboratory.Subsystems.Performance
             }
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[QualityScalingService] Updated quality configuration for {level}");
+                UnityEngine.Debug.Log($"[QualityScalingService] Updated quality configuration for {level}");
         }
 
         public void EnableDynamicScaling(bool enable)
@@ -205,7 +211,7 @@ namespace Laboratory.Subsystems.Performance
             _qualitySettings.enableDynamicScaling = enable;
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[QualityScalingService] Dynamic scaling {(enable ? "enabled" : "disabled")}");
+                UnityEngine.Debug.Log($"[QualityScalingService] Dynamic scaling {(enable ? "enabled" : "disabled")}");
         }
 
         #endregion
@@ -404,7 +410,7 @@ namespace Laboratory.Subsystems.Performance
                 ApplyRenderPipelineSettings(config);
 
                 if (_config.enableDebugLogging)
-                    Debug.Log($"[QualityScalingService] Applied {config.configurationName} quality configuration");
+                    UnityEngine.Debug.Log($"[QualityScalingService] Applied {config.configurationName} quality configuration");
             }
         }
 

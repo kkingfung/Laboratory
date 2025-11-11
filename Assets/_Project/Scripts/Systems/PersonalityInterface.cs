@@ -1,6 +1,8 @@
 using UnityEngine;
 using System;
 using Laboratory.Core;
+using Laboratory.AI.Personality;
+using Laboratory.Chimera.Genetics.Advanced;
 
 namespace Laboratory.Systems
 {
@@ -11,8 +13,9 @@ namespace Laboratory.Systems
     public interface IPersonalityManager
     {
         event Action<uint, uint, SocialInteractionType> OnSocialInteraction;
-        event Action<uint, MoodState> OnMoodChanged;
+        event Action<uint, Laboratory.AI.Personality.MoodState> OnMoodChanged;
         int ActivePersonalityCount { get; }
+        CreaturePersonalityProfile RegisterCreature(uint creatureId, CreatureGenome genome);
     }
 
     /// <summary>
@@ -36,9 +39,15 @@ namespace Laboratory.Systems
         }
 
         public event Action<uint, uint, SocialInteractionType> OnSocialInteraction;
-        public event Action<uint, MoodState> OnMoodChanged;
+        public event Action<uint, Laboratory.AI.Personality.MoodState> OnMoodChanged;
 
         public int ActivePersonalityCount => 0; // Default implementation returns 0
+
+        public CreaturePersonalityProfile RegisterCreature(uint creatureId, CreatureGenome genome)
+        {
+            // Default implementation - returns null since no personality system is active
+            return null;
+        }
 
         private void Awake()
         {
@@ -58,7 +67,7 @@ namespace Laboratory.Systems
             OnSocialInteraction?.Invoke(creatureA, creatureB, interactionType);
         }
 
-        public void TriggerMoodChange(uint creatureId, MoodState newMood)
+        public void TriggerMoodChange(uint creatureId, Laboratory.AI.Personality.MoodState newMood)
         {
             OnMoodChanged?.Invoke(creatureId, newMood);
         }

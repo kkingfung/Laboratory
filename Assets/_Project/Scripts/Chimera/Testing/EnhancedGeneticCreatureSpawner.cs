@@ -6,6 +6,7 @@ using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.AI;
+using Laboratory.Shared.Types;
 using Laboratory.Core.Enums;
 using CreatureArchetype = Laboratory.Chimera.Configuration.CreatureAIBehaviorType;
 
@@ -24,7 +25,7 @@ namespace Laboratory.Chimera.Testing
         [SerializeField] private int spawnCount = 1;
         [SerializeField] private float spawnRadius = 5f;
         [SerializeField] private CreatureArchetype selectedArchetype = CreatureArchetype.Predator;
-        [SerializeField] private Laboratory.Core.Enums.BiomeType currentBiome = Laboratory.Core.Enums.BiomeType.Temperate;
+        [SerializeField] private BiomeType currentBiome = BiomeType.Temperate;
         
         [Header("🎨 Visual Enhancement Settings")]
         [SerializeField] private bool useAdvancedVisuals = true;
@@ -553,25 +554,25 @@ namespace Laboratory.Chimera.Testing
             };
         }
 
-        private Gene[] CreateBiomeGenes(Laboratory.Core.Enums.BiomeType biome)
+        private Gene[] CreateBiomeGenes(BiomeType biome)
         {
             switch (biome)
             {
-                case Laboratory.Core.Enums.BiomeType.Desert:
+                case BiomeType.Desert:
                     return new Gene[]
                     {
                         new Gene { traitName = "Desert Adaptation", traitType = TraitType.Physical, value = 0.8f, dominance = 0.7f, isActive = true },
                         new Gene { traitName = TraitType.HeatTolerance.GetDisplayName(), traitType = TraitType.Metabolic, value = 0.7f, dominance = 0.6f, isActive = true }
                     };
 
-                case Laboratory.Core.Enums.BiomeType.Arctic:
+                case BiomeType.Arctic:
                     return new Gene[]
                     {
                         new Gene { traitName = "Arctic Adaptation", traitType = TraitType.Physical, value = 0.8f, dominance = 0.7f, isActive = true },
                         new Gene { traitName = TraitType.ColdTolerance.GetDisplayName(), traitType = TraitType.Metabolic, value = 0.7f, dominance = 0.6f, isActive = true }
                     };
 
-                case Laboratory.Core.Enums.BiomeType.Ocean:
+                case BiomeType.Ocean:
                     return new Gene[]
                     {
                         new Gene { traitName = "Ocean Adaptation", traitType = TraitType.Physical, value = 0.8f, dominance = 0.7f, isActive = true },

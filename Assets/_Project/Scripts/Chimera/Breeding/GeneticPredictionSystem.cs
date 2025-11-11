@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 using System;
 
 namespace Laboratory.Chimera.Breeding
@@ -283,11 +284,11 @@ namespace Laboratory.Chimera.Breeding
             // Different biomes favor different traits
             return traitType switch
             {
-                Laboratory.Core.Enums.TraitType.Strength when biome.BiomeType == Laboratory.Core.Enums.BiomeType.Mountain => 0.1f,
-                Laboratory.Core.Enums.TraitType.Agility when biome.BiomeType == Laboratory.Core.Enums.BiomeType.Forest => 0.1f,
-                Laboratory.Core.Enums.TraitType.Intelligence when biome.BiomeType == Laboratory.Core.Enums.BiomeType.Arctic => 0.05f,
-                Laboratory.Core.Enums.TraitType.Stamina when biome.BiomeType == Laboratory.Core.Enums.BiomeType.Desert => 0.15f,
-                Laboratory.Core.Enums.TraitType.Adaptability when biome.BiomeType == Laboratory.Core.Enums.BiomeType.Magical => 0.2f,
+                Laboratory.Core.Enums.TraitType.Strength when biome.BiomeType == BiomeType.Mountain => 0.1f,
+                Laboratory.Core.Enums.TraitType.Agility when biome.BiomeType == BiomeType.Forest => 0.1f,
+                Laboratory.Core.Enums.TraitType.Intelligence when biome.BiomeType == BiomeType.Arctic => 0.05f,
+                Laboratory.Core.Enums.TraitType.Stamina when biome.BiomeType == BiomeType.Desert => 0.15f,
+                Laboratory.Core.Enums.TraitType.Adaptability when biome.BiomeType == BiomeType.Magical => 0.2f,
                 _ => 0f
             };
         }
@@ -839,7 +840,7 @@ namespace Laboratory.Chimera.Breeding
     // Placeholder for BiomeConfiguration
     public class BiomeConfiguration
     {
-        public Laboratory.Core.Enums.BiomeType BiomeType;
+        public BiomeType BiomeType;
     }
     
     #endregion

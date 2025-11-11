@@ -93,7 +93,7 @@ namespace Laboratory.Systems.Breeding
 
         // Analytics
         private BreedingAnalytics analytics = new BreedingAnalytics();
-        private List<GenerationRecord> generationHistory = new List<GenerationRecord>();
+        private List<BreedingRecord> generationHistory = new List<BreedingRecord>();
 
         // Events
         public System.Action<BreedingSession> OnBreedingStarted;
@@ -243,6 +243,45 @@ namespace Laboratory.Systems.Breeding
         }
 
         /// <summary>
+        /// Checks if breeding can be started with current conditions
+        /// </summary>
+        private bool CanStartBreeding()
+        {
+            // Check if we have valid parent selection
+            if (currentSelection == null || !currentSelection.hasValidSelection)
+            {
+                return false;
+            }
+
+            // Check if there's already an active breeding session
+            if (activeBreedingSessions.Any(session => session.status == BreedingStatus.InProgress))
+            {
+                return false;
+            }
+
+            // Check if parents are the same (can't breed with self)
+            if (currentSelection.parentAId == currentSelection.parentBId)
+            {
+                return false;
+            }
+
+            // Check if parents exist in available parents
+            if (!availableParents.ContainsKey(currentSelection.parentAId) ||
+                !availableParents.ContainsKey(currentSelection.parentBId))
+            {
+                return false;
+            }
+
+            // Additional breeding condition checks could be added here:
+            // - Species compatibility
+            // - Genetic distance requirements
+            // - Resource availability
+            // - Cooldown periods
+
+            return true;
+        }
+
+        /// <summary>
         /// Starts a breeding session with selected parents
         /// </summary>
         public BreedingSession StartBreeding()
@@ -348,6 +387,34 @@ namespace Laboratory.Systems.Breeding
             currentSelection = new BreedingSelection();
             UpdateSelectionUI();
             ClearGeneticAnalysis();
+        }
+
+        /// <summary>
+        /// Clears genetic analysis displays and data
+        /// </summary>
+        private void ClearGeneticAnalysis()
+        {
+            // Clear active trait visualizations
+            foreach (var viz in activeTraitVisualizations)
+            {
+                if (viz.visualElement != null)
+                    DestroyImmediate(viz.visualElement);
+            }
+            activeTraitVisualizations.Clear();
+
+            // Clear breeding predictions and compatibility data
+            // This would reset any UI displays showing:
+            // - Compatibility scores
+            // - Trait predictions
+            // - Breeding recommendations
+            // - Offspring previews
+
+            if (selectionStatusText != null)
+            {
+                selectionStatusText.text = "Selection Status: No parents selected";
+            }
+
+            Debug.Log("Genetic analysis cleared");
         }
 
         /// <summary>
@@ -588,10 +655,20 @@ namespace Laboratory.Systems.Breeding
             predictions.fitnessRange = new Vector2(avgFitness - variance, avgFitness + variance);
 
             // Predict trait inheritance
-            predictions.traitPredictions = PredictTraitInheritance(parentA, parentB);
+            var traitValues = PredictTraitInheritance(parentA, parentB);
+            predictions.traitPredictions = new Dictionary<TraitType, Vector2>();
+            foreach (var trait in traitValues)
+            {
+                // Convert float to Vector2 range (predicted value ± 10% variance)
+                float traitVariance = trait.Value * 0.1f;
+                predictions.traitPredictions[trait.Key] = new Vector2(
+                    Mathf.Max(0f, trait.Value - traitVariance),
+                    Mathf.Min(1f, trait.Value + traitVariance)
+                );
+            }
 
             // Calculate confidence level
-            predictions.confidenceLevel = CalculatePredictionConfidence(parentA, parentB);
+            predictions.confidenceLevel = CalculatePredictionConfidence();
 
             return predictions;
         }
@@ -737,7 +814,7 @@ namespace Laboratory.Systems.Breeding
             var offspring = new CreatureGenome
             {
                 id = (uint)Random.Range(1000, 9999),
-                generation = Mathf.Max(parentA.generation, parentB.generation) + 1,
+                generation = (uint)Mathf.Max(parentA.generation, parentB.generation) + 1,
                 traits = new Dictionary<TraitType, GeneticTrait>()
             };
 
@@ -806,7 +883,7 @@ namespace Laboratory.Systems.Breeding
 
         private void RecordGenerationData(BreedingSession session)
         {
-            var record = new GenerationRecord
+            var record = new BreedingRecord
             {
                 timestamp = Time.time,
                 generation = session.offspring.generation,
@@ -917,11 +994,11 @@ namespace Laboratory.Systems.Breeding
             {
                 var visualization = new TraitVisualization
                 {
-                    traitName = trait.Key,
+                    traitName = trait.Key.ToString(),
                     visualElement = null, // Would be created UI element
                     traitBar = null,
                     traitLabel = null,
-                    traitColor = GetTraitColor(trait.Key)
+                    traitColor = GetTraitColor(trait.Key.ToString())
                 };
 
                 activeTraitVisualizations.Add(visualization);
@@ -978,6 +1055,122 @@ namespace Laboratory.Systems.Breeding
             }
         }
 #endif
+
+        /// <summary>
+        /// Calculates the expected duration for a breeding session
+        /// </summary>
+        private float CalculateBreedingDuration()
+        {
+            // Base breeding duration with some randomization
+            float baseDuration = 30f; // 30 seconds base
+            float variability = Random.Range(0.8f, 1.2f); // ±20% variation
+            return baseDuration * variability;
+        }
+
+        /// <summary>
+        /// Updates the breeding selection UI display
+        /// </summary>
+        private void UpdateSelectionUI()
+        {
+            // Update UI elements to reflect current selection
+            if (currentSelection.parentA != null)
+            {
+                Debug.Log($"Parent A selected: {currentSelection.parentA.id}");
+            }
+            if (currentSelection.parentB != null)
+            {
+                Debug.Log($"Parent B selected: {currentSelection.parentB.id}");
+            }
+
+            // This would typically update UI elements like:
+            // - Selected creature portraits
+            // - Trait displays
+            // - Compatibility indicators
+        }
+
+        /// <summary>
+        /// Analyzes breeding compatibility between selected parents
+        /// </summary>
+        private void AnalyzeBreedingCompatibility()
+        {
+            if (currentSelection.parentA == null || currentSelection.parentB == null)
+                return;
+
+            var compatibility = CalculateBreedingCompatibility(currentSelection.parentA, currentSelection.parentB);
+
+            Debug.Log($"Breeding compatibility: {compatibility.compatibilityScore:F2}");
+            Debug.Log($"Genetic diversity: {compatibility.geneticDiversity:F2}");
+            Debug.Log($"Trait combination potential: {compatibility.traitSynergy:F2}");
+
+            // This would typically:
+            // - Update compatibility UI indicators
+            // - Show potential offspring previews
+            // - Display breeding recommendations
+        }
+
+        /// <summary>
+        /// Calculates detailed breeding compatibility between two parent creatures
+        /// </summary>
+        private BreedingCompatibility CalculateBreedingCompatibility(CreatureGenome parentA, CreatureGenome parentB)
+        {
+            var compatibility = new BreedingCompatibility();
+
+            // Calculate compatibility score using existing method
+            compatibility.compatibilityScore = CalculateCompatibilityScore(parentA, parentB);
+
+            // Calculate genetic diversity (higher is better for breeding)
+            float sharedTraits = 0f;
+            float totalTraits = 0f;
+
+            var allTraitTypes = new HashSet<TraitType>();
+            if (parentA.traits != null) foreach (var trait in parentA.traits.Keys) allTraitTypes.Add(trait);
+            if (parentB.traits != null) foreach (var trait in parentB.traits.Keys) allTraitTypes.Add(trait);
+
+            foreach (var traitType in allTraitTypes)
+            {
+                float valueA = parentA.traits?.ContainsKey(traitType) == true ? parentA.traits[traitType].value : 0.5f;
+                float valueB = parentB.traits?.ContainsKey(traitType) == true ? parentB.traits[traitType].value : 0.5f;
+
+                float difference = Mathf.Abs(valueA - valueB);
+                sharedTraits += (1f - difference); // More similar = higher shared traits
+                totalTraits += 1f;
+            }
+
+            compatibility.geneticDiversity = totalTraits > 0 ? 1f - (sharedTraits / totalTraits) : 0.5f;
+
+            // Calculate trait synergy (how well traits work together)
+            compatibility.traitSynergy = (compatibility.compatibilityScore + compatibility.geneticDiversity) / 2f;
+
+            return compatibility;
+        }
+
+        /// <summary>
+        /// Handles breeding completion events from the genetic algorithm system
+        /// </summary>
+        private void HandleSystemBreedingComplete(CreatureGenome parentA, CreatureGenome parentB, CreatureGenome offspring)
+        {
+            // Find the breeding session that matches these parents
+            var matchingSession = activeBreedingSessions.FirstOrDefault(session =>
+                (session.parentA?.id == parentA.id && session.parentB?.id == parentB.id) ||
+                (session.parentA?.id == parentB.id && session.parentB?.id == parentA.id));
+
+            if (matchingSession != null)
+            {
+                // Update the session with the offspring
+                matchingSession.offspring = offspring;
+                matchingSession.status = BreedingStatus.Completed;
+                matchingSession.completionTime = Time.time;
+
+                // Trigger our own breeding completion event
+                OnBreedingCompleted?.Invoke(matchingSession, offspring);
+
+                Debug.Log($"System breeding completed: Parents {parentA.id} x {parentB.id} produced offspring {offspring.id}");
+            }
+            else
+            {
+                Debug.LogWarning($"Received breeding completion for unknown session: Parents {parentA.id} x {parentB.id}");
+            }
+        }
     }
 
     // Supporting data structures for breeding simulation
@@ -1020,6 +1213,14 @@ namespace Laboratory.Systems.Breeding
     }
 
     [System.Serializable]
+    public class BreedingCompatibility
+    {
+        public float compatibilityScore;
+        public float geneticDiversity;
+        public float traitSynergy;
+    }
+
+    [System.Serializable]
     public class BreedingResults
     {
         public float actualFitness;
@@ -1054,6 +1255,24 @@ namespace Laboratory.Systems.Breeding
         public int totalOffspringRejected;
         public float averageBreedingTime;
         public float averagePredictionAccuracy;
+        public float averageFitness;
+        public int generationCount;
+        public float lastGenerationTime;
+    }
+
+    [System.Serializable]
+    public class BreedingRecord
+    {
+        public float timestamp;
+        public uint generation;
+        public uint parentAId;
+        public uint parentBId;
+        public uint offspringId;
+        public float parentAFitness;
+        public float parentBFitness;
+        public float offspringFitness;
+        public float predictedFitness;
+        public float compatibilityScore;
     }
 
     [System.Serializable]

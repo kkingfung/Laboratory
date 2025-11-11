@@ -10,6 +10,7 @@
         "Laboratory.AI.ECS",
         "Laboratory.Core.Progression",
         "Laboratory.Economy",
+        "Laboratory.Shared",
         "Unity.Entities",
         "Unity.Transforms",
         "Unity.Collections",

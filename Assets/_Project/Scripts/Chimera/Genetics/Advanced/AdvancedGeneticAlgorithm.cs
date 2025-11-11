@@ -677,6 +677,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         public float dominance;
         public float mutationRate;
         public float environmentalSensitivity;
+        public bool isActive;
     }
 
     [System.Serializable]

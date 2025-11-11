@@ -3,6 +3,7 @@ using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 using System.Collections.Generic;
 
 namespace Laboratory.Chimera.Configuration
@@ -63,11 +64,11 @@ namespace Laboratory.Chimera.Configuration
         [Header("Environmental Preferences")]
         [SerializeField] public BiomePreference[] biomePreferences = new BiomePreference[]
         {
-            new BiomePreference { biome = Laboratory.Core.Enums.BiomeType.Forest, preference = 1.0f },
-            new BiomePreference { biome = Laboratory.Core.Enums.BiomeType.Desert, preference = 0.3f },
-            new BiomePreference { biome = Laboratory.Core.Enums.BiomeType.Ocean, preference = 0.5f },
-            new BiomePreference { biome = Laboratory.Core.Enums.BiomeType.Mountain, preference = 0.4f },
-            new BiomePreference { biome = Laboratory.Core.Enums.BiomeType.Arctic, preference = 0.2f }
+            new BiomePreference { biome = BiomeType.Forest, preference = 1.0f },
+            new BiomePreference { biome = BiomeType.Desert, preference = 0.3f },
+            new BiomePreference { biome = BiomeType.Ocean, preference = 0.5f },
+            new BiomePreference { biome = BiomeType.Mountain, preference = 0.4f },
+            new BiomePreference { biome = BiomeType.Arctic, preference = 0.2f }
         };
         
         [Header("AI Behavior Configuration")]
@@ -123,7 +124,7 @@ namespace Laboratory.Chimera.Configuration
         /// <summary>
         /// Gets biome preference value (0-1)
         /// </summary>
-        public float GetBiomePreference(Laboratory.Core.Enums.BiomeType biome)
+        public float GetBiomePreference(BiomeType biome)
         {
             foreach (var pref in biomePreferences)
             {
@@ -136,9 +137,9 @@ namespace Laboratory.Chimera.Configuration
         /// <summary>
         /// Gets most preferred biome for this species
         /// </summary>
-        public Laboratory.Core.Enums.BiomeType GetPreferredBiome()
+        public BiomeType GetPreferredBiome()
         {
-            Laboratory.Core.Enums.BiomeType preferred = Laboratory.Core.Enums.BiomeType.Forest;
+            BiomeType preferred = BiomeType.Forest;
             float maxPreference = 0f;
 
             foreach (var pref in biomePreferences)
@@ -225,7 +226,7 @@ namespace Laboratory.Chimera.Configuration
     [System.Serializable]
     public class BiomePreference
     {
-        [SerializeField] public Laboratory.Core.Enums.BiomeType biome = Laboratory.Core.Enums.BiomeType.Forest;
+        [SerializeField] public BiomeType biome = BiomeType.Forest;
         [SerializeField] [Range(0f, 1f)] public float preference = 0.5f;
     }
     

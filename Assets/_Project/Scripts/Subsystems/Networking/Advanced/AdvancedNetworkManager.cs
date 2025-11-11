@@ -477,7 +477,7 @@ namespace Laboratory.Subsystems.Networking.Advanced
             {
                 var perfMetrics = performanceMonitor.GetCurrentMetrics();
                 networkStats.ServerFPS = perfMetrics.CurrentFPS;
-                networkStats.ServerMemoryUsage = perfMetrics.MemoryUsage;
+                networkStats.ServerMemoryUsage = (long)perfMetrics.MemoryUsage;
             }
         }
 
@@ -845,6 +845,24 @@ namespace Laboratory.Subsystems.Networking.Advanced
             Latency = latency;
             ConnectedClients = clients;
         }
+
+        public NetworkPerformanceMetrics GetCurrentMetrics()
+        {
+            return new NetworkPerformanceMetrics
+            {
+                CurrentFPS = 1f / Time.deltaTime,
+                MemoryUsage = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemory() / (1024f * 1024f)
+            };
+        }
+    }
+
+    /// <summary>
+    /// Performance metrics data structure
+    /// </summary>
+    public class NetworkPerformanceMetrics
+    {
+        public float CurrentFPS { get; set; }
+        public float MemoryUsage { get; set; }
     }
 
     #endregion

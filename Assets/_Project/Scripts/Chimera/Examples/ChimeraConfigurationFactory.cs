@@ -4,6 +4,7 @@ using UnityEditor;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Examples
 {

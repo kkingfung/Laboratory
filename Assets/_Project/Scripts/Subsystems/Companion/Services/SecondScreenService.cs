@@ -69,7 +69,7 @@ namespace Laboratory.Subsystems.Companion
         private void InitializeContent()
         {
             // Initialize default content for different device types
-            foreach (CompanionDeviceType deviceType in Enum.GetValues<CompanionDeviceType>())
+            foreach (CompanionDeviceType deviceType in Enum.GetValues(typeof(CompanionDeviceType)))
             {
                 _availableContent[deviceType] = new List<SecondScreenContent>();
             }

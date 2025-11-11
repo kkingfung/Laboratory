@@ -8,6 +8,7 @@ using Laboratory.Chimera.Breeding;
 using Laboratory.Core.ECS;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Core;
+using Laboratory.Shared.Types;
 using Laboratory.Chimera.ECS;
 using Laboratory.Core.Events;
 using Laboratory.Core.Infrastructure;
@@ -141,7 +142,7 @@ namespace Laboratory.Chimera.UI
             if (biomeDropdown != null)
             {
                 biomeDropdown.ClearOptions();
-                var biomeNames = System.Enum.GetNames(typeof(Laboratory.Core.Enums.BiomeType)).ToList();
+                var biomeNames = System.Enum.GetNames(typeof(BiomeType)).ToList();
                 biomeDropdown.AddOptions(biomeNames);
                 biomeDropdown.value = 0; // Default to first biome
             }
@@ -336,7 +337,7 @@ namespace Laboratory.Chimera.UI
         
         private BreedingEnvironment CreateBreedingEnvironment()
         {
-            var biomeType = (Laboratory.Core.Enums.BiomeType)biomeDropdown.value;
+            var biomeType = (BiomeType)biomeDropdown.value;
             
             return new BreedingEnvironment
             {

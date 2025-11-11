@@ -431,11 +431,11 @@ namespace Laboratory.Editor.Tools
             if (isProfilerActive)
             {
                 ClearProfilerData();
-                Debug.Log("ECS Performance Profiler started");
+                UnityEngine.Debug.Log("ECS Performance Profiler started");
             }
             else
             {
-                Debug.Log("ECS Performance Profiler stopped");
+                UnityEngine.Debug.Log("ECS Performance Profiler stopped");
             }
         }
 
@@ -450,7 +450,7 @@ namespace Laboratory.Editor.Tools
         {
             if (systemPerformance.Count == 0)
             {
-                Debug.LogWarning("No performance data to report");
+                UnityEngine.Debug.LogWarning("No performance data to report");
                 return;
             }
 
@@ -473,12 +473,12 @@ namespace Laboratory.Editor.Tools
             report += "- Consider IJobEntity for better parallelization\n";
             report += "- Implement object pooling for frequently created/destroyed entities\n";
 
-            Debug.Log(report);
+            UnityEngine.Debug.Log(report);
 
             // Save to file
             var filePath = $"ECS_Performance_Report_{System.DateTime.Now:yyyyMMdd_HHmmss}.txt";
             System.IO.File.WriteAllText(filePath, report);
-            Debug.Log($"Performance report saved to: {filePath}");
+            UnityEngine.Debug.Log($"Performance report saved to: {filePath}");
         }
 
         #endregion

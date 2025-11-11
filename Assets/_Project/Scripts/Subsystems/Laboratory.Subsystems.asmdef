@@ -4,6 +4,7 @@
     "references": [
         "Laboratory.Core",
         "Laboratory.Infrastructure",
+        "Laboratory.Shared",
         "Laboratory.Chimera",
         "Laboratory.Chimera.ECS",
         "Laboratory.Networking",
