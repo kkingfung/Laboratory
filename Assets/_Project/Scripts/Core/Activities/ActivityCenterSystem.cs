@@ -67,7 +67,9 @@ namespace Laboratory.Core.Activities
         }
     }
 
-
+    // Note: This is a partial declaration of ActivityParticipationJob
+    // The main implementation with full logic is in ActivityParticipationJob.cs
+    [BurstCompile]
     public partial struct ActivityParticipationJob : IJobEntity
     {
         public float DeltaTime;
