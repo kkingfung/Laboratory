@@ -412,6 +412,7 @@ namespace Laboratory.Core.Activities.Puzzle
     }
 
 
+    [BurstCompile]
     public partial struct AcademyUpdateJob : IJobEntity
     {
         public float DeltaTime;
@@ -562,6 +563,7 @@ namespace Laboratory.Core.Activities.Puzzle
     }
 
 
+    [BurstCompile]
     public partial struct PuzzleSolvingJob : IJobEntity
     {
         public float DeltaTime;
@@ -916,6 +918,7 @@ namespace Laboratory.Core.Activities.Puzzle
     }
 
 
+    [BurstCompile]
     public partial struct PuzzleBattleUpdateJob : IJobEntity
     {
         public float DeltaTime;
@@ -1124,6 +1127,7 @@ namespace Laboratory.Core.Activities.Puzzle
     }
 
 
+    [BurstCompile]
     public partial struct SpeedSolvingJob : IJobEntity
     {
         public float DeltaTime;
@@ -1182,6 +1186,7 @@ namespace Laboratory.Core.Activities.Puzzle
     }
 
 
+    [BurstCompile]
     public partial struct CollaborativePuzzleJob : IJobEntity
     {
         public float DeltaTime;

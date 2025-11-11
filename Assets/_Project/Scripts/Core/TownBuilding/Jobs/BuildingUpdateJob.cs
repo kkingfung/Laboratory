@@ -9,6 +9,7 @@ using Laboratory.Core.TownBuilding.Types;
 namespace Laboratory.Core.TownBuilding.Jobs
 {
 
+    [BurstCompile]
     public partial struct BuildingUpdateJob : IJobEntity
     {
         public float DeltaTime;

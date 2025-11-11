@@ -228,6 +228,7 @@ namespace Laboratory.Core.Equipment
     }
 
 
+    [BurstCompile]
     public partial struct EquipmentEffectsJob : IJobEntity
     {
         public float DeltaTime;
@@ -262,6 +263,7 @@ namespace Laboratory.Core.Equipment
     }
 
 
+    [BurstCompile]
     public partial struct EquipmentDurabilityJob : IJobEntity
     {
         public float DeltaTime;

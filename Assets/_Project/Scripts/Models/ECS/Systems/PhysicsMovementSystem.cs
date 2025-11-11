@@ -143,7 +143,8 @@ namespace Laboratory.Models.ECS.Systems
         /// Burst-compiled job for processing physics movement calculations in parallel
         /// </summary>
 
-        private partial struct PhysicsMovementJob : IJobEntity
+    [BurstCompile]
+    private partial struct PhysicsMovementJob : IJobEntity
         {
             /// <summary>
             /// Delta time for this frame's movement calculations

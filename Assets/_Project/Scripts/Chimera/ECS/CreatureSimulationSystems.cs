@@ -44,6 +44,7 @@ namespace Laboratory.Chimera.ECS
     }
 
 
+    [BurstCompile]
     public partial struct CreatureAgingJob : IJobEntity
     {
         public float deltaTime;
@@ -98,6 +99,7 @@ namespace Laboratory.Chimera.ECS
     }
 
 
+    [BurstCompile]
     public partial struct CreatureAIJob : IJobEntity
     {
         public float time;
@@ -190,6 +192,7 @@ namespace Laboratory.Chimera.ECS
     }
 
 
+    [BurstCompile]
     public partial struct CreatureGeneticsJob : IJobEntity
     {
 
@@ -290,6 +293,7 @@ namespace Laboratory.Chimera.ECS
     }
 
 
+    [BurstCompile]
     public partial struct CreatureCleanupJob : IJobEntity
     {
         public EntityCommandBuffer.ParallelWriter ecb;

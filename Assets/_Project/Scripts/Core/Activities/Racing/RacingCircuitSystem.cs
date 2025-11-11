@@ -192,6 +192,7 @@ namespace Laboratory.Core.Activities.Racing
 
 
 
+    [BurstCompile]
     public partial struct RaceTrackUpdateJob : IJobEntity
     {
         public float DeltaTime;
@@ -297,6 +298,7 @@ namespace Laboratory.Core.Activities.Racing
 
 
 
+    [BurstCompile]
     public partial struct RacingPhysicsJob : IJobEntity
     {
         public float DeltaTime;

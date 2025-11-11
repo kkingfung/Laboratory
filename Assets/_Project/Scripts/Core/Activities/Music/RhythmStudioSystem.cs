@@ -416,6 +416,7 @@ namespace Laboratory.Core.Activities.Music
     }
 
 
+    [BurstCompile]
     public partial struct StudioUpdateJob : IJobEntity
     {
         public float DeltaTime;
@@ -603,6 +604,7 @@ namespace Laboratory.Core.Activities.Music
     }
 
 
+    [BurstCompile]
     public partial struct MusicPerformanceJob : IJobEntity
     {
         public float DeltaTime;

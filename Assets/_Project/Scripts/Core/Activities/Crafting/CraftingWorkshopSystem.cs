@@ -535,6 +535,7 @@ namespace Laboratory.Core.Activities.Crafting
     }
 
 
+    [BurstCompile]
     public partial struct CraftingProcessJob : IJobEntity
     {
         public float DeltaTime;
@@ -688,7 +689,8 @@ namespace Laboratory.Core.Activities.Crafting
             // Update innovation competitions
             var innovationJob = new InnovationCompetitionJob
             {
-                DeltaTime = deltaTime
+                DeltaTime = deltaTime,
+                FrameCount = (uint)(SystemAPI.Time.ElapsedTime * 60f) // Approximate frame count at 60 FPS
             };
             Dependency = innovationJob.ScheduleParallel(innovationQuery, Dependency);
 
@@ -704,6 +706,7 @@ namespace Laboratory.Core.Activities.Crafting
     }
 
 
+    [BurstCompile]
     public partial struct CraftingCompetitionUpdateJob : IJobEntity
     {
         public float DeltaTime;
@@ -936,6 +939,7 @@ namespace Laboratory.Core.Activities.Crafting
     }
 
 
+    [BurstCompile]
     public partial struct SpeedCraftingJob : IJobEntity
     {
         public float DeltaTime;
@@ -996,9 +1000,11 @@ namespace Laboratory.Core.Activities.Crafting
     }
 
 
+    [BurstCompile]
     public partial struct InnovationCompetitionJob : IJobEntity
     {
         public float DeltaTime;
+        public uint FrameCount;
 
         public void Execute(ref InnovationCompetitionComponent innovation)
         {
@@ -1018,7 +1024,7 @@ namespace Laboratory.Core.Activities.Crafting
         private void UpdateInnovationExperiments(ref InnovationCompetitionComponent innovation)
         {
             // Simulation innovation experimentation
-            var random = Unity.Mathematics.Random.CreateFromIndex((uint)UnityEngine.Time.frameCount);
+            var random = Unity.Mathematics.Random.CreateFromIndex(FrameCount);
             if (random.NextFloat() < 0.03f) // 3% chance per frame
             {
                 if (random.NextFloat() < 0.5f)
@@ -1059,6 +1065,7 @@ namespace Laboratory.Core.Activities.Crafting
     }
 
 
+    [BurstCompile]
     public partial struct ResourceCompetitionJob : IJobEntity
     {
         public float DeltaTime;
