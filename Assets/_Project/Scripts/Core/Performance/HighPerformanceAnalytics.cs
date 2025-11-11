@@ -362,7 +362,8 @@ namespace Laboratory.Core.Performance
         /// <summary>
         /// Optimized analytics processing job for real-time performance
         /// </summary>
-        private struct AnalyticsProcessingJob : IJob
+    [BurstCompile]
+    private struct AnalyticsProcessingJob : IJob
         {
             public NativeArray<EventMetadata> eventMetadata;
             public NativeHashMap<uint, int> eventCounters;

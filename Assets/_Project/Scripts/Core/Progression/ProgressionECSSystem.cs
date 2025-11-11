@@ -182,6 +182,7 @@ namespace Laboratory.Core.Progression
     }
 
 
+    [BurstCompile]
     public partial struct ExperienceGainJob : IJobEntity
     {
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
@@ -376,6 +377,7 @@ namespace Laboratory.Core.Progression
     }
 
 
+    [BurstCompile]
     public partial struct AchievementCheckJob : IJobEntity
     {
         public void Execute(ref CreatureAchievementsComponent achievements,

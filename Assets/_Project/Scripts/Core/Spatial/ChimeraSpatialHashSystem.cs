@@ -119,7 +119,8 @@ namespace Laboratory.Core.Spatial
         }
 
 
-        private partial struct UpdateSpatialHashJob : IJobEntity
+    [BurstCompile]
+    private partial struct UpdateSpatialHashJob : IJobEntity
         {
             public NativeParallelMultiHashMap<int, SpatialHashEntry> spatialHashMap;
             [NativeDisableParallelForRestriction]
@@ -218,7 +219,8 @@ namespace Laboratory.Core.Spatial
         }
 
 
-        private struct ProcessSpatialQueriesJob : IJob
+    [BurstCompile]
+    private struct ProcessSpatialQueriesJob : IJob
         {
             [ReadOnly] public NativeParallelMultiHashMap<int, SpatialHashEntry>.ReadOnly spatialHashMap;
             [ReadOnly] public NativeArray<float3> entityPositions;

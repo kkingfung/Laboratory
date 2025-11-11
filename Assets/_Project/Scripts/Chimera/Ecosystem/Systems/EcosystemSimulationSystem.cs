@@ -403,6 +403,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     /// Job for updating ecosystem environmental conditions
     /// </summary>
 
+    [BurstCompile]
     public partial struct EcosystemUpdateJob : IJobEntity
     {
         public float DeltaTime;
@@ -437,6 +438,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     /// Job for updating population dynamics and natural selection
     /// </summary>
 
+    [BurstCompile]
     public partial struct PopulationDynamicsJob : IJobEntity
     {
         public float DeltaTime;
@@ -554,6 +556,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     /// Job for updating ecosystem resources
     /// </summary>
 
+    [BurstCompile]
     public partial struct ResourceUpdateJob : IJobEntity
     {
         public float DeltaTime;

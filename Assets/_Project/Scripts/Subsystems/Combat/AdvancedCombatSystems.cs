@@ -231,7 +231,8 @@ namespace Laboratory.Subsystems.Combat.Advanced
         }
 
 
-        private partial struct UpdateGeneticAbilitiesJob : IJobEntity
+    [BurstCompile]
+    private partial struct UpdateGeneticAbilitiesJob : IJobEntity
         {
             [ReadOnly] public float deltaTime;
             [ReadOnly] public float currentTime;
@@ -455,7 +456,8 @@ namespace Laboratory.Subsystems.Combat.Advanced
         }
 
 
-        private partial struct UpdateFormationJob : IJobEntity
+    [BurstCompile]
+    private partial struct UpdateFormationJob : IJobEntity
         {
             [ReadOnly] public float deltaTime;
             [ReadOnly] public ComponentLookup<LocalTransform> transformLookup;
@@ -595,7 +597,8 @@ namespace Laboratory.Subsystems.Combat.Advanced
         }
 
 
-        private partial struct ProcessStatusEffectsJob : IJobEntity
+    [BurstCompile]
+    private partial struct ProcessStatusEffectsJob : IJobEntity
         {
             [ReadOnly] public float deltaTime;
             [ReadOnly] public float currentTime;
@@ -821,7 +824,8 @@ namespace Laboratory.Subsystems.Combat.Advanced
         }
 
 
-        private partial struct TacticalAIUpdateJob : IJobEntity
+    [BurstCompile]
+    private partial struct TacticalAIUpdateJob : IJobEntity
         {
             [ReadOnly] public float deltaTime;
             [ReadOnly] public float currentTime;
@@ -1040,7 +1044,8 @@ namespace Laboratory.Subsystems.Combat.Advanced
         }
 
 
-        private partial struct CombatNetworkSyncJob : IJobEntity
+    [BurstCompile]
+    private partial struct CombatNetworkSyncJob : IJobEntity
         {
             [ReadOnly] public float currentTime;
             [ReadOnly] public float deltaTime;

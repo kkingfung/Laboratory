@@ -10,6 +10,7 @@ using Laboratory.Core.Activities.Types;
 namespace Laboratory.Core.Progression.Jobs
 {
 
+    [BurstCompile]
     public partial struct ExperienceGainJob : IJobEntity
     {
         public EntityCommandBuffer.ParallelWriter CommandBuffer;

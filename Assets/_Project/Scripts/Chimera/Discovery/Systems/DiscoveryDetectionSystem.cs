@@ -121,6 +121,7 @@ namespace Laboratory.Chimera.Discovery.Systems
     /// Job for parallel discovery detection
     /// </summary>
 
+    [BurstCompile]
     public partial struct DiscoveryDetectionJob : IJobEntity
     {
         [ReadOnly] public ComponentLookup<VisualGeneticData> GeneticsLookup;

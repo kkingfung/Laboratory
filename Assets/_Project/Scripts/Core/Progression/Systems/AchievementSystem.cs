@@ -34,6 +34,7 @@ namespace Laboratory.Core.Progression.Systems
     }
 
 
+    [BurstCompile]
     public partial struct AchievementCheckJob : IJobEntity
     {
         public void Execute(ref CreatureAchievementsComponent achievements,

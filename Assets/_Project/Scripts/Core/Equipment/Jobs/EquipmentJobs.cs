@@ -9,6 +9,7 @@ using Laboratory.Core.Activities.Components;
 namespace Laboratory.Core.Equipment.Jobs
 {
 
+    [BurstCompile]
     public partial struct EquipmentEffectsJob : IJobEntity
     {
         public float DeltaTime;
@@ -43,6 +44,7 @@ namespace Laboratory.Core.Equipment.Jobs
     }
 
 
+    [BurstCompile]
     public partial struct EquipmentDurabilityJob : IJobEntity
     {
         public float DeltaTime;
