@@ -2,13 +2,7 @@
     "name": "Laboratory.Tools",
     "rootNamespace": "Laboratory.Tools",
     "references": [
-        "Unity.Mathematics",
-        "Unity.Addressables",
-        "Unity.ResourceManager",
-        "Unity.InputSystem",
-        "GUID:26c858a044ea8e443864d1208306534e",
-        "Laboratory.Subsystems.Performance",
-        "Laboratory.Subsystems.Monitoring"
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
