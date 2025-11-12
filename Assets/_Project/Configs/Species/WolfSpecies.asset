@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88888888888888888888888888888888, type: 3}
+  m_Name: WolfSpecies
+  m_EditorClassIdentifier:
+  speciesName: Wolf
+  speciesId: species_wolf
+  displayName: Gray Wolf
+  description: A pack-hunting predator that thrives in forest biomes
+  prefab: {fileID: 3000000000000000001, guid: b1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6, type: 3}
+  behaviorTreeId: aggressive_ai
+  baseStats:
+  - statName: health
+    baseValue: 150
+    minValue: 50
+    maxValue: 300
+    heritability: 0.7
+  - statName: damage
+    baseValue: 25
+    minValue: 10
+    maxValue: 50
+    heritability: 0.8
+  - statName: speed
+    baseValue: 7
+    minValue: 4
+    maxValue: 10
+    heritability: 0.6
+  - statName: aggroRange
+    baseValue: 20
+    minValue: 10
+    maxValue: 40
+    heritability: 0.5
+  - statName: attackRange
+    baseValue: 3
+    minValue: 2
+    maxValue: 5
+    heritability: 0.4
+  geneticTraits:
+  - traitId: fur_color
+    traitName: Fur Color
+    dominance: 0.6
+    mutationRate: 0.05
+    possibleValues:
+    - Gray
+    - Brown
+    - Black
+    - White
+  - traitId: size_variant
+    traitName: Size Variant
+    dominance: 0.5
+    mutationRate: 0.02
+    possibleValues:
+    - Small
+    - Medium
+    - Large
+  - traitId: pack_behavior
+    traitName: Pack Behavior
+    dominance: 0.8
+    mutationRate: 0.01
+    possibleValues:
+    - Alpha
+    - Beta
+    - Omega
+  breedingRequirements:
+    minimumAge: 5
+    breedingCooldown: 30
+    offspringCount: {x: 2, y: 4}
+    gestationTime: 10
+  dietType: 1
+  preferredBiomes:
+  - biome_forest
+  - biome_tundra
+  rarityTier: 1
+  experienceReward: 50
+  dropTable:
+  - itemId: wolf_pelt
+    dropChance: 0.8
+    quantity: {x: 1, y: 2}
+  - itemId: wolf_tooth
+    dropChance: 0.4
+    quantity: {x: 1, y: 3}

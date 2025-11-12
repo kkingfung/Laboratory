@@ -1,0 +1,359 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1234567890123456789
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1234567890123456790}
+  - component: {fileID: 1234567890123456791}
+  - component: {fileID: 1234567890123456792}
+  - component: {fileID: 1234567890123456793}
+  - component: {fileID: 1234567890123456794}
+  - component: {fileID: 1234567890123456795}
+  - component: {fileID: 1234567890123456796}
+  - component: {fileID: 1234567890123456797}
+  - component: {fileID: 1234567890123456798}
+  - component: {fileID: 1234567890123456799}
+  - component: {fileID: 1234567890123456800}
+  - component: {fileID: 1234567890123456801}
+  - component: {fileID: 1234567890123456802}
+  - component: {fileID: 1234567890123456803}
+  - component: {fileID: 1234567890123456804}
+  - component: {fileID: 1234567890123456805}
+  - component: {fileID: 1234567890123456806}
+  m_Layer: 0
+  m_Name: ChimeraSystemsManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1234567890123456790
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1234567890123456791
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11111111111111111111111111111111, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  backendUrl: https://api.projectchimera.com
+  manifestUrl: https://cdn.projectchimera.com/bundles/manifest.json
+  enableCaching: 1
+  maxCacheSize: 1073741824
+  maxConcurrentDownloads: 3
+--- !u!114 &1234567890123456792
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22222222222222222222222222222222, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  streamingRadius: 200
+  unloadRadius: 300
+  updateInterval: 1
+  useLODStreaming: 1
+  lodDistance1: 50
+  lodDistance2: 100
+  lodDistance3: 200
+  memoryBudgetMB: 512
+--- !u!114 &1234567890123456793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33333333333333333333333333333333, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  globalSeed: 12345
+  useSeedFromDateTime: 0
+  terrainScale: 100
+  terrainOctaves: 4
+  terrainPersistence: 0.5
+  terrainLacunarity: 2
+  maxCreatureVariations: 1000
+  useGeneticMixing: 1
+--- !u!114 &1234567890123456794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44444444444444444444444444444444, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  maxAIUpdatesPerFrame: 50
+  updateInterval: 0.1
+  useTimeslicing: 1
+  decisionChangeThreshold: 0.7
+  enableLearning: 1
+  learningRate: 0.01
+  debugLogging: 0
+--- !u!114 &1234567890123456795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55555555555555555555555555555555, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  enableTimeProgression: 1
+  dayLengthMinutes: 24
+  startingTimeOfDay: 6
+  enableDynamicWeather: 1
+  weatherChangeInterval: 300
+  weatherTransitionDuration: 30
+  startingWeather: 0
+  maxSunIntensity: 1.5
+  nightIntensity: 0.1
+  maxWindStrength: 20
+  affectVisibility: 1
+  affectMovement: 1
+  rainMovementPenalty: 0.9
+  snowMovementPenalty: 0.8
+--- !u!114 &1234567890123456796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66666666666666666666666666666666, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  preloadAllShaders: 0
+  warmupShadersOnStart: 1
+  enableShaderVariantStripping: 1
+  useMaterialInstancing: 1
+  maxMaterialVariants: 1000
+  batchMaterialProperties: 1
+  useGPUInstancing: 1
+  currentQualityLevel: 2
+--- !u!114 &1234567890123456797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77777777777777777777777777777777, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  enablePooling: 1
+  defaultPoolSize: 20
+  maxPoolSize: 100
+  preWarmPools: 1
+  maxActiveParticles: 500
+  enableDistanceCulling: 1
+  cullingDistance: 100
+  enableFrustumCulling: 1
+  qualityLevel: 2
+  particleMultiplier: 1
+  autoCleanup: 1
+  cleanupInterval: 10
+--- !u!114 &1234567890123456798
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88888888888888888888888888888888, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  backendUrl: https://api.projectchimera.com
+  autoInitialize: 1
+  requireAuthentication: 1
+  sessionTimeout: 300
+  autoReconnect: 1
+  maxReconnectAttempts: 3
+  verboseLogging: 1
+--- !u!114 &1234567890123456799
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99999999999999999999999999999999, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  backendUrl: https://api.projectchimera.com
+  validateMovement: 1
+  validateActions: 1
+  maxSpeed: 10
+  maxAcceleration: 20
+  minActionInterval: 0.1
+  maxActionsPerSecond: 20
+  violationKickThreshold: 10
+  violationBanThreshold: 50
+--- !u!114 &1234567890123456800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  backendUrl: https://api.projectchimera.com
+  trackSessions: 1
+  sessionTimeoutMinutes: 30
+  trackSessionEvents: 1
+  autoUploadOnSessionEnd: 1
+--- !u!114 &1234567890123456801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  backendUrl: https://api.projectchimera.com
+  trackingInterval: 1
+  gridCellSize: 1
+  trackPositions: 1
+  trackDeaths: 1
+  trackKills: 1
+  autoUpload: 1
+  uploadInterval: 300
+--- !u!114 &1234567890123456802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cccccccccccccccccccccccccccccccc, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  backendUrl: https://api.projectchimera.com
+  fetchOnStart: 1
+  autoRefresh: 1
+  refreshInterval: 600
+  notifyOnNewEvent: 1
+--- !u!114 &1234567890123456803
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dddddddddddddddddddddddddddddddd, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  backendUrl: https://api.projectchimera.com
+  fetchOnStart: 1
+  autoRefresh: 0
+  cacheConfig: 1
+  useCacheWhenOffline: 1
+--- !u!114 &1234567890123456804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  backendUrl: https://api.projectchimera.com
+  enableReporting: 1
+  reportInEditor: 0
+  captureScreenshotOnCrash: 0
+  maxReportsPerSession: 50
+  reportExceptions: 1
+  reportErrors: 1
+  includeSystemInfo: 1
+  includeStackTrace: 1
+--- !u!114 &1234567890123456805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ffffffffffffffffffffffffffffffff, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  backendUrl: https://api.projectchimera.com
+  cacheLeaderboards: 1
+  allowOfflineScores: 1
+  maxOfflineScores: 10
+--- !u!114 &1234567890123456806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1234567890123456789}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10101010101010101010101010101010, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
+  backendUrl: https://api.projectchimera.com
+  sessionRefreshInterval: 3600
+  persistSession: 1
+  strongPassword: 1

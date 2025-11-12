@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 88888888888888888888888888888888, type: 3}
+  m_Name: DeerSpecies
+  m_EditorClassIdentifier:
+  speciesName: Deer
+  speciesId: species_deer
+  displayName: Forest Deer
+  description: A peaceful herbivore that flees from danger
+  prefab: {fileID: 4000000000000000001, guid: c1c2c3d4e5f6g7h8i9j0k1l2m3n4o5p6, type: 3}
+  behaviorTreeId: passive_ai
+  baseStats:
+  - statName: health
+    baseValue: 80
+    minValue: 40
+    maxValue: 150
+    heritability: 0.7
+  - statName: damage
+    baseValue: 5
+    minValue: 2
+    maxValue: 10
+    heritability: 0.5
+  - statName: speed
+    baseValue: 9
+    minValue: 6
+    maxValue: 12
+    heritability: 0.8
+  - statName: fleeRange
+    baseValue: 15
+    minValue: 10
+    maxValue: 25
+    heritability: 0.6
+  - statName: wanderRadius
+    baseValue: 10
+    minValue: 5
+    maxValue: 20
+    heritability: 0.4
+  geneticTraits:
+  - traitId: coat_pattern
+    traitName: Coat Pattern
+    dominance: 0.5
+    mutationRate: 0.03
+    possibleValues:
+    - Spotted
+    - Solid
+    - Striped
+  - traitId: antler_size
+    traitName: Antler Size
+    dominance: 0.7
+    mutationRate: 0.02
+    possibleValues:
+    - None
+    - Small
+    - Medium
+    - Large
+  - traitId: temperament
+    traitName: Temperament
+    dominance: 0.6
+    mutationRate: 0.01
+    possibleValues:
+    - Skittish
+    - Cautious
+    - Bold
+  breedingRequirements:
+    minimumAge: 3
+    breedingCooldown: 20
+    offspringCount: {x: 1, y: 2}
+    gestationTime: 7
+  dietType: 0
+  preferredBiomes:
+  - biome_forest
+  - biome_grassland
+  rarityTier: 0
+  experienceReward: 20
+  dropTable:
+  - itemId: deer_hide
+    dropChance: 0.9
+    quantity: {x: 1, y: 2}
+  - itemId: venison
+    dropChance: 1
+    quantity: {x: 2, y: 4}
