@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using ProjectChimera.Core;
 
 namespace Laboratory.Advanced
 {
@@ -83,7 +84,7 @@ namespace Laboratory.Advanced
         public WeatherType CurrentWeather => _currentWeather;
         public float WindStrength => _currentWindStrength;
         public float VisibilityRange => _currentVisibilityRange;
-        public bool IsNight => _currentTimeOfDay < 6f || _currentTimeOfDay > 20f;
+        public bool IsNight => _currentTimeOfDay < GameConstants.DAWN_HOUR || _currentTimeOfDay > GameConstants.DUSK_HOUR;
 
         #endregion
 
@@ -180,16 +181,16 @@ namespace Laboratory.Advanced
 
         private void UpdateTime()
         {
-            float hoursPerSecond = 24f / (dayLengthMinutes * 60f);
+            float hoursPerSecond = GameConstants.DAY_LENGTH_HOURS / (dayLengthMinutes * 60f);
             float previousTime = _currentTimeOfDay;
 
             _currentTimeOfDay += hoursPerSecond * Time.deltaTime;
             _totalTimePassed += Time.deltaTime;
 
             // Handle day rollover
-            if (_currentTimeOfDay >= 24f)
+            if (_currentTimeOfDay >= GameConstants.DAY_LENGTH_HOURS)
             {
-                _currentTimeOfDay -= 24f;
+                _currentTimeOfDay -= GameConstants.DAY_LENGTH_HOURS;
                 _currentDay++;
                 OnDayChanged?.Invoke(_currentDay);
                 Debug.Log($"[DynamicWeatherSystem] Day {_currentDay} started");
@@ -203,7 +204,7 @@ namespace Laboratory.Advanced
         /// </summary>
         public void SetTimeOfDay(float hours)
         {
-            _currentTimeOfDay = Mathf.Clamp(hours, 0f, 24f);
+            _currentTimeOfDay = Mathf.Clamp(hours, 0f, GameConstants.DAY_LENGTH_HOURS);
             Debug.Log($"[DynamicWeatherSystem] Time set to {hours:F1}:00");
         }
 
@@ -400,7 +401,7 @@ namespace Laboratory.Advanced
             if (directionalLight == null) return;
 
             // Calculate time factor (0-1 for full day)
-            float timeFactor = _currentTimeOfDay / 24f;
+            float timeFactor = _currentTimeOfDay / GameConstants.DAY_LENGTH_HOURS;
 
             // Sun rotation
             float angle = (timeFactor - 0.25f) * 360f;

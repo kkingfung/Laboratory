@@ -7,6 +7,7 @@ using Laboratory.Shared.Interfaces;
 using Laboratory.Compatibility;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
+using ProjectChimera.Core;
 
 namespace Laboratory.Core.Memory
 {
@@ -25,7 +26,7 @@ namespace Laboratory.Core.Memory
         [SerializeField] private bool preWarmPools = true;
 
         [Header("🎯 Pool Categories")]
-        [SerializeField] private int visualEffectPoolSize = 100;
+        [SerializeField] private int visualEffectPoolSize = GameConstants.DEFAULT_POOL_SIZE;
         [SerializeField] private int audioSourcePoolSize = 50;
         [SerializeField] private int particleSystemPoolSize = 75;
         [SerializeField] private int trailRendererPoolSize = 25;
@@ -341,8 +342,8 @@ namespace Laboratory.Core.Memory
             }
 
             // Initialize component pools
-            componentPools[typeof(CreatureData)] = new ComponentPool(typeof(CreatureData), 1000);
-            componentPools[typeof(CreatureStats)] = new ComponentPool(typeof(CreatureStats), 1000);
+            componentPools[typeof(CreatureData)] = new ComponentPool(typeof(CreatureData), GameConstants.TARGET_MAX_CREATURES);
+            componentPools[typeof(CreatureStats)] = new ComponentPool(typeof(CreatureStats), GameConstants.TARGET_MAX_CREATURES);
             componentPools[typeof(List<float>)] = new ComponentPool(typeof(List<float>), 500);
 
             // Initialize NativeArray pools

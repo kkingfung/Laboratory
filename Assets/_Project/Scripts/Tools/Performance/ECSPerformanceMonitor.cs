@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Diagnostics;
+using ProjectChimera.Core;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -228,7 +229,7 @@ namespace ProjectChimera.Tools.Performance
                 activeSystemCount = _activeSystemCount,
                 totalFrameTimeMs = _totalFrameTimeMs,
                 fps = 1000f / _totalFrameTimeMs,
-                targetFps = 60
+                targetFps = GameConstants.TARGET_FPS
             };
         }
 
@@ -466,8 +467,8 @@ namespace ProjectChimera.Tools.Performance
 
             // Performance bar
             EditorGUILayout.Space();
-            EditorGUILayout.LabelField("Frame Budget (16.67ms for 60 FPS)");
-            float budgetPercent = Mathf.Clamp01(stats.totalFrameTimeMs / 16.67f);
+            EditorGUILayout.LabelField($"Frame Budget ({GameConstants.FRAME_BUDGET_MS:F2}ms for {GameConstants.TARGET_FPS} FPS)");
+            float budgetPercent = Mathf.Clamp01(stats.totalFrameTimeMs / GameConstants.FRAME_BUDGET_MS);
             Rect rect = GUILayoutUtility.GetRect(18, 18);
             EditorGUI.ProgressBar(rect, budgetPercent, $"{stats.totalFrameTimeMs:F2} ms");
         }

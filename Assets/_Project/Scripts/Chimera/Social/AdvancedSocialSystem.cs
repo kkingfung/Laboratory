@@ -13,6 +13,8 @@ namespace Laboratory.Chimera.Social
     /// Advanced social dynamics and emotional intelligence system that models complex
     /// interpersonal relationships, group behaviors, cultural evolution, and empathic connections
     /// between conscious creatures in the ecosystem.
+    ///
+    /// Refactored to use service-based composition for single responsibility.
     /// </summary>
     [CreateAssetMenu(fileName = "AdvancedSocialSystem", menuName = "Chimera/Social/Advanced Social System")]
     public class AdvancedSocialSystem : ScriptableObject
@@ -50,7 +52,6 @@ namespace Laboratory.Chimera.Social
 
         // Communication and language
         private Dictionary<uint, CommunicationSystem> communicationSystems = new Dictionary<uint, CommunicationSystem>();
-        private LanguageEvolutionEngine languageEngine;
         private List<CommunicationEvent> recentCommunications = new List<CommunicationEvent>();
 
         // Group behavior management
@@ -58,19 +59,16 @@ namespace Laboratory.Chimera.Social
         private Dictionary<uint, Leadership> groupLeaderships = new Dictionary<uint, Leadership>();
         private ConflictResolutionSystem conflictResolver;
 
-        // Cultural evolution
-        private CulturalEvolutionEngine cultureEngine;
-        private Dictionary<string, CulturalNorm> establishedNorms = new Dictionary<string, CulturalNorm>();
-        private List<Innovation> culturalInnovations = new List<Innovation>();
-
-        // Emotional systems
-        private EmotionalContagionEngine emotionalContagion;
-        private EmpathyNetworkManager empathyNetwork;
+        // Social learning
         private SocialLearningSystem socialLearning;
 
-        // Metrics and analysis
-        private SocialMetrics globalSocialMetrics = new SocialMetrics();
-        private Dictionary<uint, IndividualSocialProfile> socialProfiles = new Dictionary<uint, IndividualSocialProfile>();
+        // Services (composition-based)
+        private RelationshipManagementService relationshipService;
+        private GroupDynamicsService groupDynamicsService;
+        private CommunicationService communicationService;
+        private CulturalEvolutionService culturalEvolutionService;
+        private EmotionalIntelligenceService emotionalIntelligenceService;
+        private SocialAnalyticsService socialAnalyticsService;
 
         public event Action<uint, uint, RelationshipType> OnRelationshipFormed;
         public event Action<uint, SocialGroup> OnGroupFormed;
@@ -86,16 +84,49 @@ namespace Laboratory.Chimera.Social
 
         private void InitializeSocialSystems()
         {
+            // Core systems
             socialNetwork = new SocialNetworkGraph();
-            languageEngine = new LanguageEvolutionEngine(maxVocabularySize);
             conflictResolver = new ConflictResolutionSystem();
-            cultureEngine = new CulturalEvolutionEngine(culturalTransmissionRate, innovationRate);
-            emotionalContagion = new EmotionalContagionEngine(empathyRange);
-            empathyNetwork = new EmpathyNetworkManager();
             socialLearning = new SocialLearningSystem();
 
-            globalSocialMetrics = new SocialMetrics();
-            UnityEngine.Debug.Log("Social subsystems initialized");
+            // Initialize services
+            relationshipService = new RelationshipManagementService(
+                relationshipDecayRate,
+                socialNetwork,
+                OnRelationshipFormed);
+
+            groupDynamicsService = new GroupDynamicsService(
+                maxGroupSize,
+                groupCohesionThreshold,
+                leadershipEmergenceRate,
+                enableHierarchyFormation,
+                OnGroupFormed,
+                OnLeadershipEmergence,
+                socialLearning);
+
+            communicationService = new CommunicationService(
+                enableLanguageEvolution,
+                maxVocabularySize,
+                communicationEfficiency);
+
+            culturalEvolutionService = new CulturalEvolutionService(
+                enableCulturalEvolution,
+                culturalTransmissionRate,
+                innovationRate,
+                OnCulturalInnovation);
+
+            emotionalIntelligenceService = new EmotionalIntelligenceService(
+                enableEmotionalContagion,
+                empathyRange,
+                empathyDevelopmentRate,
+                emotionalSynchronizationRate,
+                OnEmotionalContagion);
+
+            socialAnalyticsService = new SocialAnalyticsService(
+                groupCohesionThreshold,
+                leadershipEmergenceRate);
+
+            UnityEngine.Debug.Log("Social subsystems and services initialized");
         }
 
         /// <summary>
@@ -111,7 +142,7 @@ namespace Laboratory.Chimera.Social
                 relationships = new Dictionary<uint, SocialRelationship>(),
                 groupMemberships = new List<uint>(),
                 culturalTraits = new List<CulturalTrait>(),
-                communicationProfile = CreateCommunicationProfile(personality, socialTraits),
+                communicationProfile = communicationService.CreateCommunicationProfile(personality, socialTraits),
                 emotionalState = EmotionalState.Neutral,
                 empathyLevel = socialTraits.GetValueOrDefault("Empathy", 0.5f),
                 socialStatus = SocialStatus.Member,
@@ -119,79 +150,17 @@ namespace Laboratory.Chimera.Social
                 socialExperience = 0f
             };
 
-            // Initialize basic cultural traits based on personality
-            InitializeBasicCulture(socialAgent);
+            // Initialize basic cultural traits
+            culturalEvolutionService.InitializeBasicCulture(socialAgent);
 
             socialAgents[creatureId] = socialAgent;
             socialNetwork.AddNode(creatureId);
 
             // Create communication system
-            communicationSystems[creatureId] = new CommunicationSystem
-            {
-                vocabulary = new Dictionary<string, float>(),
-                languageFamily = "Basic",
-                communicationStyle = DetermineCommunicationStyle(personality),
-                expressiveness = socialTraits.GetValueOrDefault("Expressiveness", 0.5f)
-            };
+            communicationSystems[creatureId] = communicationService.CreateCommunicationSystem(personality);
 
             UnityEngine.Debug.Log($"Social agent {creatureId} registered with empathy level {socialAgent.empathyLevel:F3}");
             return socialAgent;
-        }
-
-        private CommunicationProfile CreateCommunicationProfile(Dictionary<string, float> personality, Dictionary<string, float> socialTraits)
-        {
-            return new CommunicationProfile
-            {
-                verbosity = personality.GetValueOrDefault("Extraversion", 0.5f),
-                directness = personality.GetValueOrDefault("Assertiveness", 0.5f),
-                emotionalExpressiveness = socialTraits.GetValueOrDefault("Emotional_Expression", 0.5f),
-                listeningSkill = socialTraits.GetValueOrDefault("Active_Listening", 0.5f),
-                nonVerbalSensitivity = socialTraits.GetValueOrDefault("Body_Language_Reading", 0.5f)
-            };
-        }
-
-        private void InitializeBasicCulture(SocialAgent agent)
-        {
-            // Basic cultural traits every agent starts with
-            agent.culturalTraits.AddRange(new[]
-            {
-                new CulturalTrait
-                {
-                    name = "Cooperation_Tendency",
-                    value = agent.personality.GetValueOrDefault("Agreeableness", 0.5f),
-                    stability = 0.7f,
-                    transmissionRate = 0.3f
-                },
-                new CulturalTrait
-                {
-                    name = "Hierarchy_Respect",
-                    value = agent.personality.GetValueOrDefault("Conscientiousness", 0.5f),
-                    stability = 0.8f,
-                    transmissionRate = 0.4f
-                },
-                new CulturalTrait
-                {
-                    name = "Innovation_Openness",
-                    value = agent.personality.GetValueOrDefault("Openness", 0.5f),
-                    stability = 0.6f,
-                    transmissionRate = 0.2f
-                }
-            });
-        }
-
-        private CommunicationStyle DetermineCommunicationStyle(Dictionary<string, float> personality)
-        {
-            float extraversion = personality.GetValueOrDefault("Extraversion", 0.5f);
-            float agreeableness = personality.GetValueOrDefault("Agreeableness", 0.5f);
-
-            if (extraversion > 0.7f && agreeableness > 0.6f)
-                return CommunicationStyle.Expressive;
-            else if (extraversion < 0.3f && agreeableness > 0.6f)
-                return CommunicationStyle.Analytical;
-            else if (extraversion > 0.6f && agreeableness < 0.4f)
-                return CommunicationStyle.Driver;
-            else
-                return CommunicationStyle.Amiable;
         }
 
         /// <summary>
@@ -221,24 +190,24 @@ namespace Laboratory.Chimera.Social
             var result = ProcessInteractionOutcome(interaction, socialAgentA, socialAgentB);
 
             // Update relationships
-            UpdateRelationship(agentA, agentB, interaction, result);
+            relationshipService.UpdateRelationship(agentA, agentB, interaction, result, socialAgents);
 
             // Emotional contagion
             if (enableEmotionalContagion)
             {
-                ProcessEmotionalContagion(socialAgentA, socialAgentB, interaction);
+                emotionalIntelligenceService.ProcessEmotionalContagion(socialAgentA, socialAgentB, interaction);
             }
 
             // Cultural transmission
             if (enableCulturalEvolution)
             {
-                ProcessCulturalTransmission(socialAgentA, socialAgentB, interaction);
+                culturalEvolutionService.ProcessCulturalTransmission(socialAgentA, socialAgentB, interaction);
             }
 
             // Communication learning
             if (enableLanguageEvolution)
             {
-                ProcessCommunicationLearning(agentA, agentB, interaction);
+                communicationService.ProcessCommunicationLearning(agentA, agentB, interaction, communicationSystems);
             }
 
             // Update social experience
@@ -295,11 +264,11 @@ namespace Laboratory.Chimera.Social
                     // Some traits are better when similar, others when complementary
                     float traitCompatibility = trait switch
                     {
-                        "Agreeableness" => 1f - difference, // Similar is better
-                        "Conscientiousness" => 1f - difference, // Similar is better
-                        "Extraversion" => 0.5f + math.abs(0.5f - difference), // Complementary can be good
-                        "Neuroticism" => 1f - difference, // Similar is better (both low ideally)
-                        "Openness" => 0.8f - difference * 0.5f, // Somewhat similar is good
+                        "Agreeableness" => 1f - difference,
+                        "Conscientiousness" => 1f - difference,
+                        "Extraversion" => 0.5f + math.abs(0.5f - difference),
+                        "Neuroticism" => 1f - difference,
+                        "Openness" => 0.8f - difference * 0.5f,
                         _ => 1f - difference
                     };
 
@@ -329,7 +298,6 @@ namespace Laboratory.Chimera.Social
 
         private InteractionOutcome DetermineInteractionOutcome(SocialAgent agentA, SocialAgent agentB, InteractionType type)
         {
-            // Simplified outcome determination based on agent traits and interaction type
             float outcomeValue = UnityEngine.Random.Range(0f, 1f);
 
             return type switch
@@ -345,109 +313,22 @@ namespace Laboratory.Chimera.Social
 
         private SocialInteractionResult ProcessInteractionOutcome(SocialInteraction interaction, SocialAgent agentA, SocialAgent agentB)
         {
+            float interactionTypeModifier = GetInteractionTypeModifier(interaction.interactionType);
+
             var result = new SocialInteractionResult
             {
                 interaction = interaction,
-                relationshipChange = CalculateRelationshipChange(interaction),
-                empathyGain = CalculateEmpathyGain(agentA, agentB, interaction),
-                culturalExchange = ProcessCulturalExchange(agentA, agentB, interaction),
-                communicationImprovement = CalculateCommunicationImprovement(interaction),
+                relationshipChange = relationshipService.CalculateRelationshipChange(interaction, interactionTypeModifier),
+                empathyGain = emotionalIntelligenceService.CalculateEmpathyGain(agentA, agentB, interaction),
+                culturalExchange = culturalEvolutionService.ProcessCulturalExchange(agentA, agentB, interaction),
+                communicationImprovement = communicationService.CalculateCommunicationImprovement(interaction),
                 groupCohesionChange = CalculateGroupCohesionImpact(agentA, agentB, interaction)
             };
 
             // Apply empathy gain
-            agentA.empathyLevel = math.clamp(agentA.empathyLevel + result.empathyGain * empathyDevelopmentRate, 0f, 1f);
-            agentB.empathyLevel = math.clamp(agentB.empathyLevel + result.empathyGain * empathyDevelopmentRate, 0f, 1f);
+            emotionalIntelligenceService.ApplyEmpathyGain(agentA, agentB, result.empathyGain);
 
             return result;
-        }
-
-        private float CalculateRelationshipChange(SocialInteraction interaction)
-        {
-            float change = 0f;
-
-            switch (interaction.outcome)
-            {
-                case InteractionOutcome.Positive:
-                    change = 0.1f + (interaction.success * 0.2f);
-                    break;
-                case InteractionOutcome.Neutral:
-                    change = 0.02f;
-                    break;
-                case InteractionOutcome.Negative:
-                    change = -0.05f - ((1f - interaction.success) * 0.1f);
-                    break;
-            }
-
-            // Interaction type modifiers
-            change *= GetInteractionTypeModifier(interaction.interactionType);
-
-            return change;
-        }
-
-        private float CalculateEmpathyGain(SocialAgent agentA, SocialAgent agentB, SocialInteraction interaction)
-        {
-            if (interaction.outcome != InteractionOutcome.Positive)
-                return 0f;
-
-            float empathyGain = 0.01f;
-
-            // Empathic individuals gain more empathy from positive interactions
-            empathyGain *= (agentA.empathyLevel + 0.5f);
-
-            // Certain interaction types promote empathy development
-            if (interaction.interactionType == InteractionType.Grooming ||
-                interaction.interactionType == InteractionType.Teaching ||
-                interaction.interactionType == InteractionType.Cooperation)
-            {
-                empathyGain *= 1.5f;
-            }
-
-            return empathyGain;
-        }
-
-        private List<CulturalTrait> ProcessCulturalExchange(SocialAgent agentA, SocialAgent agentB, SocialInteraction interaction)
-        {
-            var exchangedTraits = new List<CulturalTrait>();
-
-            if (interaction.success < 0.6f) return exchangedTraits;
-
-            // Find traits that can be transmitted
-            foreach (var trait in agentB.culturalTraits)
-            {
-                if (UnityEngine.Random.value < trait.transmissionRate * culturalTransmissionRate)
-                {
-                    var existingTrait = agentA.culturalTraits.FirstOrDefault(t => t.name == trait.name);
-                    if (existingTrait != null)
-                    {
-                        // Blend existing trait with new influence
-                        existingTrait.value = (existingTrait.value + trait.value) * 0.5f;
-                    }
-                    else
-                    {
-                        // Adopt new trait (weakened)
-                        agentA.culturalTraits.Add(new CulturalTrait
-                        {
-                            name = trait.name,
-                            value = trait.value * 0.7f, // Weakened adoption
-                            stability = trait.stability * 0.8f,
-                            transmissionRate = trait.transmissionRate
-                        });
-                    }
-
-                    exchangedTraits.Add(trait);
-                }
-            }
-
-            return exchangedTraits;
-        }
-
-        private float CalculateCommunicationImprovement(SocialInteraction interaction)
-        {
-            if (interaction.success > 0.7f)
-                return 0.05f * interaction.success;
-
-            return 0f;
         }
 
         private float CalculateGroupCohesionImpact(SocialAgent agentA, SocialAgent agentB, SocialInteraction interaction)
@@ -469,320 +350,21 @@ namespace Laboratory.Chimera.Social
             return cohesionChange;
         }
 
-        private void UpdateRelationship(uint agentA, uint agentB, SocialInteraction interaction, SocialInteractionResult result)
-        {
-            var agentAData = socialAgents[agentA];
-            var agentBData = socialAgents[agentB];
-
-            // Update or create relationship for agent A
-            if (agentAData.relationships.TryGetValue(agentB, out var relationshipA))
-            {
-                relationshipA.strength = math.clamp(relationshipA.strength + result.relationshipChange, -1f, 1f);
-                relationshipA.interactionCount++;
-                relationshipA.lastInteraction = Time.time;
-                relationshipA.relationshipHistory.Add(interaction);
-
-                // Keep history manageable
-                if (relationshipA.relationshipHistory.Count > 20)
-                {
-                    relationshipA.relationshipHistory.RemoveAt(0);
-                }
-            }
-            else
-            {
-                relationshipA = new SocialRelationship
-                {
-                    targetAgent = agentB,
-                    strength = result.relationshipChange,
-                    relationshipType = DetermineRelationshipType(result.relationshipChange),
-                    formationTime = Time.time,
-                    lastInteraction = Time.time,
-                    interactionCount = 1,
-                    relationshipHistory = new List<SocialInteraction> { interaction }
-                };
-                agentAData.relationships[agentB] = relationshipA;
-            }
-
-            // Mirror for agent B
-            if (agentBData.relationships.TryGetValue(agentA, out var relationshipB))
-            {
-                relationshipB.strength = math.clamp(relationshipB.strength + result.relationshipChange, -1f, 1f);
-                relationshipB.interactionCount++;
-                relationshipB.lastInteraction = Time.time;
-                relationshipB.relationshipHistory.Add(interaction);
-
-                if (relationshipB.relationshipHistory.Count > 20)
-                {
-                    relationshipB.relationshipHistory.RemoveAt(0);
-                }
-            }
-            else
-            {
-                relationshipB = new SocialRelationship
-                {
-                    targetAgent = agentA,
-                    strength = result.relationshipChange,
-                    relationshipType = DetermineRelationshipType(result.relationshipChange),
-                    formationTime = Time.time,
-                    lastInteraction = Time.time,
-                    interactionCount = 1,
-                    relationshipHistory = new List<SocialInteraction> { interaction }
-                };
-                agentBData.relationships[agentA] = relationshipB;
-            }
-
-            // Update social network
-            socialNetwork.UpdateEdge(agentA, agentB, relationshipA.strength);
-
-            // Check for relationship milestones
-            if (relationshipA.strength > 0.7f && relationshipA.relationshipType != RelationshipType.Bond)
-            {
-                relationshipA.relationshipType = RelationshipType.Bond;
-                relationshipB.relationshipType = RelationshipType.Bond;
-                OnRelationshipFormed?.Invoke(agentA, agentB, RelationshipType.Bond);
-            }
-        }
-
-        private RelationshipType DetermineRelationshipType(float strength)
-        {
-            return strength switch
-            {
-                > 0.7f => RelationshipType.Bond,
-                > 0.3f => RelationshipType.Friendly,
-                > -0.3f => RelationshipType.Neutral,
-                > -0.7f => RelationshipType.Antagonistic,
-                _ => RelationshipType.Hostile
-            };
-        }
-
-        private void ProcessEmotionalContagion(SocialAgent agentA, SocialAgent agentB, SocialInteraction interaction)
-        {
-            if (interaction.outcome != InteractionOutcome.Positive)
-                return;
-
-            // More empathic agents are more susceptible to emotional contagion
-            float contagionStrength = (agentA.empathyLevel + agentB.empathyLevel) * 0.5f * emotionalSynchronizationRate;
-
-            if (UnityEngine.Random.value < contagionStrength)
-            {
-                // Agent A adopts some of Agent B's emotional state
-                var previousStateA = agentA.emotionalState;
-
-                if (agentB.emotionalState != agentA.emotionalState)
-                {
-                    // Gradual emotional convergence
-                    if (UnityEngine.Random.value < 0.3f)
-                    {
-                        agentA.emotionalState = agentB.emotionalState;
-                        OnEmotionalContagion?.Invoke(agentA.agentId, agentB.agentId, agentB.emotionalState);
-                    }
-                }
-            }
-        }
-
-        private void ProcessCulturalTransmission(SocialAgent agentA, SocialAgent agentB, SocialInteraction interaction)
-        {
-            if (interaction.success < 0.5f) return;
-
-            cultureEngine.ProcessTransmission(agentA, agentB, interaction);
-        }
-
-        private void ProcessCommunicationLearning(uint agentA, uint agentB, SocialInteraction interaction)
-        {
-            if (interaction.success > 0.6f)
-            {
-                languageEngine.ProcessLearning(agentA, agentB, communicationSystems[agentA], communicationSystems[agentB]);
-            }
-        }
-
         /// <summary>
         /// Forms social groups based on relationship strength and compatibility
         /// </summary>
         public SocialGroup FormSocialGroup(List<uint> memberIds, string groupPurpose)
         {
-            if (memberIds.Count < 2 || memberIds.Count > maxGroupSize)
+            var group = groupDynamicsService.FormSocialGroup(memberIds, groupPurpose, socialAgents);
+            if (group != null)
             {
-                UnityEngine.Debug.LogWarning($"Invalid group size: {memberIds.Count}");
-                return null;
-            }
-
-            // Validate all members exist
-            foreach (var memberId in memberIds)
-            {
-                if (!socialAgents.ContainsKey(memberId))
+                activeGroups[group.groupId] = group;
+                if (group.leadership != null)
                 {
-                    UnityEngine.Debug.LogError($"Cannot form group: Agent {memberId} not found");
-                    return null;
+                    groupLeaderships[group.groupId] = group.leadership;
                 }
             }
-
-            var groupId = GenerateGroupId();
-            var group = new SocialGroup
-            {
-                groupId = groupId,
-                memberIds = new List<uint>(memberIds),
-                purpose = groupPurpose,
-                formationTime = Time.time,
-                cohesion = CalculateGroupCohesion(memberIds),
-                hierarchy = new Dictionary<uint, SocialRank>(),
-                groupNorms = new List<CulturalTrait>(),
-                leadership = null,
-                communicationNetwork = new Dictionary<uint, List<uint>>(),
-                collectiveMemory = new List<GroupMemory>()
-            };
-
-            // Initialize hierarchy
-            InitializeGroupHierarchy(group);
-
-            // Initialize group norms from member traits
-            InitializeGroupNorms(group);
-
-            // Set up communication network within group
-            EstablishCommunicationNetwork(group);
-
-            // Register group membership for all members
-            foreach (var memberId in memberIds)
-            {
-                socialAgents[memberId].groupMemberships.Add(groupId);
-            }
-
-            activeGroups[groupId] = group;
-            OnGroupFormed?.Invoke(groupId, group);
-
-            UnityEngine.Debug.Log($"Social group {groupId} formed with {memberIds.Count} members, cohesion: {group.cohesion:F3}");
             return group;
-        }
-
-        private float CalculateGroupCohesion(List<uint> memberIds)
-        {
-            if (memberIds.Count < 2) return 0f;
-
-            float totalCohesion = 0f;
-            int relationshipCount = 0;
-
-            for (int i = 0; i < memberIds.Count; i++)
-            {
-                for (int j = i + 1; j < memberIds.Count; j++)
-                {
-                    var agentA = socialAgents[memberIds[i]];
-                    if (agentA.relationships.TryGetValue(memberIds[j], out var relationship))
-                    {
-                        totalCohesion += math.max(0f, relationship.strength);
-                    }
-                    relationshipCount++;
-                }
-            }
-
-            return relationshipCount > 0 ? totalCohesion / relationshipCount : 0.3f;
-        }
-
-        private void InitializeGroupHierarchy(SocialGroup group)
-        {
-            if (!enableHierarchyFormation) return;
-
-            foreach (var memberId in group.memberIds)
-            {
-                var agent = socialAgents[memberId];
-
-                // Calculate social ranking based on traits and relationships
-                float ranking = CalculateSocialRanking(agent, group);
-
-                group.hierarchy[memberId] = new SocialRank
-                {
-                    agentId = memberId,
-                    rank = ranking,
-                    influence = ranking * 0.8f,
-                    leadership = ranking > 0.8f
-                };
-            }
-
-            // Establish leadership if someone has high ranking
-            var potentialLeader = group.hierarchy.Values.OrderByDescending(r => r.rank).First();
-            if (potentialLeader.rank > 0.7f)
-            {
-                group.leadership = new Leadership
-                {
-                    leaderId = potentialLeader.agentId,
-                    leadershipStyle = DetermineLeadershipStyle(socialAgents[potentialLeader.agentId]),
-                    authority = potentialLeader.rank,
-                    emergenceTime = Time.time
-                };
-
-                groupLeaderships[group.groupId] = group.leadership;
-                OnLeadershipEmergence?.Invoke(group.groupId, potentialLeader.agentId);
-            }
-        }
-
-        private float CalculateSocialRanking(SocialAgent agent, SocialGroup group)
-        {
-            float ranking = 0f;
-
-            // Personality factors
-            ranking += agent.personality.GetValueOrDefault("Extraversion", 0.5f) * 0.3f;
-            ranking += agent.personality.GetValueOrDefault("Conscientiousness", 0.5f) * 0.2f;
-            ranking += agent.socialTraits.GetValueOrDefault("Leadership", 0.5f) * 0.4f;
-
-            // Social network position
-            var relationships = agent.relationships.Values.Where(r => group.memberIds.Contains(r.targetAgent));
-            float avgRelationshipStrength = relationships.Any() ? relationships.Average(r => r.strength) : 0f;
-            ranking += avgRelationshipStrength * 0.1f;
-
-            return math.clamp(ranking, 0f, 1f);
-        }
-
-        private LeadershipStyle DetermineLeadershipStyle(SocialAgent agent)
-        {
-            float agreeableness = agent.personality.GetValueOrDefault("Agreeableness", 0.5f);
-            float conscientiousness = agent.personality.GetValueOrDefault("Conscientiousness", 0.5f);
-
-            if (agreeableness > 0.7f && conscientiousness > 0.7f)
-                return LeadershipStyle.Democratic;
-            else if (agreeableness < 0.3f && conscientiousness > 0.7f)
-                return LeadershipStyle.Autocratic;
-            else if (agreeableness > 0.6f)
-                return LeadershipStyle.Collaborative;
-            else
-                return LeadershipStyle.Laissez_Faire;
-        }
-
-        private void InitializeGroupNorms(SocialGroup group)
-        {
-            var memberTraits = new Dictionary<string, List<float>>();
-
-            // Collect all cultural traits from members
-            foreach (var memberId in group.memberIds)
-            {
-                var agent = socialAgents[memberId];
-                foreach (var trait in agent.culturalTraits)
-                {
-                    if (!memberTraits.ContainsKey(trait.name))
-                        memberTraits[trait.name] = new List<float>();
-
-                    memberTraits[trait.name].Add(trait.value);
-                }
-            }
-
-            // Create group norms as average of member traits
-            foreach (var traitSet in memberTraits)
-            {
-                var groupNorm = new CulturalTrait
-                {
-                    name = traitSet.Key,
-                    value = traitSet.Value.Average(),
-                    stability = 0.8f, // Group norms are more stable
-                    transmissionRate = 0.5f // Higher transmission within group
-                };
-
-                group.groupNorms.Add(groupNorm);
-            }
-        }
-
-        private void EstablishCommunicationNetwork(SocialGroup group)
-        {
-            foreach (var memberId in group.memberIds)
-            {
-                group.communicationNetwork[memberId] = group.memberIds.Where(id => id != memberId).ToList();
-            }
         }
 
         /// <summary>
@@ -790,154 +372,23 @@ namespace Laboratory.Chimera.Social
         /// </summary>
         public void UpdateSocialSystems(float deltaTime)
         {
-            UpdateRelationshipDecay(deltaTime);
+            relationshipService.UpdateRelationshipDecay(socialAgents, deltaTime);
             UpdateGroupDynamics(deltaTime);
-            UpdateCulturalEvolution(deltaTime);
-            UpdateEmotionalStates(deltaTime);
+            culturalEvolutionService.UpdateCulturalEvolution(socialAgents, globalCulture, deltaTime);
+            emotionalIntelligenceService.UpdateEmotionalStates(socialAgents, activeGroups, deltaTime);
             ProcessSocialEvents(deltaTime);
             UpdateSocialMetrics();
         }
 
-        private void UpdateRelationshipDecay(float deltaTime)
-        {
-            foreach (var agent in socialAgents.Values)
-            {
-                var expiredRelationships = new List<uint>();
-
-                foreach (var relationship in agent.relationships.Values)
-                {
-                    // Relationships decay over time without interaction
-                    float timeSinceInteraction = Time.time - relationship.lastInteraction;
-                    float decayAmount = relationshipDecayRate * timeSinceInteraction * deltaTime;
-
-                    relationship.strength = math.max(-1f, relationship.strength - decayAmount);
-
-                    // Remove very weak relationships
-                    if (relationship.strength < -0.8f && relationship.interactionCount < 3)
-                    {
-                        expiredRelationships.Add(relationship.targetAgent);
-                    }
-                }
-
-                // Clean up expired relationships
-                foreach (var expiredId in expiredRelationships)
-                {
-                    agent.relationships.Remove(expiredId);
-                    socialNetwork.RemoveEdge(agent.agentId, expiredId);
-                }
-            }
-        }
-
         private void UpdateGroupDynamics(float deltaTime)
         {
-            var groupsToRemove = new List<uint>();
-
-            foreach (var group in activeGroups.Values)
-            {
-                // Update group cohesion
-                group.cohesion = CalculateGroupCohesion(group.memberIds);
-
-                // Check for group dissolution
-                if (group.cohesion < groupCohesionThreshold * 0.3f)
-                {
-                    groupsToRemove.Add(group.groupId);
-                    continue;
-                }
-
-                // Update leadership
-                if (group.leadership != null)
-                {
-                    UpdateLeadership(group, deltaTime);
-                }
-
-                // Process group learning and cultural evolution
-                ProcessGroupLearning(group, deltaTime);
-            }
+            var groupsToRemove = groupDynamicsService.UpdateGroupDynamics(activeGroups, socialAgents, groupLeaderships, deltaTime);
 
             // Remove dissolved groups
             foreach (var groupId in groupsToRemove)
             {
-                DissolveGroup(groupId);
+                groupDynamicsService.DissolveGroup(groupId, activeGroups, socialAgents, groupLeaderships);
             }
-        }
-
-        private void UpdateLeadership(SocialGroup group, float deltaTime)
-        {
-            var leader = socialAgents[group.leadership.leaderId];
-
-            // Leadership can change based on performance and group dynamics
-            if (UnityEngine.Random.value < leadershipEmergenceRate * deltaTime)
-            {
-                var challengerRank = group.hierarchy.Values
-                    .Where(r => r.agentId != group.leadership.leaderId)
-                    .OrderByDescending(r => r.rank)
-                    .FirstOrDefault();
-
-                if (challengerRank != null && challengerRank.rank > group.leadership.authority + 0.2f)
-                {
-                    // Leadership change
-                    group.leadership.leaderId = challengerRank.agentId;
-                    group.leadership.authority = challengerRank.rank;
-                    group.leadership.emergenceTime = Time.time;
-
-                    OnLeadershipEmergence?.Invoke(group.groupId, challengerRank.agentId);
-                }
-            }
-        }
-
-        private void ProcessGroupLearning(SocialGroup group, float deltaTime)
-        {
-            // Groups can develop collective intelligence and shared culture
-            if (group.memberIds.Count > 3 && group.cohesion > 0.6f)
-            {
-                socialLearning.ProcessGroupLearning(group, socialAgents, deltaTime);
-            }
-        }
-
-        private void DissolveGroup(uint groupId)
-        {
-            if (activeGroups.TryGetValue(groupId, out var group))
-            {
-                // Remove group membership from all members
-                foreach (var memberId in group.memberIds)
-                {
-                    if (socialAgents.TryGetValue(memberId, out var agent))
-                    {
-                        agent.groupMemberships.Remove(groupId);
-                    }
-                }
-
-                // Remove leadership if exists
-                groupLeaderships.Remove(groupId);
-
-                UnityEngine.Debug.Log($"Group {groupId} dissolved due to low cohesion");
-            }
-
-            activeGroups.Remove(groupId);
-        }
-
-        private void UpdateCulturalEvolution(float deltaTime)
-        {
-            if (enableCulturalEvolution)
-            {
-                cultureEngine.UpdateCulturalEvolution(socialAgents.Values, globalCulture, deltaTime);
-
-                // Check for cultural innovations
-                if (UnityEngine.Random.value < innovationRate * deltaTime)
-                {
-                    var innovation = cultureEngine.GenerateInnovation(socialAgents.Values.ToList());
-                    if (innovation != null)
-                    {
-                        culturalInnovations.Add(innovation);
-                        OnCulturalInnovation?.Invoke(innovation.culturalTrait);
-                    }
-                }
-            }
-        }
-
-        private void UpdateEmotionalStates(float deltaTime)
-        {
-            emotionalContagion.UpdateEmotionalStates(socialAgents.Values, activeGroups.Values, deltaTime);
         }
 
         private void ProcessSocialEvents(float deltaTime)
@@ -955,44 +406,15 @@ namespace Laboratory.Chimera.Social
 
         private void UpdateSocialMetrics()
         {
-            globalSocialMetrics.totalAgents = socialAgents.Count;
-            globalSocialMetrics.totalGroups = activeGroups.Count;
-            globalSocialMetrics.averageGroupSize = activeGroups.Any() ? (float)activeGroups.Values.Average(g => g.memberIds.Count) : 0f;
-            globalSocialMetrics.averageEmpathy = socialAgents.Values.Average(a => a.empathyLevel);
-            globalSocialMetrics.culturalDiversity = CalculateCulturalDiversity();
-            globalSocialMetrics.socialNetworkDensity = socialNetwork.CalculateNetworkDensity();
-        }
+            float culturalDiversity = culturalEvolutionService.CalculateCulturalDiversity(socialAgents);
+            float averageEmpathy = emotionalIntelligenceService.CalculateAverageEmpathy(socialAgents);
 
-        private float CalculateCulturalDiversity()
-        {
-            if (socialAgents.Count == 0) return 0f;
-
-            var allTraits = socialAgents.Values
-                .SelectMany(a => a.culturalTraits)
-                .GroupBy(t => t.name)
-                .ToDictionary(g => g.Key, g => g.Select(t => t.value).ToList());
-
-            float diversity = 0f;
-            foreach (var traitValues in allTraits.Values)
-            {
-                if (traitValues.Count > 1)
-                {
-                    float variance = CalculateVariance(traitValues);
-                    diversity += variance;
-                }
-            }
-
-            return allTraits.Count > 0 ? diversity / allTraits.Count : 0f;
-        }
-
-        private float CalculateVariance(List<float> values)
-        {
-            if (values.Count <= 1) return 0f;
-
-            float mean = values.Average();
-            float sumSquaredDiffs = values.Sum(v => (v - mean) * (v - mean));
-
-            return sumSquaredDiffs / (values.Count - 1);
+            socialAnalyticsService.UpdateSocialMetrics(
+                socialAgents,
+                activeGroups,
+                socialNetwork,
+                culturalDiversity,
+                averageEmpathy);
         }
 
         /// <summary>
@@ -1000,238 +422,25 @@ namespace Laboratory.Chimera.Social
         /// </summary>
         public SocialAnalysisReport GenerateSocialReport()
         {
-            return new SocialAnalysisReport
-            {
-                globalMetrics = globalSocialMetrics,
-                networkAnalysis = socialNetwork.AnalyzeNetwork(),
-                groupDynamics = AnalyzeGroupDynamics(),
-                culturalAnalysis = AnalyzeCulturalEvolution(),
-                communicationPatterns = AnalyzeCommunicationPatterns(),
-                leadershipAnalysis = AnalyzeLeadership(),
-                conflictAnalysis = AnalyzeConflicts(),
-                empathyNetworkAnalysis = empathyNetwork.AnalyzeEmpathyConnections(socialAgents.Values),
-                socialTrends = IdentifySocialTrends(),
-                recommendations = GenerateSocialRecommendations()
-            };
+            var empathyNetworkAnalysis = emotionalIntelligenceService.AnalyzeEmpathyNetwork(socialAgents);
+            var communicationAnalysis = communicationService.AnalyzeCommunicationPatterns(communicationSystems);
+            var culturalDiversity = culturalEvolutionService.CalculateCulturalDiversity(socialAgents);
+            var culturalAnalysis = culturalEvolutionService.AnalyzeCulturalEvolution(socialAgents, culturalDiversity);
+
+            return socialAnalyticsService.GenerateSocialReport(
+                socialAgents,
+                activeGroups,
+                groupLeaderships,
+                socialNetwork,
+                socialEvents,
+                culturalEvolutionService.GetCulturalInnovations(),
+                empathyNetworkAnalysis,
+                communicationAnalysis,
+                culturalAnalysis);
         }
-
-        private GroupDynamicsAnalysis AnalyzeGroupDynamics()
-        {
-            return new GroupDynamicsAnalysis
-            {
-                totalGroups = activeGroups.Count,
-                averageCohesion = activeGroups.Values.Average(g => g.cohesion),
-                leadershipDistribution = CalculateLeadershipDistribution(),
-                groupStability = CalculateGroupStability(),
-                hierarchyComplexity = CalculateHierarchyComplexity()
-            };
-        }
-
-        private Dictionary<LeadershipStyle, int> CalculateLeadershipDistribution()
-        {
-            return groupLeaderships.Values
-                .GroupBy(l => l.leadershipStyle)
-                .ToDictionary(g => g.Key, g => g.Count());
-        }
-
-        private float CalculateGroupStability()
-        {
-            if (activeGroups.Count == 0) return 1f;
-
-            return activeGroups.Values.Count(g => g.cohesion > groupCohesionThreshold) / (float)activeGroups.Count;
-        }
-
-        private float CalculateHierarchyComplexity()
-        {
-            if (activeGroups.Count == 0) return 0f;
-
-            return activeGroups.Values.Average(g => g.hierarchy.Values.Max(h => h.rank) - g.hierarchy.Values.Min(h => h.rank));
-        }
-
-        private CulturalAnalysis AnalyzeCulturalEvolution()
-        {
-            return new CulturalAnalysis
-            {
-                culturalDiversity = globalSocialMetrics.culturalDiversity,
-                innovationRate = culturalInnovations.Count / math.max(1f, socialAgents.Count),
-                traditionalismIndex = CalculateTraditionalism(),
-                culturalTransmissionEfficiency = CalculateCulturalTransmissionEfficiency(),
-                dominantCulturalTraits = IdentifyDominantCulturalTraits()
-            };
-        }
-
-        private float CalculateTraditionalism()
-        {
-            if (socialAgents.Count == 0) return 0f;
-
-            return socialAgents.Values.Average(a => a.culturalTraits.Average(t => t.stability));
-        }
-
-        private float CalculateCulturalTransmissionEfficiency()
-        {
-            // Simplified calculation based on successful cultural exchanges
-            return 0.7f; // Placeholder
-        }
-
-        private List<string> IdentifyDominantCulturalTraits()
-        {
-            var traitFrequency = new Dictionary<string, int>();
-
-            foreach (var agent in socialAgents.Values)
-            {
-                foreach (var trait in agent.culturalTraits)
-                {
-                    traitFrequency[trait.name] = traitFrequency.GetValueOrDefault(trait.name, 0) + 1;
-                }
-            }
-
-            return traitFrequency
-                .OrderByDescending(kvp => kvp.Value)
-                .Take(5)
-                .Select(kvp => kvp.Key)
-                .ToList();
-        }
-
-        private CommunicationAnalysis AnalyzeCommunicationPatterns()
-        {
-            return new CommunicationAnalysis
-            {
-                averageVocabularySize = (float)communicationSystems.Values.Average(c => c.vocabulary.Count),
-                communicationEfficiency = this.communicationEfficiency,
-                languageDiversity = CalculateLanguageDiversity(),
-                communicationFrequency = CalculateCommunicationFrequency()
-            };
-        }
-
-        private float CalculateLanguageDiversity()
-        {
-            var languageFamilies = communicationSystems.Values
-                .GroupBy(c => c.languageFamily)
-                .Count();
-
-            return languageFamilies / (float)math.max(1, communicationSystems.Count);
-        }
-
-        private float CalculateCommunicationFrequency()
-        {
-            return recentCommunications.Count / math.max(1f, socialAgents.Count);
-        }
-
-        private LeadershipAnalysis AnalyzeLeadership()
-        {
-            return new LeadershipAnalysis
-            {
-                leadershipEmergenceRate = this.leadershipEmergenceRate,
-                averageLeadershipTenure = CalculateAverageLeadershipTenure(),
-                leadershipStyleDistribution = CalculateLeadershipDistribution(),
-                leadershipEffectiveness = CalculateLeadershipEffectiveness()
-            };
-        }
-
-        private float CalculateAverageLeadershipTenure()
-        {
-            if (groupLeaderships.Count == 0) return 0f;
-
-            return groupLeaderships.Values.Average(l => Time.time - l.emergenceTime);
-        }
-
-        private float CalculateLeadershipEffectiveness()
-        {
-            if (groupLeaderships.Count == 0) return 0f;
-
-            float totalEffectiveness = 0f;
-            foreach (var leadership in groupLeaderships.Values)
-            {
-                if (activeGroups.TryGetValue(leadership.leaderId, out var group))
-                {
-                    totalEffectiveness += group.cohesion;
-                }
-            }
-
-            return totalEffectiveness / groupLeaderships.Count;
-        }
-
-        private ConflictAnalysis AnalyzeConflicts()
-        {
-            var conflicts = socialEvents.OfType<SocialConflict>().ToList();
-
-            return new ConflictAnalysis
-            {
-                totalConflicts = conflicts.Count,
-                conflictResolutionRate = CalculateConflictResolutionRate(conflicts),
-                commonConflictCauses = IdentifyCommonConflictCauses(conflicts),
-                conflictIntensityDistribution = CalculateConflictIntensityDistribution(conflicts)
-            };
-        }
-
-        private float CalculateConflictResolutionRate(List<SocialConflict> conflicts)
-        {
-            if (conflicts.Count == 0) return 1f;
-
-            return conflicts.Count(c => c.resolved) / (float)conflicts.Count;
-        }
-
-        private List<string> IdentifyCommonConflictCauses(List<SocialConflict> conflicts)
-        {
-            return conflicts
-                .GroupBy(c => c.cause)
-                .OrderByDescending(g => g.Count())
-                .Take(3)
-                .Select(g => g.Key)
-                .ToList();
-        }
-
-        private Dictionary<ConflictIntensity, int> CalculateConflictIntensityDistribution(List<SocialConflict> conflicts)
-        {
-            return conflicts
-                .GroupBy(c => c.intensity)
-                .ToDictionary(g => g.Key, g => g.Count());
-        }
-
-        private List<string> IdentifySocialTrends()
-        {
-            var trends = new List<string>();
-
-            if (globalSocialMetrics.averageEmpathy > 0.7f)
-                trends.Add("High empathy levels promoting social cohesion");
-
-            if (globalSocialMetrics.culturalDiversity > 0.6f)
-                trends.Add("Rich cultural diversity with active trait exchange");
-
-            if (activeGroups.Values.Average(g => g.cohesion) > 0.7f)
-                trends.Add("Strong group formation and maintenance");
-
-            if (culturalInnovations.Count > socialAgents.Count * 0.1f)
-                trends.Add("High rate of cultural innovation");
-
-            return trends;
-        }
-
-        private List<string> GenerateSocialRecommendations()
-        {
-            var recommendations = new List<string>();
-
-            if (globalSocialMetrics.averageEmpathy < 0.4f)
-                recommendations.Add("Promote empathy development through positive social interactions");
-
-            if (activeGroups.Count < socialAgents.Count * 0.3f)
-                recommendations.Add("Facilitate group formation opportunities");
-
-            if (globalSocialMetrics.culturalDiversity < 0.3f)
-                recommendations.Add("Encourage cultural exchange and innovation");
-
-            if (socialEvents.OfType<SocialConflict>().Count() > socialAgents.Count * 0.1f)
-                recommendations.Add("Implement conflict resolution training and mediation");
-
-            return recommendations;
-        }
-
-        // ID generation
-        private uint GenerateGroupId() => (uint)UnityEngine.Random.Range(1, int.MaxValue);
     }
 
-    // Social system data structures and enums would be defined here...
-    // [Due to length constraints, I'm including key classes but the full implementation would contain all supporting data structures]
+    // Social system data structures and enums
 
     public enum InteractionType
     {
@@ -1412,7 +621,7 @@ namespace Laboratory.Chimera.Social
         public List<string> recommendations;
     }
 
-    // Supporting classes and systems would be implemented here...
+    // Supporting classes and systems
     public class SocialNetworkGraph
     {
         private Dictionary<uint, List<uint>> adjacencyList = new Dictionary<uint, List<uint>>();
@@ -1462,7 +671,7 @@ namespace Laboratory.Chimera.Social
         public float CalculateNetworkDensity()
         {
             int totalPossibleEdges = adjacencyList.Count * (adjacencyList.Count - 1) / 2;
-            int actualEdges = edgeWeights.Count / 2; // Each edge is counted twice
+            int actualEdges = edgeWeights.Count / 2;
 
             return totalPossibleEdges > 0 ? (float)actualEdges / totalPossibleEdges : 0f;
         }
@@ -1487,7 +696,6 @@ namespace Laboratory.Chimera.Social
 
         private float CalculateClusteringCoefficient()
         {
-            // Simplified clustering coefficient calculation
             float totalClustering = 0f;
             int nodeCount = 0;
 
@@ -1521,7 +729,7 @@ namespace Laboratory.Chimera.Social
         }
     }
 
-    // Additional supporting classes would be implemented here...
+    // Additional supporting classes
     [System.Serializable]
     public class NetworkAnalysis
     {

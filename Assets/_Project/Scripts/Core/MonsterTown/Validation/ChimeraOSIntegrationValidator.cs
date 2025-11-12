@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.MonsterTown.Systems;
+using ProjectChimera.Core;
 
 namespace Laboratory.Core.MonsterTown.Validation
 {
@@ -23,9 +24,9 @@ namespace Laboratory.Core.MonsterTown.Validation
         [SerializeField] private bool verboseLogging = true;
 
         [Header("Performance Targets")]
-        [SerializeField] private int targetCreatureCount = 1000;
-        [SerializeField] private float targetFrameRate = 60f;
-        [SerializeField] private float maxSystemExecutionTime = 16.67f; // 60 FPS budget in ms
+        [SerializeField] private int targetCreatureCount = GameConstants.TARGET_MAX_CREATURES;
+        [SerializeField] private float targetFrameRate = GameConstants.TARGET_FPS;
+        [SerializeField] private float maxSystemExecutionTime = GameConstants.FRAME_BUDGET_MS;
 
         // Validation results
         private readonly List<ValidationResult> _validationResults = new();

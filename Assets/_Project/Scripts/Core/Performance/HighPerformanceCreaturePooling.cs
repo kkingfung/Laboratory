@@ -7,6 +7,7 @@ using Unity.Transforms;
 using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Core.Configuration;
+using ProjectChimera.Core;
 
 namespace Laboratory.Core.Performance
 {
@@ -19,7 +20,7 @@ namespace Laboratory.Core.Performance
     {
         [Header("Pool Configuration")]
         [SerializeField] private int maxCreatures = 10000;
-        [SerializeField] private int warmPoolSize = 1000;
+        [SerializeField] private int warmPoolSize = GameConstants.TARGET_MAX_CREATURES;
         [SerializeField] private float cullingDistance = 500f; // Distance beyond which creatures are automatically culled
         [SerializeField] private int maxSpawnsPerFrame = 10;
         [SerializeField] private float performanceBudgetMs = 2.0f; // Max 2ms per frame for creature management

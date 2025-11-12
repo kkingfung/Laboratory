@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Diagnostics;
+using ProjectChimera.Core;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -50,13 +51,13 @@ namespace ProjectChimera.Tools.Performance
         public bool enableProfiling = true;
 
         [Tooltip("Target frame rate")]
-        public int targetFPS = 60;
+        public int targetFPS = GameConstants.TARGET_FPS;
 
         [Tooltip("Maximum history frames")]
         public int maxHistoryFrames = 300;
 
         [Tooltip("Spike detection threshold (ms above average)")]
-        public float spikeThresholdMs = 5f;
+        public float spikeThresholdMs = GameConstants.PERFORMANCE_WARNING_THRESHOLD_MS;
 
         [Header("Display")]
         [Tooltip("Show on-screen overlay")]
@@ -77,7 +78,7 @@ namespace ProjectChimera.Tools.Performance
         private Stopwatch _frameStopwatch = new Stopwatch();
 
         // Statistics
-        private float _averageFrameTimeMs = 16.67f;
+        private float _averageFrameTimeMs = GameConstants.FRAME_BUDGET_MS;
         private float _minFrameTimeMs = 0f;
         private float _maxFrameTimeMs = 0f;
         private int _spikeCount = 0;

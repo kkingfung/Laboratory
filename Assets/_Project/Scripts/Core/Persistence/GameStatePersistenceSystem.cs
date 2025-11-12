@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ProjectChimera.Core;
 
 namespace Laboratory.Core.Persistence
 {
@@ -15,8 +16,8 @@ namespace Laboratory.Core.Persistence
     {
         [Header("Persistence Configuration")]
         [SerializeField] private bool enableAutomaticSaving = true;
-        [SerializeField] private float autoSaveInterval = 300f; // 5 minutes
-        [SerializeField] private int maxSaveSlots = 10;
+        [SerializeField] private float autoSaveInterval = GameConstants.AUTOSAVE_INTERVAL_SECONDS;
+        [SerializeField] private int maxSaveSlots = GameConstants.MAX_SAVE_SLOTS;
         [SerializeField] private bool compressSaveData = true;
 
         [Header("Save Data Management")]
