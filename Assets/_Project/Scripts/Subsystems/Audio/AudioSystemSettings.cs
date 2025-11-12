@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Audio;
+using ProjectChimera.Core;
 
 namespace Laboratory.Audio
 {
@@ -14,21 +15,21 @@ namespace Laboratory.Audio
         [Header("Volume Settings")]
         [Range(0f, 1f)]
         public float masterVolume = 1f;
-        
+
         [Range(0f, 1f)]
-        public float musicVolume = 0.8f;
-        
+        public float musicVolume = GameConstants.DEFAULT_MASTER_VOLUME;
+
         [Range(0f, 1f)]
         public float sfxVolume = 1f;
-        
+
         [Range(0f, 1f)]
         public float ambientVolume = 0.6f;
-        
+
         [Range(0f, 1f)]
         public float voiceVolume = 1f;
-        
+
         [Range(0f, 1f)]
-        public float uiVolume = 0.8f;
+        public float uiVolume = GameConstants.DEFAULT_MASTER_VOLUME;
 
         [Header("3D Audio Settings")]
         public bool enable3DAudio = true;
@@ -89,11 +90,11 @@ namespace Laboratory.Audio
         public void ResetToDefaults()
         {
             masterVolume = 1f;
-            musicVolume = 0.8f;
+            musicVolume = GameConstants.DEFAULT_MASTER_VOLUME;
             sfxVolume = 1f;
             ambientVolume = 0.6f;
             voiceVolume = 1f;
-            uiVolume = 0.8f;
+            uiVolume = GameConstants.DEFAULT_MASTER_VOLUME;
             
             enable3DAudio = true;
             dopplerLevel = 1f;
