@@ -142,7 +142,7 @@ namespace Laboratory.Chimera.Editor
             // Check if asset already exists
             if (!overwrite && AssetDatabase.LoadAssetAtPath<ChimeraUniverseConfiguration>(assetPath) != null)
             {
-                Laboratory.Chimera.Debug.DebugManager.LogWarning($"Configuration already exists at {assetPath}. Use overwrite option to replace it.");
+                Laboratory.Chimera.Diagnostics.DebugManager.LogWarning($"Configuration already exists at {assetPath}. Use overwrite option to replace it.");
                 return;
             }
 
@@ -164,7 +164,7 @@ namespace Laboratory.Chimera.Editor
             Selection.activeObject = config;
             EditorGUIUtility.PingObject(config);
 
-            Laboratory.Chimera.Debug.DebugManager.Log($"✅ Created Chimera Universe Configuration at: {assetPath}");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log($"✅ Created Chimera Universe Configuration at: {assetPath}");
         }
 
         private void CreateDemoSceneSetup()
@@ -196,7 +196,7 @@ namespace Laboratory.Chimera.Editor
             var prefab = PrefabUtility.SaveAsPrefabAsset(demoSetup, prefabPath);
             DestroyImmediate(demoSetup);
 
-            Laboratory.Chimera.Debug.DebugManager.Log($"✅ Created Chimera World Demo prefab at: {prefabPath}");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log($"✅ Created Chimera World Demo prefab at: {prefabPath}");
         }
 
         private void CreateExamplePrefabs()
@@ -223,7 +223,7 @@ namespace Laboratory.Chimera.Editor
             PrefabUtility.SaveAsPrefabAsset(creatureViz, creaturePrefabPath);
             DestroyImmediate(creatureViz);
 
-            Laboratory.Chimera.Debug.DebugManager.Log($"✅ Created creature visualization prefab at: {creaturePrefabPath}");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log($"✅ Created creature visualization prefab at: {creaturePrefabPath}");
         }
 
         [MenuItem("🧪 Laboratory/Project Chimera/Assets/Testing Scene")]
@@ -259,7 +259,7 @@ namespace Laboratory.Chimera.Editor
             groundMaterial.color = new Color(0.3f, 0.7f, 0.3f);
             ground.GetComponent<Renderer>().material = groundMaterial;
 
-            Laboratory.Chimera.Debug.DebugManager.Log("✅ Created Chimera testing scene with world bootstrap!");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log("✅ Created Chimera testing scene with world bootstrap!");
         }
     }
 

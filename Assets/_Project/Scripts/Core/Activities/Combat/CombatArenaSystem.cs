@@ -422,13 +422,12 @@ namespace Laboratory.Core.Activities.Combat
 
         protected override void OnCreate()
         {
-            combatQuery = GetEntityQuery(new ComponentType[]
-            {
+            combatQuery = GetEntityQuery(
                 ComponentType.ReadWrite<CombatFighterComponent>(),
                 ComponentType.ReadWrite<CombatActionComponent>(),
                 ComponentType.ReadOnly<CombatPerformanceComponent>(),
                 ComponentType.ReadOnly<GeneticDataComponent>()
-            });
+            );
             random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 

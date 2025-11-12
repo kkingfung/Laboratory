@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 
-namespace Laboratory.Subsystems.Debug
+namespace Laboratory.Subsystems.Monitoring
 {
     #region Core Debug Data Types
 

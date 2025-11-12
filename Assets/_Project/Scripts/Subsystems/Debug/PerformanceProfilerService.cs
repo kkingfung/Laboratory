@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Unity.Profiling;
 
-namespace Laboratory.Subsystems.Debug
+namespace Laboratory.Subsystems.Monitoring
 {
     /// <summary>
     /// Concrete implementation of performance profiler service

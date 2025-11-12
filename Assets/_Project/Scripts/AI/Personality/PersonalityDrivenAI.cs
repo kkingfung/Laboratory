@@ -5,7 +5,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Chimera.AI;
 using Laboratory.Core;
-using Laboratory.Core.Debug;
+using Laboratory.Core.Diagnostics;
 using Laboratory.Core.Enums;
 
 namespace Laboratory.AI.Personality

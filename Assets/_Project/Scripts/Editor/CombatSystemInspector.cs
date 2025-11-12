@@ -50,11 +50,11 @@ namespace Laboratory.Editor
                     if (GUILayout.Button("Test Jump"))
                     {
                         // Simulate jump input
-                        UnityEngine.Debug.Log("Jump test triggered");
+                        Debug.Log("Jump test triggered");
                     }
                     if (GUILayout.Button("Test Run"))
                     {
-                        UnityEngine.Debug.Log("Run test triggered");
+                        Debug.Log("Run test triggered");
                     }
                     GUILayout.EndHorizontal();
                 }
@@ -85,7 +85,7 @@ namespace Laboratory.Editor
                     if (GUILayout.Button("Test Attack"))
                     {
                         // Trigger attack animation or logic
-                        UnityEngine.Debug.Log("Attack test triggered");
+                        Debug.Log("Attack test triggered");
                     }
                     if (GUILayout.Button("Take 10 Damage"))
                     {
@@ -233,12 +233,12 @@ namespace Laboratory.Editor
                     
                     if (GUILayout.Button("Force Patrol State"))
                     {
-                        UnityEngine.Debug.Log("Forcing patrol state");
+                        Debug.Log("Forcing patrol state");
                     }
                     
                     if (GUILayout.Button("Force Attack State"))
                     {
-                        UnityEngine.Debug.Log("Forcing attack state");
+                        Debug.Log("Forcing attack state");
                     }
                 }
                 else

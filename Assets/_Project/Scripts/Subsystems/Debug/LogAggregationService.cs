@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 
-namespace Laboratory.Subsystems.Debug
+namespace Laboratory.Subsystems.Monitoring
 {
     /// <summary>
     /// Concrete implementation of log aggregation service

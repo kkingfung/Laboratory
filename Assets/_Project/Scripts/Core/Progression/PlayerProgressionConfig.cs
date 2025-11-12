@@ -4,7 +4,7 @@ using System.Linq;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
 using Laboratory.Chimera.Core;
-using Laboratory.Core.Debug;
+using Laboratory.Core.Diagnostics;
 
 namespace Laboratory.Core.Progression
 {

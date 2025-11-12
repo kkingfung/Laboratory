@@ -460,16 +460,16 @@ namespace Laboratory.Subsystems.Performance
         /// <summary>
         /// Checks if performance alert should be triggered
         /// </summary>
-        public bool ShouldTriggerAlert(Laboratory.Subsystems.Debug.PerformanceAlertType alertType, float currentValue, float budgetValue)
+        public bool ShouldTriggerAlert(Laboratory.Subsystems.Monitoring.PerformanceAlertType alertType, float currentValue, float budgetValue)
         {
             if (!enablePerformanceAlerts)
                 return false;
 
             var threshold = alertType switch
             {
-                Laboratory.Subsystems.Debug.PerformanceAlertType.LowFrameRate => lowFrameRateAlertThreshold,
-                Laboratory.Subsystems.Debug.PerformanceAlertType.HighMemoryUsage => highMemoryAlertThreshold,
-                Laboratory.Subsystems.Debug.PerformanceAlertType.HighDrawCalls => highDrawCallAlertThreshold,
+                Laboratory.Subsystems.Monitoring.PerformanceAlertType.LowFrameRate => lowFrameRateAlertThreshold,
+                Laboratory.Subsystems.Monitoring.PerformanceAlertType.HighMemoryUsage => highMemoryAlertThreshold,
+                Laboratory.Subsystems.Monitoring.PerformanceAlertType.HighDrawCalls => highDrawCallAlertThreshold,
                 _ => 0.8f
             };
 

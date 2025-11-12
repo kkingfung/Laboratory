@@ -5,7 +5,7 @@ using Laboratory.Core;
 using Laboratory.Shared.Types;
 using Laboratory.Core.Enums;
 using Laboratory.Chimera.Genetics.Advanced;
-using Laboratory.Core.Debug;
+using Laboratory.Core.Diagnostics;
 using Laboratory.Chimera.Ecosystem.Core;
 using Laboratory.Chimera.Ecosystem.Data;
 

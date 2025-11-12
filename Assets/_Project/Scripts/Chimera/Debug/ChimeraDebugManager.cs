@@ -1,7 +1,7 @@
 using UnityEngine;
 using System;
 
-namespace Laboratory.Chimera.Debug
+namespace Laboratory.Chimera.Diagnostics
 {
     /// <summary>
     /// Centralized debug manager for Chimera systems

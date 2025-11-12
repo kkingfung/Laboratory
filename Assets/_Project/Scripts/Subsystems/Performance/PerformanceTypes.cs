@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 using Unity.Profiling;
-using Laboratory.Subsystems.Debug;
+using Laboratory.Subsystems.Monitoring;
 
 namespace Laboratory.Subsystems.Performance
 {

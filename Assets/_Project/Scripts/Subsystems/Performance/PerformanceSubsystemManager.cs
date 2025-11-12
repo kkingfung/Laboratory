@@ -8,7 +8,7 @@ using Unity.Jobs;
 using Unity.Profiling;
 using System.Collections;
 using Laboratory.Core.Infrastructure;
-using Laboratory.Subsystems.Debug;
+using Laboratory.Subsystems.Monitoring;
 using Unity.Transforms;
 using Laboratory.Core.ECS;
 
@@ -35,7 +35,7 @@ namespace Laboratory.Subsystems.Performance
 
         public static event Action<PerformanceMetrics> OnPerformanceMetricsUpdated;
         public static event Action<OptimizationAction> OnOptimizationApplied;
-        public static event Action<Laboratory.Subsystems.Debug.PerformanceAlert> OnPerformanceAlert;
+        public static event Action<Laboratory.Subsystems.Monitoring.PerformanceAlert> OnPerformanceAlert;
         public static event Action<MemoryEvent> OnMemoryEvent;
         public static event Action<QualityLevelChange> OnQualityLevelChanged;
 
@@ -325,15 +325,15 @@ namespace Laboratory.Subsystems.Performance
 
         private void CheckPerformanceThresholds()
         {
-            var alerts = new List<Laboratory.Subsystems.Debug.PerformanceAlert>();
+            var alerts = new List<Laboratory.Subsystems.Monitoring.PerformanceAlert>();
 
             // Check frame rate
             if (_currentMetrics.frameRate < _config.minFrameRateThreshold)
             {
-                alerts.Add(new Laboratory.Subsystems.Debug.PerformanceAlert
+                alerts.Add(new Laboratory.Subsystems.Monitoring.PerformanceAlert
                 {
-                    alertType = Laboratory.Subsystems.Debug.PerformanceAlertType.LowFrameRate,
-                    severity = Laboratory.Subsystems.Debug.PerformanceAlertSeverity.High,
+                    alertType = Laboratory.Subsystems.Monitoring.PerformanceAlertType.LowFrameRate,
+                    severity = Laboratory.Subsystems.Monitoring.PerformanceAlertSeverity.High,
                     message = $"Frame rate dropped to {_currentMetrics.frameRate:F1} FPS",
                     timestamp = DateTime.Now,
                     currentValue = _currentMetrics.frameRate,
@@ -344,10 +344,10 @@ namespace Laboratory.Subsystems.Performance
             // Check memory usage
             if (_currentMetrics.memoryUsedMB > _config.memoryBudgetMB * 0.9f)
             {
-                alerts.Add(new Laboratory.Subsystems.Debug.PerformanceAlert
+                alerts.Add(new Laboratory.Subsystems.Monitoring.PerformanceAlert
                 {
-                    alertType = Laboratory.Subsystems.Debug.PerformanceAlertType.HighMemoryUsage,
-                    severity = Laboratory.Subsystems.Debug.PerformanceAlertSeverity.Medium,
+                    alertType = Laboratory.Subsystems.Monitoring.PerformanceAlertType.HighMemoryUsage,
+                    severity = Laboratory.Subsystems.Monitoring.PerformanceAlertSeverity.Medium,
                     message = $"Memory usage is {_currentMetrics.memoryUsedMB:F1} MB",
                     timestamp = DateTime.Now,
                     currentValue = _currentMetrics.memoryUsedMB,
@@ -358,10 +358,10 @@ namespace Laboratory.Subsystems.Performance
             // Check draw calls
             if (_currentMetrics.drawCalls > _config.drawCallBudget)
             {
-                alerts.Add(new Laboratory.Subsystems.Debug.PerformanceAlert
+                alerts.Add(new Laboratory.Subsystems.Monitoring.PerformanceAlert
                 {
-                    alertType = Laboratory.Subsystems.Debug.PerformanceAlertType.HighDrawCalls,
-                    severity = Laboratory.Subsystems.Debug.PerformanceAlertSeverity.Medium,
+                    alertType = Laboratory.Subsystems.Monitoring.PerformanceAlertType.HighDrawCalls,
+                    severity = Laboratory.Subsystems.Monitoring.PerformanceAlertSeverity.Medium,
                     message = $"Draw calls exceeded budget: {_currentMetrics.drawCalls}",
                     timestamp = DateTime.Now,
                     currentValue = _currentMetrics.drawCalls,

@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Linq;
 using System.Text;
 
-namespace Laboratory.Subsystems.Debug
+namespace Laboratory.Subsystems.Monitoring
 {
     /// <summary>
     /// Concrete implementation of developer console service

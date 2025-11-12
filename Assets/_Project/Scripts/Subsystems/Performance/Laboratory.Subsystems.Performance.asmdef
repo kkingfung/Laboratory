@@ -4,7 +4,7 @@
     "references": [
         "Laboratory.Core",
         "Laboratory.Infrastructure",
-        "Laboratory.Subsystems.Debug",
+        "Laboratory.Subsystems.Monitoring",
         "Unity.Entities",
         "Unity.Mathematics",
         "Unity.Collections",

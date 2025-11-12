@@ -7,7 +7,7 @@ using System.Text;
 using System.IO;
 using Laboratory.Core.Infrastructure;
 
-namespace Laboratory.Subsystems.Debug
+namespace Laboratory.Subsystems.Monitoring
 {
     /// <summary>
     /// Debug & Development Tools Subsystem Manager

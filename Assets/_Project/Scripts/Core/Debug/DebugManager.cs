@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Entities;
 using System.Reflection;
 
-namespace Laboratory.Core.Debug
+namespace Laboratory.Core.Diagnostics
 {
     /// <summary>
     /// Debug manager that initializes and manages all debug systems.
@@ -438,6 +438,17 @@ namespace Laboratory.Core.Debug
                 }
             }
             return defaultValue;
+        }
+
+        // Genetics data getter methods for DebugConsoleEditorWindow
+        public static int GetCurrentGeneration()
+        {
+            return GetDebugData<int>("Genetics.CurrentGeneration", 1);
+        }
+
+        public static float GetGeneticDiversity()
+        {
+            return GetDebugData<float>("Genetics.OverallDiversity", 0f);
         }
 
         // Helper methods for dynamic system access

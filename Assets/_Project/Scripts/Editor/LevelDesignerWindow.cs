@@ -386,7 +386,7 @@ namespace Laboratory.Editor
         {
             if (selectedPrefab == null)
             {
-                Debug.LogWarning("No enemy prefab selected!");
+                UnityEngine.Debug.LogWarning("No enemy prefab selected!");
                 return;
             }
 
@@ -407,7 +407,7 @@ namespace Laboratory.Editor
         {
             if (selectedPrefab == null)
             {
-                Debug.LogWarning("No pickup prefab selected!");
+                UnityEngine.Debug.LogWarning("No pickup prefab selected!");
                 return;
             }
 
@@ -421,7 +421,7 @@ namespace Laboratory.Editor
         {
             if (selectedPrefab == null)
             {
-                Debug.LogWarning("No interactable prefab selected!");
+                UnityEngine.Debug.LogWarning("No interactable prefab selected!");
                 return;
             }
 
