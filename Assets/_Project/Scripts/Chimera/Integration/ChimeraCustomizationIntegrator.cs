@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 using Laboratory.Chimera.Customization;
 using Laboratory.Core.Equipment;
 using Laboratory.Chimera.Visuals;
@@ -56,6 +57,7 @@ namespace Laboratory.Chimera.Integration
         public ChimeraCustomizationManager CustomizationManager => customizationManager;
         public EquipmentManager EquipmentManager => equipmentManager;
         public ProceduralVisualSystem VisualSystem => visualSystem;
+        public CreatureInstanceComponent CreatureInstance => creatureInstance;
 
         #endregion
 
@@ -105,10 +107,10 @@ namespace Laboratory.Chimera.Integration
 
             // Validate critical components
             if (customizationManager == null)
-                Debug.LogError("ChimeraCustomizationIntegrator: ChimeraCustomizationManager not found!");
+                UnityEngine.Debug.LogError("ChimeraCustomizationIntegrator: ChimeraCustomizationManager not found!");
 
             if (creatureInstance == null)
-                Debug.LogError("ChimeraCustomizationIntegrator: CreatureInstanceComponent not found!");
+                UnityEngine.Debug.LogError("ChimeraCustomizationIntegrator: CreatureInstanceComponent not found!");
         }
 
         private void RegisterSystems()
@@ -137,7 +139,7 @@ namespace Laboratory.Chimera.Integration
 
             if (enableDebugMode)
             {
-                Debug.Log($"Registered customization system: {typeof(T).Name}");
+                UnityEngine.Debug.Log($"Registered customization system: {typeof(T).Name}");
             }
         }
 
@@ -147,7 +149,7 @@ namespace Laboratory.Chimera.Integration
 
             if (enableDebugMode)
             {
-                Debug.Log($"Registered customization system: {systemType.Name}");
+                UnityEngine.Debug.Log($"Registered customization system: {systemType.Name}");
             }
         }
 
@@ -173,7 +175,7 @@ namespace Laboratory.Chimera.Integration
                 }
                 catch (System.Exception e)
                 {
-                    Debug.LogError($"Failed to initialize integration handler {handler.GetType().Name}: {e.Message}");
+                    UnityEngine.Debug.LogError($"Failed to initialize integration handler {handler.GetType().Name}: {e.Message}");
                 }
             }
 
@@ -184,7 +186,7 @@ namespace Laboratory.Chimera.Integration
 
             if (enableDebugMode)
             {
-                Debug.Log("ChimeraCustomizationIntegrator: Integration initialized successfully");
+                UnityEngine.Debug.Log("ChimeraCustomizationIntegrator: Integration initialized successfully");
             }
         }
 
@@ -214,7 +216,7 @@ namespace Laboratory.Chimera.Integration
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"Error during system synchronization: {e.Message}");
+                UnityEngine.Debug.LogError($"Error during system synchronization: {e.Message}");
             }
         }
 
@@ -227,7 +229,7 @@ namespace Laboratory.Chimera.Integration
 
             if (changed && enableDebugMode)
             {
-                Debug.Log("Genetics changes detected");
+                UnityEngine.Debug.Log("Genetics changes detected");
             }
 
             return changed;
@@ -245,7 +247,7 @@ namespace Laboratory.Chimera.Integration
 
             if (changed && enableDebugMode)
             {
-                Debug.Log("Equipment changes detected");
+                UnityEngine.Debug.Log("Equipment changes detected");
             }
 
             return changed;
@@ -260,7 +262,7 @@ namespace Laboratory.Chimera.Integration
 
             if (changed && enableDebugMode)
             {
-                Debug.Log("Customization changes detected");
+                UnityEngine.Debug.Log("Customization changes detected");
             }
 
             return changed;
@@ -399,7 +401,7 @@ namespace Laboratory.Chimera.Integration
 
             if (enableDebugMode)
             {
-                Debug.Log($"Equipment {(equipped ? "equipped" : "unequipped")}: {equipment.Name}");
+                UnityEngine.Debug.Log($"Equipment {(equipped ? "equipped" : "unequipped")}: {equipment.Name}");
             }
 
             // Trigger equipment integration
@@ -421,7 +423,7 @@ namespace Laboratory.Chimera.Integration
 
             if (enableDebugMode)
             {
-                Debug.Log("Genetics changed - triggering integration");
+                UnityEngine.Debug.Log("Genetics changed - triggering integration");
             }
 
             // Trigger genetic integration
@@ -440,7 +442,7 @@ namespace Laboratory.Chimera.Integration
 
             if (enableDebugMode)
             {
-                Debug.Log("Customization changed - triggering integration");
+                UnityEngine.Debug.Log("Customization changed - triggering integration");
             }
 
             // Trigger all relevant integrations
@@ -539,14 +541,14 @@ namespace Laboratory.Chimera.Integration
 
         #region Utility Methods
 
-        private Laboratory.Core.MonsterTown.Monster GetMonsterFromCreature()
+        public Laboratory.Core.MonsterTown.Monster GetMonsterFromCreature()
         {
             if (creatureInstance?.CreatureData == null) return null;
 
             return new Laboratory.Core.MonsterTown.Monster
             {
-                UniqueId = creatureInstance.CreatureData.CreatureId,
-                Name = creatureInstance.CreatureData.CreatureName ?? "Unnamed Chimera",
+                UniqueId = creatureInstance.CreatureData.UniqueId,
+                Name = creatureInstance.CreatureData.Definition?.speciesName ?? "Unnamed Chimera",
                 Level = 1, // Would get from creature level system
                 Equipment = new List<Laboratory.Core.MonsterTown.Equipment>()
             };
@@ -748,7 +750,7 @@ namespace Laboratory.Chimera.Integration
 
         public void SyncGeneticsToCustomization()
         {
-            var genetics = integrator.creatureInstance?.CreatureData?.GeneticProfile;
+            var genetics = integrator.CreatureInstance?.CreatureData?.GeneticProfile;
             if (genetics == null) return;
 
             // Generate appearance from genetics and apply to customization

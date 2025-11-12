@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Chimera.Core;
+using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Core.Progression
 {

@@ -9,6 +9,7 @@ using GeneticProfile = Laboratory.Chimera.Genetics.GeneticProfile;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.ECS
 {
@@ -24,7 +25,7 @@ namespace Laboratory.Chimera.ECS
         [SerializeField] private CreatureDefinition creatureDefinition;
         [SerializeField] private bool convertToECS = true;
         [SerializeField] private bool isWild = true;
-        [SerializeField] private Laboratory.Core.Enums.BiomeType startingBiome = Laboratory.Core.Enums.BiomeType.Forest;
+        [SerializeField] private BiomeType startingBiome = BiomeType.Forest;
         
         [Header("Initial Stats Override (Optional)")]
         [SerializeField] private bool overrideStats = false;
@@ -434,19 +435,19 @@ namespace Laboratory.Chimera.ECS
         /// <summary>
         /// Create biome-specific adaptation gene
         /// </summary>
-        private Gene CreateBiomeAdaptationGene(Laboratory.Core.Enums.BiomeType biome)
+        private Gene CreateBiomeAdaptationGene(BiomeType biome)
         {
             string traitName = biome switch
             {
-                Laboratory.Core.Enums.BiomeType.Desert => "Heat Resistance",
-                Laboratory.Core.Enums.BiomeType.Tundra => "Cold Resistance",
-                Laboratory.Core.Enums.BiomeType.Ocean => "Swimming",
-                Laboratory.Core.Enums.BiomeType.Mountain => "Climbing",
-                Laboratory.Core.Enums.BiomeType.Forest => "Camouflage",
-                Laboratory.Core.Enums.BiomeType.Volcanic => "Fire Resistance",
-                Laboratory.Core.Enums.BiomeType.Swamp => "Poison Resistance",
-                Laboratory.Core.Enums.BiomeType.Underground => "Dark Vision",
-                Laboratory.Core.Enums.BiomeType.Sky => "Flight",
+                BiomeType.Desert => "Heat Resistance",
+                BiomeType.Tundra => "Cold Resistance",
+                BiomeType.Ocean => "Swimming",
+                BiomeType.Mountain => "Climbing",
+                BiomeType.Forest => "Camouflage",
+                BiomeType.Volcanic => "Fire Resistance",
+                BiomeType.Swamp => "Poison Resistance",
+                BiomeType.Underground => "Dark Vision",
+                BiomeType.Sky => "Flight",
                 _ => "Adaptability"
             };
             
@@ -657,35 +658,35 @@ namespace Laboratory.Chimera.ECS
         }
 
 
-        private float GetBiomeTemperature(Laboratory.Core.Enums.BiomeType biome)
+        private float GetBiomeTemperature(BiomeType biome)
         {
             return biome switch
             {
-                Laboratory.Core.Enums.BiomeType.Desert => 40f,
-                Laboratory.Core.Enums.BiomeType.Tundra => -15f,
-                Laboratory.Core.Enums.BiomeType.Volcanic => 60f,
-                Laboratory.Core.Enums.BiomeType.Mountain => 5f,
-                Laboratory.Core.Enums.BiomeType.Ocean => 15f,
-                Laboratory.Core.Enums.BiomeType.Underground => 12f,
-                Laboratory.Core.Enums.BiomeType.Sky => 0f,
-                Laboratory.Core.Enums.BiomeType.Forest => 20f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 25f,
+                BiomeType.Desert => 40f,
+                BiomeType.Tundra => -15f,
+                BiomeType.Volcanic => 60f,
+                BiomeType.Mountain => 5f,
+                BiomeType.Ocean => 15f,
+                BiomeType.Underground => 12f,
+                BiomeType.Sky => 0f,
+                BiomeType.Forest => 20f,
+                BiomeType.Swamp => 25f,
                 _ => 18f
             };
         }
 
-        private float GetBiomeHumidity(Laboratory.Core.Enums.BiomeType biome)
+        private float GetBiomeHumidity(BiomeType biome)
         {
             return biome switch
             {
-                Laboratory.Core.Enums.BiomeType.Desert => 0.1f,
-                Laboratory.Core.Enums.BiomeType.Ocean => 1f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 0.9f,
-                Laboratory.Core.Enums.BiomeType.Forest => 0.7f,
-                Laboratory.Core.Enums.BiomeType.Tundra => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Volcanic => 0.2f,
-                Laboratory.Core.Enums.BiomeType.Underground => 0.6f,
-                Laboratory.Core.Enums.BiomeType.Sky => 0.4f,
+                BiomeType.Desert => 0.1f,
+                BiomeType.Ocean => 1f,
+                BiomeType.Swamp => 0.9f,
+                BiomeType.Forest => 0.7f,
+                BiomeType.Tundra => 0.3f,
+                BiomeType.Volcanic => 0.2f,
+                BiomeType.Underground => 0.6f,
+                BiomeType.Sky => 0.4f,
                 _ => 0.5f
             };
         }

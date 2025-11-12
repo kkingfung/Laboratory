@@ -5,6 +5,7 @@ using UnityEngine;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Configuration
 {
@@ -241,7 +242,7 @@ namespace Laboratory.Chimera.Configuration
         /// <summary>
         /// Create a rich genetic profile with diverse traits suitable for the given biome
         /// </summary>
-        public GeneticProfile CreateRichGeneticProfile(Laboratory.Core.Enums.BiomeType biome, int generation = 1)
+        public GeneticProfile CreateRichGeneticProfile(BiomeType biome, int generation = 1)
         {
             var genes = new List<Gene>();
 
@@ -404,7 +405,7 @@ namespace Laboratory.Chimera.Configuration
             };
         }
 
-        private Gene[] CreateCoreGenes(Laboratory.Core.Enums.BiomeType biome)
+        private Gene[] CreateCoreGenes(BiomeType biome)
         {
             var coreGenes = new List<Gene>();
 
@@ -421,33 +422,33 @@ namespace Laboratory.Chimera.Configuration
             return coreGenes.ToArray();
         }
 
-        private Gene[] CreateBiomeSpecificGenes(Laboratory.Core.Enums.BiomeType biome)
+        private Gene[] CreateBiomeSpecificGenes(BiomeType biome)
         {
             var biomeGenes = new List<Gene>();
 
             switch (biome)
             {
-                case Laboratory.Core.Enums.BiomeType.Arctic:
+                case BiomeType.Arctic:
                     biomeGenes.Add(CreateGene("ColdResistance", UnityEngine.Random.Range(0.7f, 1.0f)));
                     biomeGenes.Add(CreateGene("ThickFur", UnityEngine.Random.Range(0.6f, 1.0f)));
                     break;
 
-                case Laboratory.Core.Enums.BiomeType.Desert:
+                case BiomeType.Desert:
                     biomeGenes.Add(CreateGene("HeatResistance", UnityEngine.Random.Range(0.7f, 1.0f)));
                     biomeGenes.Add(CreateGene("WaterConservation", UnityEngine.Random.Range(0.6f, 1.0f)));
                     break;
 
-                case Laboratory.Core.Enums.BiomeType.Forest:
+                case BiomeType.Forest:
                     biomeGenes.Add(CreateGene("Camouflage", UnityEngine.Random.Range(0.5f, 0.8f)));
                     biomeGenes.Add(CreateGene("Climbing", UnityEngine.Random.Range(0.4f, 0.9f)));
                     break;
 
-                case Laboratory.Core.Enums.BiomeType.Ocean:
+                case BiomeType.Ocean:
                     biomeGenes.Add(CreateGene("Swimming", UnityEngine.Random.Range(0.8f, 1.0f)));
                     biomeGenes.Add(CreateGene("WaterBreathing", UnityEngine.Random.Range(0.7f, 1.0f)));
                     break;
 
-                case Laboratory.Core.Enums.BiomeType.Mountain:
+                case BiomeType.Mountain:
                     biomeGenes.Add(CreateGene("HighAltitudeAdaptation", UnityEngine.Random.Range(0.6f, 0.9f)));
                     biomeGenes.Add(CreateGene("RockClimbing", UnityEngine.Random.Range(0.5f, 0.8f)));
                     break;
@@ -606,6 +607,7 @@ namespace Laboratory.Chimera.Configuration
         public string description;
         
         [Header("Compatibility")]
+        public string[] compatibleSpecies = Array.Empty<string>();
         public string[] conflictingTraits = Array.Empty<string>();
         public string[] synergisticTraits = Array.Empty<string>();
         

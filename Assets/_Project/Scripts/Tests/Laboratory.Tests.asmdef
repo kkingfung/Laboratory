@@ -6,6 +6,7 @@
         "UnityEditor.TestRunner",
         "Laboratory.Core",
         "Laboratory.Chimera",
+        "Laboratory.Shared",
         "UniTask"
     ],
     "includePlatforms": [

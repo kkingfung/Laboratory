@@ -4,6 +4,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Visuals;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Core;
+using Laboratory.Shared.Types;
 using Laboratory.Core.Enums;
 using System.Linq;
 
@@ -23,7 +24,7 @@ namespace Laboratory.Chimera.Testing
         
         [Header("Spawn Settings")]
         [SerializeField] private int numberOfCreatures = 5;
-        [SerializeField] private Laboratory.Core.Enums.BiomeType testBiome = Laboratory.Core.Enums.BiomeType.Temperate;
+        [SerializeField] private BiomeType testBiome = BiomeType.Temperate;
         [SerializeField] private bool enableMutations = true;
         [SerializeField] private bool showDebugInfo = true;
         
@@ -134,8 +135,8 @@ namespace Laboratory.Chimera.Testing
             UnityEngine.Debug.Log("👨‍👩‍👧‍👦 Testing breeding combinations...");
             
             // Create two diverse parent genetics
-            var parent1Genetics = traitLibrary.CreateRichGeneticProfile(Laboratory.Core.Enums.BiomeType.Desert, 1);
-            var parent2Genetics = traitLibrary.CreateRichGeneticProfile(Laboratory.Core.Enums.BiomeType.Arctic, 1);
+            var parent1Genetics = traitLibrary.CreateRichGeneticProfile(BiomeType.Desert, 1);
+            var parent2Genetics = traitLibrary.CreateRichGeneticProfile(BiomeType.Arctic, 1);
             
             // Create offspring genetics
             var offspringGenetics = GeneticProfile.CreateOffspring(parent1Genetics, parent2Genetics);

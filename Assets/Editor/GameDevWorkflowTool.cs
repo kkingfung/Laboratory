@@ -87,7 +87,7 @@ namespace Laboratory.Editor.Tools
                 if (GUILayout.Button("🔄 Refresh Assets", GUILayout.Height(30)))
                 {
                     AssetDatabase.Refresh();
-                    Debug.Log("✅ Asset database refreshed");
+                    UnityEngine.Debug.Log("✅ Asset database refreshed");
                 }
 
                 if (GUILayout.Button("🧹 Clear Console", GUILayout.Height(30)))
@@ -378,7 +378,7 @@ namespace Laboratory.Editor.Tools
         {
             AssetDatabase.SaveAssets();
             EditorSceneManager.SaveOpenScenes();
-            Debug.Log("✅ All assets and scenes saved");
+            UnityEngine.Debug.Log("✅ All assets and scenes saved");
         }
 
         private void ClearConsole()
@@ -387,7 +387,7 @@ namespace Laboratory.Editor.Tools
             var type = assembly.GetType("UnityEditor.LogEntries");
             var method = type.GetMethod("Clear");
             method.Invoke(new object(), null);
-            Debug.Log("🧹 Console cleared");
+            UnityEngine.Debug.Log("🧹 Console cleared");
         }
 
         private void PlayFromFirstScene()
@@ -418,7 +418,7 @@ namespace Laboratory.Editor.Tools
                 AddSceneToBuildSettings(scenePath);
             }
 
-            Debug.Log($"✅ Created new scene: {scenePath}");
+            UnityEngine.Debug.Log($"✅ Created new scene: {scenePath}");
         }
 
         private void AddSceneToBuildSettings(string scenePath)
@@ -466,7 +466,7 @@ namespace Laboratory.Editor.Tools
             if (cameras == 0) report.AppendLine("⚠️ WARNING: No cameras in scene");
             if (lights == 0) report.AppendLine("⚠️ WARNING: No lights in scene");
 
-            Debug.Log(report.ToString());
+            UnityEngine.Debug.Log(report.ToString());
         }
 
         private void FixCommonSceneIssues()
@@ -504,7 +504,7 @@ namespace Laboratory.Editor.Tools
                 fixes++;
             }
 
-            Debug.Log($"✅ Fixed {fixes} common scene issues");
+            UnityEngine.Debug.Log($"✅ Fixed {fixes} common scene issues");
         }
 
         private void SearchAssets()
@@ -512,17 +512,17 @@ namespace Laboratory.Editor.Tools
             if (string.IsNullOrEmpty(searchFilter)) return;
 
             var assets = AssetDatabase.FindAssets(searchFilter);
-            Debug.Log($"🔍 Found {assets.Length} assets matching '{searchFilter}':");
+            UnityEngine.Debug.Log($"🔍 Found {assets.Length} assets matching '{searchFilter}':");
 
             foreach (var guid in assets.Take(20)) // Limit to first 20
             {
                 var path = AssetDatabase.GUIDToAssetPath(guid);
-                Debug.Log($"  📄 {path}");
+                UnityEngine.Debug.Log($"  📄 {path}");
             }
 
             if (assets.Length > 20)
             {
-                Debug.Log($"  ... and {assets.Length - 20} more");
+                UnityEngine.Debug.Log($"  ... and {assets.Length - 20} more");
             }
         }
 
@@ -538,13 +538,13 @@ namespace Laboratory.Editor.Tools
                 {
                     if (components[i] == null)
                     {
-                        Debug.LogWarning($"❌ Missing script on: {GetGameObjectPath(obj)}", obj);
+                        UnityEngine.Debug.LogWarning($"❌ Missing script on: {GetGameObjectPath(obj)}", obj);
                         missingCount++;
                     }
                 }
             }
 
-            Debug.Log($"🔍 Found {missingCount} missing script references");
+            UnityEngine.Debug.Log($"🔍 Found {missingCount} missing script references");
         }
 
         private void GenerateScript()
@@ -557,7 +557,7 @@ namespace Laboratory.Editor.Tools
                 var relativePath = FileUtil.GetProjectRelativePath(path);
                 File.WriteAllText(path, template);
                 AssetDatabase.Refresh();
-                Debug.Log($"✅ Created script: {relativePath}");
+                UnityEngine.Debug.Log($"✅ Created script: {relativePath}");
             }
         }
 
@@ -569,7 +569,7 @@ namespace Laboratory.Editor.Tools
                 var relativePath = FileUtil.GetProjectRelativePath(path);
                 AssetDatabase.CreateFolder(Path.GetDirectoryName(relativePath), Path.GetFileName(relativePath));
                 AssetDatabase.Refresh();
-                Debug.Log($"📁 Created folder: {relativePath}");
+                UnityEngine.Debug.Log($"📁 Created folder: {relativePath}");
             }
         }
 
@@ -587,13 +587,13 @@ namespace Laboratory.Editor.Tools
             }
 
             AssetDatabase.Refresh();
-            Debug.Log("📂 Created standard folder structure");
+            UnityEngine.Debug.Log("📂 Created standard folder structure");
         }
 
         private void CleanupUnusedAssets()
         {
-            Debug.Log("🧹 Cleanup unused assets feature would require dependency analysis");
-            Debug.Log("💡 Consider using Unity's Addressable Asset System for better asset management");
+            UnityEngine.Debug.Log("🧹 Cleanup unused assets feature would require dependency analysis");
+            UnityEngine.Debug.Log("💡 Consider using Unity's Addressable Asset System for better asset management");
         }
 
         private void FindAllScriptsInScene()
@@ -601,11 +601,11 @@ namespace Laboratory.Editor.Tools
             var scripts = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
             var scriptTypes = scripts.Select(s => s.GetType().Name).Distinct().OrderBy(name => name);
 
-            Debug.Log($"📜 Found {scripts.Length} script instances of {scriptTypes.Count()} different types:");
+            UnityEngine.Debug.Log($"📜 Found {scripts.Length} script instances of {scriptTypes.Count()} different types:");
             foreach (var scriptType in scriptTypes)
             {
                 var count = scripts.Count(s => s.GetType().Name == scriptType);
-                Debug.Log($"  🔹 {scriptType}: {count} instances");
+                UnityEngine.Debug.Log($"  🔹 {scriptType}: {count} instances");
             }
         }
 
@@ -628,14 +628,14 @@ namespace Laboratory.Editor.Tools
 
             if (issues.Count == 0)
             {
-                Debug.Log("✅ Health check passed - no issues found");
+                UnityEngine.Debug.Log("✅ Health check passed - no issues found");
             }
             else
             {
-                Debug.LogWarning($"⚠️ Health check found {issues.Count} issues:");
+                UnityEngine.Debug.LogWarning($"⚠️ Health check found {issues.Count} issues:");
                 foreach (var issue in issues)
                 {
-                    Debug.LogWarning($"  🔸 {issue}");
+                    UnityEngine.Debug.LogWarning($"  🔸 {issue}");
                 }
             }
         }
@@ -674,7 +674,7 @@ namespace Laboratory.Editor.Tools
                 report.AppendLine("⚠️ High triangle count may impact performance");
             }
 
-            Debug.Log(report.ToString());
+            UnityEngine.Debug.Log(report.ToString());
         }
 
         private void AutoFixCommonIssues()
@@ -696,7 +696,7 @@ namespace Laboratory.Editor.Tools
 
             File.WriteAllText(logPath, log.ToString());
             AssetDatabase.Refresh();
-            Debug.Log($"📝 Debug log saved to: {logPath}");
+            UnityEngine.Debug.Log($"📝 Debug log saved to: {logPath}");
         }
 
         private void TagAllUntagged()
@@ -710,7 +710,7 @@ namespace Laboratory.Editor.Tools
                 obj.tag = "Default"; // or whatever default tag you prefer
             }
 
-            Debug.Log($"🏷️ Tagged {untaggedObjects.Length} previously untagged objects");
+            UnityEngine.Debug.Log($"🏷️ Tagged {untaggedObjects.Length} previously untagged objects");
         }
 
         private void TakeScreenshot()
@@ -720,7 +720,7 @@ namespace Laboratory.Editor.Tools
 
             Directory.CreateDirectory("Screenshots");
             ScreenCapture.CaptureScreenshot(path);
-            Debug.Log($"📸 Screenshot saved: {path}");
+            UnityEngine.Debug.Log($"📸 Screenshot saved: {path}");
         }
 
         private void GenerateStatsReport()
@@ -741,14 +741,14 @@ namespace Laboratory.Editor.Tools
             stats.AppendLine($"Textures: {textures}");
             stats.AppendLine($"Prefabs: {prefabs}");
 
-            Debug.Log(stats.ToString());
+            UnityEngine.Debug.Log(stats.ToString());
         }
 
         private void SelectAllCameras()
         {
             var cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
             Selection.objects = cameras.Select(c => c.gameObject).ToArray();
-            Debug.Log($"🎯 Selected {cameras.Length} cameras");
+            UnityEngine.Debug.Log($"🎯 Selected {cameras.Length} cameras");
         }
 
         private void OptimizeLighting()
@@ -765,7 +765,7 @@ namespace Laboratory.Editor.Tools
                 }
             }
 
-            Debug.Log($"💡 Optimized {optimized} light sources");
+            UnityEngine.Debug.Log($"💡 Optimized {optimized} light sources");
         }
 
         private void CheckAudioSources()
@@ -777,12 +777,12 @@ namespace Laboratory.Editor.Tools
             {
                 if (source.clip == null)
                 {
-                    Debug.LogWarning($"🔊 AudioSource without clip: {GetGameObjectPath(source.gameObject)}", source);
+                    UnityEngine.Debug.LogWarning($"🔊 AudioSource without clip: {GetGameObjectPath(source.gameObject)}", source);
                     issues++;
                 }
             }
 
-            Debug.Log($"🔊 Checked {audioSources.Length} audio sources, found {issues} issues");
+            UnityEngine.Debug.Log($"🔊 Checked {audioSources.Length} audio sources, found {issues} issues");
         }
 
         private void AuditMaterials()
@@ -794,12 +794,12 @@ namespace Laboratory.Editor.Tools
             {
                 if (material.mainTexture == null)
                 {
-                    Debug.LogWarning($"🎨 Material without main texture: {material.name}");
+                    UnityEngine.Debug.LogWarning($"🎨 Material without main texture: {material.name}");
                     issues++;
                 }
             }
 
-            Debug.Log($"🎨 Audited {materials.Length} materials, found {issues} issues");
+            UnityEngine.Debug.Log($"🎨 Audited {materials.Length} materials, found {issues} issues");
         }
 
         #endregion

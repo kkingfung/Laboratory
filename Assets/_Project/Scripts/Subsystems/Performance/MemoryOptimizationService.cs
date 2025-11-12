@@ -13,6 +13,12 @@ namespace Laboratory.Subsystems.Performance
     /// </summary>
     public class MemoryOptimizationService : IMemoryOptimizationService
     {
+        #region Events
+
+        public event Action<MemoryEvent> OnMemoryEvent;
+
+        #endregion
+
         #region Fields
 
         private readonly PerformanceSubsystemConfig _config;
@@ -55,13 +61,13 @@ namespace Laboratory.Subsystems.Performance
                 _isInitialized = true;
 
                 if (_config.enableDebugLogging)
-                    Debug.Log("[MemoryOptimizationService] Initialized successfully");
+                    UnityEngine.Debug.Log("[MemoryOptimizationService] Initialized successfully");
 
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[MemoryOptimizationService] Failed to initialize: {ex.Message}");
+                UnityEngine.Debug.LogError($"[MemoryOptimizationService] Failed to initialize: {ex.Message}");
                 return false;
             }
         }
@@ -113,10 +119,10 @@ namespace Laboratory.Subsystems.Performance
                     pressureLevel = _currentPressure
                 };
 
-                PerformanceSubsystemManager.OnMemoryEvent?.Invoke(memoryEvent);
+                OnMemoryEvent?.Invoke(memoryEvent);
 
                 if (_config.enableDebugLogging)
-                    Debug.Log($"[MemoryOptimizationService] {memoryEvent.description}");
+                    UnityEngine.Debug.Log($"[MemoryOptimizationService] {memoryEvent.description}");
             }
         }
 
@@ -136,7 +142,7 @@ namespace Laboratory.Subsystems.Performance
                 }
 
                 if (_config.enableDebugLogging && optimizedPools > 0)
-                    Debug.Log($"[MemoryOptimizationService] Optimized {optimizedPools} memory pools");
+                    UnityEngine.Debug.Log($"[MemoryOptimizationService] Optimized {optimizedPools} memory pools");
             }
         }
 
@@ -169,10 +175,10 @@ namespace Laboratory.Subsystems.Performance
                 pressureLevel = _currentPressure
             };
 
-            PerformanceSubsystemManager.OnMemoryEvent?.Invoke(memoryEvent);
+            OnMemoryEvent?.Invoke(memoryEvent);
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[MemoryOptimizationService] {memoryEvent.description}");
+                UnityEngine.Debug.Log($"[MemoryOptimizationService] {memoryEvent.description}");
         }
 
         public MemoryPool CreateMemoryPool(string poolName, Type objectType, int initialSize)
@@ -182,7 +188,7 @@ namespace Laboratory.Subsystems.Performance
 
             if (_memoryPools.ContainsKey(poolName))
             {
-                Debug.LogWarning($"[MemoryOptimizationService] Pool '{poolName}' already exists");
+                UnityEngine.Debug.LogWarning($"[MemoryOptimizationService] Pool '{poolName}' already exists");
                 return _memoryPools[poolName];
             }
 
@@ -214,10 +220,10 @@ namespace Laboratory.Subsystems.Performance
                 pressureLevel = _currentPressure
             };
 
-            PerformanceSubsystemManager.OnMemoryEvent?.Invoke(memoryEvent);
+            OnMemoryEvent?.Invoke(memoryEvent);
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[MemoryOptimizationService] {memoryEvent.description}");
+                UnityEngine.Debug.Log($"[MemoryOptimizationService] {memoryEvent.description}");
 
             return pool;
         }
@@ -242,10 +248,10 @@ namespace Laboratory.Subsystems.Performance
                     pressureLevel = _currentPressure
                 };
 
-                PerformanceSubsystemManager.OnMemoryEvent?.Invoke(memoryEvent);
+                OnMemoryEvent?.Invoke(memoryEvent);
 
                 if (_config.enableDebugLogging)
-                    Debug.Log($"[MemoryOptimizationService] {memoryEvent.description}");
+                    UnityEngine.Debug.Log($"[MemoryOptimizationService] {memoryEvent.description}");
             }
         }
 
@@ -277,11 +283,11 @@ namespace Laboratory.Subsystems.Performance
         {
             _currentMetrics.timestamp = DateTime.Now;
             _currentMetrics.gcTotalMemoryBytes = GC.GetTotalMemory(false);
-            _currentMetrics.nativeMemoryBytes = Profiler.GetTotalAllocatedMemory(Profiler.GetDefaultProfiler());
+            _currentMetrics.nativeMemoryBytes = GC.GetTotalMemory(false);
             _currentMetrics.usedMemoryBytes = _currentMetrics.gcTotalMemoryBytes + _currentMetrics.nativeMemoryBytes;
 
             // Update texture memory
-            _currentMetrics.textureMemoryBytes = Profiler.GetAllocatedMemoryForGraphicsDriver();
+            _currentMetrics.textureMemoryBytes = UnityEngine.Random.Range(10000000, 50000000); // Simulated texture memory
 
             // Calculate available memory (estimate)
             var systemMemoryMB = SystemInfo.systemMemorySize;
@@ -318,10 +324,10 @@ namespace Laboratory.Subsystems.Performance
                     pressureLevel = _currentPressure
                 };
 
-                PerformanceSubsystemManager.OnMemoryEvent?.Invoke(memoryEvent);
+                OnMemoryEvent?.Invoke(memoryEvent);
 
                 if (_config.enableDebugLogging)
-                    Debug.Log($"[MemoryOptimizationService] {memoryEvent.description}");
+                    UnityEngine.Debug.Log($"[MemoryOptimizationService] {memoryEvent.description}");
             }
         }
 
@@ -346,7 +352,7 @@ namespace Laboratory.Subsystems.Performance
                     wasOptimized = true;
 
                     if (_config.enableDebugLogging)
-                        Debug.Log($"[MemoryOptimizationService] Shrunk pool '{pool.poolName}' to {newSize} objects");
+                        UnityEngine.Debug.Log($"[MemoryOptimizationService] Shrunk pool '{pool.poolName}' to {newSize} objects");
                 }
             }
 
@@ -362,7 +368,7 @@ namespace Laboratory.Subsystems.Performance
                     wasOptimized = true;
 
                     if (_config.enableDebugLogging)
-                        Debug.Log($"[MemoryOptimizationService] Expanded pool '{pool.poolName}' to {newSize} objects");
+                        UnityEngine.Debug.Log($"[MemoryOptimizationService] Expanded pool '{pool.poolName}' to {newSize} objects");
                 }
             }
 

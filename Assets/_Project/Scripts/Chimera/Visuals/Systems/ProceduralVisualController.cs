@@ -7,6 +7,7 @@ using Laboratory.Chimera.Visuals.Data;
 using Laboratory.Chimera.Visuals.Generators;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Visuals.Systems
 {

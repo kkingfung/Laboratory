@@ -5,7 +5,7 @@ using Unity.Entities;
 using R3;
 using UnityEngine;
 using Laboratory.Core;
-using Laboratory.Infrastructure.Core;
+using Laboratory.Core.Infrastructure;
 using Laboratory.Core.State;
 using Laboratory.Core.Events.Messages;
 using Laboratory.Infrastructure.AsyncUtils;
@@ -32,7 +32,7 @@ namespace Laboratory.Models.ECS.Systems
         /// <summary>
         /// Reference to the service container for dependency injection
         /// </summary>
-        private IServiceContainer _services = null!;
+        private ServiceContainer _services = null!;
         
         /// <summary>
         /// Reference to the loading screen UI component for displaying loading progress

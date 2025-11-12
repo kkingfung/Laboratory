@@ -4,6 +4,7 @@ using TMPro;
 using Laboratory.Chimera;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Visuals;
+using Laboratory.Core.Enums;
 using System.Linq;
 using System.Text;
 
@@ -416,7 +417,6 @@ namespace Laboratory.Chimera.UI
         private Color GetTraitTypeColor(TraitType traitType)
         {
             return traitType.GetCategory().GetCategoryColor();
-            }
         }
         
         private void Update3DPreview()

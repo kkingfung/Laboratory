@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
 using Laboratory.Chimera.Ecosystem.Systems;
-using EcoBiomeType = Laboratory.Core.Enums.BiomeType;
+using Laboratory.Shared.Types;
 using EcoCatastropheType = Laboratory.Chimera.Ecosystem.Data.CatastropheType;
 
 namespace Laboratory.Chimera.Ecosystem
@@ -268,13 +268,13 @@ namespace Laboratory.Chimera.Ecosystem
                 UnityEngine.Debug.Log($"🌦️ Weather system formed: {weather.Type} at {weather.Location}");
         }
 
-        private void OnBiomeTransitionStarted(Vector2 location, EcoBiomeType from, EcoBiomeType to)
+        private void OnBiomeTransitionStarted(Vector2 location, BiomeType from, BiomeType to)
         {
             if (enableDebugLogging)
                 UnityEngine.Debug.Log($"🌿 Biome transition started at {location}: {from} → {to}");
         }
 
-        private void OnBiomeTransitionCompleted(Vector2 location, EcoBiomeType newBiome)
+        private void OnBiomeTransitionCompleted(Vector2 location, BiomeType newBiome)
         {
             if (enableDebugLogging)
                 UnityEngine.Debug.Log($"🌿 Biome transition completed at {location}: now {newBiome}");

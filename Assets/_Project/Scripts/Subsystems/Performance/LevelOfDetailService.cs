@@ -50,13 +50,13 @@ namespace Laboratory.Subsystems.Performance
                 _isInitialized = true;
 
                 if (_config.enableDebugLogging)
-                    Debug.Log("[LevelOfDetailService] Initialized successfully");
+                    UnityEngine.Debug.Log("[LevelOfDetailService] Initialized successfully");
 
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[LevelOfDetailService] Failed to initialize: {ex.Message}");
+                UnityEngine.Debug.LogError($"[LevelOfDetailService] Failed to initialize: {ex.Message}");
                 return false;
             }
         }
@@ -73,7 +73,7 @@ namespace Laboratory.Subsystems.Performance
                 _lodSettings.lodBias = bias;
 
                 if (_config.enableDebugLogging)
-                    Debug.Log($"[LevelOfDetailService] Set LOD bias to {bias:F2}");
+                    UnityEngine.Debug.Log($"[LevelOfDetailService] Set LOD bias to {bias:F2}");
             }
         }
 
@@ -94,7 +94,7 @@ namespace Laboratory.Subsystems.Performance
 
             if (_lodGroups.ContainsKey(group.groupName))
             {
-                Debug.LogWarning($"[LevelOfDetailService] LOD group '{group.groupName}' already registered");
+                UnityEngine.Debug.LogWarning($"[LevelOfDetailService] LOD group '{group.groupName}' already registered");
                 return;
             }
 
@@ -106,7 +106,7 @@ namespace Laboratory.Subsystems.Performance
             _lodGroups[group.groupName] = group;
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[LevelOfDetailService] Registered LOD group '{group.groupName}' with {group.objects.Count} objects");
+                UnityEngine.Debug.Log($"[LevelOfDetailService] Registered LOD group '{group.groupName}' with {group.objects.Count} objects");
         }
 
         public void UnregisterLODGroup(string groupName)
@@ -117,7 +117,7 @@ namespace Laboratory.Subsystems.Performance
             if (_lodGroups.Remove(groupName))
             {
                 if (_config.enableDebugLogging)
-                    Debug.Log($"[LevelOfDetailService] Unregistered LOD group '{groupName}'");
+                    UnityEngine.Debug.Log($"[LevelOfDetailService] Unregistered LOD group '{groupName}'");
             }
         }
 
@@ -149,7 +149,7 @@ namespace Laboratory.Subsystems.Performance
             ApplyLODSettings();
 
             if (_config.enableDebugLogging)
-                Debug.Log("[LevelOfDetailService] Applied new LOD settings");
+                UnityEngine.Debug.Log("[LevelOfDetailService] Applied new LOD settings");
         }
 
         #endregion

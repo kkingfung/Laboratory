@@ -27,6 +27,14 @@ namespace Laboratory.Subsystems.Companion
     /// </summary>
     public class CompanionSubsystemManager : MonoBehaviour, ISubsystemManager
     {
+        #region ISubsystemManager Implementation
+
+        public bool IsInitialized { get; private set; }
+        public string SubsystemName => "Companion";
+        public float InitializationProgress { get; private set; }
+
+        #endregion
+
         #region Events
 
         public static event Action<CompanionDevice> OnCompanionDeviceConnected;
@@ -1097,4 +1105,246 @@ namespace Laboratory.Subsystems.Companion
 
         #endregion
     }
+
+    #region Service Implementations
+
+    /// <summary>
+    /// Basic implementation of cross-platform sync service
+    /// </summary>
+    public class CrossPlatformSyncService : ICrossPlatformSyncService
+    {
+        private readonly CompanionSubsystemConfig _config;
+        private bool _isInitialized;
+
+        public CrossPlatformSyncService(CompanionSubsystemConfig config)
+        {
+            _config = config ?? throw new ArgumentNullException(nameof(config));
+        }
+
+        public async Task<bool> InitializeAsync()
+        {
+            try
+            {
+                await Task.Delay(100); // Simulate initialization
+                _isInitialized = true;
+                UnityEngine.Debug.Log("[CrossPlatformSyncService] Initialized successfully");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[CrossPlatformSyncService] Failed to initialize: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<CrossPlatformSyncData> GatherSyncDataAsync()
+        {
+            if (!_isInitialized) return new CrossPlatformSyncData();
+
+            await Task.Delay(50); // Simulate gathering data
+
+            return new CrossPlatformSyncData
+            {
+                userId = "player_001",
+                timestamp = DateTime.Now,
+                version = "1.0.0",
+                gameProgressData = new Dictionary<string, object>
+                {
+                    ["level"] = 5,
+                    ["experience"] = 1250,
+                    ["creatures_owned"] = 3
+                },
+                creatureData = new List<CreatureSyncData>(),
+                userPreferences = new Dictionary<string, object>
+                {
+                    ["notifications_enabled"] = true,
+                    ["companion_sync"] = true
+                },
+                metadata = new Dictionary<string, object>
+                {
+                    ["last_platform"] = Application.platform.ToString(),
+                    ["session_id"] = Guid.NewGuid().ToString()
+                }
+            };
+        }
+
+        public async Task<CrossPlatformSyncData> GatherInitialSyncDataAsync(string userId)
+        {
+            var syncData = await GatherSyncDataAsync();
+            syncData.userId = userId;
+            syncData.metadata["initial_sync"] = true;
+            return syncData;
+        }
+
+        public async Task<bool> ApplySyncDataAsync(CrossPlatformSyncData syncData)
+        {
+            if (!_isInitialized || syncData == null) return false;
+
+            try
+            {
+                await Task.Delay(100); // Simulate applying data
+                UnityEngine.Debug.Log($"[CrossPlatformSyncService] Applied sync data for user {syncData.userId}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[CrossPlatformSyncService] Failed to apply sync data: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<List<SyncConflict>> DetectConflictsAsync(CrossPlatformSyncData localData, CrossPlatformSyncData remoteData)
+        {
+            await Task.Delay(50);
+            var conflicts = new List<SyncConflict>();
+
+            // Basic conflict detection logic
+            if (localData.timestamp > remoteData.timestamp.AddMinutes(5))
+            {
+                conflicts.Add(new SyncConflict
+                {
+                    conflictType = SyncConflictType.TimestampMismatch,
+                    localValue = localData.timestamp,
+                    remoteValue = remoteData.timestamp,
+                    fieldName = "timestamp"
+                });
+            }
+
+            return conflicts;
+        }
+
+        public async Task<bool> ResolveConflictsAsync(List<SyncConflict> conflicts)
+        {
+            if (conflicts == null || conflicts.Count == 0) return true;
+
+            try
+            {
+                await Task.Delay(100); // Simulate conflict resolution
+                UnityEngine.Debug.Log($"[CrossPlatformSyncService] Resolved {conflicts.Count} conflicts");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[CrossPlatformSyncService] Failed to resolve conflicts: {ex.Message}");
+                return false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Basic implementation of companion app service
+    /// </summary>
+    public class CompanionAppService : ICompanionAppService
+    {
+        private readonly CompanionSubsystemConfig _config;
+        private bool _isInitialized;
+        private bool _isDiscovering;
+        private List<CompanionDevice> _discoveredDevices;
+
+        public CompanionAppService(CompanionSubsystemConfig config)
+        {
+            _config = config ?? throw new ArgumentNullException(nameof(config));
+            _discoveredDevices = new List<CompanionDevice>();
+        }
+
+        public async Task<bool> InitializeAsync()
+        {
+            try
+            {
+                await Task.Delay(100); // Simulate initialization
+                _isInitialized = true;
+                UnityEngine.Debug.Log("[CompanionAppService] Initialized successfully");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[CompanionAppService] Failed to initialize: {ex.Message}");
+                return false;
+            }
+        }
+
+        public void StartDeviceDiscovery()
+        {
+            if (!_isInitialized) return;
+
+            _isDiscovering = true;
+            UnityEngine.Debug.Log("[CompanionAppService] Started device discovery");
+
+            // Simulate finding devices
+            _discoveredDevices.Add(new CompanionDevice
+            {
+                deviceId = "mobile_001",
+                deviceName = "Player's Phone",
+                deviceType = CompanionDeviceType.MobileApp,
+                isConnected = false,
+                connectionStatus = CompanionConnectionStatus.Discovered,
+                lastSeenTime = DateTime.Now,
+                userId = "player_001",
+                capabilities = new List<CompanionCapability>
+                {
+                    CompanionCapability.RemoteMonitoring,
+                    CompanionCapability.PushNotifications
+                }
+            });
+        }
+
+        public void StopDeviceDiscovery()
+        {
+            _isDiscovering = false;
+            UnityEngine.Debug.Log("[CompanionAppService] Stopped device discovery");
+        }
+
+        public async Task<bool> SendMessageToDeviceAsync(CompanionDevice device, CrossPlatformMessage message)
+        {
+            if (!_isInitialized || device == null || message == null) return false;
+
+            try
+            {
+                await Task.Delay(50); // Simulate sending message
+                UnityEngine.Debug.Log($"[CompanionAppService] Sent message to device {device.deviceName}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[CompanionAppService] Failed to send message: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<CrossPlatformMessage> ReceiveMessageAsync()
+        {
+            if (!_isInitialized) return null;
+
+            await Task.Delay(100); // Simulate checking for messages
+
+            // Return null for now (no messages)
+            return null;
+        }
+
+        public List<CompanionDevice> GetDiscoveredDevices()
+        {
+            return new List<CompanionDevice>(_discoveredDevices);
+        }
+
+        public async Task<bool> AuthenticateDeviceAsync(CompanionDevice device)
+        {
+            if (!_isInitialized || device == null) return false;
+
+            try
+            {
+                await Task.Delay(200); // Simulate authentication
+                device.isConnected = true;
+                device.connectionStatus = CompanionConnectionStatus.Connected;
+                UnityEngine.Debug.Log($"[CompanionAppService] Authenticated device {device.deviceName}");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogError($"[CompanionAppService] Failed to authenticate device: {ex.Message}");
+                return false;
+            }
+        }
+    }
+
+    #endregion
 }

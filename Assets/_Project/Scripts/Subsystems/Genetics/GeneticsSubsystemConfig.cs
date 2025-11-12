@@ -16,6 +16,7 @@ namespace Laboratory.Subsystems.Genetics
         [SerializeField] private GeneticTraitLibrary defaultTraitLibrary;
         [SerializeField] private string[] defaultSpecies = new string[] { "DefaultSpecies", "BasicCreature" };
         [SerializeField] private float globalMutationRate = 0.02f;
+        [SerializeField] private float extinctionThreshold = 0.1f;
         [SerializeField] private bool enableAdvancedInheritance = true;
         [SerializeField] private bool enableEnvironmentalEffects = true;
 
@@ -40,6 +41,7 @@ namespace Laboratory.Subsystems.Genetics
         public GeneticTraitLibrary DefaultTraitLibrary => defaultTraitLibrary;
         public string[] DefaultSpecies => defaultSpecies;
         public float GlobalMutationRate => globalMutationRate;
+        public float ExtinctionThreshold => extinctionThreshold;
         public bool EnableAdvancedInheritance => enableAdvancedInheritance;
         public bool EnableEnvironmentalEffects => enableEnvironmentalEffects;
         public BreedingConfiguration BreedingConfig => breedingConfig;

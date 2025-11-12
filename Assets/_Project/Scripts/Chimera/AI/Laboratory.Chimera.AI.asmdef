@@ -4,6 +4,7 @@
     "references": [
         "Laboratory.Core",
         "Laboratory.Chimera",
+        "Laboratory.Shared",
         "Laboratory.AI.Pathfinding",
         "Laboratory.AI.Agents",
         "Unity.AI.Navigation",

@@ -1,5 +1,3 @@
-using Laboratory.Shared.Types;
-
 namespace Laboratory.Subsystems.Ecosystem
 {
     /// <summary>

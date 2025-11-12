@@ -9,6 +9,8 @@
         "Laboratory.Chimera",
         "Laboratory.Chimera.AI",
         "Laboratory.Chimera.ECS",
+        "Laboratory.Chimera.Genetics.Advanced",
+        "Laboratory.AI.Personality",
         "Laboratory.Shared",
         "Laboratory.Systems",
         "UniTask"

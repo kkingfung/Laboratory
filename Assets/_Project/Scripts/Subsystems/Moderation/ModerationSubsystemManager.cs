@@ -89,7 +89,7 @@ namespace Laboratory.Subsystems.Moderation
             }
 
             // Validate filter lists
-            if (config.profanityFilter == null || config.profanityFilter.Count == 0)
+            if (config.profanityFilter == null || config.profanityFilter.blacklist.Count == 0)
             {
                 Debug.LogWarning($"[{SubsystemName}] No profanity filter configured. Content filtering may be ineffective.");
             }

@@ -9,6 +9,7 @@ using Laboratory.Chimera.Configuration;
 using Laboratory.Core.ECS.Systems;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.ECS
 {

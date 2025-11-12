@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Collections;
 using Laboratory.Chimera.Genetics;
-using CoreBiomeType = Laboratory.Core.Enums.BiomeType;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Creatures
 {
@@ -47,7 +47,7 @@ namespace Laboratory.Chimera.Creatures
         public int maxLifespan = 365 * 5; // days
         
         [Header("Environmental Preferences")]
-        public CoreBiomeType[] preferredBiomes = { CoreBiomeType.Forest };
+        public BiomeType[] preferredBiomes = { BiomeType.Forest };
         public float[] biomeCompatibility = { 1.0f }; // matches preferredBiomes array
         public TemperatureRange temperatureRange = TemperatureRange.Temperate;
         public HumidityRange humidityRange = HumidityRange.Moderate;
@@ -109,7 +109,7 @@ namespace Laboratory.Chimera.Creatures
         /// <summary>
         /// Gets the compatibility rating with a specific biome
         /// </summary>
-        public float GetBiomeCompatibility(CoreBiomeType biome)
+        public float GetBiomeCompatibility(BiomeType biome)
         {
             for (int i = 0; i < preferredBiomes.Length && i < biomeCompatibility.Length; i++)
             {
@@ -210,7 +210,7 @@ namespace Laboratory.Chimera.Creatures
     [Serializable]
     public class DiscoveryRequirement
     {
-        public CoreBiomeType requiredBiome = CoreBiomeType.Grassland;
+        public BiomeType requiredBiome = BiomeType.Grassland;
         public TimeOfDay requiredTimeOfDay = TimeOfDay.Any;
         public WeatherCondition requiredWeather = WeatherCondition.Any;
         public int minimumPlayerLevel = 1;

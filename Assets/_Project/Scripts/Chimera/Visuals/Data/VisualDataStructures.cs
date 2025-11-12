@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Visuals.Data
 {

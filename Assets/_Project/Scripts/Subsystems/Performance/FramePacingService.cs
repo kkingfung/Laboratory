@@ -62,13 +62,13 @@ namespace Laboratory.Subsystems.Performance
                 _isInitialized = true;
 
                 if (_config.enableDebugLogging)
-                    Debug.Log("[FramePacingService] Initialized successfully");
+                    UnityEngine.Debug.Log("[FramePacingService] Initialized successfully");
 
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[FramePacingService] Failed to initialize: {ex.Message}");
+                UnityEngine.Debug.LogError($"[FramePacingService] Failed to initialize: {ex.Message}");
                 return false;
             }
         }
@@ -85,7 +85,7 @@ namespace Laboratory.Subsystems.Performance
             ApplyFrameRateSettings();
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[FramePacingService] Set target frame rate to {frameRate} FPS");
+                UnityEngine.Debug.Log($"[FramePacingService] Set target frame rate to {frameRate} FPS");
         }
 
         public void EnableFramePacing(bool enable)
@@ -105,7 +105,7 @@ namespace Laboratory.Subsystems.Performance
             }
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[FramePacingService] Frame pacing {(enable ? "enabled" : "disabled")}");
+                UnityEngine.Debug.Log($"[FramePacingService] Frame pacing {(enable ? "enabled" : "disabled")}");
         }
 
         public FramePacingMetrics GetFramePacingMetrics()
@@ -129,7 +129,7 @@ namespace Laboratory.Subsystems.Performance
             ApplyFramePacingMode();
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[FramePacingService] Set frame pacing mode to {mode}");
+                UnityEngine.Debug.Log($"[FramePacingService] Set frame pacing mode to {mode}");
         }
 
         public bool IsFrameRateStable()

@@ -12,6 +12,7 @@
         "UniTask",
         "Laboratory.Core",
         "Laboratory.Chimera",
+        "Laboratory.Shared",
         "Laboratory.Chimera.AI",
         "Laboratory.Models"
     ],

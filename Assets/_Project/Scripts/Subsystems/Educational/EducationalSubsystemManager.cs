@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Collections;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
-using System.Collections;
 using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Subsystems.Educational
@@ -25,6 +26,14 @@ namespace Laboratory.Subsystems.Educational
     /// </summary>
     public class EducationalSubsystemManager : MonoBehaviour, ISubsystemManager
     {
+        #region ISubsystemManager Implementation
+
+        public bool IsInitialized { get; private set; }
+        public string SubsystemName => "Educational";
+        public float InitializationProgress { get; private set; }
+
+        #endregion
+
         #region Events
 
         public static event Action<ClassroomSession> OnClassroomSessionStarted;
@@ -123,42 +132,34 @@ namespace Laboratory.Subsystems.Educational
 
         private async Task InitializeServicesAsync()
         {
-            // Initialize classroom management service
-            _classroomManagementService = new ClassroomManagementService(_config);
-            await _classroomManagementService.InitializeAsync();
+            // Try to resolve services from service container
+            // If they don't exist, set to null and log warning
+            var serviceContainer = ServiceContainer.Instance;
 
-            // Initialize curriculum integration service
-            _curriculumIntegrationService = new CurriculumIntegrationService(_config);
-            await _curriculumIntegrationService.InitializeAsync();
+            if (serviceContainer != null)
+            {
+                serviceContainer.TryResolve<IClassroomManagementService>(out _classroomManagementService);
+                serviceContainer.TryResolve<ICurriculumIntegrationService>(out _curriculumIntegrationService);
+                serviceContainer.TryResolve<IStudentProgressService>(out _studentProgressService);
+                serviceContainer.TryResolve<IEducatorToolsService>(out _educatorToolsService);
+                serviceContainer.TryResolve<IAssessmentService>(out _assessmentService);
+                serviceContainer.TryResolve<IEducationalAnalyticsService>(out _analyticsService);
+                serviceContainer.TryResolve<IPrivacyComplianceService>(out _privacyComplianceService);
+            }
 
-            // Initialize student progress service
-            _studentProgressService = new StudentProgressService(_config);
-            await _studentProgressService.InitializeAsync();
+            if (_config.enableDebugLogging)
+            {
+                Debug.Log("[EducationalSubsystem] Educational services resolved from service container");
+                Debug.Log($"  ClassroomManagement: {(_classroomManagementService != null ? "Available" : "Not Available")}");
+                Debug.Log($"  CurriculumIntegration: {(_curriculumIntegrationService != null ? "Available" : "Not Available")}");
+                Debug.Log($"  StudentProgress: {(_studentProgressService != null ? "Available" : "Not Available")}");
+                Debug.Log($"  EducatorTools: {(_educatorToolsService != null ? "Available" : "Not Available")}");
+                Debug.Log($"  Assessment: {(_assessmentService != null ? "Available" : "Not Available")}");
+                Debug.Log($"  Analytics: {(_analyticsService != null ? "Available" : "Not Available")}");
+                Debug.Log($"  PrivacyCompliance: {(_privacyComplianceService != null ? "Available" : "Not Available")}");
+            }
 
-            // Initialize educator tools service
-            _educatorToolsService = new EducatorToolsService(_config);
-            await _educatorToolsService.InitializeAsync();
-
-            // Initialize assessment service
-            _assessmentService = new AssessmentService(_config);
-            await _assessmentService.InitializeAsync();
-
-            // Initialize educational analytics service
-            _analyticsService = new EducationalAnalyticsService(_config);
-            await _analyticsService.InitializeAsync();
-
-            // Initialize privacy compliance service
-            _privacyComplianceService = new PrivacyComplianceService(_config);
-            await _privacyComplianceService.InitializeAsync();
-
-            // Register with service container
-            ServiceContainer.Instance?.RegisterService<IClassroomManagementService>(_classroomManagementService);
-            ServiceContainer.Instance?.RegisterService<ICurriculumIntegrationService>(_curriculumIntegrationService);
-            ServiceContainer.Instance?.RegisterService<IStudentProgressService>(_studentProgressService);
-            ServiceContainer.Instance?.RegisterService<IEducatorToolsService>(_educatorToolsService);
-            ServiceContainer.Instance?.RegisterService<IAssessmentService>(_assessmentService);
-            ServiceContainer.Instance?.RegisterService<IEducationalAnalyticsService>(_analyticsService);
-            ServiceContainer.Instance?.RegisterService<IPrivacyComplianceService>(_privacyComplianceService);
+            await Task.CompletedTask;
         }
 
         private void InitializeDataStructures()

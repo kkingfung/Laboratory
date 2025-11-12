@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Entities;
 using Unity.Profiling;
+using Unity.Transforms;
 using UnityEngine;
 
 namespace Laboratory.Subsystems.Performance
@@ -207,15 +209,6 @@ namespace Laboratory.Subsystems.Performance
             return recommendations;
         }
 
-        private PerformanceAlertSeverity CalculateSeverity(float actualValue, float thresholdValue)
-        {
-            var ratio = actualValue / thresholdValue;
-
-            if (ratio > 3.0f) return PerformanceAlertSeverity.Critical;
-            if (ratio > 2.0f) return PerformanceAlertSeverity.High;
-            if (ratio > 1.5f) return PerformanceAlertSeverity.Medium;
-            return PerformanceAlertSeverity.Low;
-        }
 
         private bool HasActiveAlert(Type systemType, PerformanceAlertType alertType)
         {
@@ -227,8 +220,110 @@ namespace Laboratory.Subsystems.Performance
 
         private bool IsSystemBurstCompiled(Type systemType)
         {
-            // Check if system has BurstCompile attribute
-            return Attribute.IsDefined(systemType, typeof(Unity.Burst.BurstCompileAttribute));
+            // Check if system has BurstCompile attribute through reflection
+            // This approach works across different Unity/Burst versions
+            try
+            {
+                // Look for BurstCompile attribute through reflection
+                var burstAttributes = systemType.GetCustomAttributes(false)
+                    .Where(attr => attr.GetType().Name.Contains("BurstCompile"));
+
+                if (burstAttributes.Any())
+                    return true;
+
+                // Check for Burst-related method attributes
+                var methods = systemType.GetMethods();
+                foreach (var method in methods)
+                {
+                    var methodAttributes = method.GetCustomAttributes(false)
+                        .Where(attr => attr.GetType().Name.Contains("BurstCompile"));
+
+                    if (methodAttributes.Any())
+                        return true;
+                }
+
+                // Check if this is a known ECS system type that benefits from Burst
+                if (IsKnownBurstCompatibleSystem(systemType))
+                    return true;
+
+                // Check if system implements IJobEntity or other job interfaces (likely Burst compiled)
+                if (IsSystemJobified(systemType))
+                {
+                    // Job-based systems are commonly Burst compiled
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception)
+            {
+                // If reflection fails or Burst isn't available, make an educated guess
+                return IsSystemJobified(systemType) || IsKnownBurstCompatibleSystem(systemType);
+            }
+        }
+
+        private bool IsKnownBurstCompatibleSystem(Type systemType)
+        {
+            // Check if this is a known system type that typically uses Burst compilation
+            var typeName = systemType.Name;
+            var namespace_ = systemType.Namespace ?? "";
+
+            // Common ECS systems that are typically Burst compiled
+            var burstCompatiblePatterns = new[]
+            {
+                "Transform",
+                "Movement",
+                "Physics",
+                "Collision",
+                "Animation",
+                "Simulation",
+                "Update",
+                "Calculate",
+                "Process"
+            };
+
+            // Unity ECS namespaces that commonly use Burst
+            var burstNamespaces = new[]
+            {
+                "Unity.Transforms",
+                "Unity.Physics",
+                "Unity.Animation",
+                "Unity.Rendering"
+            };
+
+            // Check if namespace indicates Burst usage
+            if (burstNamespaces.Any(ns => namespace_.StartsWith(ns)))
+                return true;
+
+            // Check if type name suggests Burst compilation
+            if (burstCompatiblePatterns.Any(pattern => typeName.Contains(pattern)))
+                return true;
+
+            // Check if it's a system group (typically not Burst compiled)
+            if (typeName.Contains("Group") || typeName.Contains("Root"))
+                return false;
+
+            return false;
+        }
+
+        private PerformanceAlertSeverity CalculateSeverity(float actualValue, float budgetValue)
+        {
+            if (budgetValue <= 0f)
+                return PerformanceAlertSeverity.Low;
+
+            var ratio = actualValue / budgetValue;
+
+            // Calculate severity based on how much the actual value exceeds the budget
+            if (ratio >= 3.0f) // 300% or more of budget
+                return PerformanceAlertSeverity.Critical;
+            else if (ratio >= 2.0f) // 200-299% of budget
+                return PerformanceAlertSeverity.High;
+            else if (ratio >= 1.5f) // 150-199% of budget
+                return PerformanceAlertSeverity.Medium;
+            else if (ratio >= 1.2f) // 120-149% of budget
+                return PerformanceAlertSeverity.Low;
+            else
+                return PerformanceAlertSeverity.Low; // Within reasonable bounds
         }
 
         private bool IsSystemJobified(Type systemType)

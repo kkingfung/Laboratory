@@ -5,6 +5,7 @@
         "Laboratory.Chimera",
         "Laboratory.Chimera.Genetics.Advanced",
         "Laboratory.Core",
+        "Laboratory.Shared",
         "Laboratory.Core.Debug",
         "Laboratory.AI.Personality",
         "Unity.Entities",

@@ -6,6 +6,7 @@ using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Discovery;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Research
 {

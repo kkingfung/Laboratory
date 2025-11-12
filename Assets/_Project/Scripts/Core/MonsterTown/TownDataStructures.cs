@@ -348,6 +348,7 @@ namespace Laboratory.Core.MonsterTown
     /// </summary>
     public enum EquipmentType
     {
+        None,
         Weapon,
         Armor,
         Accessory,

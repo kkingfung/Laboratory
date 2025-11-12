@@ -8,6 +8,7 @@ using Laboratory.Core.Abilities.Events;
 using Laboratory.Core.Abilities;
 using Laboratory.Core.Abilities.Systems;
 using Laboratory.Infrastructure.Core;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Subsystems.Combat.Abilities
 {

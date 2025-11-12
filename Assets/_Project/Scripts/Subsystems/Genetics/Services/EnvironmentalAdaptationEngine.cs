@@ -86,7 +86,7 @@ namespace Laboratory.Subsystems.Genetics.Services
                 RecordAdaptationEvent(speciesId, result);
 
                 // Check for extinction risk
-                if (result.SurvivalRate < _config.extinctionThreshold)
+                if (result.SurvivalRate < _config.ExtinctionThreshold)
                 {
                     TriggerExtinctionRisk(speciesId, result.SurvivalRate);
                 }
@@ -145,7 +145,7 @@ namespace Laboratory.Subsystems.Genetics.Services
                 prediction.PredictedOutcomes.Add(outcome);
 
                 // Check for population collapse
-                if (simulatedPopulation.Count < _config.minimumViablePopulation)
+                if (simulatedPopulation.Count < _config.PerformanceConfig.MinimumViablePopulation)
                 {
                     prediction.ExtinctionRisk = true;
                     prediction.ExtinctionGeneration = generation;
@@ -291,10 +291,10 @@ namespace Laboratory.Subsystems.Genetics.Services
             foreach (var traitName in targetTraits)
             {
                 var gene = individual.Genes?.FirstOrDefault(g => g.traitName == traitName);
-                if (gene != null)
+                if (gene != null && gene.Value.value.HasValue)
                 {
                     // Molecular-level fitness calculation with quantum mechanical precision
-                    var normalizedExpression = Mathf.Clamp01(gene.value);
+                    var normalizedExpression = Mathf.Clamp01(gene.Value.value.Value);
 
                     // Calculate molecular binding affinity using Lennard-Jones potential
                     var molecularFitness = CalculateMolecularBindingAffinity(normalizedExpression, traitName);

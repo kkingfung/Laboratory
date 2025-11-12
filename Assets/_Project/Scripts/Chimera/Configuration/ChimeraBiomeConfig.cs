@@ -4,6 +4,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 using System.Collections.Generic;
 
 namespace Laboratory.Chimera.Configuration
@@ -17,7 +18,7 @@ namespace Laboratory.Chimera.Configuration
     {
         [Header("Basic Biome Info")]
         [SerializeField] public string biomeName = "New Biome";
-        [SerializeField] public Laboratory.Core.Enums.BiomeType biomeType = Laboratory.Core.Enums.BiomeType.Forest;
+        [SerializeField] public BiomeType biomeType = BiomeType.Forest;
         [SerializeField] public string description = "";
         [SerializeField] public Sprite biomeIcon;
         [SerializeField] public Color biomeColor = Color.green;
@@ -225,7 +226,7 @@ namespace Laboratory.Chimera.Configuration
         public BiomeData GetBiomeData(string biomeTypeName)
         {
             // Parse the requested biome type
-            if (!System.Enum.TryParse<Laboratory.Core.Enums.BiomeType>(biomeTypeName, true, out var requestedBiomeType))
+            if (!System.Enum.TryParse<BiomeType>(biomeTypeName, true, out var requestedBiomeType))
             {
                 // Fallback to this config's biome type if parsing fails
                 requestedBiomeType = biomeType;
@@ -251,7 +252,7 @@ namespace Laboratory.Chimera.Configuration
         /// <summary>
         /// Get adapted biome data for different but related biome types
         /// </summary>
-        private BiomeData GetAdaptedBiomeData(Laboratory.Core.Enums.BiomeType requestedType)
+        private BiomeData GetAdaptedBiomeData(BiomeType requestedType)
         {
             // Calculate adaptation factors based on biome relationships
             float resourceModifier = CalculateBiomeResourceCompatibility(requestedType);
@@ -271,19 +272,19 @@ namespace Laboratory.Chimera.Configuration
         /// <summary>
         /// Calculate resource compatibility between biome types
         /// </summary>
-        private float CalculateBiomeResourceCompatibility(Laboratory.Core.Enums.BiomeType targetType)
+        private float CalculateBiomeResourceCompatibility(BiomeType targetType)
         {
             // Define biome family relationships for resource compatibility
-            var resourceCompatibility = new System.Collections.Generic.Dictionary<Laboratory.Core.Enums.BiomeType, float>
+            var resourceCompatibility = new System.Collections.Generic.Dictionary<BiomeType, float>
             {
-                [Laboratory.Core.Enums.BiomeType.Forest] = GetForestCompatibility(targetType),
-                [Laboratory.Core.Enums.BiomeType.Grassland] = GetGrasslandCompatibility(targetType),
-                [Laboratory.Core.Enums.BiomeType.Desert] = GetDesertCompatibility(targetType),
-                [Laboratory.Core.Enums.BiomeType.Ocean] = GetOceanCompatibility(targetType),
-                [Laboratory.Core.Enums.BiomeType.Mountain] = GetMountainCompatibility(targetType),
-                [Laboratory.Core.Enums.BiomeType.Swamp] = GetSwampCompatibility(targetType),
-                [Laboratory.Core.Enums.BiomeType.Arctic] = GetArcticCompatibility(targetType),
-                [Laboratory.Core.Enums.BiomeType.Volcanic] = GetVolcanicCompatibility(targetType)
+                [BiomeType.Forest] = GetForestCompatibility(targetType),
+                [BiomeType.Grassland] = GetGrasslandCompatibility(targetType),
+                [BiomeType.Desert] = GetDesertCompatibility(targetType),
+                [BiomeType.Ocean] = GetOceanCompatibility(targetType),
+                [BiomeType.Mountain] = GetMountainCompatibility(targetType),
+                [BiomeType.Swamp] = GetSwampCompatibility(targetType),
+                [BiomeType.Arctic] = GetArcticCompatibility(targetType),
+                [BiomeType.Volcanic] = GetVolcanicCompatibility(targetType)
             };
 
             if (resourceCompatibility.ContainsKey(biomeType))
@@ -298,7 +299,7 @@ namespace Laboratory.Chimera.Configuration
         /// <summary>
         /// Calculate carrying capacity compatibility between biome types
         /// </summary>
-        private float CalculateBiomeCapacityCompatibility(Laboratory.Core.Enums.BiomeType targetType)
+        private float CalculateBiomeCapacityCompatibility(BiomeType targetType)
         {
             // Capacity relationships tend to be more stable than resources
             return CalculateBiomeResourceCompatibility(targetType) * 0.9f + 0.1f; // Slightly higher base capacity
@@ -307,155 +308,155 @@ namespace Laboratory.Chimera.Configuration
         /// <summary>
         /// Get adapted color for different biome types
         /// </summary>
-        private Color GetAdaptedBiomeColor(Laboratory.Core.Enums.BiomeType targetType)
+        private Color GetAdaptedBiomeColor(BiomeType targetType)
         {
             // Return default colors for known biome types
             return targetType switch
             {
-                Laboratory.Core.Enums.BiomeType.Forest => new Color(0.2f, 0.6f, 0.2f, 1f),
-                Laboratory.Core.Enums.BiomeType.Desert => new Color(0.9f, 0.8f, 0.4f, 1f),
-                Laboratory.Core.Enums.BiomeType.Ocean => new Color(0.2f, 0.4f, 0.8f, 1f),
-                Laboratory.Core.Enums.BiomeType.Mountain => new Color(0.6f, 0.6f, 0.7f, 1f),
-                Laboratory.Core.Enums.BiomeType.Swamp => new Color(0.4f, 0.5f, 0.3f, 1f),
-                Laboratory.Core.Enums.BiomeType.Arctic => new Color(0.9f, 0.9f, 1f, 1f),
-                Laboratory.Core.Enums.BiomeType.Grassland => new Color(0.4f, 0.7f, 0.3f, 1f),
-                Laboratory.Core.Enums.BiomeType.Volcanic => new Color(0.8f, 0.3f, 0.2f, 1f),
-                Laboratory.Core.Enums.BiomeType.Underground => new Color(0.3f, 0.3f, 0.4f, 1f),
-                Laboratory.Core.Enums.BiomeType.Sky => new Color(0.7f, 0.8f, 1f, 1f),
+                BiomeType.Forest => new Color(0.2f, 0.6f, 0.2f, 1f),
+                BiomeType.Desert => new Color(0.9f, 0.8f, 0.4f, 1f),
+                BiomeType.Ocean => new Color(0.2f, 0.4f, 0.8f, 1f),
+                BiomeType.Mountain => new Color(0.6f, 0.6f, 0.7f, 1f),
+                BiomeType.Swamp => new Color(0.4f, 0.5f, 0.3f, 1f),
+                BiomeType.Arctic => new Color(0.9f, 0.9f, 1f, 1f),
+                BiomeType.Grassland => new Color(0.4f, 0.7f, 0.3f, 1f),
+                BiomeType.Volcanic => new Color(0.8f, 0.3f, 0.2f, 1f),
+                BiomeType.Underground => new Color(0.3f, 0.3f, 0.4f, 1f),
+                BiomeType.Sky => new Color(0.7f, 0.8f, 1f, 1f),
                 _ => Color.Lerp(biomeColor, Color.gray, 0.3f) // Blend with gray for unknown types
             };
         }
 
         // Biome compatibility helper methods
-        private float GetForestCompatibility(Laboratory.Core.Enums.BiomeType targetType)
+        private float GetForestCompatibility(BiomeType targetType)
         {
             return targetType switch
             {
-                Laboratory.Core.Enums.BiomeType.Forest => 1.0f,
-                Laboratory.Core.Enums.BiomeType.Grassland => 0.8f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 0.7f,
-                Laboratory.Core.Enums.BiomeType.Mountain => 0.6f,
-                Laboratory.Core.Enums.BiomeType.Temperate => 0.9f,
-                Laboratory.Core.Enums.BiomeType.Desert => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Arctic => 0.4f,
-                Laboratory.Core.Enums.BiomeType.Ocean => 0.2f,
-                Laboratory.Core.Enums.BiomeType.Volcanic => 0.2f,
+                BiomeType.Forest => 1.0f,
+                BiomeType.Grassland => 0.8f,
+                BiomeType.Swamp => 0.7f,
+                BiomeType.Mountain => 0.6f,
+                BiomeType.Temperate => 0.9f,
+                BiomeType.Desert => 0.3f,
+                BiomeType.Arctic => 0.4f,
+                BiomeType.Ocean => 0.2f,
+                BiomeType.Volcanic => 0.2f,
                 _ => 0.5f
             };
         }
 
-        private float GetGrasslandCompatibility(Laboratory.Core.Enums.BiomeType targetType)
+        private float GetGrasslandCompatibility(BiomeType targetType)
         {
             return targetType switch
             {
-                Laboratory.Core.Enums.BiomeType.Grassland => 1.0f,
-                Laboratory.Core.Enums.BiomeType.Forest => 0.8f,
-                Laboratory.Core.Enums.BiomeType.Temperate => 0.9f,
-                Laboratory.Core.Enums.BiomeType.Mountain => 0.7f,
-                Laboratory.Core.Enums.BiomeType.Desert => 0.5f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 0.6f,
-                Laboratory.Core.Enums.BiomeType.Arctic => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Ocean => 0.2f,
-                Laboratory.Core.Enums.BiomeType.Volcanic => 0.2f,
+                BiomeType.Grassland => 1.0f,
+                BiomeType.Forest => 0.8f,
+                BiomeType.Temperate => 0.9f,
+                BiomeType.Mountain => 0.7f,
+                BiomeType.Desert => 0.5f,
+                BiomeType.Swamp => 0.6f,
+                BiomeType.Arctic => 0.3f,
+                BiomeType.Ocean => 0.2f,
+                BiomeType.Volcanic => 0.2f,
                 _ => 0.5f
             };
         }
 
-        private float GetDesertCompatibility(Laboratory.Core.Enums.BiomeType targetType)
+        private float GetDesertCompatibility(BiomeType targetType)
         {
             return targetType switch
             {
-                Laboratory.Core.Enums.BiomeType.Desert => 1.0f,
-                Laboratory.Core.Enums.BiomeType.Volcanic => 0.7f,
-                Laboratory.Core.Enums.BiomeType.Mountain => 0.6f,
-                Laboratory.Core.Enums.BiomeType.Grassland => 0.5f,
-                Laboratory.Core.Enums.BiomeType.Forest => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 0.2f,
-                Laboratory.Core.Enums.BiomeType.Arctic => 0.4f,
-                Laboratory.Core.Enums.BiomeType.Ocean => 0.1f,
+                BiomeType.Desert => 1.0f,
+                BiomeType.Volcanic => 0.7f,
+                BiomeType.Mountain => 0.6f,
+                BiomeType.Grassland => 0.5f,
+                BiomeType.Forest => 0.3f,
+                BiomeType.Swamp => 0.2f,
+                BiomeType.Arctic => 0.4f,
+                BiomeType.Ocean => 0.1f,
                 _ => 0.4f
             };
         }
 
-        private float GetOceanCompatibility(Laboratory.Core.Enums.BiomeType targetType)
+        private float GetOceanCompatibility(BiomeType targetType)
         {
             return targetType switch
             {
-                Laboratory.Core.Enums.BiomeType.Ocean => 1.0f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 0.8f,
-                Laboratory.Core.Enums.BiomeType.Arctic => 0.6f,
-                Laboratory.Core.Enums.BiomeType.Forest => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Grassland => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Mountain => 0.4f,
-                Laboratory.Core.Enums.BiomeType.Desert => 0.1f,
-                Laboratory.Core.Enums.BiomeType.Volcanic => 0.3f,
+                BiomeType.Ocean => 1.0f,
+                BiomeType.Swamp => 0.8f,
+                BiomeType.Arctic => 0.6f,
+                BiomeType.Forest => 0.3f,
+                BiomeType.Grassland => 0.3f,
+                BiomeType.Mountain => 0.4f,
+                BiomeType.Desert => 0.1f,
+                BiomeType.Volcanic => 0.3f,
                 _ => 0.3f
             };
         }
 
-        private float GetMountainCompatibility(Laboratory.Core.Enums.BiomeType targetType)
+        private float GetMountainCompatibility(BiomeType targetType)
         {
             return targetType switch
             {
-                Laboratory.Core.Enums.BiomeType.Mountain => 1.0f,
-                Laboratory.Core.Enums.BiomeType.Arctic => 0.8f,
-                Laboratory.Core.Enums.BiomeType.Volcanic => 0.7f,
-                Laboratory.Core.Enums.BiomeType.Forest => 0.6f,
-                Laboratory.Core.Enums.BiomeType.Underground => 0.8f,
-                Laboratory.Core.Enums.BiomeType.Desert => 0.6f,
-                Laboratory.Core.Enums.BiomeType.Grassland => 0.7f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 0.4f,
-                Laboratory.Core.Enums.BiomeType.Ocean => 0.4f,
+                BiomeType.Mountain => 1.0f,
+                BiomeType.Arctic => 0.8f,
+                BiomeType.Volcanic => 0.7f,
+                BiomeType.Forest => 0.6f,
+                BiomeType.Underground => 0.8f,
+                BiomeType.Desert => 0.6f,
+                BiomeType.Grassland => 0.7f,
+                BiomeType.Swamp => 0.4f,
+                BiomeType.Ocean => 0.4f,
                 _ => 0.5f
             };
         }
 
-        private float GetSwampCompatibility(Laboratory.Core.Enums.BiomeType targetType)
+        private float GetSwampCompatibility(BiomeType targetType)
         {
             return targetType switch
             {
-                Laboratory.Core.Enums.BiomeType.Swamp => 1.0f,
-                Laboratory.Core.Enums.BiomeType.Ocean => 0.8f,
-                Laboratory.Core.Enums.BiomeType.Forest => 0.7f,
-                Laboratory.Core.Enums.BiomeType.Grassland => 0.6f,
-                Laboratory.Core.Enums.BiomeType.Mountain => 0.4f,
-                Laboratory.Core.Enums.BiomeType.Desert => 0.2f,
-                Laboratory.Core.Enums.BiomeType.Arctic => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Volcanic => 0.3f,
+                BiomeType.Swamp => 1.0f,
+                BiomeType.Ocean => 0.8f,
+                BiomeType.Forest => 0.7f,
+                BiomeType.Grassland => 0.6f,
+                BiomeType.Mountain => 0.4f,
+                BiomeType.Desert => 0.2f,
+                BiomeType.Arctic => 0.3f,
+                BiomeType.Volcanic => 0.3f,
                 _ => 0.4f
             };
         }
 
-        private float GetArcticCompatibility(Laboratory.Core.Enums.BiomeType targetType)
+        private float GetArcticCompatibility(BiomeType targetType)
         {
             return targetType switch
             {
-                Laboratory.Core.Enums.BiomeType.Arctic => 1.0f,
-                Laboratory.Core.Enums.BiomeType.Mountain => 0.8f,
-                Laboratory.Core.Enums.BiomeType.Ocean => 0.6f,
-                Laboratory.Core.Enums.BiomeType.Underground => 0.7f,
-                Laboratory.Core.Enums.BiomeType.Forest => 0.4f,
-                Laboratory.Core.Enums.BiomeType.Grassland => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Desert => 0.4f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Volcanic => 0.2f,
+                BiomeType.Arctic => 1.0f,
+                BiomeType.Mountain => 0.8f,
+                BiomeType.Ocean => 0.6f,
+                BiomeType.Underground => 0.7f,
+                BiomeType.Forest => 0.4f,
+                BiomeType.Grassland => 0.3f,
+                BiomeType.Desert => 0.4f,
+                BiomeType.Swamp => 0.3f,
+                BiomeType.Volcanic => 0.2f,
                 _ => 0.4f
             };
         }
 
-        private float GetVolcanicCompatibility(Laboratory.Core.Enums.BiomeType targetType)
+        private float GetVolcanicCompatibility(BiomeType targetType)
         {
             return targetType switch
             {
-                Laboratory.Core.Enums.BiomeType.Volcanic => 1.0f,
-                Laboratory.Core.Enums.BiomeType.Mountain => 0.7f,
-                Laboratory.Core.Enums.BiomeType.Desert => 0.7f,
-                Laboratory.Core.Enums.BiomeType.Underground => 0.6f,
-                Laboratory.Core.Enums.BiomeType.Ocean => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Forest => 0.2f,
-                Laboratory.Core.Enums.BiomeType.Grassland => 0.2f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Arctic => 0.2f,
+                BiomeType.Volcanic => 1.0f,
+                BiomeType.Mountain => 0.7f,
+                BiomeType.Desert => 0.7f,
+                BiomeType.Underground => 0.6f,
+                BiomeType.Ocean => 0.3f,
+                BiomeType.Forest => 0.2f,
+                BiomeType.Grassland => 0.2f,
+                BiomeType.Swamp => 0.3f,
+                BiomeType.Arctic => 0.2f,
                 _ => 0.3f
             };
         }

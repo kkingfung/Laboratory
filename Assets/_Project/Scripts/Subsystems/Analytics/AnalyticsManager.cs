@@ -45,6 +45,7 @@ namespace Laboratory.Subsystems.Analytics
         private string analyticsFilePath;
         private float lastSessionUpdate = 0f;
         private float lastBatchSend = 0f;
+        private bool isInitialized = false;
         
         private void Start()
         {
@@ -74,6 +75,7 @@ namespace Laboratory.Subsystems.Analytics
             }
             
             LoadPersistentAnalyticsData();
+            isInitialized = true;
         }
 
         private void StartSession()
@@ -409,7 +411,7 @@ namespace Laboratory.Subsystems.Analytics
                 TrackPerformance("fps", 1f / Time.deltaTime, new Dictionary<string, object>
                 {
                     {"frame_time", Time.deltaTime * 1000f},
-                    {"memory_usage", UnityEngine.Profiling.Profiler.GetTotalAllocatedMemory(false) / (1024f * 1024f)},
+                    {"memory_usage", UnityEngine.Profiling.Profiler.GetTotalAllocatedMemory() / (1024f * 1024f)},
                     {"unity_frame_count", Time.frameCount}
                 });
 

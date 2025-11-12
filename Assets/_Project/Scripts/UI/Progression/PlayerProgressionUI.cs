@@ -6,6 +6,7 @@ using System.Linq;
 using Laboratory.Core.Progression;
 using Laboratory.Core.Utilities;
 using Laboratory.Core.Configuration;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.UI.Progression
 {
@@ -572,7 +573,7 @@ namespace Laboratory.UI.Progression
         [SerializeField] private Slider specializationSlider;
         [SerializeField] private Image biomeIcon;
 
-        public void Initialize(BiomeType biome, float specializationLevel)
+        public void Initialize(Laboratory.Shared.Types.BiomeType biome, float specializationLevel)
         {
             if (biomeNameText != null)
                 biomeNameText.text = biome.ToString();
@@ -589,17 +590,17 @@ namespace Laboratory.UI.Progression
             SetBiomeVisuals(biome);
         }
 
-        private void SetBiomeVisuals(BiomeType biome)
+        private void SetBiomeVisuals(Laboratory.Shared.Types.BiomeType biome)
         {
             if (biomeIcon != null)
             {
                 Color biomeColor = biome switch
                 {
-                    BiomeType.Forest => Color.green,
-                    BiomeType.Desert => Color.yellow,
-                    BiomeType.Arctic => Color.cyan,
-                    BiomeType.Volcanic => Color.red,
-                    BiomeType.DeepSea => Color.blue,
+                    Laboratory.Shared.Types.BiomeType.Forest => Color.green,
+                    Laboratory.Shared.Types.BiomeType.Desert => Color.yellow,
+                    Laboratory.Shared.Types.BiomeType.Arctic => Color.cyan,
+                    Laboratory.Shared.Types.BiomeType.Volcanic => Color.red,
+                    Laboratory.Shared.Types.BiomeType.DeepSea => Color.blue,
                     _ => Color.white
                 };
 

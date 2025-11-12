@@ -45,13 +45,13 @@ namespace Laboratory.Subsystems.Debug
                 _isInitialized = true;
 
                 if (_config.enableDebugLogging)
-                    Debug.Log("[AutomatedTestingService] Initialized successfully");
+                    UnityEngine.Debug.Log("[AutomatedTestingService] Initialized successfully");
 
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[AutomatedTestingService] Failed to initialize: {ex.Message}");
+                UnityEngine.Debug.LogError($"[AutomatedTestingService] Failed to initialize: {ex.Message}");
                 return false;
             }
         }
@@ -64,7 +64,7 @@ namespace Laboratory.Subsystems.Debug
             _testSuites[testSuite.suiteName] = testSuite;
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[AutomatedTestingService] Registered test suite: {testSuite.suiteName} with {testSuite.testCases.Count} test cases");
+                UnityEngine.Debug.Log($"[AutomatedTestingService] Registered test suite: {testSuite.suiteName} with {testSuite.testCases.Count} test cases");
         }
 
         public void UnregisterTestSuite(string suiteName)
@@ -75,7 +75,7 @@ namespace Laboratory.Subsystems.Debug
             if (_testSuites.Remove(suiteName))
             {
                 if (_config.enableDebugLogging)
-                    Debug.Log($"[AutomatedTestingService] Unregistered test suite: {suiteName}");
+                    UnityEngine.Debug.Log($"[AutomatedTestingService] Unregistered test suite: {suiteName}");
             }
         }
 
@@ -125,7 +125,7 @@ namespace Laboratory.Subsystems.Debug
             var startTime = DateTime.Now;
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[AutomatedTestingService] Running test suite: {suiteName} with {testSuite.testCases.Count} test cases");
+                UnityEngine.Debug.Log($"[AutomatedTestingService] Running test suite: {suiteName} with {testSuite.testCases.Count} test cases");
 
             try
             {
@@ -153,7 +153,7 @@ namespace Laboratory.Subsystems.Debug
                     if (testSuite.config.stopOnFirstFailure && result.status == TestStatus.Failed)
                     {
                         if (_config.enableDebugLogging)
-                            Debug.Log($"[AutomatedTestingService] Stopping test suite {suiteName} on first failure");
+                            UnityEngine.Debug.Log($"[AutomatedTestingService] Stopping test suite {suiteName} on first failure");
                         break;
                     }
                 }
@@ -163,13 +163,13 @@ namespace Laboratory.Subsystems.Debug
             catch (Exception ex)
             {
                 testSuite.status = TestSuiteStatus.Failed;
-                Debug.LogError($"[AutomatedTestingService] Test suite {suiteName} failed with exception: {ex.Message}");
+                UnityEngine.Debug.LogError($"[AutomatedTestingService] Test suite {suiteName} failed with exception: {ex.Message}");
             }
 
             testSuite.totalDuration = (float)(DateTime.Now - startTime).TotalSeconds;
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[AutomatedTestingService] Completed test suite {suiteName}: {testSuite.passedTests} passed, {testSuite.failedTests} failed, {testSuite.skippedTests} skipped");
+                UnityEngine.Debug.Log($"[AutomatedTestingService] Completed test suite {suiteName}: {testSuite.passedTests} passed, {testSuite.failedTests} failed, {testSuite.skippedTests} skipped");
 
             return results;
         }
@@ -264,7 +264,7 @@ namespace Laboratory.Subsystems.Debug
                 testName = "CreatureSpawningPerformanceTest",
                 description = "Test performance with large numbers of creatures",
                 testFunction = TestCreatureSpawningPerformance,
-                config = new TestCaseConfig { timeoutSeconds = 60f, priority = TestPriority.Medium }
+                config = new TestCaseConfig { timeoutSeconds = 60f, priority = TestPriority.Normal }
             });
 
             RegisterTestSuite(performanceTestSuite);
@@ -327,7 +327,7 @@ namespace Laboratory.Subsystems.Debug
                 testName = "GeneticAlgorithmTest",
                 description = "Test basic genetic algorithm functionality",
                 testFunction = TestGeneticAlgorithm,
-                config = new TestCaseConfig { timeoutSeconds = 30f, priority = TestPriority.Medium }
+                config = new TestCaseConfig { timeoutSeconds = 30f, priority = TestPriority.Normal }
             });
 
             RegisterTestSuite(geneticsTestSuite);

@@ -1,6 +1,7 @@
 using System;
+using System.Linq;
 using UnityEngine;
-using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Genetics
 {
@@ -396,4 +397,75 @@ namespace Laboratory.Chimera.Genetics
             isPercentage = false;
         }
     }
+
+    #region Ancient DNA System (from Temporal Genetics)
+
+    /// <summary>
+    /// Represents an ancient DNA fragment that can introduce extinct traits
+    /// </summary>
+    [Serializable]
+    public struct AncientDNAFragment
+    {
+        public string id;
+        public string traitName;
+        public Gene gene;
+        public Vector3 discoveryLocation;
+        public int estimatedAge;
+        public float purity;
+        public float discoveryTime;
+        public BiomeType biomeOrigin;
+        public bool isUsed;
+
+        /// <summary>
+        /// Gets the success chance for integrating this ancient DNA
+        /// </summary>
+        public float GetIntegrationSuccess()
+        {
+            return Mathf.Clamp01(purity * 0.7f + (1f - (estimatedAge / 100f)) * 0.3f);
+        }
+    }
+
+    /// <summary>
+    /// Types of evolutionary pressure that can affect breeding
+    /// </summary>
+    public enum EvolutionaryPressureType
+    {
+        TemperatureShift,   // Climate change
+        FoodScarcity,       // Resource depletion
+        PredatorIncrease,   // New predators
+        DiseaseOutbreak,    // Pathogen pressure
+        HabitatLoss,        // Territory reduction
+        Pollution,          // Environmental toxins
+        Competition,        // Species rivalry
+        Catastrophe         // Natural disasters
+    }
+
+    /// <summary>
+    /// Represents an active evolutionary pressure event
+    /// </summary>
+    [Serializable]
+    public struct EvolutionaryPressureEvent
+    {
+        public string id;
+        public EvolutionaryPressureType type;
+        public float intensity;
+        public int duration;
+        public BiomeType[] affectedBiomes;
+        public string[] favoredTraits;
+        public float startTime;
+        public string description;
+        public float weight;
+
+        /// <summary>
+        /// Gets the pressure modifier for a specific trait
+        /// </summary>
+        public float GetTraitModifier(string traitName)
+        {
+            if (favoredTraits != null && favoredTraits.Contains(traitName))
+                return intensity * weight;
+            return -intensity * 0.1f; // Non-favored traits slightly penalized
+        }
+    }
+
+    #endregion
 }

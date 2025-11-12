@@ -61,13 +61,13 @@ namespace Laboratory.Subsystems.Debug
                 _isInitialized = true;
 
                 if (_config.enableDebugLogging)
-                    Debug.Log("[LogAggregationService] Initialized successfully");
+                    UnityEngine.Debug.Log("[LogAggregationService] Initialized successfully");
 
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[LogAggregationService] Failed to initialize: {ex.Message}");
+                UnityEngine.Debug.LogError($"[LogAggregationService] Failed to initialize: {ex.Message}");
                 return false;
             }
         }
@@ -85,9 +85,10 @@ namespace Laboratory.Subsystems.Debug
             _logEntries.Add(entry);
 
             // Add to type-specific collection
-            if (_logsByType.ContainsKey(entry.logType))
+            var debugLogType = ConvertToDebugLogType(entry.logType);
+            if (_logsByType.ContainsKey(debugLogType))
             {
-                _logsByType[entry.logType].Add(entry);
+                _logsByType[debugLogType].Add(entry);
             }
 
             // Keep collection size manageable
@@ -144,7 +145,7 @@ namespace Laboratory.Subsystems.Debug
             _logBuffer.Clear();
 
             if (_config.enableDebugLogging)
-                Debug.Log("[LogAggregationService] Logs cleared");
+                UnityEngine.Debug.Log("[LogAggregationService] Logs cleared");
         }
 
         public void FlushLogs()
@@ -162,7 +163,7 @@ namespace Laboratory.Subsystems.Debug
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[LogAggregationService] Failed to flush logs: {ex.Message}");
+                UnityEngine.Debug.LogError($"[LogAggregationService] Failed to flush logs: {ex.Message}");
             }
         }
 
@@ -190,11 +191,11 @@ namespace Laboratory.Subsystems.Debug
                 File.WriteAllText(filePath, exportContent.ToString());
 
                 if (_config.enableDebugLogging)
-                    Debug.Log($"[LogAggregationService] Logs exported to: {filePath}");
+                    UnityEngine.Debug.Log($"[LogAggregationService] Logs exported to: {filePath}");
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[LogAggregationService] Failed to export logs: {ex.Message}");
+                UnityEngine.Debug.LogError($"[LogAggregationService] Failed to export logs: {ex.Message}");
             }
         }
 
@@ -206,7 +207,7 @@ namespace Laboratory.Subsystems.Debug
             _minimumLogLevel = minimumLevel;
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[LogAggregationService] Set minimum log level to: {minimumLevel}");
+                UnityEngine.Debug.Log($"[LogAggregationService] Set minimum log level to: {minimumLevel}");
         }
 
         #endregion
@@ -288,7 +289,7 @@ namespace Laboratory.Subsystems.Debug
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[LogAggregationService] Failed to setup log file: {ex.Message}");
+                UnityEngine.Debug.LogError($"[LogAggregationService] Failed to setup log file: {ex.Message}");
                 _logFilePath = null;
             }
         }
@@ -296,7 +297,8 @@ namespace Laboratory.Subsystems.Debug
         private bool ShouldLogEntry(DebugLogEntry entry)
         {
             // Check minimum log level
-            if (GetLogLevelPriority(entry.logType) < GetLogLevelPriority(_minimumLogLevel))
+            var debugLogType = ConvertToDebugLogType(entry.logType);
+            if (GetLogLevelPriority(debugLogType) < GetLogLevelPriority(_minimumLogLevel))
                 return false;
 
             return true;
@@ -329,9 +331,10 @@ namespace Laboratory.Subsystems.Debug
                 _logEntries.RemoveAt(0);
 
                 // Also remove from type-specific collection
-                if (_logsByType.ContainsKey(removedEntry.logType))
+                var debugLogType = ConvertToDebugLogType(removedEntry.logType);
+                if (_logsByType.ContainsKey(debugLogType))
                 {
-                    _logsByType[removedEntry.logType].Remove(removedEntry);
+                    _logsByType[debugLogType].Remove(removedEntry);
                 }
             }
         }
@@ -369,6 +372,22 @@ namespace Laboratory.Subsystems.Debug
             }
 
             return formatted.ToString();
+        }
+
+        /// <summary>
+        /// Converts Unity LogType to our custom DebugLogType
+        /// </summary>
+        private DebugLogType ConvertToDebugLogType(UnityEngine.LogType unityLogType)
+        {
+            return unityLogType switch
+            {
+                UnityEngine.LogType.Log => DebugLogType.Info,
+                UnityEngine.LogType.Warning => DebugLogType.Warning,
+                UnityEngine.LogType.Error => DebugLogType.Error,
+                UnityEngine.LogType.Exception => DebugLogType.Error,
+                UnityEngine.LogType.Assert => DebugLogType.Debug,
+                _ => DebugLogType.Debug
+            };
         }
 
         #endregion
