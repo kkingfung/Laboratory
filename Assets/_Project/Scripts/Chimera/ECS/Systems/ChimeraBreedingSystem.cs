@@ -10,7 +10,6 @@ using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.ECS;
 using Laboratory.Shared.Types;
-using Laboratory.Core.Performance;
 using ChimeraCreatureIdentity = Laboratory.Chimera.ECS.CreatureIdentityComponent;
 using UnityEngine;
 
