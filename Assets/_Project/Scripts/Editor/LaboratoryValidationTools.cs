@@ -67,7 +67,7 @@ namespace Laboratory.Editor
             // Check ServiceContainer
             if (ServiceContainer.Instance == null)
             {
-                UnityEngine.UnityEngine.Debug.LogError("❌ ServiceContainer not initialized");
+                UnityEngine.Debug.LogError("❌ ServiceContainer not initialized");
                 healthy = false;
             }
             else
@@ -81,7 +81,7 @@ namespace Laboratory.Editor
 
             if (deprecatedFound > 0)
             {
-                UnityEngine.UnityEngine.Debug.LogWarning($"⚠️ Found {deprecatedFound} deprecated components");
+                UnityEngine.Debug.LogWarning($"⚠️ Found {deprecatedFound} deprecated components");
                 healthy = false;
             }
             else
@@ -97,7 +97,7 @@ namespace Laboratory.Editor
                     var eventBus = ServiceContainer.Instance.ResolveService<Laboratory.Core.Events.IEventBus>();
                     if (eventBus == null)
                     {
-                        UnityEngine.UnityEngine.Debug.LogError("❌ EventBus service not found");
+                        UnityEngine.Debug.LogError("❌ EventBus service not found");
                         healthy = false;
                     }
                     else
@@ -107,7 +107,7 @@ namespace Laboratory.Editor
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.UnityEngine.Debug.LogError($"❌ Error testing event system: {ex.Message}");
+                    UnityEngine.Debug.LogError($"❌ Error testing event system: {ex.Message}");
                     healthy = false;
                 }
             }
@@ -118,7 +118,7 @@ namespace Laboratory.Editor
             }
             else
             {
-                UnityEngine.UnityEngine.Debug.LogWarning("⚠️ Issues found - run complete validation for details");
+                UnityEngine.Debug.LogWarning("⚠️ Issues found - run complete validation for details");
             }
         }
 
@@ -266,7 +266,7 @@ namespace Laboratory.Editor
             }
             else
             {
-                UnityEngine.UnityEngine.Debug.LogWarning($"⚠️ Found {deprecatedFound} deprecated components");
+                UnityEngine.Debug.LogWarning($"⚠️ Found {deprecatedFound} deprecated components");
                 return false;
             }
         }
@@ -301,11 +301,11 @@ namespace Laboratory.Editor
             }
             else
             {
-                UnityEngine.UnityEngine.Debug.LogWarning($"⚠️ VALIDATION FOUND {issues.Count} ISSUES:");
+                UnityEngine.Debug.LogWarning($"⚠️ VALIDATION FOUND {issues.Count} ISSUES:");
                 
                 foreach (var issue in issues)
                 {
-                    UnityEngine.UnityEngine.Debug.LogWarning($"• {issue}");
+                    UnityEngine.Debug.LogWarning($"• {issue}");
                 }
                 
                 var issueText = string.Join("\n• ", issues);

@@ -82,7 +82,7 @@ namespace Laboratory.Subsystems.Performance
         private void InitializeSystemBudgets()
         {
             // Default budgets for common ECS systems (in milliseconds)
-            _systemBudgets[typeof(TransformSystemGroup)] = 2.0f;
+            _systemBudgets[typeof(InitializationSystemGroup)] = 2.0f;
             _systemBudgets[typeof(SimulationSystemGroup)] = 8.0f;
             _systemBudgets[typeof(PresentationSystemGroup)] = 1.0f;
 
