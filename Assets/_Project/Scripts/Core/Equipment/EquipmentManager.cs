@@ -6,6 +6,7 @@ using Laboratory.Core.MonsterTown;
 using Laboratory.Core.Configuration;
 using Laboratory.Core.Activities.Types;
 using Laboratory.Core.Equipment.Types;
+using ProjectChimera.Core;
 using EquipmentItem = Laboratory.Core.MonsterTown.Equipment;
 using ActivityType = Laboratory.Core.Activities.Types.ActivityType;
 using EquipmentRarity = Laboratory.Core.Equipment.Types.EquipmentRarity;
@@ -180,8 +181,7 @@ namespace Laboratory.Core.Equipment
             if (!_monsterEquipment.TryGetValue(monster.UniqueId, out var monsterEquipment))
                 return true;
 
-            var maxEquipmentSlots = 8; // Could be configurable
-            if (monsterEquipment.Count >= maxEquipmentSlots && allowMultipleOfSameType)
+            if (monsterEquipment.Count >= GameConstants.MAX_EQUIPMENT_SLOTS && allowMultipleOfSameType)
                 return false;
 
             return true;

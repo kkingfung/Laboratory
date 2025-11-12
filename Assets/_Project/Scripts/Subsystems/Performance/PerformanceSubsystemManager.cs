@@ -83,6 +83,12 @@ namespace Laboratory.Subsystems.Performance
         private Queue<PerformanceFrame> _frameHistory;
         private DateTime _lastOptimizationTime;
 
+        // Cached object counts (updated less frequently to avoid FindObjectsOfType overhead)
+        private int _cachedPhysicsObjectCount;
+        private int _cachedAudioSourceCount;
+        private float _lastObjectCountUpdateTime;
+        private const float OBJECT_COUNT_UPDATE_INTERVAL = 1f; // Update once per second
+
         // Unity Profiler markers
         private static readonly ProfilerMarker s_PerformanceMonitoringMarker = new("Performance.Monitoring");
         private static readonly ProfilerMarker s_MemoryOptimizationMarker = new("Performance.MemoryOptimization");
@@ -308,11 +314,17 @@ namespace Laboratory.Subsystems.Performance
             _currentMetrics.activeCreatures = GetActiveCreatureCount();
             _currentMetrics.visibleCreatures = GetVisibleCreatureCount();
 
-            // Update physics metrics
-            _currentMetrics.physicsObjects = GameObject.FindObjectsOfType<Rigidbody>().Length;
+            // Update physics and audio metrics (cached to avoid expensive FindObjectsOfType)
+            // Only refresh counts every OBJECT_COUNT_UPDATE_INTERVAL seconds
+            if (Time.time - _lastObjectCountUpdateTime >= OBJECT_COUNT_UPDATE_INTERVAL)
+            {
+                _cachedPhysicsObjectCount = GameObject.FindObjectsOfType<Rigidbody>().Length;
+                _cachedAudioSourceCount = GameObject.FindObjectsOfType<AudioSource>().Length;
+                _lastObjectCountUpdateTime = Time.time;
+            }
 
-            // Update audio metrics
-            _currentMetrics.audioSources = GameObject.FindObjectsOfType<AudioSource>().Length;
+            _currentMetrics.physicsObjects = _cachedPhysicsObjectCount;
+            _currentMetrics.audioSources = _cachedAudioSourceCount;
         }
 
         private void UpdateQualityMetrics()

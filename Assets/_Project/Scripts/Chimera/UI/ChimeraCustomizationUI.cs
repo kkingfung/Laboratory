@@ -124,7 +124,8 @@ namespace Laboratory.Chimera.UI
 
             if (customizationManager != null)
             {
-                config = customizationManager.GetComponent<ChimeraCustomizationManager>().GetComponent<ChimeraCustomizationConfig>();
+                // Fixed: removed redundant GetComponent call
+                config = customizationManager.GetComponent<ChimeraCustomizationConfig>();
             }
 
             ValidateUIReferences();
