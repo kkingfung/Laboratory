@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Core.MonsterTown;
 using Laboratory.Core.Education;
+using ProjectChimera.Core;
 
 namespace Laboratory.Core.Discovery
 {
@@ -561,7 +562,7 @@ namespace Laboratory.Core.Discovery
             }
 
             // Check for high genetic novelty
-            if (analysis.GeneticNovelty > 0.3f)
+            if (analysis.GeneticNovelty > GameConstants.MINOR_DISCOVERY_NOVELTY_THRESHOLD)
             {
                 observations.Add("Offspring shows significant genetic variation from expected patterns");
             }
@@ -572,7 +573,7 @@ namespace Laboratory.Core.Discovery
         private void CheckForGeneticDiscoveries(string playerId, BreedingAnalysis analysis, JournalEntry entry)
         {
             // Check for discoveries based on breeding analysis
-            if (analysis.GeneticNovelty > 0.4f)
+            if (analysis.GeneticNovelty > GameConstants.MAJOR_DISCOVERY_NOVELTY_THRESHOLD)
             {
                 var discovery = new GeneticDiscovery
                 {
