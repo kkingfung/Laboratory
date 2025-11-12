@@ -8,7 +8,7 @@ using Unity.Physics;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.ECS;
-using Laboratory.Core.Performance;
+using Laboratory.Shared.Types;
 using ChimeraCreatureIdentity = Laboratory.Chimera.ECS.CreatureIdentityComponent;
 using UnityEngine;
 using Unity.Burst;

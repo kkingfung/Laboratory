@@ -6,7 +6,7 @@ using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Events;
 using Laboratory.Core.Infrastructure;
-using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.AI
 {

@@ -208,7 +208,7 @@ namespace Laboratory.Subsystems.Performance
                 }
             }
             
-            Debug.Log($"Performance level changed: {previousLevel} → {level}");
+            UnityEngine.Debug.Log($"Performance level changed: {previousLevel} → {level}");
         }
 
         private void ApplyLowPerformanceOptimizations()

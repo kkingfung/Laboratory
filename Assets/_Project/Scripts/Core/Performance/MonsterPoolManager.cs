@@ -264,7 +264,7 @@ namespace Laboratory.Core.MonsterTown
             var rb = monster.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.velocity = Vector3.zero;
+                rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Vector3.zero;
             }
         }

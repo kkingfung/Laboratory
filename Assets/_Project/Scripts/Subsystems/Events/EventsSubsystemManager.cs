@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
@@ -97,11 +98,29 @@ namespace Laboratory.Subsystems.Events
         {
             InitializationProgress = 0.2f;
 
-            // Initialize event services
-            DiscoveryCelebrationService = new DiscoveryCelebrationService(config);
-            SeasonalEventService = new SeasonalEventService(config);
-            TournamentService = new TournamentService(config);
-            CommunityEventService = new CommunityEventService(config);
+            // Try to resolve services from service container
+            var serviceContainer = ServiceContainer.Instance;
+            if (serviceContainer != null)
+            {
+                serviceContainer.TryResolve<IDiscoveryCelebrationService>(out var discoveryCelebrationService);
+                serviceContainer.TryResolve<ISeasonalEventService>(out var seasonalEventService);
+                serviceContainer.TryResolve<ITournamentService>(out var tournamentService);
+                serviceContainer.TryResolve<ICommunityEventService>(out var communityEventService);
+
+                DiscoveryCelebrationService = discoveryCelebrationService;
+                SeasonalEventService = seasonalEventService;
+                TournamentService = tournamentService;
+                CommunityEventService = communityEventService;
+            }
+
+            if (config.enableDebugLogging)
+            {
+                Debug.Log("[EventsSubsystem] Event services resolved from service container");
+                Debug.Log($"  DiscoveryCelebration: {(DiscoveryCelebrationService != null ? "Available" : "Not Available")}");
+                Debug.Log($"  SeasonalEvent: {(SeasonalEventService != null ? "Available" : "Not Available")}");
+                Debug.Log($"  Tournament: {(TournamentService != null ? "Available" : "Not Available")}");
+                Debug.Log($"  CommunityEvent: {(CommunityEventService != null ? "Available" : "Not Available")}");
+            }
 
             InitializationProgress = 0.4f;
         }
@@ -551,10 +570,27 @@ namespace Laboratory.Subsystems.Events
 
         private void HandleResearchDiscovery(Laboratory.Subsystems.Research.DiscoveryJournalEvent journalEvent)
         {
-            if (journalEvent.discovery.isSignificant)
+            if (journalEvent.Discovery.isSignificant)
             {
-                QueueDiscoveryEvent(journalEvent.discovery, journalEvent.playerId, false);
+                var eventDiscovery = ConvertResearchDiscoveryToEventDiscovery(journalEvent.Discovery);
+                QueueDiscoveryEvent(eventDiscovery, journalEvent.PlayerId, false);
             }
+        }
+
+        /// <summary>
+        /// Converts a Research DiscoveryData to Events DiscoveryData
+        /// </summary>
+        private DiscoveryData ConvertResearchDiscoveryToEventDiscovery(Laboratory.Subsystems.Research.DiscoveryData researchDiscovery)
+        {
+            return new DiscoveryData
+            {
+                discoveryType = (DiscoveryType)(int)researchDiscovery.discoveryType,
+                title = researchDiscovery.title,
+                description = researchDiscovery.description,
+                timestamp = researchDiscovery.timestamp,
+                isSignificant = researchDiscovery.isSignificant,
+                data = new Dictionary<string, object>(researchDiscovery.data)
+            };
         }
 
         private void HandleWeatherChanged(Laboratory.Subsystems.Ecosystem.WeatherEvent weatherEvent)
@@ -709,9 +745,9 @@ namespace Laboratory.Subsystems.Events
         {
             return eventData switch
             {
-                CelebrationData celebration => celebration.duration.TotalMinutes,
-                SeasonalEventData seasonal => seasonal.duration.TotalMinutes,
-                Tournament tournament => (tournament.endTime - tournament.startTime).TotalMinutes,
+                CelebrationData celebration => (float)celebration.duration.TotalMinutes,
+                SeasonalEventData seasonal => (float)seasonal.duration.TotalMinutes,
+                Tournament tournament => (float)(tournament.endTime - tournament.startTime).TotalMinutes,
                 _ => 60f // Default 1 hour
             };
         }

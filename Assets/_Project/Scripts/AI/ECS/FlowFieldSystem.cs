@@ -8,8 +8,8 @@ using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Laboratory.AI.Pathfinding;
+using Laboratory.Shared.Types;
 using Laboratory.Core.Configuration;
-using Laboratory.Core.Performance;
 
 namespace Laboratory.AI.ECS
 {
@@ -225,6 +225,28 @@ namespace Laboratory.AI.ECS
             }
         }
 
+        [BurstCompile]
+        public partial struct FlowFieldSpatialHashingJob : IJobEntity
+        {
+            public NativeParallelMultiHashMap<int, FlowFieldData>.ParallelWriter flowFieldSpatialMap;
+            public float spatialCellSize;
+
+            public void Execute(in FlowFieldComponent flowField)
+            {
+                // Optimized spatial hash calculation with inverse multiplication
+                float3 normalizedPos = flowField.destination / spatialCellSize;
+                int3 cell = (int3)normalizedPos;
+                int spatialKey = (cell.x * 73856093) ^ (cell.y * 19349663) ^ (cell.z * 83492791);
+                var flowFieldData = new FlowFieldData
+                {
+                    destination = flowField.destination,
+                    radius = flowField.fieldRadius,
+                    spatialHash = spatialKey
+                };
+                flowFieldSpatialMap.Add(spatialKey, flowFieldData);
+            }
+        }
+
         private void UpdateSpatialHash()
         {
             _spatialHashMap.Clear();
@@ -242,26 +264,15 @@ namespace Laboratory.AI.ECS
             var followerQuery = GetEntityQuery(ComponentType.ReadOnly<LocalTransform>(), ComponentType.ReadOnly<FlowFieldFollowerComponent>());
             this.Dependency = spatialHashingJob.ScheduleParallel(followerQuery, this.Dependency);
 
-            // Simple flow field spatial hashing (less entities, so keep simple)
-            var flowFieldSpatialMap = _flowFieldSpatialMap;
-            var spatialCellSize = _performanceConfig.spatialHashCellSize;
+            // Use proper job for flow field spatial hashing
+            var flowFieldSpatialHashingJob = new FlowFieldSpatialHashingJob
+            {
+                flowFieldSpatialMap = _flowFieldSpatialMap.AsParallelWriter(),
+                spatialCellSize = _performanceConfig.spatialHashCellSize
+            };
 
-            Entities
-                .WithAll<FlowFieldComponent>()
-                .ForEach((in FlowFieldComponent flowField) =>
-                {
-                    // Optimized spatial hash calculation with inverse multiplication
-                    float3 normalizedPos = flowField.destination / spatialCellSize;
-                    int3 cell = (int3)normalizedPos;
-                    int spatialKey = (cell.x * 73856093) ^ (cell.y * 19349663) ^ (cell.z * 83492791);
-                    var flowFieldData = new FlowFieldData
-                    {
-                        destination = flowField.destination,
-                        radius = flowField.fieldRadius,
-                        spatialHash = spatialKey
-                    };
-                    flowFieldSpatialMap.Add(spatialKey, flowFieldData);
-                }).ScheduleParallel();
+            var flowFieldQuery = GetEntityQuery(ComponentType.ReadOnly<FlowFieldComponent>());
+            this.Dependency = flowFieldSpatialHashingJob.ScheduleParallel(flowFieldQuery, this.Dependency);
         }
 
         private void ProcessFlowFieldRequests(float currentTime)
@@ -833,7 +844,7 @@ namespace Laboratory.AI.ECS
     }
 
     // Supporting data structures
-    struct FlowFieldData
+    public struct FlowFieldData
     {
         public float3 destination;
         public float radius;

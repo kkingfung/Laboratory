@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Core;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Systems.Analytics;
 using Laboratory.Systems.Ecosystem;
@@ -65,7 +66,7 @@ namespace Laboratory.Systems.Storytelling
         // Tracking and analysis
         private float lastStoryUpdate;
         private StoryAnalytics analytics = new StoryAnalytics();
-        private Dictionary<NarrativeTheme, float> themePopularity = new Dictionary<NarrativeTheme, float>();
+        private Dictionary<Laboratory.Core.Enums.NarrativeTheme, float> themePopularity = new Dictionary<Laboratory.Core.Enums.NarrativeTheme, float>();
 
         // Connected systems
         private PlayerAnalyticsTracker analyticsTracker;
@@ -144,7 +145,7 @@ namespace Laboratory.Systems.Storytelling
         private void ConnectToGameSystems()
         {
             // Connect to analytics system
-            analyticsTracker = PlayerAnalyticsTracker.Instance;
+            analyticsTracker = FindObjectOfType<PlayerAnalyticsTracker>();
             if (analyticsTracker != null)
             {
                 analyticsTracker.OnPlayerArchetypeIdentified += HandlePlayerArchetypeChange;
@@ -360,7 +361,7 @@ namespace Laboratory.Systems.Storytelling
             var context = new StoryGenerationContext
             {
                 timestamp = Time.time,
-                playerBehavior = analyticsTracker?.GetBehaviorAnalysis(),
+                playerBehavior = analyticsTracker != null ? analyticsTracker.GeneratePlayerBehaviorAnalysis() : new Laboratory.Systems.Analytics.PlayerBehaviorAnalysis(),
                 ecosystemState = ecosystemSimulator?.OverallHealth ?? EcosystemHealth.Good,
                 activeCreatures = GetActiveCreatureData(),
                 recentEvents = GetRecentGameEvents(),
@@ -502,7 +503,7 @@ namespace Laboratory.Systems.Storytelling
             };
         }
 
-        private void HandleMoodChange(uint creatureId, MoodState newMood)
+        private void HandleMoodChange(uint creatureId, Laboratory.AI.Personality.MoodState newMood)
         {
             // Generate mood-related story events for significant mood changes
             if (newMood.stress > 0.8f || newMood.happiness < 0.2f)
@@ -840,7 +841,7 @@ namespace Laboratory.Systems.Storytelling
                    context.triggeringEvent != null;
         }
 
-        private void HandlePlayerArchetypeChange(string newArchetype)
+        private void HandlePlayerArchetypeChange(PlayerArchetype newArchetype)
         {
             // Adjust storytelling style based on player archetype
             if (logPersonalityEvents)
@@ -849,7 +850,7 @@ namespace Laboratory.Systems.Storytelling
             }
         }
 
-        private void HandleBehaviorInsight(string insight)
+        private void HandleBehaviorInsight(BehaviorInsight insight)
         {
             // Use behavior insights to inform story generation
             if (logPersonalityEvents)
@@ -858,7 +859,7 @@ namespace Laboratory.Systems.Storytelling
             }
         }
 
-        private void HandleBiomeHealthChange(string biome, EcosystemHealth newHealth)
+        private void HandleBiomeHealthChange(BiomeType biome, float newHealth)
         {
             var gameEvent = new GameEvent
             {
@@ -902,15 +903,15 @@ namespace Laboratory.Systems.Storytelling
 
         private void InitializeThemePopularity()
         {
-            themePopularity[NarrativeTheme.Discovery] = 0.5f;
-            themePopularity[NarrativeTheme.Evolution] = 0.6f;
-            themePopularity[NarrativeTheme.Social] = 0.4f;
-            themePopularity[NarrativeTheme.Survival] = 0.5f;
-            themePopularity[NarrativeTheme.Mystery] = 0.3f;
-            themePopularity[NarrativeTheme.Adventure] = 0.4f;
+            themePopularity[Laboratory.Core.Enums.NarrativeTheme.Discovery] = 0.5f;
+            themePopularity[Laboratory.Core.Enums.NarrativeTheme.Evolution] = 0.6f;
+            themePopularity[Laboratory.Core.Enums.NarrativeTheme.Social] = 0.4f;
+            themePopularity[Laboratory.Core.Enums.NarrativeTheme.Survival] = 0.5f;
+            themePopularity[Laboratory.Core.Enums.NarrativeTheme.Mystery] = 0.3f;
+            themePopularity[Laboratory.Core.Enums.NarrativeTheme.Adventure] = 0.4f;
         }
 
-        private Dictionary<NarrativeTheme, float> GetDominantThemes()
+        private Dictionary<Laboratory.Core.Enums.NarrativeTheme, float> GetDominantThemes()
         {
             return themePopularity.OrderByDescending(kvp => kvp.Value)
                                  .Take(3)
@@ -1122,21 +1123,10 @@ namespace Laboratory.Systems.Storytelling
     }
 
     [System.Serializable]
-    public struct PlayerBehaviorAnalysis
-    {
-        public float explorationFocus;
-        public float socialFocus;
-        public float competitiveFocus;
-        public float creativeFocus;
-        public float repetitiveScore;
-        public float adaptabilityScore;
-    }
-
-    [System.Serializable]
     public class StoryGenerationContext
     {
         public float timestamp;
-        public PlayerBehaviorAnalysis playerBehavior;
+        public Laboratory.Systems.Analytics.PlayerBehaviorAnalysis playerBehavior;
         public EcosystemHealth ecosystemState;
         public List<CreatureData> activeCreatures = new List<CreatureData>();
         public List<GameEvent> recentEvents = new List<GameEvent>();
@@ -1238,7 +1228,7 @@ namespace Laboratory.Systems.Storytelling
         public float analysisTime;
         public int activeStoryCount;
         public int totalNarrativeFragments;
-        public Dictionary<NarrativeTheme, float> dominantThemes;
+        public Dictionary<Laboratory.Core.Enums.NarrativeTheme, float> dominantThemes;
         public List<CharacterArc> characterDevelopmentArcs;
         public float narrativeComplexity;
         public float playerEngagementPrediction;

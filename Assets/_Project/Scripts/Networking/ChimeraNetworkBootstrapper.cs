@@ -8,6 +8,7 @@ using Laboratory.Core.Configuration;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.AI;
 using Laboratory.Core.Progression;
+using Laboratory.Shared.Types;
 using Laboratory.Economy;
 using Laboratory.Networking.Entities;
 
@@ -60,7 +61,7 @@ namespace Laboratory.Networking
         public float spawnRadius = 50f;
 
         [Tooltip("Biome for test creature spawning")]
-        public Laboratory.Core.Enums.BiomeType testSpawnBiome = Laboratory.Core.Enums.BiomeType.Forest;
+        public BiomeType testSpawnBiome = BiomeType.Forest;
 
         [Header("System Integration")]
         [Tooltip("Initialize progression system")]
@@ -340,7 +341,7 @@ namespace Laboratory.Networking
                 position = spawnPosition,
                 rotation = quaternion.identity,
                 velocity = float3.zero,
-                currentBehavior = Laboratory.Core.ECS.AIBehaviorType.None,
+                currentBehavior = Laboratory.Shared.Types.AIBehaviorType.None,
                 behaviorIntensity = 0.5f,
                 currentTarget = Entity.Null,
                 currentBiome = testSpawnBiome,

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 using Laboratory.Core.Configuration;
+using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 using Laboratory.Chimera.Core;
 
 namespace Laboratory.Economy

@@ -8,8 +8,8 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Core.Events;
 using Laboratory.Core.Infrastructure;
-using CoreBiomeType = Laboratory.Core.Enums.BiomeType;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.World
 {
@@ -43,7 +43,7 @@ namespace Laboratory.Chimera.World
         [SerializeField] private bool showEcosystemUI = true;
 
         // Core systems
-        private Dictionary<Laboratory.Core.Enums.BiomeType, BiomeEcosystem> biomes = new();
+        private Dictionary<BiomeType, BiomeEcosystem> biomes = new();
         private Dictionary<string, SpeciesPopulation> globalSpeciesData = new();
         private PlayerImpactData playerImpact = new();
         private IEventBus eventBus;
@@ -120,8 +120,8 @@ namespace Laboratory.Chimera.World
 
         private void InitializeBiomes()
         {
-            var biomeTypes = Enum.GetValues(typeof(Laboratory.Core.Enums.BiomeType)).Cast<Laboratory.Core.Enums.BiomeType>()
-                .Where(b => b != Laboratory.Core.Enums.BiomeType.Void).ToArray();
+            var biomeTypes = Enum.GetValues(typeof(BiomeType)).Cast<BiomeType>()
+                .Where(b => b != BiomeType.Void).ToArray();
 
             foreach (var biomeType in biomeTypes)
             {
@@ -138,18 +138,18 @@ namespace Laboratory.Chimera.World
             Log($"Initialized {biomes.Count} biome ecosystems");
         }
 
-        private float GetBiomeCarryingCapacity(Laboratory.Core.Enums.BiomeType biome)
+        private float GetBiomeCarryingCapacity(BiomeType biome)
         {
             return biome switch
             {
-                Laboratory.Core.Enums.BiomeType.Forest => 50f,
-                Laboratory.Core.Enums.BiomeType.Ocean => 75f,
-                Laboratory.Core.Enums.BiomeType.Grassland => 60f,
-                Laboratory.Core.Enums.BiomeType.Mountain => 25f,
-                Laboratory.Core.Enums.BiomeType.Desert => 15f,
-                Laboratory.Core.Enums.BiomeType.Arctic => 20f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 40f,
-                Laboratory.Core.Enums.BiomeType.Temperate => 35f,
+                BiomeType.Forest => 50f,
+                BiomeType.Ocean => 75f,
+                BiomeType.Grassland => 60f,
+                BiomeType.Mountain => 25f,
+                BiomeType.Desert => 15f,
+                BiomeType.Arctic => 20f,
+                BiomeType.Swamp => 40f,
+                BiomeType.Temperate => 35f,
                 _ => 30f
             };
         }
@@ -253,7 +253,7 @@ namespace Laboratory.Chimera.World
                     AdultCount = adults.Count,
                     JuvenileCount = juveniles.Count,
                     AverageHealth = creatures.Average(c => c.CreatureData.Happiness) * globalGrowthRate, // Apply global growth modifier
-                    PreferredBiome = creatures.FirstOrDefault()?.CreatureData.Definition?.preferredBiomes?.FirstOrDefault() ?? CoreBiomeType.Forest
+                    PreferredBiome = creatures.FirstOrDefault()?.CreatureData.Definition?.preferredBiomes?.FirstOrDefault() ?? BiomeType.Forest
                 };
 
                 // Calculate genetic diversity
@@ -517,18 +517,18 @@ namespace Laboratory.Chimera.World
         }
 
 
-        private float GetSeasonalEffect(Laboratory.Core.Enums.BiomeType biome)
+        private float GetSeasonalEffect(BiomeType biome)
         {
             // Different biomes react differently to seasons
             return (biome, currentSeason) switch
             {
-                (Laboratory.Core.Enums.BiomeType.Arctic, Season.Winter) => 1.2f, // Arctic creatures thrive in winter
-                (Laboratory.Core.Enums.BiomeType.Arctic, Season.Summer) => 0.8f,
-                (Laboratory.Core.Enums.BiomeType.Desert, Season.Summer) => 1.1f, // Desert adapted to heat
-                (Laboratory.Core.Enums.BiomeType.Desert, Season.Winter) => 0.7f,
-                (Laboratory.Core.Enums.BiomeType.Forest, Season.Spring) => 1.3f, // Forest blooms in spring
-                (Laboratory.Core.Enums.BiomeType.Forest, Season.Winter) => 0.8f,
-                (Laboratory.Core.Enums.BiomeType.Ocean, _) => 1f, // Ocean less affected by seasons
+                (BiomeType.Arctic, Season.Winter) => 1.2f, // Arctic creatures thrive in winter
+                (BiomeType.Arctic, Season.Summer) => 0.8f,
+                (BiomeType.Desert, Season.Summer) => 1.1f, // Desert adapted to heat
+                (BiomeType.Desert, Season.Winter) => 0.7f,
+                (BiomeType.Forest, Season.Spring) => 1.3f, // Forest blooms in spring
+                (BiomeType.Forest, Season.Winter) => 0.8f,
+                (BiomeType.Ocean, _) => 1f, // Ocean less affected by seasons
                 _ => seasonalMultiplier
             };
         }
@@ -562,7 +562,7 @@ namespace Laboratory.Chimera.World
             playerImpact.LastActivity = DateTime.UtcNow;
 
             // Positive impact on ecosystem through controlled breeding
-            var biome = parent1.Definition?.preferredBiomes?.FirstOrDefault() ?? Laboratory.Core.Enums.BiomeType.Forest;
+            var biome = parent1.Definition?.preferredBiomes?.FirstOrDefault() ?? BiomeType.Forest;
             if (biomes.TryGetValue(biome, out var ecosystem))
             {
                 ecosystem.EcosystemHealth += 0.01f; // Small positive impact
@@ -580,7 +580,7 @@ namespace Laboratory.Chimera.World
             playerImpact.LastActivity = DateTime.UtcNow;
 
             // Negative impact on ecosystem through hunting
-            var biome = creature.Definition?.preferredBiomes?.FirstOrDefault() ?? Laboratory.Core.Enums.BiomeType.Forest;
+            var biome = creature.Definition?.preferredBiomes?.FirstOrDefault() ?? BiomeType.Forest;
             if (biomes.TryGetValue(biome, out var ecosystem))
             {
                 ecosystem.EcosystemHealth -= 0.05f; // Hunting impact
@@ -623,7 +623,7 @@ namespace Laboratory.Chimera.World
             Log($"🎂 {evt.Creature.Definition?.speciesName} reached maturity");
             
             // Maturation contributes slightly to ecosystem health
-            var biome = evt.Creature.Definition?.preferredBiomes?.FirstOrDefault() ?? Laboratory.Core.Enums.BiomeType.Forest;
+            var biome = evt.Creature.Definition?.preferredBiomes?.FirstOrDefault() ?? BiomeType.Forest;
             if (biomes.TryGetValue(biome, out var ecosystem))
             {
                 ecosystem.EcosystemHealth += 0.005f;
@@ -679,7 +679,7 @@ namespace Laboratory.Chimera.World
         /// <summary>
         /// Gets detailed biome information
         /// </summary>
-        public BiomeEcosystem GetBiomeEcosystem(Laboratory.Core.Enums.BiomeType biome)
+        public BiomeEcosystem GetBiomeEcosystem(BiomeType biome)
         {
             return biomes.GetValueOrDefault(biome);
         }
@@ -722,7 +722,7 @@ namespace Laboratory.Chimera.World
         /// <summary>
         /// Triggers ecosystem recovery in a specific biome
         /// </summary>
-        public void TriggerEcosystemRecovery(Laboratory.Core.Enums.BiomeType biome, float recoveryAmount = 0.2f)
+        public void TriggerEcosystemRecovery(BiomeType biome, float recoveryAmount = 0.2f)
         {
             if (biomes.TryGetValue(biome, out var ecosystem))
             {
@@ -780,7 +780,7 @@ namespace Laboratory.Chimera.World
     [System.Serializable]
     public class BiomeEcosystem
     {
-        public Laboratory.Core.Enums.BiomeType BiomeType { get; set; }
+        public BiomeType BiomeType { get; set; }
         public float CarryingCapacity { get; set; }
         public float CurrentPopulation { get; set; }
         public float ResourceAvailability { get; set; }
@@ -797,7 +797,7 @@ namespace Laboratory.Chimera.World
         public int JuvenileCount { get; set; }
         public float GeneticDiversity { get; set; }
         public float AverageHealth { get; set; }
-        public Laboratory.Core.Enums.BiomeType PreferredBiome { get; set; }
+        public BiomeType PreferredBiome { get; set; }
     }
 
     [System.Serializable]
@@ -822,7 +822,7 @@ namespace Laboratory.Chimera.World
     // Event classes
     public class EcosystemCrisisEvent
     {
-        public Laboratory.Core.Enums.BiomeType BiomeType { get; set; }
+        public BiomeType BiomeType { get; set; }
         public float HealthLevel { get; set; }
         public EcosystemCrisisType CrisisType { get; set; }
         public float Timestamp { get; set; } = Time.time;
@@ -865,7 +865,7 @@ namespace Laboratory.Chimera.World
         public CreatureInstance Creature { get; set; }
         public AdaptationType AdaptationType { get; set; }
         public float AdaptationStrength { get; set; }
-        public Laboratory.Core.Enums.BiomeType NewBiome { get; set; }
+        public BiomeType NewBiome { get; set; }
         public float Timestamp { get; set; } = Time.time;
     }
 

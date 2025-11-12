@@ -50,6 +50,23 @@ namespace Laboratory.Subsystems.Trading
         public int maxFeaturedTrades = 8;
 
         [Header("Currency Configuration")]
+        [Tooltip("Available currency types in the trading system")]
+        public List<CurrencyType> currencyTypes = new List<CurrencyType>
+        {
+            CurrencyType.ResearchPoints,
+            CurrencyType.DiscoveryTokens,
+            CurrencyType.CommunityCredits
+        };
+
+        [Tooltip("Available tradeable item types")]
+        public List<TradeableItemType> tradeableItems = new List<TradeableItemType>
+        {
+            TradeableItemType.GeneticMaterial,
+            TradeableItemType.ResearchData,
+            TradeableItemType.Equipment,
+            TradeableItemType.Cosmetic
+        };
+
         [Tooltip("Starting currency amounts for new players")]
         public List<CurrencyStartingAmount> startingCurrencies = new List<CurrencyStartingAmount>
         {

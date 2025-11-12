@@ -9,6 +9,7 @@ using Laboratory.AI.ECS;
 using Laboratory.Chimera.ECS;
 using Laboratory.Chimera.Genetics.Environmental;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Genetics.Environmental
 {
@@ -400,7 +401,7 @@ namespace Laboratory.Chimera.Genetics.Environmental
                     // Apply mental trait modification (includes intelligence)
                     break;
 
-                case TraitType.Environmental:
+                case TraitCategory.Environmental:
                     // Apply environmental adaptation modification
                     break;
             }

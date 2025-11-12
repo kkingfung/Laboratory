@@ -105,7 +105,7 @@ namespace Laboratory.Subsystems.Debug
 
                 if (_config == null)
                 {
-                    Debug.LogError("[DebugSubsystem] Configuration is null");
+                    UnityEngine.Debug.LogError("[DebugSubsystem] Configuration is null");
                     return false;
                 }
 
@@ -138,13 +138,13 @@ namespace Laboratory.Subsystems.Debug
                 InitializationProgress = 1f;
 
                 if (_config.enableDebugLogging)
-                    Debug.Log("[DebugSubsystem] Initialized successfully");
+                    UnityEngine.Debug.Log("[DebugSubsystem] Initialized successfully");
 
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[DebugSubsystem] Failed to initialize: {ex.Message}");
+                UnityEngine.Debug.LogError($"[DebugSubsystem] Failed to initialize: {ex.Message}");
                 return false;
             }
         }
@@ -191,7 +191,7 @@ namespace Laboratory.Subsystems.Debug
         {
             _logQueue = new Queue<DebugLogEntry>();
             _systemMonitors = new Dictionary<string, SystemMonitor>();
-            _performanceProfilers = new Dictionary<string, PerformanceProfiler>();
+            _performanceProfilers = new Dictionary<string, PerformanceProfilerService>();
             _registeredCommands = new List<DebugCommand>();
             _debugVariables = new Dictionary<string, object>();
             _logBuilder = new StringBuilder();
@@ -308,8 +308,8 @@ namespace Laboratory.Subsystems.Debug
                 _systemMonitors[systemType] = new SystemMonitor
                 {
                     systemName = systemType,
-                    isEnabled = true,
-                    monitoringInterval = _config.systemMonitoringIntervalMs,
+                    isActive = true,
+                    updateInterval = _config.systemMonitoringInterval,
                     lastUpdate = DateTime.Now
                 };
             }
@@ -322,7 +322,7 @@ namespace Laboratory.Subsystems.Debug
 
         private void SetupLogCapture()
         {
-            if (_config.enableLogCapture)
+            if (_config.enableDebugLogging)
             {
                 Application.logMessageReceived += OnLogMessageReceived;
             }
@@ -334,7 +334,7 @@ namespace Laboratory.Subsystems.Debug
 
         private IEnumerator BackgroundMonitoringLoop()
         {
-            var interval = _config.backgroundProcessingIntervalMs / 1000f;
+            var interval = _config.systemMonitoringInterval;
 
             while (_isRunning)
             {
@@ -364,7 +364,7 @@ namespace Laboratory.Subsystems.Debug
         {
             foreach (var monitor in _systemMonitors.Values)
             {
-                if (monitor.isEnabled)
+                if (monitor.isActive)
                 {
                     UpdateSystemMonitor(monitor);
                 }
@@ -376,7 +376,7 @@ namespace Laboratory.Subsystems.Debug
             var monitorData = _systemMonitoringService?.GetSystemData(monitor.systemName);
             if (monitorData != null)
             {
-                monitor.lastData = monitorData;
+                monitor.currentData = monitorData;
                 monitor.lastUpdate = DateTime.Now;
 
                 OnSystemMonitorUpdated?.Invoke(monitorData);
@@ -389,7 +389,7 @@ namespace Laboratory.Subsystems.Debug
         private void ProcessLogQueue()
         {
             var processedCount = 0;
-            var maxLogsPerFrame = _config.maxLogsPerFrame;
+            var maxLogsPerFrame = _config.maxLogEntries / 100; // Use fraction of max log entries as frame limit
 
             while (_logQueue.Count > 0 && processedCount < maxLogsPerFrame)
             {
@@ -408,7 +408,7 @@ namespace Laboratory.Subsystems.Debug
             AddToConsoleOutput(logEntry);
 
             // Write to log file if enabled
-            if (_config.enableFileLogging)
+            if (_config.enableDebugLogging) // Use existing debug logging setting
             {
                 WriteToLogFile(logEntry);
             }
@@ -428,26 +428,26 @@ namespace Laboratory.Subsystems.Debug
         private void CheckSystemPerformanceAlerts(SystemMonitor monitor, SystemMonitorData data)
         {
             // Check for system-specific performance issues
-            if (data.cpuUsage > _config.cpuUsageAlertThreshold)
+            if (data.cpuUsage > 80f) // Use default threshold of 80%
             {
                 TriggerPerformanceAlert(new PerformanceAlert
                 {
-                    alertType = PerformanceAlertType.HighCPUUsage,
+                    alertType = PerformanceAlertType.CPUSpike,
                     systemName = monitor.systemName,
                     currentValue = data.cpuUsage,
-                    thresholdValue = _config.cpuUsageAlertThreshold,
+                    thresholdValue = 80f,
                     timestamp = DateTime.Now
                 });
             }
 
-            if (data.memoryUsage > _config.memoryUsageAlertThreshold)
+            if (data.memoryUsage > 500f) // Use default threshold of 500MB
             {
                 TriggerPerformanceAlert(new PerformanceAlert
                 {
                     alertType = PerformanceAlertType.HighMemoryUsage,
                     systemName = monitor.systemName,
                     currentValue = data.memoryUsage,
-                    thresholdValue = _config.memoryUsageAlertThreshold,
+                    thresholdValue = 500f, // Default 500MB threshold
                     timestamp = DateTime.Now
                 });
             }
@@ -456,27 +456,27 @@ namespace Laboratory.Subsystems.Debug
         private void CheckPerformanceThresholds(PerformanceData performanceData)
         {
             // Check frame rate
-            if (performanceData.frameRate < _config.frameRateAlertThreshold)
+            if (performanceData.frameRate < 30f) // Default 30 FPS threshold
             {
                 TriggerPerformanceAlert(new PerformanceAlert
                 {
                     alertType = PerformanceAlertType.LowFrameRate,
                     systemName = "Rendering",
                     currentValue = performanceData.frameRate,
-                    thresholdValue = _config.frameRateAlertThreshold,
+                    thresholdValue = 30f, // Default 30 FPS threshold
                     timestamp = DateTime.Now
                 });
             }
 
-            // Check memory allocations
-            if (performanceData.memoryAllocations > _config.memoryAllocationAlertThreshold)
+            // Check memory usage
+            if (performanceData.memoryUsedMB > 1000f) // Default 1GB threshold
             {
                 TriggerPerformanceAlert(new PerformanceAlert
                 {
-                    alertType = PerformanceAlertType.HighMemoryAllocations,
+                    alertType = PerformanceAlertType.HighMemoryUsage,
                     systemName = "Memory",
-                    currentValue = performanceData.memoryAllocations,
-                    thresholdValue = _config.memoryAllocationAlertThreshold,
+                    currentValue = performanceData.memoryUsedMB,
+                    thresholdValue = 1000f, // Default 1GB threshold
                     timestamp = DateTime.Now
                 });
             }
@@ -488,7 +488,7 @@ namespace Laboratory.Subsystems.Debug
 
             if (_config.enableDebugLogging)
             {
-                Debug.LogWarning($"[DebugSubsystem] Performance Alert: {alert.alertType} in {alert.systemName} - {alert.currentValue} (threshold: {alert.thresholdValue})");
+                UnityEngine.Debug.LogWarning($"[DebugSubsystem] Performance Alert: {alert.alertType} in {alert.systemName} - {alert.currentValue} (threshold: {alert.thresholdValue})");
             }
         }
 
@@ -511,7 +511,7 @@ namespace Laboratory.Subsystems.Debug
         private void FlushLogsIfNeeded()
         {
             var timeSinceLastFlush = DateTime.Now - _lastLogFlush;
-            if (timeSinceLastFlush.TotalSeconds >= _config.logFlushIntervalSeconds)
+            if (timeSinceLastFlush.TotalSeconds >= 30f) // Default 30 second flush interval
             {
                 FlushLogs();
                 _lastLogFlush = DateTime.Now;
@@ -527,7 +527,7 @@ namespace Laboratory.Subsystems.Debug
             var logEntry = new DebugLogEntry
             {
                 timestamp = DateTime.Now,
-                logType = ConvertLogType(type),
+                logType = type,
                 message = logString,
                 stackTrace = stackTrace,
                 category = "Unity",
@@ -550,13 +550,26 @@ namespace Laboratory.Subsystems.Debug
             };
         }
 
+        private LogType ConvertToUnityLogType(DebugLogType debugLogType)
+        {
+            return debugLogType switch
+            {
+                DebugLogType.Error => LogType.Error,
+                DebugLogType.Warning => LogType.Warning,
+                DebugLogType.Info => LogType.Log,
+                DebugLogType.Debug => LogType.Log,
+                DebugLogType.Verbose => LogType.Log,
+                _ => LogType.Log
+            };
+        }
+
         private void AddToConsoleOutput(DebugLogEntry logEntry)
         {
             var formattedMessage = FormatLogEntry(logEntry);
             _logBuilder.AppendLine(formattedMessage);
 
             // Keep console output size manageable
-            if (_logBuilder.Length > _config.maxConsoleOutputSize)
+            if (_logBuilder.Length > 50000) // Default 50K character console limit
             {
                 var text = _logBuilder.ToString();
                 var lines = text.Split('\n');
@@ -587,7 +600,7 @@ namespace Laboratory.Subsystems.Debug
         {
             _logAggregationService?.FlushLogs();
 
-            if (_config.enableFileLogging)
+            if (_config.enableDebugLogging) // Use existing debug logging setting
             {
                 // Flush file logs
             }
@@ -606,7 +619,7 @@ namespace Laboratory.Subsystems.Debug
             _developerConsoleService?.RegisterCommand(command);
 
             if (_config.enableDebugLogging)
-                Debug.Log($"[DebugSubsystem] Registered command: {command.commandName}");
+                UnityEngine.Debug.Log($"[DebugSubsystem] Registered command: {command.commandName}");
         }
 
         /// <summary>
@@ -665,7 +678,7 @@ namespace Laboratory.Subsystems.Debug
                 {
                     foreach (var param in command.parameters)
                     {
-                        var optional = param.isOptional ? " (optional)" : "";
+                        var optional = param.isRequired ? "" : " (optional)";
                         helpText.AppendLine($"  {param.name}: {param.description}{optional}");
                     }
                 }
@@ -676,7 +689,8 @@ namespace Laboratory.Subsystems.Debug
             return new CommandResult
             {
                 success = true,
-                message = helpText.ToString()
+                result = helpText.ToString(),
+                executionTime = DateTime.Now
             };
         }
 
@@ -686,7 +700,8 @@ namespace Laboratory.Subsystems.Debug
             return new CommandResult
             {
                 success = true,
-                message = "Console cleared"
+                result = "Console cleared",
+                executionTime = DateTime.Now
             };
         }
 
@@ -696,7 +711,8 @@ namespace Laboratory.Subsystems.Debug
             return new CommandResult
             {
                 success = true,
-                message = $"Current FPS: {fps:F1}"
+                result = $"Current FPS: {fps:F1}",
+                executionTime = DateTime.Now
             };
         }
 
@@ -706,7 +722,8 @@ namespace Laboratory.Subsystems.Debug
             return new CommandResult
             {
                 success = true,
-                message = $"Memory Usage: {memoryMB:F1} MB"
+                result = $"Memory Usage: {memoryMB:F1} MB",
+                executionTime = DateTime.Now
             };
         }
 
@@ -717,7 +734,8 @@ namespace Laboratory.Subsystems.Debug
                 return new CommandResult
                 {
                     success = false,
-                    message = "Usage: profiler <start|stop|results>"
+                    errorMessage = "Usage: profiler <start|stop|results>",
+                    executionTime = DateTime.Now
                 };
             }
 
@@ -727,25 +745,27 @@ namespace Laboratory.Subsystems.Debug
             {
                 case "start":
                     _performanceProfilerService?.StartProfiling();
-                    return new CommandResult { success = true, message = "Profiler started" };
+                    return new CommandResult { success = true, result = "Profiler started", executionTime = DateTime.Now };
 
                 case "stop":
                     _performanceProfilerService?.StopProfiling();
-                    return new CommandResult { success = true, message = "Profiler stopped" };
+                    return new CommandResult { success = true, result = "Profiler stopped", executionTime = DateTime.Now };
 
                 case "results":
                     var results = _performanceProfilerService?.GetProfilingResults();
                     return new CommandResult
                     {
                         success = true,
-                        message = results?.ToString() ?? "No profiling data available"
+                        result = results?.ToString() ?? "No profiling data available",
+                        executionTime = DateTime.Now
                     };
 
                 default:
                     return new CommandResult
                     {
                         success = false,
-                        message = "Invalid action. Use: start, stop, or results"
+                        errorMessage = "Invalid action. Use: start, stop, or results",
+                        executionTime = DateTime.Now
                     };
             }
         }
@@ -769,7 +789,8 @@ namespace Laboratory.Subsystems.Debug
             return new CommandResult
             {
                 success = true,
-                message = $"Running tests for category: {category}"
+                result = $"Running tests for category: {category}",
+                executionTime = DateTime.Now
             };
         }
 
@@ -780,7 +801,8 @@ namespace Laboratory.Subsystems.Debug
                 return new CommandResult
                 {
                     success = false,
-                    message = "Usage: spawn <count>"
+                    errorMessage = "Usage: spawn <count>",
+                    executionTime = DateTime.Now
                 };
             }
 
@@ -792,7 +814,8 @@ namespace Laboratory.Subsystems.Debug
                 return new CommandResult
                 {
                     success = true,
-                    message = $"Spawned {count} test creatures"
+                    result = $"Spawned {count} test creatures",
+                    executionTime = DateTime.Now
                 };
             }
             else
@@ -800,7 +823,8 @@ namespace Laboratory.Subsystems.Debug
                 return new CommandResult
                 {
                     success = false,
-                    message = "Invalid count parameter"
+                    errorMessage = "Invalid count parameter",
+                    executionTime = DateTime.Now
                 };
             }
         }
@@ -812,7 +836,8 @@ namespace Laboratory.Subsystems.Debug
                 return new CommandResult
                 {
                     success = false,
-                    message = "Usage: set <variable> <value>"
+                    errorMessage = "Usage: set <variable> <value>",
+                    executionTime = DateTime.Now
                 };
             }
 
@@ -824,7 +849,8 @@ namespace Laboratory.Subsystems.Debug
             return new CommandResult
             {
                 success = true,
-                message = $"Set {variable} = {value}"
+                result = $"Set {variable} = {value}",
+                executionTime = DateTime.Now
             };
         }
 
@@ -835,7 +861,8 @@ namespace Laboratory.Subsystems.Debug
                 return new CommandResult
                 {
                     success = false,
-                    message = "Usage: get <variable>"
+                    errorMessage = "Usage: get <variable>",
+                    executionTime = DateTime.Now
                 };
             }
 
@@ -846,7 +873,8 @@ namespace Laboratory.Subsystems.Debug
                 return new CommandResult
                 {
                     success = true,
-                    message = $"{variable} = {value}"
+                    result = $"{variable} = {value}",
+                    executionTime = DateTime.Now
                 };
             }
             else
@@ -854,7 +882,8 @@ namespace Laboratory.Subsystems.Debug
                 return new CommandResult
                 {
                     success = false,
-                    message = $"Variable '{variable}' not found"
+                    errorMessage = $"Variable '{variable}' not found",
+                    executionTime = DateTime.Now
                 };
             }
         }
@@ -872,9 +901,9 @@ namespace Laboratory.Subsystems.Debug
 
             foreach (var kvp in _systemMonitors)
             {
-                if (kvp.Value.lastData != null)
+                if (kvp.Value.currentData != null)
                 {
-                    data[kvp.Key] = kvp.Value.lastData;
+                    data[kvp.Key] = kvp.Value.currentData;
                 }
             }
 
@@ -923,7 +952,7 @@ namespace Laboratory.Subsystems.Debug
             var logEntry = new DebugLogEntry
             {
                 timestamp = DateTime.Now,
-                logType = logType,
+                logType = ConvertToUnityLogType(logType),
                 message = message,
                 category = category,
                 frameNumber = Time.frameCount
@@ -977,7 +1006,7 @@ namespace Laboratory.Subsystems.Debug
 
         private void OnGUI()
         {
-            if (!_config.enableDebugUI || !_showDebugUI)
+            if (!_config.enableDeveloperConsole || !_showDebugUI)
                 return;
 
             DrawDebugUI();
@@ -1025,7 +1054,7 @@ namespace Laboratory.Subsystems.Debug
             Task.Run(async () =>
             {
                 var result = await ExecuteCommandAsync(command);
-                LogDebug(result.message, "Console", result.success ? DebugLogType.Info : DebugLogType.Error);
+                LogDebug(result.success ? result.result : result.errorMessage, "Console", result.success ? DebugLogType.Info : DebugLogType.Error);
             });
         }
 
@@ -1036,7 +1065,7 @@ namespace Laboratory.Subsystems.Debug
         private void Update()
         {
             // Toggle debug UI
-            if (Input.GetKeyDown(_config.debugUIToggleKey))
+            if (Input.GetKeyDown(KeyCode.F12))
             {
                 _showDebugUI = !_showDebugUI;
             }
@@ -1094,7 +1123,7 @@ namespace Laboratory.Subsystems.Debug
             var data = GetSystemMonitoringData();
             foreach (var kvp in data)
             {
-                Debug.Log($"[DebugSubsystem] {kvp.Key}: CPU={kvp.Value.cpuUsage:F1}%, Memory={kvp.Value.memoryUsage:F1}MB");
+                UnityEngine.Debug.Log($"[DebugSubsystem] {kvp.Key}: CPU={kvp.Value.cpuUsage:F1}%, Memory={kvp.Value.memoryUsage:F1}MB");
             }
         }
 
@@ -1111,7 +1140,7 @@ namespace Laboratory.Subsystems.Debug
                 StopCoroutine(_monitoringCoroutine);
             }
 
-            if (_config.enableLogCapture)
+            if (_config.enableDebugLogging)
             {
                 Application.logMessageReceived -= OnLogMessageReceived;
             }

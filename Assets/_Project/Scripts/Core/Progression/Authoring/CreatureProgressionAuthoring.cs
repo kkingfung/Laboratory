@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
+using Laboratory.Core.ECS;
 using Laboratory.Core.Progression.Components;
 using Laboratory.Core.ECS.Components;
 
@@ -70,7 +71,7 @@ namespace Laboratory.Core.Progression.Authoring
                         AchievementScore = 0f
                     });
 
-                    Debug.Log($"✅ Added progression components to creature (Level {startingLevel})");
+                    UnityEngine.Debug.Log($"✅ Added progression components to creature (Level {startingLevel})");
                     break;
                 }
             }

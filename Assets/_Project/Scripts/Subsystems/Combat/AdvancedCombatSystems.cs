@@ -8,6 +8,7 @@ using UnityEngine;
 using Laboratory.Core.ECS;
 using Laboratory.Chimera.ECS;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Shared.Types;
 using Laboratory.Networking.Entities;
 using NetworkOwnership = Laboratory.Networking.Entities.NetworkOwnership;
 using ReplicatedCreatureState = Laboratory.Networking.Entities.ReplicatedCreatureState;
@@ -97,7 +98,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
         public float temperatureEffect; // -1 to 1 (cold to hot)
         public float humidityEffect;    // 0 to 1
         public float elevationEffect;   // Affects air-type creatures
-        public Laboratory.Core.Enums.BiomeType currentBiome;
+        public BiomeType currentBiome;
         public float biomeAdaptation;   // How well creature is adapted to current biome
         public ElementalAffinity dominantElement; // Current environment's dominant element
         public float elementalResonance; // Synergy with environment

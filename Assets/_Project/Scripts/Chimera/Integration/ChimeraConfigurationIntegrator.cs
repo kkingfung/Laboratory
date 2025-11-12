@@ -4,10 +4,11 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.ECS;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 using Unity.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using ChimeraBiomeType = Laboratory.Core.Enums.BiomeType;
+using ChimeraBiomeType = Laboratory.Shared.Types.BiomeType;
 using CoreTraitType = Laboratory.Core.Enums.TraitType;
 
 namespace Laboratory.Chimera.Integration
@@ -73,7 +74,7 @@ namespace Laboratory.Chimera.Integration
         {
             if (!_biomeDataInitialized)
             {
-                _integratedBiomeData = new Dictionary<Laboratory.Core.Enums.BiomeType, BiomeIntegrationData>();
+                _integratedBiomeData = new Dictionary<ChimeraBiomeType, BiomeIntegrationData>();
                 _biomeDataInitialized = true;
             }
         }

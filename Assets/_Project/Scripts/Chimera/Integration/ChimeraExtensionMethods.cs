@@ -8,6 +8,7 @@ using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.ECS;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 using System.Collections.Generic;
 using System.Linq;
 using ChimeraGeneticProfile = Laboratory.Chimera.Genetics.GeneticProfile;
@@ -170,19 +171,19 @@ namespace Laboratory.Chimera.Integration
             // Adjust behavior type based on genetics
             if (aggression > 0.7f)
             {
-                monsterAI.SetBehaviorType(AIBehaviorType.Aggressive);
+                monsterAI.SetBehaviorType(Laboratory.Chimera.AI.AIBehaviorType.Aggressive);
             }
             else if (sociability > 0.7f)
             {
-                monsterAI.SetBehaviorType(AIBehaviorType.Social);
+                monsterAI.SetBehaviorType(Laboratory.Chimera.AI.AIBehaviorType.Social);
             }
             else if (curiosity > 0.7f)
             {
-                monsterAI.SetBehaviorType(AIBehaviorType.Investigate);
+                monsterAI.SetBehaviorType(Laboratory.Chimera.AI.AIBehaviorType.Investigate);
             }
             else
             {
-                monsterAI.SetBehaviorType(AIBehaviorType.Passive);
+                monsterAI.SetBehaviorType(Laboratory.Chimera.AI.AIBehaviorType.Passive);
             }
         }
 
@@ -220,14 +221,14 @@ namespace Laboratory.Chimera.Integration
             if (ecsBehavior.Stress > 0.7f)
             {
                 // High stress should make creature more cautious
-                monsterAI.SetBehaviorType(AIBehaviorType.Flee);
+                monsterAI.SetBehaviorType(Laboratory.Chimera.AI.AIBehaviorType.Flee);
             }
             else if (ecsBehavior.Satisfaction > 0.8f && ecsBehavior.DecisionConfidence > 0.7f)
             {
                 // High satisfaction and confidence should enable social behaviors
-                if (monoBehaviorType == AIBehaviorType.Idle)
+                if (monoBehaviorType == Laboratory.Chimera.AI.AIBehaviorType.Idle)
                 {
-                    monsterAI.SetBehaviorType(AIBehaviorType.Social);
+                    monsterAI.SetBehaviorType(Laboratory.Chimera.AI.AIBehaviorType.Social);
                 }
             }
         }
@@ -292,7 +293,7 @@ namespace Laboratory.Chimera.Integration
 
                     if (sociability > 0.6f)
                     {
-                        monster.SetBehaviorType(AIBehaviorType.Social);
+                        monster.SetBehaviorType(Laboratory.Chimera.AI.AIBehaviorType.Social);
                     }
                 }
             }
@@ -501,7 +502,7 @@ namespace Laboratory.Chimera.Integration
         /// <summary>
         /// Get ECS-compatible biome data from existing biome config
         /// </summary>
-        public static Laboratory.Chimera.ECS.BiomeComponent ToECSBiomeComponent(this ChimeraBiomeConfig biomeConfig, Laboratory.Core.Enums.BiomeType biomeType)
+        public static Laboratory.Chimera.ECS.BiomeComponent ToECSBiomeComponent(this ChimeraBiomeConfig biomeConfig, BiomeType biomeType)
         {
             var biomeData = biomeConfig.GetBiomeData(biomeType.ToString());
 
@@ -579,75 +580,75 @@ namespace Laboratory.Chimera.Integration
             return Mathf.Clamp(baseMutationRate * generationModifier * fitnessModifier, 0.005f, 0.1f);
         }
 
-        private static Laboratory.Core.Enums.BiomeType DetermineNativeBiome(float heatTolerance, float coldTolerance, float waterAffinity, float size)
+        private static BiomeType DetermineNativeBiome(float heatTolerance, float coldTolerance, float waterAffinity, float size)
         {
             // Determine biome based on environmental trait combinations
             if (waterAffinity > 0.7f)
-                return Laboratory.Core.Enums.BiomeType.Ocean;
+                return BiomeType.Ocean;
             else if (heatTolerance > 0.8f && coldTolerance < 0.3f)
-                return Laboratory.Core.Enums.BiomeType.Desert;
+                return BiomeType.Desert;
             else if (coldTolerance > 0.8f && heatTolerance < 0.3f)
-                return Laboratory.Core.Enums.BiomeType.Arctic;
+                return BiomeType.Arctic;
             else if (size > 1.3f)
-                return Laboratory.Core.Enums.BiomeType.Mountain; // Large creatures prefer mountains
+                return BiomeType.Mountain; // Large creatures prefer mountains
             else if (heatTolerance > 0.6f && waterAffinity > 0.5f)
-                return Laboratory.Core.Enums.BiomeType.Swamp;
+                return BiomeType.Swamp;
             else if (heatTolerance > 0.7f)
-                return Laboratory.Core.Enums.BiomeType.Volcanic;
+                return BiomeType.Volcanic;
             else
-                return Laboratory.Core.Enums.BiomeType.Forest; // Default temperate biome
+                return BiomeType.Forest; // Default temperate biome
         }
 
-        private static float CalculateBiomeTemperature(Laboratory.Core.Enums.BiomeType biomeType)
+        private static float CalculateBiomeTemperature(BiomeType biomeType)
         {
             return biomeType switch
             {
-                Laboratory.Core.Enums.BiomeType.Arctic => -10f,
-                Laboratory.Core.Enums.BiomeType.Mountain => 5f,
-                Laboratory.Core.Enums.BiomeType.Forest => 18f,
-                Laboratory.Core.Enums.BiomeType.Grassland => 22f,
-                Laboratory.Core.Enums.BiomeType.Temperate => 20f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 25f,
-                Laboratory.Core.Enums.BiomeType.Desert => 35f,
-                Laboratory.Core.Enums.BiomeType.Volcanic => 45f,
-                Laboratory.Core.Enums.BiomeType.Ocean => 15f,
-                Laboratory.Core.Enums.BiomeType.Underground => 12f,
+                BiomeType.Arctic => -10f,
+                BiomeType.Mountain => 5f,
+                BiomeType.Forest => 18f,
+                BiomeType.Grassland => 22f,
+                BiomeType.Temperate => 20f,
+                BiomeType.Swamp => 25f,
+                BiomeType.Desert => 35f,
+                BiomeType.Volcanic => 45f,
+                BiomeType.Ocean => 15f,
+                BiomeType.Underground => 12f,
                 _ => 20f
             };
         }
 
-        private static float CalculateBiomeHumidity(Laboratory.Core.Enums.BiomeType biomeType)
+        private static float CalculateBiomeHumidity(BiomeType biomeType)
         {
             return biomeType switch
             {
-                Laboratory.Core.Enums.BiomeType.Desert => 0.1f,
-                Laboratory.Core.Enums.BiomeType.Volcanic => 0.2f,
-                Laboratory.Core.Enums.BiomeType.Arctic => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Mountain => 0.4f,
-                Laboratory.Core.Enums.BiomeType.Grassland => 0.5f,
-                Laboratory.Core.Enums.BiomeType.Temperate => 0.6f,
-                Laboratory.Core.Enums.BiomeType.Forest => 0.7f,
-                Laboratory.Core.Enums.BiomeType.Underground => 0.8f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 0.9f,
-                Laboratory.Core.Enums.BiomeType.Ocean => 1.0f,
+                BiomeType.Desert => 0.1f,
+                BiomeType.Volcanic => 0.2f,
+                BiomeType.Arctic => 0.3f,
+                BiomeType.Mountain => 0.4f,
+                BiomeType.Grassland => 0.5f,
+                BiomeType.Temperate => 0.6f,
+                BiomeType.Forest => 0.7f,
+                BiomeType.Underground => 0.8f,
+                BiomeType.Swamp => 0.9f,
+                BiomeType.Ocean => 1.0f,
                 _ => 0.5f
             };
         }
 
-        private static float CalculateBiomeRadius(Laboratory.Core.Enums.BiomeType biomeType, int carryingCapacity)
+        private static float CalculateBiomeRadius(BiomeType biomeType, int carryingCapacity)
         {
             // Base radius varies by biome type, scaled by carrying capacity
             var baseRadius = biomeType switch
             {
-                Laboratory.Core.Enums.BiomeType.Ocean => 200f,
-                Laboratory.Core.Enums.BiomeType.Desert => 150f,
-                Laboratory.Core.Enums.BiomeType.Grassland => 100f,
-                Laboratory.Core.Enums.BiomeType.Forest => 80f,
-                Laboratory.Core.Enums.BiomeType.Mountain => 120f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 60f,
-                Laboratory.Core.Enums.BiomeType.Arctic => 180f,
-                Laboratory.Core.Enums.BiomeType.Volcanic => 40f,
-                Laboratory.Core.Enums.BiomeType.Underground => 30f,
+                BiomeType.Ocean => 200f,
+                BiomeType.Desert => 150f,
+                BiomeType.Grassland => 100f,
+                BiomeType.Forest => 80f,
+                BiomeType.Mountain => 120f,
+                BiomeType.Swamp => 60f,
+                BiomeType.Arctic => 180f,
+                BiomeType.Volcanic => 40f,
+                BiomeType.Underground => 30f,
                 _ => 75f
             };
 
@@ -660,40 +661,40 @@ namespace Laboratory.Chimera.Integration
 
         #region Utility Conversion Methods
 
-        private static Laboratory.Core.Enums.BiomeType ConvertStringToBiomeType(string biomeString)
+        private static BiomeType ConvertStringToBiomeType(string biomeString)
         {
-            if (System.Enum.TryParse<Laboratory.Core.Enums.BiomeType>(biomeString, true, out var biomeType))
+            if (System.Enum.TryParse<BiomeType>(biomeString, true, out var biomeType))
                 return biomeType;
-            return Laboratory.Core.Enums.BiomeType.Grassland;
+            return BiomeType.Grassland;
         }
 
-        private static CreatureBehaviorType ConvertAIBehaviorToECS(AIBehaviorType aiBehavior)
+        private static CreatureBehaviorType ConvertAIBehaviorToECS(Laboratory.Chimera.AI.AIBehaviorType aiBehavior)
         {
             switch (aiBehavior)
             {
-                case AIBehaviorType.Idle: return CreatureBehaviorType.Idle;
-                case AIBehaviorType.Patrol: return CreatureBehaviorType.Exploring;
-                case AIBehaviorType.Hunt: return CreatureBehaviorType.Hunting;
-                case AIBehaviorType.Flee: return CreatureBehaviorType.Fleeing;
-                case AIBehaviorType.Companion: return CreatureBehaviorType.Social;
-                case AIBehaviorType.Territorial: return CreatureBehaviorType.Territorial;
-                case AIBehaviorType.Foraging: return CreatureBehaviorType.Foraging;
+                case Laboratory.Chimera.AI.AIBehaviorType.Idle: return CreatureBehaviorType.Idle;
+                case Laboratory.Chimera.AI.AIBehaviorType.Patrol: return CreatureBehaviorType.Exploring;
+                case Laboratory.Chimera.AI.AIBehaviorType.Hunt: return CreatureBehaviorType.Hunting;
+                case Laboratory.Chimera.AI.AIBehaviorType.Flee: return CreatureBehaviorType.Fleeing;
+                case Laboratory.Chimera.AI.AIBehaviorType.Companion: return CreatureBehaviorType.Social;
+                case Laboratory.Chimera.AI.AIBehaviorType.Territorial: return CreatureBehaviorType.Territorial;
+                case Laboratory.Chimera.AI.AIBehaviorType.Foraging: return CreatureBehaviorType.Foraging;
                 default: return CreatureBehaviorType.Idle;
             }
         }
 
-        private static AIBehaviorType ConvertECSBehaviorToAI(CreatureBehaviorType ecsBehavior)
+        private static Laboratory.Chimera.AI.AIBehaviorType ConvertECSBehaviorToAI(CreatureBehaviorType ecsBehavior)
         {
             switch (ecsBehavior)
             {
-                case CreatureBehaviorType.Idle: return AIBehaviorType.Idle;
-                case CreatureBehaviorType.Exploring: return AIBehaviorType.Patrol;
-                case CreatureBehaviorType.Hunting: return AIBehaviorType.Hunt;
-                case CreatureBehaviorType.Fleeing: return AIBehaviorType.Flee;
-                case CreatureBehaviorType.Social: return AIBehaviorType.Companion;
-                case CreatureBehaviorType.Territorial: return AIBehaviorType.Territorial;
-                case CreatureBehaviorType.Foraging: return AIBehaviorType.Foraging;
-                default: return AIBehaviorType.Idle;
+                case CreatureBehaviorType.Idle: return Laboratory.Chimera.AI.AIBehaviorType.Idle;
+                case CreatureBehaviorType.Exploring: return Laboratory.Chimera.AI.AIBehaviorType.Patrol;
+                case CreatureBehaviorType.Hunting: return Laboratory.Chimera.AI.AIBehaviorType.Hunt;
+                case CreatureBehaviorType.Fleeing: return Laboratory.Chimera.AI.AIBehaviorType.Flee;
+                case CreatureBehaviorType.Social: return Laboratory.Chimera.AI.AIBehaviorType.Companion;
+                case CreatureBehaviorType.Territorial: return Laboratory.Chimera.AI.AIBehaviorType.Territorial;
+                case CreatureBehaviorType.Foraging: return Laboratory.Chimera.AI.AIBehaviorType.Foraging;
+                default: return Laboratory.Chimera.AI.AIBehaviorType.Idle;
             }
         }
 

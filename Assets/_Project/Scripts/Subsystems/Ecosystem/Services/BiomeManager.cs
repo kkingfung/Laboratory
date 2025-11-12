@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
+using Laboratory.Core.Enums;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Subsystems.Ecosystem
 {
@@ -328,7 +330,7 @@ namespace Laboratory.Subsystems.Ecosystem
 
         private EnvironmentalFactors GenerateEnvironmentalFactors(BiomeData biome, WeatherData weather)
         {
-            var factors = EnvironmentalFactors.FromBiome(ConvertToChimeraBiomeType(biome.biomeType));
+            var factors = EnvironmentalFactors.FromBiome(biome.biomeType);
 
             // Override with current biome data
             factors.temperature = biome.currentTemperature;
@@ -577,28 +579,6 @@ namespace Laboratory.Subsystems.Ecosystem
 
         #region Utility Methods
 
-        /// <summary>
-        /// Converts from Laboratory.Subsystems.Ecosystem.BiomeType to Laboratory.Core.Enums.BiomeType
-        /// </summary>
-        private Laboratory.Core.Enums.BiomeType ConvertToChimeraBiomeType(BiomeType ecosystemBiomeType)
-        {
-            return ecosystemBiomeType switch
-            {
-                BiomeType.Forest => Laboratory.Core.Enums.BiomeType.Forest,
-                BiomeType.Desert => Laboratory.Core.Enums.BiomeType.Desert,
-                BiomeType.Ocean => Laboratory.Core.Enums.BiomeType.Ocean,
-                BiomeType.Mountain => Laboratory.Core.Enums.BiomeType.Mountain,
-                BiomeType.Mountains => Laboratory.Core.Enums.BiomeType.Mountain, // Map Mountains to Mountain
-                BiomeType.Grassland => Laboratory.Core.Enums.BiomeType.Grassland,
-                BiomeType.Tundra => Laboratory.Core.Enums.BiomeType.Tundra,
-                BiomeType.Arctic => Laboratory.Core.Enums.BiomeType.Arctic,
-                BiomeType.Wetland => Laboratory.Core.Enums.BiomeType.Swamp, // Map Wetland to Swamp
-                BiomeType.Swamp => Laboratory.Core.Enums.BiomeType.Swamp,
-                BiomeType.Cave => Laboratory.Core.Enums.BiomeType.Underground, // Map Cave to Underground
-                BiomeType.Urban => Laboratory.Core.Enums.BiomeType.Temperate, // Map Urban to Temperate as fallback
-                _ => Laboratory.Core.Enums.BiomeType.Grassland // Default fallback
-            };
-        }
 
         private BiomeData CloneBiome(BiomeData original)
         {

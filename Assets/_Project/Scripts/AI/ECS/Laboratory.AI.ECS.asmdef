@@ -11,7 +11,8 @@
         "GUID:027a272e9c053054b9368bf7aab2e578",
         "GUID:d23e45155f1935d488cc49677f37c236",
         "GUID:26c858a044ea8e443864d1208306534e",
-        "GUID:060b960b2d5f21443b98de7fcb5be9b7"
+        "GUID:060b960b2d5f21443b98de7fcb5be9b7",
+        "Laboratory.Shared"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

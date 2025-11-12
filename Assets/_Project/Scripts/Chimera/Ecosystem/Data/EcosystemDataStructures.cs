@@ -1,6 +1,7 @@
 using System;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -50,8 +51,8 @@ namespace Laboratory.Chimera.Ecosystem.Data
     [Serializable]
     public struct BiomeTransition
     {
-        public Laboratory.Core.Enums.BiomeType FromBiome;
-        public Laboratory.Core.Enums.BiomeType ToBiome;
+        public BiomeType FromBiome;
+        public BiomeType ToBiome;
         public float TransitionRate;
         public float RequiredTime;
         public float Progress;
@@ -165,7 +166,7 @@ namespace Laboratory.Chimera.Ecosystem.Data
         public float CarryingCapacityUtilization;
         public float GeneticDiversity;
         public float EcosystemResilience;
-        public Dictionary<Laboratory.Core.Enums.BiomeType, float> BiomeDistribution;
+        public Dictionary<BiomeType, float> BiomeDistribution;
         public Dictionary<TrophicLevel, int> TrophicDistribution;
     }
 
@@ -189,7 +190,7 @@ namespace Laboratory.Chimera.Ecosystem.Data
     {
         public Dictionary<Vector2, EnvironmentalState> RegionalStates = new();
         public Dictionary<uint, List<SpeciesInteraction>> SpeciesInteractions = new();
-        public Dictionary<Laboratory.Core.Enums.BiomeType, List<ResourceFlow>> BiomeResources = new();
+        public Dictionary<BiomeType, List<ResourceFlow>> BiomeResources = new();
         public List<CatastrophicEvent> ActiveEvents = new();
         public List<MigrationPattern> ActiveMigrations = new();
         public DateTime LastCacheUpdate;

@@ -5,6 +5,7 @@
         "Laboratory.Core",
         "Laboratory.Core.Debug",
         "Laboratory.Chimera",
+        "Laboratory.Shared",
         "Laboratory.Systems",
         "Laboratory.Core.Progression",
         "Unity.TextMeshPro",

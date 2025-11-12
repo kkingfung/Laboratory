@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.AI.Personality
 {
@@ -158,8 +159,8 @@ namespace Laboratory.AI.Personality
                 SetTraitValue(PersonalityTraitType.Boldness, Mathf.Clamp01(geneticBoldness + environmentalBoldness));
             }
 
-            if (genome.TraitExpressions.TryGetValue("Social", out var social) &&
-                genome.TraitExpressions.TryGetValue("Intelligence", out var intel2))
+            if (genome.TraitExpressions.TryGetValue(TraitType.Sociability, out var social) &&
+                genome.TraitExpressions.TryGetValue(TraitType.Intelligence, out var intel2))
             {
                 float leadership = (social.Value + intel2.Value) * 0.4f;
                 float geneticLeadership = leadership * geneticInfluenceStrength;
@@ -191,10 +192,13 @@ namespace Laboratory.AI.Personality
 
             foreach (string traitName in traitNames)
             {
-                if (baseTraits.TryGetValue(traitName, out float value))
+                if (TryParseTraitType(traitName, out PersonalityTraitType traitType))
+                {
+                    float value = GetTraitValue(traitType);
                 {
                     sum += value;
                     count++;
+                }
                 }
             }
 
@@ -794,7 +798,7 @@ namespace Laboratory.AI.Personality
             // Apply stimulus effects to current mood based on stimulus type and intensity
             switch (stimulus.type)
             {
-                case EnvironmentalStimulusType.Temperature:
+                case EnvironmentalStimulusType.Weather:
                     // Temperature affects comfort and energy
                     float temperatureEffect = Mathf.Abs(stimulus.intensity - 0.5f) * 2f; // Extreme temps are stressful
                     currentMood.comfort = Mathf.Clamp01(currentMood.comfort - temperatureEffect * 0.1f);
@@ -890,6 +894,9 @@ namespace Laboratory.AI.Personality
         public float confidence;
         public float curiosity;
         public float socialNeed;
+        public float comfort;
+        public float satisfaction;
+        public float agitation;
         public float timestamp;
     }
 
@@ -1157,5 +1164,36 @@ namespace Laboratory.AI.Personality
 
         // Derived/Emergent traits
         public float Fear;
+
+        /// <summary>
+        /// Clear all traits to default values
+        /// </summary>
+        public void Clear()
+        {
+            Curiosity = 0f;
+            LearningSpeed = 0f;
+            ProblemSolving = 0f;
+            Creativity = 0f;
+            Empathy = 0f;
+            Communication = 0f;
+            PackBonding = 0f;
+            Leadership = 0f;
+            Dominance = 0f;
+            Territoriality = 0f;
+            Competitiveness = 0f;
+            Aggression = 0f;
+            Caution = 0f;
+            RiskAversion = 0f;
+            StressResponse = 0f;
+            Boldness = 0f;
+            ActivityLevel = 0f;
+            Persistence = 0f;
+            Stamina = 0f;
+            Flexibility = 0f;
+            Exploration = 0f;
+            ChangeTolerance = 0f;
+            Adaptability = 0f;
+            Fear = 0f;
+        }
     }
 }

@@ -8,6 +8,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 using System.Collections.Generic;
 
 namespace Laboratory.Chimera.Integration
@@ -253,17 +254,17 @@ namespace Laboratory.Chimera.Integration
                 if (needs.Hunger > 0.8f || needs.Thirst > 0.8f || needs.Energy < 0.2f)
                 {
                     // High needs should increase foraging behavior
-                    monoBehaviour.SetBehaviorType(AIBehaviorType.Foraging);
+                    monoBehaviour.SetBehaviorType(Laboratory.Chimera.AI.AIBehaviorType.Foraging);
                 }
                 else if (needs.Safety < 0.3f)
                 {
                     // Low safety should trigger flee behavior
-                    monoBehaviour.SetBehaviorType(AIBehaviorType.Flee);
+                    monoBehaviour.SetBehaviorType(Laboratory.Chimera.AI.AIBehaviorType.Flee);
                 }
                 else if (needs.SocialConnection > 0.7f && needs.BreedingUrge > 0.6f)
                 {
                     // High social/breeding needs should trigger social behavior
-                    monoBehaviour.SetBehaviorType(AIBehaviorType.Companion);
+                    monoBehaviour.SetBehaviorType(Laboratory.Chimera.AI.AIBehaviorType.Companion);
                 }
 
                 if (logIntegrationEvents && (needs.Hunger > 0.9f || needs.Energy < 0.1f))
@@ -353,7 +354,7 @@ namespace Laboratory.Chimera.Integration
                 WaterAffinity = genetics.GetTraitValue(TraitType.WaterAffinity, 0.5f),
                 Adaptability = genetics.GetTraitValue(TraitType.Adaptability, 0.5f),
                 OverallFitness = 0.5f, // Default fitness
-                NativeBiome = Laboratory.Core.Enums.BiomeType.Grassland, // Default biome
+                NativeBiome = BiomeType.Grassland, // Default biome
                 MutationRate = 0.02f // Default mutation rate
             };
         }
@@ -404,7 +405,7 @@ namespace Laboratory.Chimera.Integration
         {
             return new EnvironmentalComponent
             {
-                CurrentBiome = Laboratory.Core.Enums.BiomeType.Forest, // Default biome
+                CurrentBiome = BiomeType.Forest, // Default biome
                 CurrentPosition = monoBehaviour.transform.position,
                 LocalTemperature = 20f, // Default temperature
                 LocalHumidity = 0.5f, // Default humidity
@@ -544,40 +545,40 @@ namespace Laboratory.Chimera.Integration
             return Laboratory.Chimera.Core.RarityLevel.Common;
         }
 
-        private Laboratory.Core.Enums.BiomeType ConvertToBiomeType(string biomeString)
+        private BiomeType ConvertToBiomeType(string biomeString)
         {
-            if (System.Enum.TryParse<Laboratory.Core.Enums.BiomeType>(biomeString, out var result))
+            if (System.Enum.TryParse<BiomeType>(biomeString, out var result))
                 return result;
-            return Laboratory.Core.Enums.BiomeType.Grassland;
+            return BiomeType.Grassland;
         }
 
-        private CreatureBehaviorType ConvertToECSBehaviorType(AIBehaviorType monoBehaviorType)
+        private CreatureBehaviorType ConvertToECSBehaviorType(Laboratory.Chimera.AI.AIBehaviorType monoBehaviorType)
         {
             switch (monoBehaviorType)
             {
-                case AIBehaviorType.Idle: return CreatureBehaviorType.Idle;
-                case AIBehaviorType.Patrol: return CreatureBehaviorType.Exploring;
-                case AIBehaviorType.Hunt: return CreatureBehaviorType.Hunting;
-                case AIBehaviorType.Flee: return CreatureBehaviorType.Fleeing;
-                case AIBehaviorType.Companion: return CreatureBehaviorType.Social;
-                case AIBehaviorType.Territorial: return CreatureBehaviorType.Territorial;
-                case AIBehaviorType.Foraging: return CreatureBehaviorType.Foraging;
+                case Laboratory.Chimera.AI.AIBehaviorType.Idle: return CreatureBehaviorType.Idle;
+                case Laboratory.Chimera.AI.AIBehaviorType.Patrol: return CreatureBehaviorType.Exploring;
+                case Laboratory.Chimera.AI.AIBehaviorType.Hunt: return CreatureBehaviorType.Hunting;
+                case Laboratory.Chimera.AI.AIBehaviorType.Flee: return CreatureBehaviorType.Fleeing;
+                case Laboratory.Chimera.AI.AIBehaviorType.Companion: return CreatureBehaviorType.Social;
+                case Laboratory.Chimera.AI.AIBehaviorType.Territorial: return CreatureBehaviorType.Territorial;
+                case Laboratory.Chimera.AI.AIBehaviorType.Foraging: return CreatureBehaviorType.Foraging;
                 default: return CreatureBehaviorType.Idle;
             }
         }
 
-        private AIBehaviorType ConvertToMonoBehaviourBehaviorType(CreatureBehaviorType ecsBehaviorType)
+        private Laboratory.Chimera.AI.AIBehaviorType ConvertToMonoBehaviourBehaviorType(CreatureBehaviorType ecsBehaviorType)
         {
             switch (ecsBehaviorType)
             {
-                case CreatureBehaviorType.Idle: return AIBehaviorType.Idle;
-                case CreatureBehaviorType.Exploring: return AIBehaviorType.Patrol;
-                case CreatureBehaviorType.Hunting: return AIBehaviorType.Hunt;
-                case CreatureBehaviorType.Fleeing: return AIBehaviorType.Flee;
-                case CreatureBehaviorType.Social: return AIBehaviorType.Companion;
-                case CreatureBehaviorType.Territorial: return AIBehaviorType.Territorial;
-                case CreatureBehaviorType.Foraging: return AIBehaviorType.Foraging;
-                default: return AIBehaviorType.Idle;
+                case CreatureBehaviorType.Idle: return Laboratory.Chimera.AI.AIBehaviorType.Idle;
+                case CreatureBehaviorType.Exploring: return Laboratory.Chimera.AI.AIBehaviorType.Patrol;
+                case CreatureBehaviorType.Hunting: return Laboratory.Chimera.AI.AIBehaviorType.Hunt;
+                case CreatureBehaviorType.Fleeing: return Laboratory.Chimera.AI.AIBehaviorType.Flee;
+                case CreatureBehaviorType.Social: return Laboratory.Chimera.AI.AIBehaviorType.Companion;
+                case CreatureBehaviorType.Territorial: return Laboratory.Chimera.AI.AIBehaviorType.Territorial;
+                case CreatureBehaviorType.Foraging: return Laboratory.Chimera.AI.AIBehaviorType.Foraging;
+                default: return Laboratory.Chimera.AI.AIBehaviorType.Idle;
             }
         }
 

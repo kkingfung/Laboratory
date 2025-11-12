@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Laboratory.Core.Enums;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Subsystems.Ecosystem
 {

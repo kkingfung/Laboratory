@@ -18,10 +18,13 @@ namespace Laboratory.Subsystems.Companion
         public string osVersion;
         public string appVersion;
         public bool isConnected;
+        public CompanionConnectionStatus connectionStatus = CompanionConnectionStatus.Disconnected;
         public DateTime connectionTime;
         public DateTime disconnectionTime;
         public DateTime lastHeartbeat;
-        public List<string> capabilities = new();
+        public DateTime lastSeenTime;
+        public List<CompanionCapability> capabilities = new();
+        public List<CompanionCapability> supportedCapabilities = new();
         public DeviceSettings settings = new();
         public Dictionary<string, object> metadata = new();
     }
@@ -36,7 +39,7 @@ namespace Laboratory.Subsystems.Companion
         public DateTime endTime;
         public bool isActive;
         public SessionType sessionType;
-        public List<string> activitiesPerformed = new();
+        public List<RemoteActionType> activitiesPerformed = new();
         public Dictionary<string, object> sessionData = new();
     }
 
@@ -62,7 +65,7 @@ namespace Laboratory.Subsystems.Companion
         public DateTime lastConnectionTime;
         public DateTime lastSyncTime;
         public int syncVersion;
-        public List<string> pendingSyncItems = new();
+        public List<SyncDataType> pendingSyncItems = new();
         public Dictionary<string, DateTime> lastSyncByType = new();
         public SyncStatus status = SyncStatus.Idle;
         public string lastError;
@@ -71,6 +74,7 @@ namespace Laboratory.Subsystems.Companion
     public enum CompanionDeviceType
     {
         Mobile,
+        MobileApp,
         Tablet,
         Desktop,
         Web,
@@ -129,23 +133,49 @@ namespace Laboratory.Subsystems.Companion
     public class CrossPlatformSyncData
     {
         public string userId;
+        public DateTime timestamp;
         public DateTime syncTime;
+        public string version;
         public int syncVersion;
-        public List<string> dataTypes = new();
+        public List<SyncDataType> dataTypes = new();
         public Dictionary<string, object> gameState = new();
+        public Dictionary<string, object> gameProgressData = new();
         public Dictionary<string, object> playerProgress = new();
         public Dictionary<string, object> creatures = new();
+        public List<CreatureSyncData> creatureData = new();
         public Dictionary<string, object> inventory = new();
         public Dictionary<string, object> achievements = new();
         public Dictionary<string, object> settings = new();
+        public Dictionary<string, object> userPreferences = new();
+        public Dictionary<string, object> metadata = new();
         public List<SyncConflict> conflicts = new();
-        public SyncMetadata metadata = new();
+        public SyncMetadata syncMetadata = new();
+    }
+
+    [Serializable]
+    public class CreatureSyncData
+    {
+        public string creatureId;
+        public string creatureName;
+        public string speciesId;
+        public int level;
+        public float experience;
+        public float happiness;
+        public float health;
+        public DateTime lastFed;
+        public DateTime lastInteraction;
+        public List<TraitType> traits = new();
+        public Dictionary<string, object> genetics = new();
+        public Dictionary<string, float> stats = new();
+        public List<EffectType> activeEffects = new();
+        public DateTime lastSync;
     }
 
     [Serializable]
     public class SyncConflict
     {
         public string conflictId;
+        public SyncConflictType conflictType;
         public string dataType;
         public string fieldName;
         public object localValue;
@@ -162,7 +192,7 @@ namespace Laboratory.Subsystems.Companion
         public Dictionary<string, DateTime> lastModified = new();
         public Dictionary<string, string> checksums = new();
         public Dictionary<string, int> versions = new();
-        public List<string> priorityData = new();
+        public List<SyncDataType> priorityData = new();
         public SyncStrategy strategy = SyncStrategy.Incremental;
     }
 
@@ -183,6 +213,16 @@ namespace Laboratory.Subsystems.Companion
         Priority,
         Compressed,
         Selective
+    }
+
+    public enum SyncConflictType
+    {
+        TimestampMismatch,
+        DataVersionMismatch,
+        UserConflict,
+        DataCorruption,
+        PermissionDenied,
+        NetworkError
     }
 
     #endregion
@@ -212,7 +252,7 @@ namespace Laboratory.Subsystems.Companion
         public string message;
         public Dictionary<string, object> resultData = new();
         public DateTime completionTime;
-        public List<string> sideEffects = new();
+        public List<EffectType> sideEffects = new();
     }
 
     [Serializable]
@@ -291,7 +331,7 @@ namespace Laboratory.Subsystems.Companion
     {
         public string actionId;
         public string actionText;
-        public string actionType;
+        public NotificationActionType actionType;
         public Dictionary<string, object> actionData = new();
         public bool isDestructive;
     }
@@ -364,7 +404,7 @@ namespace Laboratory.Subsystems.Companion
         public TimeSpan timeOffline;
         public List<CreatureData> creatures = new();
         public Dictionary<string, float> resources = new();
-        public List<string> completedActivities = new();
+        public List<RemoteActionType> completedActivities = new();
         public OfflineProgressSettings settings = new();
         public bool isProcessed;
     }
@@ -378,7 +418,7 @@ namespace Laboratory.Subsystems.Companion
         public Dictionary<string, float> creatureGrowth = new();
         public Dictionary<string, float> resourcesGenerated = new();
         public float researchProgress;
-        public List<string> newDiscoveries = new();
+        public List<DiscoveryType> newDiscoveries = new();
         public List<Achievement> achievementsEarned = new();
         public int experienceGained;
         public Dictionary<string, object> customRewards = new();
@@ -393,7 +433,7 @@ namespace Laboratory.Subsystems.Companion
         public bool enableCreatureGrowth = true;
         public bool enableResourceGeneration = true;
         public bool enableResearchProgress = true;
-        public List<string> excludedActivities = new();
+        public List<RemoteActionType> excludedActivities = new();
         public Dictionary<string, object> customSettings = new();
     }
 
@@ -409,7 +449,7 @@ namespace Laboratory.Subsystems.Companion
         public float health;
         public DateTime lastFed;
         public DateTime lastInteraction;
-        public List<string> activeEffects = new();
+        public List<EffectType> activeEffects = new();
         public Dictionary<string, object> stats = new();
     }
 
@@ -426,7 +466,7 @@ namespace Laboratory.Subsystems.Companion
         public string description;
         public DateTime timestamp;
         public Dictionary<string, object> eventData = new();
-        public List<string> targetDeviceTypes = new();
+        public List<CompanionDeviceType> targetDeviceTypes = new();
         public TimeSpan duration;
         public bool isInteractive;
         public List<SecondScreenAction> availableActions = new();
@@ -437,7 +477,7 @@ namespace Laboratory.Subsystems.Companion
     {
         public string actionId;
         public string actionText;
-        public string actionType;
+        public SecondScreenActionType actionType;
         public Dictionary<string, object> actionParameters = new();
         public bool isEnabled = true;
         public string iconUrl;
@@ -494,7 +534,7 @@ namespace Laboratory.Subsystems.Companion
         public List<ARAsset> assets = new();
         public ARConfiguration configuration = new();
         public bool requiresTracking;
-        public List<string> supportedDevices = new();
+        public List<CompanionDeviceType> supportedDevices = new();
         public DateTime lastUpdated;
     }
 
@@ -509,7 +549,7 @@ namespace Laboratory.Subsystems.Companion
         public Vector3 scale = Vector3.one;
         public Dictionary<string, object> properties = new();
         public bool isAnimated;
-        public List<string> animations = new();
+        public List<AnimationType> animations = new();
     }
 
     [Serializable]
@@ -679,7 +719,7 @@ namespace Laboratory.Subsystems.Companion
         public string appName;
         public string version;
         public string platform;
-        public List<string> supportedFeatures = new();
+        public List<CompanionCapability> supportedFeatures = new();
         public Dictionary<string, object> capabilities = new();
         public DateTime lastUpdated;
         public bool isVerified;
@@ -718,6 +758,33 @@ namespace Laboratory.Subsystems.Companion
         Syncing,
         Error,
         Retrying
+    }
+
+    public enum CompanionConnectionStatus
+    {
+        Disconnected,
+        Discovered,
+        Connecting,
+        Connected,
+        Authenticated,
+        Syncing,
+        Error,
+        Lost
+    }
+
+    public enum CompanionCapability
+    {
+        RemoteActions,
+        RemoteMonitoring,
+        PushNotifications,
+        SecondScreen,
+        DataSync,
+        OfflineProgress,
+        ARExperience,
+        VoiceCommands,
+        Geolocation,
+        Camera,
+        Biometrics
     }
 
     public enum AchievementRarity
@@ -777,7 +844,7 @@ namespace Laboratory.Subsystems.Companion
         public int notificationInteractions;
         public int arExperienceViews;
         public Dictionary<string, int> featureUsageCounts = new();
-        public List<string> mostUsedFeatures = new();
+        public List<CompanionCapability> mostUsedFeatures = new();
     }
 
     [Serializable]
@@ -788,7 +855,107 @@ namespace Laboratory.Subsystems.Companion
         public float retentionRate;
         public int shareActionsPerformed;
         public float satisfactionScore;
-        public List<string> engagementFactors = new();
+        public List<EngagementFactor> engagementFactors = new();
+    }
+
+    #endregion
+
+    #region Additional Enums for Type Safety
+
+    public enum SyncDataType
+    {
+        GameProgress,
+        CreatureData,
+        Inventory,
+        Achievements,
+        Settings,
+        UserPreferences,
+        ResearchData,
+        SocialData
+    }
+
+    public enum TraitType
+    {
+        Physical,
+        Mental,
+        Emotional,
+        Genetic,
+        Behavioral,
+        Environmental,
+        Special,
+        Inherited
+    }
+
+    public enum EffectType
+    {
+        Buff,
+        Debuff,
+        Temporary,
+        Permanent,
+        StatusEffect,
+        Environmental,
+        Genetic,
+        Social
+    }
+
+    public enum NotificationActionType
+    {
+        View,
+        Dismiss,
+        Action,
+        Navigate,
+        Share,
+        Remind,
+        Settings,
+        Custom
+    }
+
+    public enum SecondScreenActionType
+    {
+        View,
+        Interact,
+        Navigate,
+        Control,
+        Share,
+        Customize,
+        Monitor,
+        Execute
+    }
+
+    public enum AnimationType
+    {
+        Idle,
+        Walk,
+        Run,
+        Jump,
+        Attack,
+        Interact,
+        Emotion,
+        Custom
+    }
+
+    public enum DiscoveryType
+    {
+        Species,
+        Trait,
+        Behavior,
+        Environment,
+        Research,
+        Social,
+        Achievement,
+        Secret
+    }
+
+    public enum EngagementFactor
+    {
+        SessionLength,
+        ActivityVariety,
+        SocialInteraction,
+        Achievement,
+        Discovery,
+        Personalization,
+        Retention,
+        Satisfaction
     }
 
     #endregion

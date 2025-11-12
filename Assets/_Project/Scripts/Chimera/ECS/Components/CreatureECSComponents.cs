@@ -4,6 +4,7 @@ using System;
 using Laboratory.Chimera;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Creatures;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.ECS
 {
@@ -388,8 +389,8 @@ namespace Laboratory.Chimera.ECS
     /// </summary>
     public struct CreatureEnvironmentalComponent : IComponentData
     {
-        public Laboratory.Core.Enums.BiomeType CurrentBiome;
-        public Laboratory.Core.Enums.BiomeType PreferredBiome;
+        public BiomeType CurrentBiome;
+        public BiomeType PreferredBiome;
         public float BiomeAdaptation;
         public float EnvironmentalStress;
         public float TemperatureTolerance;
@@ -400,8 +401,8 @@ namespace Laboratory.Chimera.ECS
         {
             return new CreatureEnvironmentalComponent
             {
-                CurrentBiome = Laboratory.Core.Enums.BiomeType.Forest,
-                PreferredBiome = Laboratory.Core.Enums.BiomeType.Forest,
+                CurrentBiome = BiomeType.Forest,
+                PreferredBiome = BiomeType.Forest,
                 BiomeAdaptation = genetics.GeneticPurity,
                 EnvironmentalStress = 0f,
                 TemperatureTolerance = 0.5f,
@@ -454,8 +455,8 @@ namespace Laboratory.Chimera.ECS
     /// </summary>
     public struct CreatureBiomeComponent : IComponentData
     {
-        public Laboratory.Core.Enums.BiomeType HomeBiome;
-        public Laboratory.Core.Enums.BiomeType CurrentBiome;
+        public BiomeType HomeBiome;
+        public BiomeType CurrentBiome;
         public float BiomeComfort;
         public float BiomeExploration;
         public bool IsNativeToBiome;

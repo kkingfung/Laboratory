@@ -1,6 +1,6 @@
 using Unity.Mathematics;
 using Laboratory.Chimera.Core;
-using Laboratory.Core.Enums;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Genetics.Environmental
 {

@@ -25,7 +25,7 @@ namespace Laboratory.Editor
         [MenuItem(MenuRoot + "Complete System Validation")]
         public static void ValidateCompleteSystem()
         {
-            Debug.Log("=== LABORATORY SYSTEM VALIDATION ===");
+            UnityEngine.Debug.Log("=== LABORATORY SYSTEM VALIDATION ===");
             
             var issues = new List<string>();
             bool allPassed = true;
@@ -60,19 +60,19 @@ namespace Laboratory.Editor
         [MenuItem(MenuRoot + "Quick Health Check")]
         public static void QuickHealthCheck()
         {
-            Debug.Log("=== QUICK SYSTEM HEALTH CHECK ===");
+            UnityEngine.Debug.Log("=== QUICK SYSTEM HEALTH CHECK ===");
             
             bool healthy = true;
             
             // Check ServiceContainer
             if (ServiceContainer.Instance == null)
             {
-                Debug.LogError("❌ ServiceContainer not initialized");
+                UnityEngine.UnityEngine.Debug.LogError("❌ ServiceContainer not initialized");
                 healthy = false;
             }
             else
             {
-                Debug.Log("✅ ServiceContainer initialized");
+                UnityEngine.Debug.Log("✅ ServiceContainer initialized");
             }
 
             // Check for deprecated components in current scene
@@ -81,12 +81,12 @@ namespace Laboratory.Editor
 
             if (deprecatedFound > 0)
             {
-                Debug.LogWarning($"⚠️ Found {deprecatedFound} deprecated components");
+                UnityEngine.UnityEngine.Debug.LogWarning($"⚠️ Found {deprecatedFound} deprecated components");
                 healthy = false;
             }
             else
             {
-                Debug.Log("✅ No deprecated components in current scene");
+                UnityEngine.Debug.Log("✅ No deprecated components in current scene");
             }
 
             // Test event system quickly
@@ -97,28 +97,28 @@ namespace Laboratory.Editor
                     var eventBus = ServiceContainer.Instance.ResolveService<Laboratory.Core.Events.IEventBus>();
                     if (eventBus == null)
                     {
-                        Debug.LogError("❌ EventBus service not found");
+                        UnityEngine.UnityEngine.Debug.LogError("❌ EventBus service not found");
                         healthy = false;
                     }
                     else
                     {
-                        Debug.Log("✅ EventBus service available");
+                        UnityEngine.Debug.Log("✅ EventBus service available");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError($"❌ Error testing event system: {ex.Message}");
+                    UnityEngine.UnityEngine.Debug.LogError($"❌ Error testing event system: {ex.Message}");
                     healthy = false;
                 }
             }
 
             if (healthy)
             {
-                Debug.Log("🎉 QUICK HEALTH CHECK PASSED!");
+                UnityEngine.Debug.Log("🎉 QUICK HEALTH CHECK PASSED!");
             }
             else
             {
-                Debug.LogWarning("⚠️ Issues found - run complete validation for details");
+                UnityEngine.UnityEngine.Debug.LogWarning("⚠️ Issues found - run complete validation for details");
             }
         }
 
@@ -128,34 +128,34 @@ namespace Laboratory.Editor
         [MenuItem(MenuRoot + "Show System Diagnostics")]
         public static void ShowSystemDiagnostics()
         {
-            Debug.Log("=== LABORATORY SYSTEM DIAGNOSTICS ===");
+            UnityEngine.Debug.Log("=== LABORATORY SYSTEM DIAGNOSTICS ===");
             
             // Service Container diagnostics
             if (ServiceContainer.Instance != null)
             {
-                Debug.Log("ServiceContainer is initialized and available");
+                UnityEngine.Debug.Log("ServiceContainer is initialized and available");
             }
             else
             {
-                Debug.Log("ServiceContainer is not initialized");
+                UnityEngine.Debug.Log("ServiceContainer is not initialized");
             }
             
             // Scene analysis
             var monoBehaviours = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
-            Debug.Log($"Scene Analysis:");
-            Debug.Log($"- Total MonoBehaviours: {monoBehaviours.Length}");
-            Debug.Log($"- Health Components: {monoBehaviours.Count(mb => mb.GetType().Name.Contains("Health"))}");
-            Debug.Log($"- UI Components: {monoBehaviours.Count(mb => mb.GetType().Namespace?.Contains("UI") == true)}");
+            UnityEngine.Debug.Log($"Scene Analysis:");
+            UnityEngine.Debug.Log($"- Total MonoBehaviours: {monoBehaviours.Length}");
+            UnityEngine.Debug.Log($"- Health Components: {monoBehaviours.Count(mb => mb.GetType().Name.Contains("Health"))}");
+            UnityEngine.Debug.Log($"- UI Components: {monoBehaviours.Count(mb => mb.GetType().Namespace?.Contains("UI") == true)}");
             
             // Timer system diagnostics
             if (Laboratory.Core.Timing.TimerService.Instance != null)
             {
-                Debug.Log($"Timer System:");
-                Debug.Log($"- Active Timers: {Laboratory.Core.Timing.TimerService.Instance.GetActiveTimerCount()}");
+                UnityEngine.Debug.Log($"Timer System:");
+                UnityEngine.Debug.Log($"- Active Timers: {Laboratory.Core.Timing.TimerService.Instance.GetActiveTimerCount()}");
             }
             else
             {
-                Debug.Log("Timer System: TimerService not found in scene");
+                UnityEngine.Debug.Log("Timer System: TimerService not found in scene");
             }
         }
 
@@ -165,7 +165,7 @@ namespace Laboratory.Editor
 
         private static bool ValidateServiceProvider(List<string> issues)
         {
-            Debug.Log("Validating ServiceContainer...");
+            UnityEngine.Debug.Log("Validating ServiceContainer...");
             
             if (ServiceContainer.Instance == null)
             {
@@ -173,13 +173,13 @@ namespace Laboratory.Editor
                 return false;
             }
 
-            Debug.Log("✅ ServiceContainer is properly initialized");
+            UnityEngine.Debug.Log("✅ ServiceContainer is properly initialized");
             return true;
         }
 
         private static bool ValidateCoreServices(List<string> issues)
         {
-            Debug.Log("Validating core services...");
+            UnityEngine.Debug.Log("Validating core services...");
             
             if (ServiceContainer.Instance == null)
             {
@@ -193,7 +193,7 @@ namespace Laboratory.Editor
                 var eventBus = ServiceContainer.Instance.ResolveService<Laboratory.Core.Events.IEventBus>();
                 if (eventBus != null)
                 {
-                    Debug.Log("✅ Core services are available");
+                    UnityEngine.Debug.Log("✅ Core services are available");
                     return true;
                 }
                 else
@@ -211,7 +211,7 @@ namespace Laboratory.Editor
 
         private static bool ValidateEventSystem(List<string> issues)
         {
-            Debug.Log("Validating event system...");
+            UnityEngine.Debug.Log("Validating event system...");
             
             if (ServiceContainer.Instance == null)
             {
@@ -224,7 +224,7 @@ namespace Laboratory.Editor
                 var eventBus = ServiceContainer.Instance.ResolveService<Laboratory.Core.Events.IEventBus>();
                 if (eventBus != null)
                 {
-                    Debug.Log("✅ Event system is working");
+                    UnityEngine.Debug.Log("✅ Event system is working");
                     return true;
                 }
                 else
@@ -242,7 +242,7 @@ namespace Laboratory.Editor
 
         private static bool ValidateDeprecatedComponents(List<string> issues)
         {
-            Debug.Log("Checking for deprecated components...");
+            UnityEngine.Debug.Log("Checking for deprecated components...");
             
             var sceneObjects = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
             int deprecatedFound = 0;
@@ -261,19 +261,19 @@ namespace Laboratory.Editor
 
             if (deprecatedFound == 0)
             {
-                Debug.Log("✅ No deprecated components found in scene");
+                UnityEngine.Debug.Log("✅ No deprecated components found in scene");
                 return true;
             }
             else
             {
-                Debug.LogWarning($"⚠️ Found {deprecatedFound} deprecated components");
+                UnityEngine.UnityEngine.Debug.LogWarning($"⚠️ Found {deprecatedFound} deprecated components");
                 return false;
             }
         }
 
         private static bool ValidateTimerSystem(List<string> issues)
         {
-            Debug.Log("Validating timer system...");
+            UnityEngine.Debug.Log("Validating timer system...");
             
             var timerService = Laboratory.Core.Timing.TimerService.Instance;
             if (timerService == null)
@@ -282,18 +282,18 @@ namespace Laboratory.Editor
                 return false;
             }
 
-            Debug.Log($"✅ TimerService is active with {timerService.GetActiveTimerCount()} active timers");
+            UnityEngine.Debug.Log($"✅ TimerService is active with {timerService.GetActiveTimerCount()} active timers");
             return true;
         }
 
         private static void ReportValidationResults(bool allPassed, List<string> issues)
         {
-            Debug.Log("=== VALIDATION RESULTS ===");
+            UnityEngine.Debug.Log("=== VALIDATION RESULTS ===");
             
             if (allPassed)
             {
-                Debug.Log("🎉 ALL VALIDATION CHECKS PASSED!");
-                Debug.Log("Your Laboratory architecture is healthy and properly configured.");
+                UnityEngine.Debug.Log("🎉 ALL VALIDATION CHECKS PASSED!");
+                UnityEngine.Debug.Log("Your Laboratory architecture is healthy and properly configured.");
                 
                 EditorUtility.DisplayDialog("System Validation", 
                     "✅ All validation checks passed!\n\nYour Laboratory architecture is healthy and properly configured.", 
@@ -301,11 +301,11 @@ namespace Laboratory.Editor
             }
             else
             {
-                Debug.LogWarning($"⚠️ VALIDATION FOUND {issues.Count} ISSUES:");
+                UnityEngine.UnityEngine.Debug.LogWarning($"⚠️ VALIDATION FOUND {issues.Count} ISSUES:");
                 
                 foreach (var issue in issues)
                 {
-                    Debug.LogWarning($"• {issue}");
+                    UnityEngine.UnityEngine.Debug.LogWarning($"• {issue}");
                 }
                 
                 var issueText = string.Join("\n• ", issues);
@@ -364,15 +364,15 @@ namespace Laboratory.Editor
                 }
             }
 
-            Debug.Log($"=== TODO SCAN RESULTS ({todoItems.Count} items found) ===");
+            UnityEngine.Debug.Log($"=== TODO SCAN RESULTS ({todoItems.Count} items found) ===");
             foreach (var todo in todoItems)
             {
-                Debug.Log($"📝 {todo}");
+                UnityEngine.Debug.Log($"📝 {todo}");
             }
 
             if (todoItems.Count == 0)
             {
-                Debug.Log("🎉 No TODO items found in project scripts!");
+                UnityEngine.Debug.Log("🎉 No TODO items found in project scripts!");
             }
         }
 

@@ -4,9 +4,13 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Burst;
 using UnityEngine;
+using Laboratory.Core.ECS;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Core.Activities;
+using Laboratory.Core.Activities.Components;
+using Laboratory.Core.Activities.Types;
 using Laboratory.Core.Equipment;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Core.Progression
 {
@@ -605,7 +609,7 @@ namespace Laboratory.Core.Progression
                         AchievementScore = 0f
                     });
 
-                    Debug.Log($"✅ Added progression components to creature (Level {startingLevel})");
+                    UnityEngine.Debug.Log($"✅ Added progression components to creature (Level {startingLevel})");
                     break;
                 }
             }

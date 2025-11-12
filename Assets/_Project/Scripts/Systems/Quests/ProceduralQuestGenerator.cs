@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Core;
+using Laboratory.Core.Enums;
 using Laboratory.Chimera.Genetics.Advanced;
 
 namespace Laboratory.Systems.Quests
@@ -546,7 +547,25 @@ namespace Laboratory.Systems.Quests
 
         private void UpdateGameStateContext()
         {
-            currentGameState = CreateContextFromGameState();
+            var questContext = CreateContextFromGameState();
+            currentGameState = ConvertToGameStateContext(questContext);
+        }
+
+        private GameStateContext ConvertToGameStateContext(QuestGenerationContext questContext)
+        {
+            return new GameStateContext
+            {
+                timestamp = questContext.sessionTime,
+                totalPopulation = questContext.totalCreaturePopulation,
+                averageFitness = questContext.averageCreatureFitness,
+                gameData = new Dictionary<GameStateKey, object>
+                {
+                    [GameStateKey.ActivePersonalities] = questContext.activePersonalities,
+                    [GameStateKey.UnexploredAreaRatio] = questContext.unexploredAreaRatio,
+                    [GameStateKey.ResourceAbundance] = questContext.resourceAbundance,
+                    [GameStateKey.EnvironmentalFactors] = questContext.environmentalFactors
+                }
+            };
         }
 
         private QuestGenerationContext CreateContextFromGameState()
@@ -738,7 +757,7 @@ namespace Laboratory.Systems.Quests
         public float timestamp;
         public int totalPopulation;
         public float averageFitness;
-        public Dictionary<string, object> gameData = new Dictionary<string, object>();
+        public Dictionary<GameStateKey, object> gameData = new Dictionary<GameStateKey, object>();
     }
 
     [System.Serializable]

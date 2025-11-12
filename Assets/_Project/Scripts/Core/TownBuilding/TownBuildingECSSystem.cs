@@ -287,7 +287,6 @@ namespace Laboratory.Core.TownBuilding
 
 
     [BurstCompile]
-    [BurstCompile]
     public partial struct BuildingUpdateJob : IJobEntity
     {
         public float DeltaTime;
@@ -478,7 +477,6 @@ namespace Laboratory.Core.TownBuilding
 
 
 
-    [BurstCompile]
     [BurstCompile]
     public partial struct ResourceProductionJob : IJobEntity
     {

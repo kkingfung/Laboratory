@@ -549,10 +549,10 @@ namespace Laboratory.Editor.Tools
 
             // Simulated analysis results
             traitDistribution[Laboratory.Core.Enums.TraitType.Physical] = 0.75f;
-            traitDistribution[Laboratory.Core.Enums.TraitType.Mental] = 0.60f;
-            traitDistribution[Laboratory.Core.Enums.TraitType.Behavioral] = 0.45f;
+            traitDistribution[Laboratory.Core.Enums.TraitType.Intelligence] = 0.60f;
+            traitDistribution[Laboratory.Core.Enums.TraitType.Aggression] = 0.45f;
 
-            Debug.Log("Gene pool analysis completed!");
+            UnityEngine.Debug.Log("Gene pool analysis completed!");
         }
 
         #endregion

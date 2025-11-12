@@ -4,7 +4,7 @@ using Laboratory.Core.Events;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
-using Laboratory.Infrastructure.Core;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.UI
 {

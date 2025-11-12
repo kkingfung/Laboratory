@@ -6,6 +6,7 @@ using System;
 using Laboratory.Chimera;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.UI;
+using Laboratory.Shared.Types;
 using System.Linq;
 
 namespace Laboratory.Chimera.UI.Components
@@ -970,7 +971,7 @@ namespace Laboratory.Chimera.UI.Components
         public string OffspringTraits;
         public bool HasRareTraits;
         public bool HasMagicalTraits;
-        public Laboratory.Core.Enums.BiomeType BiomeType;
+        public BiomeType BiomeType;
         public bool IsFavorite;
     }
 

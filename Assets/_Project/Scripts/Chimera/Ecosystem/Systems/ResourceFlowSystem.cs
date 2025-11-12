@@ -4,8 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
 using Laboratory.Chimera.Debug;
-
-using EcoBiomeType = Laboratory.Core.Enums.BiomeType;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
 {
@@ -141,7 +140,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 for (int y = -50; y <= 50; y += 10)
                 {
                     var location = new Vector2(x, y);
-                    var biome = biomeSystem?.GetBiomeAtLocation(location) ?? EcoBiomeType.Grassland;
+                    var biome = biomeSystem?.GetBiomeAtLocation(location) ?? BiomeType.Grassland;
                     InitializeResourcesForLocation(location, biome);
                 }
             }
@@ -149,7 +148,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             UnityEngine.Debug.Log($"🗺️ Initialized resources for {regionalResources.Count} regions");
         }
 
-        private void InitializeResourcesForLocation(Vector2 location, EcoBiomeType biome)
+        private void InitializeResourcesForLocation(Vector2 location, BiomeType biome)
         {
             var locationResources = new Dictionary<ResourceType, Data.ResourceFlow>();
 
@@ -179,60 +178,60 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             regionalResources[location] = locationResources;
         }
 
-        private float GetBiomeResourceModifier(EcoBiomeType biome, ResourceType resourceType)
+        private float GetBiomeResourceModifier(BiomeType biome, ResourceType resourceType)
         {
-            var modifiers = new Dictionary<(EcoBiomeType, ResourceType), float>
+            var modifiers = new Dictionary<(BiomeType, ResourceType), float>
             {
                 // Water availability by biome
-                [(EcoBiomeType.Ocean, ResourceType.Water)] = 3.0f,
-                [(EcoBiomeType.Swamp, ResourceType.Water)] = 2.5f,
-                [(EcoBiomeType.Tropical, ResourceType.Water)] = 2.0f,
-                [(EcoBiomeType.Forest, ResourceType.Water)] = 1.5f,
-                [(EcoBiomeType.Grassland, ResourceType.Water)] = 1.0f,
-                [(EcoBiomeType.Desert, ResourceType.Water)] = 0.2f,
-                [(EcoBiomeType.Tundra, ResourceType.Water)] = 0.8f,
+                [(BiomeType.Ocean, ResourceType.Water)] = 3.0f,
+                [(BiomeType.Swamp, ResourceType.Water)] = 2.5f,
+                [(BiomeType.Tropical, ResourceType.Water)] = 2.0f,
+                [(BiomeType.Forest, ResourceType.Water)] = 1.5f,
+                [(BiomeType.Grassland, ResourceType.Water)] = 1.0f,
+                [(BiomeType.Desert, ResourceType.Water)] = 0.2f,
+                [(BiomeType.Tundra, ResourceType.Water)] = 0.8f,
 
                 // Food availability by biome
-                [(EcoBiomeType.Tropical, ResourceType.Food)] = 2.5f,
-                [(EcoBiomeType.Forest, ResourceType.Food)] = 2.0f,
-                [(EcoBiomeType.Grassland, ResourceType.Food)] = 1.8f,
-                [(EcoBiomeType.Grassland, ResourceType.Food)] = 1.5f,
-                [(EcoBiomeType.Ocean, ResourceType.Food)] = 1.2f,
-                [(EcoBiomeType.Desert, ResourceType.Food)] = 0.3f,
-                [(EcoBiomeType.Tundra, ResourceType.Food)] = 0.5f,
-                [(EcoBiomeType.Mountain, ResourceType.Food)] = 0.7f,
+                [(BiomeType.Tropical, ResourceType.Food)] = 2.5f,
+                [(BiomeType.Forest, ResourceType.Food)] = 2.0f,
+                [(BiomeType.Grassland, ResourceType.Food)] = 1.8f,
+                [(BiomeType.Grassland, ResourceType.Food)] = 1.5f,
+                [(BiomeType.Ocean, ResourceType.Food)] = 1.2f,
+                [(BiomeType.Desert, ResourceType.Food)] = 0.3f,
+                [(BiomeType.Tundra, ResourceType.Food)] = 0.5f,
+                [(BiomeType.Mountain, ResourceType.Food)] = 0.7f,
 
                 // Shelter availability by biome
-                [(EcoBiomeType.Forest, ResourceType.Shelter)] = 2.0f,
-                [(EcoBiomeType.Mountain, ResourceType.Shelter)] = 1.8f,
-                [(EcoBiomeType.Underground, ResourceType.Shelter)] = 3.0f,
-                [(EcoBiomeType.Grassland, ResourceType.Shelter)] = 0.8f,
-                [(EcoBiomeType.Desert, ResourceType.Shelter)] = 0.5f,
-                [(EcoBiomeType.Ocean, ResourceType.Shelter)] = 0.2f,
+                [(BiomeType.Forest, ResourceType.Shelter)] = 2.0f,
+                [(BiomeType.Mountain, ResourceType.Shelter)] = 1.8f,
+                [(BiomeType.Underground, ResourceType.Shelter)] = 3.0f,
+                [(BiomeType.Grassland, ResourceType.Shelter)] = 0.8f,
+                [(BiomeType.Desert, ResourceType.Shelter)] = 0.5f,
+                [(BiomeType.Ocean, ResourceType.Shelter)] = 0.2f,
 
                 // Mineral availability by biome
-                [(EcoBiomeType.Mountain, ResourceType.Minerals)] = 3.0f,
-                [(EcoBiomeType.Underground, ResourceType.Minerals)] = 2.5f,
-                [(EcoBiomeType.Volcanic, ResourceType.Minerals)] = 2.0f,
-                [(EcoBiomeType.Desert, ResourceType.Minerals)] = 1.5f,
-                [(EcoBiomeType.Ocean, ResourceType.Minerals)] = 0.3f,
-                [(EcoBiomeType.Swamp, ResourceType.Minerals)] = 0.4f,
+                [(BiomeType.Mountain, ResourceType.Minerals)] = 3.0f,
+                [(BiomeType.Underground, ResourceType.Minerals)] = 2.5f,
+                [(BiomeType.Volcanic, ResourceType.Minerals)] = 2.0f,
+                [(BiomeType.Desert, ResourceType.Minerals)] = 1.5f,
+                [(BiomeType.Ocean, ResourceType.Minerals)] = 0.3f,
+                [(BiomeType.Swamp, ResourceType.Minerals)] = 0.4f,
 
                 // Energy availability by biome
-                [(EcoBiomeType.Volcanic, ResourceType.Energy)] = 2.5f,
-                [(EcoBiomeType.Desert, ResourceType.Energy)] = 2.0f,
-                [(EcoBiomeType.Grassland, ResourceType.Energy)] = 1.5f,
-                [(EcoBiomeType.Forest, ResourceType.Energy)] = 1.2f,
-                [(EcoBiomeType.Underground, ResourceType.Energy)] = 0.3f,
-                [(EcoBiomeType.Tundra, ResourceType.Energy)] = 0.8f,
+                [(BiomeType.Volcanic, ResourceType.Energy)] = 2.5f,
+                [(BiomeType.Desert, ResourceType.Energy)] = 2.0f,
+                [(BiomeType.Grassland, ResourceType.Energy)] = 1.5f,
+                [(BiomeType.Forest, ResourceType.Energy)] = 1.2f,
+                [(BiomeType.Underground, ResourceType.Energy)] = 0.3f,
+                [(BiomeType.Tundra, ResourceType.Energy)] = 0.8f,
 
                 // Territory availability by biome
-                [(EcoBiomeType.Grassland, ResourceType.Territory)] = 2.0f,
-                [(EcoBiomeType.Forest, ResourceType.Territory)] = 1.5f,
-                [(EcoBiomeType.Grassland, ResourceType.Territory)] = 1.8f,
-                [(EcoBiomeType.Mountain, ResourceType.Territory)] = 1.2f,
-                [(EcoBiomeType.Desert, ResourceType.Territory)] = 1.0f,
-                [(EcoBiomeType.Ocean, ResourceType.Territory)] = 0.5f
+                [(BiomeType.Grassland, ResourceType.Territory)] = 2.0f,
+                [(BiomeType.Forest, ResourceType.Territory)] = 1.5f,
+                [(BiomeType.Grassland, ResourceType.Territory)] = 1.8f,
+                [(BiomeType.Mountain, ResourceType.Territory)] = 1.2f,
+                [(BiomeType.Desert, ResourceType.Territory)] = 1.0f,
+                [(BiomeType.Ocean, ResourceType.Territory)] = 0.5f
             };
 
             return modifiers.GetValueOrDefault((biome, resourceType), 1.0f);

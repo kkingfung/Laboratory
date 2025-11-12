@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Core.Enums
 {
@@ -49,6 +50,9 @@ namespace Laboratory.Core.Enums
         Camouflage = 68,
         Environmental = 69,
         BiomeAdaptation = 70,
+        FireAffinity = 71,
+        EarthAffinity = 72,
+        AirAffinity = 73,
 
         // Metabolic Traits (80-95)
         Metabolism = 80,
@@ -104,6 +108,9 @@ namespace Laboratory.Core.Enums
         SkinTexture = 195,
         PrimaryColor = 196,
         SecondaryColor = 197,
+        ColorComplexity = 198,
+        Diversity = 199,
+        Expression = 200,
 
         // General Category Traits (208-223)
         Physical = 208,
@@ -172,108 +179,98 @@ namespace Laboratory.Core.Enums
     }
 
     /// <summary>
-    /// Unified biome system: comprehensive biome types for ecosystem management
-    /// High-performance enum for dictionary indexing: Dictionary<BiomeType, T>
+    /// Cross-system event types for type-safe system integration
     /// </summary>
-    public enum BiomeType : byte
+    public enum CrossSystemEventType : byte
     {
-        // Terrestrial Biomes (0-31)
-        Grassland = 0,
-        Forest = 1,
-        Desert = 2,
-        Tundra = 3,
-        Mountain = 4,
-        Swamp = 5,
-        Temperate = 6,
-        Tropical = 7,
-        Arctic = 8,
-        Savanna = 9,
-        Prairie = 10,
-        Taiga = 11,
-        Steppe = 12,
-        Shrubland = 13,
-        Badlands = 14,
-        Canyon = 15,
+        // Adaptation and Evolution Events
+        GeneticAdaptation = 0,
+        EvolutionBoost = 1,
+        EvolutionaryLeap = 2,
+        EliteEmergence = 3,
+        PopulationBoost = 4,
 
-        // Aquatic Biomes (32-47)
-        Ocean = 32,
-        Lake = 33,
-        River = 34,
-        Wetland = 35,
-        Reef = 36,
-        DeepSea = 37,
-        Coastal = 38,
-        Estuary = 39,
+        // Environmental Events
+        EnvironmentalImpact = 5,
+        EnvironmentalChallenge = 6,
+        EnvironmentalNarrative = 7,
+        EcosystemCollapse = 8,
 
-        // Underground Biomes (48-63)
-        Underground = 48,
-        Cave = 49,
-        Cavern = 50,
-        TunnelSystem = 51,
-        UndergroundLake = 52,
-        GeothermalCave = 53,
-        CrystalCave = 54,
-        DeepMine = 55,
+        // Social and Personality Events
+        PersonalityQuestGeneration = 9,
+        SocialRevolution = 10,
 
-        // Aerial Biomes (56-79)
-        Sky = 64,
-        CloudLayer = 65,
-        HighAltitude = 66,
-        FloatingIsland = 67,
-        Stratosphere = 68,
+        // Engagement and Analytics Events
+        EngagementStoryGeneration = 11,
+        TechnologicalBreakthrough = 12,
 
-        // Extreme Biomes (80-95)
-        Volcanic = 80,
-        Lava = 81,
-        Geothermal = 82,
-        IceCap = 83,
-        Glacier = 84,
-        Permafrost = 85,
-
-        // Magical Biomes (96-111)
-        Crystal = 96,
-        Magical = 97,
-        Enchanted = 98,
-        ArcaneForest = 99,
-        MysticLake = 100,
-        RuneStone = 101,
-
-        // Dimensional Biomes (112-127)
-        Shadow = 112,
-        Light = 113,
-        Void = 114,
-        Ethereal = 115,
-        Astral = 116,
-        Temporal = 117,
-
-        // Corrupted/Altered Biomes (128-143)
-        Corrupted = 128,
-        Poisoned = 129,
-        Radioactive = 130,
-        Blighted = 131,
-        Cursed = 132,
-
-        // Artificial Biomes (144-159)
-        Urban = 144,
-        Laboratory = 145,
-        Facility = 146,
-        Greenhouse = 147,
-        Biodome = 148,
-
-        // Hybrid/Special Biomes (160-175)
-        Hybrid = 160,
-        Transitional = 161,
-        Seasonal = 162,
-        Unknown = 163,
-        Experimental = 164,
-
-        // Celestial Biomes (176-191)
-        Celestial = 176,
-        Lunar = 177,
-        Solar = 178,
-        Stellar = 179,
-        Cosmic = 180
+        // Quest and Narrative Events
+        QuestReward = 13,
+        QuestNarrative = 14,
+        QuestCompletion = 15
     }
+
+    /// <summary>
+    /// Compile-time safe keys for cross-system event data to prevent typos
+    /// </summary>
+    public static class EventDataKeys
+    {
+        // Creature/Genetic Data
+        public const string CreatureId = "creatureId";
+        public const string SpeciesId = "speciesId";
+        public const string Trait = "trait";
+        public const string TraitValue = "traitValue";
+        public const string Intensity = "intensity";
+        public const string GeneticProfile = "geneticProfile";
+
+        // Environmental Data
+        public const string Biome = "biome";
+        public const string BiomeId = "biomeId";
+        public const string Severity = "severity";
+        public const string Duration = "duration";
+        public const string Temperature = "temperature";
+        public const string Humidity = "humidity";
+
+        // Gameplay Data
+        public const string PlayerId = "playerId";
+        public const string QuestId = "questId";
+        public const string RewardType = "rewardType";
+        public const string RewardValue = "rewardValue";
+        public const string Experience = "experience";
+        public const string Level = "level";
+
+        // AI/Personality Data
+        public const string PersonalityType = "personalityType";
+        public const string MoodState = "moodState";
+        public const string SocialRank = "socialRank";
+        public const string BehaviorPattern = "behaviorPattern";
+
+        // System Data
+        public const string Timestamp = "timestamp";
+        public const string Priority = "priority";
+        public const string Context = "context";
+        public const string Metadata = "metadata";
+
+        // Cross-System Event Specific Keys
+        public const string AdaptationType = "adaptationType";
+        public const string BoostType = "boostType";
+        public const string Multiplier = "multiplier";
+        public const string PlayerArchetype = "playerArchetype";
+        public const string EngagementLevel = "engagementLevel";
+        public const string EncourageBreeding = "encourageBreeding";
+        public const string TargetPopulation = "targetPopulation";
+        public const string Event = "event";
+        public const string QuestType = "questType";
+        public const string Difficulty = "difficulty";
+        public const string PreferredType = "preferredType";
+        public const string PersonalityDriven = "personality_driven";
+        public const string Complexity = "complexity";
+        public const string AvgFitness = "avgFitness";
+        public const string Creature = "creature";
+        public const string Quest = "quest";
+    }
+
+    // Note: BiomeType moved to Laboratory.Shared.Types to avoid cyclic dependencies
 
     /// <summary>
     /// Biome categories for organizational purposes
@@ -1120,6 +1117,61 @@ namespace Laboratory.Core.Enums
         Environmental = 4,
         Magical = 5,
         Unknown = 6
+    }
+
+    /// <summary>
+    /// Game state data keys for quest generation context
+    /// Replaces Dictionary<string, object> gameData with Dictionary<GameStateKey, object>
+    /// Provides type-safe access to game state information
+    /// </summary>
+    public enum GameStateKey : byte
+    {
+        ActivePersonalities = 0,
+        UnexploredAreaRatio = 1,
+        ResourceAbundance = 2,
+        EnvironmentalFactors = 3,
+        SessionTime = 4,
+        PlayerArchetype = 5,
+        EcosystemHealth = 6,
+        CreaturePopulation = 7,
+        AverageFitness = 8,
+        BiomeStability = 9,
+        QuestProgress = 10,
+        PlayerEngagement = 11
+    }
+
+    /// <summary>
+    /// Session data keys for player analytics tracking
+    /// Replaces Dictionary<string, object> sessionData with Dictionary<SessionDataKey, object>
+    /// Provides type-safe access to session analytics data
+    /// </summary>
+    public enum SessionDataKey : byte
+    {
+        // Choice tracking patterns
+        ChoicePatterns = 0,
+        ChoiceFrequency = 1,
+        ChoicePreferences = 2,
+
+        // UI interaction patterns
+        UIPatterns = 10,
+        UIFrequency = 11,
+        UIElementUsage = 12,
+        UIInteractionTypes = 13,
+
+        // Session metrics
+        SessionDuration = 20,
+        ActionCount = 21,
+        EngagementLevel = 22,
+
+        // Behavioral patterns
+        BehaviorPatterns = 30,
+        DecisionSpeed = 31,
+        ErrorRate = 32,
+
+        // Performance metrics
+        ResponseTime = 40,
+        AccuracyMetrics = 41,
+        EfficiencyScore = 42
     }
 
     /// <summary>

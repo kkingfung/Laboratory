@@ -17,6 +17,7 @@ namespace Laboratory.Subsystems.Analytics
     [Serializable]
     public class PlayerActionEvent : AnalyticsEvent
     {
+        public string playerId;
         public string actionType;
         public Dictionary<string, object> parameters = new();
         public override string EventType => "PlayerAction";

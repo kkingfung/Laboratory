@@ -72,7 +72,7 @@ namespace Laboratory.Subsystems.Spawning
 
             // Fire spawn event
             var serviceContainer = ServiceContainer.Instance;
-            if (serviceContainer != null && serviceContainer.TryResolveService<IEventBus>(out var eventBus))
+            if (serviceContainer != null && serviceContainer.TryResolve<IEventBus>(out var eventBus))
             {
                 eventBus.Publish(new ObjectSpawnedEvent
                 {

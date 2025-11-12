@@ -7,6 +7,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Core.Events;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Core.Enums;
 using System.Collections;
 
 namespace Laboratory.Chimera.UI

@@ -195,7 +195,7 @@ namespace Laboratory.Chimera.Customization
             return System.Array.Find(rarityEffects, r => r.Rarity == convertedRarity);
         }
 
-        public StatEffectSettings GetStatEffectSettings(Laboratory.Core.Equipment.Types.StatType statType)
+        public StatEffectSettings GetStatEffectSettings(Laboratory.Core.MonsterTown.StatType statType)
         {
             return System.Array.Find(statEffects, s => s.StatType == statType);
         }
@@ -393,7 +393,7 @@ namespace Laboratory.Chimera.Customization
     [System.Serializable]
     public class StatEffectSettings
     {
-        public Laboratory.Core.Equipment.Types.StatType StatType;
+        public Laboratory.Core.MonsterTown.StatType StatType;
         public string EffectPath;
         public Color EffectColor = Color.white;
         public float MinStatValue = 10.0f;

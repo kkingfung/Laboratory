@@ -116,5 +116,41 @@ namespace Laboratory.Core.Infrastructure
             // In a full implementation, this would use a name-based lookup
             return ResolveService<T>();
         }
+
+        /// <summary>
+        /// Try to resolve a service instance, returns false if not found
+        /// </summary>
+        public bool TryResolve<T>(out T service) where T : class
+        {
+            service = ResolveService<T>();
+            return service != null;
+        }
+
+        /// <summary>
+        /// Register a service instance (alias for RegisterService)
+        /// </summary>
+        public void RegisterInstance<T>(T instance) where T : class
+        {
+            RegisterService<T>(instance);
+        }
+
+        /// <summary>
+        /// Try to resolve a service with specific name/key
+        /// </summary>
+        public bool TryResolveService<T>(string name, out T service) where T : class
+        {
+            // For now, just return the first service of type T
+            // In a full implementation, this would use a name-based lookup
+            service = ResolveService<T>();
+            return service != null;
+        }
+
+        /// <summary>
+        /// Register a service with generic registration pattern
+        /// </summary>
+        public void Register<T>(T service) where T : class
+        {
+            RegisterService<T>(service);
+        }
     }
 }

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Core;
+using Laboratory.Shared.Types;
 using Laboratory.Core.Enums;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Core.Debug;
@@ -575,7 +576,7 @@ namespace Laboratory.Systems.Ecosystem
                 {
                     foreach (var kvp in biomeConfig.baseResourceLevels)
                     {
-                        biomeResourceState.SetResourceLevel(kvp.Key, kvp.Value);
+                        biomeResourceState.SetResourceLevel((Laboratory.Chimera.Ecosystem.Data.ResourceType)kvp.Key, kvp.Value);
                     }
                 }
 
@@ -887,7 +888,7 @@ namespace Laboratory.Systems.Ecosystem
 
                 // Apply the resource to the biome
                 var updatedBiome = biome;
-                updatedBiome.ModifyResource(resourceType, distributedAmount);
+                updatedBiome.ModifyResource((Laboratory.Chimera.Ecosystem.Data.ResourceType)resourceType, distributedAmount);
                 activeBiomes[kvp.Key] = updatedBiome;
 
                 // Update biome health based on resource availability
@@ -899,7 +900,7 @@ namespace Laboratory.Systems.Ecosystem
         {
             // Apply resource using the new BiomeResourceState methods
             var updatedBiome = biome;
-            updatedBiome.ModifyResource(resourceType, amount);
+            updatedBiome.ModifyResource((Laboratory.Chimera.Ecosystem.Data.ResourceType)resourceType, amount);
             activeBiomes[biome.biomeType] = updatedBiome;
 
             // Log significant resource changes
@@ -914,7 +915,7 @@ namespace Laboratory.Systems.Ecosystem
             // Resource abundance affects biome health
             float healthImpact = 0f;
 
-            float resourceLevel = biome.GetResourceLevel(resourceType);
+            float resourceLevel = biome.GetResourceLevel((Laboratory.Chimera.Ecosystem.Data.ResourceType)resourceType);
             float carryingCapacity = biome.carryingCapacity;
 
             if (carryingCapacity > 0)
@@ -977,6 +978,310 @@ namespace Laboratory.Systems.Ecosystem
             }
         }
 #endif
+
+        /// <summary>
+        /// Applies population stress effects to creatures in a specific biome
+        /// </summary>
+        private void ApplyPopulationStressToCreatures(BiomeType biomeType, float stressLevel)
+        {
+            // Find all creatures in this biome and apply stress effects
+            var creaturesInBiome = creatureEcosystemData.Values.Where(data => data.currentBiome == biomeType);
+
+            foreach (var creatureData in creaturesInBiome)
+            {
+                // Apply environmental pressure for migration consideration
+                // Use a simplified stress calculation based on population density
+                float migrationChance = stressLevel * 0.3f;
+
+                if (Random.Range(0f, 1f) < migrationChance)
+                {
+                    // Trigger migration attempt
+                    AttemptCreatureMigration(creatureData);
+                }
+            }
+
+            DebugManager.LogInfo($"Applied population stress {stressLevel:F2} to {creaturesInBiome.Count()} creatures in {biomeType}");
+        }
+
+        /// <summary>
+        /// Applies or removes ecosystem event effects
+        /// </summary>
+        private void ApplyEventEffects(ActiveEnvironmentalEvent ecosystemEvent, bool applying)
+        {
+            float effectMultiplier = applying ? 1f : -1f;
+            float eventIntensity = ecosystemEvent.intensity;
+
+            // Apply effects based on event type
+            switch (ecosystemEvent.eventType)
+            {
+                case EnvironmentalEventType.Drought:
+                    // Reduce water resources globally
+                    foreach (var biomeKvp in activeBiomes.ToList())
+                    {
+                        var biome = biomeKvp.Value;
+                        biome.SetResourceLevel(Laboratory.Chimera.Ecosystem.Data.ResourceType.Water,
+                            biome.GetResourceLevel(Laboratory.Chimera.Ecosystem.Data.ResourceType.Water) * (1f + effectMultiplier * -0.3f));
+                        activeBiomes[biomeKvp.Key] = biome;
+                    }
+                    globalHumidity = Mathf.Clamp01(globalHumidity + effectMultiplier * -0.2f);
+                    break;
+
+                case EnvironmentalEventType.Flood:
+                    // Increase water but reduce food and shelter
+                    foreach (var biomeKvp in activeBiomes.ToList())
+                    {
+                        var biome = biomeKvp.Value;
+                        biome.SetResourceLevel(Laboratory.Chimera.Ecosystem.Data.ResourceType.Water,
+                            biome.GetResourceLevel(Laboratory.Chimera.Ecosystem.Data.ResourceType.Water) * (1f + effectMultiplier * 0.4f));
+                        biome.SetResourceLevel(Laboratory.Chimera.Ecosystem.Data.ResourceType.Food,
+                            biome.GetResourceLevel(Laboratory.Chimera.Ecosystem.Data.ResourceType.Food) * (1f + effectMultiplier * -0.2f));
+                        biome.SetResourceLevel(Laboratory.Chimera.Ecosystem.Data.ResourceType.Shelter,
+                            biome.GetResourceLevel(Laboratory.Chimera.Ecosystem.Data.ResourceType.Shelter) * (1f + effectMultiplier * -0.3f));
+                        activeBiomes[biomeKvp.Key] = biome;
+                    }
+                    break;
+
+                case EnvironmentalEventType.Pestilence:
+                    // Simulate disease effects through environmental impact (replacing Disease)
+                    // Reduce biome health to represent disease spreading
+                    foreach (var biomeKvp in activeBiomes.ToList())
+                    {
+                        var biome = biomeKvp.Value;
+                        biome.healthLevel = Mathf.Max(0.1f, biome.healthLevel + effectMultiplier * -0.2f);
+                        activeBiomes[biomeKvp.Key] = biome;
+                    }
+                    break;
+
+                case EnvironmentalEventType.BiodiversityBoost:
+                    // Temporarily increase carrying capacity and resource flow (replacing Migration)
+                    foreach (var node in ecosystemNodes.Values)
+                    {
+                        node.carryingCapacityModifier += effectMultiplier * 0.2f;
+                    }
+                    // Increase all resources (replacing ResourceBonus)
+                    foreach (var biomeKvp in activeBiomes.ToList())
+                    {
+                        var biome = biomeKvp.Value;
+                        foreach (Laboratory.Chimera.Ecosystem.Data.ResourceType resourceType in System.Enum.GetValues(typeof(Laboratory.Chimera.Ecosystem.Data.ResourceType)))
+                        {
+                            float currentLevel = biome.GetResourceLevel(resourceType);
+                            biome.SetResourceLevel(resourceType, currentLevel * (1f + effectMultiplier * 0.3f));
+                        }
+                        activeBiomes[biomeKvp.Key] = biome;
+                    }
+                    break;
+
+                case EnvironmentalEventType.ClimateShift:
+                    // Gradually shift temperature and affect biome health (replacing ClimateChange)
+                    globalTemperature += effectMultiplier * eventIntensity * 0.1f;
+                    foreach (var biomeKvp in activeBiomes.ToList())
+                    {
+                        var biome = biomeKvp.Value;
+                        biome.healthLevel = Mathf.Clamp01(biome.healthLevel + effectMultiplier * -0.1f);
+                        activeBiomes[biomeKvp.Key] = biome;
+                    }
+                    break;
+            }
+
+            DebugManager.LogInfo($"{(applying ? "Applied" : "Removed")} {ecosystemEvent.eventType} event effects");
+        }
+
+        /// <summary>
+        /// Attempts to migrate a creature to a less crowded biome
+        /// </summary>
+        private void AttemptCreatureMigration(CreatureEcosystemData creatureData)
+        {
+            // Find biomes with lower population pressure
+            var targetBiomes = activeBiomes.Where(kvp =>
+                kvp.Key != creatureData.currentBiome &&
+                biomePopulations.ContainsKey(kvp.Key) &&
+                biomePopulations[kvp.Key].totalPopulation < ecosystemNodes[creatureData.currentBiome].carryingCapacityModifier * carryingCapacityBase * 0.8f
+            ).ToList();
+
+            if (targetBiomes.Any())
+            {
+                // Choose random target biome
+                var targetBiome = targetBiomes[Random.Range(0, targetBiomes.Count)];
+
+                var oldBiome = creatureData.currentBiome;
+
+                // Update creature's biome
+                creatureData.currentBiome = targetBiome.Key;
+
+                // Update population tracking
+                if (biomePopulations.ContainsKey(oldBiome))
+                {
+                    biomePopulations[oldBiome].totalPopulation--;
+                    biomePopulations[oldBiome].totalBiomass -= creatureData.genome.traits.ContainsKey(TraitType.Size) ? creatureData.genome.traits[TraitType.Size].value : 1f;
+                }
+
+                if (!biomePopulations.ContainsKey(targetBiome.Key))
+                {
+                    biomePopulations[targetBiome.Key] = new PopulationData();
+                }
+                biomePopulations[targetBiome.Key].totalPopulation++;
+                biomePopulations[targetBiome.Key].totalBiomass += creatureData.genome.traits.ContainsKey(TraitType.Size) ? creatureData.genome.traits[TraitType.Size].value : 1f;
+
+                DebugManager.LogInfo($"Creature {creatureData.creatureId} migrated from {oldBiome} to {targetBiome.Key}");
+            }
+        }
+
+        /// <summary>
+        /// Calculates predation risk for a creature at a specific position
+        /// </summary>
+        private float CalculatePredationRisk(BiomeType biome, Vector3 position)
+        {
+            float basePredationRisk = 0.1f;
+
+            // Adjust based on biome type
+            switch (biome)
+            {
+                case BiomeType.Forest:
+                    basePredationRisk = 0.3f; // Higher predation in forests
+                    break;
+                case BiomeType.Grassland:
+                    basePredationRisk = 0.2f; // Moderate predation in open areas
+                    break;
+                case BiomeType.Desert:
+                    basePredationRisk = 0.15f; // Lower due to fewer predators
+                    break;
+                case BiomeType.Cave:
+                    basePredationRisk = 0.05f; // Safe from most predators
+                    break;
+                case BiomeType.Wetland:
+                    basePredationRisk = 0.25f; // Aquatic predators
+                    break;
+                default:
+                    basePredationRisk = 0.1f;
+                    break;
+            }
+
+            // Adjust based on population density (more creatures = more predator attraction)
+            if (biomePopulations.ContainsKey(biome))
+            {
+                float populationDensity = biomePopulations[biome].totalPopulation / (carryingCapacityBase * 1.5f);
+                basePredationRisk *= (1f + populationDensity * 0.3f);
+            }
+
+            return Mathf.Clamp01(basePredationRisk);
+        }
+
+        /// <summary>
+        /// Calculates competition level for resources at a specific position
+        /// </summary>
+        private float CalculateCompetitionLevel(BiomeType biome, Vector3 position)
+        {
+            float competitionLevel = 0f;
+
+            if (biomePopulations.ContainsKey(biome) && ecosystemNodes.ContainsKey(biome))
+            {
+                var population = biomePopulations[biome];
+                var node = ecosystemNodes[biome];
+
+                // Calculate competition based on population vs carrying capacity
+                float populationRatio = population.totalPopulation / (carryingCapacityBase * node.carryingCapacityModifier);
+                competitionLevel = Mathf.Max(0f, populationRatio - 0.5f); // Competition starts when population exceeds 50% of capacity
+
+                // Adjust based on resource scarcity
+                float resourceScarcity = 0f;
+                int resourceCount = 0;
+
+                foreach (var resource in node.resourceAvailability)
+                {
+                    if (resource.Value < 0.3f) // Scarce resource threshold
+                    {
+                        resourceScarcity += (0.3f - resource.Value);
+                        resourceCount++;
+                    }
+                }
+
+                if (resourceCount > 0)
+                {
+                    competitionLevel += resourceScarcity / resourceCount;
+                }
+            }
+
+            return Mathf.Clamp01(competitionLevel);
+        }
+
+        /// <summary>
+        /// Calculates environmental stress for a biome
+        /// </summary>
+        private float CalculateEnvironmentalStress(BiomeType biome)
+        {
+            float environmentalStress = 0f;
+
+            if (ecosystemNodes.ContainsKey(biome))
+            {
+                var node = ecosystemNodes[biome];
+
+                // Base stress from biome health
+                environmentalStress += (1f - node.health) * 0.4f;
+
+                // Stress from resource depletion
+                float totalResourceLevel = 0f;
+                int resourceCount = 0;
+
+                foreach (var resource in node.resourceAvailability)
+                {
+                    totalResourceLevel += resource.Value;
+                    resourceCount++;
+                }
+
+                if (resourceCount > 0)
+                {
+                    float averageResourceLevel = totalResourceLevel / resourceCount;
+                    environmentalStress += (1f - averageResourceLevel) * 0.3f;
+                }
+
+                // Stress from active environmental events
+                int eventsAffectingBiome = activeEvents.Count(e => e.targetBiome == biome);
+                environmentalStress += eventsAffectingBiome * 0.1f;
+
+                // Temperature stress
+                float currentTemp = CalculateCurrentTemperature();
+                if (currentTemp < 0.2f || currentTemp > 0.8f) // Extreme temperatures
+                {
+                    environmentalStress += 0.2f;
+                }
+            }
+
+            return Mathf.Clamp01(environmentalStress);
+        }
+
+        /// <summary>
+        /// Calculates resource pressure on a biome node
+        /// </summary>
+        private float CalculateResourcePressure(EcosystemNode node)
+        {
+            float totalPressure = 0f;
+            int resourceCount = 0;
+
+            foreach (var resource in node.resourceAvailability)
+            {
+                // Pressure increases as resources become scarce
+                float resourcePressure = 1f - resource.Value;
+                totalPressure += resourcePressure;
+                resourceCount++;
+            }
+
+            float averagePressure = resourceCount > 0 ? totalPressure / resourceCount : 0f;
+
+            // Adjust based on environmental modifiers
+            if (node.environmentalModifiers.ContainsKey(EnvironmentalModifierType.Temperature))
+            {
+                float tempModifier = Mathf.Abs(node.environmentalModifiers[EnvironmentalModifierType.Temperature] - 0.5f) * 2f;
+                averagePressure += tempModifier * 0.1f;
+            }
+
+            if (node.environmentalModifiers.ContainsKey(EnvironmentalModifierType.Humidity))
+            {
+                float humidityModifier = Mathf.Abs(node.environmentalModifiers[EnvironmentalModifierType.Humidity] - 0.5f) * 2f;
+                averagePressure += humidityModifier * 0.1f;
+            }
+
+            return Mathf.Clamp01(averagePressure);
+        }
     }
 
     // Supporting data structures (simplified for length)
