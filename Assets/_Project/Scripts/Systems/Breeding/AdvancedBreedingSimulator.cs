@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Profiling;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Chimera.Genetics.Advanced;
@@ -95,6 +96,10 @@ namespace Laboratory.Systems.Breeding
         private BreedingAnalytics analytics = new BreedingAnalytics();
         private List<BreedingRecord> generationHistory = new List<BreedingRecord>();
 
+        // Performance profiling
+        private static readonly ProfilerMarker s_UpdateBreedingMarker = new ProfilerMarker("AdvancedBreedingSimulator.UpdateActiveBreedingSessions");
+        private static readonly ProfilerMarker s_UpdateUIMarker = new ProfilerMarker("AdvancedBreedingSimulator.UpdateUI");
+
         // Events
         public System.Action<BreedingSession> OnBreedingStarted;
         public System.Action<BreedingSession, CreatureGenome> OnBreedingCompleted;
@@ -133,8 +138,15 @@ namespace Laboratory.Systems.Breeding
         {
             if (!enableBreedingSimulation) return;
 
-            UpdateActiveBreedingSessions();
-            UpdateUI();
+            using (s_UpdateBreedingMarker.Auto())
+            {
+                UpdateActiveBreedingSessions();
+            }
+
+            using (s_UpdateUIMarker.Auto())
+            {
+                UpdateUI();
+            }
         }
 
         private void InitializeBreedingSimulator()

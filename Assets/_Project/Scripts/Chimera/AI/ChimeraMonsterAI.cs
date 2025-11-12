@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 using Unity.Entities;
+using Unity.Profiling;
 using Laboratory.Chimera;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
@@ -54,7 +55,11 @@ namespace Laboratory.Chimera.AI
         // Behavior tracking
         private readonly Dictionary<AIBehaviorState, float> stateTimers = new Dictionary<AIBehaviorState, float>();
         private readonly Queue<Vector3> patrolPoints = new Queue<Vector3>();
-        
+
+        // Performance profiling
+        private static readonly ProfilerMarker s_UpdateAIMarker = new ProfilerMarker("ChimeraMonsterAI.UpdateAI");
+        private static readonly ProfilerMarker s_UpdateAnimationsMarker = new ProfilerMarker("ChimeraMonsterAI.UpdateAnimations");
+
         #region Unity Lifecycle
         
         private void Awake()
@@ -71,10 +76,18 @@ namespace Laboratory.Chimera.AI
         private void Update()
         {
             if (!isInitialized || !navAgent.enabled) return;
-            
+
             UpdateStateTimer();
-            UpdateAI();
-            UpdateAnimations();
+
+            using (s_UpdateAIMarker.Auto())
+            {
+                UpdateAI();
+            }
+
+            using (s_UpdateAnimationsMarker.Auto())
+            {
+                UpdateAnimations();
+            }
         }
         
         #endregion
