@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Core.ECS;
 
-namespace Laboratory.Core.Debug
+namespace Laboratory.Core.Diagnostics
 {
     /// <summary>
     /// Runtime ECS entity inspector that allows developers to:

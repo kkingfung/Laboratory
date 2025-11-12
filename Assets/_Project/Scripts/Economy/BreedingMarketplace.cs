@@ -5,7 +5,7 @@ using System;
 using Laboratory.Core.Events;
 using Laboratory.Core.Utilities;
 using Laboratory.Core.Progression;
-using Laboratory.Core.Debug;
+using Laboratory.Core.Diagnostics;
 using Laboratory.Chimera.Core;
 
 namespace Laboratory.Economy

@@ -910,7 +910,7 @@ namespace Laboratory.Subsystems.Companion
         public void TriggerSecondScreenEvent(SecondScreenEvent secondScreenEvent)
         {
             var compatibleDevices = _connectedDevices.Values
-                .Where(d => d.capabilities.Contains("second_screen"))
+                .Where(d => d.capabilities.Contains(CompanionCapability.SecondScreen))
                 .ToList();
 
             foreach (var device in compatibleDevices)
@@ -1063,7 +1063,7 @@ namespace Laboratory.Subsystems.Companion
                 deviceType = CompanionDeviceType.Mobile,
                 userId = "test_user",
                 deviceName = "Test Mobile Device",
-                capabilities = new List<string> { "notifications", "remote_actions", "second_screen" }
+                capabilities = new List<CompanionCapability> { CompanionCapability.PushNotifications, CompanionCapability.RemoteActions, CompanionCapability.SecondScreen }
             };
 
             ConnectCompanionDevice(testDevice);

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Unity.Entities;
 
-namespace Laboratory.Subsystems.Debug
+namespace Laboratory.Subsystems.Monitoring
 {
     /// <summary>
     /// Concrete implementation of automated testing service

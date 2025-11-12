@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Subsystems.Performance;
-using Laboratory.Subsystems.Debug;
+using Laboratory.Subsystems.Monitoring;
 using Laboratory.Core.Performance;
 
 namespace Laboratory.Tools

@@ -1,6 +1,6 @@
 {
-    "name": "Laboratory.Core.Debug",
-    "rootNamespace": "Laboratory.Core.Debug",
+    "name": "Laboratory.Core.Diagnostics",
+    "rootNamespace": "Laboratory.Core.Diagnostics",
     "references": [
         "Unity.Entities",
         "Unity.Collections",

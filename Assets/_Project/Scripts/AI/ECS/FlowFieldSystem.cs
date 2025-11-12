@@ -121,7 +121,7 @@ namespace Laboratory.AI.ECS
             try
             {
                 var config = Config.Performance;
-                _performanceConfig = BurstCompatibleConfigs.PerformanceConfigData.ExtractGlobal(config);
+                _performanceConfig = BurstCompatibleConfigs.PerformanceConfigData.ExtractFromObject(config);
             }
             catch (System.Exception)
             {

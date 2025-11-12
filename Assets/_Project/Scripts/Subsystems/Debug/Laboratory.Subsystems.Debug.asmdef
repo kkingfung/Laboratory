@@ -1,6 +1,6 @@
 {
-    "name": "Laboratory.Subsystems.Debug",
-    "rootNamespace": "Laboratory.Subsystems.Debug",
+    "name": "Laboratory.Subsystems.Monitoring",
+    "rootNamespace": "Laboratory.Subsystems.Monitoring",
     "references": [
         "Laboratory.Core",
         "Laboratory.Infrastructure",

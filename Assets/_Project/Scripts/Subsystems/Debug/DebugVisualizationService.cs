@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Laboratory.Subsystems.Debug
+namespace Laboratory.Subsystems.Monitoring
 {
     /// <summary>
     /// Concrete implementation of debug visualization service

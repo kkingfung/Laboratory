@@ -67,7 +67,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             randomGenerator = seed == 0 ? new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, int.MaxValue)) : new Unity.Mathematics.Random(seed);
             InitializeEvolutionaryPressure();
 
-            Laboratory.Chimera.Debug.DebugManager.Log("Advanced Genetic Algorithm initialized");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log("Advanced Genetic Algorithm initialized");
         }
 
         private void InitializeEvolutionaryPressure()
@@ -92,7 +92,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             genealogyTree.Clear();
             generationCounter = 0;
 
-            Laboratory.Chimera.Debug.DebugManager.Log($"Initializing population of {populationSize} creatures");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log($"Initializing population of {populationSize} creatures");
 
             for (int i = 0; i < populationSize; i++)
             {
@@ -101,7 +101,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             }
 
             CalculatePopulationStatistics();
-            Laboratory.Chimera.Debug.DebugManager.Log($"Population initialized with diversity: {currentStats.geneticDiversity:F3}");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log($"Population initialized with diversity: {currentStats.geneticDiversity:F3}");
         }
 
         private CreatureGenome GenerateRandomGenome(CreatureSpeciesConfig speciesConfig)
@@ -125,7 +125,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
                 if (!System.Enum.TryParse<Laboratory.Core.Enums.TraitType>(baseTrait.name, true, out Laboratory.Core.Enums.TraitType traitType))
                 {
                     // If parsing fails, skip this trait or use a default
-                    Laboratory.Chimera.Debug.DebugManager.LogWarning($"Unknown trait type: {baseTrait.name}. Skipping.");
+                    Laboratory.Chimera.Diagnostics.DebugManager.LogWarning($"Unknown trait type: {baseTrait.name}. Skipping.");
                     continue;
                 }
 
@@ -155,7 +155,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             if (!genomeDatabase.TryGetValue(parentAId, out CreatureGenome parentA) ||
                 !genomeDatabase.TryGetValue(parentBId, out CreatureGenome parentB))
             {
-                Laboratory.Chimera.Debug.DebugManager.LogError($"Cannot breed: Parent genomes not found ({parentAId}, {parentBId})");
+                Laboratory.Chimera.Diagnostics.DebugManager.LogError($"Cannot breed: Parent genomes not found ({parentAId}, {parentBId})");
                 return null;
             }
 
@@ -163,7 +163,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             float inbreedingCoefficient = CalculateInbreedingCoefficient(parentA, parentB);
             if (inbreedingCoefficient > 0.25f) // High inbreeding threshold
             {
-                Laboratory.Chimera.Debug.DebugManager.LogWarning($"High inbreeding coefficient detected: {inbreedingCoefficient:F3}");
+                Laboratory.Chimera.Diagnostics.DebugManager.LogWarning($"High inbreeding coefficient detected: {inbreedingCoefficient:F3}");
             }
 
             var offspring = CreateOffspring(parentA, parentB, inbreedingCoefficient);
@@ -171,7 +171,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             AddCreatureToPopulation(offspring);
             OnBreedingComplete?.Invoke(parentA, parentB, offspring);
 
-            Laboratory.Chimera.Debug.DebugManager.Log($"Breeding successful: Gen {offspring.generation}, Fitness {offspring.fitness:F3}");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log($"Breeding successful: Gen {offspring.generation}, Fitness {offspring.fitness:F3}");
 
             return offspring;
         }
@@ -301,7 +301,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
                     float adaptiveMutation = UnityEngine.Random.Range(-0.05f, 0.05f); // Gaussian approximation
                     trait.value += adaptiveMutation;
 
-                    Laboratory.Chimera.Debug.DebugManager.Log($"Environmental adaptation in {traitType}: {adaptiveMutation:F3}");
+                    Laboratory.Chimera.Diagnostics.DebugManager.Log($"Environmental adaptation in {traitType}: {adaptiveMutation:F3}");
                     offspring.traits[traitType] = trait; // Update the trait back to the dictionary
                 }
             }
@@ -326,7 +326,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         {
             if (population.Count <= 1) return;
 
-            Laboratory.Chimera.Debug.DebugManager.Log($"Running natural selection on population of {population.Count}");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log($"Running natural selection on population of {population.Count}");
 
             // Calculate fitness for all creatures
             foreach (var creature in population)
@@ -373,7 +373,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             CalculatePopulationStatistics();
 
             OnEvolutionaryEvent?.Invoke($"Natural selection complete: {survivors.Count} survivors, generation {generationCounter}");
-            Laboratory.Chimera.Debug.DebugManager.Log($"Natural selection: {survivors.Count} survivors, avg fitness: {currentStats.averageFitness:F3}");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log($"Natural selection: {survivors.Count} survivors, avg fitness: {currentStats.averageFitness:F3}");
         }
 
         private CreatureGenome TournamentSelection(int tournamentSize)
@@ -508,8 +508,12 @@ namespace Laboratory.Chimera.Genetics.Advanced
             currentStats.maxGeneration = population.Max(c => c.generation);
             currentStats.geneticDiversity = CalculateGeneticDiversity();
 
-            // Note: SetDebugData methods not available, consider implementing or using Log
-            // Laboratory.Chimera.Debug.DebugManager.Log($"Debug data: Population {currentStats.populationSize}, Fitness {currentStats.averageFitness:F3}, Diversity {currentStats.geneticDiversity:F3}");
+
+            // Report genetic algorithm metrics to debug system
+            Laboratory.Core.Diagnostics.DebugManager.SetDebugData("Genetics.AlgorithmPopulation", currentStats.populationSize);
+            Laboratory.Core.Diagnostics.DebugManager.SetDebugData("Genetics.AlgorithmFitness", currentStats.averageFitness);
+            Laboratory.Core.Diagnostics.DebugManager.SetDebugData("Genetics.AlgorithmDiversity", currentStats.geneticDiversity);
+            Laboratory.Core.Diagnostics.DebugManager.SetDebugData("Genetics.AlgorithmGeneration", currentStats.maxGeneration);
         }
 
         private float CalculateGeneticDiversity()

@@ -7,7 +7,7 @@ using Laboratory.Core;
 using Laboratory.Shared.Types;
 using Laboratory.Core.Enums;
 using Laboratory.Core.Events;
-using Laboratory.Core.Debug;
+using Laboratory.Core.Diagnostics;
 using Laboratory.Systems.Quests;
 using Laboratory.Systems.Breeding;
 using Laboratory.Systems.Ecosystem;

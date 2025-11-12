@@ -252,14 +252,14 @@ namespace Laboratory.Editor
             isRecording = true;
             recordingTime = 0f;
             frameData.Clear();
-            Debug.Log("[Performance Profiler] Started recording performance data");
+            UnityEngine.Debug.Log("[Performance Profiler] Started recording performance data");
         }
 
         private void StopRecording()
         {
             isRecording = false;
             GenerateReport();
-            Debug.Log($"[Performance Profiler] Stopped recording. Captured {frameData.Count} frames over {recordingTime:F1} seconds");
+            UnityEngine.Debug.Log($"[Performance Profiler] Stopped recording. Captured {frameData.Count} frames over {recordingTime:F1} seconds");
         }
 
         private void ClearData()
@@ -267,7 +267,7 @@ namespace Laboratory.Editor
             frameData.Clear();
             lastReport = null;
             recordingTime = 0f;
-            Debug.Log("[Performance Profiler] Cleared all performance data");
+            UnityEngine.Debug.Log("[Performance Profiler] Cleared all performance data");
         }
 
         private void GenerateReport()
@@ -294,7 +294,7 @@ namespace Laboratory.Editor
             // Analyze and generate recommendations
             AnalyzePerformance(lastReport);
             
-            Debug.Log($"[Performance Profiler] Generated report: Avg FPS {lastReport.averageFPS:F1}, Avg Triangles {lastReport.averageTriangles:N0}");
+            UnityEngine.Debug.Log($"[Performance Profiler] Generated report: Avg FPS {lastReport.averageFPS:F1}, Avg Triangles {lastReport.averageTriangles:N0}");
         }
 
         private void AnalyzePerformance(PerformanceReport report)

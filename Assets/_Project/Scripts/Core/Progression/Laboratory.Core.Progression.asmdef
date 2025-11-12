@@ -3,7 +3,7 @@
     "rootNamespace": "Laboratory.Core.Progression",
     "references": [
         "Laboratory.Core",
-        "Laboratory.Core.Debug",
+        "Laboratory.Core.Diagnostics",
         "Laboratory.Chimera",
         "Laboratory.Shared",
         "Laboratory.Systems",

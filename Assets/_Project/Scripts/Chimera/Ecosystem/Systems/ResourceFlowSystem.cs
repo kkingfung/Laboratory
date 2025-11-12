@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
-using Laboratory.Chimera.Debug;
+using Laboratory.Chimera.Diagnostics;
 using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Ecosystem.Systems

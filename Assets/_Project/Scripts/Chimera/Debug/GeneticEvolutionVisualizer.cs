@@ -7,7 +7,7 @@ using Laboratory.Core.ECS;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Laboratory.Chimera.Debug
+namespace Laboratory.Chimera.Diagnostics
 {
     /// <summary>
     /// Real-time genetic evolution visualizer that shows:

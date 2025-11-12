@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Social.Types;
-using Laboratory.Chimera.Debug;
+using Laboratory.Chimera.Diagnostics;
 
 
 namespace Laboratory.Chimera.Social.Systems

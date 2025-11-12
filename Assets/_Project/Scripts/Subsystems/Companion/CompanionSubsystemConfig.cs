@@ -429,7 +429,7 @@ namespace Laboratory.Subsystems.Companion
         /// <summary>
         /// Validates companion device capabilities
         /// </summary>
-        public bool ValidateDeviceCapabilities(CompanionDevice device, List<string> requiredCapabilities)
+        public bool ValidateDeviceCapabilities(CompanionDevice device, List<CompanionCapability> requiredCapabilities)
         {
             if (!enableCompanionAppSupport)
                 return false;

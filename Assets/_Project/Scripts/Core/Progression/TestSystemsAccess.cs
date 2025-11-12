@@ -1,5 +1,5 @@
 using UnityEngine;
-using Laboratory.Core.Debug;
+using Laboratory.Core.Diagnostics;
 
 namespace Laboratory.Core.Progression
 {

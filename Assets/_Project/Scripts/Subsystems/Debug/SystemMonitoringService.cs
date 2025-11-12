@@ -6,7 +6,7 @@ using Unity.Entities;
 using Unity.Profiling;
 using Unity.Collections;
 
-namespace Laboratory.Subsystems.Debug
+namespace Laboratory.Subsystems.Monitoring
 {
     /// <summary>
     /// Concrete implementation of system monitoring service

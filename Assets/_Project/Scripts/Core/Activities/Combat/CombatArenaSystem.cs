@@ -422,13 +422,12 @@ namespace Laboratory.Core.Activities.Combat
 
         protected override void OnCreate()
         {
-            combatQuery = GetEntityQuery(new ComponentType[]
-            {
+            combatQuery = GetEntityQuery(
                 ComponentType.ReadWrite<CombatFighterComponent>(),
                 ComponentType.ReadWrite<CombatActionComponent>(),
                 ComponentType.ReadOnly<CombatPerformanceComponent>(),
                 ComponentType.ReadOnly<GeneticDataComponent>()
-            });
+            );
             random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
         }
 
@@ -639,9 +638,11 @@ namespace Laboratory.Core.Activities.Combat
             }
             else
             {
-                // Balanced approach
-                var actions = new CombatAction[] { CombatAction.Basic_Attack, CombatAction.Quick_Attack, CombatAction.Block };
-                action.CurrentAction = actions[random.NextInt(0, actions.Length)];
+                // Balanced approach - randomly select from balanced actions
+                int choice = random.NextInt(0, 3);
+                action.CurrentAction = choice == 0 ? CombatAction.Basic_Attack :
+                                     choice == 1 ? CombatAction.Quick_Attack :
+                                     CombatAction.Block;
             }
 
             action.ActionDuration = GetActionDuration(action.CurrentAction, performance);

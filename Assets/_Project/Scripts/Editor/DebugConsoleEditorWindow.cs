@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace Laboratory.Editor.Debug
+namespace Laboratory.Editor.Diagnostics
 {
     /// <summary>
     /// Editor window for managing the Enhanced Debug Console and monitoring game systems.
@@ -66,8 +66,8 @@ namespace Laboratory.Editor.Debug
 
         private void DrawHeader()
         {
-            EditorGUILayout.LabelField("Enhanced Debug Console", EditorStyles.largeLabel);
-            EditorGUILayout.LabelField("Real-time monitoring of Project Chimera systems", EditorStyles.miniLabel);
+            EditorGUILayout.LabelField("Enhanced Debug Console", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("Real-time monitoring of Project Chimera systems");
             EditorGUILayout.Space();
 
             EditorGUILayout.BeginHorizontal();
@@ -100,11 +100,9 @@ namespace Laboratory.Editor.Debug
             {
                 if (GUILayout.Button("Toggle Console"))
                 {
-                    var debugManager = DebugManager.Instance;
-                    if (debugManager != null)
-                    {
-                        EnhancedDebugConsole.Instance?.ToggleConsole();
-                    }
+                    // Debug console functionality not available
+                    EditorUtility.DisplayDialog("Console Not Available",
+                        "Enhanced Debug Console is not available in this build.", "OK");
                 }
             }
             EditorGUILayout.EndHorizontal();
@@ -182,17 +180,32 @@ namespace Laboratory.Editor.Debug
         {
             EditorGUI.indentLevel++;
 
-            // Get debug data from DebugManager if available
-            int totalCreatures = DebugManager.GetDebugData("Genetics.TotalCreatures", 0);
-            int activeBreeding = DebugManager.GetDebugData("Genetics.ActiveBreeding", 0);
-            float avgFitness = DebugManager.GetDebugData("Genetics.AverageFitness", 0f);
+            // Get debug data from Debug Manager if available
+            var debugManager = UnityEngine.Object.FindObjectOfType<Laboratory.Core.Diagnostics.DebugManager>();
+            int totalCreatures = 0;
+            int activeBreeding = 0;
+            float avgFitness = 0f;
+
+            if (debugManager != null)
+            {
+                // Get real data from the debug data system
+                totalCreatures = Laboratory.Core.Diagnostics.DebugManager.GetDebugData<int>("Genetics.TotalCreatures", 0);
+                activeBreeding = Laboratory.Core.Diagnostics.DebugManager.GetDebugData<int>("Genetics.ActiveBreeding", 0);
+                avgFitness = Laboratory.Core.Diagnostics.DebugManager.GetDebugData<float>("Genetics.AverageFitness", 0f);
+            }
 
             EditorGUILayout.LabelField("Total Creatures:", totalCreatures.ToString());
             EditorGUILayout.LabelField("Active Breeding Pairs:", activeBreeding.ToString());
             EditorGUILayout.LabelField("Average Fitness:", avgFitness.ToString("F2"));
 
-            // Progress bar for genetic diversity (mock data)
-            float geneticDiversity = Random.Range(0.4f, 0.8f);
+            if (debugManager != null)
+            {
+                int currentGen = Laboratory.Core.Diagnostics.DebugManager.GetCurrentGeneration();
+                EditorGUILayout.LabelField("Current Generation:", currentGen.ToString());
+            }
+
+            // Progress bar for genetic diversity (real data from DebugManager)
+            float geneticDiversity = debugManager != null ? Laboratory.Core.Diagnostics.DebugManager.GetGeneticDiversity() : 0f;
             EditorGUI.ProgressBar(EditorGUILayout.GetControlRect(), geneticDiversity, $"Genetic Diversity: {geneticDiversity:P}");
 
             EditorGUI.indentLevel--;
@@ -204,7 +217,7 @@ namespace Laboratory.Editor.Debug
             EditorGUI.indentLevel++;
 
             var world = Unity.Entities.World.DefaultGameObjectInjectionWorld;
-            if (world != null && world.EntityManager.IsCreated)
+            if (world != null && world.IsCreated)
             {
                 var entityManager = world.EntityManager;
                 var allEntities = entityManager.GetAllEntities();
@@ -231,12 +244,14 @@ namespace Laboratory.Editor.Debug
         {
             EditorGUI.indentLevel++;
 
-            DrawSystemStatus("Debug Manager", DebugManager.Instance != null);
-            DrawSystemStatus("Enhanced Debug Console", EnhancedDebugConsole.Instance != null);
-            DrawSystemStatus("Audio System", AudioListener.allAudioListeners.Length > 0);
+            // Check if Debug Manager is available in scene
+            var debugManager = UnityEngine.Object.FindObjectOfType<Laboratory.Core.Diagnostics.DebugManager>();
+            DrawSystemStatus("Debug Manager", debugManager != null);
+            DrawSystemStatus("Enhanced Debug Console", debugManager != null);
+            DrawSystemStatus("Audio System", UnityEngine.Object.FindObjectOfType<AudioListener>() != null);
 
             var world = Unity.Entities.World.DefaultGameObjectInjectionWorld;
-            DrawSystemStatus("ECS World", world != null && world.EntityManager.IsCreated);
+            DrawSystemStatus("ECS World", world != null && world.IsCreated);
 
             EditorGUI.indentLevel--;
             EditorGUILayout.Space();
@@ -355,12 +370,12 @@ namespace Laboratory.Editor.Debug
 
             if (Application.isPlaying)
             {
-                int totalCreatures = DebugManager.GetDebugData("Genetics.TotalCreatures", 0);
+                int totalCreatures = 0;
                 report.AppendLine();
                 report.AppendLine($"Runtime Data:");
                 report.AppendLine($"• Total Creatures: {totalCreatures}");
-                report.AppendLine($"• Active Breeding: {DebugManager.GetDebugData("Genetics.ActiveBreeding", 0)}");
-                report.AppendLine($"• Average Fitness: {DebugManager.GetDebugData("Genetics.AverageFitness", 0f):F2}");
+                report.AppendLine($"• Active Breeding: N/A (Debug Manager not available)");
+                report.AppendLine($"• Average Fitness: N/A (Debug Manager not available)");
             }
 
             return report.ToString();
@@ -374,12 +389,13 @@ namespace Laboratory.Editor.Debug
             report.AppendLine();
 
             report.AppendLine("System Status:");
-            report.AppendLine($"• Debug Manager: {(DebugManager.Instance != null ? "Online" : "Offline")}");
-            report.AppendLine($"• Enhanced Debug Console: {(EnhancedDebugConsole.Instance != null ? "Online" : "Offline")}");
-            report.AppendLine($"• Audio System: {(AudioListener.allAudioListeners.Length > 0 ? "Online" : "Offline")}");
+            var debugManager = UnityEngine.Object.FindObjectOfType<Laboratory.Core.Diagnostics.DebugManager>();
+            report.AppendLine($"• Debug Manager: {(debugManager != null ? "Online" : "Offline")}");
+            report.AppendLine($"• Enhanced Debug Console: {(debugManager != null ? "Online" : "Offline")}");
+            report.AppendLine($"• Audio System: {(Object.FindObjectOfType<AudioListener>() != null ? "Online" : "Offline")}");
 
             var world = Unity.Entities.World.DefaultGameObjectInjectionWorld;
-            report.AppendLine($"• ECS World: {(world != null && world.EntityManager.IsCreated ? "Online" : "Offline")}");
+            report.AppendLine($"• ECS World: {(world != null ? "Online" : "Offline")}");
 
             report.AppendLine();
             report.AppendLine("Code Architecture Health:");
@@ -393,17 +409,8 @@ namespace Laboratory.Editor.Debug
 
         private void CreateDebugManagerInScene()
         {
-            if (FindFirstObjectByType<DebugManager>() != null)
-            {
-                EditorUtility.DisplayDialog("Debug Manager Exists", "A Debug Manager already exists in the scene.", "OK");
-                return;
-            }
-
-            GameObject debugManagerGO = new GameObject("Debug Manager");
-            debugManagerGO.AddComponent<DebugManager>();
-            Selection.activeGameObject = debugManagerGO;
-
-            EditorUtility.DisplayDialog("Debug Manager Created", "Debug Manager has been created and added to the scene.", "OK");
+            EditorUtility.DisplayDialog("Debug Manager Not Available",
+                "Debug Manager functionality is not available in this build.", "OK");
         }
     }
 }

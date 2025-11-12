@@ -5,7 +5,7 @@ using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Chimera.AI;
 using Laboratory.Core;
 using Laboratory.Core.Events;
-using Laboratory.Core.Debug;
+using Laboratory.Core.Diagnostics;
 
 namespace Laboratory.AI.Personality
 {

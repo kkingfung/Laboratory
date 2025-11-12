@@ -6,7 +6,7 @@ using TMPro;
 using Unity.Entities;
 using System.Reflection;
 
-namespace Laboratory.Core.Debug
+namespace Laboratory.Core.Diagnostics
 {
     /// <summary>
     /// Enhanced debug console that provides real-time monitoring of all game systems.
