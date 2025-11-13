@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
+using Laboratory.Chimera.Ecosystem.Core;
 using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
@@ -45,12 +46,13 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void Awake()
         {
-            resourceSystem = FindObjectOfType<ResourceFlowSystem>();
+            EcosystemServiceLocator.RegisterSpecies(this);
             InitializeSpeciesDatabase();
         }
 
         private void Start()
         {
+            resourceSystem = EcosystemServiceLocator.Resource;
             StartCoroutine(InteractionUpdateLoop());
         }
 

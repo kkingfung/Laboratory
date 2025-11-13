@@ -5,6 +5,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Physics;
+using Unity.Profiling;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.ECS;
@@ -27,6 +28,9 @@ namespace Laboratory.Core.ECS.Systems
     [UpdateAfter(typeof(TransformSystemGroup))]
     public partial class ChimeraBehaviorSystem : SystemBase
     {
+        // Profiler markers for performance tracking
+        private static readonly ProfilerMarker s_OnUpdateMarker = new ProfilerMarker("ChimeraBehaviorSystem.OnUpdate");
+
         // ✅ BURST-COMPATIBLE: Unmanaged configuration data
         private BurstCompatibleConfigs.ChimeraConfigData _configData;
         private EntityQuery _creatureQuery;
@@ -86,68 +90,71 @@ namespace Laboratory.Core.ECS.Systems
 
         protected override void OnUpdate()
         {
-            int creatureCount = _creatureQuery.CalculateEntityCount();
-            if (creatureCount == 0) return;
-
-            // Ensure arrays are large enough
-            if (_behaviorDecisions.Length < creatureCount)
+            using (s_OnUpdateMarker.Auto())
             {
-                _behaviorDecisions.Dispose();
-                _behaviorDecisions = new NativeArray<BehaviorDecision>(creatureCount * 2, Allocator.Persistent);
+                int creatureCount = _creatureQuery.CalculateEntityCount();
+                if (creatureCount == 0) return;
+
+                // Ensure arrays are large enough
+                if (_behaviorDecisions.Length < creatureCount)
+                {
+                    _behaviorDecisions.Dispose();
+                    _behaviorDecisions = new NativeArray<BehaviorDecision>(creatureCount * 2, Allocator.Persistent);
+                }
+
+                float deltaTime = SystemAPI.Time.DeltaTime;
+                float currentTime = (float)SystemAPI.Time.ElapsedTime;
+
+                // Step 1: Build spatial hash for nearby creature detection
+                var buildSpatialHashJob = new BuildSpatialHashJob
+                {
+                    spatialHash = _spatialHash.AsParallelWriter(),
+                    cellSize = _configData.performance.spatialHashCellSize,  // ✅ Unmanaged struct
+                    entityTypeHandle = GetEntityTypeHandle(),
+                    transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
+                    identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true),
+                    geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
+                    territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(true)
+                };
+
+                _spatialHashJob = buildSpatialHashJob.ScheduleParallel(_creatureQuery, Dependency);
+
+                // Step 2: Make behavior decisions based on genetics + needs + environment
+                var behaviorDecisionJob = new BehaviorDecisionJob
+                {
+                    behaviorConfig = _configData.behavior,  // ✅ Unmanaged struct
+                    spatialHash = _spatialHash,
+                    behaviorDecisions = _behaviorDecisions,
+                    deltaTime = deltaTime,
+                    currentTime = currentTime,
+                    randomSeed = (uint)currentTime,
+                    identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true),
+                    geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
+                    behaviorTypeHandle = GetComponentTypeHandle<BehaviorStateComponent>(true),
+                    needsTypeHandle = GetComponentTypeHandle<CreatureNeedsComponent>(true),
+                    territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(true),
+                    environmentTypeHandle = GetComponentTypeHandle<EnvironmentalComponent>(true),
+                    transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true)
+                };
+
+                var decisionHandle = behaviorDecisionJob.ScheduleParallel(_creatureQuery, _spatialHashJob);
+
+                // Step 3: Execute behaviors based on decisions
+                var executeBehaviorJob = new ExecuteBehaviorJob
+                {
+                    behaviorConfig = _configData.behavior,  // ✅ Unmanaged struct
+                    behaviorDecisions = _behaviorDecisions,
+                    deltaTime = deltaTime,
+                    currentTime = currentTime,
+                    behaviorTypeHandle = GetComponentTypeHandle<BehaviorStateComponent>(false),
+                    needsTypeHandle = GetComponentTypeHandle<CreatureNeedsComponent>(false),
+                    territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(false)
+                };
+
+                Dependency = executeBehaviorJob.ScheduleParallel(_creatureQuery, decisionHandle);
+
+                _spatialHash.Clear();
             }
-
-            float deltaTime = SystemAPI.Time.DeltaTime;
-            float currentTime = (float)SystemAPI.Time.ElapsedTime;
-
-            // Step 1: Build spatial hash for nearby creature detection
-            var buildSpatialHashJob = new BuildSpatialHashJob
-            {
-                spatialHash = _spatialHash.AsParallelWriter(),
-                cellSize = _configData.performance.spatialHashCellSize,  // ✅ Unmanaged struct
-                entityTypeHandle = GetEntityTypeHandle(),
-                transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
-                identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true),
-                geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
-                territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(true)
-            };
-
-            _spatialHashJob = buildSpatialHashJob.ScheduleParallel(_creatureQuery, Dependency);
-
-            // Step 2: Make behavior decisions based on genetics + needs + environment
-            var behaviorDecisionJob = new BehaviorDecisionJob
-            {
-                behaviorConfig = _configData.behavior,  // ✅ Unmanaged struct
-                spatialHash = _spatialHash,
-                behaviorDecisions = _behaviorDecisions,
-                deltaTime = deltaTime,
-                currentTime = currentTime,
-                randomSeed = (uint)currentTime,
-                identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true),
-                geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
-                behaviorTypeHandle = GetComponentTypeHandle<BehaviorStateComponent>(true),
-                needsTypeHandle = GetComponentTypeHandle<CreatureNeedsComponent>(true),
-                territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(true),
-                environmentTypeHandle = GetComponentTypeHandle<EnvironmentalComponent>(true),
-                transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true)
-            };
-
-            var decisionHandle = behaviorDecisionJob.ScheduleParallel(_creatureQuery, _spatialHashJob);
-
-            // Step 3: Execute behaviors based on decisions
-            var executeBehaviorJob = new ExecuteBehaviorJob
-            {
-                behaviorConfig = _configData.behavior,  // ✅ Unmanaged struct
-                behaviorDecisions = _behaviorDecisions,
-                deltaTime = deltaTime,
-                currentTime = currentTime,
-                behaviorTypeHandle = GetComponentTypeHandle<BehaviorStateComponent>(false),
-                needsTypeHandle = GetComponentTypeHandle<CreatureNeedsComponent>(false),
-                territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(false)
-            };
-
-            Dependency = executeBehaviorJob.ScheduleParallel(_creatureQuery, decisionHandle);
-
-            _spatialHash.Clear();
         }
 
         // Job to build spatial hash for efficient neighbor queries

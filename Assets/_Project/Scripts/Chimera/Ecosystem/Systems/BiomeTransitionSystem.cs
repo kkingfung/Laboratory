@@ -2,7 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Unity.Profiling;
 using Laboratory.Chimera.Ecosystem.Data;
+using Laboratory.Chimera.Ecosystem.Core;
 using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
@@ -35,14 +37,20 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         public System.Action<Vector2, BiomeType> OnBiomeTransitionCompleted;
         public System.Action<Vector2, float> OnBiomeStabilityChanged;
 
+        // Profiler Markers
+        private static readonly ProfilerMarker s_BiomeTransitionLoopMarker = new ProfilerMarker("BiomeTransitionSystem.BiomeTransitionLoop");
+        private static readonly ProfilerMarker s_CheckForTransitionsMarker = new ProfilerMarker("BiomeTransitionSystem.CheckForTransitions");
+        private static readonly ProfilerMarker s_CalculateBiomeStabilityMarker = new ProfilerMarker("BiomeTransitionSystem.CalculateBiomeStability");
+
         private void Awake()
         {
-            climateSystem = FindObjectOfType<ClimateEvolutionSystem>();
+            EcosystemServiceLocator.RegisterBiome(this);
             InitializeTransitionProbabilities();
         }
 
         private void Start()
         {
+            climateSystem = EcosystemServiceLocator.Climate;
             InitializeBiomeMap();
             StartCoroutine(BiomeTransitionLoop());
         }
@@ -168,32 +176,38 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         {
             while (enableBiomeEvolution)
             {
-                CheckForTransitions();
-                UpdateActiveTransitions();
+                using (s_BiomeTransitionLoopMarker.Auto())
+                {
+                    CheckForTransitions();
+                    UpdateActiveTransitions();
+                }
                 yield return new WaitForSeconds(transitionCheckInterval);
             }
         }
 
         private void CheckForTransitions()
         {
-            foreach (var kvp in currentBiomes.ToList())
+            using (s_CheckForTransitionsMarker.Auto())
             {
-                var location = kvp.Key;
-                var currentBiome = kvp.Value;
-
-                if (activeTransitions.ContainsKey(location)) continue;
-
-                var environmentalConditions = GetEnvironmentalConditions(location);
-                var stability = CalculateBiomeStability(currentBiome, environmentalConditions);
-
-                OnBiomeStabilityChanged?.Invoke(location, stability);
-
-                if (stability < stabilityThreshold)
+                foreach (var kvp in currentBiomes.ToList())
                 {
-                    var potentialTransition = DeterminePotentialTransition(currentBiome, environmentalConditions);
-                    if (potentialTransition.HasValue)
+                    var location = kvp.Key;
+                    var currentBiome = kvp.Value;
+
+                    if (activeTransitions.ContainsKey(location)) continue;
+
+                    var environmentalConditions = GetEnvironmentalConditions(location);
+                    var stability = CalculateBiomeStability(currentBiome, environmentalConditions);
+
+                    OnBiomeStabilityChanged?.Invoke(location, stability);
+
+                    if (stability < stabilityThreshold)
                     {
-                        StartBiomeTransition(location, currentBiome, potentialTransition.Value);
+                        var potentialTransition = DeterminePotentialTransition(currentBiome, environmentalConditions);
+                        if (potentialTransition.HasValue)
+                        {
+                            StartBiomeTransition(location, currentBiome, potentialTransition.Value);
+                        }
                     }
                 }
             }
@@ -262,15 +276,18 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private float CalculateBiomeStability(BiomeType biome, EnvironmentalState conditions)
         {
-            float temperatureStability = GetTemperatureStability(biome, conditions.Temperature);
-            float humidityStability = GetHumidityStability(biome, conditions.Humidity);
-            float rainfallStability = GetRainfallStability(biome, conditions.Rainfall);
+            using (s_CalculateBiomeStabilityMarker.Auto())
+            {
+                float temperatureStability = GetTemperatureStability(biome, conditions.Temperature);
+                float humidityStability = GetHumidityStability(biome, conditions.Humidity);
+                float rainfallStability = GetRainfallStability(biome, conditions.Rainfall);
 
-            float baseStability = (temperatureStability + humidityStability + rainfallStability) / 3f;
-            float biodiversityModifier = conditions.Biodiversity * 0.2f;
-            float soilQualityModifier = conditions.SoilQuality * 0.1f;
+                float baseStability = (temperatureStability + humidityStability + rainfallStability) / 3f;
+                float biodiversityModifier = conditions.Biodiversity * 0.2f;
+                float soilQualityModifier = conditions.SoilQuality * 0.1f;
 
-            return Mathf.Clamp01(baseStability + biodiversityModifier + soilQualityModifier);
+                return Mathf.Clamp01(baseStability + biodiversityModifier + soilQualityModifier);
+            }
         }
 
         private float GetTemperatureStability(BiomeType biome, float temperature)

@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Profiling;
 using Laboratory.Chimera.Ecosystem.Data;
+using Laboratory.Chimera.Ecosystem.Core;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
 {
@@ -37,8 +39,17 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         public System.Action<WeatherPattern> OnWeatherSystemFormed;
         public System.Action<WeatherPattern> OnWeatherSystemDissipated;
 
+        // Performance Profiling
+        private static readonly ProfilerMarker s_ClimateEvolutionLoopMarker = new ProfilerMarker("ClimateEvolutionSystem.EvolutionLoop");
+        private static readonly ProfilerMarker s_UpdateSeasonalCycleMarker = new ProfilerMarker("ClimateEvolutionSystem.UpdateSeasonalCycle");
+        private static readonly ProfilerMarker s_UpdateGlobalClimateMarker = new ProfilerMarker("ClimateEvolutionSystem.UpdateGlobalClimate");
+        private static readonly ProfilerMarker s_UpdateWeatherSystemsMarker = new ProfilerMarker("ClimateEvolutionSystem.UpdateWeatherSystems");
+
         private void Awake()
         {
+            // Register this system with the service locator
+            EcosystemServiceLocator.RegisterClimate(this);
+
             InitializeClimate();
         }
 
@@ -68,19 +79,22 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         {
             while (true)
             {
-                UpdateSeasonalCycle();
-
-                if (enableClimateChange)
+                using (s_ClimateEvolutionLoopMarker.Auto())
                 {
-                    UpdateGlobalClimate();
-                }
+                    UpdateSeasonalCycle();
 
-                if (enableWeatherSystems)
-                {
-                    UpdateWeatherSystems();
-                }
+                    if (enableClimateChange)
+                    {
+                        UpdateGlobalClimate();
+                    }
 
-                OnClimateChanged?.Invoke(currentClimate);
+                    if (enableWeatherSystems)
+                    {
+                        UpdateWeatherSystems();
+                    }
+
+                    OnClimateChanged?.Invoke(currentClimate);
+                }
 
                 yield return new WaitForSeconds(1f / climateEvolutionRate);
             }
@@ -88,15 +102,18 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void UpdateSeasonalCycle()
         {
-            seasonProgress += Time.deltaTime * seasonalCycleSpeed * 0.1f;
-
-            if (seasonProgress >= 1f)
+            using (s_UpdateSeasonalCycleMarker.Auto())
             {
-                seasonProgress = 0f;
-                AdvanceSeason();
-            }
+                seasonProgress += Time.deltaTime * seasonalCycleSpeed * 0.1f;
 
-            ApplySeasonalEffects();
+                if (seasonProgress >= 1f)
+                {
+                    seasonProgress = 0f;
+                    AdvanceSeason();
+                }
+
+                ApplySeasonalEffects();
+            }
         }
 
         private void AdvanceSeason()
@@ -157,55 +174,61 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void UpdateGlobalClimate()
         {
-            // Gradual climate change over time
-            currentClimate.GlobalTemperature += climateChangeRate * Time.deltaTime * 0.1f;
-            currentClimate.AtmosphericCO2 += Random.Range(-0.1f, 0.2f) * Time.deltaTime;
-            currentClimate.SeaLevel += climateChangeRate * 0.5f * Time.deltaTime;
+            using (s_UpdateGlobalClimateMarker.Auto())
+            {
+                // Gradual climate change over time
+                currentClimate.GlobalTemperature += climateChangeRate * Time.deltaTime * 0.1f;
+                currentClimate.AtmosphericCO2 += Random.Range(-0.1f, 0.2f) * Time.deltaTime;
+                currentClimate.SeaLevel += climateChangeRate * 0.5f * Time.deltaTime;
 
-            // Update climate stability based on change rate
-            float changeRate = Mathf.Abs(climateChangeRate);
-            currentClimate.ClimateStability = Mathf.Lerp(
-                currentClimate.ClimateStability,
-                Mathf.Max(0.1f, 1f - changeRate * 10f),
-                Time.deltaTime * 0.01f
-            );
+                // Update climate stability based on change rate
+                float changeRate = Mathf.Abs(climateChangeRate);
+                currentClimate.ClimateStability = Mathf.Lerp(
+                    currentClimate.ClimateStability,
+                    Mathf.Max(0.1f, 1f - changeRate * 10f),
+                    Time.deltaTime * 0.01f
+                );
 
-            // Clamp values to reasonable ranges
-            currentClimate.AtmosphericCO2 = Mathf.Clamp(currentClimate.AtmosphericCO2, 280f, 1000f);
-            currentClimate.SeaLevel = Mathf.Clamp(currentClimate.SeaLevel, -10f, 50f);
+                // Clamp values to reasonable ranges
+                currentClimate.AtmosphericCO2 = Mathf.Clamp(currentClimate.AtmosphericCO2, 280f, 1000f);
+                currentClimate.SeaLevel = Mathf.Clamp(currentClimate.SeaLevel, -10f, 50f);
+            }
         }
 
         private void UpdateWeatherSystems()
         {
-            // Update existing weather patterns
-            for (int i = activeWeatherPatterns.Count - 1; i >= 0; i--)
+            using (s_UpdateWeatherSystemsMarker.Auto())
             {
-                var pattern = activeWeatherPatterns[i];
-                pattern = UpdateWeatherPattern(pattern);
+                // Update existing weather patterns
+                for (int i = activeWeatherPatterns.Count - 1; i >= 0; i--)
+                {
+                    var pattern = activeWeatherPatterns[i];
+                    pattern = UpdateWeatherPattern(pattern);
 
-                if (pattern.Duration <= 0f || !pattern.IsActive)
-                {
-                    OnWeatherSystemDissipated?.Invoke(pattern);
-                    activeWeatherPatterns.RemoveAt(i);
+                    if (pattern.Duration <= 0f || !pattern.IsActive)
+                    {
+                        OnWeatherSystemDissipated?.Invoke(pattern);
+                        activeWeatherPatterns.RemoveAt(i);
+                    }
+                    else
+                    {
+                        activeWeatherPatterns[i] = pattern;
+                    }
                 }
-                else
+
+                // Generate new weather systems
+                if (activeWeatherPatterns.Count < maxActiveWeatherSystems && Random.value < weatherFormationRate * Time.deltaTime)
                 {
-                    activeWeatherPatterns[i] = pattern;
+                    var newPattern = GenerateWeatherPattern();
+                    if (newPattern.IsActive)
+                    {
+                        activeWeatherPatterns.Add(newPattern);
+                        OnWeatherSystemFormed?.Invoke(newPattern);
+                    }
                 }
+
+                currentClimate.ActivePatterns = new List<WeatherPattern>(activeWeatherPatterns);
             }
-
-            // Generate new weather systems
-            if (activeWeatherPatterns.Count < maxActiveWeatherSystems && Random.value < weatherFormationRate * Time.deltaTime)
-            {
-                var newPattern = GenerateWeatherPattern();
-                if (newPattern.IsActive)
-                {
-                    activeWeatherPatterns.Add(newPattern);
-                    OnWeatherSystemFormed?.Invoke(newPattern);
-                }
-            }
-
-            currentClimate.ActivePatterns = new List<WeatherPattern>(activeWeatherPatterns);
         }
 
         private WeatherPattern UpdateWeatherPattern(WeatherPattern pattern)

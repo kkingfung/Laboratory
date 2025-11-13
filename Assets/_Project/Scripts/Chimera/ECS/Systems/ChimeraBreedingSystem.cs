@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Burst;
 using Unity.Burst.Intrinsics;
+using Unity.Profiling;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
@@ -27,6 +28,12 @@ namespace Laboratory.Core.ECS.Systems
     [UpdateAfter(typeof(ChimeraBehaviorSystem))]
     public partial class ChimeraBreedingSystem : SystemBase
     {
+        // Profiler markers for performance tracking
+        private static readonly ProfilerMarker s_OnUpdateMarker = new ProfilerMarker("ChimeraBreedingSystem.OnUpdate");
+        private static readonly ProfilerMarker s_UpdatePregnanciesMarker = new ProfilerMarker("ChimeraBreedingSystem.UpdatePregnancies");
+        private static readonly ProfilerMarker s_UpdateParentalCareMarker = new ProfilerMarker("ChimeraBreedingSystem.UpdateParentalCare");
+        private static readonly ProfilerMarker s_ProcessBreedingAttemptsMarker = new ProfilerMarker("ChimeraBreedingSystem.ProcessBreedingAttempts");
+
         // ✅ BURST-COMPATIBLE: Unmanaged configuration data
         private BurstCompatibleConfigs.ChimeraConfigData _configData;
         private EntityQuery _breedingReadyQuery;
@@ -92,93 +99,105 @@ namespace Laboratory.Core.ECS.Systems
 
         protected override void OnUpdate()
         {
-            float deltaTime = SystemAPI.Time.DeltaTime;
-            float currentTime = (float)SystemAPI.Time.ElapsedTime;
+            using (s_OnUpdateMarker.Auto())
+            {
+                float deltaTime = SystemAPI.Time.DeltaTime;
+                float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
-            // Step 1: Update pregnancy progress
-            UpdatePregnancies(deltaTime);
+                // Step 1: Update pregnancy progress
+                UpdatePregnancies(deltaTime);
 
-            // Step 2: Update parental care
-            UpdateParentalCare(deltaTime);
+                // Step 2: Update parental care
+                UpdateParentalCare(deltaTime);
 
-            // Step 3: Process breeding attempts for ready creatures
-            ProcessBreedingAttempts(deltaTime, currentTime);
+                // Step 3: Process breeding attempts for ready creatures
+                ProcessBreedingAttempts(deltaTime, currentTime);
+            }
         }
 
         private void UpdatePregnancies(float deltaTime)
         {
-            var pregnancyUpdateJob = new PregnancyUpdateJob
+            using (s_UpdatePregnanciesMarker.Auto())
             {
-                breedingConfig = _configData.breeding,  // ✅ Unmanaged struct
-                deltaTime = deltaTime,
-                currentTime = (float)SystemAPI.Time.ElapsedTime,
-                commandBuffer = GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
-                    .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
-                entityTypeHandle = GetEntityTypeHandle(),
-                breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false)
-            };
+                var pregnancyUpdateJob = new PregnancyUpdateJob
+                {
+                    breedingConfig = _configData.breeding,  // ✅ Unmanaged struct
+                    deltaTime = deltaTime,
+                    currentTime = (float)SystemAPI.Time.ElapsedTime,
+                    commandBuffer = GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
+                        .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
+                    entityTypeHandle = GetEntityTypeHandle(),
+                    breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false)
+                };
 
-            Dependency = pregnancyUpdateJob.ScheduleParallel(_pregnantQuery, Dependency);
+                Dependency = pregnancyUpdateJob.ScheduleParallel(_pregnantQuery, Dependency);
+            }
         }
 
         private void UpdateParentalCare(float deltaTime)
         {
-            var parentalCareJob = new ParentalCareUpdateJob
+            using (s_UpdateParentalCareMarker.Auto())
             {
-                breedingConfig = _configData.breeding,  // ✅ Unmanaged struct
-                deltaTime = deltaTime,
-                commandBuffer = GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
-                    .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
-                entityTypeHandle = GetEntityTypeHandle(),
-                breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false)
-            };
+                var parentalCareJob = new ParentalCareUpdateJob
+                {
+                    breedingConfig = _configData.breeding,  // ✅ Unmanaged struct
+                    deltaTime = deltaTime,
+                    commandBuffer = GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
+                        .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
+                    entityTypeHandle = GetEntityTypeHandle(),
+                    breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false)
+                };
 
-            Dependency = parentalCareJob.ScheduleParallel(_caringQuery, Dependency);
+                Dependency = parentalCareJob.ScheduleParallel(_caringQuery, Dependency);
+            }
         }
 
         private void ProcessBreedingAttempts(float deltaTime, float currentTime)
         {
-            int breedingReadyCount = _breedingReadyQuery.CalculateEntityCount();
-            if (breedingReadyCount == 0) return;
-
-            // Clear and rebuild spatial hash
-            _spatialBreedingHash.Clear();
-
-            // Step 1: Build spatial hash for mate finding
-            var buildHashJob = new BuildBreedingSpatialHashJob
+            using (s_ProcessBreedingAttemptsMarker.Auto())
             {
-                spatialHash = _spatialBreedingHash.AsParallelWriter(),
-                cellSize = _configData.performance.spatialHashCellSize,  // ✅ Unmanaged struct
-                entityTypeHandle = GetEntityTypeHandle(),
-                transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
-                breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(true),
-                geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
-                identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true)
-            };
+                int breedingReadyCount = _breedingReadyQuery.CalculateEntityCount();
+                if (breedingReadyCount == 0) return;
 
-            var hashHandle = buildHashJob.ScheduleParallel(_breedingReadyQuery, Dependency);
+                // Clear and rebuild spatial hash
+                _spatialBreedingHash.Clear();
 
-            // Step 2: Find mates and attempt breeding
-            var breedingAttemptJob = new BreedingAttemptJob
-            {
-                breedingConfig = _configData.breeding,  // ✅ Unmanaged struct
-                performanceConfig = _configData.performance,  // ✅ Unmanaged struct
-                spatialHash = _spatialBreedingHash,
-                deltaTime = deltaTime,
-                currentTime = currentTime,
-                randomSeed = (uint)currentTime,
-                commandBuffer = GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
-                    .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
-                entityTypeHandle = GetEntityTypeHandle(),
-                transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
-                breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false),
-                geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
-                identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true),
-                territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(true),
-                behaviorTypeHandle = GetComponentTypeHandle<BehaviorStateComponent>(true)
-            };
+                // Step 1: Build spatial hash for mate finding
+                var buildHashJob = new BuildBreedingSpatialHashJob
+                {
+                    spatialHash = _spatialBreedingHash.AsParallelWriter(),
+                    cellSize = _configData.performance.spatialHashCellSize,  // ✅ Unmanaged struct
+                    entityTypeHandle = GetEntityTypeHandle(),
+                    transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
+                    breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(true),
+                    geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
+                    identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true)
+                };
 
-            Dependency = breedingAttemptJob.ScheduleParallel(_breedingReadyQuery, hashHandle);
+                var hashHandle = buildHashJob.ScheduleParallel(_breedingReadyQuery, Dependency);
+
+                // Step 2: Find mates and attempt breeding
+                var breedingAttemptJob = new BreedingAttemptJob
+                {
+                    breedingConfig = _configData.breeding,  // ✅ Unmanaged struct
+                    performanceConfig = _configData.performance,  // ✅ Unmanaged struct
+                    spatialHash = _spatialBreedingHash,
+                    deltaTime = deltaTime,
+                    currentTime = currentTime,
+                    randomSeed = (uint)currentTime,
+                    commandBuffer = GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
+                        .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
+                    entityTypeHandle = GetEntityTypeHandle(),
+                    transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
+                    breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false),
+                    geneticsTypeHandle = GetComponentTypeHandle<ChimeraGeneticDataComponent>(true),
+                    identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true),
+                    territoryTypeHandle = GetComponentTypeHandle<SocialTerritoryComponent>(true),
+                    behaviorTypeHandle = GetComponentTypeHandle<BehaviorStateComponent>(true)
+                };
+
+                Dependency = breedingAttemptJob.ScheduleParallel(_breedingReadyQuery, hashHandle);
+            }
         }
 
 

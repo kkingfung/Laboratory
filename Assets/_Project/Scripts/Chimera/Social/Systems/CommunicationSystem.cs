@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Unity.Profiling;
+using Laboratory.Chimera.Social.Core;
 
 namespace Laboratory.Chimera.Social.Systems
 {
@@ -23,8 +25,14 @@ namespace Laboratory.Chimera.Social.Systems
         public event Action<uint, uint, string> OnCommunicationSent;
         public event Action<string> OnLanguageEvolution;
 
+        private static readonly ProfilerMarker s_UpdateLanguageEvolutionMarker = new ProfilerMarker("CommunicationSystem.UpdateLanguageEvolution");
+        private static readonly ProfilerMarker s_SendCommunicationMarker = new ProfilerMarker("CommunicationSystem.SendCommunication");
+        private static readonly ProfilerMarker s_BroadcastToGroupMarker = new ProfilerMarker("CommunicationSystem.BroadcastToGroup");
+        private static readonly ProfilerMarker s_ProcessSuccessfulCommunicationMarker = new ProfilerMarker("CommunicationSystem.ProcessSuccessfulCommunication");
+
         private void Awake()
         {
+            SocialServiceLocator.RegisterCommunication(this);
             languageEngine = new LanguageEvolutionEngine(maxVocabularySize, languageEvolutionRate);
         }
 
@@ -36,51 +44,57 @@ namespace Laboratory.Chimera.Social.Systems
 
         public bool SendCommunication(uint senderId, uint receiverId, string message, string context = "")
         {
-            if (!agentProfiles.ContainsKey(senderId) || !agentProfiles.ContainsKey(receiverId))
-                return false;
-
-            var senderProfile = agentProfiles[senderId];
-            var receiverProfile = agentProfiles[receiverId];
-
-            var communicationEvent = new CommunicationEvent
+            using (s_SendCommunicationMarker.Auto())
             {
-                SenderId = senderId,
-                ReceiverId = receiverId,
-                Message = message,
-                Context = context,
-                Success = CalculateCommunicationSuccess(senderProfile, receiverProfile),
-                Timestamp = DateTime.UtcNow
-            };
+                if (!agentProfiles.ContainsKey(senderId) || !agentProfiles.ContainsKey(receiverId))
+                    return false;
 
-            recentCommunications.Add(communicationEvent);
+                var senderProfile = agentProfiles[senderId];
+                var receiverProfile = agentProfiles[receiverId];
 
-            if (communicationEvent.Success)
-            {
-                ProcessSuccessfulCommunication(communicationEvent);
-                OnCommunicationSent?.Invoke(senderId, receiverId, message);
+                var communicationEvent = new CommunicationEvent
+                {
+                    SenderId = senderId,
+                    ReceiverId = receiverId,
+                    Message = message,
+                    Context = context,
+                    Success = CalculateCommunicationSuccess(senderProfile, receiverProfile),
+                    Timestamp = DateTime.UtcNow
+                };
+
+                recentCommunications.Add(communicationEvent);
+
+                if (communicationEvent.Success)
+                {
+                    ProcessSuccessfulCommunication(communicationEvent);
+                    OnCommunicationSent?.Invoke(senderId, receiverId, message);
+                }
+
+                // Evolve language based on communication patterns
+                if (enableLanguageEvolution)
+                {
+                    languageEngine.ProcessCommunication(message, communicationEvent.Success);
+                }
+
+                return communicationEvent.Success;
             }
-
-            // Evolve language based on communication patterns
-            if (enableLanguageEvolution)
-            {
-                languageEngine.ProcessCommunication(message, communicationEvent.Success);
-            }
-
-            return communicationEvent.Success;
         }
 
         public void BroadcastToGroup(uint senderId, uint groupId, string message)
         {
-            var groupSystem = FindObjectOfType<GroupDynamicsSystem>();
-            var group = groupSystem?.GetGroup(groupId);
-
-            if (group != null)
+            using (s_BroadcastToGroupMarker.Auto())
             {
-                foreach (var memberId in group.Members)
+                var groupSystem = SocialServiceLocator.GroupDynamics;
+                var group = groupSystem?.GetGroup(groupId);
+
+                if (group != null)
                 {
-                    if (memberId != senderId)
+                    foreach (var memberId in group.Members)
                     {
-                        SendCommunication(senderId, memberId, message, $"group_broadcast_{groupId}");
+                        if (memberId != senderId)
+                        {
+                            SendCommunication(senderId, memberId, message, $"group_broadcast_{groupId}");
+                        }
                     }
                 }
             }
@@ -134,22 +148,25 @@ namespace Laboratory.Chimera.Social.Systems
 
         private void ProcessSuccessfulCommunication(CommunicationEvent communication)
         {
-            // Update language evolution
-            if (enableLanguageEvolution)
+            using (s_ProcessSuccessfulCommunicationMarker.Auto())
             {
-                languageEngine.RecordSuccessfulCommunication(communication.SenderId, communication.ReceiverId, communication.Message);
+                // Update language evolution
+                if (enableLanguageEvolution)
+                {
+                    languageEngine.RecordSuccessfulCommunication(communication.SenderId, communication.ReceiverId, communication.Message);
+                }
+
+                // Update agent communication profiles
+                var senderProfile = agentProfiles[communication.SenderId];
+                var receiverProfile = agentProfiles[communication.ReceiverId];
+
+                // Slightly improve communication effectiveness over time
+                senderProfile.Expressiveness += 0.001f;
+                receiverProfile.Receptiveness += 0.001f;
+
+                senderProfile.Expressiveness = Mathf.Clamp01(senderProfile.Expressiveness);
+                receiverProfile.Receptiveness = Mathf.Clamp01(receiverProfile.Receptiveness);
             }
-
-            // Update agent communication profiles
-            var senderProfile = agentProfiles[communication.SenderId];
-            var receiverProfile = agentProfiles[communication.ReceiverId];
-
-            // Slightly improve communication effectiveness over time
-            senderProfile.Expressiveness += 0.001f;
-            receiverProfile.Receptiveness += 0.001f;
-
-            senderProfile.Expressiveness = Mathf.Clamp01(senderProfile.Expressiveness);
-            receiverProfile.Receptiveness = Mathf.Clamp01(receiverProfile.Receptiveness);
         }
 
         public List<CommunicationEvent> GetRecentCommunications(int count = 10)
@@ -164,12 +181,15 @@ namespace Laboratory.Chimera.Social.Systems
 
         public void UpdateLanguageEvolution()
         {
-            if (enableLanguageEvolution)
+            using (s_UpdateLanguageEvolutionMarker.Auto())
             {
-                var evolutionResult = languageEngine.UpdateEvolution();
-                if (!string.IsNullOrEmpty(evolutionResult))
+                if (enableLanguageEvolution)
                 {
-                    OnLanguageEvolution?.Invoke(evolutionResult);
+                    var evolutionResult = languageEngine.UpdateEvolution();
+                    if (!string.IsNullOrEmpty(evolutionResult))
+                    {
+                        OnLanguageEvolution?.Invoke(evolutionResult);
+                    }
                 }
             }
         }
@@ -185,6 +205,9 @@ namespace Laboratory.Chimera.Social.Systems
         private Dictionary<string, float> vocabulary = new();
         private Dictionary<string, int> wordUsage = new();
         private List<string> emergingWords = new();
+
+        private static readonly ProfilerMarker s_ProcessCommunicationMarker = new ProfilerMarker("LanguageEvolutionEngine.ProcessCommunication");
+        private static readonly ProfilerMarker s_UpdateEvolutionMarker = new ProfilerMarker("LanguageEvolutionEngine.UpdateEvolution");
 
         public LanguageEvolutionEngine(int maxVocabulary, float evolutionRate)
         {
@@ -205,27 +228,30 @@ namespace Laboratory.Chimera.Social.Systems
 
         public void ProcessCommunication(string message, bool successful)
         {
-            var words = message.ToLower().Split(' ');
-            foreach (var word in words)
+            using (s_ProcessCommunicationMarker.Auto())
             {
-                if (vocabulary.ContainsKey(word))
+                var words = message.ToLower().Split(' ');
+                foreach (var word in words)
                 {
-                    wordUsage[word]++;
-                    if (successful)
+                    if (vocabulary.ContainsKey(word))
                     {
-                        vocabulary[word] += evolutionRate;
+                        wordUsage[word]++;
+                        if (successful)
+                        {
+                            vocabulary[word] += evolutionRate;
+                        }
+                        else
+                        {
+                            vocabulary[word] -= evolutionRate * 0.5f;
+                        }
                     }
-                    else
+                    else if (successful && vocabulary.Count < maxVocabularySize)
                     {
-                        vocabulary[word] -= evolutionRate * 0.5f;
+                        // New word emerges from successful communication
+                        vocabulary[word] = 0.1f;
+                        wordUsage[word] = 1;
+                        emergingWords.Add(word);
                     }
-                }
-                else if (successful && vocabulary.Count < maxVocabularySize)
-                {
-                    // New word emerges from successful communication
-                    vocabulary[word] = 0.1f;
-                    wordUsage[word] = 1;
-                    emergingWords.Add(word);
                 }
             }
         }
@@ -237,26 +263,29 @@ namespace Laboratory.Chimera.Social.Systems
 
         public string UpdateEvolution()
         {
-            string evolutionReport = "";
-
-            // Remove unused words
-            var wordsToRemove = vocabulary.Where(kvp => kvp.Value < 0.05f).Select(kvp => kvp.Key).ToList();
-            foreach (var word in wordsToRemove)
+            using (s_UpdateEvolutionMarker.Auto())
             {
-                vocabulary.Remove(word);
-                wordUsage.Remove(word);
-                evolutionReport += $"Word '{word}' has fallen out of use. ";
-            }
+                string evolutionReport = "";
 
-            // Promote emerging words
-            var wordsToPromote = emergingWords.Where(word => vocabulary.ContainsKey(word) && vocabulary[word] > 0.5f).ToList();
-            foreach (var word in wordsToPromote)
-            {
-                emergingWords.Remove(word);
-                evolutionReport += $"New word '{word}' established in language. ";
-            }
+                // Remove unused words
+                var wordsToRemove = vocabulary.Where(kvp => kvp.Value < 0.05f).Select(kvp => kvp.Key).ToList();
+                foreach (var word in wordsToRemove)
+                {
+                    vocabulary.Remove(word);
+                    wordUsage.Remove(word);
+                    evolutionReport += $"Word '{word}' has fallen out of use. ";
+                }
 
-            return evolutionReport;
+                // Promote emerging words
+                var wordsToPromote = emergingWords.Where(word => vocabulary.ContainsKey(word) && vocabulary[word] > 0.5f).ToList();
+                foreach (var word in wordsToPromote)
+                {
+                    emergingWords.Remove(word);
+                    evolutionReport += $"New word '{word}' established in language. ";
+                }
+
+                return evolutionReport;
+            }
         }
 
         public Dictionary<string, float> GetCurrentVocabulary()
