@@ -109,6 +109,34 @@ namespace ProjectChimera.Core
 
         #endregion
 
+        #region Genetics System
+
+        /// <summary>Default genetic trait value</summary>
+        public const float DEFAULT_GENETIC_TRAIT = 0.5f;
+
+        /// <summary>Genetic trait variance for randomization</summary>
+        public const float GENETIC_TRAIT_VARIANCE = 0.2f;
+
+        /// <summary>Normal distribution standard deviation for genetics</summary>
+        public const float GENETIC_NORMAL_STD_DEV = 0.2f;
+
+        /// <summary>Wild creature loyalty baseline</summary>
+        public const float WILD_LOYALTY_BASELINE = 0.2f;
+
+        /// <summary>Tame creature loyalty baseline</summary>
+        public const float TAME_LOYALTY_BASELINE = 0.8f;
+
+        /// <summary>Minimum dominance for creatures</summary>
+        public const float MIN_DOMINANCE = 0.2f;
+
+        /// <summary>Maximum dominance for creatures</summary>
+        public const float MAX_DOMINANCE = 0.8f;
+
+        /// <summary>Default adaptation rate</summary>
+        public const float DEFAULT_ADAPTATION_RATE = 0.2f;
+
+        #endregion
+
         #region Breeding System
 
         /// <summary>Minimum breeding compatibility</summary>
@@ -125,6 +153,15 @@ namespace ProjectChimera.Core
 
         /// <summary>Breeding cooldown (seconds)</summary>
         public const float BREEDING_COOLDOWN_SECONDS = 60f;
+
+        /// <summary>Minimum breeding urge for adults</summary>
+        public const float MIN_BREEDING_URGE = 0.2f;
+
+        /// <summary>Maximum breeding urge for adults</summary>
+        public const float MAX_BREEDING_URGE = 0.5f;
+
+        /// <summary>Spatial hash capacity for breeding candidates</summary>
+        public const int BREEDING_SPATIAL_HASH_CAPACITY = 1000;
 
         #endregion
 
@@ -210,6 +247,24 @@ namespace ProjectChimera.Core
 
         /// <summary>Memory leak detection threshold (seconds)</summary>
         public const float LEAK_DETECTION_THRESHOLD_SECONDS = 30f;
+
+        /// <summary>Cache refresh interval for expensive operations (seconds)</summary>
+        public const float FIND_OBJECTS_CACHE_REFRESH_INTERVAL = 1.0f;
+
+        /// <summary>Memory cleanup interval (seconds)</summary>
+        public const float MEMORY_CLEANUP_INTERVAL = 60f;
+
+        /// <summary>Batch send interval for analytics (seconds)</summary>
+        public const float ANALYTICS_BATCH_INTERVAL = 60f;
+
+        /// <summary>Performance tracking interval (seconds)</summary>
+        public const float PERFORMANCE_TRACK_INTERVAL = 60f;
+
+        /// <summary>Spatial hash cell size for creature queries</summary>
+        public const int SPATIAL_HASH_CELL_SIZE = 1000;
+
+        /// <summary>Spatial hash Z-axis multiplier for 3D coordinates</summary>
+        public const int SPATIAL_HASH_Z_MULTIPLIER = 1000000;
 
         #endregion
 

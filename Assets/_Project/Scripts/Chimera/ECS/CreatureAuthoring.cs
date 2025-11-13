@@ -10,6 +10,7 @@ using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
+using ProjectChimera.Core;
 
 namespace Laboratory.Chimera.ECS
 {
@@ -230,7 +231,7 @@ namespace Laboratory.Chimera.ECS
                 PatrolRadius = isWild ? 20f : 5f,
                 AggressionLevel = GetGeneticTraitValue("Aggression", 0.5f),
                 CuriosityLevel = GetGeneticTraitValue("Curiosity", 0.5f),
-                LoyaltyLevel = GetGeneticTraitValue("Loyalty", isWild ? 0.2f : 0.8f),
+                LoyaltyLevel = GetGeneticTraitValue("Loyalty", isWild ? GameConstants.WILD_LOYALTY_BASELINE : GameConstants.TAME_LOYALTY_BASELINE),
                 StateTimer = 0f
             };
             entityManager.AddComponentData(creatureEntity, aiComponent);
@@ -255,7 +256,7 @@ namespace Laboratory.Chimera.ECS
                 Comfort = UnityEngine.Random.Range(0.4f, 0.7f),
                 Safety = UnityEngine.Random.Range(0.5f, 0.8f),
                 SocialConnection = UnityEngine.Random.Range(0.3f, 0.6f),
-                BreedingUrge = creatureInstance.IsAdult ? UnityEngine.Random.Range(0.2f, 0.5f) : 0f,
+                BreedingUrge = creatureInstance.IsAdult ? UnityEngine.Random.Range(GameConstants.MIN_BREEDING_URGE, GameConstants.MAX_BREEDING_URGE) : 0f,
                 Exploration = UnityEngine.Random.Range(0.4f, 0.8f),
                 HungerDecayRate = 0.01f,
                 EnergyRecoveryRate = 0.05f,
@@ -312,7 +313,7 @@ namespace Laboratory.Chimera.ECS
                 LocalResourceDensity = 0.7f,
                 BiomeComfortLevel = 0.8f, // Start comfortable in native biome
                 BiomeAdaptation = 0.9f,
-                AdaptationRate = GetGeneticTraitValue("Adaptability", 0.2f),
+                AdaptationRate = GetGeneticTraitValue("Adaptability", GameConstants.DEFAULT_ADAPTATION_RATE),
                 HomeRangeRadius = isWild ? UnityEngine.Random.Range(20f, 80f) : 10f,
                 ForagingEfficiency = GetGeneticTraitValue("Intelligence", 0.5f),
                 ResourceConsumptionRate = 1f / GetGeneticTraitValue("Vitality", 0.5f)
@@ -409,8 +410,8 @@ namespace Laboratory.Chimera.ECS
             {
                 traitName = traitName,
                 traitType = traitType,
-                dominance = UnityEngine.Random.Range(0.2f, 0.8f),
-                value = Mathf.Clamp01(GenerateNormalRandom(0.5f, 0.2f)), // Normal distribution around 0.5
+                dominance = UnityEngine.Random.Range(GameConstants.MIN_DOMINANCE, GameConstants.MAX_DOMINANCE),
+                value = Mathf.Clamp01(GenerateNormalRandom(GameConstants.DEFAULT_GENETIC_TRAIT, GameConstants.GENETIC_NORMAL_STD_DEV)),
                 expression = GeneExpression.Normal,
                 isActive = true
             };

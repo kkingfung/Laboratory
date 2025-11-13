@@ -10,6 +10,7 @@ using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.ECS;
 using Laboratory.Shared.Types;
+using ProjectChimera.Core;
 using ChimeraCreatureIdentity = Laboratory.Chimera.ECS.CreatureIdentityComponent;
 using UnityEngine;
 
@@ -71,7 +72,8 @@ namespace Laboratory.Core.ECS.Systems
                                          ComponentType.ReadOnly<CaringTag>());
 
             // Initialize spatial hash
-            _spatialBreedingHash = new NativeParallelMultiHashMap<int, BreedingCandidate>(1000, Allocator.Persistent);
+            _spatialBreedingHash = new NativeParallelMultiHashMap<int, BreedingCandidate>(
+                GameConstants.BREEDING_SPATIAL_HASH_CAPACITY, Allocator.Persistent);
 
             // Initialize legacy system for complex breeding calculations
             _legacyBreedingSystem = new Laboratory.Chimera.Breeding.BreedingSystem(null);
@@ -216,7 +218,8 @@ namespace Laboratory.Core.ECS.Systems
             private static int GetSpatialHashKey(float3 position, float cellSize)
             {
                 int3 cell = (int3)math.floor(position / cellSize);
-                return cell.x + cell.y * 1000 + cell.z * 1000000;
+                return cell.x + cell.y * GameConstants.SPATIAL_HASH_CELL_SIZE +
+                       cell.z * GameConstants.SPATIAL_HASH_Z_MULTIPLIER;
             }
         }
 
@@ -316,7 +319,7 @@ namespace Laboratory.Core.ECS.Systems
                 {
                     for (int dz = -1; dz <= 1; dz++)
                     {
-                        int searchKey = cellKey + dx + dz * 1000;
+                        int searchKey = cellKey + dx + dz * GameConstants.SPATIAL_HASH_CELL_SIZE;
 
                         if (spatialHash.TryGetFirstValue(searchKey, out var candidate, out var iterator))
                         {
@@ -472,7 +475,8 @@ namespace Laboratory.Core.ECS.Systems
             private static int GetSpatialHashKey(float3 position, float cellSize)
             {
                 int3 cell = (int3)math.floor(position / cellSize);
-                return cell.x + cell.y * 1000 + cell.z * 1000000;
+                return cell.x + cell.y * GameConstants.SPATIAL_HASH_CELL_SIZE +
+                       cell.z * GameConstants.SPATIAL_HASH_Z_MULTIPLIER;
             }
         }
 
