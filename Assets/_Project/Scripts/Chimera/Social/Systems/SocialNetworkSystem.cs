@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Social.Data;
 using Laboratory.Chimera.Social.Types;
+using Laboratory.Chimera.Social.Core;
 
 namespace Laboratory.Chimera.Social.Systems
 {
@@ -26,6 +27,7 @@ namespace Laboratory.Chimera.Social.Systems
 
         private void Awake()
         {
+            SocialServiceLocator.RegisterSocialNetwork(this);
             networkGraph = new SocialNetworkGraph();
         }
 

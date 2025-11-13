@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Social.Types;
 using Laboratory.Chimera.Diagnostics;
+using Laboratory.Chimera.Social.Core;
 
 
 namespace Laboratory.Chimera.Social.Systems
@@ -28,9 +29,14 @@ namespace Laboratory.Chimera.Social.Systems
         public event Action<uint, uint> OnLeadershipEmergence;
         public event Action<uint, uint> OnLeadershipChange;
 
+        private void Awake()
+        {
+            SocialServiceLocator.RegisterGroupDynamics(this);
+        }
+
         private void Start()
         {
-            networkSystem = FindObjectOfType<SocialNetworkSystem>();
+            networkSystem = SocialServiceLocator.SocialNetwork;
         }
 
         public void FormGroup(List<uint> memberIds, string groupName = "")

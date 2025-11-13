@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Laboratory.Chimera.Social.Core;
 
 namespace Laboratory.Chimera.Social.Systems
 {
@@ -25,6 +26,7 @@ namespace Laboratory.Chimera.Social.Systems
 
         private void Awake()
         {
+            SocialServiceLocator.RegisterCommunication(this);
             languageEngine = new LanguageEvolutionEngine(maxVocabularySize, languageEvolutionRate);
         }
 
@@ -71,7 +73,7 @@ namespace Laboratory.Chimera.Social.Systems
 
         public void BroadcastToGroup(uint senderId, uint groupId, string message)
         {
-            var groupSystem = FindObjectOfType<GroupDynamicsSystem>();
+            var groupSystem = SocialServiceLocator.GroupDynamics;
             var group = groupSystem?.GetGroup(groupId);
 
             if (group != null)
