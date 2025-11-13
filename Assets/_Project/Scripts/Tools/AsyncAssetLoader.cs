@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.ResourceManagement.ResourceProvisions;
+using UnityEngine.ResourceManagement.ResourceProviders;
 using UnityEngine.SceneManagement;
 
 namespace Laboratory.Tools
@@ -430,21 +430,21 @@ namespace Laboratory.Tools
 
             OnLoadStarted?.Invoke(request);
 
-            // Start loading via Resources (in production, use Addressables)
+            // Start loading via Addressables
             StartCoroutine(LoadAssetCoroutine(request));
         }
 
         private IEnumerator LoadAssetCoroutine(LoadRequest request)
         {
-            ResourceRequest resourceRequest = Resources.LoadAsync(request.assetKey, request.assetType);
+            var addressableRequest = Addressables.LoadAssetAsync<UnityEngine.Object>(request.assetKey);
 
-            while (!resourceRequest.isDone)
+            while (!addressableRequest.IsDone)
             {
-                request.progress = resourceRequest.progress;
+                request.progress = addressableRequest.PercentComplete;
                 yield return null;
             }
 
-            var asset = resourceRequest.asset;
+            var asset = addressableRequest.Result;
 
             if (asset != null)
             {

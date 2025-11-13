@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Core;
+using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Ecosystem
 {
@@ -136,7 +137,7 @@ namespace Laboratory.Chimera.Ecosystem
         /// <summary>
         /// Gets maximum resource capacity for a biome type and resource
         /// </summary>
-        private float GetMaxResourceCapacity(Laboratory.Core.Enums.BiomeType biomeType, string resourceType)
+        private float GetMaxResourceCapacity(BiomeType biomeType, string resourceType)
         {
             // Base capacity varies by biome type
             return 1000f; // Simplified - would be more complex in full implementation

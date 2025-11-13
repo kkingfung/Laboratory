@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
 using Laboratory.Chimera.Ecosystem.Core;
+using Laboratory.Shared.Types;
 using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Ecosystem
