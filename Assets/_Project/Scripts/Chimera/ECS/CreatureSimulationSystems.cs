@@ -4,6 +4,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
+using Unity.Profiling;
 using UnityEngine;
 using Laboratory.Core.ECS;
 using Laboratory.Chimera.ECS;
@@ -19,6 +20,8 @@ namespace Laboratory.Chimera.ECS
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial struct CreatureAgingSystem : ISystem
     {
+        private static readonly ProfilerMarker s_OnUpdateMarker = new ProfilerMarker("CreatureAgingSystem.OnUpdate");
+
         private EntityQuery creatureQuery;
 
 
@@ -32,14 +35,17 @@ namespace Laboratory.Chimera.ECS
 
         public void OnUpdate(ref SystemState state)
         {
-            var deltaTime = SystemAPI.Time.DeltaTime;
-
-            var agingJob = new CreatureAgingJob
+            using (s_OnUpdateMarker.Auto())
             {
-                deltaTime = deltaTime
-            };
+                var deltaTime = SystemAPI.Time.DeltaTime;
 
-            state.Dependency = agingJob.ScheduleParallel(creatureQuery, state.Dependency);
+                var agingJob = new CreatureAgingJob
+                {
+                    deltaTime = deltaTime
+                };
+
+                state.Dependency = agingJob.ScheduleParallel(creatureQuery, state.Dependency);
+            }
         }
     }
 
@@ -70,6 +76,8 @@ namespace Laboratory.Chimera.ECS
     [UpdateAfter(typeof(CreatureAgingSystem))]
     public partial struct CreatureAISystem : ISystem
     {
+        private static readonly ProfilerMarker s_OnUpdateMarker = new ProfilerMarker("CreatureAISystem.OnUpdate");
+
         private EntityQuery aiQuery;
 
 
@@ -84,17 +92,20 @@ namespace Laboratory.Chimera.ECS
 
         public void OnUpdate(ref SystemState state)
         {
-            var time = (float)SystemAPI.Time.ElapsedTime;
-            var deltaTime = SystemAPI.Time.DeltaTime;
-
-            var aiJob = new CreatureAIJob
+            using (s_OnUpdateMarker.Auto())
             {
-                time = time,
-                deltaTime = deltaTime,
-                random = Unity.Mathematics.Random.CreateFromIndex((uint)(time * 1000))
-            };
+                var time = (float)SystemAPI.Time.ElapsedTime;
+                var deltaTime = SystemAPI.Time.DeltaTime;
 
-            state.Dependency = aiJob.ScheduleParallel(aiQuery, state.Dependency);
+                var aiJob = new CreatureAIJob
+                {
+                    time = time,
+                    deltaTime = deltaTime,
+                    random = Unity.Mathematics.Random.CreateFromIndex((uint)(time * 1000))
+                };
+
+                state.Dependency = aiJob.ScheduleParallel(aiQuery, state.Dependency);
+            }
         }
     }
 
@@ -171,6 +182,8 @@ namespace Laboratory.Chimera.ECS
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial struct CreatureGeneticsSystem : ISystem
     {
+        private static readonly ProfilerMarker s_OnUpdateMarker = new ProfilerMarker("CreatureGeneticsSystem.OnUpdate");
+
         private EntityQuery geneticsQuery;
 
 
@@ -186,8 +199,11 @@ namespace Laboratory.Chimera.ECS
 
         public void OnUpdate(ref SystemState state)
         {
-            var geneticsJob = new CreatureGeneticsJob();
-            state.Dependency = geneticsJob.ScheduleParallel(geneticsQuery, state.Dependency);
+            using (s_OnUpdateMarker.Auto())
+            {
+                var geneticsJob = new CreatureGeneticsJob();
+                state.Dependency = geneticsJob.ScheduleParallel(geneticsQuery, state.Dependency);
+            }
         }
     }
 
@@ -229,6 +245,8 @@ namespace Laboratory.Chimera.ECS
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public partial struct CreatureVisualizationSystem : ISystem
     {
+        private static readonly ProfilerMarker s_OnUpdateMarker = new ProfilerMarker("CreatureVisualizationSystem.OnUpdate");
+
         private EntityQuery visualQuery;
 
         public void OnCreate(ref SystemState state)
@@ -241,20 +259,23 @@ namespace Laboratory.Chimera.ECS
 
         public void OnUpdate(ref SystemState state)
         {
-            // This system would handle visual updates, LOD, culling, etc.
-            // For now, just a placeholder that updates visual scale based on age
-
-            foreach (var (visualData, creatureData, transform) in
-                     SystemAPI.Query<RefRW<CreatureVisualData>, RefRO<CreatureData>, RefRW<LocalTransform>>()
-                     .WithAll<CreatureSimulationTag>())
+            using (s_OnUpdateMarker.Auto())
             {
-                if (!creatureData.ValueRO.isAlive) continue;
+                // This system would handle visual updates, LOD, culling, etc.
+                // For now, just a placeholder that updates visual scale based on age
 
-                // Scale creatures slightly based on age (growth simulation)
-                float ageScale = math.lerp(0.8f, 1.2f, math.min(creatureData.ValueRO.age / 5000f, 1f));
-                float finalScale = visualData.ValueRO.baseScale * ageScale;
+                foreach (var (visualData, creatureData, transform) in
+                         SystemAPI.Query<RefRW<CreatureVisualData>, RefRO<CreatureData>, RefRW<LocalTransform>>()
+                         .WithAll<CreatureSimulationTag>())
+                {
+                    if (!creatureData.ValueRO.isAlive) continue;
 
-                transform.ValueRW.Scale = finalScale;
+                    // Scale creatures slightly based on age (growth simulation)
+                    float ageScale = math.lerp(0.8f, 1.2f, math.min(creatureData.ValueRO.age / 5000f, 1f));
+                    float finalScale = visualData.ValueRO.baseScale * ageScale;
+
+                    transform.ValueRW.Scale = finalScale;
+                }
             }
         }
     }
@@ -266,6 +287,8 @@ namespace Laboratory.Chimera.ECS
     [UpdateAfter(typeof(CreatureAgingSystem))]
     public partial struct CreatureCleanupSystem : ISystem
     {
+        private static readonly ProfilerMarker s_OnUpdateMarker = new ProfilerMarker("CreatureCleanupSystem.OnUpdate");
+
         private EntityQuery deadCreatureQuery;
         private EndSimulationEntityCommandBufferSystem ecbSystem;
 
@@ -280,15 +303,18 @@ namespace Laboratory.Chimera.ECS
 
         public void OnUpdate(ref SystemState state)
         {
-            var ecb = ecbSystem.CreateCommandBuffer().AsParallelWriter();
-
-            var cleanupJob = new CreatureCleanupJob
+            using (s_OnUpdateMarker.Auto())
             {
-                ecb = ecb
-            };
+                var ecb = ecbSystem.CreateCommandBuffer().AsParallelWriter();
 
-            state.Dependency = cleanupJob.ScheduleParallel(deadCreatureQuery, state.Dependency);
-            ecbSystem.AddJobHandleForProducer(state.Dependency);
+                var cleanupJob = new CreatureCleanupJob
+                {
+                    ecb = ecb
+                };
+
+                state.Dependency = cleanupJob.ScheduleParallel(deadCreatureQuery, state.Dependency);
+                ecbSystem.AddJobHandleForProducer(state.Dependency);
+            }
         }
     }
 
@@ -315,6 +341,8 @@ namespace Laboratory.Chimera.ECS
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class CreatureDebugSystem : SystemBase
     {
+        private static readonly ProfilerMarker s_OnUpdateMarker = new ProfilerMarker("CreatureDebugSystem.OnUpdate");
+
         private EntityQuery allCreaturesQuery;
 
         protected override void OnCreate()
@@ -327,19 +355,22 @@ namespace Laboratory.Chimera.ECS
 
         protected override void OnUpdate()
         {
-            // Update debug info every second
-            if (SystemAPI.Time.ElapsedTime % 1.0 < SystemAPI.Time.DeltaTime)
+            using (s_OnUpdateMarker.Auto())
             {
-                int totalCreatures = allCreaturesQuery.CalculateEntityCount();
-                int aliveCreatures = 0;
-
-                foreach (var data in SystemAPI.Query<RefRO<CreatureData>>().WithAll<CreatureSimulationTag>())
+                // Update debug info every second
+                if (SystemAPI.Time.ElapsedTime % 1.0 < SystemAPI.Time.DeltaTime)
                 {
-                    if (data.ValueRO.isAlive) aliveCreatures++;
-                }
+                    int totalCreatures = allCreaturesQuery.CalculateEntityCount();
+                    int aliveCreatures = 0;
 
-                // Set debug data for Unity's debug system
-                UnityEngine.Debug.Log($"ECS Creatures - Total: {totalCreatures}, Alive: {aliveCreatures}, Dead: {totalCreatures - aliveCreatures}");
+                    foreach (var data in SystemAPI.Query<RefRO<CreatureData>>().WithAll<CreatureSimulationTag>())
+                    {
+                        if (data.ValueRO.isAlive) aliveCreatures++;
+                    }
+
+                    // Set debug data for Unity's debug system
+                    UnityEngine.Debug.Log($"ECS Creatures - Total: {totalCreatures}, Alive: {aliveCreatures}, Dead: {totalCreatures - aliveCreatures}");
+                }
             }
         }
     }
