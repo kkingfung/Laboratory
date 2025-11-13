@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
+using Laboratory.Chimera.Ecosystem.Core;
 using Laboratory.Shared.Types;
 using EcoCatastropheType = Laboratory.Chimera.Ecosystem.Data.CatastropheType;
 using EcoSeasonType = Laboratory.Chimera.Ecosystem.Data.SeasonType;
@@ -50,22 +51,22 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void Awake()
         {
-            FindDependencies();
+            // Register this system with the service locator
+            EcosystemServiceLocator.RegisterCatastrophe(this);
+
             InitializeCatastropheConfigurations();
         }
 
         private void Start()
         {
-            StartCoroutine(CatastropheMonitoringLoop());
-        }
+            // Get dependencies from service locator (O(1) static access, zero allocation)
+            climateSystem = EcosystemServiceLocator.Climate;
+            biomeSystem = EcosystemServiceLocator.Biome;
+            resourceSystem = EcosystemServiceLocator.Resource;
+            speciesSystem = EcosystemServiceLocator.Species;
+            healthMonitor = EcosystemServiceLocator.HealthMonitor;
 
-        private void FindDependencies()
-        {
-            climateSystem = FindObjectOfType<ClimateEvolutionSystem>();
-            biomeSystem = FindObjectOfType<BiomeTransitionSystem>();
-            resourceSystem = FindObjectOfType<ResourceFlowSystem>();
-            speciesSystem = FindObjectOfType<SpeciesInteractionSystem>();
-            healthMonitor = FindObjectOfType<EcosystemHealthMonitor>();
+            StartCoroutine(CatastropheMonitoringLoop());
         }
 
         private void InitializeCatastropheConfigurations()

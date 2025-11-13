@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
+using Laboratory.Chimera.Ecosystem.Core;
 using Laboratory.Shared.Types;
 
 using EcoMetrics = Laboratory.Chimera.Ecosystem.Data.EcosystemMetrics;
@@ -52,21 +53,21 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void Awake()
         {
-            FindDependencies();
+            // Register this monitor with the service locator
+            EcosystemServiceLocator.RegisterHealthMonitor(this);
+
             InitializeHealthSystem();
         }
 
         private void Start()
         {
-            StartCoroutine(HealthAssessmentLoop());
-        }
+            // Get dependencies from service locator (O(1) static access, zero allocation)
+            climateSystem = EcosystemServiceLocator.Climate;
+            biomeSystem = EcosystemServiceLocator.Biome;
+            resourceSystem = EcosystemServiceLocator.Resource;
+            speciesSystem = EcosystemServiceLocator.Species;
 
-        private void FindDependencies()
-        {
-            climateSystem = FindObjectOfType<ClimateEvolutionSystem>();
-            biomeSystem = FindObjectOfType<BiomeTransitionSystem>();
-            resourceSystem = FindObjectOfType<ResourceFlowSystem>();
-            speciesSystem = FindObjectOfType<SpeciesInteractionSystem>();
+            StartCoroutine(HealthAssessmentLoop());
         }
 
         private void InitializeHealthSystem()
