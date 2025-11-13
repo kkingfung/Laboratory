@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Unity.Profiling;
 using Laboratory.Chimera.Ecosystem.Data;
 using Laboratory.Chimera.Ecosystem.Core;
 using Laboratory.Shared.Types;
@@ -50,6 +51,12 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         public System.Action<string> OnHealthCritical;
         public System.Action<Vector2, float> OnRegionalHealthChanged;
         public System.Action<EcoMetrics> OnMetricsUpdated;
+
+        // Profiler Markers
+        private static readonly ProfilerMarker s_HealthAssessmentLoopMarker = new ProfilerMarker("EcosystemHealthMonitor.HealthAssessmentLoop");
+        private static readonly ProfilerMarker s_PerformHealthAssessmentMarker = new ProfilerMarker("EcosystemHealthMonitor.PerformHealthAssessment");
+        private static readonly ProfilerMarker s_CollectEcoMetricsMarker = new ProfilerMarker("EcosystemHealthMonitor.CollectEcoMetrics");
+        private static readonly ProfilerMarker s_CalculateEcosystemHealthMarker = new ProfilerMarker("EcosystemHealthMonitor.CalculateEcosystemHealth");
 
         private void Awake()
         {
@@ -104,10 +111,13 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         {
             while (enableRealTimeAssessment)
             {
-                PerformHealthAssessment();
-                UpdateRegionalHealth();
-                CheckHealthThresholds();
-                UpdateMetricsHistory();
+                using (s_HealthAssessmentLoopMarker.Auto())
+                {
+                    PerformHealthAssessment();
+                    UpdateRegionalHealth();
+                    CheckHealthThresholds();
+                    UpdateMetricsHistory();
+                }
 
                 yield return new WaitForSeconds(assessmentInterval);
             }
@@ -115,123 +125,132 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void PerformHealthAssessment()
         {
-            var metrics = CollectEcoMetrics();
-            var health = CalculateEcosystemHealth(metrics);
+            using (s_PerformHealthAssessmentMarker.Auto())
+            {
+                var metrics = CollectEcoMetrics();
+                var health = CalculateEcosystemHealth(metrics);
 
-            currentHealth = health;
-            OnHealthAssessmentComplete?.Invoke(health);
+                currentHealth = health;
+                OnHealthAssessmentComplete?.Invoke(health);
 
-            UnityEngine.Debug.Log($"🌿 Ecosystem health assessment: {health.OverallHealthScore:F2} " +
-                     $"(Biodiversity: {health.BiodiversityIndex:F2}, Stability: {health.PopulationStability:F2})");
+                UnityEngine.Debug.Log($"🌿 Ecosystem health assessment: {health.OverallHealthScore:F2} " +
+                         $"(Biodiversity: {health.BiodiversityIndex:F2}, Stability: {health.PopulationStability:F2})");
+            }
         }
 
         private EcoMetrics CollectEcoMetrics()
         {
-            var metrics = new EcoMetrics()
+            using (s_CollectEcoMetricsMarker.Auto())
             {
-                BiomeDistribution = new Dictionary<BiomeType, float>(),
-                TrophicDistribution = new Dictionary<EcoTrophicLevel, int>()
-            };
-
-            // Collect species data
-            if (speciesSystem != null)
-            {
-                var populations = speciesSystem.GetAllPopulations();
-                metrics.TotalSpeciesCount = populations.Count;
-                metrics.AveragePopulationSize = populations.Count > 0 ? populations.Values.Average() : 0f;
-
-                // Count endangered species (below 20% of carrying capacity)
-                metrics.EndangeredSpeciesCount = 0;
-                foreach (var speciesId in populations.Keys)
+                var metrics = new EcoMetrics()
                 {
-                    var popData = speciesSystem.GetPopulationData(speciesId);
-                    if (popData.CurrentPopulation < popData.MaxPopulation * 0.2f)
+                    BiomeDistribution = new Dictionary<BiomeType, float>(),
+                    TrophicDistribution = new Dictionary<EcoTrophicLevel, int>()
+                };
+
+                // Collect species data
+                if (speciesSystem != null)
+                {
+                    var populations = speciesSystem.GetAllPopulations();
+                    metrics.TotalSpeciesCount = populations.Count;
+                    metrics.AveragePopulationSize = populations.Count > 0 ? populations.Values.Average() : 0f;
+
+                    // Count endangered species (below 20% of carrying capacity)
+                    metrics.EndangeredSpeciesCount = 0;
+                    foreach (var speciesId in populations.Keys)
                     {
-                        metrics.EndangeredSpeciesCount++;
+                        var popData = speciesSystem.GetPopulationData(speciesId);
+                        if (popData.CurrentPopulation < popData.MaxPopulation * 0.2f)
+                        {
+                            metrics.EndangeredSpeciesCount++;
+                        }
+                    }
+
+                    // Calculate population stability
+                    metrics.PopulationStability = CalculatePopulationStability(populations);
+
+                    // Collect trophic distribution (simplified - assumes equal distribution for now)
+                    foreach (var speciesId in populations.Keys)
+                    {
+                        // For now, distribute species evenly across trophic levels
+                        // In a real implementation, this would come from species data
+                        var trophicLevel = (EcoTrophicLevel)(speciesId % 4); // Distribute across first 4 levels
+                        if (!metrics.TrophicDistribution.ContainsKey(trophicLevel))
+                            metrics.TrophicDistribution[trophicLevel] = 0;
+                        metrics.TrophicDistribution[trophicLevel]++;
                     }
                 }
 
-                // Calculate population stability
-                metrics.PopulationStability = CalculatePopulationStability(populations);
-
-                // Collect trophic distribution (simplified - assumes equal distribution for now)
-                foreach (var speciesId in populations.Keys)
+                // Collect biome distribution
+                if (biomeSystem != null)
                 {
-                    // For now, distribute species evenly across trophic levels
-                    // In a real implementation, this would come from species data
-                    var trophicLevel = (EcoTrophicLevel)(speciesId % 4); // Distribute across first 4 levels
-                    if (!metrics.TrophicDistribution.ContainsKey(trophicLevel))
-                        metrics.TrophicDistribution[trophicLevel] = 0;
-                    metrics.TrophicDistribution[trophicLevel]++;
+                    var biomeDistribution = biomeSystem.GetBiomeDistribution();
+                    metrics.BiomeDistribution = biomeDistribution.ToDictionary(
+                        kvp => System.Enum.Parse<BiomeType>(kvp.Key.ToString()),
+                        kvp => kvp.Value / (float)biomeDistribution.Values.Sum()
+                    );
                 }
-            }
 
-            // Collect biome distribution
-            if (biomeSystem != null)
-            {
-                var biomeDistribution = biomeSystem.GetBiomeDistribution();
-                metrics.BiomeDistribution = biomeDistribution.ToDictionary(
-                    kvp => System.Enum.Parse<BiomeType>(kvp.Key.ToString()),
-                    kvp => kvp.Value / (float)biomeDistribution.Values.Sum()
-                );
-            }
-
-            // Collect resource data
-            if (resourceSystem != null)
-            {
-                var globalResources = resourceSystem.GetGlobalResourceLevels();
-                float totalResourceUtilization = 0f;
-                foreach (var resource in globalResources.Values)
+                // Collect resource data
+                if (resourceSystem != null)
                 {
-                    totalResourceUtilization += Mathf.Clamp01(resource / 1000f); // Normalize to capacity
+                    var globalResources = resourceSystem.GetGlobalResourceLevels();
+                    float totalResourceUtilization = 0f;
+                    foreach (var resource in globalResources.Values)
+                    {
+                        totalResourceUtilization += Mathf.Clamp01(resource / 1000f); // Normalize to capacity
+                    }
+                    metrics.CarryingCapacityUtilization = globalResources.Count > 0 ?
+                        totalResourceUtilization / globalResources.Count : 0f;
                 }
-                metrics.CarryingCapacityUtilization = globalResources.Count > 0 ?
-                    totalResourceUtilization / globalResources.Count : 0f;
+
+                // Calculate derived metrics
+                metrics.ExtinctionRate = CalculateExtinctionRate();
+                metrics.SpeciationRate = CalculateSpeciationRate();
+                metrics.GeneticDiversity = CalculateGeneticDiversity();
+                metrics.EcosystemResilience = CalculateEcosystemResilience();
+
+                return metrics;
             }
-
-            // Calculate derived metrics
-            metrics.ExtinctionRate = CalculateExtinctionRate();
-            metrics.SpeciationRate = CalculateSpeciationRate();
-            metrics.GeneticDiversity = CalculateGeneticDiversity();
-            metrics.EcosystemResilience = CalculateEcosystemResilience();
-
-            return metrics;
         }
 
         private EcosystemHealth CalculateEcosystemHealth(EcoMetrics metrics)
         {
-            var health = new EcosystemHealth();
+            using (s_CalculateEcosystemHealthMarker.Auto())
+            {
+                var health = new EcosystemHealth();
 
-            // Calculate biodiversity index
-            health.BiodiversityIndex = CalculateBiodiversityIndex(metrics);
+                // Calculate biodiversity index
+                health.BiodiversityIndex = CalculateBiodiversityIndex(metrics);
 
-            // Calculate trophic balance
-            health.TrophicBalance = CalculateTrophicBalance(metrics);
+                // Calculate trophic balance
+                health.TrophicBalance = CalculateTrophicBalance(metrics);
 
-            // Calculate resource sustainability
-            health.ResourceSustainability = CalculateResourceSustainability(metrics);
+                // Calculate resource sustainability
+                health.ResourceSustainability = CalculateResourceSustainability(metrics);
 
-            // Population stability
-            health.PopulationStability = metrics.PopulationStability;
+                // Population stability
+                health.PopulationStability = metrics.PopulationStability;
 
-            // Habitat quality
-            health.HabitatQuality = CalculateHabitatQuality(metrics);
+                // Habitat quality
+                health.HabitatQuality = CalculateHabitatQuality(metrics);
 
-            // Overall health score (weighted average)
-            health.OverallHealthScore = (
-                health.BiodiversityIndex * speciesDiversityWeight +
-                health.TrophicBalance * functionalDiversityWeight +
-                health.ResourceSustainability * 0.25f +
-                health.PopulationStability * 0.25f +
-                health.HabitatQuality * 0.25f
-            );
+                // Overall health score (weighted average)
+                health.OverallHealthScore = (
+                    health.BiodiversityIndex * speciesDiversityWeight +
+                    health.TrophicBalance * functionalDiversityWeight +
+                    health.ResourceSustainability * 0.25f +
+                    health.PopulationStability * 0.25f +
+                    health.HabitatQuality * 0.25f
+                );
 
-            // Identify threats and opportunities
-            health.Threats = IdentifyThreats(metrics, health);
-            health.Opportunities = IdentifyOpportunities(metrics, health);
-            health.LastAssessment = System.DateTime.Now;
+                // Identify threats and opportunities
+                health.Threats = IdentifyThreats(metrics, health);
+                health.Opportunities = IdentifyOpportunities(metrics, health);
+                health.LastAssessment = System.DateTime.Now;
 
-            return health;
+                return health;
+            }
         }
 
         private float CalculateBiodiversityIndex(EcoMetrics metrics)

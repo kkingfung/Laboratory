@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Unity.Profiling;
 using Laboratory.Chimera.Ecosystem.Data;
 using Laboratory.Chimera.Ecosystem.Core;
 using Laboratory.Chimera.Diagnostics;
@@ -40,6 +41,12 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         public System.Action<Vector2, ResourceType> OnResourceDepleted;
         public System.Action<Vector2, ResourceType> OnResourceRestored;
         public System.Action<ResourceType, float> OnGlobalResourceChanged;
+
+        // Profiler Markers
+        private static readonly ProfilerMarker s_ResourceUpdateLoopMarker = new ProfilerMarker("ResourceFlowSystem.ResourceUpdateLoop");
+        private static readonly ProfilerMarker s_UpdateResourceRegenerationMarker = new ProfilerMarker("ResourceFlowSystem.UpdateResourceRegeneration");
+        private static readonly ProfilerMarker s_ProcessResourceConsumptionMarker = new ProfilerMarker("ResourceFlowSystem.ProcessResourceConsumption");
+        private static readonly ProfilerMarker s_ApplySeasonalEffectsMarker = new ProfilerMarker("ResourceFlowSystem.ApplySeasonalEffects");
 
         private void Awake()
         {
@@ -275,11 +282,14 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         {
             while (true)
             {
-                UpdateResourceRegeneration();
-                ProcessResourceConsumption();
-                ApplySeasonalEffects();
-                UpdateGlobalResourceLevels();
-                CheckResourceThresholds();
+                using (s_ResourceUpdateLoopMarker.Auto())
+                {
+                    UpdateResourceRegeneration();
+                    ProcessResourceConsumption();
+                    ApplySeasonalEffects();
+                    UpdateGlobalResourceLevels();
+                    CheckResourceThresholds();
+                }
 
                 yield return new WaitForSeconds(resourceUpdateInterval);
             }
@@ -287,31 +297,34 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void UpdateResourceRegeneration()
         {
-            foreach (var locationKvp in regionalResources.ToList())
+            using (s_UpdateResourceRegenerationMarker.Auto())
             {
-                var location = locationKvp.Key;
-                var resources = locationKvp.Value;
-
-                foreach (var resourceKvp in resources.ToList())
+                foreach (var locationKvp in regionalResources.ToList())
                 {
-                    var resourceType = resourceKvp.Key;
-                    var resource = resourceKvp.Value;
+                    var location = locationKvp.Key;
+                    var resources = locationKvp.Value;
 
-                    if (resource.IsRenewable && resourceConfigs.TryGetValue(resourceType, out var config))
+                    foreach (var resourceKvp in resources.ToList())
                     {
-                        float regeneration = resource.RegenerationRate * globalRegenerationRate * resourceUpdateInterval;
-                        regeneration *= resource.SeasonalModifier;
+                        var resourceType = resourceKvp.Key;
+                        var resource = resourceKvp.Value;
 
-                        float newAvailability = Mathf.Min(
-                            resource.Availability + regeneration,
-                            config.CarryingCapacity
-                        );
-
-                        if (Mathf.Abs(newAvailability - resource.Availability) > 0.01f)
+                        if (resource.IsRenewable && resourceConfigs.TryGetValue(resourceType, out var config))
                         {
-                            resource.Availability = newAvailability;
-                            resources[resourceType] = resource;
-                            OnResourceLevelChanged?.Invoke(location, resourceType, newAvailability);
+                            float regeneration = resource.RegenerationRate * globalRegenerationRate * resourceUpdateInterval;
+                            regeneration *= resource.SeasonalModifier;
+
+                            float newAvailability = Mathf.Min(
+                                resource.Availability + regeneration,
+                                config.CarryingCapacity
+                            );
+
+                            if (Mathf.Abs(newAvailability - resource.Availability) > 0.01f)
+                            {
+                                resource.Availability = newAvailability;
+                                resources[resourceType] = resource;
+                                OnResourceLevelChanged?.Invoke(location, resourceType, newAvailability);
+                            }
                         }
                     }
                 }
@@ -320,30 +333,33 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void ProcessResourceConsumption()
         {
-            foreach (var locationKvp in regionalResources.ToList())
+            using (s_ProcessResourceConsumptionMarker.Auto())
             {
-                var location = locationKvp.Key;
-                var resources = locationKvp.Value;
-
-                foreach (var resourceKvp in resources.ToList())
+                foreach (var locationKvp in regionalResources.ToList())
                 {
-                    var resourceType = resourceKvp.Key;
-                    var resource = resourceKvp.Value;
+                    var location = locationKvp.Key;
+                    var resources = locationKvp.Value;
 
-                    if (resource.ConsumptionRate > 0f)
+                    foreach (var resourceKvp in resources.ToList())
                     {
-                        float consumption = resource.ConsumptionRate * resourceUpdateInterval;
-                        float newAvailability = Mathf.Max(0f, resource.Availability - consumption);
+                        var resourceType = resourceKvp.Key;
+                        var resource = resourceKvp.Value;
 
-                        if (newAvailability != resource.Availability)
+                        if (resource.ConsumptionRate > 0f)
                         {
-                            resource.Availability = newAvailability;
-                            resources[resourceType] = resource;
-                            OnResourceLevelChanged?.Invoke(location, resourceType, newAvailability);
+                            float consumption = resource.ConsumptionRate * resourceUpdateInterval;
+                            float newAvailability = Mathf.Max(0f, resource.Availability - consumption);
 
-                            if (newAvailability <= 0f)
+                            if (newAvailability != resource.Availability)
                             {
-                                OnResourceDepleted?.Invoke(location, resourceType);
+                                resource.Availability = newAvailability;
+                                resources[resourceType] = resource;
+                                OnResourceLevelChanged?.Invoke(location, resourceType, newAvailability);
+
+                                if (newAvailability <= 0f)
+                                {
+                                    OnResourceDepleted?.Invoke(location, resourceType);
+                                }
                             }
                         }
                     }
@@ -353,24 +369,27 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void ApplySeasonalEffects()
         {
-            if (!enableSeasonalModifiers || climateSystem == null) return;
-
-            var season = climateSystem.GetCurrentSeason();
-            var seasonProgress = climateSystem.GetSeasonProgress();
-
-            foreach (var locationKvp in regionalResources.ToList())
+            using (s_ApplySeasonalEffectsMarker.Auto())
             {
-                var location = locationKvp.Key;
-                var resources = locationKvp.Value;
+                if (!enableSeasonalModifiers || climateSystem == null) return;
 
-                foreach (var resourceKvp in resources.ToList())
+                var season = climateSystem.GetCurrentSeason();
+                var seasonProgress = climateSystem.GetSeasonProgress();
+
+                foreach (var locationKvp in regionalResources.ToList())
                 {
-                    var resourceType = resourceKvp.Key;
-                    var resource = resourceKvp.Value;
+                    var location = locationKvp.Key;
+                    var resources = locationKvp.Value;
 
-                    float seasonalModifier = CalculateSeasonalModifier(resourceType, season, seasonProgress);
-                    resource.SeasonalModifier = seasonalModifier;
-                    resources[resourceType] = resource;
+                    foreach (var resourceKvp in resources.ToList())
+                    {
+                        var resourceType = resourceKvp.Key;
+                        var resource = resourceKvp.Value;
+
+                        float seasonalModifier = CalculateSeasonalModifier(resourceType, season, seasonProgress);
+                        resource.SeasonalModifier = seasonalModifier;
+                        resources[resourceType] = resource;
+                    }
                 }
             }
         }
