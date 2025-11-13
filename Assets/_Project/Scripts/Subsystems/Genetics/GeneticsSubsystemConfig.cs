@@ -1,6 +1,7 @@
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Configuration;
+using ProjectChimera.Core;
 
 namespace Laboratory.Subsystems.Genetics
 {
@@ -263,7 +264,7 @@ namespace Laboratory.Subsystems.Genetics
 
         [Header("Memory Management")]
         [SerializeField] private bool enableMemoryOptimization = true;
-        [SerializeField] private float memoryCleanupInterval = 60f; // 1 minute
+        [SerializeField] private float memoryCleanupInterval = GameConstants.MEMORY_CLEANUP_INTERVAL; // 1 minute
         [SerializeField] private int maxMemoryUsageMB = 100;
 
         // Public Properties
@@ -308,7 +309,7 @@ namespace Laboratory.Subsystems.Genetics
                 enableBackgroundMutations = true,
                 backgroundProcessingBatchSize = 5,
                 enableMemoryOptimization = true,
-                memoryCleanupInterval = 60f,
+                memoryCleanupInterval = GameConstants.MEMORY_CLEANUP_INTERVAL,
                 maxMemoryUsageMB = 100
             };
         }

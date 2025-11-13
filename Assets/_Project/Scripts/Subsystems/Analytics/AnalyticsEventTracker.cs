@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+using ProjectChimera.Core;
 
 namespace Laboratory.Analytics
 {
@@ -378,7 +379,7 @@ namespace Laboratory.Analytics
         private float _lastPerformanceTrack;
         private void TrackPerformanceMetrics()
         {
-            if (Time.time - _lastPerformanceTrack < 60f) return; // Track every minute
+            if (Time.time - _lastPerformanceTrack < GameConstants.PERFORMANCE_TRACK_INTERVAL) return; // Track every minute
             _lastPerformanceTrack = Time.time;
 
             TrackEvent("performance_metrics", new Dictionary<string, object>
