@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
+using Laboratory.Chimera.Ecosystem.Core;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
 {
@@ -39,6 +40,9 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void Awake()
         {
+            // Register this system with the service locator
+            EcosystemServiceLocator.RegisterClimate(this);
+
             InitializeClimate();
         }
 
