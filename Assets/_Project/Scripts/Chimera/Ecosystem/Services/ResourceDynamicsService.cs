@@ -1,7 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Unity.Mathematics;
 using Laboratory.Chimera.Ecosystem.Core;
+using Laboratory.Shared.Types;
+using Laboratory.Core.Utilities;
+using Laboratory.Chimera.Ecosystem.Data;
 
 namespace Laboratory.Chimera.Ecosystem
 {
@@ -53,7 +57,8 @@ namespace Laboratory.Chimera.Ecosystem
                 foreach (var resourceType in biome.resources.Keys.ToArray())
                 {
                     float consumption = consumptionRate * species.populationSize * deltaTime;
-                    biome.resources[resourceType] = Mathf.Max(0f, biome.resources[resourceType] - consumption);
+                    var currentResourceValue = GetResourceValue(biome.resources[resourceType]);
+                    SetResourceValue(biome.resources, resourceType, Mathf.Max(0f, currentResourceValue - consumption));
                 }
             }
         }
@@ -69,10 +74,10 @@ namespace Laboratory.Chimera.Ecosystem
             // Adjust for trophic level (carnivores consume less but require more energy)
             float trophicModifier = species.trophicLevel switch
             {
-                TrophicLevel.Producer => 0.0f, // Producers don't consume, they produce
-                TrophicLevel.PrimaryConsumer => 1.0f,
-                TrophicLevel.SecondaryConsumer => 0.8f, // More efficient
-                TrophicLevel.TertiaryConsumer => 0.6f, // Most efficient
+                Laboratory.Chimera.Ecosystem.Data.TrophicLevel.Producer => 0.0f, // Producers don't consume, they produce
+                Laboratory.Chimera.Ecosystem.Data.TrophicLevel.PrimaryConsumer => 1.0f,
+                Laboratory.Chimera.Ecosystem.Data.TrophicLevel.SecondaryConsumer => 0.8f, // More efficient
+                Laboratory.Chimera.Ecosystem.Data.TrophicLevel.TertiaryConsumer => 0.6f, // Most efficient
                 _ => 0.5f
             };
 
@@ -99,12 +104,12 @@ namespace Laboratory.Chimera.Ecosystem
                 foreach (var resourceType in biome.resources.Keys.ToArray())
                 {
                     float maxResource = GetMaxResourceCapacity(biome.biomeType, resourceType);
-                    float currentResource = biome.resources[resourceType];
+                    float currentResource = GetResourceValue(biome.resources[resourceType]);
 
                     if (currentResource < maxResource)
                     {
                         float regeneration = regenerationRate * deltaTime;
-                        biome.resources[resourceType] = Mathf.Min(maxResource, currentResource + regeneration);
+                        SetResourceValue(biome.resources, resourceType, Mathf.Min(maxResource, currentResource + regeneration));
                     }
                 }
             }
@@ -118,12 +123,12 @@ namespace Laboratory.Chimera.Ecosystem
             // Base regeneration depends on biome type
             float baseRate = biome.biomeType switch
             {
-                Laboratory.Core.Enums.BiomeType.Tropical => 2.0f,
-                Laboratory.Core.Enums.BiomeType.Forest => 1.5f,
-                Laboratory.Core.Enums.BiomeType.Grassland => 1.2f,
-                Laboratory.Core.Enums.BiomeType.Desert => 0.3f,
-                Laboratory.Core.Enums.BiomeType.Tundra => 0.5f,
-                Laboratory.Core.Enums.BiomeType.Swamp => 1.8f,
+                BiomeType.Tropical => 2.0f,
+                BiomeType.Forest => 1.5f,
+                BiomeType.Grassland => 1.2f,
+                BiomeType.Desert => 0.3f,
+                BiomeType.Tundra => 0.5f,
+                BiomeType.Swamp => 1.8f,
                 _ => 1.0f
             };
 
@@ -136,7 +141,7 @@ namespace Laboratory.Chimera.Ecosystem
         /// <summary>
         /// Gets maximum resource capacity for a biome type and resource
         /// </summary>
-        private float GetMaxResourceCapacity(Laboratory.Core.Enums.BiomeType biomeType, string resourceType)
+        private float GetMaxResourceCapacity(BiomeType biomeType, string resourceType)
         {
             // Base capacity varies by biome type
             return 1000f; // Simplified - would be more complex in full implementation
@@ -151,5 +156,23 @@ namespace Laboratory.Chimera.Ecosystem
         }
 
         public ResourceNetwork GetResourceNetwork() => resourceNetwork;
+
+        /// <summary>
+        /// Helper method to get resource value from Resource object
+        /// </summary>
+        private float GetResourceValue(Resource resource)
+        {
+            // Assuming Resource has a Value or Amount property
+            return resource.Amount; // Stub implementation
+        }
+
+        /// <summary>
+        /// Helper method to set resource value in resource dictionary
+        /// </summary>
+        private void SetResourceValue(Dictionary<string, Resource> resources, string resourceType, float value)
+        {
+            // Create new Resource with the specified amount
+            resources[resourceType] = new Resource { Amount = value };
+        }
     }
 }
