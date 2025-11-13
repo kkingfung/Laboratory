@@ -8,6 +8,7 @@ using Laboratory.Core.Events;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Subsystems.Combat.CoreAbilities;
 using Laboratory.Subsystems.Spawning;
+using ProjectChimera.Core;
 
 namespace Laboratory.Subsystems.Analytics
 {
@@ -23,9 +24,9 @@ namespace Laboratory.Subsystems.Analytics
         [SerializeField] private bool enableRemoteAnalytics = false;
         
         [Header("Data Collection")]
-        [SerializeField] private float sessionUpdateInterval = 30f;
+        [SerializeField] private float sessionUpdateInterval = GameConstants.BEHAVIOR_ANALYSIS_INTERVAL;
         [SerializeField] private int maxEventsPerBatch = 100;
-        [SerializeField] private float batchSendInterval = 60f;
+        [SerializeField] private float batchSendInterval = GameConstants.ANALYTICS_BATCH_INTERVAL;
         
         [Header("Privacy Settings")]
         [SerializeField] private bool respectPlayerPrivacy = true;
