@@ -1,0 +1,30 @@
+{
+    "name": "Laboratory.Tests",
+    "rootNamespace": "Laboratory.Tests",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Jobs",
+        "Unity.Burst",
+        "Unity.Transforms",
+        "Unity.Physics",
+        "GUID:2e33352ae525ce747af7ebadc6f4baa2",
+        "GUID:bfbf26cb3e54cea4da34606ea609ad95"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

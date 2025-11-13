@@ -8,6 +8,79 @@ using UnityEngine;
 namespace Laboratory.Chimera.Ecosystem.Data
 {
     /// <summary>
+    /// Trophic levels in the ecosystem food chain
+    /// </summary>
+    public enum TrophicLevel
+    {
+        Producer = 0,           // Plants, algae, photosynthetic organisms
+        PrimaryConsumer = 1,    // Herbivores
+        SecondaryConsumer = 2,  // Carnivores that eat herbivores
+        TertiaryConsumer = 3,   // Top predators
+        Omnivore = 4,           // Organisms that eat both plants and animals
+        Decomposer = 5,         // Organisms that break down dead matter
+        Scavenger = 6          // Organisms that eat dead organisms
+    }
+    /// <summary>
+    /// Species data for ecosystem simulation
+    /// </summary>
+    [Serializable]
+    public struct EcosystemSpeciesData
+    {
+        public uint SpeciesId;
+        public string SpeciesName;
+        public int PopulationSize;
+        public TrophicLevel TrophicLevel;
+        public float MetabolicRate;
+        public float BodySize;
+        public float GrowthRate;
+        public float CarryingCapacityContribution;
+        public Vector2 PreferredTemperatureRange;
+        public float AdaptabilityFactor;
+        public List<uint> PreySpecies;
+        public List<uint> PredatorSpecies;
+        public float ReproductionRate;
+        public float SurvivalRate;
+
+        // For compatibility - maps to PopulationSize
+        public int populationSize => PopulationSize;
+        public TrophicLevel trophicLevel => TrophicLevel;
+    }
+
+    /// <summary>
+    /// Resource data structure for ecosystem simulation
+    /// </summary>
+    [Serializable]
+    public struct Resource
+    {
+        public float Amount;
+        public float MaxCapacity;
+        public float RegenerationRate;
+        public ResourceType Type;
+
+        public Resource(float amount)
+        {
+            Amount = amount;
+            MaxCapacity = 1000f;
+            RegenerationRate = 1f;
+            Type = ResourceType.Food;
+        }
+
+        public static implicit operator float(Resource resource) => resource.Amount;
+        public static implicit operator Resource(float amount) => new Resource(amount);
+    }
+
+    /// <summary>
+    /// Types of resources in the ecosystem
+    /// </summary>
+    public enum ResourceType
+    {
+        Food,
+        Water,
+        Shelter,
+        Territory
+    }
+
+    /// <summary>
     /// Core data structures for ecosystem evolution simulation
     ///
     /// STATE ARCHITECTURE OVERVIEW:

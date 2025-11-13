@@ -2,18 +2,13 @@
     "name": "Laboratory.Core",
     "rootNamespace": "Laboratory.Core",
     "references": [
-        "R3",
-        "UniTask",
-        "Unity.Burst",
         "Unity.Entities",
-        "Unity.Transforms",
-        "Unity.Mathematics",
         "Unity.Collections",
-        "Unity.Netcode.Runtime",
-        "Unity.Addressables",
-        "Unity.ResourceManager",
-        "Laboratory.Shared",
-        "Laboratory.Compatibility"
+        "Unity.Mathematics",
+        "Unity.Jobs",
+        "Unity.Burst",
+        "Unity.Transforms",
+        "Unity.Physics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
