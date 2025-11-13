@@ -11,6 +11,7 @@ using Laboratory.Subsystems.Analytics;
 using Laboratory.Subsystems.Genetics;
 using Laboratory.Subsystems.Research;
 using Laboratory.Subsystems.Ecosystem;
+using Laboratory.Subsystems.AIDirector.Services;
 using Laboratory.Chimera.Genetics;
 
 namespace Laboratory.Subsystems.AIDirector
@@ -75,6 +76,13 @@ namespace Laboratory.Subsystems.AIDirector
         private IEmergentStorytellingService _emergentStorytellingService;
         private IBehaviorPredictionService _behaviorPredictionService;
         private IEducationalScaffoldingService _educationalScaffoldingService;
+
+        // Extracted service-based composition (Phase 1 refactoring)
+        private PlayerProfileService _playerProfileService;
+        private BehavioralAnalysisService _behavioralAnalysisService;
+        private EducationalContentService _educationalContentService;
+        private DecisionExecutionService _decisionExecutionService;
+        private EventHandlerService _eventHandlerService;
 
         #endregion
 
@@ -193,6 +201,47 @@ namespace Laboratory.Subsystems.AIDirector
             _decisionMatrix = new DecisionMatrix();
             _activeRules = new List<DirectorRule>();
             _contextWeights = new Dictionary<string, float>();
+
+            // Initialize extracted services (Phase 1 refactoring)
+            InitializeExtractedServices();
+        }
+
+        private void InitializeExtractedServices()
+        {
+            // Initialize PlayerProfileService
+            _playerProfileService = new PlayerProfileService(_playerProfiles, _config, _eventQueue);
+
+            // Initialize BehavioralAnalysisService
+            _behavioralAnalysisService = new BehavioralAnalysisService(_playerProfiles);
+
+            // Initialize DecisionExecutionService (needs to be initialized before EducationalContentService)
+            _decisionExecutionService = new DecisionExecutionService(
+                _playerProfiles,
+                _config,
+                _difficultyAdaptationService,
+                _narrativeGenerationService,
+                _contentOrchestrationService,
+                _educationalScaffoldingService);
+
+            // Wire up decision execution service events
+            _decisionExecutionService.OnDirectorDecisionMade += (decision) => OnDirectorDecisionMade?.Invoke(decision);
+            _decisionExecutionService.OnDifficultyAdjusted += (adjustment) => OnDifficultyAdjusted?.Invoke(adjustment);
+            _decisionExecutionService.OnNarrativeEventTriggered += (narrativeEvent) => OnNarrativeEventTriggered?.Invoke(narrativeEvent);
+
+            // Initialize EducationalContentService
+            _educationalContentService = new EducationalContentService(
+                _playerProfiles,
+                _config,
+                _decisionExecutionService.ExecuteDirectorDecision);
+
+            // Initialize EventHandlerService
+            _eventHandlerService = new EventHandlerService(
+                _playerProfiles,
+                _config,
+                _playerProfileService,
+                _behavioralAnalysisService,
+                _educationalContentService,
+                _decisionExecutionService);
         }
 
         private void LoadDirectorRules()
@@ -246,21 +295,21 @@ namespace Laboratory.Subsystems.AIDirector
             try
             {
                 // Subscribe to genetics events
-                Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnBreedingComplete += HandleBreedingEvent;
-                Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnMutationOccurred += HandleMutationEvent;
-                Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnTraitDiscovered += HandleTraitDiscoveryEvent;
+                Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnBreedingComplete += _eventHandlerService.HandleBreedingEvent;
+                Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnMutationOccurred += _eventHandlerService.HandleMutationEvent;
+                Laboratory.Subsystems.Genetics.GeneticsSubsystemManager.OnTraitDiscovered += _eventHandlerService.HandleTraitDiscoveryEvent;
 
                 // Subscribe to research events
-                Laboratory.Subsystems.Research.ResearchSubsystemManager.OnDiscoveryLogged += HandleResearchDiscoveryEvent;
-                Laboratory.Subsystems.Research.ResearchSubsystemManager.OnPublicationCreated += HandlePublicationEvent;
+                Laboratory.Subsystems.Research.ResearchSubsystemManager.OnDiscoveryLogged += _eventHandlerService.HandleResearchDiscoveryEvent;
+                Laboratory.Subsystems.Research.ResearchSubsystemManager.OnPublicationCreated += _eventHandlerService.HandlePublicationEvent;
 
                 // Subscribe to ecosystem events
-                Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnEnvironmentalEvent += HandleEnvironmentalEvent;
-                Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnPopulationChanged += HandlePopulationEvent;
+                Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnEnvironmentalEvent += _eventHandlerService.HandleEnvironmentalEvent;
+                Laboratory.Subsystems.Ecosystem.EcosystemSubsystemManager.OnPopulationChanged += _eventHandlerService.HandlePopulationEvent;
 
                 // Subscribe to analytics events
-                Laboratory.Subsystems.Analytics.AnalyticsSubsystemManager.OnPlayerActionTracked += HandlePlayerActionEvent;
-                Laboratory.Subsystems.Analytics.AnalyticsSubsystemManager.OnEducationalProgressTracked += HandleEducationalProgressEvent;
+                Laboratory.Subsystems.Analytics.AnalyticsSubsystemManager.OnPlayerActionTracked += _eventHandlerService.HandlePlayerActionEvent;
+                Laboratory.Subsystems.Analytics.AnalyticsSubsystemManager.OnEducationalProgressTracked += _eventHandlerService.HandleEducationalProgressEvent;
 
                 if (_config.enableDebugLogging)
                     Debug.Log("[AIDirector] Player tracking events initialized - Analytics integration active, other subsystems pending type availability");
@@ -360,7 +409,7 @@ namespace Laboratory.Subsystems.AIDirector
             if (!string.IsNullOrEmpty(playerId))
             {
                 _playerAnalysisService?.TrackPlayerAction(playerId, directorEvent);
-                UpdatePlayerEngagement(playerId, directorEvent);
+                _playerProfileService.UpdatePlayerEngagement(playerId, directorEvent);
             }
         }
 
@@ -388,7 +437,7 @@ namespace Laboratory.Subsystems.AIDirector
             _narrativeGenerationService?.TriggerAchievementNarrative(playerId, achievementType);
 
             // Update player confidence and engagement
-            UpdatePlayerConfidence(playerId, true);
+            _playerProfileService.UpdatePlayerConfidence(playerId, true);
         }
 
         private void ProcessCollaborationEvent(DirectorEvent directorEvent)
@@ -415,7 +464,7 @@ namespace Laboratory.Subsystems.AIDirector
             ConsiderDifficultyReduction(playerId);
 
             // Update player confidence
-            UpdatePlayerConfidence(playerId, false);
+            _playerProfileService.UpdatePlayerConfidence(playerId, false);
         }
 
         private void ProcessMilestoneEvent(DirectorEvent directorEvent)
@@ -449,8 +498,8 @@ namespace Laboratory.Subsystems.AIDirector
             var analysis = _playerAnalysisService?.AnalyzePlayer(playerId);
             if (analysis != null)
             {
-                var profile = GetOrCreatePlayerProfile(playerId);
-                UpdatePlayerProfileFromAnalysis(profile, analysis);
+                var profile = _playerProfileService.GetOrCreatePlayerProfile(playerId);
+                _playerProfileService.UpdatePlayerProfileFromAnalysis(profile, analysis);
 
                 OnPlayerProfileUpdated?.Invoke(profile);
             }
@@ -470,11 +519,11 @@ namespace Laboratory.Subsystems.AIDirector
             var context = GetOrCreatePlayerContext(playerId);
 
             // Update context based on current player state
-            context.engagement = CalculateEngagementScore(profile);
-            context.skillLevel = CalculateSkillLevel(profile);
-            context.progressRate = CalculateProgressRate(profile);
-            context.socialActivity = CalculateSocialActivity(profile);
-            context.timeInSession = CalculateSessionTime(profile);
+            context.engagement = _playerProfileService.CalculateEngagementScore(profile);
+            context.skillLevel = _playerProfileService.CalculateSkillLevel(profile);
+            context.progressRate = _playerProfileService.CalculateProgressRate(profile);
+            context.socialActivity = _playerProfileService.CalculateSocialActivity(profile);
+            context.timeInSession = _playerProfileService.CalculateSessionTime(profile);
 
             // Update context weights based on educational goals
             UpdateContextWeightsForPlayer(playerId, context);
@@ -526,34 +575,7 @@ namespace Laboratory.Subsystems.AIDirector
 
         private void ExecuteDirectorDecision(string playerId, DirectorDecision decision)
         {
-            switch (decision.decisionType)
-            {
-                case DirectorDecisionType.AdjustDifficulty:
-                    ExecuteDifficultyAdjustment(playerId, decision);
-                    break;
-
-                case DirectorDecisionType.TriggerNarrative:
-                    ExecuteNarrativeTrigger(playerId, decision);
-                    break;
-
-                case DirectorDecisionType.SpawnContent:
-                    ExecuteContentSpawn(playerId, decision);
-                    break;
-
-                case DirectorDecisionType.ProvideHint:
-                    ExecuteHintProvision(playerId, decision);
-                    break;
-
-                case DirectorDecisionType.EncourageCollaboration:
-                    ExecuteCollaborationEncouragement(playerId, decision);
-                    break;
-
-                case DirectorDecisionType.CelebrateAchievement:
-                    ExecuteAchievementCelebration(playerId, decision);
-                    break;
-            }
-
-            OnDirectorDecisionMade?.Invoke(decision);
+            _decisionExecutionService.ExecuteDirectorDecision(playerId, decision);
         }
 
         private void UpdateActiveStorylines()
@@ -630,16 +652,7 @@ namespace Laboratory.Subsystems.AIDirector
         /// </summary>
         public void TrackPlayerAction(string playerId, string actionType, Dictionary<string, object> actionData = null)
         {
-            var directorEvent = new DirectorEvent
-            {
-                eventType = DirectorEventType.PlayerAction,
-                playerId = playerId,
-                timestamp = DateTime.Now,
-                data = actionData ?? new Dictionary<string, object>()
-            };
-
-            directorEvent.data["actionType"] = actionType;
-            _eventQueue.Enqueue(directorEvent);
+            _playerProfileService.TrackPlayerAction(playerId, actionType, actionData);
         }
 
         /// <summary>
@@ -647,19 +660,7 @@ namespace Laboratory.Subsystems.AIDirector
         /// </summary>
         public void ReportDiscovery(string playerId, string discoveryType, object discoveryData = null)
         {
-            var directorEvent = new DirectorEvent
-            {
-                eventType = DirectorEventType.Discovery,
-                playerId = playerId,
-                timestamp = DateTime.Now,
-                data = new Dictionary<string, object>
-                {
-                    ["discoveryType"] = discoveryType,
-                    ["discoveryData"] = discoveryData
-                }
-            };
-
-            _eventQueue.Enqueue(directorEvent);
+            _playerProfileService.ReportDiscovery(playerId, discoveryType, discoveryData);
         }
 
         /// <summary>
@@ -667,921 +668,7 @@ namespace Laboratory.Subsystems.AIDirector
         /// </summary>
         public PlayerProfile GetPlayerProfile(string playerId)
         {
-            _playerProfiles.TryGetValue(playerId, out var profile);
-            return profile;
-        }
-
-        #endregion
-
-        #region AI Decision Making
-
-        private PlayerProfile GetOrCreatePlayerProfile(string playerId)
-        {
-            if (!_playerProfiles.ContainsKey(playerId))
-            {
-                _playerProfiles[playerId] = new PlayerProfile { playerId = playerId };
-            }
-            return _playerProfiles[playerId];
-        }
-
-        private DirectorContext GetOrCreatePlayerContext(string playerId)
-        {
-            if (!_playerContexts.ContainsKey(playerId))
-            {
-                _playerContexts[playerId] = new DirectorContext { playerId = playerId };
-            }
-            return _playerContexts[playerId];
-        }
-
-        private void UpdatePlayerProfileFromAnalysis(PlayerProfile profile, PlayerAnalysis analysis)
-        {
-            profile.skillLevel = analysis.estimatedSkillLevel;
-            profile.engagementScore = analysis.engagementScore;
-            profile.learningVelocity = analysis.learningVelocity;
-            profile.preferredChallengeLevel = analysis.preferredChallengeLevel;
-            profile.collaborationFrequency = analysis.collaborationFrequency;
-            profile.lastAnalysisUpdate = DateTime.Now;
-        }
-
-        private float CalculateEngagementScore(PlayerProfile profile)
-        {
-            // Calculate based on recent activity, time spent, interactions
-            var baseEngagement = profile.engagementScore;
-            var timeFactor = CalculateTimeFactor(profile.lastActivity);
-            return math.clamp(baseEngagement * timeFactor, 0f, 1f);
-        }
-
-        private float CalculateSkillLevel(PlayerProfile profile)
-        {
-            return (float)profile.skillLevel / (float)SkillLevel.Expert;
-        }
-
-        private float CalculateProgressRate(PlayerProfile profile)
-        {
-            return profile.learningVelocity;
-        }
-
-        private float CalculateSocialActivity(PlayerProfile profile)
-        {
-            return profile.collaborationFrequency;
-        }
-
-        private float CalculateSessionTime(PlayerProfile profile)
-        {
-            var sessionTime = DateTime.Now - profile.sessionStartTime;
-            return (float)sessionTime.TotalMinutes;
-        }
-
-        private float CalculateTimeFactor(DateTime lastActivity)
-        {
-            var timeSinceActivity = DateTime.Now - lastActivity;
-            var decayRate = _config.engagementDecayRate;
-            return math.exp(-(float)timeSinceActivity.TotalMinutes * decayRate);
-        }
-
-        private void UpdateContextWeightsForPlayer(string playerId, DirectorContext context)
-        {
-            // Adjust context weights based on educational goals and player state
-            if (context.engagement < 0.3f)
-            {
-                _contextWeights["engagement"] = 0.6f; // Prioritize engagement
-            }
-            else if (context.skillLevel > 0.8f)
-            {
-                _contextWeights["skill"] = 0.4f; // Focus on skill development
-            }
-        }
-
-        #endregion
-
-        #region Decision Execution
-
-        private void ExecuteDifficultyAdjustment(string playerId, DirectorDecision decision)
-        {
-            var adjustment = new DifficultyAdjustment
-            {
-                playerId = playerId,
-                adjustmentType = (DifficultyAdjustmentType)decision.parameters["adjustmentType"],
-                magnitude = (float)decision.parameters["magnitude"],
-                reason = decision.reasoning,
-                timestamp = DateTime.Now
-            };
-
-            _difficultyAdaptationService?.ApplyDifficultyAdjustment(playerId, adjustment);
-            OnDifficultyAdjusted?.Invoke(adjustment);
-        }
-
-        private void ExecuteNarrativeTrigger(string playerId, DirectorDecision decision)
-        {
-            var narrativeType = decision.parameters["narrativeType"].ToString();
-            var narrativeEvent = _narrativeGenerationService?.GenerateNarrative(playerId, narrativeType);
-
-            if (narrativeEvent != null)
-            {
-                OnNarrativeEventTriggered?.Invoke(narrativeEvent);
-            }
-        }
-
-        private void ExecuteContentSpawn(string playerId, DirectorDecision decision)
-        {
-            var contentType = decision.parameters["contentType"].ToString();
-            var spawnParameters = decision.parameters.GetValueOrDefault("spawnParameters", new Dictionary<string, object>());
-
-            _contentOrchestrationService?.SpawnContent(playerId, contentType, spawnParameters);
-        }
-
-        private void ExecuteHintProvision(string playerId, DirectorDecision decision)
-        {
-            var hintType = decision.parameters["hintType"].ToString();
-            var hintContent = decision.parameters["hintContent"].ToString();
-
-            _educationalScaffoldingService?.ProvideHint(playerId, hintType, hintContent);
-        }
-
-        private void ExecuteCollaborationEncouragement(string playerId, DirectorDecision decision)
-        {
-            var collaborationType = decision.parameters["collaborationType"].ToString();
-            var suggestedPartners = decision.parameters.GetValueOrDefault("suggestedPartners", new List<string>()) as List<string>;
-
-            _contentOrchestrationService?.EncourageCollaboration(playerId, collaborationType, suggestedPartners);
-        }
-
-        private void ExecuteAchievementCelebration(string playerId, DirectorDecision decision)
-        {
-            var achievementType = decision.parameters["achievementType"].ToString();
-            var celebrationType = decision.parameters["celebrationType"].ToString();
-
-            _narrativeGenerationService?.CelebrateAchievement(playerId, achievementType, celebrationType);
-        }
-
-        #endregion
-
-        #region Helper Methods
-
-        private void UpdatePlayerEngagement(string playerId, DirectorEvent directorEvent)
-        {
-            var profile = GetOrCreatePlayerProfile(playerId);
-            var engagementDelta = CalculateEngagementDelta(directorEvent);
-            profile.engagementScore = math.clamp(profile.engagementScore + engagementDelta, 0f, 1f);
-            profile.lastActivity = DateTime.Now;
-        }
-
-        private float CalculateEngagementDelta(DirectorEvent directorEvent)
-        {
-            var actionType = directorEvent.data.GetValueOrDefault("actionType", "unknown").ToString();
-
-            return actionType switch
-            {
-                "discovery" => 0.1f,
-                "collaboration" => 0.08f,
-                "achievement" => 0.05f,
-                "exploration" => 0.03f,
-                _ => 0.01f
-            };
-        }
-
-        private void CheckDiscoveryNarrativeOpportunities(string playerId, string discoveryType)
-        {
-            // Check if this discovery creates narrative opportunities
-            if (_config.enableNarrativeGeneration)
-            {
-                var opportunities = _narrativeGenerationService?.AnalyzeDiscoveryOpportunities(playerId, discoveryType);
-                if (opportunities != null && opportunities.Count > 0)
-                {
-                    foreach (var opportunity in opportunities)
-                    {
-                        CreateNarrativeStoryline(playerId, opportunity);
-                    }
-                }
-            }
-        }
-
-        private void UpdateGlobalDiscoveryState(string discoveryType)
-        {
-            _currentState.globalDiscoveries[discoveryType] = _currentState.globalDiscoveries.GetValueOrDefault(discoveryType, 0) + 1;
-        }
-
-        private void UpdatePlayerConfidence(string playerId, bool positive)
-        {
-            var profile = GetOrCreatePlayerProfile(playerId);
-            var confidenceDelta = positive ? 0.05f : -0.03f;
-            profile.confidenceLevel = math.clamp(profile.confidenceLevel + confidenceDelta, 0f, 1f);
-        }
-
-        private void GenerateCollaborativeStorylines(string playerId, string collaborationType)
-        {
-            if (_config.enableCollaborativeStorylines)
-            {
-                var storylines = _emergentStorytellingService?.GenerateCollaborativeStorylines(playerId, collaborationType);
-                if (storylines != null)
-                {
-                    _activeStorylines.AddRange(storylines);
-                }
-            }
-        }
-
-        private void ConsiderDifficultyReduction(string playerId)
-        {
-            var profile = GetOrCreatePlayerProfile(playerId);
-            var context = GetOrCreatePlayerContext(playerId);
-
-            if (context.engagement < 0.4f && profile.confidenceLevel < 0.3f)
-            {
-                var decision = new DirectorDecision
-                {
-                    decisionType = DirectorDecisionType.AdjustDifficulty,
-                    playerId = playerId,
-                    priority = DirectorPriority.High,
-                    reasoning = "Player struggling, reducing difficulty to maintain engagement",
-                    parameters = new Dictionary<string, object>
-                    {
-                        ["adjustmentType"] = DifficultyAdjustmentType.Decrease,
-                        ["magnitude"] = 0.2f
-                    }
-                };
-
-                ExecuteDirectorDecision(playerId, decision);
-            }
-        }
-
-        private void UpdatePlayerProgression(string playerId, string milestoneType)
-        {
-            var profile = GetOrCreatePlayerProfile(playerId);
-            profile.milestonesAchieved.Add(milestoneType);
-            profile.progressionScore += CalculateMilestoneValue(milestoneType);
-        }
-
-        private float CalculateMilestoneValue(string milestoneType)
-        {
-            return milestoneType switch
-            {
-                "major_discovery" => 0.2f,
-                "collaboration_success" => 0.15f,
-                "skill_mastery" => 0.1f,
-                "research_completion" => 0.08f,
-                _ => 0.05f
-            };
-        }
-
-        private void AdaptPlayerExperience(string playerId)
-        {
-            var profile = _playerProfiles[playerId];
-            var context = _playerContexts[playerId];
-
-            // Generate content adaptations based on player state
-            var adaptations = _contentOrchestrationService?.GenerateAdaptations(profile, context);
-            if (adaptations != null)
-            {
-                foreach (var adaptation in adaptations)
-                {
-                    OnContentAdapted?.Invoke(adaptation);
-                }
-            }
-        }
-
-        private void CreateNarrativeStoryline(string playerId, NarrativeOpportunity opportunity)
-        {
-            var storyline = new ActiveStoryline
-            {
-                storylineId = Guid.NewGuid().ToString(),
-                playerId = playerId,
-                narrativeType = opportunity.narrativeType,
-                startTime = DateTime.Now,
-                estimatedDuration = opportunity.estimatedDuration,
-                isActive = true
-            };
-
-            _activeStorylines.Add(storyline);
-        }
-
-        private void UpdateStoryline(ActiveStoryline storyline)
-        {
-            var elapsed = DateTime.Now - storyline.startTime;
-            storyline.progress = (float)(elapsed.TotalMinutes / storyline.estimatedDuration.TotalMinutes);
-
-            if (storyline.progress >= 1.0f)
-            {
-                storyline.isCompleted = true;
-            }
-        }
-
-        private void CompleteStoryline(ActiveStoryline storyline)
-        {
-            _emergentStorytellingService?.CompleteStoryline(storyline);
-
-            if (_config.enableDebugLogging)
-                Debug.Log($"[AIDirectorSubsystem] Completed storyline: {storyline.storylineId}");
-        }
-
-        #endregion
-
-        #region Debug Methods
-
-        [ContextMenu("Trigger Test Narrative")]
-        private void DebugTriggerTestNarrative()
-        {
-            if (_playerProfiles.Count > 0)
-            {
-                var firstPlayer = _playerProfiles.Keys.First();
-                ReportDiscovery(firstPlayer, "test_discovery", "Debug discovery");
-            }
-        }
-
-        [ContextMenu("Log Player Profiles")]
-        private void DebugLogPlayerProfiles()
-        {
-            foreach (var profile in _playerProfiles.Values)
-            {
-                Debug.Log($"[AIDirectorSubsystem] Player {profile.playerId}: Skill={profile.skillLevel}, Engagement={profile.engagementScore:F2}");
-            }
-        }
-
-        [ContextMenu("Log Active Storylines")]
-        private void DebugLogActiveStorylines()
-        {
-            Debug.Log($"[AIDirectorSubsystem] Active Storylines: {_activeStorylines.Count}");
-            foreach (var storyline in _activeStorylines)
-            {
-                Debug.Log($"  {storyline.storylineId}: {storyline.narrativeType} ({storyline.progress:F1}%)");
-            }
-        }
-
-        #endregion
-
-        #region Cross-Subsystem Event Handlers
-
-        private void HandleBreedingEvent(GeneticBreedingResult result)
-        {
-            if (result?.isSuccessful == true)
-            {
-                TrackPlayerAction("CurrentPlayer", "breeding_success", new Dictionary<string, object>
-                {
-                    ["parent1"] = result.parent1Id,
-                    ["parent2"] = result.parent2Id,
-                    ["offspring"] = result.offspringId,
-                    ["mutationCount"] = result.mutations?.Count ?? 0,
-                    ["difficulty"] = CalculateBreedingDifficulty(result)
-                });
-
-                // Provide positive reinforcement for successful breeding
-                var profile = GetOrCreatePlayerProfile("CurrentPlayer");
-                UpdatePlayerConfidence("CurrentPlayer", true);
-
-                // Consider triggering celebration or educational content
-                if (result.mutations?.Count > 0)
-                {
-                    ConsiderTriggeringMutationExplanation("CurrentPlayer", result.mutations);
-                }
-            }
-        }
-
-        private void HandleMutationEvent(MutationEvent mutationEvent)
-        {
-            TrackPlayerAction("CurrentPlayer", "mutation_discovery", new Dictionary<string, object>
-            {
-                ["creatureId"] = mutationEvent.creatureId,
-                ["mutationType"] = mutationEvent.mutation.mutationType.ToString(),
-                ["severity"] = mutationEvent.mutation.severity,
-                ["isWorldFirst"] = false // Default value since property doesn't exist
-            });
-
-            // Generate educational content for rare mutations
-            if (mutationEvent.mutation.severity > 0.7f)
-            {
-                ConsiderTriggeringEducationalContent("CurrentPlayer", "rare_mutation", mutationEvent.mutation);
-            }
-        }
-
-        private void HandleTraitDiscoveryEvent(TraitDiscoveryEvent discoveryEvent)
-        {
-            TrackPlayerAction(discoveryEvent.discoverer ?? "CurrentPlayer", "trait_discovery", new Dictionary<string, object>
-            {
-                ["traitName"] = discoveryEvent.traitName,
-                ["generation"] = discoveryEvent.generation,
-                ["isWorldFirst"] = discoveryEvent.isWorldFirst
-            });
-
-            // Celebrate world-first discoveries
-            if (discoveryEvent.isWorldFirst)
-            {
-                TriggerCelebrationEvent(discoveryEvent.discoverer ?? "CurrentPlayer", "world_first_trait", discoveryEvent.traitName);
-            }
-        }
-
-        private void HandleResearchDiscoveryEvent(DiscoveryJournalEvent discoveryEvent)
-        {
-            TrackPlayerAction(discoveryEvent.PlayerId ?? "CurrentPlayer", "research_discovery", new Dictionary<string, object>
-            {
-                ["discoveryType"] = discoveryEvent.Discovery.discoveryType.ToString(),
-                ["isSignificant"] = discoveryEvent.Discovery.isSignificant
-            });
-
-            // Track research engagement patterns
-            var profile = GetOrCreatePlayerProfile(discoveryEvent.PlayerId ?? "CurrentPlayer");
-            // Note: profile.researchEngagement property not available - using generic tracking instead
-        }
-
-        private void HandlePublicationEvent(PublicationEvent publicationEvent)
-        {
-            TrackPlayerAction(publicationEvent.publication.authorId, "publication_created", new Dictionary<string, object>
-            {
-                ["publicationType"] = publicationEvent.publication.publicationType.ToString(),
-                ["collaborators"] = publicationEvent.publication.coAuthors?.Count ?? 0
-            });
-
-            // Encourage collaborative research
-            if (publicationEvent.publication.coAuthors?.Count > 0)
-            {
-                EncourageCollaborativeResearch(publicationEvent.publication.authorId);
-            }
-        }
-
-        private void HandleEnvironmentalEvent(EnvironmentalEvent envEvent)
-        {
-            // Track environmental awareness
-            foreach (var playerId in GetActivePlayerIds())
-            {
-                if (IsPlayerInAffectedArea(playerId, envEvent.affectedBiomes?.FirstOrDefault() ?? envEvent.affectedBiomeId))
-                {
-                    TrackPlayerAction(playerId, "environmental_exposure", new Dictionary<string, object>
-                    {
-                        ["eventType"] = envEvent.eventType.ToString(),
-                        ["severity"] = envEvent.severity
-                    });
-
-                    // Provide environmental education if needed
-                    ConsiderEnvironmentalEducation(playerId, envEvent);
-                }
-            }
-        }
-
-        private void HandlePopulationEvent(PopulationEvent populationEvent)
-        {
-            // Track ecosystem management engagement
-            TrackPlayerAction("EcosystemManager", "population_change", new Dictionary<string, object>
-            {
-                ["changeType"] = populationEvent.changeType.ToString(),
-                ["populationId"] = populationEvent.populationId
-            });
-
-            // Update global ecosystem state for all players
-            foreach (var playerId in GetActivePlayerIds())
-            {
-                var profile = GetOrCreatePlayerProfile(playerId);
-                UpdatePlayerEcosystemAwareness(playerId, populationEvent);
-            }
-        }
-
-        private void HandlePlayerActionEvent(PlayerActionEvent actionEvent)
-        {
-            // Integrate analytics data into AI Director decisions
-            var profile = GetOrCreatePlayerProfile(actionEvent.playerId);
-            AnalyzePlayerActionPattern(profile, actionEvent);
-
-            // Detect if player needs guidance
-            if (DetectPlayerStruggle(profile, actionEvent))
-            {
-                ConsiderProvidingGuidance(actionEvent.playerId, actionEvent.actionType);
-            }
-        }
-
-        private void HandleEducationalProgressEvent(EducationalProgressEvent progressEvent)
-        {
-            TrackPlayerAction("CurrentPlayer", "educational_progress", new Dictionary<string, object>
-            {
-                ["lessonId"] = progressEvent.lessonId,
-                ["conceptMastered"] = progressEvent.conceptMastered,
-                ["confidenceLevel"] = progressEvent.confidenceLevel
-            });
-
-            // Adapt content difficulty based on educational progress
-            AdaptContentDifficulty("CurrentPlayer", progressEvent.confidenceLevel);
-        }
-
-        #endregion
-
-        #region AI Director Decision Helpers
-
-        private float CalculateBreedingDifficulty(GeneticBreedingResult result)
-        {
-            var difficulty = 0.5f; // Base difficulty
-
-            // Increase difficulty based on mutation count
-            if (result.mutations?.Count > 0)
-                difficulty += result.mutations.Count * 0.1f;
-
-            // Factor in genetic complexity
-            if (result.offspring?.Genes?.Count > 10)
-                difficulty += 0.2f;
-
-            return Mathf.Clamp(difficulty, 0.1f, 1.0f);
-        }
-
-        private void ConsiderTriggeringMutationExplanation(string playerId, List<Mutation> mutations)
-        {
-            var profile = GetOrCreatePlayerProfile(playerId);
-
-            // Only provide explanations for players who might benefit
-            if (profile.skillLevel <= SkillLevel.Intermediate)
-            {
-                foreach (var mutation in mutations)
-                {
-                    if (mutation.severity > 0.5f)
-                    {
-                        TriggerEducationalContent(playerId, "mutation_explanation", mutation);
-                    }
-                }
-            }
-        }
-
-        private void ConsiderTriggeringEducationalContent(string playerId, string contentType, object contentData)
-        {
-            var profile = GetOrCreatePlayerProfile(playerId);
-
-            // Check if player is in educational context
-            if (profile.isEducationalContext && profile.engagementScore > 0.6f)
-            {
-                TriggerEducationalContent(playerId, contentType, contentData);
-            }
-        }
-
-        private void TriggerCelebrationEvent(string playerId, string celebrationType, string achievementData)
-        {
-            var decision = new DirectorDecision
-            {
-                decisionType = DirectorDecisionType.CelebrateAchievement,
-                playerId = playerId,
-                priority = DirectorPriority.High,
-                reasoning = $"Celebrating {celebrationType}: {achievementData}",
-                parameters = new Dictionary<string, object>
-                {
-                    ["achievementType"] = celebrationType,
-                    ["celebrationType"] = "world_first",
-                    ["achievementData"] = achievementData
-                }
-            };
-
-            ExecuteDirectorDecision(playerId, decision);
-        }
-
-        private void EncourageCollaborativeResearch(string playerId)
-        {
-            var decision = new DirectorDecision
-            {
-                decisionType = DirectorDecisionType.EncourageCollaboration,
-                playerId = playerId,
-                priority = DirectorPriority.Medium,
-                reasoning = "Encouraging continued collaborative research",
-                parameters = new Dictionary<string, object>
-                {
-                    ["collaborationType"] = "research",
-                    ["suggestedPartners"] = GetPotentialCollaborators(playerId)
-                }
-            };
-
-            ExecuteDirectorDecision(playerId, decision);
-        }
-
-        private bool IsPlayerInAffectedArea(string playerId, object affectedArea)
-        {
-            if (string.IsNullOrEmpty(playerId) || affectedArea == null)
-                return false;
-
-            // Get player's current biome/location
-            var playerCurrentBiome = GetPlayerCurrentBiome(playerId);
-            if (string.IsNullOrEmpty(playerCurrentBiome))
-                return false; // Player location unknown
-
-            // Handle different types of affected area specifications
-            switch (affectedArea)
-            {
-                case string singleBiome when !string.IsNullOrEmpty(singleBiome):
-                    return string.Equals(playerCurrentBiome, singleBiome, StringComparison.OrdinalIgnoreCase);
-
-                case IEnumerable<string> multipleBiomes:
-                    return multipleBiomes.Any(biome =>
-                        string.Equals(playerCurrentBiome, biome, StringComparison.OrdinalIgnoreCase));
-
-                default:
-                    // Try to convert to string as fallback
-                    var affectedBiomeStr = affectedArea.ToString();
-                    return !string.IsNullOrEmpty(affectedBiomeStr) &&
-                           string.Equals(playerCurrentBiome, affectedBiomeStr, StringComparison.OrdinalIgnoreCase);
-            }
-        }
-
-        private string GetPlayerCurrentBiome(string playerId)
-        {
-            // Try to get player's current biome from various possible sources
-
-            // Check if we have player location data in custom attributes
-            var profile = GetOrCreatePlayerProfile(playerId);
-            if (profile.customAttributes.TryGetValue("current_biome", out var biomeObj))
-            {
-                return biomeObj?.ToString();
-            }
-
-            // Check if player focus indicates current biome
-            if (!string.IsNullOrEmpty(profile.currentFocus))
-            {
-                // Extract biome from focus if it contains biome information
-                var focusLower = profile.currentFocus.ToLowerInvariant();
-                if (focusLower.Contains("forest")) return "Forest";
-                if (focusLower.Contains("desert")) return "Desert";
-                if (focusLower.Contains("ocean") || focusLower.Contains("marine")) return "Ocean";
-                if (focusLower.Contains("mountain") || focusLower.Contains("alpine")) return "Mountain";
-                if (focusLower.Contains("grassland") || focusLower.Contains("plains")) return "Grassland";
-                if (focusLower.Contains("tundra") || focusLower.Contains("arctic")) return "Tundra";
-                if (focusLower.Contains("wetland") || focusLower.Contains("marsh")) return "Wetland";
-            }
-
-            // Try to get from interests (player might be interested in certain biomes)
-            var biomePrefernece = profile.interests.FirstOrDefault(interest =>
-                interest.EndsWith("_biome") || IsKnownBiomeName(interest));
-
-            if (!string.IsNullOrEmpty(biomePrefernece))
-                return biomePrefernece.Replace("_biome", "");
-
-            // Default to a common biome if no specific location can be determined
-            // In a real implementation, this would come from the actual game world
-            return GetDefaultPlayerBiome(playerId);
-        }
-
-        private bool IsKnownBiomeName(string name)
-        {
-            var knownBiomes = new[] { "Forest", "Desert", "Ocean", "Mountain", "Grassland", "Tundra", "Wetland", "Savanna", "Taiga", "Rainforest" };
-            return knownBiomes.Any(biome => string.Equals(biome, name, StringComparison.OrdinalIgnoreCase));
-        }
-
-        private string GetDefaultPlayerBiome(string playerId)
-        {
-            // Use a hash of player ID to consistently assign a default biome
-            // This ensures the same player always gets the same "home" biome
-            var playerHash = Math.Abs(playerId.GetHashCode());
-            var biomes = new[] { "Forest", "Grassland", "Mountain", "Ocean" };
-            return biomes[playerHash % biomes.Length];
-        }
-
-        private void ConsiderEnvironmentalEducation(string playerId, Laboratory.Subsystems.Ecosystem.EnvironmentalEvent envEvent)
-        {
-            var profile = GetOrCreatePlayerProfile(playerId);
-
-            if (profile.isEducationalContext && envEvent.severity > 0.7f)
-            {
-                TriggerEducationalContent(playerId, "environmental_impact", envEvent);
-            }
-        }
-
-        private void AnalyzePlayerActionPattern(PlayerProfile profile, PlayerActionEvent actionEvent)
-        {
-            // Track action frequency and patterns using behaviorPattern.activityPreferences
-            var actionKey = actionEvent.actionType;
-            var currentCount = profile.behaviorPattern.activityPreferences.GetValueOrDefault(actionKey, 0f);
-            profile.behaviorPattern.activityPreferences[actionKey] = currentCount + 1f;
-
-            // Track action sequences using commonActionSequences
-            if (profile.behaviorPattern.commonActionSequences.Count > 0)
-            {
-                var lastAction = profile.behaviorPattern.commonActionSequences.LastOrDefault();
-                if (!string.IsNullOrEmpty(lastAction))
-                {
-                    var sequence = $"{lastAction}->{actionEvent.actionType}";
-                    var sequenceKey = $"sequence_{sequence}";
-                    var sequenceCount = profile.behaviorPattern.activityPreferences.GetValueOrDefault(sequenceKey, 0f);
-                    profile.behaviorPattern.activityPreferences[sequenceKey] = sequenceCount + 1f;
-                }
-            }
-
-            // Add current action to sequence history (keep last 5 actions)
-            profile.behaviorPattern.commonActionSequences.Add(actionEvent.actionType);
-            if (profile.behaviorPattern.commonActionSequences.Count > 5)
-            {
-                profile.behaviorPattern.commonActionSequences.RemoveAt(0);
-            }
-
-            // Update behavioral metrics based on action patterns
-            UpdateBehavioralMetrics(profile, actionEvent);
-
-            // Update engagement based on action type
-            var engagementDelta = actionEvent.actionType switch
-            {
-                "breeding_attempt" => 0.05f,
-                "discovery_made" => 0.1f,
-                "collaboration_start" => 0.08f,
-                "research_published" => 0.15f,
-                "exploration" => 0.03f,
-                "experiment_success" => 0.08f,
-                "experiment_failure" => -0.02f,
-                "idle_timeout" => -0.01f,
-                _ => 0.01f
-            };
-
-            profile.engagementScore = Mathf.Clamp(profile.engagementScore + engagementDelta, 0f, 1f);
-
-            // Update confidence based on success/failure patterns
-            if (actionEvent.actionType.Contains("success") || actionEvent.actionType == "discovery_made")
-            {
-                profile.confidenceLevel = Mathf.Clamp(profile.confidenceLevel + 0.02f, 0f, 1f);
-            }
-            else if (actionEvent.actionType.Contains("failure") || actionEvent.actionType.Contains("error"))
-            {
-                profile.confidenceLevel = Mathf.Clamp(profile.confidenceLevel - 0.01f, 0f, 1f);
-            }
-
-            // Track exploration vs exploitation tendencies
-            if (actionEvent.actionType == "exploration" || actionEvent.actionType == "discovery_made")
-            {
-                profile.behaviorPattern.explorationTendency = Mathf.Clamp(
-                    profile.behaviorPattern.explorationTendency + 0.01f, 0f, 1f);
-            }
-            else if (actionEvent.actionType == "breeding_attempt" || actionEvent.actionType.Contains("repeat"))
-            {
-                profile.behaviorPattern.explorationTendency = Mathf.Clamp(
-                    profile.behaviorPattern.explorationTendency - 0.005f, 0f, 1f);
-            }
-        }
-
-        private void UpdateBehavioralMetrics(PlayerProfile profile, PlayerActionEvent actionEvent)
-        {
-            // Update persistence level based on retry patterns
-            var retryActions = profile.behaviorPattern.activityPreferences.Where(
-                kvp => kvp.Key.Contains("retry") || kvp.Key.Contains("failure")).Sum(kvp => kvp.Value);
-
-            if (retryActions > 0)
-            {
-                var totalActions = profile.behaviorPattern.activityPreferences.Values.Sum();
-                var retryRatio = retryActions / Math.Max(totalActions, 1f);
-                profile.behaviorPattern.persistenceLevel = Mathf.Clamp(retryRatio, 0f, 1f);
-            }
-
-            // Update social interaction tendency
-            if (actionEvent.actionType.Contains("collaboration") || actionEvent.actionType.Contains("social"))
-            {
-                profile.behaviorPattern.socialInteraction = Mathf.Clamp(
-                    profile.behaviorPattern.socialInteraction + 0.02f, 0f, 1f);
-            }
-
-            // Update creativity index based on experimentation
-            if (actionEvent.actionType.Contains("experiment") || actionEvent.actionType == "discovery_made")
-            {
-                profile.behaviorPattern.creativityIndex = Mathf.Clamp(
-                    profile.behaviorPattern.creativityIndex + 0.01f, 0f, 1f);
-            }
-
-            // Update risk-taking tendency
-            if (actionEvent.actionType.Contains("risk") || actionEvent.actionType.Contains("experimental"))
-            {
-                profile.behaviorPattern.riskTaking = Mathf.Clamp(
-                    profile.behaviorPattern.riskTaking + 0.015f, 0f, 1f);
-            }
-            else if (actionEvent.actionType.Contains("safe") || actionEvent.actionType.Contains("conservative"))
-            {
-                profile.behaviorPattern.riskTaking = Mathf.Clamp(
-                    profile.behaviorPattern.riskTaking - 0.01f, 0f, 1f);
-            }
-        }
-
-        private bool DetectPlayerStruggle(PlayerProfile profile, PlayerActionEvent actionEvent)
-        {
-            // Detect struggle patterns
-            if (actionEvent.actionType == "breeding_failure" &&
-                profile.behaviorPattern.activityPreferences.GetValueOrDefault("breeding_failure", 0) > 3)
-            {
-                return true;
-            }
-
-            if (profile.engagementScore < 0.3f && profile.confidenceLevel < 0.4f)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        private void ConsiderProvidingGuidance(string playerId, string strugglingAction)
-        {
-            var decision = new DirectorDecision
-            {
-                decisionType = DirectorDecisionType.ProvideHint,
-                playerId = playerId,
-                priority = DirectorPriority.High,
-                reasoning = $"Player struggling with {strugglingAction}",
-                parameters = new Dictionary<string, object>
-                {
-                    ["hintType"] = "guidance",
-                    ["hintContent"] = GenerateGuidanceForAction(strugglingAction)
-                }
-            };
-
-            ExecuteDirectorDecision(playerId, decision);
-        }
-
-        private void AdaptContentDifficulty(string playerId, float newSkillLevel)
-        {
-            var profile = GetOrCreatePlayerProfile(playerId);
-            var oldSkillLevel = (float)profile.skillLevel / (float)SkillLevel.Expert;
-
-            // If skill level increased significantly, increase content difficulty
-            if (newSkillLevel > oldSkillLevel + 0.2f)
-            {
-                var decision = new DirectorDecision
-                {
-                    decisionType = DirectorDecisionType.AdjustDifficulty,
-                    playerId = playerId,
-                    priority = DirectorPriority.Medium,
-                    reasoning = "Adapting to improved skill level",
-                    parameters = new Dictionary<string, object>
-                    {
-                        ["adjustmentType"] = DifficultyAdjustmentType.Increase,
-                        ["magnitude"] = 0.1f
-                    }
-                };
-
-                ExecuteDirectorDecision(playerId, decision);
-            }
-        }
-
-        private void TriggerEducationalContent(string playerId, string contentType, object contentData)
-        {
-            var decision = new DirectorDecision
-            {
-                decisionType = DirectorDecisionType.TriggerNarrative,
-                playerId = playerId,
-                priority = DirectorPriority.Medium,
-                reasoning = $"Providing educational content: {contentType}",
-                parameters = new Dictionary<string, object>
-                {
-                    ["narrativeType"] = "educational",
-                    ["contentType"] = contentType,
-                    ["contentData"] = contentData
-                }
-            };
-
-            ExecuteDirectorDecision(playerId, decision);
-        }
-
-        private List<string> GetPotentialCollaborators(string playerId)
-        {
-            var collaborators = new List<string>();
-
-            // Find players with complementary skills or research interests
-            foreach (var otherProfile in _playerProfiles.Values)
-            {
-                if (otherProfile.playerId != playerId &&
-                    otherProfile.isEducationalContext &&
-                    Math.Abs((int)otherProfile.skillLevel - (int)_playerProfiles[playerId].skillLevel) <= 1)
-                {
-                    collaborators.Add(otherProfile.playerId);
-                }
-            }
-
-            return collaborators.Take(3).ToList(); // Suggest up to 3 collaborators
-        }
-
-        private string GenerateGuidanceForAction(string strugglingAction)
-        {
-            return strugglingAction switch
-            {
-                "breeding_failure" => "Try selecting creatures with more compatible genetic traits, or experiment with different breeding combinations.",
-                "research_difficulty" => "Consider collaborating with other researchers or focusing on smaller, more manageable research questions.",
-                "ecosystem_management" => "Monitor population dynamics more closely and consider environmental factors affecting creature survival.",
-                _ => "Take your time to explore different approaches. Don't hesitate to experiment and learn from each attempt."
-            };
-        }
-
-        private List<string> GetActivePlayerIds()
-        {
-            return _playerProfiles.Keys.ToList();
-        }
-
-        private void UpdatePlayerEcosystemAwareness(string playerId, PopulationEvent populationEvent)
-        {
-            var profile = GetOrCreatePlayerProfile(playerId);
-
-            // Update player's ecosystem awareness based on population changes
-            if (populationEvent.changeType.ToString().Contains("Decline") || populationEvent.changeType.ToString().Contains("Extinction"))
-            {
-                // Increase environmental concern for negative changes
-                profile.customAttributes["environmentalConcern"] = math.clamp((float)(profile.customAttributes.GetValueOrDefault("environmentalConcern", 0f)) + 0.1f, 0f, 1f);
-
-                // Consider providing environmental education
-                if (profile.isEducationalContext && (float)(profile.customAttributes.GetValueOrDefault("environmentalConcern", 0f)) > 0.7f)
-                {
-                    var decision = new DirectorDecision
-                    {
-                        decisionType = DirectorDecisionType.TriggerNarrative,
-                        playerId = playerId,
-                        priority = DirectorPriority.Medium,
-                        reasoning = "Player needs environmental awareness due to population decline",
-                        parameters = new Dictionary<string, object>
-                        {
-                            ["narrativeType"] = "environmental_education",
-                            ["populationEvent"] = populationEvent
-                        }
-                    };
-                    ExecuteDirectorDecision(playerId, decision);
-                }
-            }
+            return _playerProfileService.GetPlayerProfile(playerId);
         }
 
         #endregion
