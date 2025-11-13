@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Data;
+using Laboratory.Chimera.Ecosystem.Core;
 using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Ecosystem.Systems
@@ -37,12 +38,13 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         private void Awake()
         {
-            climateSystem = FindObjectOfType<ClimateEvolutionSystem>();
+            EcosystemServiceLocator.RegisterBiome(this);
             InitializeTransitionProbabilities();
         }
 
         private void Start()
         {
+            climateSystem = EcosystemServiceLocator.Climate;
             InitializeBiomeMap();
             StartCoroutine(BiomeTransitionLoop());
         }
