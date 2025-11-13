@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Unity.Profiling;
 using Laboratory.Chimera.Social.Types;
 using Laboratory.Chimera.Diagnostics;
 using Laboratory.Chimera.Social.Core;
@@ -29,6 +30,12 @@ namespace Laboratory.Chimera.Social.Systems
         public event Action<uint, uint> OnLeadershipEmergence;
         public event Action<uint, uint> OnLeadershipChange;
 
+        private static readonly ProfilerMarker s_UpdateGroupDynamicsMarker = new ProfilerMarker("GroupDynamicsSystem.UpdateGroupDynamics");
+        private static readonly ProfilerMarker s_FormGroupMarker = new ProfilerMarker("GroupDynamicsSystem.FormGroup");
+        private static readonly ProfilerMarker s_UpdateGroupCohesionMarker = new ProfilerMarker("GroupDynamicsSystem.UpdateGroupCohesion");
+        private static readonly ProfilerMarker s_DetermineLeadershipMarker = new ProfilerMarker("GroupDynamicsSystem.DetermineLeadership");
+        private static readonly ProfilerMarker s_UpdateLeadershipMarker = new ProfilerMarker("GroupDynamicsSystem.UpdateLeadership");
+
         private void Awake()
         {
             SocialServiceLocator.RegisterGroupDynamics(this);
@@ -41,40 +48,46 @@ namespace Laboratory.Chimera.Social.Systems
 
         public void FormGroup(List<uint> memberIds, string groupName = "")
         {
-            if (memberIds.Count < 2 || memberIds.Count > maxGroupSize)
-                return;
-
-            var groupId = GenerateGroupId();
-            var group = new Laboratory.Chimera.Social.Data.SocialGroup
+            using (s_FormGroupMarker.Auto())
             {
-                GroupId = groupId,
-                GroupName = string.IsNullOrEmpty(groupName) ? $"Group_{groupId}" : groupName,
-                Members = new List<uint>(memberIds),
-                LeaderId = 0, // Will be determined by leadership emergence
-                Cohesion = CalculateInitialCohesion(memberIds),
-                CenterPosition = CalculateGroupCenter(memberIds),
-                GroupStatus = Laboratory.Chimera.Social.Types.SocialStatus.Regular,
-                FormationDate = DateTime.UtcNow
-            };
+                if (memberIds.Count < 2 || memberIds.Count > maxGroupSize)
+                    return;
 
-            activeGroups[groupId] = group;
+                var groupId = GenerateGroupId();
+                var group = new Laboratory.Chimera.Social.Data.SocialGroup
+                {
+                    GroupId = groupId,
+                    GroupName = string.IsNullOrEmpty(groupName) ? $"Group_{groupId}" : groupName,
+                    Members = new List<uint>(memberIds),
+                    LeaderId = 0, // Will be determined by leadership emergence
+                    Cohesion = CalculateInitialCohesion(memberIds),
+                    CenterPosition = CalculateGroupCenter(memberIds),
+                    GroupStatus = Laboratory.Chimera.Social.Types.SocialStatus.Regular,
+                    FormationDate = DateTime.UtcNow
+                };
 
-            if (enableHierarchyFormation)
-            {
-                DetermineLeadership(group);
+                activeGroups[groupId] = group;
+
+                if (enableHierarchyFormation)
+                {
+                    DetermineLeadership(group);
+                }
+
+                OnGroupFormed?.Invoke(groupId, group);
+                UnityEngine.Debug.Log($"Group formed: {group.GroupName} with {memberIds.Count} members");
             }
-
-            OnGroupFormed?.Invoke(groupId, group);
-            UnityEngine.Debug.Log($"Group formed: {group.GroupName} with {memberIds.Count} members");
         }
 
         public void UpdateGroupDynamics()
         {
-            foreach (var group in activeGroups.Values.ToList())
+            using (s_UpdateGroupDynamicsMarker.Auto())
             {
-                UpdateGroupCohesion(group);
-                UpdateLeadership(group);
-                CheckGroupStability(group);
+                foreach (var group in activeGroups.Values.ToList())
+                {
+                    UpdateGroupCohesion(group);
+                    UpdateLeadership(group);
+                    CheckGroupStability(group);
+                }
             }
         }
 
@@ -115,43 +128,46 @@ namespace Laboratory.Chimera.Social.Systems
 
         private void DetermineLeadership(Laboratory.Chimera.Social.Data.SocialGroup group)
         {
-            if (group.Members.Count == 0) return;
-
-            // Find the member with highest charisma and social connections
-            uint bestLeaderCandidate = 0;
-            float bestLeadershipScore = -1f;
-
-            foreach (var memberId in group.Members)
+            using (s_DetermineLeadershipMarker.Auto())
             {
-                float leadershipScore = CalculateLeadershipScore(memberId, group);
-                if (leadershipScore > bestLeadershipScore)
+                if (group.Members.Count == 0) return;
+
+                // Find the member with highest charisma and social connections
+                uint bestLeaderCandidate = 0;
+                float bestLeadershipScore = -1f;
+
+                foreach (var memberId in group.Members)
                 {
-                    bestLeadershipScore = leadershipScore;
-                    bestLeaderCandidate = memberId;
+                    float leadershipScore = CalculateLeadershipScore(memberId, group);
+                    if (leadershipScore > bestLeadershipScore)
+                    {
+                        bestLeadershipScore = leadershipScore;
+                        bestLeaderCandidate = memberId;
+                    }
                 }
-            }
 
-            if (bestLeaderCandidate != 0 && bestLeaderCandidate != group.LeaderId)
-            {
-                var previousLeader = group.LeaderId;
-                group.LeaderId = bestLeaderCandidate;
-
-                var leadership = new Data.Leadership
+                if (bestLeaderCandidate != 0 && bestLeaderCandidate != group.LeaderId)
                 {
-                    LeaderId = bestLeaderCandidate,
-                    GroupId = group.GroupId,
-                    Style = (Types.LeadershipStyle)(int)DetermineLeadershipStyle(bestLeaderCandidate),
-                    Effectiveness = 0.5f, // Starting effectiveness
-                    PopularityRating = 0.5f,
-                    LeadershipStart = DateTime.UtcNow
-                };
+                    var previousLeader = group.LeaderId;
+                    group.LeaderId = bestLeaderCandidate;
 
-                groupLeaderships[group.GroupId] = leadership;
+                    var leadership = new Data.Leadership
+                    {
+                        LeaderId = bestLeaderCandidate,
+                        GroupId = group.GroupId,
+                        Style = (Types.LeadershipStyle)(int)DetermineLeadershipStyle(bestLeaderCandidate),
+                        Effectiveness = 0.5f, // Starting effectiveness
+                        PopularityRating = 0.5f,
+                        LeadershipStart = DateTime.UtcNow
+                    };
 
-                if (previousLeader != 0)
-                    OnLeadershipChange?.Invoke(previousLeader, bestLeaderCandidate);
-                else
-                    OnLeadershipEmergence?.Invoke(bestLeaderCandidate, group.GroupId);
+                    groupLeaderships[group.GroupId] = leadership;
+
+                    if (previousLeader != 0)
+                        OnLeadershipChange?.Invoke(previousLeader, bestLeaderCandidate);
+                    else
+                        OnLeadershipEmergence?.Invoke(bestLeaderCandidate, group.GroupId);
+                }
             }
         }
 
@@ -203,30 +219,36 @@ namespace Laboratory.Chimera.Social.Systems
 
         private void UpdateGroupCohesion(Laboratory.Chimera.Social.Data.SocialGroup group)
         {
-            group.Cohesion = CalculateInitialCohesion(group.Members);
-
-            // Apply leadership effectiveness bonus
-            if (groupLeaderships.TryGetValue(group.GroupId, out var leadership))
+            using (s_UpdateGroupCohesionMarker.Auto())
             {
-                group.Cohesion += leadership.Effectiveness * 0.2f;
-            }
+                group.Cohesion = CalculateInitialCohesion(group.Members);
 
-            group.Cohesion = Mathf.Clamp01(group.Cohesion);
+                // Apply leadership effectiveness bonus
+                if (groupLeaderships.TryGetValue(group.GroupId, out var leadership))
+                {
+                    group.Cohesion += leadership.Effectiveness * 0.2f;
+                }
+
+                group.Cohesion = Mathf.Clamp01(group.Cohesion);
+            }
         }
 
         private void UpdateLeadership(Laboratory.Chimera.Social.Data.SocialGroup group)
         {
-            if (groupLeaderships.TryGetValue(group.GroupId, out var leadership))
+            using (s_UpdateLeadershipMarker.Auto())
             {
-                // Update leadership effectiveness based on group performance
-                float performanceBonus = group.Cohesion > groupCohesionThreshold ? 0.01f : -0.01f;
-                leadership.Effectiveness += performanceBonus;
-                leadership.Effectiveness = Mathf.Clamp01(leadership.Effectiveness);
-
-                // Check for leadership challenges
-                if (leadership.Effectiveness < 0.3f && UnityEngine.Random.value < leadershipEmergenceRate)
+                if (groupLeaderships.TryGetValue(group.GroupId, out var leadership))
                 {
-                    DetermineLeadership(group);
+                    // Update leadership effectiveness based on group performance
+                    float performanceBonus = group.Cohesion > groupCohesionThreshold ? 0.01f : -0.01f;
+                    leadership.Effectiveness += performanceBonus;
+                    leadership.Effectiveness = Mathf.Clamp01(leadership.Effectiveness);
+
+                    // Check for leadership challenges
+                    if (leadership.Effectiveness < 0.3f && UnityEngine.Random.value < leadershipEmergenceRate)
+                    {
+                        DetermineLeadership(group);
+                    }
                 }
             }
         }

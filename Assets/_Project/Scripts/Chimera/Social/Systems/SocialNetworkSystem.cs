@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Unity.Profiling;
 using Laboratory.Chimera.Social.Data;
 using Laboratory.Chimera.Social.Types;
 using Laboratory.Chimera.Social.Core;
@@ -25,6 +26,11 @@ namespace Laboratory.Chimera.Social.Systems
         public event Action<uint, uint, Laboratory.Chimera.Social.Types.RelationshipType> OnRelationshipFormed;
         public event Action<uint, uint> OnRelationshipDecayed;
 
+        private static readonly ProfilerMarker s_UpdateRelationshipMarker = new ProfilerMarker("SocialNetworkSystem.UpdateRelationship");
+        private static readonly ProfilerMarker s_UpdateNetworkDecayMarker = new ProfilerMarker("SocialNetworkSystem.UpdateNetworkDecay");
+        private static readonly ProfilerMarker s_ApplySocialInteractionOutcomeMarker = new ProfilerMarker("SocialNetworkSystem.ApplySocialInteractionOutcome");
+        private static readonly ProfilerMarker s_UpdateSocialRelationshipTypeMarker = new ProfilerMarker("SocialNetworkSystem.UpdateSocialRelationshipType");
+
         private void Awake()
         {
             SocialServiceLocator.RegisterSocialNetwork(this);
@@ -43,25 +49,28 @@ namespace Laboratory.Chimera.Social.Systems
 
         public void UpdateRelationship(uint agent1Id, uint agent2Id, InteractionOutcome outcome, float intensity)
         {
-            var relationshipKey = GetRelationshipKey(agent1Id, agent2Id);
-
-            if (!relationships.TryGetValue(relationshipKey, out var relationship))
+            using (s_UpdateRelationshipMarker.Auto())
             {
-                relationship = new Data.SocialRelationship
-                {
-                    Agent1Id = agent1Id,
-                    Agent2Id = agent2Id,
-                    Type = Types.RelationshipType.Stranger,
-                    Strength = 0f,
-                    Trust = 0f,
-                    FormationDate = DateTime.UtcNow
-                };
-                relationships[relationshipKey] = relationship;
-            }
+                var relationshipKey = GetRelationshipKey(agent1Id, agent2Id);
 
-            ApplySocialInteractionOutcome(relationship, outcome, intensity);
-            UpdateSocialRelationshipType(relationship);
-            networkGraph.UpdateEdge(agent1Id, agent2Id, relationship.Strength);
+                if (!relationships.TryGetValue(relationshipKey, out var relationship))
+                {
+                    relationship = new Data.SocialRelationship
+                    {
+                        Agent1Id = agent1Id,
+                        Agent2Id = agent2Id,
+                        Type = Types.RelationshipType.Stranger,
+                        Strength = 0f,
+                        Trust = 0f,
+                        FormationDate = DateTime.UtcNow
+                    };
+                    relationships[relationshipKey] = relationship;
+                }
+
+                ApplySocialInteractionOutcome(relationship, outcome, intensity);
+                UpdateSocialRelationshipType(relationship);
+                networkGraph.UpdateEdge(agent1Id, agent2Id, relationship.Strength);
+            }
         }
 
         public Data.SocialRelationship GetRelationship(uint agent1Id, uint agent2Id)
@@ -78,26 +87,29 @@ namespace Laboratory.Chimera.Social.Systems
 
         public void UpdateNetworkDecay()
         {
-            var decayingRelationships = new List<(uint, uint)>();
-
-            foreach (var kvp in relationships)
+            using (s_UpdateNetworkDecayMarker.Auto())
             {
-                var relationship = kvp.Value;
-                relationship.Strength -= relationshipDecayRate * Time.deltaTime;
-                relationship.Trust -= relationshipDecayRate * 0.5f * Time.deltaTime;
+                var decayingRelationships = new List<(uint, uint)>();
 
-                if (relationship.Strength <= 0f)
+                foreach (var kvp in relationships)
                 {
-                    decayingRelationships.Add(kvp.Key);
-                }
-            }
+                    var relationship = kvp.Value;
+                    relationship.Strength -= relationshipDecayRate * Time.deltaTime;
+                    relationship.Trust -= relationshipDecayRate * 0.5f * Time.deltaTime;
 
-            foreach (var key in decayingRelationships)
-            {
-                var relationship = relationships[key];
-                relationships.Remove(key);
-                networkGraph.RemoveEdge(relationship.Agent1Id, relationship.Agent2Id);
-                OnRelationshipDecayed?.Invoke(relationship.Agent1Id, relationship.Agent2Id);
+                    if (relationship.Strength <= 0f)
+                    {
+                        decayingRelationships.Add(kvp.Key);
+                    }
+                }
+
+                foreach (var key in decayingRelationships)
+                {
+                    var relationship = relationships[key];
+                    relationships.Remove(key);
+                    networkGraph.RemoveEdge(relationship.Agent1Id, relationship.Agent2Id);
+                    OnRelationshipDecayed?.Invoke(relationship.Agent1Id, relationship.Agent2Id);
+                }
             }
         }
 
@@ -108,44 +120,50 @@ namespace Laboratory.Chimera.Social.Systems
 
         private void ApplySocialInteractionOutcome(Data.SocialRelationship relationship, InteractionOutcome outcome, float intensity)
         {
-            switch (outcome)
+            using (s_ApplySocialInteractionOutcomeMarker.Auto())
             {
-                case InteractionOutcome.Positive:
-                    relationship.Strength += intensity * 0.1f;
-                    relationship.Trust += intensity * 0.05f;
-                    break;
-                case InteractionOutcome.Negative:
-                    relationship.Strength -= intensity * 0.15f;
-                    relationship.Trust -= intensity * 0.1f;
-                    break;
-                default:
-                    // Handle any other outcome types
-                    relationship.Strength += intensity * 0.05f;
-                    break;
-            }
+                switch (outcome)
+                {
+                    case InteractionOutcome.Positive:
+                        relationship.Strength += intensity * 0.1f;
+                        relationship.Trust += intensity * 0.05f;
+                        break;
+                    case InteractionOutcome.Negative:
+                        relationship.Strength -= intensity * 0.15f;
+                        relationship.Trust -= intensity * 0.1f;
+                        break;
+                    default:
+                        // Handle any other outcome types
+                        relationship.Strength += intensity * 0.05f;
+                        break;
+                }
 
-            relationship.Strength = Mathf.Clamp(relationship.Strength, -1f, 1f);
-            relationship.Trust = Mathf.Clamp(relationship.Trust, -1f, 1f);
+                relationship.Strength = Mathf.Clamp(relationship.Strength, -1f, 1f);
+                relationship.Trust = Mathf.Clamp(relationship.Trust, -1f, 1f);
+            }
         }
 
         private void UpdateSocialRelationshipType(Data.SocialRelationship relationship)
         {
-            var oldType = relationship.Type;
-
-            if (relationship.Strength > 0.7f && relationship.Trust > 0.6f)
-                relationship.Type = Types.RelationshipType.Friend;
-            else if (relationship.Strength < -0.5f)
-                relationship.Type = Types.RelationshipType.Enemy;
-            else if (relationship.Strength < -0.2f)
-                relationship.Type = Types.RelationshipType.Rival;
-            else if (relationship.Strength > 0.3f)
-                relationship.Type = Types.RelationshipType.Acquaintance;
-            else
-                relationship.Type = Types.RelationshipType.Stranger;
-
-            if (oldType != relationship.Type)
+            using (s_UpdateSocialRelationshipTypeMarker.Auto())
             {
-                OnRelationshipFormed?.Invoke(relationship.Agent1Id, relationship.Agent2Id, relationship.Type);
+                var oldType = relationship.Type;
+
+                if (relationship.Strength > 0.7f && relationship.Trust > 0.6f)
+                    relationship.Type = Types.RelationshipType.Friend;
+                else if (relationship.Strength < -0.5f)
+                    relationship.Type = Types.RelationshipType.Enemy;
+                else if (relationship.Strength < -0.2f)
+                    relationship.Type = Types.RelationshipType.Rival;
+                else if (relationship.Strength > 0.3f)
+                    relationship.Type = Types.RelationshipType.Acquaintance;
+                else
+                    relationship.Type = Types.RelationshipType.Stranger;
+
+                if (oldType != relationship.Type)
+                {
+                    OnRelationshipFormed?.Invoke(relationship.Agent1Id, relationship.Agent2Id, relationship.Type);
+                }
             }
         }
     }
