@@ -125,32 +125,42 @@ namespace Laboratory.Chimera.Ecosystem
 
             // Initialize services with dependency injection
             climateService = new ClimateEvolutionService(
-                globalTemperatureVariance,
-                precipitationVariance,
-                seasonalIntensity,
-                climateStabilityFactor,
+                globalClimate,
+                enableClimateChange,
                 enableSeasonalCycles,
-                enableClimateChange);
-
-            // Subscribe to service events
-            climateService.OnClimateShift += (rate) => OnClimateShift?.Invoke(rate);
+                climateEngine,
+                seasonalManager,
+                OnClimateShift);
 
             biomeManagementService = new BiomeManagementService(
                 maxBiomes,
                 biomeTransitionRate,
                 carryingCapacityFlexibility,
-                climateService);
+                evolutionRate,
+                transitionMatrix,
+                successionManager,
+                resourceNetwork,
+                climateService,
+                OnBiomeTransition);
 
-            biomeManagementService.OnBiomeTransition += (biomeId, oldType, newType) =>
-                OnBiomeTransition?.Invoke(biomeId, oldType, newType);
-
-            resourceDynamicsService = new ResourceDynamicsService(resourceTypes);
+            resourceDynamicsService = new ResourceDynamicsService(
+                resourceNetwork);
 
             globalMetrics = new EcosystemMetrics();
+            InitializeBiomeTransitionMatrix();
             UnityEngine.Debug.Log("Ecosystem subsystems and services initialized");
         }
 
-        // Biome transition matrix initialization now handled by BiomeManagementService
+        private void InitializeBiomeTransitionMatrix()
+        {
+            // Define biome transition probabilities based on climate conditions
+            transitionMatrix.SetTransition(BiomeType.Grassland, BiomeType.Forest, 0.3f, new ClimateCondition { temperature = 15f, precipitation = 1200f });
+            transitionMatrix.SetTransition(BiomeType.Grassland, BiomeType.Desert, 0.2f, new ClimateCondition { temperature = 25f, precipitation = 300f });
+            transitionMatrix.SetTransition(BiomeType.Forest, BiomeType.Grassland, 0.2f, new ClimateCondition { temperature = 20f, precipitation = 800f });
+            transitionMatrix.SetTransition(BiomeType.Desert, BiomeType.Grassland, 0.1f, new ClimateCondition { temperature = 18f, precipitation = 600f });
+            transitionMatrix.SetTransition(BiomeType.Tundra, BiomeType.Temperate, 0.4f, new ClimateCondition { temperature = 0f, precipitation = 400f });
+            transitionMatrix.SetTransition(BiomeType.Swamp, BiomeType.Forest, 0.3f, new ClimateCondition { temperature = 15f, precipitation = 1500f });
+        }
 
         /// <summary>
         /// Creates a new biome with specified characteristics and initial conditions

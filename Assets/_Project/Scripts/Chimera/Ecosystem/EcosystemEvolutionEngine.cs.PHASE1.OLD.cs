@@ -17,8 +17,6 @@ namespace Laboratory.Chimera.Ecosystem
     /// Advanced ecosystem evolution and biome dynamics engine that simulates complex
     /// environmental interactions, climate systems, resource flows, and emergent ecological
     /// phenomena with temporal and spatial evolution patterns.
-    ///
-    /// Refactored to use service-based composition for single responsibility.
     /// </summary>
     [CreateAssetMenu(fileName = "EcosystemEvolutionEngine", menuName = "Chimera/Ecosystem/Evolution Engine")]
     public class EcosystemEvolutionEngine : ScriptableObject
@@ -65,11 +63,6 @@ namespace Laboratory.Chimera.Ecosystem
         private BiomeTransitionMatrix transitionMatrix;
         private SeasonalCycleManager seasonalManager;
         private ClimateEvolutionEngine climateEngine;
-
-        // Services (composition-based)
-        private ClimateEvolutionService climateService;
-        private BiomeManagementService biomeManagementService;
-        private ResourceDynamicsService resourceDynamicsService;
 
         // Ecological processes
         private SuccessionManager successionManager;
@@ -123,53 +116,62 @@ namespace Laboratory.Chimera.Ecosystem
             spatialManager = new SpatialConnectivityManager();
             catastropheManager = new CatastropheManager(catastropheFrequency);
 
-            // Initialize services with dependency injection
-            climateService = new ClimateEvolutionService(
-                globalTemperatureVariance,
-                precipitationVariance,
-                seasonalIntensity,
-                climateStabilityFactor,
-                enableSeasonalCycles,
-                enableClimateChange);
-
-            // Subscribe to service events
-            climateService.OnClimateShift += (rate) => OnClimateShift?.Invoke(rate);
-
-            biomeManagementService = new BiomeManagementService(
-                maxBiomes,
-                biomeTransitionRate,
-                carryingCapacityFlexibility,
-                climateService);
-
-            biomeManagementService.OnBiomeTransition += (biomeId, oldType, newType) =>
-                OnBiomeTransition?.Invoke(biomeId, oldType, newType);
-
-            resourceDynamicsService = new ResourceDynamicsService(resourceTypes);
-
             globalMetrics = new EcosystemMetrics();
-            UnityEngine.Debug.Log("Ecosystem subsystems and services initialized");
+            InitializeBiomeTransitionMatrix();
+            UnityEngine.Debug.Log("Ecosystem subsystems initialized");
         }
 
-        // Biome transition matrix initialization now handled by BiomeManagementService
+        private void InitializeBiomeTransitionMatrix()
+        {
+            // Define biome transition probabilities based on climate conditions
+            transitionMatrix.SetTransition(BiomeType.Grassland, BiomeType.Forest, 0.3f, new ClimateCondition { temperature = 15f, precipitation = 1200f });
+            transitionMatrix.SetTransition(BiomeType.Grassland, BiomeType.Desert, 0.2f, new ClimateCondition { temperature = 25f, precipitation = 300f });
+            transitionMatrix.SetTransition(BiomeType.Forest, BiomeType.Grassland, 0.2f, new ClimateCondition { temperature = 20f, precipitation = 800f });
+            transitionMatrix.SetTransition(BiomeType.Desert, BiomeType.Grassland, 0.1f, new ClimateCondition { temperature = 18f, precipitation = 600f });
+            transitionMatrix.SetTransition(BiomeType.Tundra, BiomeType.Temperate, 0.4f, new ClimateCondition { temperature = 0f, precipitation = 400f });
+            transitionMatrix.SetTransition(BiomeType.Swamp, BiomeType.Forest, 0.3f, new ClimateCondition { temperature = 15f, precipitation = 1500f });
+        }
 
         /// <summary>
         /// Creates a new biome with specified characteristics and initial conditions
         /// </summary>
         public Biome CreateBiome(BiomeType biomeType, Vector3 location, float area, Dictionary<string, float> initialConditions)
         {
-            // Delegate to biome management service
-            var biome = biomeManagementService.CreateBiome(activeBiomes, biomeType, location, area, resourceNetwork);
-
-            if (biome == null)
+            if (activeBiomes.Count >= maxBiomes)
             {
                 UnityEngine.Debug.LogWarning("Maximum biome limit reached");
                 return null;
             }
 
-            // Add to ecosystem nodes
-            ecosystemNodes[biome.biomeId] = new EcosystemNode
+            var biomeId = GenerateBiomeId();
+
+            var biome = new Biome
             {
-                nodeId = biome.biomeId,
+                biomeId = biomeId,
+                biomeType = biomeType,
+                location = location,
+                area = area,
+                creationTime = Time.time,
+                climateConditions = GenerateClimateConditions(biomeType, location),
+                resources = resourceNetwork.InitializeBiomeResources(biomeType),
+                species = new List<EcosystemSpeciesData>(),
+                carryingCapacity = CalculateCarryingCapacity(biomeType, area),
+                biodiversityIndex = 0f,
+                stabilityIndex = 0.8f,
+                connectivityIndex = 0f,
+                successionStage = SuccessionStage.Pioneer,
+                disturbanceHistory = new List<DisturbanceEvent>(),
+                seasonalModifiers = new Dictionary<Season, SeasonalModifier>()
+            };
+
+            // Initialize seasonal modifiers
+            InitializeSeasonalModifiers(biome);
+
+            // Add to ecosystem
+            activeBiomes[biomeId] = biome;
+            ecosystemNodes[biomeId] = new EcosystemNode
+            {
+                nodeId = biomeId,
                 biome = biome,
                 connections = new List<uint>(),
                 migrationRoutes = new List<MigrationRoute>(),
@@ -177,7 +179,7 @@ namespace Laboratory.Chimera.Ecosystem
             };
 
             // Initialize biome health metrics
-            biomeHealthMetrics[biome.biomeId] = new BiomeHealth
+            biomeHealthMetrics[biomeId] = new BiomeHealth
             {
                 overallHealth = 0.8f,
                 speciesDiversity = 0f,
@@ -187,12 +189,112 @@ namespace Laboratory.Chimera.Ecosystem
                 resilienceScore = 0.7f
             };
 
-            UnityEngine.Debug.Log($"Biome {biome.biomeId} ({biomeType}) created at {location} with area {area:F1}");
+            UnityEngine.Debug.Log($"Biome {biomeId} ({biomeType}) created at {location} with area {area:F1}");
             return biome;
         }
 
-        // Climate condition methods now delegated to ClimateEvolutionService
-        // Biome lifecycle methods now delegated to BiomeManagementService
+        private ClimateCondition GenerateClimateConditions(BiomeType biomeType, Vector3 location)
+        {
+            // Base climate conditions modified by global climate and location
+            var baseConditions = GetBaseClimateConditions(biomeType);
+
+            // Apply global climate influence
+            baseConditions.temperature += globalClimate.globalTemperature - 15f; // Adjust from baseline
+            baseConditions.precipitation *= globalClimate.globalPrecipitation / 1000f; // Adjust from baseline
+
+            // Apply location-based modifiers (latitude, altitude, etc.)
+            ApplyLocationModifiers(baseConditions, location);
+
+            return baseConditions;
+        }
+
+        private ClimateCondition GetBaseClimateConditions(BiomeType biomeType)
+        {
+            return biomeType switch
+            {
+                BiomeType.Tropical => new ClimateCondition { temperature = 27f, precipitation = 2500f, humidity = 0.9f },
+                BiomeType.Forest => new ClimateCondition { temperature = 15f, precipitation = 1200f, humidity = 0.7f },
+                BiomeType.Grassland => new ClimateCondition { temperature = 18f, precipitation = 800f, humidity = 0.5f },
+                BiomeType.Desert => new ClimateCondition { temperature = 25f, precipitation = 200f, humidity = 0.2f },
+                BiomeType.Tundra => new ClimateCondition { temperature = -10f, precipitation = 300f, humidity = 0.6f },
+                BiomeType.Temperate => new ClimateCondition { temperature = 2f, precipitation = 500f, humidity = 0.6f },
+                BiomeType.Swamp => new ClimateCondition { temperature = 12f, precipitation = 1500f, humidity = 0.95f },
+                BiomeType.Mountain => new ClimateCondition { temperature = 8f, precipitation = 1000f, humidity = 0.6f },
+                BiomeType.Ocean => new ClimateCondition { temperature = 16f, precipitation = 1100f, humidity = 0.8f },
+                _ => new ClimateCondition { temperature = 15f, precipitation = 1000f, humidity = 0.6f }
+            };
+        }
+
+        private void ApplyLocationModifiers(ClimateCondition conditions, Vector3 location)
+        {
+            // Latitude effect (approximation)
+            float latitudeEffect = math.abs(location.z) / 100f; // Assuming z represents latitude proxy
+            conditions.temperature -= latitudeEffect * 0.6f; // Cooler at higher latitudes
+
+            // Altitude effect
+            float altitudeEffect = location.y / 1000f; // Assuming y represents altitude in meters
+            conditions.temperature -= altitudeEffect * 6.5f; // 6.5°C per 1000m altitude
+
+            // Ensure reasonable bounds
+            conditions.temperature = math.clamp(conditions.temperature, -30f, 40f);
+            conditions.precipitation = math.clamp(conditions.precipitation, 50f, 4000f);
+        }
+
+        private float CalculateCarryingCapacity(BiomeType biomeType, float area)
+        {
+            float baseCapacity = biomeType switch
+            {
+                BiomeType.Tropical => 100f,
+                BiomeType.Forest => 80f,
+                BiomeType.Grassland => 60f,
+                BiomeType.Desert => 20f,
+                BiomeType.Tundra => 30f,
+                BiomeType.Temperate => 50f,
+                BiomeType.Swamp => 90f,
+                BiomeType.Mountain => 40f,
+                BiomeType.Ocean => 70f,
+                _ => 50f
+            };
+
+            return baseCapacity * area * carryingCapacityFlexibility;
+        }
+
+        private void InitializeSeasonalModifiers(Biome biome)
+        {
+            if (!enableSeasonalCycles) return;
+
+            biome.seasonalModifiers[Season.Spring] = new SeasonalModifier
+            {
+                temperatureModifier = 0f,
+                precipitationModifier = 1.2f,
+                resourceModifier = 1.3f,
+                breedingModifier = 1.5f
+            };
+
+            biome.seasonalModifiers[Season.Summer] = new SeasonalModifier
+            {
+                temperatureModifier = 5f,
+                precipitationModifier = 0.8f,
+                resourceModifier = 1.1f,
+                breedingModifier = 1.2f
+            };
+
+            biome.seasonalModifiers[Season.Autumn] = new SeasonalModifier
+            {
+                temperatureModifier = -2f,
+                precipitationModifier = 1.1f,
+                resourceModifier = 0.9f,
+                breedingModifier = 0.8f
+            };
+
+            biome.seasonalModifiers[Season.Winter] = new SeasonalModifier
+            {
+                temperatureModifier = -8f,
+                precipitationModifier = 0.9f,
+                resourceModifier = 0.6f,
+                breedingModifier = 0.3f
+            };
+        }
 
         /// <summary>
         /// Processes ecosystem evolution for a single time step
@@ -201,15 +303,15 @@ namespace Laboratory.Chimera.Ecosystem
         {
             float scaledDeltaTime = deltaTime * timeScale;
 
-            // Update global systems (delegated to services)
-            climateService.UpdateGlobalClimate(scaledDeltaTime);
-            climateService.UpdateSeasonalCycles(activeBiomes, scaledDeltaTime);
+            // Update global systems
+            UpdateGlobalClimate(scaledDeltaTime);
+            UpdateSeasonalCycles(scaledDeltaTime);
 
-            // Update biome-level processes (delegated to services)
-            biomeManagementService.UpdateBiomeEvolution(activeBiomes, ecosystemNodes, scaledDeltaTime);
-            resourceDynamicsService.UpdateResourceDynamics(activeBiomes, ecosystemNodes, scaledDeltaTime);
+            // Update biome-level processes
+            UpdateBiomeEvolution(scaledDeltaTime);
+            UpdateResourceDynamics(scaledDeltaTime);
 
-            // Update ecological interactions (kept in main class - complex domain logic)
+            // Update ecological interactions
             UpdateSpeciesInteractions(scaledDeltaTime);
             UpdateMigrationPatterns(scaledDeltaTime);
 
@@ -230,7 +332,231 @@ namespace Laboratory.Chimera.Ecosystem
             UpdateGlobalMetrics();
         }
 
-        // Climate, biome, and resource update methods now delegated to respective services
+        private void UpdateGlobalClimate(float deltaTime)
+        {
+            if (!enableClimateChange) return;
+
+            climateEngine.UpdateClimate(globalClimate, deltaTime);
+
+            // Check for significant climate changes (using climate engine's change rate for now)
+            float changeRate = climateEngine.GetClimateChangeRate();
+            if (changeRate > 0.1f)
+            {
+                OnClimateShift?.Invoke(changeRate);
+                UnityEngine.Debug.Log($"Climate shift detected: Change rate={changeRate:F2}");
+            }
+
+            // Update all biome climate conditions
+            foreach (var biome in activeBiomes.Values)
+            {
+                var climateChange = new ClimateChange
+                {
+                    temperatureChange = changeRate * UnityEngine.Random.Range(-1f, 1f),
+                    precipitationChange = changeRate * UnityEngine.Random.Range(-0.5f, 0.5f),
+                    humidityChange = changeRate * UnityEngine.Random.Range(-0.3f, 0.3f)
+                };
+                ApplyClimateChangeToBiome(biome, climateChange);
+            }
+        }
+
+        private void UpdateSeasonalCycles(float deltaTime)
+        {
+            if (!enableSeasonalCycles) return;
+
+            seasonalManager.UpdateSeason(deltaTime);
+            var currentSeason = seasonalManager.GetCurrentSeason();
+
+            // Apply seasonal effects to all biomes
+            foreach (var biome in activeBiomes.Values)
+            {
+                if (biome.seasonalModifiers.TryGetValue(currentSeason, out var modifier))
+                {
+                    ApplySeasonalModifiers(biome, modifier);
+                }
+            }
+        }
+
+        private void ApplySeasonalModifiers(Biome biome, SeasonalModifier modifier)
+        {
+            // Temporary climate modifications for the season
+            biome.climateConditions.temperature += modifier.temperatureModifier;
+            biome.climateConditions.precipitation *= modifier.precipitationModifier;
+
+            // Resource availability changes
+            foreach (var resource in biome.resources.Values)
+            {
+                resource.currentAmount *= modifier.resourceModifier;
+                resource.currentAmount = math.clamp(resource.currentAmount, 0f, resource.maxAmount);
+            }
+        }
+
+        private void UpdateBiomeEvolution(float deltaTime)
+        {
+            var biomesToTransition = new List<(uint biomeId, BiomeType newType)>();
+
+            foreach (var biome in activeBiomes.Values)
+            {
+                // Check for biome transitions based on climate conditions
+                var possibleTransition = transitionMatrix.EvaluateTransition(biome.biomeType, biome.climateConditions);
+
+                if (possibleTransition.HasValue && UnityEngine.Random.value < biomeTransitionRate * deltaTime)
+                {
+                    biomesToTransition.Add((biome.biomeId, possibleTransition.Value));
+                }
+
+                // Update biome stability based on disturbances and climate stress
+                UpdateBiomeStability(biome, deltaTime);
+
+                // Progress ecological succession
+                UpdateSuccessionStage(biome, deltaTime);
+            }
+
+            // Execute biome transitions
+            foreach (var (biomeId, newType) in biomesToTransition)
+            {
+                TransitionBiome(biomeId, newType);
+            }
+        }
+
+        private void UpdateBiomeStability(Biome biome, float deltaTime)
+        {
+            float stabilityChange = 0f;
+
+            // Climate stress affects stability
+            float climateStress = CalculateClimateStress(biome);
+            stabilityChange -= climateStress * 0.1f * deltaTime;
+
+            // Species diversity supports stability
+            float diversityBonus = biome.biodiversityIndex * 0.05f * deltaTime;
+            stabilityChange += diversityBonus;
+
+            // Recent disturbances reduce stability
+            float recentDisturbances = biome.disturbanceHistory
+                .Count(d => Time.time - d.timestamp < 100f); // Events in last 100 time units
+            stabilityChange -= recentDisturbances * 0.02f * deltaTime;
+
+            biome.stabilityIndex = math.clamp(biome.stabilityIndex + stabilityChange, 0f, 1f);
+        }
+
+        private float CalculateClimateStress(Biome biome)
+        {
+            var optimalConditions = GetBaseClimateConditions(biome.biomeType);
+
+            float temperatureStress = math.abs(biome.climateConditions.temperature - optimalConditions.temperature) / 10f;
+            float precipitationStress = math.abs(biome.climateConditions.precipitation - optimalConditions.precipitation) / 500f;
+
+            return math.clamp((temperatureStress + precipitationStress) / 2f, 0f, 1f);
+        }
+
+        private void UpdateSuccessionStage(Biome biome, float deltaTime)
+        {
+            // Succession progresses based on time, stability, and species establishment
+            float successionRate = evolutionRate * biome.stabilityIndex * deltaTime;
+
+            if (UnityEngine.Random.value < successionRate)
+            {
+                biome.successionStage = successionManager.AdvanceSuccession(biome.successionStage, biome);
+            }
+        }
+
+        private void TransitionBiome(uint biomeId, BiomeType newType)
+        {
+            if (!activeBiomes.TryGetValue(biomeId, out var biome))
+                return;
+
+            var oldType = biome.biomeType;
+            biome.biomeType = newType;
+
+            // Update climate conditions for new biome type
+            var newClimateBase = GetBaseClimateConditions(newType);
+            biome.climateConditions.temperature = newClimateBase.temperature;
+            biome.climateConditions.precipitation = newClimateBase.precipitation;
+            biome.climateConditions.humidity = newClimateBase.humidity;
+
+            // Update carrying capacity
+            biome.carryingCapacity = CalculateCarryingCapacity(newType, biome.area);
+
+            // Reset succession stage
+            biome.successionStage = SuccessionStage.Pioneer;
+
+            // Add transition event to history
+            var transitionEvent = new EcologicalEvent
+            {
+                eventType = (EventType)EcologicalEventType.BiomeTransition,
+                timestamp = Time.time,
+                affectedBiomes = new List<uint> { biomeId },
+                description = $"Biome transition from {oldType} to {newType}",
+                severity = (float)EventSeverity.Moderate
+            };
+
+            eventHistory.Add(transitionEvent);
+            OnBiomeTransition?.Invoke(biomeId, oldType, newType);
+
+            UnityEngine.Debug.Log($"Biome {biomeId} transitioned from {oldType} to {newType}");
+        }
+
+        private void UpdateResourceDynamics(float deltaTime)
+        {
+            foreach (var biome in activeBiomes.Values)
+            {
+                resourceNetwork.UpdateBiomeResources(biome, deltaTime);
+
+                // Resource regeneration
+                foreach (var resource in biome.resources.Values)
+                {
+                    float regenerationAmount = resource.regenerationRate * deltaTime;
+                    resource.currentAmount = math.min(resource.maxAmount, resource.currentAmount + regenerationAmount);
+                }
+
+                // Resource depletion from species consumption
+                ApplyResourceConsumption(biome, deltaTime);
+            }
+
+            // Update resource flows between connected biomes
+            UpdateResourceFlows(deltaTime);
+        }
+
+        private void ApplyResourceConsumption(Biome biome, float deltaTime)
+        {
+            foreach (var species in biome.species)
+            {
+                var consumptionRate = CalculateSpeciesConsumption(species);
+
+                foreach (var resourceType in species.resourceRequirements.Keys)
+                {
+                    if (biome.resources.TryGetValue(resourceType, out var resource))
+                    {
+                        float consumption = consumptionRate * species.population * deltaTime;
+                        resource.currentAmount = math.max(0f, resource.currentAmount - consumption);
+                    }
+                }
+            }
+        }
+
+        private float CalculateSpeciesConsumption(EcosystemSpeciesData species)
+        {
+            // Base consumption modified by species traits and environmental factors
+            return species.metabolicRate * species.bodySize * species.activityLevel;
+        }
+
+        private void UpdateResourceFlows(float deltaTime)
+        {
+            foreach (var node in ecosystemNodes.Values)
+            {
+                foreach (var flowPair in node.resourceFlows)
+                {
+                    var resourceFlow = new ResourceFlow
+                    {
+                        resourceType = flowPair.Key,
+                        flowRate = flowPair.Value,
+                        sourceNode = node.nodeId,
+                        destinationNode = 0, // Default destination
+                        efficiency = 1.0f
+                    };
+                    resourceNetwork.ProcessResourceFlow(resourceFlow, deltaTime);
+                }
+            }
+        }
 
         private void UpdateSpeciesInteractions(float deltaTime)
         {
@@ -589,8 +915,8 @@ namespace Laboratory.Chimera.Ecosystem
             float totalResourceRatio = biome.resources.Values.Average(r => r.currentAmount / r.maxAmount);
             health.resourceAvailability = totalResourceRatio;
 
-            // Climate stress component (delegated to climate service)
-            health.climateStress = biomeManagementService.CalculateClimateStress(biome);
+            // Climate stress component
+            health.climateStress = CalculateClimateStress(biome);
 
             // Resilience based on stability and connectivity
             health.resilienceScore = (biome.stabilityIndex + biome.connectivityIndex) / 2f;
@@ -993,8 +1319,21 @@ namespace Laboratory.Chimera.Ecosystem
             return recommendations;
         }
 
-        // ID generation (kept in main class for simplicity)
+        // ID generation
         private uint GenerateBiomeId() => (uint)UnityEngine.Random.Range(1, int.MaxValue);
+
+        // Apply climate change to biome - method was cut off earlier
+        private void ApplyClimateChangeToBiome(Biome biome, ClimateChange change)
+        {
+            biome.climateConditions.temperature += change.temperatureChange;
+            biome.climateConditions.precipitation += change.precipitationChange;
+            biome.climateConditions.humidity += change.humidityChange;
+
+            // Clamp values to reasonable ranges
+            biome.climateConditions.temperature = math.clamp(biome.climateConditions.temperature, -50f, 60f);
+            biome.climateConditions.precipitation = math.clamp(biome.climateConditions.precipitation, 0f, 5000f);
+            biome.climateConditions.humidity = math.clamp(biome.climateConditions.humidity, 0f, 100f);
+        }
     }
 
     // Unique enums not defined in EcosystemTypes.cs
