@@ -8,12 +8,14 @@ using Unity.Jobs;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Ecosystem;
+using Laboratory.Chimera.ECS.Services;
 
 namespace Laboratory.Chimera.ECS
 {
     /// <summary>
     /// Emergency conservation events system.
     /// Creates urgent scenarios requiring immediate action to save endangered species and ecosystems.
+    /// Refactored to use service-oriented architecture (Phase 2).
     /// </summary>
     public partial class EmergencyConservationSystem : SystemBase
     {
@@ -22,9 +24,18 @@ namespace Laboratory.Chimera.ECS
         private EntityQuery _speciesPopulationsQuery;
         private EntityQuery _activeEmergenciesQuery;
 
+        // Services (Phase 1 & 2 extraction)
+        private SeverityCalculationService _severityService;
+        private UrgencyCalculationService _urgencyService;
+        private DescriptionGenerationService _descriptionService;
+        private EmergencyCreationService _creationService;
+        private EmergencyResolutionService _resolutionService;
+        private PlayerResponseService _responseService;
+
         // Emergency tracking
         private List<ConservationEmergency> _activeEmergencies = new List<ConservationEmergency>();
         private Dictionary<int, EmergencyResponse> _playerResponses = new Dictionary<int, EmergencyResponse>();
+        private Dictionary<int, Dictionary<int, float>> _emergencyPlayerContributions = new Dictionary<int, Dictionary<int, float>>();
         private float _emergencyCheckTimer = 0f;
 
         // Event system
@@ -42,6 +53,14 @@ namespace Laboratory.Chimera.ECS
                 UnityEngine.Debug.LogError("EmergencyConservationConfig not found in Resources/Configs/");
                 return;
             }
+
+            // Initialize services
+            _severityService = new SeverityCalculationService(_config);
+            _urgencyService = new UrgencyCalculationService(_config);
+            _descriptionService = new DescriptionGenerationService(_config);
+            _creationService = new EmergencyCreationService(_config, _severityService, _urgencyService, _descriptionService);
+            _resolutionService = new EmergencyResolutionService(_config);
+            _responseService = new PlayerResponseService(_config);
 
             _ecosystemsQuery = GetEntityQuery(
                 ComponentType.ReadWrite<EcosystemData>(),
