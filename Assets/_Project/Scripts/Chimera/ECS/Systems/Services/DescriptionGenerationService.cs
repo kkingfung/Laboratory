@@ -84,6 +84,24 @@ namespace Laboratory.Chimera.ECS.Services
         }
 
         /// <summary>
+        /// Generates description for food web disruption emergency
+        /// </summary>
+        public static string GenerateFoodWebDescription(EcosystemHealth health)
+        {
+            return $"Food web stability has declined critically to {health.foodWebStability:P1}. " +
+                   $"Predator-prey relationships are breaking down, threatening ecosystem collapse.";
+        }
+
+        /// <summary>
+        /// Generates description for habitat fragmentation emergency
+        /// </summary>
+        public static string GenerateHabitatFragmentationDescription(EcosystemHealth health)
+        {
+            return $"Habitat connectivity has degraded to {health.habitatConnectivity:P1}. " +
+                   $"Population isolation increases inbreeding risk and limits gene flow.";
+        }
+
+        /// <summary>
         /// Gets potential consequences for population collapse
         /// </summary>
         public static string[] GetPopulationConsequences(SpeciesPopulationData populationData)
@@ -192,6 +210,34 @@ namespace Laboratory.Chimera.ECS.Services
                 "Mass species migration or extinction",
                 "Ecosystem regime shift",
                 "Permanent biodiversity loss"
+            };
+        }
+
+        /// <summary>
+        /// Gets potential consequences for food web disruption
+        /// </summary>
+        public static string[] GetFoodWebConsequences(EcosystemHealth health)
+        {
+            return new[]
+            {
+                "Ecosystem collapse due to trophic cascade",
+                "Species extinction cascades",
+                "Loss of keystone species",
+                "Irreversible food web breakdown"
+            };
+        }
+
+        /// <summary>
+        /// Gets potential consequences for habitat fragmentation
+        /// </summary>
+        public static string[] GetHabitatFragmentationConsequences(EcosystemHealth health)
+        {
+            return new[]
+            {
+                "Population isolation and genetic bottlenecks",
+                "Reduced species dispersal and gene flow",
+                "Edge effects degrading habitat quality",
+                "Local extinction of area-sensitive species"
             };
         }
 

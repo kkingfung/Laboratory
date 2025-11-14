@@ -270,8 +270,8 @@ namespace Laboratory.Chimera.ECS.Services
             EcosystemHealth health,
             float currentTime)
         {
-            string description = "Food web stability has declined critically"; // TODO: Add to DescriptionGenerationService
-            string[] consequences = new[] { "Ecosystem collapse", "Species extinction cascades" }; // TODO: Add to DescriptionGenerationService
+            string description = DescriptionGenerationService.GenerateFoodWebDescription(health);
+            string[] consequences = DescriptionGenerationService.GetFoodWebConsequences(health);
 
             return new ConservationEmergency
             {
@@ -301,8 +301,8 @@ namespace Laboratory.Chimera.ECS.Services
             EcosystemHealth health,
             float currentTime)
         {
-            string description = "Habitat connectivity has degraded critically"; // TODO: Add to DescriptionGenerationService
-            string[] consequences = new[] { "Population isolation", "Genetic bottlenecks" }; // TODO: Add to DescriptionGenerationService
+            string description = DescriptionGenerationService.GenerateHabitatFragmentationDescription(health);
+            string[] consequences = DescriptionGenerationService.GetHabitatFragmentationConsequences(health);
 
             return new ConservationEmergency
             {
