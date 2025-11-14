@@ -5,6 +5,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Jobs;
+using Unity.Profiling;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Ecosystem;
@@ -15,7 +16,7 @@ namespace Laboratory.Chimera.ECS
     /// <summary>
     /// Emergency conservation events system.
     /// Creates urgent scenarios requiring immediate action to save endangered species and ecosystems.
-    /// Refactored to use service-oriented architecture (Phase 2).
+    /// Refactored to use service-oriented architecture with performance profiling.
     /// </summary>
     public partial class EmergencyConservationSystem : SystemBase
     {
@@ -24,19 +25,19 @@ namespace Laboratory.Chimera.ECS
         private EntityQuery _speciesPopulationsQuery;
         private EntityQuery _activeEmergenciesQuery;
 
-        // Services (Phase 1 & 2 extraction)
-        private SeverityCalculationService _severityService;
-        private UrgencyCalculationService _urgencyService;
-        private DescriptionGenerationService _descriptionService;
-        private EmergencyCreationService _creationService;
-        private EmergencyResolutionService _resolutionService;
-        private PlayerResponseService _responseService;
-
         // Emergency tracking
         private List<ConservationEmergency> _activeEmergencies = new List<ConservationEmergency>();
         private Dictionary<int, EmergencyResponse> _playerResponses = new Dictionary<int, EmergencyResponse>();
         private Dictionary<int, Dictionary<int, float>> _emergencyPlayerContributions = new Dictionary<int, Dictionary<int, float>>();
         private float _emergencyCheckTimer = 0f;
+
+        // Performance profiling markers
+        private static readonly ProfilerMarker s_CheckForNewEmergenciesMarker = new ProfilerMarker("EmergencyConservation.CheckForNewEmergencies");
+        private static readonly ProfilerMarker s_UpdateActiveEmergenciesMarker = new ProfilerMarker("EmergencyConservation.UpdateActiveEmergencies");
+        private static readonly ProfilerMarker s_ProcessPlayerResponsesMarker = new ProfilerMarker("EmergencyConservation.ProcessPlayerResponses");
+        private static readonly ProfilerMarker s_MonitorEcosystemHealthMarker = new ProfilerMarker("EmergencyConservation.MonitorEcosystemHealth");
+        private static readonly ProfilerMarker s_CheckPopulationEmergenciesMarker = new ProfilerMarker("EmergencyConservation.CheckPopulationEmergencies");
+        private static readonly ProfilerMarker s_CheckEcosystemEmergenciesMarker = new ProfilerMarker("EmergencyConservation.CheckEcosystemEmergencies");
 
         // Event system
         public static event Action<ConservationEmergency> OnEmergencyDeclared;
@@ -54,13 +55,7 @@ namespace Laboratory.Chimera.ECS
                 return;
             }
 
-            // Initialize services
-            _severityService = new SeverityCalculationService(_config);
-            _urgencyService = new UrgencyCalculationService(_config);
-            _descriptionService = new DescriptionGenerationService(_config);
-            _creationService = new EmergencyCreationService(_config, _severityService, _urgencyService, _descriptionService);
-            _resolutionService = new EmergencyResolutionService(_config);
-            _responseService = new PlayerResponseService(_config);
+            // Services are now static utility classes - no initialization needed
 
             _ecosystemsQuery = GetEntityQuery(
                 ComponentType.ReadWrite<EcosystemData>(),
@@ -109,28 +104,33 @@ namespace Laboratory.Chimera.ECS
 
         private void CheckForNewEmergencies()
         {
-            // Check population-based emergencies
-            CheckPopulationEmergencies();
+            using (s_CheckForNewEmergenciesMarker.Auto())
+            {
+                // Check population-based emergencies
+                CheckPopulationEmergencies();
 
-            // Check ecosystem-based emergencies
-            CheckEcosystemEmergencies();
+                // Check ecosystem-based emergencies
+                CheckEcosystemEmergencies();
 
-            // Check genetic diversity emergencies
-            CheckGeneticDiversityEmergencies();
+                // Check genetic diversity emergencies
+                CheckGeneticDiversityEmergencies();
 
-            // Check habitat destruction emergencies
-            CheckHabitatEmergencies();
+                // Check habitat destruction emergencies
+                CheckHabitatEmergencies();
 
-            // Check disease outbreak emergencies
-            CheckDiseaseEmergencies();
+                // Check disease outbreak emergencies
+                CheckDiseaseEmergencies();
 
-            // Check climate-related emergencies
-            CheckClimateEmergencies();
+                // Check climate-related emergencies
+                CheckClimateEmergencies();
+            }
         }
 
         private void CheckPopulationEmergencies()
         {
-            float currentTime = (float)SystemAPI.Time.ElapsedTime;
+            using (s_CheckPopulationEmergenciesMarker.Auto())
+            {
+                float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
             Entities.WithAll<SpeciesPopulationData>().ForEach((Entity entity, ref SpeciesPopulationData populationData) =>
             {
@@ -156,15 +156,18 @@ namespace Laboratory.Chimera.ECS
                 if (populationData.juvenileSurvivalRate < _config.juvenileSurvivalThreshold &&
                     !HasActiveEmergency(populationData.speciesId, EmergencyType.JuvenileMortality))
                 {
-                    var emergency = _creationService.CreateJuvenileEmergency(populationData, currentTime);
+                    var emergency = EmergencyCreationService.CreateJuvenileEmergency(_config, populationData, currentTime);
                     AddEmergency(emergency);
                 }
             }).WithoutBurst().Run();
+            }
         }
 
         private void CheckEcosystemEmergencies()
         {
-            float currentTime = (float)SystemAPI.Time.ElapsedTime;
+            using (s_CheckEcosystemEmergenciesMarker.Auto())
+            {
+                float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
             foreach (var (ecosystemData, health, entity) in SystemAPI.Query<RefRW<EcosystemData>, RefRW<EcosystemHealth>>().WithEntityAccess())
             {
