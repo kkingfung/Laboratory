@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
 
@@ -6,16 +7,19 @@ namespace Laboratory.Chimera.Activities.Racing
     /// <summary>
     /// Racing Circuit activity implementation
     /// Performance based on: Agility (speed/cornering), Vitality (endurance), Adaptability (track variety)
+    /// Burst-compatible with Unity.Mathematics for performance
     /// </summary>
     public class RacingActivity : IActivity
     {
         private readonly RacingConfig _config;
+        private Random _random;
 
         public ActivityType Type => ActivityType.Racing;
 
         public RacingActivity(RacingConfig config)
         {
             _config = config ?? throw new System.ArgumentNullException(nameof(config));
+            _random = new Random((uint)System.DateTime.Now.Ticks);
         }
 
         /// <summary>
@@ -58,11 +62,11 @@ namespace Laboratory.Chimera.Activities.Racing
             float withBonuses = ActivityPerformanceCalculator.ApplyBonuses(
                 withDifficulty, equipmentBonus, masteryBonus);
 
-            // Add slight random variation to simulate execution variance
+            // Add slight random variation to simulate execution variance (Burst-compatible)
             float finalPerformance = ActivityPerformanceCalculator.AddRandomVariation(
-                withBonuses, _config.performanceVariation);
+                withBonuses, _config.performanceVariation, ref _random);
 
-            return Mathf.Clamp01(finalPerformance);
+            return math.clamp(finalPerformance, 0f, 1f);
         }
 
         /// <summary>

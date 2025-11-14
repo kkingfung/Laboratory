@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
 
@@ -6,16 +7,19 @@ namespace Laboratory.Chimera.Activities.Combat
     /// <summary>
     /// Combat Arena activity implementation
     /// Performance based on: Strength (damage), Vitality (defense/HP), Intelligence (tactics)
+    /// Burst-compatible with Unity.Mathematics for performance
     /// </summary>
     public class CombatActivity : IActivity
     {
         private readonly CombatConfig _config;
+        private Random _random;
 
         public ActivityType Type => ActivityType.Combat;
 
         public CombatActivity(CombatConfig config)
         {
             _config = config ?? throw new System.ArgumentNullException(nameof(config));
+            _random = new Random((uint)(System.DateTime.Now.Ticks + 1)); // +1 to avoid same seed as Racing
         }
 
         /// <summary>
@@ -51,7 +55,7 @@ namespace Laboratory.Chimera.Activities.Combat
 
             // Apply combat style modifier based on creature balance
             float styleBonus = CalculateCombatStyleBonus(strength, vitality, intelligence);
-            basePerformance = Mathf.Clamp01(basePerformance + styleBonus);
+            basePerformance = math.clamp(basePerformance + styleBonus, 0f, 1f);
 
             // Apply difficulty modifier (harder opponents require better stats)
             float difficultyMultiplier = _config.GetDifficultyMultiplier(difficulty);
@@ -62,11 +66,11 @@ namespace Laboratory.Chimera.Activities.Combat
             float withBonuses = ActivityPerformanceCalculator.ApplyBonuses(
                 withDifficulty, equipmentBonus, masteryBonus);
 
-            // Add combat variance (more variance than racing due to tactical choices)
+            // Add combat variance (more variance than racing due to tactical choices - Burst-compatible)
             float finalPerformance = ActivityPerformanceCalculator.AddRandomVariation(
-                withBonuses, _config.combatVariance);
+                withBonuses, _config.combatVariance, ref _random);
 
-            return Mathf.Clamp01(finalPerformance);
+            return math.clamp(finalPerformance, 0f, 1f);
         }
 
         /// <summary>

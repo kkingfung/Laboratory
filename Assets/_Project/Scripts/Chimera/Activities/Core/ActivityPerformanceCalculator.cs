@@ -1,16 +1,20 @@
-using UnityEngine;
+using Unity.Mathematics;
+using Unity.Burst;
 using Laboratory.Chimera.Genetics;
 
 namespace Laboratory.Chimera.Activities
 {
     /// <summary>
-    /// Static utility for calculating activity performance based on genetics
+    /// Burst-compiled static utility for calculating activity performance based on genetics
     /// Provides common performance calculation logic for all activity types
+    /// Performance: All methods are Burst-compiled for native performance on all platforms
     /// </summary>
+    [BurstCompile]
     public static class ActivityPerformanceCalculator
     {
         /// <summary>
         /// Calculates weighted performance score from genetics
+        /// Burst-compiled for optimal performance
         /// </summary>
         /// <param name="genetics">Monster genetics component</param>
         /// <param name="primaryStat">Primary stat value (0.0 to 1.0)</param>
@@ -20,6 +24,7 @@ namespace Laboratory.Chimera.Activities
         /// <param name="secondaryWeight">Weight for secondary stat</param>
         /// <param name="tertiaryWeight">Weight for tertiary stat</param>
         /// <returns>Weighted performance score (0.0 to 1.0)</returns>
+        [BurstCompile]
         public static float CalculateWeightedPerformance(
             float primaryStat,
             float secondaryStat,
@@ -42,13 +47,15 @@ namespace Laboratory.Chimera.Activities
                 (secondaryStat * normalizedSecondary) +
                 (tertiaryStat * normalizedTertiary);
 
-            return Mathf.Clamp01(basePerformance);
+            return math.clamp(basePerformance, 0f, 1f);
         }
 
         /// <summary>
         /// Applies difficulty modifier to performance
         /// Higher difficulty requires better stats for same performance
+        /// Burst-compiled for optimal performance
         /// </summary>
+        [BurstCompile]
         public static float ApplyDifficultyModifier(
             float basePerformance,
             ActivityDifficulty difficulty,
@@ -57,9 +64,9 @@ namespace Laboratory.Chimera.Activities
             // Difficulty makes it harder to achieve high performance
             // Easy: performance * 1.2 (easier to succeed)
             // Normal: performance * 1.0 (baseline)
-            // Hard: performance * 0.8
-            // Expert: performance * 0.6
-            // Master: performance * 0.4
+            // Hard: performance * 0.85
+            // Expert: performance * 0.7
+            // Master: performance * 0.5
 
             float modifier = difficulty switch
             {
@@ -71,12 +78,14 @@ namespace Laboratory.Chimera.Activities
                 _ => 1.0f
             };
 
-            return Mathf.Clamp01(basePerformance * modifier);
+            return math.clamp(basePerformance * modifier, 0f, 1f);
         }
 
         /// <summary>
         /// Applies equipment and mastery bonuses
+        /// Burst-compiled for optimal performance
         /// </summary>
+        [BurstCompile]
         public static float ApplyBonuses(
             float basePerformance,
             float equipmentBonus,
@@ -84,24 +93,31 @@ namespace Laboratory.Chimera.Activities
         {
             // Equipment adds flat bonus (0.0 to 1.0)
             // Mastery multiplies performance (1.0 to 1.5)
-            float withEquipment = Mathf.Clamp01(basePerformance + equipmentBonus);
+            float withEquipment = math.clamp(basePerformance + equipmentBonus, 0f, 1f);
             float withMastery = withEquipment * masteryBonus;
 
-            return Mathf.Clamp01(withMastery);
+            return math.clamp(withMastery, 0f, 1f);
         }
 
         /// <summary>
         /// Adds random variation to simulate execution variance
+        /// Burst-compiled for optimal performance
         /// </summary>
-        public static float AddRandomVariation(float basePerformance, float variationPercent = 0.1f)
+        /// <param name="basePerformance">Base performance score</param>
+        /// <param name="variationPercent">Variation percentage (0.0 to 1.0)</param>
+        /// <param name="random">Unity.Mathematics.Random instance for Burst compatibility</param>
+        [BurstCompile]
+        public static float AddRandomVariation(float basePerformance, float variationPercent, ref Random random)
         {
-            float variation = Random.Range(-variationPercent, variationPercent);
-            return Mathf.Clamp01(basePerformance * (1f + variation));
+            float variation = random.NextFloat(-variationPercent, variationPercent);
+            return math.clamp(basePerformance * (1f + variation), 0f, 1f);
         }
 
         /// <summary>
         /// Determines rank based on performance score
+        /// Burst-compiled for optimal performance
         /// </summary>
+        [BurstCompile]
         public static ActivityResultStatus GetRankFromScore(
             float performanceScore,
             RankThresholds thresholds)
@@ -120,7 +136,9 @@ namespace Laboratory.Chimera.Activities
 
         /// <summary>
         /// Calculates experience gain with bonus scaling
+        /// Burst-compiled for optimal performance
         /// </summary>
+        [BurstCompile]
         public static int CalculateExperienceGain(
             int baseExperience,
             ActivityDifficulty difficulty,
@@ -137,14 +155,16 @@ namespace Laboratory.Chimera.Activities
                 _ => 1.0f
             };
 
-            float performanceMult = Mathf.Lerp(0.5f, 1.5f, performanceScore);
+            float performanceMult = math.lerp(0.5f, 1.5f, performanceScore);
 
-            return Mathf.RoundToInt(baseExperience * difficultyMult * performanceMult);
+            return (int)math.round(baseExperience * difficultyMult * performanceMult);
         }
 
         /// <summary>
         /// Calculates currency rewards with scaling
+        /// Burst-compiled for optimal performance
         /// </summary>
+        [BurstCompile]
         public static int CalculateCurrencyReward(
             int baseReward,
             ActivityDifficulty difficulty,
@@ -160,14 +180,16 @@ namespace Laboratory.Chimera.Activities
                 _ => 1.0f
             };
 
-            float performanceMult = Mathf.Lerp(0.5f, 2.0f, performanceScore);
+            float performanceMult = math.lerp(0.5f, 2.0f, performanceScore);
 
-            return Mathf.RoundToInt(baseReward * difficultyMult * performanceMult);
+            return (int)math.round(baseReward * difficultyMult * performanceMult);
         }
 
         /// <summary>
         /// Extracts genetic stats for performance calculation
+        /// Burst-compiled for optimal performance
         /// </summary>
+        [BurstCompile]
         public static void ExtractGeneticStats(
             in CreatureGeneticsComponent genetics,
             out float strength,
@@ -178,12 +200,12 @@ namespace Laboratory.Chimera.Activities
             out float adaptability)
         {
             // Extract normalized stat values (0.0 to 1.0)
-            strength = Mathf.Clamp01(genetics.strength / 100f);
-            agility = Mathf.Clamp01(genetics.agility / 100f);
-            intelligence = Mathf.Clamp01(genetics.intelligence / 100f);
-            vitality = Mathf.Clamp01(genetics.vitality / 100f);
-            social = Mathf.Clamp01(genetics.social / 100f);
-            adaptability = Mathf.Clamp01(genetics.adaptability / 100f);
+            strength = math.clamp(genetics.strength / 100f, 0f, 1f);
+            agility = math.clamp(genetics.agility / 100f, 0f, 1f);
+            intelligence = math.clamp(genetics.intelligence / 100f, 0f, 1f);
+            vitality = math.clamp(genetics.vitality / 100f, 0f, 1f);
+            social = math.clamp(genetics.social / 100f, 0f, 1f);
+            adaptability = math.clamp(genetics.adaptability / 100f, 0f, 1f);
         }
     }
 }

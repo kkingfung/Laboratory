@@ -9,8 +9,35 @@ using System.Collections.Generic;
 namespace Laboratory.Chimera.Activities
 {
     /// <summary>
+    /// Burst-compiled job for checking activity completion times
+    /// Runs in parallel across all active activities
+    /// </summary>
+    [BurstCompile]
+    public partial struct CheckActivityCompletionJob : IJobEntity
+    {
+        public float CurrentTime;
+
+        public void Execute(ref ActiveActivityComponent activeActivity)
+        {
+            // Skip if already complete
+            if (activeActivity.isComplete)
+                return;
+
+            float elapsedTime = CurrentTime - activeActivity.startTime;
+
+            // Check if activity duration has elapsed
+            if (elapsedTime >= activeActivity.duration)
+            {
+                // Mark as complete (performance will be calculated in main system)
+                activeActivity.isComplete = true;
+            }
+        }
+    }
+
+    /// <summary>
     /// Main ECS system for managing activity participation and results
     /// Handles activity execution, performance calculation, and reward distribution
+    /// Performance: Uses Burst-compiled jobs for parallel activity processing
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class ActivitySystem : SystemBase
@@ -193,41 +220,52 @@ namespace Laboratory.Chimera.Activities
 
         /// <summary>
         /// Updates ongoing activities and calculates completion
+        /// Performance: Step 1 runs in parallel Burst-compiled job, Step 2 handles results
         /// </summary>
         private void UpdateActiveActivities(float currentTime, float deltaTime)
         {
+            // Step 1: Parallel job to check completion times (Burst-compiled)
+            var completionJob = new CheckActivityCompletionJob
+            {
+                CurrentTime = currentTime
+            };
+            completionJob.ScheduleParallel();
+
+            // Ensure job completes before processing results
+            Dependency.Complete();
+
+            // Step 2: Process newly completed activities (requires managed access for activity implementations)
             foreach (var (activeActivity, genetics, entity) in
                 SystemAPI.Query<RefRW<ActiveActivityComponent>, RefRO<CreatureGeneticsComponent>>()
                 .WithEntityAccess())
             {
-                // Skip if already complete
-                if (activeActivity.ValueRO.isComplete)
+                // Only process activities that just completed
+                if (!activeActivity.ValueRO.isComplete)
+                    continue;
+
+                // Skip if we already calculated performance (has result component)
+                if (EntityManager.HasComponent<ActivityResultComponent>(entity))
                     continue;
 
                 float elapsedTime = currentTime - activeActivity.ValueRO.startTime;
 
-                // Check if activity duration has elapsed
-                if (elapsedTime >= activeActivity.ValueRO.duration)
-                {
-                    // Calculate performance
-                    float performanceScore = CalculateActivityPerformance(
-                        in genetics.ValueRO,
-                        activeActivity.ValueRO.currentActivity,
-                        activeActivity.ValueRO.difficulty,
-                        entity);
+                // Calculate performance
+                float performanceScore = CalculateActivityPerformance(
+                    in genetics.ValueRO,
+                    activeActivity.ValueRO.currentActivity,
+                    activeActivity.ValueRO.difficulty,
+                    entity);
 
-                    // Mark as complete
-                    activeActivity.ValueRW.isComplete = true;
-                    activeActivity.ValueRW.performanceScore = performanceScore;
+                // Store performance in component
+                activeActivity.ValueRW.performanceScore = performanceScore;
 
-                    // Create result component for reward processing
-                    EntityManager.AddComponentData(entity, CreateActivityResult(
-                        activeActivity.ValueRO.currentActivity,
-                        activeActivity.ValueRO.difficulty,
-                        performanceScore,
-                        elapsedTime,
-                        currentTime));
-                }
+                // Create result component for reward processing
+                EntityManager.AddComponentData(entity, CreateActivityResult(
+                    activeActivity.ValueRO.currentActivity,
+                    activeActivity.ValueRO.difficulty,
+                    performanceScore,
+                    elapsedTime,
+                    currentTime));
             }
         }
 
