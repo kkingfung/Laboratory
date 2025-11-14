@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
 
@@ -6,16 +7,19 @@ namespace Laboratory.Chimera.Activities.Puzzle
     /// <summary>
     /// Puzzle Academy activity implementation
     /// Performance based on: Intelligence (problem-solving), Adaptability (pattern recognition), Social (collaborative puzzles)
+    /// Burst-compatible with Unity.Mathematics for performance
     /// </summary>
     public class PuzzleActivity : IActivity
     {
         private readonly PuzzleConfig _config;
+        private Random _random;
 
         public ActivityType Type => ActivityType.Puzzle;
 
         public PuzzleActivity(PuzzleConfig config)
         {
             _config = config ?? throw new System.ArgumentNullException(nameof(config));
+            _random = new Random((uint)(System.DateTime.Now.Ticks + 2)); // +2 to avoid same seed as Combat/Racing
         }
 
         /// <summary>
@@ -51,7 +55,7 @@ namespace Laboratory.Chimera.Activities.Puzzle
 
             // Apply puzzle type modifier based on creature specialization
             float puzzleTypeBonus = CalculatePuzzleTypeBonus(intelligence, adaptability);
-            basePerformance = Mathf.Clamp01(basePerformance + puzzleTypeBonus);
+            basePerformance = math.clamp(basePerformance + puzzleTypeBonus, 0f, 1f);
 
             // Apply difficulty modifier (harder puzzles require better cognitive abilities)
             float difficultyMultiplier = _config.GetDifficultyMultiplier(difficulty);
@@ -60,15 +64,15 @@ namespace Laboratory.Chimera.Activities.Puzzle
 
             // Apply equipment and mastery bonuses
             // Mastery is very powerful for puzzles (learning from patterns)
-            float enhancedMastery = Mathf.Lerp(masteryBonus, masteryBonus * 1.25f, _config.masteryLearningBonus);
+            float enhancedMastery = math.lerp(masteryBonus, masteryBonus * 1.25f, _config.masteryLearningBonus);
             float withBonuses = ActivityPerformanceCalculator.ApplyBonuses(
                 withDifficulty, equipmentBonus, enhancedMastery);
 
-            // Minimal variance for puzzles (more deterministic than combat/racing)
+            // Minimal variance for puzzles (more deterministic than combat/racing - Burst-compatible)
             float finalPerformance = ActivityPerformanceCalculator.AddRandomVariation(
-                withBonuses, _config.puzzleVariance);
+                withBonuses, _config.puzzleVariance, ref _random);
 
-            return Mathf.Clamp01(finalPerformance);
+            return math.clamp(finalPerformance, 0f, 1f);
         }
 
         /// <summary>

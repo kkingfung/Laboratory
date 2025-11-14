@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace Laboratory.Chimera.Activities.Racing
@@ -6,6 +7,7 @@ namespace Laboratory.Chimera.Activities.Racing
     /// <summary>
     /// ECS system that registers and manages racing activity
     /// Integrates with the core ActivitySystem
+    /// Performance: Lightweight registration system with minimal overhead
     /// </summary>
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ActivitySystem))]
@@ -15,23 +17,31 @@ namespace Laboratory.Chimera.Activities.Racing
         private RacingConfig _racingConfig;
         private bool _isInitialized;
 
+        private static readonly ProfilerMarker s_InitializationMarker =
+            new ProfilerMarker("RacingActivity.Initialize");
+        private static readonly ProfilerMarker s_CreateRequestMarker =
+            new ProfilerMarker("RacingActivity.CreateRequest");
+
         protected override void OnCreate()
         {
-            // Load racing configuration
-            _racingConfig = Resources.Load<RacingConfig>("Configs/Activities/RacingConfig");
-
-            if (_racingConfig == null)
+            using (s_InitializationMarker.Auto())
             {
-                Debug.LogWarning("RacingConfig not found at Resources/Configs/Activities/RacingConfig. " +
-                                "Racing activity will use default settings.");
-                return;
+                // Load racing configuration
+                _racingConfig = Resources.Load<RacingConfig>("Configs/Activities/RacingConfig");
+
+                if (_racingConfig == null)
+                {
+                    Debug.LogWarning("RacingConfig not found at Resources/Configs/Activities/RacingConfig. " +
+                                    "Racing activity will use default settings.");
+                    return;
+                }
+
+                // Create racing activity implementation
+                _racingActivity = new RacingActivity(_racingConfig);
+
+                Debug.Log($"Racing Activity System initialized: {_racingConfig.activityName}");
+                _isInitialized = true;
             }
-
-            // Create racing activity implementation
-            _racingActivity = new RacingActivity(_racingConfig);
-
-            Debug.Log($"Racing Activity System initialized: {_racingConfig.activityName}");
-            _isInitialized = true;
         }
 
         protected override void OnStartRunning()
@@ -69,22 +79,26 @@ namespace Laboratory.Chimera.Activities.Racing
 
         /// <summary>
         /// Creates a racing activity request entity
+        /// Performance: O(1) entity creation with minimal allocations
         /// </summary>
         public Entity CreateRacingRequest(Entity monsterEntity, ActivityDifficulty difficulty)
         {
-            var requestEntity = EntityManager.CreateEntity();
-
-            EntityManager.AddComponentData(requestEntity, new StartActivityRequest
+            using (s_CreateRequestMarker.Auto())
             {
-                monsterEntity = monsterEntity,
-                activityType = ActivityType.Racing,
-                difficulty = difficulty,
-                requestTime = (float)SystemAPI.Time.ElapsedTime
-            });
+                var requestEntity = EntityManager.CreateEntity();
 
-            Debug.Log($"Created racing request for monster {monsterEntity.Index} at difficulty {difficulty}");
+                EntityManager.AddComponentData(requestEntity, new StartActivityRequest
+                {
+                    monsterEntity = monsterEntity,
+                    activityType = ActivityType.Racing,
+                    difficulty = difficulty,
+                    requestTime = (float)SystemAPI.Time.ElapsedTime
+                });
 
-            return requestEntity;
+                Debug.Log($"Created racing request for monster {monsterEntity.Index} at difficulty {difficulty}");
+
+                return requestEntity;
+            }
         }
     }
 }

@@ -9,14 +9,50 @@ using System.Collections.Generic;
 namespace Laboratory.Chimera.Activities
 {
     /// <summary>
+    /// Burst-compiled job for checking activity completion times
+    /// Runs in parallel across all active activities
+    /// </summary>
+    [BurstCompile]
+    public partial struct CheckActivityCompletionJob : IJobEntity
+    {
+        public float CurrentTime;
+
+        public void Execute(ref ActiveActivityComponent activeActivity)
+        {
+            // Skip if already complete
+            if (activeActivity.isComplete)
+                return;
+
+            float elapsedTime = CurrentTime - activeActivity.startTime;
+
+            // Check if activity duration has elapsed
+            if (elapsedTime >= activeActivity.duration)
+            {
+                // Mark as complete (performance will be calculated in main system)
+                activeActivity.isComplete = true;
+            }
+        }
+    }
+
+    /// <summary>
     /// Main ECS system for managing activity participation and results
     /// Handles activity execution, performance calculation, and reward distribution
+    /// Performance: Uses Burst-compiled jobs for parallel activity processing
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class ActivitySystem : SystemBase
     {
         private Dictionary<ActivityType, IActivity> _activityImplementations;
         private Dictionary<ActivityType, ActivityConfig> _activityConfigs;
+
+        // Cached entity queries for performance (SystemAPI.Query also auto-caches internally)
+        private EntityQuery _systemDataQuery;
+        private EntityQuery _activityRequestQuery;
+        private EntityQuery _activeActivitiesQuery;
+        private EntityQuery _activityResultsQuery;
+
+        // Entity command buffer system for deferred structural changes
+        private EndSimulationEntityCommandBufferSystem _endSimulationECBSystem;
 
         private static readonly ProfilerMarker s_ProcessActivityRequestsMarker =
             new ProfilerMarker("Activity.ProcessRequests");
@@ -29,6 +65,20 @@ namespace Laboratory.Chimera.Activities
         {
             _activityImplementations = new Dictionary<ActivityType, IActivity>();
             _activityConfigs = new Dictionary<ActivityType, ActivityConfig>();
+
+            // Initialize cached entity queries
+            _systemDataQuery = GetEntityQuery(ComponentType.ReadWrite<ActivitySystemData>());
+            _activityRequestQuery = GetEntityQuery(ComponentType.ReadOnly<StartActivityRequest>());
+            _activeActivitiesQuery = GetEntityQuery(
+                ComponentType.ReadWrite<ActiveActivityComponent>(),
+                ComponentType.ReadOnly<CreatureGeneticsComponent>());
+            _activityResultsQuery = GetEntityQuery(
+                ComponentType.ReadOnly<ActivityResultComponent>(),
+                ComponentType.ReadWrite<CurrencyComponent>(),
+                ComponentType.ReadWrite<ActivityProgressElement>());
+
+            // Get entity command buffer system for optimized deferred operations
+            _endSimulationECBSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
 
             // Load activity configurations from Resources
             LoadActivityConfigurations();
@@ -102,10 +152,11 @@ namespace Laboratory.Chimera.Activities
 
         /// <summary>
         /// Processes requests to start new activities
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void ProcessActivityRequests(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             foreach (var (request, entity) in
                 SystemAPI.Query<RefRO<StartActivityRequest>>().WithEntityAccess())
@@ -164,56 +215,67 @@ namespace Laboratory.Chimera.Activities
                 ecb.DestroyEntity(entity);
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>
         /// Updates ongoing activities and calculates completion
+        /// Performance: Step 1 runs in parallel Burst-compiled job, Step 2 handles results
         /// </summary>
         private void UpdateActiveActivities(float currentTime, float deltaTime)
         {
+            // Step 1: Parallel job to check completion times (Burst-compiled)
+            var completionJob = new CheckActivityCompletionJob
+            {
+                CurrentTime = currentTime
+            };
+            completionJob.ScheduleParallel();
+
+            // Ensure job completes before processing results
+            Dependency.Complete();
+
+            // Step 2: Process newly completed activities (requires managed access for activity implementations)
             foreach (var (activeActivity, genetics, entity) in
                 SystemAPI.Query<RefRW<ActiveActivityComponent>, RefRO<CreatureGeneticsComponent>>()
                 .WithEntityAccess())
             {
-                // Skip if already complete
-                if (activeActivity.ValueRO.isComplete)
+                // Only process activities that just completed
+                if (!activeActivity.ValueRO.isComplete)
+                    continue;
+
+                // Skip if we already calculated performance (has result component)
+                if (EntityManager.HasComponent<ActivityResultComponent>(entity))
                     continue;
 
                 float elapsedTime = currentTime - activeActivity.ValueRO.startTime;
 
-                // Check if activity duration has elapsed
-                if (elapsedTime >= activeActivity.ValueRO.duration)
-                {
-                    // Calculate performance
-                    float performanceScore = CalculateActivityPerformance(
-                        in genetics.ValueRO,
-                        activeActivity.ValueRO.currentActivity,
-                        activeActivity.ValueRO.difficulty,
-                        entity);
+                // Calculate performance
+                float performanceScore = CalculateActivityPerformance(
+                    in genetics.ValueRO,
+                    activeActivity.ValueRO.currentActivity,
+                    activeActivity.ValueRO.difficulty,
+                    entity);
 
-                    // Mark as complete
-                    activeActivity.ValueRW.isComplete = true;
-                    activeActivity.ValueRW.performanceScore = performanceScore;
+                // Store performance in component
+                activeActivity.ValueRW.performanceScore = performanceScore;
 
-                    // Create result component for reward processing
-                    EntityManager.AddComponentData(entity, CreateActivityResult(
-                        activeActivity.ValueRO.currentActivity,
-                        activeActivity.ValueRO.difficulty,
-                        performanceScore,
-                        elapsedTime,
-                        currentTime));
-                }
+                // Create result component for reward processing
+                EntityManager.AddComponentData(entity, CreateActivityResult(
+                    activeActivity.ValueRO.currentActivity,
+                    activeActivity.ValueRO.difficulty,
+                    performanceScore,
+                    elapsedTime,
+                    currentTime));
             }
         }
 
         /// <summary>
         /// Processes completed activities and distributes rewards
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void ProcessActivityResults(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             foreach (var (result, currency, progressBuffer, entity) in
                 SystemAPI.Query<RefRO<ActivityResultComponent>, RefRW<CurrencyComponent>,
@@ -223,8 +285,23 @@ namespace Laboratory.Chimera.Activities
                 currency.ValueRW.coins += result.ValueRO.coinsEarned;
                 currency.ValueRW.activityTokens += result.ValueRO.tokensEarned;
 
+                // Award experience via ProgressionSystem
+                if (result.ValueRO.experienceGained > 0)
+                {
+                    var expRequest = EntityManager.CreateEntity();
+                    ecb.AddComponent(expRequest, new Laboratory.Chimera.Progression.AwardExperienceRequest
+                    {
+                        targetEntity = entity,
+                        experienceAmount = result.ValueRO.experienceGained,
+                        requestTime = (float)SystemAPI.Time.ElapsedTime
+                    });
+                }
+
                 // Update activity progress
                 UpdateActivityProgress(progressBuffer, result.ValueRO);
+
+                // Update daily challenge progress
+                UpdateDailyChallengeProgress(entity, result.ValueRO.activityType);
 
                 // Remove active activity component
                 if (EntityManager.HasComponent<ActiveActivityComponent>(entity))
@@ -244,8 +321,7 @@ namespace Laboratory.Chimera.Activities
                          $"Rewards: {result.ValueRO.coinsEarned} coins, {result.ValueRO.experienceGained} XP");
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>
@@ -495,6 +571,19 @@ namespace Laboratory.Chimera.Activities
         {
             _activityImplementations[type] = implementation;
             Debug.Log($"Registered activity implementation: {type}");
+        }
+
+        /// <summary>
+        /// Updates daily challenge progress when activity completes
+        /// </summary>
+        private void UpdateDailyChallengeProgress(Entity entity, ActivityType activityType)
+        {
+            // Get ProgressionSystem and update challenges
+            var progressionSystem = World.GetExistingSystemManaged<Laboratory.Chimera.Progression.ProgressionSystem>();
+            if (progressionSystem != null)
+            {
+                progressionSystem.UpdateChallengeProgress(entity, activityType);
+            }
         }
     }
 }
