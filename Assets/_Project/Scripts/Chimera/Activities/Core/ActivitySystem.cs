@@ -297,10 +297,30 @@ namespace Laboratory.Chimera.Activities
         }
 
         /// <summary>
-        /// Calculates equipment bonus for activity
+        /// Calculates equipment bonus for activity using cached bonuses
         /// </summary>
         private float CalculateEquipmentBonus(Entity entity, ActivityType activityType)
         {
+            // Use equipment bonus cache for performance (updated by EquipmentSystem)
+            if (EntityManager.HasComponent<Laboratory.Chimera.Equipment.EquipmentBonusCache>(entity))
+            {
+                var bonusCache = EntityManager.GetComponentData<Laboratory.Chimera.Equipment.EquipmentBonusCache>(entity);
+
+                return activityType switch
+                {
+                    ActivityType.Racing => bonusCache.racingBonus,
+                    ActivityType.Combat => bonusCache.combatBonus,
+                    ActivityType.Puzzle => bonusCache.puzzleBonus,
+                    ActivityType.Strategy => bonusCache.strategyBonus,
+                    ActivityType.Rhythm => bonusCache.rhythmBonus,
+                    ActivityType.Adventure => bonusCache.adventureBonus,
+                    ActivityType.Platforming => bonusCache.platformingBonus,
+                    ActivityType.Crafting => bonusCache.craftingBonus,
+                    _ => 0f
+                };
+            }
+
+            // Fallback to legacy buffer-based calculation
             if (!EntityManager.HasBuffer<EquippedItemElement>(entity))
                 return 0f;
 
