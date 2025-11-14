@@ -1,19 +1,17 @@
 {
-    "name": "Laboratory.Core.Diagnostics",
-    "rootNamespace": "Laboratory.Core.Diagnostics",
+    "name": "Laboratory.Core.Health",
+    "rootNamespace": "Laboratory.Core.Health",
     "references": [
-        "GUID:637131eabbe6d714c8b34395addaf33b",
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",
-        "Unity.TextMeshPro",
-        "Unity.InputSystem",
-        "GUID:26c858a044ea8e443864d1208306534e",
-        "GUID:2e33352ae525ce747af7ebadc6f4baa2"
+        "Unity.Jobs",
+        "Unity.Burst",
+        "Unity.Transforms"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": false,
+    "allowUnsafeCode": true,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

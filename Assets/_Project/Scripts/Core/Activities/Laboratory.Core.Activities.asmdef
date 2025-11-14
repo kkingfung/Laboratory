@@ -1,14 +1,13 @@
 {
-    "name": "Laboratory.Core",
-    "rootNamespace": "Laboratory.Core",
+    "name": "Laboratory.Core.Activities",
+    "rootNamespace": "Laboratory.Core.Activities",
     "references": [
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",
         "Unity.Jobs",
         "Unity.Burst",
-        "Unity.Transforms",
-        "Unity.Physics"
+        "Unity.Transforms"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
