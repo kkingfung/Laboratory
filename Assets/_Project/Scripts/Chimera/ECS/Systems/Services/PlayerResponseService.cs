@@ -7,23 +7,18 @@ using Laboratory.Chimera.Ecosystem;
 namespace Laboratory.Chimera.ECS.Services
 {
     /// <summary>
-    /// Service responsible for processing player responses to emergencies.
+    /// Static utility service for processing player responses to emergencies.
     /// Handles response effectiveness calculation, progress tracking, and effect application.
-    /// Extracted from EmergencyConservationSystem to improve maintainability.
+    /// Converted to static for zero-allocation performance optimization.
     /// </summary>
-    public class PlayerResponseService
+    public static class PlayerResponseService
     {
-        private readonly EmergencyConservationConfig _config;
-
-        public PlayerResponseService(EmergencyConservationConfig config)
-        {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-        }
 
         /// <summary>
         /// Creates a new player response to an emergency
         /// </summary>
-        public EmergencyResponse CreateResponse(
+        public static EmergencyResponse CreateResponse(
+            EmergencyConservationConfig config,
             int playerId,
             int emergencyId,
             EmergencyActionType actionType,
@@ -37,7 +32,7 @@ namespace Laboratory.Chimera.ECS.Services
                 actionType = actionType,
                 resourcesCommitted = resourceCommitment,
                 startTime = currentTime,
-                maxDuration = _config.GetActionDuration(actionType),
+                maxDuration = config.GetActionDuration(actionType),
                 progress = 0f,
                 effectiveness = 0f,
                 timeInvested = 0f,
@@ -48,12 +43,15 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Updates response progress and effectiveness
         /// </summary>
-        public EmergencyResponse UpdateResponse(EmergencyResponse response, float deltaTime)
+        public static EmergencyResponse UpdateResponse(
+            EmergencyConservationConfig config,
+            EmergencyResponse response,
+            float deltaTime)
         {
             var updatedResponse = response;
 
             updatedResponse.timeInvested += deltaTime;
-            updatedResponse.effectiveness += CalculateEffectivenessGain(response, deltaTime);
+            updatedResponse.effectiveness += CalculateEffectivenessGain(config, response, deltaTime);
             updatedResponse.progress += updatedResponse.effectiveness * deltaTime;
             updatedResponse.progress = UnityEngine.Mathf.Clamp01(updatedResponse.progress);
 
@@ -63,7 +61,7 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Checks if a response is complete
         /// </summary>
-        public bool IsResponseComplete(EmergencyResponse response)
+        public static bool IsResponseComplete(EmergencyResponse response)
         {
             return response.progress >= 1f || response.timeInvested >= response.maxDuration;
         }
@@ -71,15 +69,18 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Calculates effectiveness gain per time unit
         /// </summary>
-        public float CalculateEffectivenessGain(EmergencyResponse response, float deltaTime)
+        public static float CalculateEffectivenessGain(
+            EmergencyConservationConfig config,
+            EmergencyResponse response,
+            float deltaTime)
         {
-            return response.resourcesCommitted * deltaTime * _config.responseEffectivenessMultiplier;
+            return response.resourcesCommitted * deltaTime * config.responseEffectivenessMultiplier;
         }
 
         /// <summary>
         /// Applies response effects to the emergency
         /// </summary>
-        public ConservationEmergency ApplyResponseToEmergency(
+        public static ConservationEmergency ApplyResponseToEmergency(
             ConservationEmergency emergency,
             EmergencyResponse response)
         {
@@ -116,7 +117,7 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Tracks player contributions for an emergency
         /// </summary>
-        public Dictionary<int, float> UpdatePlayerContributions(
+        public static Dictionary<int, float> UpdatePlayerContributions(
             Dictionary<int, float> contributions,
             EmergencyResponse response)
         {
@@ -136,7 +137,7 @@ namespace Laboratory.Chimera.ECS.Services
 
         #region Action-Specific Application Methods
 
-        private ConservationEmergency ApplyPopulationSupport(
+        private static ConservationEmergency ApplyPopulationSupport(
             ConservationEmergency emergency,
             EmergencyResponse response)
         {
@@ -145,7 +146,7 @@ namespace Laboratory.Chimera.ECS.Services
             return updated;
         }
 
-        private ConservationEmergency ApplyHabitatProtection(
+        private static ConservationEmergency ApplyHabitatProtection(
             ConservationEmergency emergency,
             EmergencyResponse response)
         {
@@ -154,7 +155,7 @@ namespace Laboratory.Chimera.ECS.Services
             return updated;
         }
 
-        private ConservationEmergency ApplyBreedingProgram(
+        private static ConservationEmergency ApplyBreedingProgram(
             ConservationEmergency emergency,
             EmergencyResponse response)
         {
@@ -163,7 +164,7 @@ namespace Laboratory.Chimera.ECS.Services
             return updated;
         }
 
-        private ConservationEmergency ApplyDiseaseControl(
+        private static ConservationEmergency ApplyDiseaseControl(
             ConservationEmergency emergency,
             EmergencyResponse response)
         {
@@ -172,7 +173,7 @@ namespace Laboratory.Chimera.ECS.Services
             return updated;
         }
 
-        private ConservationEmergency ApplyClimateAdaptation(
+        private static ConservationEmergency ApplyClimateAdaptation(
             ConservationEmergency emergency,
             EmergencyResponse response)
         {
@@ -181,7 +182,7 @@ namespace Laboratory.Chimera.ECS.Services
             return updated;
         }
 
-        private ConservationEmergency ApplyGeneticManagement(
+        private static ConservationEmergency ApplyGeneticManagement(
             ConservationEmergency emergency,
             EmergencyResponse response)
         {
@@ -190,7 +191,7 @@ namespace Laboratory.Chimera.ECS.Services
             return updated;
         }
 
-        private ConservationEmergency ApplyEcosystemRestoration(
+        private static ConservationEmergency ApplyEcosystemRestoration(
             ConservationEmergency emergency,
             EmergencyResponse response)
         {
@@ -206,7 +207,7 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Validates if a player can respond to an emergency
         /// </summary>
-        public bool CanRespondToEmergency(
+        public static bool CanRespondToEmergency(
             ConservationEmergency emergency,
             EmergencyActionType actionType)
         {
@@ -216,10 +217,12 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Validates resource commitment level
         /// </summary>
-        public bool IsValidResourceCommitment(float resourceCommitment)
+        public static bool IsValidResourceCommitment(
+            EmergencyConservationConfig config,
+            float resourceCommitment)
         {
-            return resourceCommitment >= _config.minimumResourceCommitment &&
-                   resourceCommitment <= _config.maximumResourceCommitment;
+            return resourceCommitment >= config.minimumResourceCommitment &&
+                   resourceCommitment <= config.maximumResourceCommitment;
         }
 
         #endregion

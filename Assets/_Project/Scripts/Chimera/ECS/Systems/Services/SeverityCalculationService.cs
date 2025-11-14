@@ -1,29 +1,21 @@
-using System;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Ecosystem;
 
 namespace Laboratory.Chimera.ECS.Services
 {
     /// <summary>
-    /// Service responsible for calculating emergency severity levels.
+    /// Static utility service for calculating emergency severity levels.
     /// Provides consistent severity assessment across different emergency types.
-    /// Extracted from EmergencyConservationSystem to improve maintainability.
+    /// Converted to static for zero-allocation performance optimization.
     /// </summary>
-    public class SeverityCalculationService
+    public static class SeverityCalculationService
     {
-        private readonly EmergencyConservationConfig _config;
-
-        public SeverityCalculationService(EmergencyConservationConfig config)
-        {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-        }
-
         /// <summary>
         /// Calculates severity for population-based emergencies
         /// </summary>
-        public EmergencySeverity CalculatePopulationSeverity(SpeciesPopulationData populationData)
+        public static EmergencySeverity CalculatePopulationSeverity(EmergencyConservationConfig config, SpeciesPopulationData populationData)
         {
-            float populationRatio = populationData.currentPopulation / _config.criticalPopulationThreshold;
+            float populationRatio = populationData.currentPopulation / config.criticalPopulationThreshold;
             if (populationRatio <= 0.25f) return EmergencySeverity.Critical;
             if (populationRatio <= 0.5f) return EmergencySeverity.Severe;
             if (populationRatio <= 0.75f) return EmergencySeverity.Moderate;
@@ -33,9 +25,9 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Calculates severity for breeding failure emergencies
         /// </summary>
-        public EmergencySeverity CalculateBreedingSeverity(SpeciesPopulationData populationData)
+        public static EmergencySeverity CalculateBreedingSeverity(EmergencyConservationConfig config, SpeciesPopulationData populationData)
         {
-            float successRatio = populationData.reproductiveSuccess / _config.breedingFailureThreshold;
+            float successRatio = populationData.reproductiveSuccess / config.breedingFailureThreshold;
             if (successRatio <= 0.25f) return EmergencySeverity.Critical;
             if (successRatio <= 0.5f) return EmergencySeverity.Severe;
             if (successRatio <= 0.75f) return EmergencySeverity.Moderate;
@@ -45,9 +37,9 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Calculates severity for juvenile mortality emergencies
         /// </summary>
-        public EmergencySeverity CalculateJuvenileSeverity(SpeciesPopulationData populationData)
+        public static EmergencySeverity CalculateJuvenileSeverity(EmergencyConservationConfig config, SpeciesPopulationData populationData)
         {
-            float survivalRatio = populationData.juvenileSurvivalRate / _config.juvenileSurvivalThreshold;
+            float survivalRatio = populationData.juvenileSurvivalRate / config.juvenileSurvivalThreshold;
             if (survivalRatio <= 0.25f) return EmergencySeverity.Critical;
             if (survivalRatio <= 0.5f) return EmergencySeverity.Severe;
             if (survivalRatio <= 0.75f) return EmergencySeverity.Moderate;
@@ -57,9 +49,9 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Calculates severity for ecosystem collapse emergencies
         /// </summary>
-        public EmergencySeverity CalculateEcosystemSeverity(EcosystemHealth health)
+        public static EmergencySeverity CalculateEcosystemSeverity(EmergencyConservationConfig config, EcosystemHealth health)
         {
-            float healthRatio = health.overallHealth / _config.ecosystemCollapseThreshold;
+            float healthRatio = health.overallHealth / config.ecosystemCollapseThreshold;
             if (healthRatio <= 0.25f) return EmergencySeverity.Critical;
             if (healthRatio <= 0.5f) return EmergencySeverity.Severe;
             if (healthRatio <= 0.75f) return EmergencySeverity.Moderate;
@@ -69,9 +61,9 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Calculates severity for genetic diversity emergencies
         /// </summary>
-        public EmergencySeverity CalculateGeneticSeverity(float diversity)
+        public static EmergencySeverity CalculateGeneticSeverity(EmergencyConservationConfig config, float diversity)
         {
-            float diversityRatio = diversity / _config.geneticDiversityThreshold;
+            float diversityRatio = diversity / config.geneticDiversityThreshold;
             if (diversityRatio <= 0.25f) return EmergencySeverity.Critical;
             if (diversityRatio <= 0.5f) return EmergencySeverity.Severe;
             if (diversityRatio <= 0.75f) return EmergencySeverity.Moderate;
@@ -81,9 +73,9 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Calculates severity for habitat destruction emergencies
         /// </summary>
-        public EmergencySeverity CalculateHabitatSeverity(EcosystemData ecosystemData)
+        public static EmergencySeverity CalculateHabitatSeverity(EmergencyConservationConfig config, EcosystemData ecosystemData)
         {
-            float lossRatio = ecosystemData.habitatLossRate / _config.habitatLossRateThreshold;
+            float lossRatio = ecosystemData.habitatLossRate / config.habitatLossRateThreshold;
             if (lossRatio >= 4f) return EmergencySeverity.Critical;
             if (lossRatio >= 3f) return EmergencySeverity.Severe;
             if (lossRatio >= 2f) return EmergencySeverity.Moderate;
@@ -93,7 +85,7 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Calculates severity for disease outbreak emergencies
         /// </summary>
-        public EmergencySeverity CalculateDiseaseSeverity(SpeciesPopulationData populationData)
+        public static EmergencySeverity CalculateDiseaseSeverity(EmergencyConservationConfig config, SpeciesPopulationData populationData)
         {
             float infectionRate = populationData.diseasePrevalence;
             if (infectionRate >= 0.5f) return EmergencySeverity.Critical;
@@ -105,21 +97,21 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Calculates severity for climate change emergencies
         /// </summary>
-        public EmergencySeverity CalculateClimateSeverity(EcosystemData ecosystemData)
+        public static EmergencySeverity CalculateClimateSeverity(EmergencyConservationConfig config, EcosystemData ecosystemData)
         {
             float temperatureChange = UnityEngine.Mathf.Abs(ecosystemData.temperatureChangeRate);
-            if (temperatureChange >= _config.climateChangeRateThreshold * 2f) return EmergencySeverity.Critical;
-            if (temperatureChange >= _config.climateChangeRateThreshold * 1.5f) return EmergencySeverity.Severe;
-            if (temperatureChange >= _config.climateChangeRateThreshold) return EmergencySeverity.Moderate;
+            if (temperatureChange >= config.climateChangeRateThreshold * 2f) return EmergencySeverity.Critical;
+            if (temperatureChange >= config.climateChangeRateThreshold * 1.5f) return EmergencySeverity.Severe;
+            if (temperatureChange >= config.climateChangeRateThreshold) return EmergencySeverity.Moderate;
             return EmergencySeverity.Minor;
         }
 
         /// <summary>
         /// Calculates severity for food web disruption emergencies
         /// </summary>
-        public EmergencySeverity CalculateFoodWebSeverity(EcosystemHealth health)
+        public static EmergencySeverity CalculateFoodWebSeverity(EmergencyConservationConfig config, EcosystemHealth health)
         {
-            float stabilityRatio = health.foodWebStability / _config.foodWebStabilityThreshold;
+            float stabilityRatio = health.foodWebStability / config.foodWebStabilityThreshold;
             if (stabilityRatio <= 0.25f) return EmergencySeverity.Critical;
             if (stabilityRatio <= 0.5f) return EmergencySeverity.Severe;
             if (stabilityRatio <= 0.75f) return EmergencySeverity.Moderate;
@@ -129,9 +121,9 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Calculates severity for habitat fragmentation emergencies
         /// </summary>
-        public EmergencySeverity CalculateHabitatSeverity(EcosystemHealth health)
+        public static EmergencySeverity CalculateHabitatFragmentationSeverity(EmergencyConservationConfig config, EcosystemHealth health)
         {
-            float connectivityRatio = health.habitatConnectivity / _config.habitatConnectivityThreshold;
+            float connectivityRatio = health.habitatConnectivity / config.habitatConnectivityThreshold;
             if (connectivityRatio <= 0.25f) return EmergencySeverity.Critical;
             if (connectivityRatio <= 0.5f) return EmergencySeverity.Severe;
             if (connectivityRatio <= 0.75f) return EmergencySeverity.Moderate;

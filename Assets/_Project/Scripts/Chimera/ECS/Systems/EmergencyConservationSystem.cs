@@ -5,6 +5,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Jobs;
+using Unity.Profiling;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Ecosystem;
@@ -15,7 +16,7 @@ namespace Laboratory.Chimera.ECS
     /// <summary>
     /// Emergency conservation events system.
     /// Creates urgent scenarios requiring immediate action to save endangered species and ecosystems.
-    /// Refactored to use service-oriented architecture (Phase 2).
+    /// Refactored to use service-oriented architecture with performance profiling.
     /// </summary>
     public partial class EmergencyConservationSystem : SystemBase
     {
@@ -24,19 +25,19 @@ namespace Laboratory.Chimera.ECS
         private EntityQuery _speciesPopulationsQuery;
         private EntityQuery _activeEmergenciesQuery;
 
-        // Services (Phase 1 & 2 extraction)
-        private SeverityCalculationService _severityService;
-        private UrgencyCalculationService _urgencyService;
-        private DescriptionGenerationService _descriptionService;
-        private EmergencyCreationService _creationService;
-        private EmergencyResolutionService _resolutionService;
-        private PlayerResponseService _responseService;
-
         // Emergency tracking
         private List<ConservationEmergency> _activeEmergencies = new List<ConservationEmergency>();
         private Dictionary<int, EmergencyResponse> _playerResponses = new Dictionary<int, EmergencyResponse>();
         private Dictionary<int, Dictionary<int, float>> _emergencyPlayerContributions = new Dictionary<int, Dictionary<int, float>>();
         private float _emergencyCheckTimer = 0f;
+
+        // Performance profiling markers
+        private static readonly ProfilerMarker s_CheckForNewEmergenciesMarker = new ProfilerMarker("EmergencyConservation.CheckForNewEmergencies");
+        private static readonly ProfilerMarker s_UpdateActiveEmergenciesMarker = new ProfilerMarker("EmergencyConservation.UpdateActiveEmergencies");
+        private static readonly ProfilerMarker s_ProcessPlayerResponsesMarker = new ProfilerMarker("EmergencyConservation.ProcessPlayerResponses");
+        private static readonly ProfilerMarker s_MonitorEcosystemHealthMarker = new ProfilerMarker("EmergencyConservation.MonitorEcosystemHealth");
+        private static readonly ProfilerMarker s_CheckPopulationEmergenciesMarker = new ProfilerMarker("EmergencyConservation.CheckPopulationEmergencies");
+        private static readonly ProfilerMarker s_CheckEcosystemEmergenciesMarker = new ProfilerMarker("EmergencyConservation.CheckEcosystemEmergencies");
 
         // Event system
         public static event Action<ConservationEmergency> OnEmergencyDeclared;
@@ -54,13 +55,7 @@ namespace Laboratory.Chimera.ECS
                 return;
             }
 
-            // Initialize services
-            _severityService = new SeverityCalculationService(_config);
-            _urgencyService = new UrgencyCalculationService(_config);
-            _descriptionService = new DescriptionGenerationService(_config);
-            _creationService = new EmergencyCreationService(_config, _severityService, _urgencyService, _descriptionService);
-            _resolutionService = new EmergencyResolutionService(_config);
-            _responseService = new PlayerResponseService(_config);
+            // Services are now static utility classes - no initialization needed
 
             _ecosystemsQuery = GetEntityQuery(
                 ComponentType.ReadWrite<EcosystemData>(),
@@ -109,27 +104,34 @@ namespace Laboratory.Chimera.ECS
 
         private void CheckForNewEmergencies()
         {
-            // Check population-based emergencies
-            CheckPopulationEmergencies();
+            using (s_CheckForNewEmergenciesMarker.Auto())
+            {
+                // Check population-based emergencies
+                CheckPopulationEmergencies();
 
-            // Check ecosystem-based emergencies
-            CheckEcosystemEmergencies();
+                // Check ecosystem-based emergencies
+                CheckEcosystemEmergencies();
 
-            // Check genetic diversity emergencies
-            CheckGeneticDiversityEmergencies();
+                // Check genetic diversity emergencies
+                CheckGeneticDiversityEmergencies();
 
-            // Check habitat destruction emergencies
-            CheckHabitatEmergencies();
+                // Check habitat destruction emergencies
+                CheckHabitatEmergencies();
 
-            // Check disease outbreak emergencies
-            CheckDiseaseEmergencies();
+                // Check disease outbreak emergencies
+                CheckDiseaseEmergencies();
 
-            // Check climate-related emergencies
-            CheckClimateEmergencies();
+                // Check climate-related emergencies
+                CheckClimateEmergencies();
+            }
         }
 
         private void CheckPopulationEmergencies()
         {
+            using (s_CheckPopulationEmergenciesMarker.Auto())
+            {
+                float currentTime = (float)SystemAPI.Time.ElapsedTime;
+
             Entities.WithAll<SpeciesPopulationData>().ForEach((Entity entity, ref SpeciesPopulationData populationData) =>
             {
                 // Check for critical population decline
@@ -137,7 +139,8 @@ namespace Laboratory.Chimera.ECS
                     populationData.populationTrend < 0f &&
                     !HasActiveEmergency(populationData.speciesId, EmergencyType.PopulationCollapse))
                 {
-                    CreatePopulationEmergency(entity, populationData);
+                    var emergency = EmergencyCreationService.CreatePopulationEmergency(_config, populationData, currentTime);
+                    AddEmergency(emergency);
                 }
 
                 // Check for breeding failure
@@ -145,20 +148,27 @@ namespace Laboratory.Chimera.ECS
                     populationData.breedingAge > _config.breedingAgeThreshold &&
                     !HasActiveEmergency(populationData.speciesId, EmergencyType.BreedingFailure))
                 {
-                    CreateBreedingEmergency(entity, populationData);
+                    var emergency = EmergencyCreationService.CreateBreedingEmergency(_config, populationData, currentTime);
+                    AddEmergency(emergency);
                 }
 
                 // Check for juvenile mortality crisis
                 if (populationData.juvenileSurvivalRate < _config.juvenileSurvivalThreshold &&
                     !HasActiveEmergency(populationData.speciesId, EmergencyType.JuvenileMortality))
                 {
-                    CreateJuvenileEmergency(entity, populationData);
+                    var emergency = EmergencyCreationService.CreateJuvenileEmergency(_config, populationData, currentTime);
+                    AddEmergency(emergency);
                 }
             }).WithoutBurst().Run();
+            }
         }
 
         private void CheckEcosystemEmergencies()
         {
+            using (s_CheckEcosystemEmergenciesMarker.Auto())
+            {
+                float currentTime = (float)SystemAPI.Time.ElapsedTime;
+
             foreach (var (ecosystemData, health, entity) in SystemAPI.Query<RefRW<EcosystemData>, RefRW<EcosystemHealth>>().WithEntityAccess())
             {
                 // Check for ecosystem collapse
@@ -166,27 +176,32 @@ namespace Laboratory.Chimera.ECS
                     health.ValueRO.healthTrend < 0f &&
                     !HasActiveEmergency(ecosystemData.ValueRO.ecosystemId, EmergencyType.EcosystemCollapse))
                 {
-                    CreateEcosystemEmergency(entity, ecosystemData.ValueRO, health.ValueRO);
+                    var emergency = EmergencyCreationService.CreateEcosystemEmergency(_config, ecosystemData.ValueRO, health.ValueRO, currentTime);
+                    AddEmergency(emergency);
                 }
 
                 // Check for food web disruption
                 if (health.ValueRO.foodWebStability < _config.foodWebStabilityThreshold &&
                     !HasActiveEmergency(ecosystemData.ValueRO.ecosystemId, EmergencyType.FoodWebDisruption))
                 {
-                    CreateFoodWebEmergency(entity, ecosystemData.ValueRO, health.ValueRO);
+                    var emergency = EmergencyCreationService.CreateFoodWebEmergency(_config, ecosystemData.ValueRO, health.ValueRO, currentTime);
+                    AddEmergency(emergency);
                 }
 
                 // Check for habitat fragmentation
                 if (health.ValueRO.habitatConnectivity < _config.habitatConnectivityThreshold &&
                     !HasActiveEmergency(ecosystemData.ValueRO.ecosystemId, EmergencyType.HabitatFragmentation))
                 {
-                    CreateHabitatEmergency(entity, ecosystemData.ValueRO, health.ValueRO);
+                    var emergency = EmergencyCreationService.CreateHabitatFragmentationEmergency(_config, ecosystemData.ValueRO, health.ValueRO, currentTime);
+                    AddEmergency(emergency);
                 }
             }
         }
 
         private void CheckGeneticDiversityEmergencies()
         {
+            float currentTime = (float)SystemAPI.Time.ElapsedTime;
+
             Entities.WithAll<SpeciesPopulationData, CreatureGeneticsComponent>().ForEach((Entity entity, ref SpeciesPopulationData populationData, in CreatureGeneticsComponent genetics) =>
             {
                 // Calculate genetic diversity
@@ -195,69 +210,80 @@ namespace Laboratory.Chimera.ECS
                 if (geneticDiversity < _config.geneticDiversityThreshold &&
                     !HasActiveEmergency(populationData.speciesId, EmergencyType.GeneticBottleneck))
                 {
-                    CreateGeneticEmergency(entity, populationData, genetics, geneticDiversity);
+                    var emergency = EmergencyCreationService.CreateGeneticEmergency(_config, populationData, geneticDiversity, currentTime);
+                    AddEmergency(emergency);
                 }
             }).WithoutBurst().Run();
         }
 
         private void CheckHabitatEmergencies()
         {
+            float currentTime = (float)SystemAPI.Time.ElapsedTime;
+
             // Check for rapid habitat loss
             Entities.WithAll<EcosystemData>().ForEach((Entity entity, ref EcosystemData ecosystemData) =>
             {
                 if (ecosystemData.habitatLossRate > _config.habitatLossRateThreshold &&
                     !HasActiveEmergency(ecosystemData.ecosystemId, EmergencyType.HabitatDestruction))
                 {
-                    CreateHabitatDestructionEmergency(entity, ecosystemData);
+                    var emergency = EmergencyCreationService.CreateHabitatDestructionEmergency(_config, ecosystemData, currentTime);
+                    AddEmergency(emergency);
                 }
             }).WithoutBurst().Run();
         }
 
         private void CheckDiseaseEmergencies()
         {
+            float currentTime = (float)SystemAPI.Time.ElapsedTime;
+
             Entities.WithAll<SpeciesPopulationData>().ForEach((Entity entity, ref SpeciesPopulationData populationData) =>
             {
                 if (populationData.diseasePrevalence > _config.diseaseOutbreakThreshold &&
                     !HasActiveEmergency(populationData.speciesId, EmergencyType.DiseaseOutbreak))
                 {
-                    CreateDiseaseEmergency(entity, populationData);
+                    var emergency = EmergencyCreationService.CreateDiseaseEmergency(_config, populationData, currentTime);
+                    AddEmergency(emergency);
                 }
             }).WithoutBurst().Run();
         }
 
         private void CheckClimateEmergencies()
         {
+            float currentTime = (float)SystemAPI.Time.ElapsedTime;
+
             // Check for climate-related threats
             Entities.WithAll<EcosystemData>().ForEach((Entity entity, ref EcosystemData ecosystemData) =>
             {
                 if (ecosystemData.climateStressLevel > _config.climateStressThreshold &&
                     !HasActiveEmergency(ecosystemData.ecosystemId, EmergencyType.ClimateChange))
                 {
-                    CreateClimateEmergency(entity, ecosystemData);
+                    var emergency = EmergencyCreationService.CreateClimateEmergency(_config, ecosystemData, currentTime);
+                    AddEmergency(emergency);
                 }
             }).WithoutBurst().Run();
         }
 
         private void UpdateActiveEmergencies(float deltaTime)
         {
+            float currentTime = (float)SystemAPI.Time.ElapsedTime;
+
             for (int i = _activeEmergencies.Count - 1; i >= 0; i--)
             {
                 var emergency = _activeEmergencies[i];
                 emergency.timeRemaining -= deltaTime;
 
-                // Update emergency severity based on current conditions
-                UpdateEmergencySeverity(ref emergency);
-
                 // Check if emergency should escalate
-                if (ShouldEscalate(emergency))
+                if (EmergencyResolutionService.ShouldEscalate(emergency))
                 {
-                    EscalateEmergency(ref emergency);
+                    var (updatedEmergency, crisis) = EmergencyResolutionService.EscalateEmergency(emergency, currentTime);
+                    emergency = updatedEmergency;
+                    OnCrisisEscalated?.Invoke(crisis);
                 }
 
                 // Check if emergency is resolved or expired
-                if (emergency.timeRemaining <= 0f || IsEmergencyResolved(emergency))
+                if (emergency.timeRemaining <= 0f || EmergencyResolutionService.IsEmergencyResolved(emergency))
                 {
-                    ResolveEmergency(emergency);
+                    ResolveEmergency(emergency, currentTime);
                     _activeEmergencies.RemoveAt(i);
                 }
                 else
@@ -272,18 +298,10 @@ namespace Laboratory.Chimera.ECS
             foreach (var kvp in _playerResponses.ToList())
             {
                 var playerId = kvp.Key;
-                var response = kvp.Value;
-
-                response.timeInvested += deltaTime;
-
-                // Process response effectiveness
-                ProcessResponseEffectiveness(ref response, deltaTime);
-
-                // Update response progress
-                UpdateResponseProgress(ref response, deltaTime);
+                var response = PlayerResponseService.UpdateResponse(_config, kvp.Value, deltaTime);
 
                 // Check for response completion
-                if (IsResponseComplete(response))
+                if (PlayerResponseService.IsResponseComplete(response))
                 {
                     CompletePlayerResponse(playerId, response);
                     _playerResponses.Remove(playerId);
@@ -317,6 +335,8 @@ namespace Laboratory.Chimera.ECS
 
         private void CheckConservationSuccesses()
         {
+            float currentTime = (float)SystemAPI.Time.ElapsedTime;
+
             // Check for successful conservation outcomes
             Entities.WithAll<SpeciesPopulationData>().ForEach((Entity entity, ref SpeciesPopulationData populationData) =>
             {
@@ -324,187 +344,12 @@ namespace Laboratory.Chimera.ECS
                     populationData.currentPopulation > _config.recoveryPopulationThreshold &&
                     populationData.populationTrend > 0f)
                 {
-                    CreateConservationSuccess(entity, populationData);
+                    var success = EmergencyResolutionService.CreateConservationSuccess(populationData, currentTime);
+                    OnConservationSuccess?.Invoke(success);
+                    populationData.wasEndangered = false;
                 }
             }).WithoutBurst().Run();
         }
-
-        #region Emergency Creation Methods
-
-        private void CreatePopulationEmergency(Entity entity, SpeciesPopulationData populationData)
-        {
-            var emergency = new ConservationEmergency
-            {
-                emergencyId = GenerateEmergencyId(),
-                type = EmergencyType.PopulationCollapse,
-                severity = CalculatePopulationSeverity(populationData),
-                affectedSpeciesId = populationData.speciesId,
-                affectedEcosystemId = populationData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.PopulationCollapse),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.PopulationCollapse),
-                title = $"Critical Population Decline: {populationData.speciesName}",
-                description = GeneratePopulationDescription(populationData),
-                urgencyLevel = CalculateConservationUrgencyLevel(populationData.currentPopulation, _config.criticalPopulationThreshold),
-                potentialConsequences = ConvertStringArrayToFixedList(GetPopulationConsequences(populationData)),
-                successRequirementTypes = GetSuccessRequirementTypes(populationData),
-                declaredAt = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            AddEmergency(emergency);
-        }
-
-        private void CreateBreedingEmergency(Entity entity, SpeciesPopulationData populationData)
-        {
-            var emergency = new ConservationEmergency
-            {
-                emergencyId = GenerateEmergencyId(),
-                type = EmergencyType.BreedingFailure,
-                severity = CalculateBreedingSeverity(populationData),
-                affectedSpeciesId = populationData.speciesId,
-                affectedEcosystemId = populationData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.BreedingFailure),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.BreedingFailure),
-                title = $"Breeding Crisis: {populationData.speciesName}",
-                description = GenerateBreedingDescription(populationData),
-                urgencyLevel = CalculateBreedingUrgency(populationData),
-                potentialConsequences = ConvertStringArrayToFixedList(GetBreedingConsequences(populationData)),
-                successRequirementTypes = GetBreedingSuccessRequirementTypes(populationData),
-                declaredAt = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            AddEmergency(emergency);
-        }
-
-        private void CreateJuvenileEmergency(Entity entity, SpeciesPopulationData populationData)
-        {
-            var emergency = new ConservationEmergency
-            {
-                emergencyId = GenerateEmergencyId(),
-                type = EmergencyType.JuvenileMortality,
-                severity = CalculateJuvenileSeverity(populationData),
-                affectedSpeciesId = populationData.speciesId,
-                affectedEcosystemId = populationData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.JuvenileMortality),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.JuvenileMortality),
-                title = $"Juvenile Mortality Crisis: {populationData.speciesName}",
-                description = GenerateJuvenileDescription(populationData),
-                urgencyLevel = CalculateJuvenileUrgency(populationData),
-                potentialConsequences = ConvertStringArrayToFixedList(GetJuvenileConsequences(populationData)),
-                successRequirementTypes = GetJuvenileSuccessRequirementTypes(populationData),
-                declaredAt = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            AddEmergency(emergency);
-        }
-
-        private void CreateEcosystemEmergency(Entity entity, EcosystemData ecosystemData, EcosystemHealth health)
-        {
-            var emergency = new ConservationEmergency
-            {
-                emergencyId = GenerateEmergencyId(),
-                type = EmergencyType.EcosystemCollapse,
-                severity = CalculateEcosystemSeverity(health),
-                affectedEcosystemId = ecosystemData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.EcosystemCollapse),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.EcosystemCollapse),
-                title = $"Ecosystem Collapse Warning: {ecosystemData.ecosystemName}",
-                description = GenerateEcosystemDescription(ecosystemData, health),
-                urgencyLevel = CalculateEcosystemUrgency(health),
-                potentialConsequences = ConvertStringArrayToFixedList(GetEcosystemConsequences(ecosystemData, health)),
-                successRequirementTypes = GetEcosystemSuccessRequirementTypes(ecosystemData, health),
-                declaredAt = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            AddEmergency(emergency);
-        }
-
-        private void CreateGeneticEmergency(Entity entity, SpeciesPopulationData populationData, in CreatureGeneticsComponent genetics, float diversity)
-        {
-            var emergency = new ConservationEmergency
-            {
-                emergencyId = GenerateEmergencyId(),
-                type = EmergencyType.GeneticBottleneck,
-                severity = CalculateGeneticSeverity(diversity),
-                affectedSpeciesId = populationData.speciesId,
-                affectedEcosystemId = populationData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.GeneticBottleneck),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.GeneticBottleneck),
-                title = $"Genetic Bottleneck Crisis: {populationData.speciesName}",
-                description = GenerateGeneticDescription(populationData, genetics, diversity),
-                urgencyLevel = CalculateGeneticUrgency(diversity),
-                potentialConsequences = ConvertStringArrayToFixedList(GetGeneticConsequences(populationData, diversity)),
-                successRequirementTypes = GetGeneticSuccessRequirementTypes(populationData, diversity),
-                declaredAt = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            AddEmergency(emergency);
-        }
-
-        private void CreateHabitatDestructionEmergency(Entity entity, EcosystemData ecosystemData)
-        {
-            var emergency = new ConservationEmergency
-            {
-                emergencyId = GenerateEmergencyId(),
-                type = EmergencyType.HabitatDestruction,
-                severity = CalculateHabitatSeverity(ecosystemData),
-                affectedEcosystemId = ecosystemData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.HabitatDestruction),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.HabitatDestruction),
-                title = $"Rapid Habitat Loss: {ecosystemData.ecosystemName}",
-                description = GenerateHabitatDescription(ecosystemData),
-                urgencyLevel = CalculateHabitatUrgency(ecosystemData),
-                potentialConsequences = ConvertStringArrayToFixedList(GetHabitatConsequences(ecosystemData)),
-                successRequirementTypes = GetHabitatSuccessRequirementTypes(ecosystemData),
-                declaredAt = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            AddEmergency(emergency);
-        }
-
-        private void CreateDiseaseEmergency(Entity entity, SpeciesPopulationData populationData)
-        {
-            var emergency = new ConservationEmergency
-            {
-                emergencyId = GenerateEmergencyId(),
-                type = EmergencyType.DiseaseOutbreak,
-                severity = CalculateDiseaseSeverity(populationData),
-                affectedSpeciesId = populationData.speciesId,
-                affectedEcosystemId = populationData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.DiseaseOutbreak),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.DiseaseOutbreak),
-                title = $"Disease Outbreak: {populationData.speciesName}",
-                description = GenerateDiseaseDescription(populationData),
-                urgencyLevel = CalculateDiseaseUrgency(populationData),
-                potentialConsequences = ConvertStringArrayToFixedList(GetDiseaseConsequences(populationData)),
-                successRequirementTypes = GetDiseaseSuccessRequirementTypes(populationData),
-                declaredAt = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            AddEmergency(emergency);
-        }
-
-        private void CreateClimateEmergency(Entity entity, EcosystemData ecosystemData)
-        {
-            var emergency = new ConservationEmergency
-            {
-                emergencyId = GenerateEmergencyId(),
-                type = EmergencyType.ClimateChange,
-                severity = CalculateClimateSeverity(ecosystemData),
-                affectedEcosystemId = ecosystemData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.ClimateChange),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.ClimateChange),
-                title = $"Climate Emergency: {ecosystemData.ecosystemName}",
-                description = GenerateClimateDescription(ecosystemData),
-                urgencyLevel = CalculateClimateUrgency(ecosystemData),
-                potentialConsequences = ConvertStringArrayToFixedList(GetClimateConsequences(ecosystemData)),
-                successRequirementTypes = GetClimateSuccessRequirementTypes(ecosystemData),
-                declaredAt = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            AddEmergency(emergency);
-        }
-
-        #endregion
 
         #region Helper Methods
 
@@ -534,135 +379,6 @@ namespace Laboratory.Chimera.ECS
             float traitDiversity = genetics.ActiveGeneCount;
             float populationFactor = Mathf.Log(populationData.currentPopulation + 1f) / 10f;
             return (traitDiversity * populationFactor) / 20f; // Normalized to 0-1
-        }
-
-        private EmergencySeverity CalculatePopulationSeverity(SpeciesPopulationData populationData)
-        {
-            float ratio = populationData.currentPopulation / (float)_config.criticalPopulationThreshold;
-            if (ratio <= 0.1f) return EmergencySeverity.Critical;
-            if (ratio <= 0.3f) return EmergencySeverity.Severe;
-            if (ratio <= 0.6f) return EmergencySeverity.Moderate;
-            return EmergencySeverity.Minor;
-        }
-
-        private EmergencySeverity CalculateBreedingSeverity(SpeciesPopulationData populationData)
-        {
-            if (populationData.reproductiveSuccess <= 0.1f) return EmergencySeverity.Critical;
-            if (populationData.reproductiveSuccess <= 0.3f) return EmergencySeverity.Severe;
-            if (populationData.reproductiveSuccess <= 0.5f) return EmergencySeverity.Moderate;
-            return EmergencySeverity.Minor;
-        }
-
-        private EmergencySeverity CalculateJuvenileSeverity(SpeciesPopulationData populationData)
-        {
-            if (populationData.juvenileSurvivalRate <= 0.2f) return EmergencySeverity.Critical;
-            if (populationData.juvenileSurvivalRate <= 0.4f) return EmergencySeverity.Severe;
-            if (populationData.juvenileSurvivalRate <= 0.6f) return EmergencySeverity.Moderate;
-            return EmergencySeverity.Minor;
-        }
-
-        private EmergencySeverity CalculateEcosystemSeverity(EcosystemHealth health)
-        {
-            if (health.overallHealth <= 0.2f) return EmergencySeverity.Critical;
-            if (health.overallHealth <= 0.4f) return EmergencySeverity.Severe;
-            if (health.overallHealth <= 0.6f) return EmergencySeverity.Moderate;
-            return EmergencySeverity.Minor;
-        }
-
-        private EmergencySeverity CalculateGeneticSeverity(float diversity)
-        {
-            if (diversity <= 0.1f) return EmergencySeverity.Critical;
-            if (diversity <= 0.3f) return EmergencySeverity.Severe;
-            if (diversity <= 0.5f) return EmergencySeverity.Moderate;
-            return EmergencySeverity.Minor;
-        }
-
-        private EmergencySeverity CalculateHabitatSeverity(EcosystemData ecosystemData)
-        {
-            if (ecosystemData.habitatLossRate >= 0.8f) return EmergencySeverity.Critical;
-            if (ecosystemData.habitatLossRate >= 0.6f) return EmergencySeverity.Severe;
-            if (ecosystemData.habitatLossRate >= 0.4f) return EmergencySeverity.Moderate;
-            return EmergencySeverity.Minor;
-        }
-
-        private EmergencySeverity CalculateDiseaseSeverity(SpeciesPopulationData populationData)
-        {
-            if (populationData.diseasePrevalence >= 0.8f) return EmergencySeverity.Critical;
-            if (populationData.diseasePrevalence >= 0.6f) return EmergencySeverity.Severe;
-            if (populationData.diseasePrevalence >= 0.4f) return EmergencySeverity.Moderate;
-            return EmergencySeverity.Minor;
-        }
-
-        private EmergencySeverity CalculateClimateSeverity(EcosystemData ecosystemData)
-        {
-            if (ecosystemData.climateStressLevel >= 0.8f) return EmergencySeverity.Critical;
-            if (ecosystemData.climateStressLevel >= 0.6f) return EmergencySeverity.Severe;
-            if (ecosystemData.climateStressLevel >= 0.4f) return EmergencySeverity.Moderate;
-            return EmergencySeverity.Minor;
-        }
-
-        private ConservationUrgencyLevel CalculateConservationUrgencyLevel(float currentValue, float threshold)
-        {
-            float ratio = currentValue / threshold;
-            if (ratio <= 0.1f) return ConservationUrgencyLevel.Immediate;
-            if (ratio <= 0.3f) return ConservationUrgencyLevel.Urgent;
-            if (ratio <= 0.6f) return ConservationUrgencyLevel.Important;
-            return ConservationUrgencyLevel.Moderate;
-        }
-
-        private ConservationUrgencyLevel CalculateBreedingUrgency(SpeciesPopulationData populationData)
-        {
-            if (populationData.reproductiveSuccess <= 0.1f && populationData.breedingAge > _config.breedingAgeThreshold * 1.5f)
-                return ConservationUrgencyLevel.Immediate;
-            if (populationData.reproductiveSuccess <= 0.3f)
-                return ConservationUrgencyLevel.Urgent;
-            return ConservationUrgencyLevel.Important;
-        }
-
-        private ConservationUrgencyLevel CalculateJuvenileUrgency(SpeciesPopulationData populationData)
-        {
-            if (populationData.juvenileSurvivalRate <= 0.2f)
-                return ConservationUrgencyLevel.Immediate;
-            if (populationData.juvenileSurvivalRate <= 0.4f)
-                return ConservationUrgencyLevel.Urgent;
-            return ConservationUrgencyLevel.Important;
-        }
-
-        private ConservationUrgencyLevel CalculateEcosystemUrgency(EcosystemHealth health)
-        {
-            if (health.overallHealth <= 0.2f && health.healthTrend < -0.1f)
-                return ConservationUrgencyLevel.Immediate;
-            if (health.overallHealth <= 0.4f)
-                return ConservationUrgencyLevel.Urgent;
-            return ConservationUrgencyLevel.Important;
-        }
-
-        private ConservationUrgencyLevel CalculateGeneticUrgency(float diversity)
-        {
-            if (diversity <= 0.1f) return ConservationUrgencyLevel.Immediate;
-            if (diversity <= 0.3f) return ConservationUrgencyLevel.Urgent;
-            return ConservationUrgencyLevel.Important;
-        }
-
-        private ConservationUrgencyLevel CalculateHabitatUrgency(EcosystemData ecosystemData)
-        {
-            if (ecosystemData.habitatLossRate >= 0.8f) return ConservationUrgencyLevel.Immediate;
-            if (ecosystemData.habitatLossRate >= 0.6f) return ConservationUrgencyLevel.Urgent;
-            return ConservationUrgencyLevel.Important;
-        }
-
-        private ConservationUrgencyLevel CalculateDiseaseUrgency(SpeciesPopulationData populationData)
-        {
-            if (populationData.diseasePrevalence >= 0.8f) return ConservationUrgencyLevel.Immediate;
-            if (populationData.diseasePrevalence >= 0.6f) return ConservationUrgencyLevel.Urgent;
-            return ConservationUrgencyLevel.Important;
-        }
-
-        private ConservationUrgencyLevel CalculateClimateUrgency(EcosystemData ecosystemData)
-        {
-            if (ecosystemData.climateStressLevel >= 0.8f) return ConservationUrgencyLevel.Immediate;
-            if (ecosystemData.climateStressLevel >= 0.6f) return ConservationUrgencyLevel.Urgent;
-            return ConservationUrgencyLevel.Important;
         }
 
         private EmergencyAction[] GetRequiredActions(EmergencyType type)
@@ -779,323 +495,56 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private string GeneratePopulationDescription(SpeciesPopulationData populationData)
-        {
-            return $"Population has declined to {populationData.currentPopulation} individuals " +
-                   $"(trend: {populationData.populationTrend:F2}). Immediate intervention required to prevent extinction.";
-        }
-
-        private string GenerateBreedingDescription(SpeciesPopulationData populationData)
-        {
-            return $"Reproductive success has dropped to {populationData.reproductiveSuccess:P1}. " +
-                   $"Average breeding age has increased to {populationData.breedingAge:F1} indicating breeding crisis.";
-        }
-
-        private string GenerateJuvenileDescription(SpeciesPopulationData populationData)
-        {
-            return $"Juvenile survival rate has fallen to {populationData.juvenileSurvivalRate:P1}. " +
-                   $"Critical intervention needed to protect young individuals.";
-        }
-
-        private string GenerateEcosystemDescription(EcosystemData ecosystemData, EcosystemHealth health)
-        {
-            return $"Ecosystem health has deteriorated to {health.overallHealth:P1}. " +
-                   $"Multiple species and ecological processes are at risk.";
-        }
-
-        private string GenerateGeneticDescription(SpeciesPopulationData populationData, in CreatureGeneticsComponent genetics, float diversity)
-        {
-            return $"Genetic diversity has dropped to critical levels ({diversity:P1}). " +
-                   $"Population of {populationData.currentPopulation} shows signs of inbreeding.";
-        }
-
-        private string GenerateHabitatDescription(EcosystemData ecosystemData)
-        {
-            return $"Habitat is being destroyed at {ecosystemData.habitatLossRate:P1} rate. " +
-                   $"Critical habitat protection measures needed immediately.";
-        }
-
-        private string GenerateDiseaseDescription(SpeciesPopulationData populationData)
-        {
-            return $"Disease outbreak affecting {populationData.diseasePrevalence:P1} of population. " +
-                   $"Quarantine and treatment protocols must be implemented.";
-        }
-
-        private string GenerateClimateDescription(EcosystemData ecosystemData)
-        {
-            return $"Climate stress level at {ecosystemData.climateStressLevel:P1}. " +
-                   $"Ecosystem adaptation strategies urgently needed.";
-        }
-
-        private string[] GetPopulationConsequences(SpeciesPopulationData populationData)
-        {
-            return new[]
-            {
-                "Species extinction within months",
-                "Loss of genetic diversity",
-                "Ecosystem function disruption",
-                "Cascading effects on food web"
-            };
-        }
-
-        private string[] GetBreedingConsequences(SpeciesPopulationData populationData)
-        {
-            return new[]
-            {
-                "Population collapse within 2-3 generations",
-                "Increased inbreeding depression",
-                "Loss of reproductive fitness",
-                "Eventual species extinction"
-            };
-        }
-
-        private string[] GetJuvenileConsequences(SpeciesPopulationData populationData)
-        {
-            return new[]
-            {
-                "Population cannot replace itself",
-                "Aging population structure",
-                "Reduced genetic contribution from new generations",
-                "Species decline accelerates"
-            };
-        }
-
-        private string[] GetEcosystemConsequences(EcosystemData ecosystemData, EcosystemHealth health)
-        {
-            return new[]
-            {
-                "Complete ecosystem collapse",
-                "Loss of multiple species",
-                "Breakdown of ecological services",
-                "Irreversible environmental damage"
-            };
-        }
-
-        private string[] GetGeneticConsequences(SpeciesPopulationData populationData, float diversity)
-        {
-            return new[]
-            {
-                "Inbreeding depression",
-                "Reduced disease resistance",
-                "Loss of adaptive potential",
-                "Evolutionary dead end"
-            };
-        }
-
-        private string[] GetHabitatConsequences(EcosystemData ecosystemData)
-        {
-            return new[]
-            {
-                "Complete habitat loss",
-                "Species displacement",
-                "Fragmented populations",
-                "Reduced carrying capacity"
-            };
-        }
-
-        private string[] GetDiseaseConsequences(SpeciesPopulationData populationData)
-        {
-            return new[]
-            {
-                "Population-wide mortality",
-                "Transmission to other species",
-                "Weakened immune systems",
-                "Secondary infection outbreaks"
-            };
-        }
-
-        private string[] GetClimateConsequences(EcosystemData ecosystemData)
-        {
-            return new[]
-            {
-                "Habitat unsuitable for native species",
-                "Migration of invasive species",
-                "Disrupted seasonal cycles",
-                "Altered precipitation patterns"
-            };
-        }
-
-
         private void UpdateEmergencySeverity(ref ConservationEmergency emergency)
         {
             // Update severity based on current conditions
             // This would check current population/ecosystem status
         }
 
-        private bool ShouldEscalate(ConservationEmergency emergency)
+        private void ResolveEmergency(ConservationEmergency emergency, float currentTime)
         {
-            return emergency.timeRemaining < emergency.originalDuration * 0.3f &&
-                   emergency.severity >= EmergencySeverity.Severe &&
-                   !emergency.hasEscalated;
-        }
-
-        private void EscalateEmergency(ref ConservationEmergency emergency)
-        {
-            emergency.hasEscalated = true;
-            emergency.severity = EmergencySeverity.Critical;
-            emergency.urgencyLevel = ConservationUrgencyLevel.Immediate;
-
-            var crisis = new ConservationCrisis
-            {
-                originalEmergency = emergency,
-                escalationReason = "Time running out with insufficient response",
-                newRequirementTypes = GetEscalatedRequirementTypes(emergency),
-                timestamp = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            OnCrisisEscalated?.Invoke(crisis);
-        }
-
-        private ConservationRequirement[] GetEscalatedRequirements(ConservationEmergency emergency)
-        {
-            // Return more stringent requirements for escalated emergencies
-            return new ConservationRequirement[0]; // Simplified for now
-        }
-
-        private bool IsEmergencyResolved(ConservationEmergency emergency)
-        {
-            // Check if emergency conditions have been met
-            return CheckSuccessRequirementTypes(emergency);
-        }
-
-        private bool CheckSuccessRequirementTypes(ConservationEmergency emergency)
-        {
-            // Check if all success requirements have been met
-            foreach (var requirement in emergency.successRequirementTypes)
-            {
-                if (!IsRequirementTypeMet(requirement, emergency))
-                    return false;
-            }
-            return true;
-        }
-
-        private bool IsRequirementTypeMet(RequirementType requirement, ConservationEmergency emergency)
-        {
-            // Check specific requirement types
-            switch (requirement)
-            {
-                case RequirementType.PopulationIncrease:
-                    return CheckPopulationRequirement(emergency);
-                case RequirementType.ReproductiveSuccess:
-                    return CheckReproductiveRequirement(emergency);
-                case RequirementType.HabitatProtection:
-                    return CheckHabitatRequirement(emergency);
-                default:
-                    return false;
-            }
-        }
-
-        private bool CheckPopulationRequirement(ConservationEmergency emergency)
-        {
-            // Check current population against requirement
-            // This would query current population data
-            return false; // Simplified for example
-        }
-
-        private bool CheckReproductiveRequirement(ConservationEmergency emergency)
-        {
-            // Check current reproductive success
-            return false; // Simplified for example
-        }
-
-        private bool CheckHabitatRequirement(ConservationEmergency emergency)
-        {
-            // Check current habitat status
-            return false; // Simplified for example
-        }
-
-        private void ResolveEmergency(ConservationEmergency emergency)
-        {
-            var outcome = new EmergencyOutcome
-            {
-                emergency = emergency,
-                isSuccessful = IsEmergencyResolved(emergency),
-                finalStatus = GetFinalStatus(emergency),
-                playerContributions = ConvertPlayerContributionsToFixedList(GetPlayerContributions(emergency)),
-                timestamp = (float)SystemAPI.Time.ElapsedTime
-            };
+            var playerContributions = GetPlayerContributionsForEmergency(emergency.emergencyId);
+            var outcome = EmergencyResolutionService.CreateOutcome(emergency, playerContributions, currentTime);
 
             OnEmergencyResolved?.Invoke(emergency, outcome);
 
             if (outcome.isSuccessful)
             {
-                CreateConservationSuccessFromEmergency(emergency);
+                var success = EmergencyResolutionService.CreateConservationSuccessFromEmergency(emergency, currentTime);
+                OnConservationSuccess?.Invoke(success);
             }
         }
 
-        private EmergencyStatus GetFinalStatus(ConservationEmergency emergency)
+        private Dictionary<int, float> GetPlayerContributionsForEmergency(int emergencyId)
         {
-            if (IsEmergencyResolved(emergency))
-                return EmergencyStatus.Resolved;
-            if (emergency.hasEscalated)
-                return EmergencyStatus.Failed;
-            return EmergencyStatus.TimeExpired;
-        }
-
-        private Dictionary<int, float> GetPlayerContributions(ConservationEmergency emergency)
-        {
-            // Calculate player contributions to this emergency
+            if (_emergencyPlayerContributions.TryGetValue(emergencyId, out var contributions))
+            {
+                return contributions;
+            }
             return new Dictionary<int, float>();
-        }
-
-        private void ProcessResponseEffectiveness(ref EmergencyResponse response, float deltaTime)
-        {
-            // Calculate response effectiveness based on action type and timing
-            response.effectiveness += CalculateEffectivenessGain(response, deltaTime);
-        }
-
-        private float CalculateEffectivenessGain(EmergencyResponse response, float deltaTime)
-        {
-            return response.resourcesCommitted * deltaTime * _config.responseEffectivenessMultiplier;
-        }
-
-        private void UpdateResponseProgress(ref EmergencyResponse response, float deltaTime)
-        {
-            response.progress += response.effectiveness * deltaTime;
-            response.progress = Mathf.Clamp01(response.progress);
-        }
-
-        private bool IsResponseComplete(EmergencyResponse response)
-        {
-            return response.progress >= 1f || response.timeInvested >= response.maxDuration;
         }
 
         private void CompletePlayerResponse(int playerId, EmergencyResponse response)
         {
             OnPlayerResponseRecorded?.Invoke(playerId, response);
 
-            // Apply response effects to emergency
-            ApplyResponseEffects(response);
-        }
-
-        private void ApplyResponseEffects(EmergencyResponse response)
-        {
-            // Apply the effects of the player response to the related emergency
-            var emergency = _activeEmergencies.FirstOrDefault(e => e.emergencyId == response.emergencyId);
-            if (emergency.emergencyId != 0)
+            // Track player contribution for this emergency
+            if (!_emergencyPlayerContributions.ContainsKey(response.emergencyId))
             {
-                // Apply positive effects based on response type and effectiveness
-                ApplyResponseToEmergency(response, ref emergency);
+                _emergencyPlayerContributions[response.emergencyId] = new Dictionary<int, float>();
             }
-        }
+            _emergencyPlayerContributions[response.emergencyId] = PlayerResponseService.UpdatePlayerContributions(
+                _emergencyPlayerContributions[response.emergencyId], response);
 
-        private void ApplyResponseToEmergency(EmergencyResponse response, ref ConservationEmergency emergency)
-        {
-            // Apply specific response effects to emergency
-            switch (response.actionType)
+            // Apply response effects to emergency
+            for (int i = 0; i < _activeEmergencies.Count; i++)
             {
-                case EmergencyActionType.PopulationSupport:
-                    // Improve population metrics
+                if (_activeEmergencies[i].emergencyId == response.emergencyId)
+                {
+                    var updatedEmergency = PlayerResponseService.ApplyResponseToEmergency(_activeEmergencies[i], response);
+                    _activeEmergencies[i] = updatedEmergency;
                     break;
-                case EmergencyActionType.HabitatProtection:
-                    // Improve habitat conditions
-                    break;
-                case EmergencyActionType.BreedingProgram:
-                    // Improve reproductive success
-                    break;
-                case EmergencyActionType.DiseaseControl:
-                    // Reduce disease prevalence
-                    break;
+                }
             }
         }
 
@@ -1130,80 +579,6 @@ namespace Laboratory.Chimera.ECS
         {
             // Process escalated emergencies with more severe consequences
             // This might involve faster deterioration or additional requirements
-        }
-
-        private void CreateConservationSuccess(Entity entity, SpeciesPopulationData populationData)
-        {
-            var success = new ConservationSuccess
-            {
-                successType = ConservationSuccessType.SpeciesRecovery,
-                speciesId = populationData.speciesId,
-                achievementDescription = $"Successfully recovered {populationData.speciesName} from endangered status",
-                finalPopulation = populationData.currentPopulation,
-                recoveryTime = CalculateRecoveryTime(populationData),
-                contributingFactors = ConvertStringArrayToFixedList128(GetRecoveryFactors(populationData)),
-                timestamp = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            OnConservationSuccess?.Invoke(success);
-            populationData.wasEndangered = false; // Reset flag
-        }
-
-        private void CreateConservationSuccessFromEmergency(ConservationEmergency emergency)
-        {
-            var success = new ConservationSuccess
-            {
-                successType = GetSuccessTypeFromEmergency(emergency.type),
-                emergencyId = emergency.emergencyId,
-                achievementDescription = $"Successfully resolved {emergency.title}",
-                contributingFactors = ConvertStringArrayToFixedList128(GetEmergencySuccessFactors(emergency)),
-                timestamp = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            OnConservationSuccess?.Invoke(success);
-        }
-
-        private ConservationSuccessType GetSuccessTypeFromEmergency(EmergencyType emergencyType)
-        {
-            switch (emergencyType)
-            {
-                case EmergencyType.PopulationCollapse:
-                    return ConservationSuccessType.SpeciesRecovery;
-                case EmergencyType.EcosystemCollapse:
-                    return ConservationSuccessType.EcosystemRestoration;
-                case EmergencyType.HabitatDestruction:
-                    return ConservationSuccessType.HabitatProtection;
-                default:
-                    return ConservationSuccessType.General;
-            }
-        }
-
-        private float CalculateRecoveryTime(SpeciesPopulationData populationData)
-        {
-            // Calculate time since species was first endangered
-            return (float)(SystemAPI.Time.ElapsedTime - populationData.endangeredSince);
-        }
-
-        private string[] GetRecoveryFactors(SpeciesPopulationData populationData)
-        {
-            return new[]
-            {
-                "Habitat protection measures",
-                "Breeding program success",
-                "Threat reduction efforts",
-                "Community involvement"
-            };
-        }
-
-        private string[] GetEmergencySuccessFactors(ConservationEmergency emergency)
-        {
-            return new[]
-            {
-                "Rapid response implementation",
-                "Multi-stakeholder collaboration",
-                "Adequate resource allocation",
-                "Effective monitoring programs"
-            };
         }
 
         private EmergencyAction ConvertToECSEmergencyAction(Laboratory.Chimera.Ecosystem.EmergencyAction ecosystemAction)
@@ -1272,18 +647,20 @@ namespace Laboratory.Chimera.ECS
                 return;
             }
 
-            var response = new EmergencyResponse
+            if (!PlayerResponseService.CanRespondToEmergency(emergency, actionType))
             {
-                playerId = playerId,
-                emergencyId = emergencyId,
-                actionType = actionType,
-                resourcesCommitted = resourceCommitment,
-                startTime = (float)SystemAPI.Time.ElapsedTime,
-                maxDuration = _config.GetActionDuration(actionType),
-                progress = 0f,
-                effectiveness = 0f,
-                timeInvested = 0f
-            };
+                UnityEngine.Debug.LogWarning($"Action type {actionType} is not valid for emergency {emergencyId}");
+                return;
+            }
+
+            if (!PlayerResponseService.IsValidResourceCommitment(_config, resourceCommitment))
+            {
+                UnityEngine.Debug.LogWarning($"Invalid resource commitment: {resourceCommitment}");
+                return;
+            }
+
+            float currentTime = (float)SystemAPI.Time.ElapsedTime;
+            var response = PlayerResponseService.CreateResponse(_config, playerId, emergencyId, actionType, resourceCommitment, currentTime);
 
             _playerResponses[playerId] = response;
             UnityEngine.Debug.Log($"Player {playerId} started response to emergency {emergencyId}");
@@ -1312,56 +689,6 @@ namespace Laboratory.Chimera.ECS
         #endregion
 
         #region Missing Methods
-
-        private void CreateFoodWebEmergency(Entity entity, EcosystemData ecosystemData, EcosystemHealth health)
-        {
-            // Create food web disruption emergency
-            var emergency = new ConservationEmergency
-            {
-                emergencyId = GenerateEmergencyId(),
-                type = EmergencyType.FoodWebDisruption,
-                affectedEcosystemId = ecosystemData.ecosystemId,
-                severity = CalculateFoodWebSeverity(health),
-                urgencyLevel = ConservationUrgencyLevel.High,
-                declaredAt = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            AddEmergency(emergency);
-        }
-
-        private void CreateHabitatEmergency(Entity entity, EcosystemData ecosystemData, EcosystemHealth health)
-        {
-            // Create habitat fragmentation emergency
-            var emergency = new ConservationEmergency
-            {
-                emergencyId = GenerateEmergencyId(),
-                type = EmergencyType.HabitatFragmentation,
-                affectedEcosystemId = ecosystemData.ecosystemId,
-                severity = CalculateHabitatSeverity(health),
-                urgencyLevel = ConservationUrgencyLevel.Critical,
-                declaredAt = (float)SystemAPI.Time.ElapsedTime
-            };
-
-            AddEmergency(emergency);
-        }
-
-        private EmergencySeverity CalculateFoodWebSeverity(EcosystemHealth health)
-        {
-            float instability = 1f - health.foodWebStability;
-            if (instability >= 0.8f) return EmergencySeverity.Critical;
-            if (instability >= 0.6f) return EmergencySeverity.Severe;
-            if (instability >= 0.4f) return EmergencySeverity.Moderate;
-            return EmergencySeverity.Minor;
-        }
-
-        private EmergencySeverity CalculateHabitatSeverity(EcosystemHealth health)
-        {
-            float disconnection = 1f - health.habitatConnectivity;
-            if (disconnection >= 0.8f) return EmergencySeverity.Critical;
-            if (disconnection >= 0.6f) return EmergencySeverity.Severe;
-            if (disconnection >= 0.4f) return EmergencySeverity.Moderate;
-            return EmergencySeverity.Minor;
-        }
 
         #endregion
     }
