@@ -18,6 +18,15 @@ namespace Laboratory.Chimera.Activities
         private Dictionary<ActivityType, IActivity> _activityImplementations;
         private Dictionary<ActivityType, ActivityConfig> _activityConfigs;
 
+        // Cached entity queries for performance (SystemAPI.Query also auto-caches internally)
+        private EntityQuery _systemDataQuery;
+        private EntityQuery _activityRequestQuery;
+        private EntityQuery _activeActivitiesQuery;
+        private EntityQuery _activityResultsQuery;
+
+        // Entity command buffer system for deferred structural changes
+        private EndSimulationEntityCommandBufferSystem _endSimulationECBSystem;
+
         private static readonly ProfilerMarker s_ProcessActivityRequestsMarker =
             new ProfilerMarker("Activity.ProcessRequests");
         private static readonly ProfilerMarker s_UpdateActiveActivitiesMarker =
@@ -29,6 +38,20 @@ namespace Laboratory.Chimera.Activities
         {
             _activityImplementations = new Dictionary<ActivityType, IActivity>();
             _activityConfigs = new Dictionary<ActivityType, ActivityConfig>();
+
+            // Initialize cached entity queries
+            _systemDataQuery = GetEntityQuery(ComponentType.ReadWrite<ActivitySystemData>());
+            _activityRequestQuery = GetEntityQuery(ComponentType.ReadOnly<StartActivityRequest>());
+            _activeActivitiesQuery = GetEntityQuery(
+                ComponentType.ReadWrite<ActiveActivityComponent>(),
+                ComponentType.ReadOnly<CreatureGeneticsComponent>());
+            _activityResultsQuery = GetEntityQuery(
+                ComponentType.ReadOnly<ActivityResultComponent>(),
+                ComponentType.ReadWrite<CurrencyComponent>(),
+                ComponentType.ReadWrite<ActivityProgressElement>());
+
+            // Get entity command buffer system for optimized deferred operations
+            _endSimulationECBSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
 
             // Load activity configurations from Resources
             LoadActivityConfigurations();
@@ -102,10 +125,11 @@ namespace Laboratory.Chimera.Activities
 
         /// <summary>
         /// Processes requests to start new activities
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void ProcessActivityRequests(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             foreach (var (request, entity) in
                 SystemAPI.Query<RefRO<StartActivityRequest>>().WithEntityAccess())
@@ -164,8 +188,7 @@ namespace Laboratory.Chimera.Activities
                 ecb.DestroyEntity(entity);
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>
@@ -210,10 +233,11 @@ namespace Laboratory.Chimera.Activities
 
         /// <summary>
         /// Processes completed activities and distributes rewards
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void ProcessActivityResults(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             foreach (var (result, currency, progressBuffer, entity) in
                 SystemAPI.Query<RefRO<ActivityResultComponent>, RefRW<CurrencyComponent>,
@@ -259,8 +283,7 @@ namespace Laboratory.Chimera.Activities
                          $"Rewards: {result.ValueRO.coinsEarned} coins, {result.ValueRO.experienceGained} XP");
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>

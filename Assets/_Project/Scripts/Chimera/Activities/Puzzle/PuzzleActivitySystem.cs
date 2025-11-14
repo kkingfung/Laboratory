@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace Laboratory.Chimera.Activities.Puzzle
@@ -6,6 +7,7 @@ namespace Laboratory.Chimera.Activities.Puzzle
     /// <summary>
     /// ECS system that registers and manages puzzle activity
     /// Integrates with the core ActivitySystem
+    /// Performance: Lightweight registration system with collaboration support
     /// </summary>
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ActivitySystem))]
@@ -15,23 +17,33 @@ namespace Laboratory.Chimera.Activities.Puzzle
         private PuzzleConfig _puzzleConfig;
         private bool _isInitialized;
 
+        private static readonly ProfilerMarker s_InitializationMarker =
+            new ProfilerMarker("PuzzleActivity.Initialize");
+        private static readonly ProfilerMarker s_CreateRequestMarker =
+            new ProfilerMarker("PuzzleActivity.CreateRequest");
+        private static readonly ProfilerMarker s_CreateCollaborativeMarker =
+            new ProfilerMarker("PuzzleActivity.CreateCollaborative");
+
         protected override void OnCreate()
         {
-            // Load puzzle configuration
-            _puzzleConfig = Resources.Load<PuzzleConfig>("Configs/Activities/PuzzleConfig");
-
-            if (_puzzleConfig == null)
+            using (s_InitializationMarker.Auto())
             {
-                Debug.LogWarning("PuzzleConfig not found at Resources/Configs/Activities/PuzzleConfig. " +
-                                "Puzzle activity will use default settings.");
-                return;
+                // Load puzzle configuration
+                _puzzleConfig = Resources.Load<PuzzleConfig>("Configs/Activities/PuzzleConfig");
+
+                if (_puzzleConfig == null)
+                {
+                    Debug.LogWarning("PuzzleConfig not found at Resources/Configs/Activities/PuzzleConfig. " +
+                                    "Puzzle activity will use default settings.");
+                    return;
+                }
+
+                // Create puzzle activity implementation
+                _puzzleActivity = new PuzzleActivity(_puzzleConfig);
+
+                Debug.Log($"Puzzle Activity System initialized: {_puzzleConfig.activityName}");
+                _isInitialized = true;
             }
-
-            // Create puzzle activity implementation
-            _puzzleActivity = new PuzzleActivity(_puzzleConfig);
-
-            Debug.Log($"Puzzle Activity System initialized: {_puzzleConfig.activityName}");
-            _isInitialized = true;
         }
 
         protected override void OnStartRunning()
@@ -69,43 +81,51 @@ namespace Laboratory.Chimera.Activities.Puzzle
 
         /// <summary>
         /// Creates a puzzle activity request entity
+        /// Performance: O(1) entity creation with minimal allocations
         /// </summary>
         public Entity CreatePuzzleRequest(Entity monsterEntity, ActivityDifficulty difficulty)
         {
-            var requestEntity = EntityManager.CreateEntity();
-
-            EntityManager.AddComponentData(requestEntity, new StartActivityRequest
+            using (s_CreateRequestMarker.Auto())
             {
-                monsterEntity = monsterEntity,
-                activityType = ActivityType.Puzzle,
-                difficulty = difficulty,
-                requestTime = (float)SystemAPI.Time.ElapsedTime
-            });
+                var requestEntity = EntityManager.CreateEntity();
 
-            Debug.Log($"Created puzzle request for monster {monsterEntity.Index} at difficulty {difficulty}");
+                EntityManager.AddComponentData(requestEntity, new StartActivityRequest
+                {
+                    monsterEntity = monsterEntity,
+                    activityType = ActivityType.Puzzle,
+                    difficulty = difficulty,
+                    requestTime = (float)SystemAPI.Time.ElapsedTime
+                });
 
-            return requestEntity;
+                Debug.Log($"Created puzzle request for monster {monsterEntity.Index} at difficulty {difficulty}");
+
+                return requestEntity;
+            }
         }
 
         /// <summary>
         /// Creates a collaborative puzzle request (multi-monster)
+        /// Performance: Delegates to CreatePuzzleRequest for efficient request creation
         /// </summary>
         public Entity CreateCollaborativePuzzleRequest(Entity[] monsterEntities, ActivityDifficulty difficulty)
         {
-            if (!_puzzleConfig.enableCollaboration)
+            using (s_CreateCollaborativeMarker.Auto())
             {
-                Debug.LogWarning("Collaborative puzzles are disabled in config");
-                return Entity.Null;
-            }
+                if (!_puzzleConfig.enableCollaboration)
+                {
+                    Debug.LogWarning("Collaborative puzzles are disabled in config");
+                    return Entity.Null;
+                }
 
-            if (monsterEntities == null || monsterEntities.Length == 0)
-            {
-                Debug.LogWarning("No monsters provided for collaborative puzzle");
-                return Entity.Null;
-            }
+                if (monsterEntities == null || monsterEntities.Length == 0)
+                {
+                    Debug.LogWarning("No monsters provided for collaborative puzzle");
+                    return Entity.Null;
+                }
 
-            // For now, create request for first monster (full collaboration system is future work)
-            return CreatePuzzleRequest(monsterEntities[0], difficulty);
+                // For now, create request for first monster (full collaboration system is future work)
+                return CreatePuzzleRequest(monsterEntities[0], difficulty);
+            }
         }
     }
 }

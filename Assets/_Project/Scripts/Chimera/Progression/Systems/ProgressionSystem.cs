@@ -16,15 +16,25 @@ namespace Laboratory.Chimera.Progression
     {
         private ProgressionConfig _config;
 
+        // Entity command buffer system for optimized deferred operations
+        private EndSimulationEntityCommandBufferSystem _endSimulationECBSystem;
+
         private static readonly ProfilerMarker s_ProcessExperienceMarker =
             new ProfilerMarker("Progression.ProcessExperience");
         private static readonly ProfilerMarker s_ProcessCurrencyMarker =
             new ProfilerMarker("Progression.ProcessCurrency");
         private static readonly ProfilerMarker s_UpdateLevelsMarker =
             new ProfilerMarker("Progression.UpdateLevels");
+        private static readonly ProfilerMarker s_ProcessSkillUnlocksMarker =
+            new ProfilerMarker("Progression.ProcessSkillUnlocks");
+        private static readonly ProfilerMarker s_UpdateDailyChallengesMarker =
+            new ProfilerMarker("Progression.UpdateDailyChallenges");
 
         protected override void OnCreate()
         {
+            // Get entity command buffer system for optimized deferred operations
+            _endSimulationECBSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
+
             // Load progression configuration
             _config = Resources.Load<ProgressionConfig>("Configs/ProgressionConfig");
 
@@ -75,10 +85,16 @@ namespace Laboratory.Chimera.Progression
             }
 
             // Process skill unlocks
-            ProcessSkillUnlocks(currentTime);
+            using (s_ProcessSkillUnlocksMarker.Auto())
+            {
+                ProcessSkillUnlocks(currentTime);
+            }
 
             // Update daily challenges
-            UpdateDailyChallenges(currentTime);
+            using (s_UpdateDailyChallengesMarker.Auto())
+            {
+                UpdateDailyChallenges(currentTime);
+            }
         }
 
         /// <summary>
@@ -94,10 +110,11 @@ namespace Laboratory.Chimera.Progression
 
         /// <summary>
         /// Processes experience award requests
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void ProcessExperienceAwards(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             foreach (var (request, entity) in
                 SystemAPI.Query<RefRO<AwardExperienceRequest>>().WithEntityAccess())
@@ -147,16 +164,16 @@ namespace Laboratory.Chimera.Progression
                 ecb.DestroyEntity(entity);
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>
         /// Processes currency award requests
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void ProcessCurrencyAwards(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             foreach (var (request, entity) in
                 SystemAPI.Query<RefRO<AwardCurrencyRequest>>().WithEntityAccess())
@@ -208,16 +225,16 @@ namespace Laboratory.Chimera.Progression
                 ecb.DestroyEntity(entity);
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>
         /// Checks for level ups and applies bonuses
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void CheckForLevelUps(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             foreach (var (levelData, statBonus, entity) in
                 SystemAPI.Query<RefRW<MonsterLevelComponent>, RefRW<LevelStatBonusComponent>>()
@@ -289,16 +306,16 @@ namespace Laboratory.Chimera.Progression
                 }
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>
         /// Processes skill unlock requests
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void ProcessSkillUnlocks(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             foreach (var (request, entity) in
                 SystemAPI.Query<RefRO<UnlockSkillRequest>>().WithEntityAccess())
@@ -382,16 +399,16 @@ namespace Laboratory.Chimera.Progression
                 ecb.DestroyEntity(entity);
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>
         /// Updates daily challenge progress and handles expiration/refresh
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void UpdateDailyChallenges(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             // Update all entities with daily challenges
             foreach (var (challengeBuffer, entity) in
@@ -425,8 +442,7 @@ namespace Laboratory.Chimera.Progression
                 }
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>

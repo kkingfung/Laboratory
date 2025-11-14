@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace Laboratory.Chimera.Activities.Combat
@@ -6,6 +7,7 @@ namespace Laboratory.Chimera.Activities.Combat
     /// <summary>
     /// ECS system that registers and manages combat activity
     /// Integrates with the core ActivitySystem
+    /// Performance: Lightweight registration system with tournament support
     /// </summary>
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ActivitySystem))]
@@ -15,23 +17,33 @@ namespace Laboratory.Chimera.Activities.Combat
         private CombatConfig _combatConfig;
         private bool _isInitialized;
 
+        private static readonly ProfilerMarker s_InitializationMarker =
+            new ProfilerMarker("CombatActivity.Initialize");
+        private static readonly ProfilerMarker s_CreateRequestMarker =
+            new ProfilerMarker("CombatActivity.CreateRequest");
+        private static readonly ProfilerMarker s_CreateTournamentMarker =
+            new ProfilerMarker("CombatActivity.CreateTournament");
+
         protected override void OnCreate()
         {
-            // Load combat configuration
-            _combatConfig = Resources.Load<CombatConfig>("Configs/Activities/CombatConfig");
-
-            if (_combatConfig == null)
+            using (s_InitializationMarker.Auto())
             {
-                Debug.LogWarning("CombatConfig not found at Resources/Configs/Activities/CombatConfig. " +
-                                "Combat activity will use default settings.");
-                return;
+                // Load combat configuration
+                _combatConfig = Resources.Load<CombatConfig>("Configs/Activities/CombatConfig");
+
+                if (_combatConfig == null)
+                {
+                    Debug.LogWarning("CombatConfig not found at Resources/Configs/Activities/CombatConfig. " +
+                                    "Combat activity will use default settings.");
+                    return;
+                }
+
+                // Create combat activity implementation
+                _combatActivity = new CombatActivity(_combatConfig);
+
+                Debug.Log($"Combat Activity System initialized: {_combatConfig.activityName}");
+                _isInitialized = true;
             }
-
-            // Create combat activity implementation
-            _combatActivity = new CombatActivity(_combatConfig);
-
-            Debug.Log($"Combat Activity System initialized: {_combatConfig.activityName}");
-            _isInitialized = true;
         }
 
         protected override void OnStartRunning()
@@ -69,37 +81,45 @@ namespace Laboratory.Chimera.Activities.Combat
 
         /// <summary>
         /// Creates a combat activity request entity
+        /// Performance: O(1) entity creation with minimal allocations
         /// </summary>
         public Entity CreateCombatRequest(Entity monsterEntity, ActivityDifficulty difficulty)
         {
-            var requestEntity = EntityManager.CreateEntity();
-
-            EntityManager.AddComponentData(requestEntity, new StartActivityRequest
+            using (s_CreateRequestMarker.Auto())
             {
-                monsterEntity = monsterEntity,
-                activityType = ActivityType.Combat,
-                difficulty = difficulty,
-                requestTime = (float)SystemAPI.Time.ElapsedTime
-            });
+                var requestEntity = EntityManager.CreateEntity();
 
-            Debug.Log($"Created combat request for monster {monsterEntity.Index} at difficulty {difficulty}");
+                EntityManager.AddComponentData(requestEntity, new StartActivityRequest
+                {
+                    monsterEntity = monsterEntity,
+                    activityType = ActivityType.Combat,
+                    difficulty = difficulty,
+                    requestTime = (float)SystemAPI.Time.ElapsedTime
+                });
 
-            return requestEntity;
+                Debug.Log($"Created combat request for monster {monsterEntity.Index} at difficulty {difficulty}");
+
+                return requestEntity;
+            }
         }
 
         /// <summary>
         /// Creates a tournament request (multi-round combat)
+        /// Performance: Delegates to CreateCombatRequest for efficient request creation
         /// </summary>
         public Entity CreateTournamentRequest(Entity monsterEntity, ActivityDifficulty difficulty)
         {
-            if (!_combatConfig.enableTournaments)
+            using (s_CreateTournamentMarker.Auto())
             {
-                Debug.LogWarning("Tournaments are disabled in config");
-                return Entity.Null;
-            }
+                if (!_combatConfig.enableTournaments)
+                {
+                    Debug.LogWarning("Tournaments are disabled in config");
+                    return Entity.Null;
+                }
 
-            // Create standard combat request (tournament logic handled separately)
-            return CreateCombatRequest(monsterEntity, difficulty);
+                // Create standard combat request (tournament logic handled separately)
+                return CreateCombatRequest(monsterEntity, difficulty);
+            }
         }
     }
 }

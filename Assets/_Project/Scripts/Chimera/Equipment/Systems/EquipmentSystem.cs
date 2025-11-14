@@ -17,6 +17,9 @@ namespace Laboratory.Chimera.Equipment
     {
         private Dictionary<int, EquipmentConfig> _equipmentDatabase;
 
+        // Entity command buffer system for optimized deferred operations
+        private EndSimulationEntityCommandBufferSystem _endSimulationECBSystem;
+
         private static readonly ProfilerMarker s_ProcessEquipRequestsMarker =
             new ProfilerMarker("Equipment.ProcessEquipRequests");
         private static readonly ProfilerMarker s_UpdateBonusCacheMarker =
@@ -27,6 +30,9 @@ namespace Laboratory.Chimera.Equipment
         protected override void OnCreate()
         {
             _equipmentDatabase = new Dictionary<int, EquipmentConfig>();
+
+            // Get entity command buffer system for optimized deferred operations
+            _endSimulationECBSystem = World.GetOrCreateSystemManaged<EndSimulationEntityCommandBufferSystem>();
 
             // Load all equipment configurations
             LoadEquipmentDatabase();
@@ -108,10 +114,11 @@ namespace Laboratory.Chimera.Equipment
 
         /// <summary>
         /// Processes requests to equip items
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void ProcessEquipRequests(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             foreach (var (request, entity) in
                 SystemAPI.Query<RefRO<EquipItemRequest>>().WithEntityAccess())
@@ -172,16 +179,16 @@ namespace Laboratory.Chimera.Equipment
                 ecb.DestroyEntity(entity);
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>
         /// Processes requests to unequip items
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void ProcessUnequipRequests(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             foreach (var (request, entity) in
                 SystemAPI.Query<RefRO<UnequipItemRequest>>().WithEntityAccess())
@@ -203,16 +210,16 @@ namespace Laboratory.Chimera.Equipment
                 ecb.DestroyEntity(entity);
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>
         /// Processes inventory add/remove requests
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void ProcessInventoryRequests(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             // Process add requests
             foreach (var (request, entity) in
@@ -295,8 +302,7 @@ namespace Laboratory.Chimera.Equipment
                 ecb.DestroyEntity(entity);
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>
@@ -318,10 +324,11 @@ namespace Laboratory.Chimera.Equipment
         /// <summary>
         /// Updates durability for equipped items after activity completion
         /// Called when activities complete to reduce durability
+        /// Uses EntityCommandBufferSystem for optimized structural changes
         /// </summary>
         private void UpdateDurability(float currentTime)
         {
-            var ecb = new EntityCommandBuffer(Allocator.Temp);
+            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
 
             // Check for completed activities and reduce durability
             foreach (var (result, equippedItems, entity) in
@@ -344,8 +351,7 @@ namespace Laboratory.Chimera.Equipment
                 }
             }
 
-            ecb.Playback(EntityManager);
-            ecb.Dispose();
+            // ECB will be automatically played back by EndSimulationEntityCommandBufferSystem
         }
 
         /// <summary>
