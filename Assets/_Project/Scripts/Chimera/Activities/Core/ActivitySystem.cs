@@ -223,8 +223,23 @@ namespace Laboratory.Chimera.Activities
                 currency.ValueRW.coins += result.ValueRO.coinsEarned;
                 currency.ValueRW.activityTokens += result.ValueRO.tokensEarned;
 
+                // Award experience via ProgressionSystem
+                if (result.ValueRO.experienceGained > 0)
+                {
+                    var expRequest = EntityManager.CreateEntity();
+                    ecb.AddComponent(expRequest, new Laboratory.Chimera.Progression.AwardExperienceRequest
+                    {
+                        targetEntity = entity,
+                        experienceAmount = result.ValueRO.experienceGained,
+                        requestTime = (float)SystemAPI.Time.ElapsedTime
+                    });
+                }
+
                 // Update activity progress
                 UpdateActivityProgress(progressBuffer, result.ValueRO);
+
+                // Update daily challenge progress
+                UpdateDailyChallengeProgress(entity, result.ValueRO.activityType);
 
                 // Remove active activity component
                 if (EntityManager.HasComponent<ActiveActivityComponent>(entity))
@@ -495,6 +510,19 @@ namespace Laboratory.Chimera.Activities
         {
             _activityImplementations[type] = implementation;
             Debug.Log($"Registered activity implementation: {type}");
+        }
+
+        /// <summary>
+        /// Updates daily challenge progress when activity completes
+        /// </summary>
+        private void UpdateDailyChallengeProgress(Entity entity, ActivityType activityType)
+        {
+            // Get ProgressionSystem and update challenges
+            var progressionSystem = World.GetExistingSystemManaged<Laboratory.Chimera.Progression.ProgressionSystem>();
+            if (progressionSystem != null)
+            {
+                progressionSystem.UpdateChallengeProgress(entity, activityType);
+            }
         }
     }
 }

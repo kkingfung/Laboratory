@@ -316,12 +316,69 @@ namespace Laboratory.Chimera.Equipment
         }
 
         /// <summary>
-        /// Updates durability for equipped items
+        /// Updates durability for equipped items after activity completion
+        /// Called when activities complete to reduce durability
         /// </summary>
         private void UpdateDurability(float currentTime)
         {
-            // Durability updates happen on activity completion
-            // This is a placeholder for future per-frame durability degradation
+            var ecb = new EntityCommandBuffer(Allocator.Temp);
+
+            // Check for completed activities and reduce durability
+            foreach (var (result, equippedItems, entity) in
+                SystemAPI.Query<RefRO<ActivityResultComponent>, RefRO<EquippedItemsComponent>>()
+                .WithEntityAccess())
+            {
+                // Durability loss only for consumables and items with durability
+                if (EntityManager.HasBuffer<EquipmentInventoryElement>(entity))
+                {
+                    var inventory = EntityManager.GetBuffer<EquipmentInventoryElement>(entity);
+
+                    // Reduce durability for all equipped items
+                    ReduceEquippedItemDurability(inventory, equippedItems.ValueRO.headSlotItemId, 1);
+                    ReduceEquippedItemDurability(inventory, equippedItems.ValueRO.bodySlotItemId, 1);
+                    ReduceEquippedItemDurability(inventory, equippedItems.ValueRO.handsSlotItemId, 1);
+                    ReduceEquippedItemDurability(inventory, equippedItems.ValueRO.feetSlotItemId, 1);
+                    ReduceEquippedItemDurability(inventory, equippedItems.ValueRO.accessory1SlotItemId, 1);
+                    ReduceEquippedItemDurability(inventory, equippedItems.ValueRO.accessory2SlotItemId, 1);
+                    ReduceEquippedItemDurability(inventory, equippedItems.ValueRO.toolSlotItemId, 1);
+                }
+            }
+
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
+        }
+
+        /// <summary>
+        /// Reduces durability for a specific equipped item
+        /// </summary>
+        private void ReduceEquippedItemDurability(DynamicBuffer<EquipmentInventoryElement> inventory, int itemId, int amount)
+        {
+            if (itemId == 0) return;
+
+            for (int i = 0; i < inventory.Length; i++)
+            {
+                if (inventory[i].item.itemId == itemId && inventory[i].item.isEquipped)
+                {
+                    var item = inventory[i].item;
+
+                    // Only reduce durability if item has durability system
+                    if (item.maxDurability > 0)
+                    {
+                        item.currentDurability = Mathf.Max(0, item.currentDurability - amount);
+
+                        // If durability reaches 0, item breaks
+                        if (item.currentDurability <= 0)
+                        {
+                            Debug.LogWarning($"Equipment {item.itemName} broke due to durability loss!");
+                            // Item remains in inventory but loses bonuses until repaired
+                            // Could trigger auto-unequip here if desired
+                        }
+
+                        inventory[i] = new EquipmentInventoryElement { item = item };
+                    }
+                    break;
+                }
+            }
         }
 
         /// <summary>

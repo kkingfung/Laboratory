@@ -312,10 +312,72 @@ namespace Laboratory.Chimera.Progression
                     continue;
                 }
 
-                // TODO: Implement skill tree logic
-                // For now, just consume the request
+                // Check if monster has level component
+                if (!EntityManager.HasComponent<MonsterLevelComponent>(targetEntity))
+                {
+                    Debug.LogWarning($"Cannot unlock skill - monster has no level component");
+                    ecb.DestroyEntity(entity);
+                    continue;
+                }
 
-                Debug.Log($"Skill unlock request for skill {skillId}");
+                var levelData = EntityManager.GetComponentData<MonsterLevelComponent>(targetEntity);
+
+                // Skills cost 1 point per rank
+                int skillCost = 1;
+
+                if (levelData.skillPointsAvailable < skillCost)
+                {
+                    Debug.LogWarning($"Not enough skill points to unlock skill {skillId}");
+                    ecb.DestroyEntity(entity);
+                    continue;
+                }
+
+                // Ensure skill buffer exists
+                if (!EntityManager.HasBuffer<UnlockedSkillElement>(targetEntity))
+                {
+                    ecb.AddBuffer<UnlockedSkillElement>(targetEntity);
+                }
+
+                var skillBuffer = EntityManager.GetBuffer<UnlockedSkillElement>(targetEntity);
+
+                // Check if skill already unlocked (upgrade rank)
+                bool upgraded = false;
+                for (int i = 0; i < skillBuffer.Length; i++)
+                {
+                    if (skillBuffer[i].skill.skillId == skillId)
+                    {
+                        var skill = skillBuffer[i].skill;
+                        if (skill.currentRank < skill.maxRank)
+                        {
+                            skill.currentRank++;
+                            skillBuffer[i] = new UnlockedSkillElement { skill = skill };
+                            upgraded = true;
+                            Debug.Log($"Upgraded skill {skillId} to rank {skill.currentRank}");
+                        }
+                        break;
+                    }
+                }
+
+                // Unlock new skill if not upgraded
+                if (!upgraded)
+                {
+                    var newSkill = new SkillNode
+                    {
+                        skillId = skillId,
+                        skillName = $"Skill_{skillId}",
+                        currentRank = 1,
+                        maxRank = 5,
+                        isUnlocked = true,
+                        bonusPerRank = 0.02f
+                    };
+                    skillBuffer.Add(new UnlockedSkillElement { skill = newSkill });
+                    Debug.Log($"Unlocked new skill {skillId}");
+                }
+
+                // Deduct skill points
+                levelData.skillPointsAvailable -= skillCost;
+                levelData.skillPointsSpent += skillCost;
+                EntityManager.SetComponentData(targetEntity, levelData);
 
                 ecb.DestroyEntity(entity);
             }
@@ -325,12 +387,142 @@ namespace Laboratory.Chimera.Progression
         }
 
         /// <summary>
-        /// Updates daily challenge progress
+        /// Updates daily challenge progress and handles expiration/refresh
         /// </summary>
         private void UpdateDailyChallenges(float currentTime)
         {
-            // Daily challenges updated when activities complete
-            // This is a placeholder for challenge expiration/refresh logic
+            var ecb = new EntityCommandBuffer(Allocator.Temp);
+
+            // Update all entities with daily challenges
+            foreach (var (challengeBuffer, entity) in
+                SystemAPI.Query<DynamicBuffer<DailyChallengeElement>>().WithEntityAccess())
+            {
+                bool hasExpiredChallenges = false;
+
+                // Check each challenge for expiration
+                for (int i = challengeBuffer.Length - 1; i >= 0; i--)
+                {
+                    var challenge = challengeBuffer[i].challenge;
+
+                    // Check if challenge has expired
+                    if (challenge.expirationTime > 0 && currentTime >= challenge.expirationTime)
+                    {
+                        if (!challenge.isCompleted)
+                        {
+                            Debug.Log($"Daily challenge {challenge.challengeId} expired without completion");
+                        }
+
+                        // Remove expired challenge
+                        challengeBuffer.RemoveAt(i);
+                        hasExpiredChallenges = true;
+                    }
+                }
+
+                // Refresh challenges if expired or none exist
+                if (hasExpiredChallenges || challengeBuffer.Length == 0)
+                {
+                    RefreshDailyChallenges(entity, challengeBuffer, currentTime, ecb);
+                }
+            }
+
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
+        }
+
+        /// <summary>
+        /// Refreshes daily challenges for an entity
+        /// </summary>
+        private void RefreshDailyChallenges(Entity entity, DynamicBuffer<DailyChallengeElement> challengeBuffer, float currentTime, EntityCommandBuffer ecb)
+        {
+            // Generate new daily challenges (24 hour expiration)
+            float expirationTime = currentTime + (24f * 3600f); // 24 hours
+
+            // Clear existing challenges
+            challengeBuffer.Clear();
+
+            // Create new challenges (simplified - would pull from challenge pool in full implementation)
+            for (int i = 0; i < _config.dailyChallengesCount; i++)
+            {
+                var newChallenge = new DailyChallenge
+                {
+                    challengeId = UnityEngine.Random.Range(1000, 9999),
+                    description = $"Complete {3 + i} activities",
+                    targetActivity = (ActivityType)(i % 3 + 1), // Rotate through Racing, Combat, Puzzle
+                    targetCount = 3 + i,
+                    currentProgress = 0,
+                    isCompleted = false,
+                    rewardCoins = _config.dailyChallengeCoins,
+                    rewardTokens = _config.dailyChallengeTokens,
+                    rewardExperience = _config.dailyChallengeExperience,
+                    expirationTime = expirationTime
+                };
+
+                challengeBuffer.Add(new DailyChallengeElement { challenge = newChallenge });
+            }
+
+            Debug.Log($"Refreshed {_config.dailyChallengesCount} daily challenges for entity {entity.Index}");
+        }
+
+        /// <summary>
+        /// Updates daily challenge progress when activity completes
+        /// </summary>
+        public void UpdateChallengeProgress(Entity entity, ActivityType activityType)
+        {
+            if (!EntityManager.HasBuffer<DailyChallengeElement>(entity))
+                return;
+
+            var challengeBuffer = EntityManager.GetBuffer<DailyChallengeElement>(entity);
+            bool challengeCompleted = false;
+
+            for (int i = 0; i < challengeBuffer.Length; i++)
+            {
+                var challenge = challengeBuffer[i].challenge;
+
+                // Check if this challenge matches the activity
+                if (!challenge.isCompleted &&
+                    (challenge.targetActivity == activityType || challenge.targetActivity == ActivityType.None))
+                {
+                    challenge.currentProgress++;
+
+                    // Check if challenge is now complete
+                    if (challenge.currentProgress >= challenge.targetCount)
+                    {
+                        challenge.isCompleted = true;
+                        challengeCompleted = true;
+
+                        // Award challenge rewards
+                        var coinRequest = EntityManager.CreateEntity();
+                        EntityManager.AddComponentData(coinRequest, new AwardCurrencyRequest
+                        {
+                            targetEntity = entity,
+                            currencyType = CurrencyType.Coins,
+                            amount = challenge.rewardCoins,
+                            requestTime = (float)SystemAPI.Time.ElapsedTime
+                        });
+
+                        var tokenRequest = EntityManager.CreateEntity();
+                        EntityManager.AddComponentData(tokenRequest, new AwardCurrencyRequest
+                        {
+                            targetEntity = entity,
+                            currencyType = CurrencyType.ActivityTokens,
+                            amount = challenge.rewardTokens,
+                            requestTime = (float)SystemAPI.Time.ElapsedTime
+                        });
+
+                        var expRequest = EntityManager.CreateEntity();
+                        EntityManager.AddComponentData(expRequest, new AwardExperienceRequest
+                        {
+                            targetEntity = entity,
+                            experienceAmount = challenge.rewardExperience,
+                            requestTime = (float)SystemAPI.Time.ElapsedTime
+                        });
+
+                        Debug.Log($"Daily challenge completed! Rewards: {challenge.rewardCoins} coins, {challenge.rewardTokens} tokens, {challenge.rewardExperience} XP");
+                    }
+
+                    challengeBuffer[i] = new DailyChallengeElement { challenge = challenge };
+                }
+            }
         }
 
         /// <summary>
