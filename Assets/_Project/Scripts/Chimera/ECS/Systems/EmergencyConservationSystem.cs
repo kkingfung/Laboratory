@@ -139,7 +139,7 @@ namespace Laboratory.Chimera.ECS
                     populationData.populationTrend < 0f &&
                     !HasActiveEmergency(populationData.speciesId, EmergencyType.PopulationCollapse))
                 {
-                    var emergency = _creationService.CreatePopulationEmergency(populationData, currentTime);
+                    var emergency = EmergencyCreationService.CreatePopulationEmergency(_config, populationData, currentTime);
                     AddEmergency(emergency);
                 }
 
@@ -148,7 +148,7 @@ namespace Laboratory.Chimera.ECS
                     populationData.breedingAge > _config.breedingAgeThreshold &&
                     !HasActiveEmergency(populationData.speciesId, EmergencyType.BreedingFailure))
                 {
-                    var emergency = _creationService.CreateBreedingEmergency(populationData, currentTime);
+                    var emergency = EmergencyCreationService.CreateBreedingEmergency(_config, populationData, currentTime);
                     AddEmergency(emergency);
                 }
 
@@ -176,7 +176,7 @@ namespace Laboratory.Chimera.ECS
                     health.ValueRO.healthTrend < 0f &&
                     !HasActiveEmergency(ecosystemData.ValueRO.ecosystemId, EmergencyType.EcosystemCollapse))
                 {
-                    var emergency = _creationService.CreateEcosystemEmergency(ecosystemData.ValueRO, health.ValueRO, currentTime);
+                    var emergency = EmergencyCreationService.CreateEcosystemEmergency(_config, ecosystemData.ValueRO, health.ValueRO, currentTime);
                     AddEmergency(emergency);
                 }
 
@@ -184,7 +184,7 @@ namespace Laboratory.Chimera.ECS
                 if (health.ValueRO.foodWebStability < _config.foodWebStabilityThreshold &&
                     !HasActiveEmergency(ecosystemData.ValueRO.ecosystemId, EmergencyType.FoodWebDisruption))
                 {
-                    var emergency = _creationService.CreateFoodWebEmergency(ecosystemData.ValueRO, health.ValueRO, currentTime);
+                    var emergency = EmergencyCreationService.CreateFoodWebEmergency(_config, ecosystemData.ValueRO, health.ValueRO, currentTime);
                     AddEmergency(emergency);
                 }
 
@@ -192,7 +192,7 @@ namespace Laboratory.Chimera.ECS
                 if (health.ValueRO.habitatConnectivity < _config.habitatConnectivityThreshold &&
                     !HasActiveEmergency(ecosystemData.ValueRO.ecosystemId, EmergencyType.HabitatFragmentation))
                 {
-                    var emergency = _creationService.CreateHabitatFragmentationEmergency(ecosystemData.ValueRO, health.ValueRO, currentTime);
+                    var emergency = EmergencyCreationService.CreateHabitatFragmentationEmergency(_config, ecosystemData.ValueRO, health.ValueRO, currentTime);
                     AddEmergency(emergency);
                 }
             }
@@ -210,7 +210,7 @@ namespace Laboratory.Chimera.ECS
                 if (geneticDiversity < _config.geneticDiversityThreshold &&
                     !HasActiveEmergency(populationData.speciesId, EmergencyType.GeneticBottleneck))
                 {
-                    var emergency = _creationService.CreateGeneticEmergency(populationData, geneticDiversity, currentTime);
+                    var emergency = EmergencyCreationService.CreateGeneticEmergency(_config, populationData, geneticDiversity, currentTime);
                     AddEmergency(emergency);
                 }
             }).WithoutBurst().Run();
@@ -226,7 +226,7 @@ namespace Laboratory.Chimera.ECS
                 if (ecosystemData.habitatLossRate > _config.habitatLossRateThreshold &&
                     !HasActiveEmergency(ecosystemData.ecosystemId, EmergencyType.HabitatDestruction))
                 {
-                    var emergency = _creationService.CreateHabitatDestructionEmergency(ecosystemData, currentTime);
+                    var emergency = EmergencyCreationService.CreateHabitatDestructionEmergency(_config, ecosystemData, currentTime);
                     AddEmergency(emergency);
                 }
             }).WithoutBurst().Run();
@@ -241,7 +241,7 @@ namespace Laboratory.Chimera.ECS
                 if (populationData.diseasePrevalence > _config.diseaseOutbreakThreshold &&
                     !HasActiveEmergency(populationData.speciesId, EmergencyType.DiseaseOutbreak))
                 {
-                    var emergency = _creationService.CreateDiseaseEmergency(populationData, currentTime);
+                    var emergency = EmergencyCreationService.CreateDiseaseEmergency(_config, populationData, currentTime);
                     AddEmergency(emergency);
                 }
             }).WithoutBurst().Run();
@@ -257,7 +257,7 @@ namespace Laboratory.Chimera.ECS
                 if (ecosystemData.climateStressLevel > _config.climateStressThreshold &&
                     !HasActiveEmergency(ecosystemData.ecosystemId, EmergencyType.ClimateChange))
                 {
-                    var emergency = _creationService.CreateClimateEmergency(ecosystemData, currentTime);
+                    var emergency = EmergencyCreationService.CreateClimateEmergency(_config, ecosystemData, currentTime);
                     AddEmergency(emergency);
                 }
             }).WithoutBurst().Run();
@@ -273,15 +273,15 @@ namespace Laboratory.Chimera.ECS
                 emergency.timeRemaining -= deltaTime;
 
                 // Check if emergency should escalate
-                if (_resolutionService.ShouldEscalate(emergency))
+                if (EmergencyResolutionService.ShouldEscalate(emergency))
                 {
-                    var (updatedEmergency, crisis) = _resolutionService.EscalateEmergency(emergency, currentTime);
+                    var (updatedEmergency, crisis) = EmergencyResolutionService.EscalateEmergency(emergency, currentTime);
                     emergency = updatedEmergency;
                     OnCrisisEscalated?.Invoke(crisis);
                 }
 
                 // Check if emergency is resolved or expired
-                if (emergency.timeRemaining <= 0f || _resolutionService.IsEmergencyResolved(emergency))
+                if (emergency.timeRemaining <= 0f || EmergencyResolutionService.IsEmergencyResolved(emergency))
                 {
                     ResolveEmergency(emergency, currentTime);
                     _activeEmergencies.RemoveAt(i);
@@ -298,10 +298,10 @@ namespace Laboratory.Chimera.ECS
             foreach (var kvp in _playerResponses.ToList())
             {
                 var playerId = kvp.Key;
-                var response = _responseService.UpdateResponse(kvp.Value, deltaTime);
+                var response = PlayerResponseService.UpdateResponse(_config, kvp.Value, deltaTime);
 
                 // Check for response completion
-                if (_responseService.IsResponseComplete(response))
+                if (PlayerResponseService.IsResponseComplete(response))
                 {
                     CompletePlayerResponse(playerId, response);
                     _playerResponses.Remove(playerId);
@@ -344,7 +344,7 @@ namespace Laboratory.Chimera.ECS
                     populationData.currentPopulation > _config.recoveryPopulationThreshold &&
                     populationData.populationTrend > 0f)
                 {
-                    var success = _resolutionService.CreateConservationSuccess(populationData, currentTime);
+                    var success = EmergencyResolutionService.CreateConservationSuccess(populationData, currentTime);
                     OnConservationSuccess?.Invoke(success);
                     populationData.wasEndangered = false;
                 }
@@ -504,13 +504,13 @@ namespace Laboratory.Chimera.ECS
         private void ResolveEmergency(ConservationEmergency emergency, float currentTime)
         {
             var playerContributions = GetPlayerContributionsForEmergency(emergency.emergencyId);
-            var outcome = _resolutionService.CreateOutcome(emergency, playerContributions, currentTime);
+            var outcome = EmergencyResolutionService.CreateOutcome(emergency, playerContributions, currentTime);
 
             OnEmergencyResolved?.Invoke(emergency, outcome);
 
             if (outcome.isSuccessful)
             {
-                var success = _resolutionService.CreateConservationSuccessFromEmergency(emergency, currentTime);
+                var success = EmergencyResolutionService.CreateConservationSuccessFromEmergency(emergency, currentTime);
                 OnConservationSuccess?.Invoke(success);
             }
         }
@@ -533,7 +533,7 @@ namespace Laboratory.Chimera.ECS
             {
                 _emergencyPlayerContributions[response.emergencyId] = new Dictionary<int, float>();
             }
-            _emergencyPlayerContributions[response.emergencyId] = _responseService.UpdatePlayerContributions(
+            _emergencyPlayerContributions[response.emergencyId] = PlayerResponseService.UpdatePlayerContributions(
                 _emergencyPlayerContributions[response.emergencyId], response);
 
             // Apply response effects to emergency
@@ -541,7 +541,7 @@ namespace Laboratory.Chimera.ECS
             {
                 if (_activeEmergencies[i].emergencyId == response.emergencyId)
                 {
-                    var updatedEmergency = _responseService.ApplyResponseToEmergency(_activeEmergencies[i], response);
+                    var updatedEmergency = PlayerResponseService.ApplyResponseToEmergency(_activeEmergencies[i], response);
                     _activeEmergencies[i] = updatedEmergency;
                     break;
                 }
@@ -647,20 +647,20 @@ namespace Laboratory.Chimera.ECS
                 return;
             }
 
-            if (!_responseService.CanRespondToEmergency(emergency, actionType))
+            if (!PlayerResponseService.CanRespondToEmergency(emergency, actionType))
             {
                 UnityEngine.Debug.LogWarning($"Action type {actionType} is not valid for emergency {emergencyId}");
                 return;
             }
 
-            if (!_responseService.IsValidResourceCommitment(resourceCommitment))
+            if (!PlayerResponseService.IsValidResourceCommitment(_config, resourceCommitment))
             {
                 UnityEngine.Debug.LogWarning($"Invalid resource commitment: {resourceCommitment}");
                 return;
             }
 
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
-            var response = _responseService.CreateResponse(playerId, emergencyId, actionType, resourceCommitment, currentTime);
+            var response = PlayerResponseService.CreateResponse(_config, playerId, emergencyId, actionType, resourceCommitment, currentTime);
 
             _playerResponses[playerId] = response;
             UnityEngine.Debug.Log($"Player {playerId} started response to emergency {emergencyId}");

@@ -7,23 +7,17 @@ using Laboratory.Chimera.Ecosystem;
 namespace Laboratory.Chimera.ECS.Services
 {
     /// <summary>
-    /// Service responsible for emergency resolution logic and requirement checking.
+    /// Static utility service for emergency resolution logic and requirement checking.
     /// Determines when emergencies are resolved and handles escalation.
-    /// Extracted from EmergencyConservationSystem to improve maintainability.
+    /// Converted to static for zero-allocation performance optimization.
     /// </summary>
-    public class EmergencyResolutionService
+    public static class EmergencyResolutionService
     {
-        private readonly EmergencyConservationConfig _config;
-
-        public EmergencyResolutionService(EmergencyConservationConfig config)
-        {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-        }
 
         /// <summary>
         /// Checks if an emergency has been resolved
         /// </summary>
-        public bool IsEmergencyResolved(ConservationEmergency emergency)
+        public static bool IsEmergencyResolved(ConservationEmergency emergency)
         {
             return CheckSuccessRequirementTypes(emergency);
         }
@@ -31,7 +25,7 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Checks if an emergency should escalate to crisis level
         /// </summary>
-        public bool ShouldEscalate(ConservationEmergency emergency)
+        public static bool ShouldEscalate(ConservationEmergency emergency)
         {
             return emergency.timeRemaining < emergency.originalDuration * 0.3f &&
                    emergency.severity >= EmergencySeverity.Severe &&
@@ -41,7 +35,7 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Escalates an emergency to crisis level
         /// </summary>
-        public (ConservationEmergency updatedEmergency, ConservationCrisis crisis) EscalateEmergency(
+        public static (ConservationEmergency updatedEmergency, ConservationCrisis crisis) EscalateEmergency(
             ConservationEmergency emergency,
             float currentTime)
         {
@@ -64,7 +58,7 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Creates emergency outcome from resolution
         /// </summary>
-        public EmergencyOutcome CreateOutcome(
+        public static EmergencyOutcome CreateOutcome(
             ConservationEmergency emergency,
             Dictionary<int, float> playerContributions,
             float currentTime)
@@ -82,7 +76,7 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Creates conservation success from resolved emergency
         /// </summary>
-        public ConservationSuccess CreateConservationSuccessFromEmergency(
+        public static ConservationSuccess CreateConservationSuccessFromEmergency(
             ConservationEmergency emergency,
             float currentTime)
         {
@@ -99,7 +93,7 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Creates conservation success from species recovery
         /// </summary>
-        public ConservationSuccess CreateConservationSuccess(
+        public static ConservationSuccess CreateConservationSuccess(
             SpeciesPopulationData populationData,
             float currentTime)
         {
@@ -118,7 +112,7 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Checks if specific requirement has been met
         /// </summary>
-        public bool IsRequirementTypeMet(RequirementType requirement, ConservationEmergency emergency)
+        public static bool IsRequirementTypeMet(RequirementType requirement, ConservationEmergency emergency)
         {
             switch (requirement)
             {
@@ -141,7 +135,7 @@ namespace Laboratory.Chimera.ECS.Services
 
         #region Private Helper Methods
 
-        private bool CheckSuccessRequirementTypes(ConservationEmergency emergency)
+        private static bool CheckSuccessRequirementTypes(ConservationEmergency emergency)
         {
             foreach (var requirement in emergency.successRequirementTypes)
             {
@@ -151,37 +145,37 @@ namespace Laboratory.Chimera.ECS.Services
             return true;
         }
 
-        private bool CheckPopulationRequirement(ConservationEmergency emergency)
+        private static bool CheckPopulationRequirement(ConservationEmergency emergency)
         {
             return false;
         }
 
-        private bool CheckReproductiveRequirement(ConservationEmergency emergency)
+        private static bool CheckReproductiveRequirement(ConservationEmergency emergency)
         {
             return false;
         }
 
-        private bool CheckHabitatRequirement(ConservationEmergency emergency)
+        private static bool CheckHabitatRequirement(ConservationEmergency emergency)
         {
             return false;
         }
 
-        private bool CheckHabitatQualityRequirement(ConservationEmergency emergency)
+        private static bool CheckHabitatQualityRequirement(ConservationEmergency emergency)
         {
             return false;
         }
 
-        private bool CheckEcosystemHealthRequirement(ConservationEmergency emergency)
+        private static bool CheckEcosystemHealthRequirement(ConservationEmergency emergency)
         {
             return false;
         }
 
-        private bool CheckJuvenileSurvivalRequirement(ConservationEmergency emergency)
+        private static bool CheckJuvenileSurvivalRequirement(ConservationEmergency emergency)
         {
             return false;
         }
 
-        private EmergencyStatus GetFinalStatus(ConservationEmergency emergency)
+        private static EmergencyStatus GetFinalStatus(ConservationEmergency emergency)
         {
             if (IsEmergencyResolved(emergency))
                 return EmergencyStatus.Resolved;
@@ -190,7 +184,7 @@ namespace Laboratory.Chimera.ECS.Services
             return EmergencyStatus.TimeExpired;
         }
 
-        private FixedList32Bytes<RequirementType> GetEscalatedRequirementTypes(ConservationEmergency emergency)
+        private static FixedList32Bytes<RequirementType> GetEscalatedRequirementTypes(ConservationEmergency emergency)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.PopulationTarget);
@@ -199,7 +193,7 @@ namespace Laboratory.Chimera.ECS.Services
             return requirementTypes;
         }
 
-        private ConservationSuccessType GetSuccessTypeFromEmergency(EmergencyType emergencyType)
+        private static ConservationSuccessType GetSuccessTypeFromEmergency(EmergencyType emergencyType)
         {
             switch (emergencyType)
             {
@@ -218,12 +212,12 @@ namespace Laboratory.Chimera.ECS.Services
             }
         }
 
-        private float CalculateRecoveryTime(SpeciesPopulationData populationData, float currentTime)
+        private static float CalculateRecoveryTime(SpeciesPopulationData populationData, float currentTime)
         {
             return currentTime - populationData.endangeredSince;
         }
 
-        private string[] GetRecoveryFactors()
+        private static string[] GetRecoveryFactors()
         {
             return new[]
             {
@@ -234,7 +228,7 @@ namespace Laboratory.Chimera.ECS.Services
             };
         }
 
-        private string[] GetEmergencySuccessFactors(ConservationEmergency emergency)
+        private static string[] GetEmergencySuccessFactors(ConservationEmergency emergency)
         {
             return new[]
             {
@@ -245,7 +239,7 @@ namespace Laboratory.Chimera.ECS.Services
             };
         }
 
-        private FixedList128Bytes<PlayerContribution> ConvertPlayerContributionsToFixedList(Dictionary<int, float> contributions)
+        private static FixedList128Bytes<PlayerContribution> ConvertPlayerContributionsToFixedList(Dictionary<int, float> contributions)
         {
             var fixedList = new FixedList128Bytes<PlayerContribution>();
             foreach (var kvp in contributions)
@@ -258,7 +252,7 @@ namespace Laboratory.Chimera.ECS.Services
             return fixedList;
         }
 
-        private FixedList64Bytes<FixedString128Bytes> ConvertStringArrayToFixedList128(string[] strings)
+        private static FixedList64Bytes<FixedString128Bytes> ConvertStringArrayToFixedList128(string[] strings)
         {
             var fixedList = new FixedList64Bytes<FixedString128Bytes>();
             if (strings != null)

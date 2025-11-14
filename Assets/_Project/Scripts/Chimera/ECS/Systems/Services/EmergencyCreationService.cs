@@ -7,49 +7,37 @@ using Laboratory.Chimera.Genetics;
 namespace Laboratory.Chimera.ECS.Services
 {
     /// <summary>
-    /// Service responsible for creating emergency objects across different emergency types.
+    /// Static utility service for creating emergency objects across different emergency types.
     /// Provides factory methods for constructing ConservationEmergency instances.
-    /// Extracted from EmergencyConservationSystem to improve maintainability.
+    /// Converted to static for zero-allocation performance optimization.
     /// </summary>
-    public class EmergencyCreationService
+    public static class EmergencyCreationService
     {
-        private readonly EmergencyConservationConfig _config;
-        private readonly SeverityCalculationService _severityService;
-        private readonly UrgencyCalculationService _urgencyService;
-        private readonly DescriptionGenerationService _descriptionService;
-
-        public EmergencyCreationService(
-            EmergencyConservationConfig config,
-            SeverityCalculationService severityService,
-            UrgencyCalculationService urgencyService,
-            DescriptionGenerationService descriptionService)
-        {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-            _severityService = severityService ?? throw new ArgumentNullException(nameof(severityService));
-            _urgencyService = urgencyService ?? throw new ArgumentNullException(nameof(urgencyService));
-            _descriptionService = descriptionService ?? throw new ArgumentNullException(nameof(descriptionService));
-        }
 
         /// <summary>
         /// Creates a population collapse emergency
         /// </summary>
-        public ConservationEmergency CreatePopulationEmergency(SpeciesPopulationData populationData, float currentTime)
+        public static ConservationEmergency CreatePopulationEmergency(
+            EmergencyConservationConfig config,
+            SpeciesPopulationData populationData,
+            float currentTime)
         {
-            var (description, consequences) = _descriptionService.GeneratePopulationDescription(populationData);
+            string description = DescriptionGenerationService.GeneratePopulationDescription(populationData);
+            string[] consequences = DescriptionGenerationService.GetPopulationConsequences(populationData);
 
             return new ConservationEmergency
             {
                 emergencyId = GenerateEmergencyId(),
                 type = EmergencyType.PopulationCollapse,
-                severity = _severityService.CalculatePopulationSeverity(populationData),
+                severity = SeverityCalculationService.CalculatePopulationSeverity(config, populationData),
                 affectedSpeciesId = populationData.speciesId,
                 affectedEcosystemId = populationData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.PopulationCollapse),
-                originalDuration = _config.GetEmergencyDuration(EmergencyType.PopulationCollapse),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.PopulationCollapse),
+                timeRemaining = config.GetEmergencyDuration(EmergencyType.PopulationCollapse),
+                originalDuration = config.GetEmergencyDuration(EmergencyType.PopulationCollapse),
+                requiredActionTypes = GetRequiredActionTypes(config, EmergencyType.PopulationCollapse),
                 title = $"Critical Population Decline: {populationData.speciesName}",
                 description = description,
-                urgencyLevel = _urgencyService.CalculatePopulationUrgency(populationData),
+                urgencyLevel = UrgencyCalculationService.CalculatePopulationUrgency(config, populationData),
                 potentialConsequences = ConvertStringArrayToFixedList(consequences),
                 successRequirementTypes = GetPopulationSuccessRequirementTypes(),
                 declaredAt = currentTime,
@@ -60,23 +48,27 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Creates a breeding failure emergency
         /// </summary>
-        public ConservationEmergency CreateBreedingEmergency(SpeciesPopulationData populationData, float currentTime)
+        public static ConservationEmergency CreateBreedingEmergency(
+            EmergencyConservationConfig config,
+            SpeciesPopulationData populationData,
+            float currentTime)
         {
-            var (description, consequences) = _descriptionService.GenerateBreedingDescription(populationData);
+            string description = DescriptionGenerationService.GenerateBreedingDescription(populationData);
+            string[] consequences = DescriptionGenerationService.GetBreedingConsequences(populationData);
 
             return new ConservationEmergency
             {
                 emergencyId = GenerateEmergencyId(),
                 type = EmergencyType.BreedingFailure,
-                severity = _severityService.CalculateBreedingSeverity(populationData),
+                severity = SeverityCalculationService.CalculateBreedingSeverity(config, populationData),
                 affectedSpeciesId = populationData.speciesId,
                 affectedEcosystemId = populationData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.BreedingFailure),
-                originalDuration = _config.GetEmergencyDuration(EmergencyType.BreedingFailure),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.BreedingFailure),
+                timeRemaining = config.GetEmergencyDuration(EmergencyType.BreedingFailure),
+                originalDuration = config.GetEmergencyDuration(EmergencyType.BreedingFailure),
+                requiredActionTypes = GetRequiredActionTypes(config, EmergencyType.BreedingFailure),
                 title = $"Breeding Crisis: {populationData.speciesName}",
                 description = description,
-                urgencyLevel = _urgencyService.CalculateBreedingUrgency(populationData),
+                urgencyLevel = UrgencyCalculationService.CalculateBreedingUrgency(config, populationData),
                 potentialConsequences = ConvertStringArrayToFixedList(consequences),
                 successRequirementTypes = GetBreedingSuccessRequirementTypes(),
                 declaredAt = currentTime,
@@ -87,23 +79,27 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Creates a juvenile mortality emergency
         /// </summary>
-        public ConservationEmergency CreateJuvenileEmergency(SpeciesPopulationData populationData, float currentTime)
+        public static ConservationEmergency CreateJuvenileEmergency(
+            EmergencyConservationConfig config,
+            SpeciesPopulationData populationData,
+            float currentTime)
         {
-            var (description, consequences) = _descriptionService.GenerateJuvenileDescription(populationData);
+            string description = DescriptionGenerationService.GenerateJuvenileDescription(populationData);
+            string[] consequences = DescriptionGenerationService.GetJuvenileConsequences(populationData);
 
             return new ConservationEmergency
             {
                 emergencyId = GenerateEmergencyId(),
                 type = EmergencyType.JuvenileMortality,
-                severity = _severityService.CalculateJuvenileSeverity(populationData),
+                severity = SeverityCalculationService.CalculateJuvenileSeverity(config, populationData),
                 affectedSpeciesId = populationData.speciesId,
                 affectedEcosystemId = populationData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.JuvenileMortality),
-                originalDuration = _config.GetEmergencyDuration(EmergencyType.JuvenileMortality),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.JuvenileMortality),
+                timeRemaining = config.GetEmergencyDuration(EmergencyType.JuvenileMortality),
+                originalDuration = config.GetEmergencyDuration(EmergencyType.JuvenileMortality),
+                requiredActionTypes = GetRequiredActionTypes(config, EmergencyType.JuvenileMortality),
                 title = $"Juvenile Mortality Crisis: {populationData.speciesName}",
                 description = description,
-                urgencyLevel = _urgencyService.CalculateJuvenileUrgency(populationData),
+                urgencyLevel = UrgencyCalculationService.CalculateJuvenileUrgency(populationData),
                 potentialConsequences = ConvertStringArrayToFixedList(consequences),
                 successRequirementTypes = GetJuvenileSuccessRequirementTypes(),
                 declaredAt = currentTime,
@@ -114,22 +110,27 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Creates an ecosystem collapse emergency
         /// </summary>
-        public ConservationEmergency CreateEcosystemEmergency(EcosystemData ecosystemData, EcosystemHealth health, float currentTime)
+        public static ConservationEmergency CreateEcosystemEmergency(
+            EmergencyConservationConfig config,
+            EcosystemData ecosystemData,
+            EcosystemHealth health,
+            float currentTime)
         {
-            var (description, consequences) = _descriptionService.GenerateEcosystemDescription(ecosystemData, health);
+            string description = DescriptionGenerationService.GenerateEcosystemDescription(ecosystemData, health);
+            string[] consequences = DescriptionGenerationService.GetEcosystemConsequences(ecosystemData, health);
 
             return new ConservationEmergency
             {
                 emergencyId = GenerateEmergencyId(),
                 type = EmergencyType.EcosystemCollapse,
-                severity = _severityService.CalculateEcosystemSeverity(health),
+                severity = SeverityCalculationService.CalculateEcosystemSeverity(config, health),
                 affectedEcosystemId = ecosystemData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.EcosystemCollapse),
-                originalDuration = _config.GetEmergencyDuration(EmergencyType.EcosystemCollapse),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.EcosystemCollapse),
+                timeRemaining = config.GetEmergencyDuration(EmergencyType.EcosystemCollapse),
+                originalDuration = config.GetEmergencyDuration(EmergencyType.EcosystemCollapse),
+                requiredActionTypes = GetRequiredActionTypes(config, EmergencyType.EcosystemCollapse),
                 title = $"Ecosystem Collapse Warning: {ecosystemData.ecosystemName}",
                 description = description,
-                urgencyLevel = _urgencyService.CalculateEcosystemUrgency(health),
+                urgencyLevel = UrgencyCalculationService.CalculateEcosystemUrgency(health),
                 potentialConsequences = ConvertStringArrayToFixedList(consequences),
                 successRequirementTypes = GetEcosystemSuccessRequirementTypes(),
                 declaredAt = currentTime,
@@ -140,23 +141,28 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Creates a genetic bottleneck emergency
         /// </summary>
-        public ConservationEmergency CreateGeneticEmergency(SpeciesPopulationData populationData, float diversity, float currentTime)
+        public static ConservationEmergency CreateGeneticEmergency(
+            EmergencyConservationConfig config,
+            SpeciesPopulationData populationData,
+            float diversity,
+            float currentTime)
         {
-            var (description, consequences) = _descriptionService.GenerateGeneticDescription(populationData, diversity);
+            string description = DescriptionGenerationService.GenerateGeneticDescription(populationData, default, diversity);
+            string[] consequences = DescriptionGenerationService.GetGeneticConsequences(populationData, diversity);
 
             return new ConservationEmergency
             {
                 emergencyId = GenerateEmergencyId(),
                 type = EmergencyType.GeneticBottleneck,
-                severity = _severityService.CalculateGeneticSeverity(diversity),
+                severity = SeverityCalculationService.CalculateGeneticSeverity(config, diversity),
                 affectedSpeciesId = populationData.speciesId,
                 affectedEcosystemId = populationData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.GeneticBottleneck),
-                originalDuration = _config.GetEmergencyDuration(EmergencyType.GeneticBottleneck),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.GeneticBottleneck),
+                timeRemaining = config.GetEmergencyDuration(EmergencyType.GeneticBottleneck),
+                originalDuration = config.GetEmergencyDuration(EmergencyType.GeneticBottleneck),
+                requiredActionTypes = GetRequiredActionTypes(config, EmergencyType.GeneticBottleneck),
                 title = $"Genetic Bottleneck Crisis: {populationData.speciesName}",
                 description = description,
-                urgencyLevel = _urgencyService.CalculateGeneticUrgency(diversity),
+                urgencyLevel = UrgencyCalculationService.CalculateGeneticUrgency(diversity),
                 potentialConsequences = ConvertStringArrayToFixedList(consequences),
                 successRequirementTypes = GetGeneticSuccessRequirementTypes(),
                 declaredAt = currentTime,
@@ -167,22 +173,26 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Creates a habitat destruction emergency
         /// </summary>
-        public ConservationEmergency CreateHabitatDestructionEmergency(EcosystemData ecosystemData, float currentTime)
+        public static ConservationEmergency CreateHabitatDestructionEmergency(
+            EmergencyConservationConfig config,
+            EcosystemData ecosystemData,
+            float currentTime)
         {
-            var (description, consequences) = _descriptionService.GenerateHabitatDescription(ecosystemData);
+            string description = DescriptionGenerationService.GenerateHabitatDescription(ecosystemData);
+            string[] consequences = DescriptionGenerationService.GetHabitatConsequences(ecosystemData);
 
             return new ConservationEmergency
             {
                 emergencyId = GenerateEmergencyId(),
                 type = EmergencyType.HabitatDestruction,
-                severity = _severityService.CalculateHabitatSeverity(ecosystemData),
+                severity = SeverityCalculationService.CalculateHabitatSeverity(config, ecosystemData),
                 affectedEcosystemId = ecosystemData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.HabitatDestruction),
-                originalDuration = _config.GetEmergencyDuration(EmergencyType.HabitatDestruction),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.HabitatDestruction),
+                timeRemaining = config.GetEmergencyDuration(EmergencyType.HabitatDestruction),
+                originalDuration = config.GetEmergencyDuration(EmergencyType.HabitatDestruction),
+                requiredActionTypes = GetRequiredActionTypes(config, EmergencyType.HabitatDestruction),
                 title = $"Rapid Habitat Loss: {ecosystemData.ecosystemName}",
                 description = description,
-                urgencyLevel = _urgencyService.CalculateHabitatUrgency(ecosystemData),
+                urgencyLevel = UrgencyCalculationService.CalculateHabitatUrgency(ecosystemData),
                 potentialConsequences = ConvertStringArrayToFixedList(consequences),
                 successRequirementTypes = GetHabitatSuccessRequirementTypes(),
                 declaredAt = currentTime,
@@ -193,23 +203,27 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Creates a disease outbreak emergency
         /// </summary>
-        public ConservationEmergency CreateDiseaseEmergency(SpeciesPopulationData populationData, float currentTime)
+        public static ConservationEmergency CreateDiseaseEmergency(
+            EmergencyConservationConfig config,
+            SpeciesPopulationData populationData,
+            float currentTime)
         {
-            var (description, consequences) = _descriptionService.GenerateDiseaseDescription(populationData);
+            string description = DescriptionGenerationService.GenerateDiseaseDescription(populationData);
+            string[] consequences = DescriptionGenerationService.GetDiseaseConsequences(populationData);
 
             return new ConservationEmergency
             {
                 emergencyId = GenerateEmergencyId(),
                 type = EmergencyType.DiseaseOutbreak,
-                severity = _severityService.CalculateDiseaseSeverity(populationData),
+                severity = SeverityCalculationService.CalculateDiseaseSeverity(config, populationData),
                 affectedSpeciesId = populationData.speciesId,
                 affectedEcosystemId = populationData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.DiseaseOutbreak),
-                originalDuration = _config.GetEmergencyDuration(EmergencyType.DiseaseOutbreak),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.DiseaseOutbreak),
+                timeRemaining = config.GetEmergencyDuration(EmergencyType.DiseaseOutbreak),
+                originalDuration = config.GetEmergencyDuration(EmergencyType.DiseaseOutbreak),
+                requiredActionTypes = GetRequiredActionTypes(config, EmergencyType.DiseaseOutbreak),
                 title = $"Disease Outbreak: {populationData.speciesName}",
                 description = description,
-                urgencyLevel = _urgencyService.CalculateDiseaseUrgency(populationData),
+                urgencyLevel = UrgencyCalculationService.CalculateDiseaseUrgency(populationData),
                 potentialConsequences = ConvertStringArrayToFixedList(consequences),
                 successRequirementTypes = GetDiseaseSuccessRequirementTypes(),
                 declaredAt = currentTime,
@@ -220,22 +234,26 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Creates a climate change emergency
         /// </summary>
-        public ConservationEmergency CreateClimateEmergency(EcosystemData ecosystemData, float currentTime)
+        public static ConservationEmergency CreateClimateEmergency(
+            EmergencyConservationConfig config,
+            EcosystemData ecosystemData,
+            float currentTime)
         {
-            var (description, consequences) = _descriptionService.GenerateClimateDescription(ecosystemData);
+            string description = DescriptionGenerationService.GenerateClimateDescription(ecosystemData);
+            string[] consequences = DescriptionGenerationService.GetClimateConsequences(ecosystemData);
 
             return new ConservationEmergency
             {
                 emergencyId = GenerateEmergencyId(),
                 type = EmergencyType.ClimateChange,
-                severity = _severityService.CalculateClimateSeverity(ecosystemData),
+                severity = SeverityCalculationService.CalculateClimateSeverity(config, ecosystemData),
                 affectedEcosystemId = ecosystemData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.ClimateChange),
-                originalDuration = _config.GetEmergencyDuration(EmergencyType.ClimateChange),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.ClimateChange),
+                timeRemaining = config.GetEmergencyDuration(EmergencyType.ClimateChange),
+                originalDuration = config.GetEmergencyDuration(EmergencyType.ClimateChange),
+                requiredActionTypes = GetRequiredActionTypes(config, EmergencyType.ClimateChange),
                 title = $"Climate Emergency: {ecosystemData.ecosystemName}",
                 description = description,
-                urgencyLevel = _urgencyService.CalculateClimateUrgency(ecosystemData),
+                urgencyLevel = UrgencyCalculationService.CalculateClimateUrgency(ecosystemData),
                 potentialConsequences = ConvertStringArrayToFixedList(consequences),
                 successRequirementTypes = GetClimateSuccessRequirementTypes(),
                 declaredAt = currentTime,
@@ -246,22 +264,27 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Creates a food web disruption emergency
         /// </summary>
-        public ConservationEmergency CreateFoodWebEmergency(EcosystemData ecosystemData, EcosystemHealth health, float currentTime)
+        public static ConservationEmergency CreateFoodWebEmergency(
+            EmergencyConservationConfig config,
+            EcosystemData ecosystemData,
+            EcosystemHealth health,
+            float currentTime)
         {
-            var (description, consequences) = _descriptionService.GenerateFoodWebDescription(health);
+            string description = "Food web stability has declined critically"; // TODO: Add to DescriptionGenerationService
+            string[] consequences = new[] { "Ecosystem collapse", "Species extinction cascades" }; // TODO: Add to DescriptionGenerationService
 
             return new ConservationEmergency
             {
                 emergencyId = GenerateEmergencyId(),
                 type = EmergencyType.FoodWebDisruption,
-                severity = _severityService.CalculateFoodWebSeverity(health),
+                severity = SeverityCalculationService.CalculateFoodWebSeverity(config, health),
                 affectedEcosystemId = ecosystemData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.FoodWebDisruption),
-                originalDuration = _config.GetEmergencyDuration(EmergencyType.FoodWebDisruption),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.FoodWebDisruption),
+                timeRemaining = config.GetEmergencyDuration(EmergencyType.FoodWebDisruption),
+                originalDuration = config.GetEmergencyDuration(EmergencyType.FoodWebDisruption),
+                requiredActionTypes = GetRequiredActionTypes(config, EmergencyType.FoodWebDisruption),
                 title = $"Food Web Disruption: {ecosystemData.ecosystemName}",
                 description = description,
-                urgencyLevel = _urgencyService.CalculateFoodWebUrgency(health),
+                urgencyLevel = UrgencyCalculationService.CalculateFoodWebUrgency(health),
                 potentialConsequences = ConvertStringArrayToFixedList(consequences),
                 successRequirementTypes = GetFoodWebSuccessRequirementTypes(),
                 declaredAt = currentTime,
@@ -272,22 +295,27 @@ namespace Laboratory.Chimera.ECS.Services
         /// <summary>
         /// Creates a habitat fragmentation emergency
         /// </summary>
-        public ConservationEmergency CreateHabitatFragmentationEmergency(EcosystemData ecosystemData, EcosystemHealth health, float currentTime)
+        public static ConservationEmergency CreateHabitatFragmentationEmergency(
+            EmergencyConservationConfig config,
+            EcosystemData ecosystemData,
+            EcosystemHealth health,
+            float currentTime)
         {
-            var (description, consequences) = _descriptionService.GenerateHabitatFragmentationDescription(health);
+            string description = "Habitat connectivity has degraded critically"; // TODO: Add to DescriptionGenerationService
+            string[] consequences = new[] { "Population isolation", "Genetic bottlenecks" }; // TODO: Add to DescriptionGenerationService
 
             return new ConservationEmergency
             {
                 emergencyId = GenerateEmergencyId(),
                 type = EmergencyType.HabitatFragmentation,
-                severity = _severityService.CalculateHabitatSeverity(health),
+                severity = SeverityCalculationService.CalculateHabitatFragmentationSeverity(config, health),
                 affectedEcosystemId = ecosystemData.ecosystemId,
-                timeRemaining = _config.GetEmergencyDuration(EmergencyType.HabitatFragmentation),
-                originalDuration = _config.GetEmergencyDuration(EmergencyType.HabitatFragmentation),
-                requiredActionTypes = GetRequiredActionTypes(EmergencyType.HabitatFragmentation),
+                timeRemaining = config.GetEmergencyDuration(EmergencyType.HabitatFragmentation),
+                originalDuration = config.GetEmergencyDuration(EmergencyType.HabitatFragmentation),
+                requiredActionTypes = GetRequiredActionTypes(config, EmergencyType.HabitatFragmentation),
                 title = $"Habitat Fragmentation: {ecosystemData.ecosystemName}",
                 description = description,
-                urgencyLevel = _urgencyService.CalculateHabitatFragmentationUrgency(health),
+                urgencyLevel = UrgencyCalculationService.CalculateHabitatFragmentationUrgency(health),
                 potentialConsequences = ConvertStringArrayToFixedList(consequences),
                 successRequirementTypes = GetHabitatSuccessRequirementTypes(),
                 declaredAt = currentTime,
@@ -297,14 +325,14 @@ namespace Laboratory.Chimera.ECS.Services
 
         #region Helper Methods
 
-        private int GenerateEmergencyId()
+        private static int GenerateEmergencyId()
         {
             return UnityEngine.Random.Range(100000, 999999);
         }
 
-        private FixedList64Bytes<EmergencyActionType> GetRequiredActionTypes(EmergencyType type)
+        private static FixedList64Bytes<EmergencyActionType> GetRequiredActionTypes(EmergencyConservationConfig config, EmergencyType type)
         {
-            var actions = _config.GetRequiredActions(type);
+            var actions = config.GetRequiredActions(type);
             var actionTypes = new FixedList64Bytes<EmergencyActionType>();
             foreach (var action in actions)
             {
@@ -313,7 +341,7 @@ namespace Laboratory.Chimera.ECS.Services
             return actionTypes;
         }
 
-        private FixedList64Bytes<FixedString64Bytes> ConvertStringArrayToFixedList(string[] strings)
+        private static FixedList64Bytes<FixedString64Bytes> ConvertStringArrayToFixedList(string[] strings)
         {
             var fixedList = new FixedList64Bytes<FixedString64Bytes>();
             if (strings != null)
@@ -329,7 +357,7 @@ namespace Laboratory.Chimera.ECS.Services
             return fixedList;
         }
 
-        private FixedList32Bytes<RequirementType> GetPopulationSuccessRequirementTypes()
+        private static FixedList32Bytes<RequirementType> GetPopulationSuccessRequirementTypes()
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.PopulationIncrease);
@@ -338,7 +366,7 @@ namespace Laboratory.Chimera.ECS.Services
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetBreedingSuccessRequirementTypes()
+        private static FixedList32Bytes<RequirementType> GetBreedingSuccessRequirementTypes()
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.ReproductiveSuccess);
@@ -347,7 +375,7 @@ namespace Laboratory.Chimera.ECS.Services
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetJuvenileSuccessRequirementTypes()
+        private static FixedList32Bytes<RequirementType> GetJuvenileSuccessRequirementTypes()
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.JuvenileSurvival);
@@ -355,7 +383,7 @@ namespace Laboratory.Chimera.ECS.Services
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetEcosystemSuccessRequirementTypes()
+        private static FixedList32Bytes<RequirementType> GetEcosystemSuccessRequirementTypes()
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.EcosystemHealth);
@@ -364,7 +392,7 @@ namespace Laboratory.Chimera.ECS.Services
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetGeneticSuccessRequirementTypes()
+        private static FixedList32Bytes<RequirementType> GetGeneticSuccessRequirementTypes()
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.PopulationIncrease);
@@ -372,7 +400,7 @@ namespace Laboratory.Chimera.ECS.Services
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetHabitatSuccessRequirementTypes()
+        private static FixedList32Bytes<RequirementType> GetHabitatSuccessRequirementTypes()
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.HabitatProtection);
@@ -380,7 +408,7 @@ namespace Laboratory.Chimera.ECS.Services
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetDiseaseSuccessRequirementTypes()
+        private static FixedList32Bytes<RequirementType> GetDiseaseSuccessRequirementTypes()
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.HealthMonitoring);
@@ -388,7 +416,7 @@ namespace Laboratory.Chimera.ECS.Services
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetClimateSuccessRequirementTypes()
+        private static FixedList32Bytes<RequirementType> GetClimateSuccessRequirementTypes()
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.ClimateAdaptation);
@@ -397,7 +425,7 @@ namespace Laboratory.Chimera.ECS.Services
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetFoodWebSuccessRequirementTypes()
+        private static FixedList32Bytes<RequirementType> GetFoodWebSuccessRequirementTypes()
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.SpeciesDiversity);
