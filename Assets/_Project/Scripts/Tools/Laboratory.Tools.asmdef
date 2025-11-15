@@ -6,7 +6,8 @@
         "Laboratory.Core.Enums",
         "Laboratory.Shared",
         "Unity.Collections",
-        "Unity.Mathematics"
+        "Unity.Mathematics",
+        "Laboratory.Core.Performance"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
