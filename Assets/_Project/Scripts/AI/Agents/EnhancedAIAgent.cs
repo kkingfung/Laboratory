@@ -14,7 +14,7 @@ namespace Laboratory.AI.Agents
     public class EnhancedAIAgent : MonoBehaviour, IPathfindingAgent
     {
         [Header("Agent Configuration")]
-        [SerializeField] private AgentType agentType = AgentType.Medium;
+        [SerializeField] private Laboratory.AI.Pathfinding.AgentType agentType = Laboratory.AI.Pathfinding.AgentType.Medium;
         [SerializeField] private PathfindingMode preferredMode = PathfindingMode.Auto;
         [SerializeField] private float pathUpdateFrequency = 0.3f;
         [SerializeField] private float stuckDetectionThreshold = 0.1f;
@@ -48,18 +48,11 @@ namespace Laboratory.AI.Agents
         private bool isStopped = false;
         private Vector3 lastPosition;
         private float timeSinceLastMovement = 0f;
+        private PathfindingStatus status = PathfindingStatus.Idle;
 
         // Performance optimization
         private float lastPositionUpdate = 0f;
         private const float POSITION_UPDATE_INTERVAL = 0.1f;
-
-        public enum AgentType
-        {
-            Small,
-            Medium,
-            Large,
-            Flying
-        }
 
         #region Properties
 
@@ -69,7 +62,14 @@ namespace Laboratory.AI.Agents
         public bool HasReachedDestination => HasReachedCurrentDestination();
         public bool HasValidPath => hasValidPath && currentPath != null;
         public float CurrentSpeed => navAgent.velocity.magnitude;
-        public AgentType CurrentAgentType => agentType;
+        public Laboratory.AI.Pathfinding.AgentType CurrentAgentType => agentType;
+
+        // IPathfindingAgent interface properties
+        Laboratory.AI.Pathfinding.AgentType IPathfindingAgent.AgentType => agentType;
+        PathfindingMode IPathfindingAgent.PathfindingMode => preferredMode;
+        PathfindingStatus IPathfindingAgent.Status => status;
+        Vector3 IPathfindingAgent.Position => transform.position;
+        Vector3 IPathfindingAgent.Destination => currentDestination;
 
         #endregion
 
@@ -121,28 +121,34 @@ namespace Laboratory.AI.Agents
             // Configure NavMeshAgent based on agent type
             switch (agentType)
             {
-                case AgentType.Small:
+                case Laboratory.AI.Pathfinding.AgentType.Small:
                     navAgent.radius = 0.3f;
                     navAgent.height = 1f;
                     baseSpeed = 2.5f;
                     break;
-                
-                case AgentType.Medium:
+
+                case Laboratory.AI.Pathfinding.AgentType.Medium:
                     navAgent.radius = 0.5f;
                     navAgent.height = 2f;
                     baseSpeed = 3.5f;
                     break;
-                
-                case AgentType.Large:
+
+                case Laboratory.AI.Pathfinding.AgentType.Large:
                     navAgent.radius = 1f;
                     navAgent.height = 3f;
                     baseSpeed = 2f;
                     break;
-                
-                case AgentType.Flying:
+
+                case Laboratory.AI.Pathfinding.AgentType.Flying:
                     navAgent.radius = 0.5f;
                     navAgent.height = 2f;
                     baseSpeed = 5f;
+                    break;
+
+                case Laboratory.AI.Pathfinding.AgentType.Aquatic:
+                    navAgent.radius = 0.6f;
+                    navAgent.height = 2f;
+                    baseSpeed = 3f;
                     break;
             }
 
@@ -226,7 +232,7 @@ namespace Laboratory.AI.Agents
         /// <summary>
         /// Set the agent type (affects movement parameters)
         /// </summary>
-        public void SetAgentType(AgentType type)
+        public void SetAgentType(Laboratory.AI.Pathfinding.AgentType type)
         {
             agentType = type;
             ConfigureAgent();
@@ -450,13 +456,14 @@ namespace Laboratory.AI.Agents
         public void OnPathCalculated(Vector3[] path, bool success)
         {
             pathRequested = false;
-            
+
             if (success && path != null && path.Length > 0)
             {
                 currentPath = path;
                 currentWaypointIndex = 0;
                 hasValidPath = true;
-                
+                status = PathfindingStatus.PathReady;
+
                 if (showDebugInfo)
                 {
                     Debug.Log($"Path calculated for {gameObject.name}: {path.Length} waypoints");
@@ -465,19 +472,51 @@ namespace Laboratory.AI.Agents
             else
             {
                 hasValidPath = false;
-                
+                status = PathfindingStatus.Failed;
+
                 // Fallback to direct NavMesh pathfinding
                 if (navAgent.isOnNavMesh && currentDestination != Vector3.zero)
                 {
                     navAgent.SetDestination(currentDestination);
                 }
-                
+
                 if (showDebugInfo)
                 {
                     Debug.LogWarning($"Path calculation failed for {gameObject.name}");
                 }
             }
         }
+
+        #region IPathfindingAgent Interface
+
+        public void RequestPath(Vector3 destination, PathfindingMode mode = PathfindingMode.Auto)
+        {
+            currentDestination = destination;
+            preferredMode = mode;
+            status = PathfindingStatus.Computing;
+            RequestPathFromSystem();
+        }
+
+        public void CancelPath()
+        {
+            currentPath = null;
+            currentWaypointIndex = 0;
+            hasValidPath = false;
+            pathRequested = false;
+            status = PathfindingStatus.Cancelled;
+
+            if (navAgent != null && navAgent.isOnNavMesh)
+            {
+                navAgent.ResetPath();
+            }
+        }
+
+        bool IPathfindingAgent.HasReachedDestination()
+        {
+            return HasReachedCurrentDestination();
+        }
+
+        #endregion
 
         public void DrawDebugPath()
         {

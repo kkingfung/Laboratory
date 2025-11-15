@@ -196,6 +196,7 @@ namespace Laboratory.Chimera.ECS
                     AddEmergency(emergency);
                 }
             }
+            }
         }
 
         private void CheckGeneticDiversityEmergencies()
