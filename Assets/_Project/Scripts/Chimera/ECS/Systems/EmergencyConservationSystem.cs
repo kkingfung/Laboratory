@@ -368,12 +368,12 @@ namespace Laboratory.Chimera.ECS
                 (e.affectedSpeciesId == targetId || e.affectedEcosystemId == targetId));
         }
 
-        private int GenerateEmergencyId()
+        int GenerateEmergencyId()
         {
             return UnityEngine.Random.Range(100000, 999999);
         }
 
-        private float CalculateGeneticDiversity(in CreatureGeneticsComponent genetics, SpeciesPopulationData populationData)
+        float CalculateGeneticDiversity(in CreatureGeneticsComponent genetics, SpeciesPopulationData populationData)
         {
             // Calculate genetic diversity based on trait variety and population size
             float traitDiversity = genetics.ActiveGeneCount;
@@ -381,7 +381,7 @@ namespace Laboratory.Chimera.ECS
             return (traitDiversity * populationFactor) / 20f; // Normalized to 0-1
         }
 
-        private EmergencyAction[] GetRequiredActions(EmergencyType type)
+        EmergencyAction[] GetRequiredActions(EmergencyType type)
         {
             var ecosystemActions = _config.GetRequiredActions(type);
             var ecsActions = new EmergencyAction[ecosystemActions.Length];
@@ -394,7 +394,7 @@ namespace Laboratory.Chimera.ECS
             return ecsActions;
         }
 
-        private FixedList64Bytes<EmergencyActionType> GetRequiredActionTypes(EmergencyType type)
+        FixedList64Bytes<EmergencyActionType> GetRequiredActionTypes(EmergencyType type)
         {
             var actions = _config.GetRequiredActions(type);
             var actionTypes = new FixedList64Bytes<EmergencyActionType>();
@@ -405,7 +405,7 @@ namespace Laboratory.Chimera.ECS
             return actionTypes;
         }
 
-        private FixedList64Bytes<FixedString64Bytes> ConvertStringArrayToFixedList(string[] strings)
+        FixedList64Bytes<FixedString64Bytes> ConvertStringArrayToFixedList(string[] strings)
         {
             var fixedList = new FixedList64Bytes<FixedString64Bytes>();
             foreach (var str in strings)
@@ -418,7 +418,7 @@ namespace Laboratory.Chimera.ECS
             return fixedList;
         }
 
-        private FixedList32Bytes<RequirementType> GetSuccessRequirementTypes(SpeciesPopulationData populationData)
+        FixedList32Bytes<RequirementType> GetSuccessRequirementTypes(SpeciesPopulationData populationData)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.PopulationIncrease);
@@ -427,7 +427,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetBreedingSuccessRequirementTypes(SpeciesPopulationData populationData)
+        FixedList32Bytes<RequirementType> GetBreedingSuccessRequirementTypes(SpeciesPopulationData populationData)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.ReproductiveSuccess);
@@ -436,7 +436,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetJuvenileSuccessRequirementTypes(SpeciesPopulationData populationData)
+        FixedList32Bytes<RequirementType> GetJuvenileSuccessRequirementTypes(SpeciesPopulationData populationData)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.JuvenileSurvival);
@@ -444,7 +444,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetEcosystemSuccessRequirementTypes(EcosystemData ecosystemData, EcosystemHealth health)
+        FixedList32Bytes<RequirementType> GetEcosystemSuccessRequirementTypes(EcosystemData ecosystemData, EcosystemHealth health)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.EcosystemHealth);
@@ -453,7 +453,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetGeneticSuccessRequirementTypes(SpeciesPopulationData populationData, float diversity)
+        FixedList32Bytes<RequirementType> GetGeneticSuccessRequirementTypes(SpeciesPopulationData populationData, float diversity)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.PopulationIncrease);
@@ -461,7 +461,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetHabitatSuccessRequirementTypes(EcosystemData ecosystemData)
+        FixedList32Bytes<RequirementType> GetHabitatSuccessRequirementTypes(EcosystemData ecosystemData)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.HabitatProtection);
@@ -469,7 +469,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetDiseaseSuccessRequirementTypes(SpeciesPopulationData populationData)
+        FixedList32Bytes<RequirementType> GetDiseaseSuccessRequirementTypes(SpeciesPopulationData populationData)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.HealthMonitoring);
@@ -477,7 +477,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetClimateSuccessRequirementTypes(EcosystemData ecosystemData)
+        FixedList32Bytes<RequirementType> GetClimateSuccessRequirementTypes(EcosystemData ecosystemData)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.ClimateAdaptation);
