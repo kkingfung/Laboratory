@@ -4,7 +4,6 @@ using System.Linq;
 using UnityEngine;
 using Unity.Collections;
 using Laboratory.Chimera.Core;
-using Laboratory.Chimera.Configuration;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
 using Random = UnityEngine.Random;
