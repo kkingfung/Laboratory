@@ -13,11 +13,6 @@
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
         "Laboratory.Core.ECS",
-        "Laboratory.Core.Events",
-        "Laboratory.Chimera",
-        "Laboratory.Chimera.Core",
-        "Laboratory.Chimera.Breeding",
-        "Laboratory.Chimera.Genetics",
         "Laboratory.Shared",
         "Laboratory.Models"
     ],
