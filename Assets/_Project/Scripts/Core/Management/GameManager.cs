@@ -5,7 +5,7 @@ using Laboratory.Core.Events;
 using Laboratory.Core.State;
 using Laboratory.Core.Performance;
 
-namespace Laboratory.Core
+namespace Laboratory.Core.Management
 {
     /// <summary>
     /// Central game manager that coordinates all major game systems and handles
