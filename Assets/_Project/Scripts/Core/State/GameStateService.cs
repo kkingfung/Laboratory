@@ -186,7 +186,10 @@ namespace Laboratory.Core.State
                 }
 
                 // Publish state changed event
-                var changedEvent = new GameStateChangedEvent(previousState, targetState);
+                // Convert Laboratory.Core.State.GameState to Laboratory.Core.Events.Messages.GameState
+                var eventPreviousState = (Laboratory.Core.Events.Messages.GameState)(int)previousState;
+                var eventTargetState = (Laboratory.Core.Events.Messages.GameState)(int)targetState;
+                var changedEvent = new GameStateChangedEvent(eventPreviousState, eventTargetState);
                 _stateChangeSubject.OnNext(changedEvent);
                 _eventBus.Publish(changedEvent);
 
