@@ -14,7 +14,7 @@ namespace Laboratory.AI.Pathfinding
     public class EnhancedPathfindingSystem : MonoBehaviour
     {
         [Header("System Configuration")]
-        [SerializeField] private PathfindingMode defaultMode = PathfindingMode.Hybrid;
+        [SerializeField] private PathfindingMode defaultMode = PathfindingMode.Auto;
         [SerializeField] private int maxAgentsPerFrame = 10;
         [SerializeField] private float pathUpdateInterval = 0.2f;
         [SerializeField] private bool enableFlowFields = true;
@@ -211,7 +211,7 @@ namespace Laboratory.AI.Pathfinding
                     path = CalculateFlowFieldPath(request.start, request.destination, out success);
                     break;
                 
-                case PathfindingMode.Hybrid:
+                case PathfindingMode.Hierarchical:
                     path = CalculateHybridPath(request.start, request.destination, out success);
                     break;
             }
@@ -351,9 +351,10 @@ namespace Laboratory.AI.Pathfinding
             {
                 if (agentsUpdated >= maxAgentsPerFrame) break;
                 
-                if (agent.NeedsPathUpdate())
+                // Agent uses properties, not methods now
+                if (agent.Status == PathfindingStatus.Idle || agent.Status == PathfindingStatus.Failed)
                 {
-                    RequestPath(agent.GetPosition(), agent.GetDestination(), agent);
+                    RequestPath(agent.Position, agent.Destination, agent);
                     agentsUpdated++;
                 }
             }
@@ -368,9 +369,10 @@ namespace Laboratory.AI.Pathfinding
                 // Update agents that haven't been updated this frame
                 foreach (var agent in registeredAgents)
                 {
-                    if (agent.ShouldForcePathUpdate())
+                    // Check if agent needs forced path update based on status
+                    if (agent.Status == PathfindingStatus.Blocked || agent.Status == PathfindingStatus.NoPath)
                     {
-                        RequestPath(agent.GetPosition(), agent.GetDestination(), agent);
+                        RequestPath(agent.Position, agent.Destination, agent);
                     }
                 }
             }
@@ -383,7 +385,7 @@ namespace Laboratory.AI.Pathfinding
             var sqrRadius = radius * radius;
             foreach (var agent in registeredAgents)
             {
-                var sqrDistance = (agent.GetPosition() - position).sqrMagnitude;
+                var sqrDistance = (agent.Position - position).sqrMagnitude;
                 if (sqrDistance <= sqrRadius)
                 {
                     count++;
@@ -534,12 +536,12 @@ namespace Laboratory.AI.Pathfinding
                 flowField.DrawDebug();
             }
             
-            // Draw agent paths
-            Gizmos.color = Color.green;
-            foreach (var agent in registeredAgents)
-            {
-                agent.DrawDebugPath();
-            }
+            // Draw agent paths - interface doesn't have DrawDebugPath anymore
+            // Gizmos.color = Color.green;
+            // foreach (var agent in registeredAgents)
+            // {
+            //     agent.DrawDebugPath();
+            // }
         }
 
         #endregion
