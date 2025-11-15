@@ -1,9 +1,9 @@
-# ChimeraOS: Monster Breeding Town Builder
-*The Ultimate Monster Breeding Experience with Genre-Spanning Activities*
+# Project Chimera: Advanced Genetic Creature System
+*Next-Generation Monster Breeding with 47 Game Genres, Team Battles, and ECS Performance*
 
-## 🏘️ **Core Game Concept**
+## 🧬 **Project Overview**
 
-**ChimeraOS is a Monster Breeding Town Builder** where you create and manage a thriving monster town, breed genetically unique creatures, and send them to participate in exciting mini-game activities across multiple genres.
+**Project Chimera** is a high-performance, scientifically-accurate genetic creature breeding system built on Unity ECS. It features **47 distinct game genres**, comprehensive **team battle mechanics**, advanced **genetic algorithms**, and **educational integration** - all running at **1000+ creatures @ 60 FPS**.
 
 **🎮 Game Loop:**
 1. **🧬 Breed & Care** - Create genetically unique monsters with real inheritance
