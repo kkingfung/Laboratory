@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Burst;
 using Unity.Transforms;
+using Unity.Profiling;
 using UnityEngine;
 using Laboratory.Subsystems.Team.Core;
 
@@ -13,8 +14,42 @@ namespace Laboratory.Subsystems.Team.Systems
     /// PURPOSE: Enable effective team coordination without voice chat
     /// FEATURES: Smart pings, contextual markers, quick chat, tactical commands
     /// PLAYER-FRIENDLY: Accessible, clear, reduces communication barriers
-    /// PERFORMANCE: Efficient networking, minimal bandwidth usage
+    /// PERFORMANCE: Burst-compiled cleanup, profiled, zero GC allocations
     /// </summary>
+
+    /// <summary>
+    /// Burst-compiled job for cleaning up expired communications
+    /// Runs in parallel across all teams for optimal performance
+    /// </summary>
+    [BurstCompile]
+    public partial struct CleanupExpiredCommunicationsJob : IJobEntity
+    {
+        public float CurrentTime;
+        public int MaxActivePings;
+
+        public void Execute(DynamicBuffer<TeamCommunicationComponent> commBuffer)
+        {
+            // Remove expired communications
+            for (int i = commBuffer.Length - 1; i >= 0; i--)
+            {
+                float age = CurrentTime - commBuffer[i].Timestamp;
+                if (age > commBuffer[i].Duration)
+                {
+                    commBuffer.RemoveAt(i);
+                }
+            }
+
+            // Limit buffer size to prevent memory bloat
+            if (commBuffer.Length > MaxActivePings * 2)
+            {
+                int toRemove = commBuffer.Length - MaxActivePings;
+                for (int i = 0; i < toRemove; i++)
+                {
+                    commBuffer.RemoveAt(0);
+                }
+            }
+        }
+    }
 
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class TeamCommunicationSystem : SystemBase
@@ -29,6 +64,14 @@ namespace Laboratory.Subsystems.Team.Systems
         private int _maxActivePings = 10; // Per team
 
         private NativeHashMap<Entity, float> _lastPingTimes;
+
+        // Performance profiling markers
+        private static readonly ProfilerMarker s_ProcessCommunicationsMarker =
+            new ProfilerMarker("Team.ProcessCommunications");
+        private static readonly ProfilerMarker s_CleanupExpiredMarker =
+            new ProfilerMarker("Team.CleanupExpired");
+        private static readonly ProfilerMarker s_UpdateMetricsMarker =
+            new ProfilerMarker("Team.UpdateMetrics");
 
         protected override void OnCreate()
         {
@@ -49,13 +92,22 @@ namespace Laboratory.Subsystems.Team.Systems
             float deltaTime = SystemAPI.Time.DeltaTime;
 
             // Process team communications
-            ProcessTeamCommunications(currentTime, deltaTime);
+            using (s_ProcessCommunicationsMarker.Auto())
+            {
+                ProcessTeamCommunications(currentTime, deltaTime);
+            }
 
-            // Cleanup expired communications
-            CleanupExpiredCommunications(currentTime);
+            // Cleanup expired communications using Burst-compiled job
+            using (s_CleanupExpiredMarker.Auto())
+            {
+                CleanupExpiredCommunications(currentTime);
+            }
 
             // Update communication scores
-            UpdateCommunicationMetrics();
+            using (s_UpdateMetricsMarker.Auto())
+            {
+                UpdateCommunicationMetrics();
+            }
         }
 
         private void ProcessTeamCommunications(float currentTime, float deltaTime)
@@ -112,8 +164,9 @@ namespace Laboratory.Subsystems.Team.Systems
         private void ProcessDangerPing(TeamCommunicationComponent ping, TeamComponent team)
         {
             // High urgency - alert all team members
+#if UNITY_EDITOR
             Debug.Log($"⚠️ DANGER ping from team {team.TeamName} at {ping.WorldPosition}");
-
+#endif
             // Would trigger visual/audio alerts for team members
             // Could integrate with AI to make them more cautious in that area
         }
@@ -121,8 +174,9 @@ namespace Laboratory.Subsystems.Team.Systems
         private void ProcessHelpPing(TeamCommunicationComponent ping, TeamComponent team)
         {
             // Medium urgency - request assistance
+#if UNITY_EDITOR
             Debug.Log($"🆘 HELP ping from team {team.TeamName} at {ping.WorldPosition}");
-
+#endif
             // Would notify nearest teammates
             // Could integrate with AI to send support
         }
@@ -130,16 +184,18 @@ namespace Laboratory.Subsystems.Team.Systems
         private void ProcessObjectivePing(TeamCommunicationComponent ping, TeamComponent team)
         {
             // Tactical - mark objective
+#if UNITY_EDITOR
             Debug.Log($"🎯 OBJECTIVE ping from team {team.TeamName} at {ping.WorldPosition}");
-
+#endif
             // Would mark objective on team's shared map/UI
         }
 
         private void ProcessFormationCommand(TeamCommunicationComponent command, TeamComponent team)
         {
             // Tactical command - change formation
+#if UNITY_EDITOR
             Debug.Log($"📐 FORMATION command for team {team.TeamName}");
-
+#endif
             // Would trigger formation change for team members
         }
 
@@ -184,30 +240,16 @@ namespace Laboratory.Subsystems.Team.Systems
 
         private void CleanupExpiredCommunications(float currentTime)
         {
-            foreach (var commBuffer in SystemAPI.Query<DynamicBuffer<TeamCommunicationComponent>>())
+            // Use Burst-compiled job for parallel processing
+            var cleanupJob = new CleanupExpiredCommunicationsJob
             {
-                for (int i = commBuffer.Length - 1; i >= 0; i--)
-                {
-                    var comm = commBuffer[i];
-                    float age = currentTime - comm.Timestamp;
+                CurrentTime = currentTime,
+                MaxActivePings = _maxActivePings
+            };
+            cleanupJob.ScheduleParallel();
 
-                    if (age > comm.Duration)
-                    {
-                        commBuffer.RemoveAt(i);
-                    }
-                }
-
-                // Limit buffer size to prevent memory bloat
-                if (commBuffer.Length > _maxActivePings * 2)
-                {
-                    // Remove oldest entries
-                    int toRemove = commBuffer.Length - _maxActivePings;
-                    for (int i = 0; i < toRemove; i++)
-                    {
-                        commBuffer.RemoveAt(0);
-                    }
-                }
-            }
+            // Complete job before continuing (required for data dependency)
+            Dependency.Complete();
         }
 
         private void UpdateCommunicationMetrics()
@@ -265,7 +307,9 @@ namespace Laboratory.Subsystems.Team.Systems
             // Check if player is on a team
             if (!entityManager.HasComponent<TeamMemberComponent>(playerEntity))
             {
+#if UNITY_EDITOR
                 Debug.LogWarning("Player not on a team, cannot send ping");
+#endif
                 return false;
             }
 
@@ -274,7 +318,9 @@ namespace Laboratory.Subsystems.Team.Systems
 
             if (!entityManager.HasComponent<TeamComponent>(teamEntity))
             {
+#if UNITY_EDITOR
                 Debug.LogWarning("Team entity invalid");
+#endif
                 return false;
             }
 
@@ -284,7 +330,9 @@ namespace Laboratory.Subsystems.Team.Systems
             // Check ping limit
             if (commBuffer.Length >= 20) // Max pings per team
             {
+#if UNITY_EDITOR
                 Debug.LogWarning("Team ping buffer full");
+#endif
                 return false;
             }
 
@@ -301,7 +349,9 @@ namespace Laboratory.Subsystems.Team.Systems
                 Urgency = urgency
             });
 
+#if UNITY_EDITOR
             Debug.Log($"📍 Ping sent: {pingType} at {worldPosition}");
+#endif
             return true;
         }
 
@@ -336,7 +386,9 @@ namespace Laboratory.Subsystems.Team.Systems
                 Urgency = 0.3f
             });
 
+#if UNITY_EDITOR
             Debug.Log($"💬 Quick chat: {chatType}");
+#endif
             return true;
         }
 
@@ -363,7 +415,9 @@ namespace Laboratory.Subsystems.Team.Systems
             // Check if player is team leader
             if (team.TeamLeader != playerEntity)
             {
+#if UNITY_EDITOR
                 Debug.LogWarning("Only team leader can send tactical commands");
+#endif
                 return false;
             }
 
@@ -381,7 +435,9 @@ namespace Laboratory.Subsystems.Team.Systems
                 Urgency = 0.8f
             });
 
+#if UNITY_EDITOR
             Debug.Log($"⚔️ Tactical command: {commandType}");
+#endif
             return true;
         }
 
