@@ -1,7 +1,7 @@
 using System;
 using Unity.Collections;
 using Laboratory.Chimera.Activities;
-using Laboratory.Core.Equipment.Types;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Equipment
 {
