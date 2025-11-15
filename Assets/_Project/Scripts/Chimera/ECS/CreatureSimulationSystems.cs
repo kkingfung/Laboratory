@@ -279,10 +279,12 @@ namespace Laboratory.Chimera.ECS
 
         public void OnCreate(ref SystemState state)
         {
-            visualQuery = SystemAPI.QueryBuilder()
-                .WithAll<CreatureVisualData, CreatureData, LocalTransform>()
-                .WithAll<CreatureSimulationTag>()
-                .Build();
+            visualQuery = state.GetEntityQuery(
+                ComponentType.ReadWrite<CreatureVisualData>(),
+                ComponentType.ReadOnly<CreatureData>(),
+                ComponentType.ReadWrite<LocalTransform>(),
+                ComponentType.ReadOnly<CreatureSimulationTag>()
+            );
         }
 
         public void OnUpdate(ref SystemState state)
@@ -292,9 +294,8 @@ namespace Laboratory.Chimera.ECS
                 // This system would handle visual updates, LOD, culling, etc.
                 // For now, just a placeholder that updates visual scale based on age
 
-                foreach (var (visualData, creatureData, transform) in
-                         SystemAPI.Query<RefRW<CreatureVisualData>, RefRO<CreatureData>, RefRW<LocalTransform>>()
-                         .WithAll<CreatureSimulationTag>())
+                foreach (var (visualData, creatureData, transform, simulationTag) in
+                         SystemAPI.Query<RefRW<CreatureVisualData>, RefRO<CreatureData>, RefRW<LocalTransform>, RefRO<CreatureSimulationTag>>())
                 {
                     if (!creatureData.ValueRO.isAlive) continue;
 
@@ -397,7 +398,7 @@ namespace Laboratory.Chimera.ECS
                     int totalCreatures = allCreaturesQuery.CalculateEntityCount();
                     int aliveCreatures = 0;
 
-                    foreach (var data in SystemAPI.Query<RefRO<CreatureData>>().WithAll<CreatureSimulationTag>())
+                    foreach (var (data, simulationTag) in SystemAPI.Query<RefRO<CreatureData>, RefRO<CreatureSimulationTag>>())
                     {
                         if (data.ValueRO.isAlive) aliveCreatures++;
                     }
