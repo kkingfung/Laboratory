@@ -4,6 +4,13 @@
     "references": [
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
+        "Laboratory.Core.Configuration",
+        "Laboratory.Core.ECS",
+        "Laboratory.Core.Progression",
+        "Laboratory.Chimera",
+        "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.AI",
+        "Laboratory.Economy",
         "Laboratory.Shared",
         "Unity.Entities",
         "Unity.Transforms",
