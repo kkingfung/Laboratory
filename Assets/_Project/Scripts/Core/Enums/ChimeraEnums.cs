@@ -1371,4 +1371,31 @@ namespace Laboratory.Core.Enums
             };
         }
     }
+
+    /// <summary>
+    /// Equipment slot types for creature equipment system
+    /// Replaces Laboratory.Core.Equipment.Types.EquipmentSlot
+    /// </summary>
+    public enum EquipmentSlot : byte
+    {
+        Head = 0,
+        Body = 1,
+        Weapon = 2,
+        Accessory = 3,
+        Special = 4
+    }
+
+    /// <summary>
+    /// Equipment rarity levels for item classification
+    /// Replaces Laboratory.Core.Equipment.Types.EquipmentRarity
+    /// </summary>
+    public enum EquipmentRarity : byte
+    {
+        Common = 0,
+        Uncommon = 1,
+        Rare = 2,
+        Epic = 3,
+        Legendary = 4,
+        Mythic = 5
+    }
 }
