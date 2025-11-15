@@ -9,7 +9,7 @@ namespace Laboratory.Chimera.Genetics
     /// Genetic profile containing all genetic information for a creature
     /// </summary>
     [Serializable]
-    public class GeneticProfile
+    public partial class GeneticProfile
     {
         /// <summary>Unique identifier for this genetic profile</summary>
         public uint ProfileId { get; set; }
@@ -61,24 +61,7 @@ namespace Laboratory.Chimera.Genetics
         public bool IsActive { get; set; } = true;
     }
 
-    /// <summary>
-    /// Individual allele (gene variant)
-    /// </summary>
-    [Serializable]
-    public struct Allele
-    {
-        /// <summary>Allele identifier</summary>
-        public int AlleleId;
-
-        /// <summary>Value or expression data</summary>
-        public float Value;
-
-        /// <summary>Dominance level (higher = more dominant)</summary>
-        public float Dominance;
-
-        /// <summary>Whether this is a mutated allele</summary>
-        public bool IsMutated;
-    }
+    // Note: Allele struct is defined in GeneticTypes.cs to avoid duplicate definitions
 
     /// <summary>
     /// Expressed trait from genetic information
