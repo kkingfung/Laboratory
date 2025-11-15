@@ -118,6 +118,8 @@ namespace Laboratory.Chimera.Genetics
 
     /// <summary>
     /// ECS component for genetic data
+    /// References the main GeneticProfile class defined in GeneticProfile.cs
+    /// Uses Gene, Mutation, and other types from GeneticTypes.cs
     /// </summary>
     public struct GeneticComponent : IComponentData
     {

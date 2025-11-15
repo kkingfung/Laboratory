@@ -10,7 +10,8 @@
         "Laboratory.Chimera.Core",
         "Unity.Entities",
         "Unity.Mathematics",
-        "Unity.Collections"
+        "Unity.Collections",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
