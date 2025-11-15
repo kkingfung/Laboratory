@@ -1,6 +1,6 @@
 using UnityEngine;
 using Laboratory.Core.Configuration;
-// using Laboratory.Core.Performance; // Removed to avoid circular dependency
+using Laboratory.Core.Performance;
 
 namespace Laboratory.Core.Configuration
 {
@@ -16,7 +16,7 @@ namespace Laboratory.Core.Configuration
 
         [Header("Configuration Override Testing")]
         [SerializeField] private bool allowRuntimeOverrides = false;
-        // [SerializeField] private PerformanceConfiguration testConfiguration; // Commented to avoid circular dependency
+        [SerializeField] private PerformanceConfiguration testConfiguration;
 
         private float lastMonitorTime;
 
@@ -63,8 +63,6 @@ namespace Laboratory.Core.Configuration
         {
             if (!enableLiveMonitoring) return;
 
-            // Temporarily disabled to avoid circular dependency with Laboratory.Core.Performance
-            /* DISABLED - Circular dependency issue
             // Monitor update manager statistics
             var updateManager = OptimizedUpdateManager.Instance;
             if (updateManager != null)
@@ -72,7 +70,6 @@ namespace Laboratory.Core.Configuration
                 var stats = updateManager.GetStatistics();
                 Debug.Log($"📈 [Config Monitor] Update Manager: {stats.TotalRegisteredSystems} systems, {stats.SystemsUpdatedThisFrame} updated this frame");
             }
-            */
 
             // Show configuration values in use
             ShowConfigurationInUse();
@@ -95,10 +92,6 @@ namespace Laboratory.Core.Configuration
 
         private void TestConfigurationOverride()
         {
-            // Temporarily disabled to avoid circular dependency with Laboratory.Core.Performance
-            Debug.LogWarning("[ConfigurationDemonstrator] TestConfigurationOverride is disabled to avoid circular assembly dependency");
-
-            /* DISABLED - Circular dependency issue
             if (testConfiguration == null)
             {
                 Debug.LogWarning("[ConfigurationDemonstrator] No test configuration assigned for override testing");
@@ -115,7 +108,6 @@ namespace Laboratory.Core.Configuration
 
             // Restore after 5 seconds
             Invoke(nameof(RestoreOriginalConfiguration), 5f);
-            */
         }
 
         private void RestoreOriginalConfiguration()
