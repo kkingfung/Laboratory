@@ -102,7 +102,7 @@ namespace Laboratory.Chimera.ECS
             CheckConservationSuccesses();
         }
 
-        private void CheckForNewEmergencies()
+        void CheckForNewEmergencies()
         {
             using (s_CheckForNewEmergenciesMarker.Auto())
             {
@@ -163,7 +163,7 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void CheckEcosystemEmergencies()
+        void CheckEcosystemEmergencies()
         {
             using (s_CheckEcosystemEmergenciesMarker.Auto())
             {
@@ -263,7 +263,7 @@ namespace Laboratory.Chimera.ECS
             }).WithoutBurst().Run();
         }
 
-        private void UpdateActiveEmergencies(float deltaTime)
+        void UpdateActiveEmergencies(float deltaTime)
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
@@ -293,7 +293,7 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void ProcessPlayerResponses(float deltaTime)
+        void ProcessPlayerResponses(float deltaTime)
         {
             foreach (var kvp in _playerResponses.ToList())
             {
@@ -325,7 +325,7 @@ namespace Laboratory.Chimera.ECS
             }).WithoutBurst().Run();
         }
 
-        private void ProcessEmergencyEscalations(float deltaTime)
+        void ProcessEmergencyEscalations(float deltaTime)
         {
             foreach (var emergency in _activeEmergencies.Where(e => e.hasEscalated))
             {
@@ -353,7 +353,7 @@ namespace Laboratory.Chimera.ECS
 
         #region Helper Methods
 
-        private void AddEmergency(ConservationEmergency emergency)
+        void AddEmergency(ConservationEmergency emergency)
         {
             _activeEmergencies.Add(emergency);
             OnEmergencyDeclared?.Invoke(emergency);
@@ -361,7 +361,7 @@ namespace Laboratory.Chimera.ECS
             UnityEngine.Debug.Log($"Conservation Emergency Declared: {emergency.title} (Severity: {emergency.severity})");
         }
 
-        private bool HasActiveEmergency(int targetId, EmergencyType type)
+        bool HasActiveEmergency(int targetId, EmergencyType type)
         {
             return _activeEmergencies.Any(e =>
                 e.type == type &&
@@ -495,13 +495,13 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private void UpdateEmergencySeverity(ref ConservationEmergency emergency)
+        void UpdateEmergencySeverity(ref ConservationEmergency emergency)
         {
             // Update severity based on current conditions
             // This would check current population/ecosystem status
         }
 
-        private void ResolveEmergency(ConservationEmergency emergency, float currentTime)
+        void ResolveEmergency(ConservationEmergency emergency, float currentTime)
         {
             var playerContributions = GetPlayerContributionsForEmergency(emergency.emergencyId);
             var outcome = EmergencyResolutionService.CreateOutcome(emergency, playerContributions, currentTime);
@@ -524,7 +524,7 @@ namespace Laboratory.Chimera.ECS
             return new Dictionary<int, float>();
         }
 
-        private void CompletePlayerResponse(int playerId, EmergencyResponse response)
+        void CompletePlayerResponse(int playerId, EmergencyResponse response)
         {
             OnPlayerResponseRecorded?.Invoke(playerId, response);
 
@@ -548,7 +548,7 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void UpdateHealthTrends(ref EcosystemHealth health)
+        void UpdateHealthTrends(ref EcosystemHealth health)
         {
             // Update health trend tracking for early warning
             health.healthHistory[health.historyIndex] = health.overallHealth;
@@ -671,17 +671,17 @@ namespace Laboratory.Chimera.ECS
             return _activeEmergencies.ToArray();
         }
 
-        public ConservationEmergency[] GetEmergenciesByType(EmergencyType type)
+        ConservationEmergency[] GetEmergenciesByType(EmergencyType type)
         {
             return _activeEmergencies.Where(e => e.type == type).ToArray();
         }
 
-        public ConservationEmergency[] GetEmergenciesBySeverity(EmergencySeverity severity)
+        ConservationEmergency[] GetEmergenciesBySeverity(EmergencySeverity severity)
         {
             return _activeEmergencies.Where(e => e.severity == severity).ToArray();
         }
 
-        public EmergencyResponse GetPlayerResponse(int playerId)
+        EmergencyResponse GetPlayerResponse(int playerId)
         {
             return _playerResponses.ContainsKey(playerId) ? _playerResponses[playerId] : default;
         }
