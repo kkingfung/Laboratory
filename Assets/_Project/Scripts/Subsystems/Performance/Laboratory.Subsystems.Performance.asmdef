@@ -4,6 +4,8 @@
     "references": [
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
+        "Laboratory.Core.ECS",
+        "Laboratory.Core.Configuration",
         "Laboratory.Infrastructure",
         "Laboratory.Subsystems.Monitoring",
         "Unity.Entities",
