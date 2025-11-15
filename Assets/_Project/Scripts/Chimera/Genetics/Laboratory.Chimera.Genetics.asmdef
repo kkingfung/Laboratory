@@ -6,9 +6,13 @@
         "Laboratory.Core.Enums",
         "Laboratory.Shared",
         "Laboratory.Models",
+        "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.ECS",
+        "Laboratory.AI.ECS",
         "Unity.Entities",
         "Unity.Mathematics",
         "Unity.Collections",
+        "Unity.Transforms",
         "Unity.TextMeshPro"
     ],
     "includePlatforms": [],

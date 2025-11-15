@@ -2,6 +2,7 @@
     "name": "Laboratory.Core.Configuration",
     "rootNamespace": "Laboratory.Core.Configuration",
     "references": [
+        "Laboratory.Core.Performance",
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics"
