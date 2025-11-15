@@ -4,8 +4,7 @@
     "references": [
         "Unity.Entities",
         "Unity.Collections",
-        "Unity.Mathematics",
-        "Laboratory.Core.Performance"
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

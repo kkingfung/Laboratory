@@ -1,6 +1,5 @@
 using UnityEngine;
 using Laboratory.Core.Configuration;
-using Laboratory.Core.Performance;
 
 namespace Laboratory.Core.Configuration
 {
@@ -63,12 +62,30 @@ namespace Laboratory.Core.Configuration
         {
             if (!enableLiveMonitoring) return;
 
-            // Monitor update manager statistics
-            var updateManager = OptimizedUpdateManager.Instance;
-            if (updateManager != null)
+            // Monitor update manager statistics using reflection
+            var updateManagerType = System.Type.GetType("Laboratory.Core.Performance.OptimizedUpdateManager, Laboratory.Core.Performance");
+            if (updateManagerType != null)
             {
-                var stats = updateManager.GetStatistics();
-                Debug.Log($"📈 [Config Monitor] Update Manager: {stats.TotalRegisteredSystems} systems, {stats.SystemsUpdatedThisFrame} updated this frame");
+                var instanceProperty = updateManagerType.GetProperty("Instance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                if (instanceProperty != null)
+                {
+                    var updateManager = instanceProperty.GetValue(null);
+                    if (updateManager != null)
+                    {
+                        var getStatsMethod = updateManagerType.GetMethod("GetStatistics");
+                        if (getStatsMethod != null)
+                        {
+                            var stats = getStatsMethod.Invoke(updateManager, null);
+                            if (stats != null)
+                            {
+                                var statsType = stats.GetType();
+                                var totalSystems = statsType.GetProperty("TotalRegisteredSystems")?.GetValue(stats);
+                                var systemsUpdated = statsType.GetProperty("SystemsUpdatedThisFrame")?.GetValue(stats);
+                                Debug.Log($"📈 [Config Monitor] Update Manager: {totalSystems} systems, {systemsUpdated} updated this frame");
+                            }
+                        }
+                    }
+                }
             }
 
             // Show configuration values in use
