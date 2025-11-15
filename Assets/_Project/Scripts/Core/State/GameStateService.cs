@@ -92,7 +92,10 @@ namespace Laboratory.Core.State
 
             if (!suppressEvents)
             {
-                var stateChangedEvent = new GameStateChangedEvent(previousState, newState);
+                // Convert Laboratory.Core.State.GameState to Laboratory.Core.Events.Messages.GameState
+                var eventPreviousState = (Laboratory.Core.Events.Messages.GameState)(int)previousState;
+                var eventNewState = (Laboratory.Core.Events.Messages.GameState)(int)newState;
+                var stateChangedEvent = new GameStateChangedEvent(eventPreviousState, eventNewState);
                 _stateChangeSubject.OnNext(stateChangedEvent);
                 _eventBus.Publish(stateChangedEvent);
             }
