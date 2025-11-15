@@ -126,7 +126,7 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void CheckPopulationEmergencies()
+        void CheckPopulationEmergencies()
         {
             using (s_CheckPopulationEmergenciesMarker.Auto())
             {
@@ -198,7 +198,7 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void CheckGeneticDiversityEmergencies()
+        void CheckGeneticDiversityEmergencies()
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
@@ -216,7 +216,7 @@ namespace Laboratory.Chimera.ECS
             }).WithoutBurst().Run();
         }
 
-        private void CheckHabitatEmergencies()
+        void CheckHabitatEmergencies()
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
@@ -232,7 +232,7 @@ namespace Laboratory.Chimera.ECS
             }).WithoutBurst().Run();
         }
 
-        private void CheckDiseaseEmergencies()
+        void CheckDiseaseEmergencies()
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
@@ -247,7 +247,7 @@ namespace Laboratory.Chimera.ECS
             }).WithoutBurst().Run();
         }
 
-        private void CheckClimateEmergencies()
+        void CheckClimateEmergencies()
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
@@ -313,7 +313,7 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void MonitorEcosystemHealth()
+        void MonitorEcosystemHealth()
         {
             Entities.WithAll<EcosystemHealth>().ForEach((Entity entity, ref EcosystemHealth health) =>
             {
@@ -333,7 +333,7 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void CheckConservationSuccesses()
+        void CheckConservationSuccesses()
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
