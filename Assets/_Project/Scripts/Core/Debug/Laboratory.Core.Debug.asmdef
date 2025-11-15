@@ -1,6 +1,6 @@
 {
-    "name": "Laboratory.Core.Diagnostics",
-    "rootNamespace": "Laboratory.Core.Diagnostics",
+    "name": "Laboratory.Core.Debug",
+    "rootNamespace": "Laboratory.Core.Debug",
     "references": [
         "GUID:637131eabbe6d714c8b34395addaf33b",
         "Unity.Entities",
