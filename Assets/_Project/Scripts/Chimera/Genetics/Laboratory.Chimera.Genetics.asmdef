@@ -8,7 +8,6 @@
         "Laboratory.Shared",
         "Laboratory.Models",
         "Laboratory.Chimera.Core",
-        "Laboratory.Chimera.Creatures",
         "Unity.Entities",
         "Unity.Mathematics",
         "Unity.Collections"
