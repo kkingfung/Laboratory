@@ -794,13 +794,13 @@ namespace Laboratory.Chimera.ECS
         {
             var availableSages = new List<Entity>();
 
-            Entities.WithAll<WisdomData>().WithoutBurst().ForEach((Entity entity, ref WisdomData wisdomData) =>
+            foreach (var (wisdomData, entity) in SystemAPI.Query<RefRO<WisdomData>>().WithEntityAccess())
             {
-                if (wisdomData.sageLevel >= SageLevel.Sage && CanProvideGuidance(wisdomData, guidanceType))
+                if (wisdomData.ValueRO.sageLevel >= SageLevel.Sage && CanProvideGuidance(wisdomData.ValueRO, guidanceType))
                 {
                     availableSages.Add(entity);
                 }
-            }).Run();
+            }
 
             return availableSages.ToArray();
         }

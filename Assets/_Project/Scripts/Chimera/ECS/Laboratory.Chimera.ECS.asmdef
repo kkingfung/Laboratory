@@ -12,6 +12,7 @@
         "UniTask",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
+        "Laboratory.Core.ECS",
         "Laboratory.Shared",
         "Laboratory.Models"
     ],
