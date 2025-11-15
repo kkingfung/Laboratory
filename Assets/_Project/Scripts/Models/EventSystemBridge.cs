@@ -111,10 +111,8 @@ namespace Laboratory.Models
                 target: null, // Static event has limited context
                 source: null,
                 amount: staticEvent.DamageAmount,
-                type: Laboratory.Core.Enums.DamageType.Physical,
-                direction: staticEvent.HitDirection,
-                targetClientId: staticEvent.TargetClientId,
-                attackerClientId: staticEvent.AttackerClientId
+                damageType: Laboratory.Core.Enums.DamageType.Physical,
+                direction: staticEvent.HitDirection
             );
 
             _eventBus?.Publish(unifiedEvent);
@@ -126,9 +124,7 @@ namespace Laboratory.Models
             // Convert static death event to unified format
             var unifiedEvent = new Laboratory.Core.Events.Messages.DeathEvent(
                 target: null,
-                source: null,
-                victimClientId: staticEvent.VictimClientId,
-                killerClientId: staticEvent.KillerClientId
+                source: null
             );
 
             _eventBus?.Publish(unifiedEvent);
@@ -142,14 +138,12 @@ namespace Laboratory.Models
         private void OnUnifiedDeathEvent(Laboratory.Core.Events.Messages.DeathEvent unifiedEvent)
         {
             // Forward to static MessageBus for systems still using it
-            if (unifiedEvent.VictimClientId > 0 && unifiedEvent.KillerClientId > 0)
+            // Note: Unified DeathEvent doesn't contain client IDs, so we can't create a complete static event
+            // This is a limitation of the event bridge - consider enhancing the unified DeathEvent class
+            if (unifiedEvent.Target != null)
             {
-                var staticEvent = new Laboratory.Models.ECS.Components.DeathEvent(
-                    unifiedEvent.VictimClientId,
-                    unifiedEvent.KillerClientId
-                );
-
-                Laboratory.Models.ECS.Components.MessageBus.Publish(staticEvent);
+                Debug.LogWarning($"EventSystemBridge: Cannot fully convert unified DeathEvent to static format - missing client ID data");
+                // Could create a default static event here if needed
             }
         }
 
