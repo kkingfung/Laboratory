@@ -155,7 +155,7 @@ namespace Laboratory.Advanced
                     );
 
                     chunk.heightmap[x, y] = GenerateHeight(worldPos);
-                    chunk.biomes[x, y] = DetermineBiome(worldPos);
+                    chunk.biomes[x, y] = DetermineBiome(worldPos).type;
                 }
             }
 

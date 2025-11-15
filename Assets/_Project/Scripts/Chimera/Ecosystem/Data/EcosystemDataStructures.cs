@@ -70,17 +70,6 @@ namespace Laboratory.Chimera.Ecosystem.Data
     }
 
     /// <summary>
-    /// Types of resources in the ecosystem
-    /// </summary>
-    public enum ResourceType
-    {
-        Food,
-        Water,
-        Shelter,
-        Territory
-    }
-
-    /// <summary>
     /// Core data structures for ecosystem evolution simulation
     ///
     /// STATE ARCHITECTURE OVERVIEW:
@@ -334,17 +323,5 @@ namespace Laboratory.Chimera.Ecosystem.Data
         Fog,
         Tornado,
         Hurricane
-    }
-
-    public enum TrophicLevel
-    {
-        Producer,
-        PrimaryConsumer,
-        SecondaryConsumer,
-        TertiaryConsumer,
-        Decomposer,
-        Omnivore,
-        Carnivore,
-        Herbivore
     }
 }
