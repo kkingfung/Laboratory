@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using Laboratory.Core;
 using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Advanced

@@ -418,7 +418,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             return math.max(0.001f, fitness); // Ensure minimum fitness
         }
 
-        private float CalculateTraitFitnessContribution(GeneticTrait trait, Laboratory.Core.Enums.TraitType traitType)
+        private float CalculateTraitFitnessContribution(GeneticTrait trait, ChimeraTraitType traitType)
         {
             // Different traits contribute differently to fitness
             return traitType switch
@@ -670,7 +670,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         public string species;
         public float fitness;
         public float birthTime;
-        public Dictionary<Laboratory.Core.Enums.TraitType, GeneticTrait> traits;
+        public Dictionary<ChimeraTraitType, GeneticTrait> traits;
     }
 
     [System.Serializable]
