@@ -27,9 +27,10 @@ namespace Laboratory.Chimera.ECS
 
         public void OnCreate(ref SystemState state)
         {
-            creatureQuery = SystemAPI.QueryBuilder()
-                .WithAll<CreatureData, CreatureSimulationTag>()
-                .Build();
+            creatureQuery = state.GetEntityQuery(
+                ComponentType.ReadWrite<CreatureData>(),
+                ComponentType.ReadOnly<CreatureSimulationTag>()
+            );
         }
 
 
@@ -90,10 +91,12 @@ namespace Laboratory.Chimera.ECS
 
         public void OnCreate(ref SystemState state)
         {
-            aiQuery = SystemAPI.QueryBuilder()
-                .WithAll<CreatureAIComponent, CreatureData, LocalTransform>()
-                .WithAll<CreatureSimulationTag>()
-                .Build();
+            aiQuery = state.GetEntityQuery(
+                ComponentType.ReadWrite<CreatureAIComponent>(),
+                ComponentType.ReadOnly<CreatureData>(),
+                ComponentType.ReadWrite<LocalTransform>(),
+                ComponentType.ReadOnly<CreatureSimulationTag>()
+            );
         }
 
 
@@ -201,11 +204,12 @@ namespace Laboratory.Chimera.ECS
 
         public void OnCreate(ref SystemState state)
         {
-            geneticsQuery = SystemAPI.QueryBuilder()
-                .WithAll<CreatureData, CreatureStats>()
-                .WithAll<CreatureGeneticTrait>()
-                .WithAll<CreatureSimulationTag>()
-                .Build();
+            geneticsQuery = state.GetEntityQuery(
+                ComponentType.ReadOnly<CreatureData>(),
+                ComponentType.ReadWrite<CreatureStats>(),
+                ComponentType.ReadOnly<CreatureGeneticTrait>(),
+                ComponentType.ReadOnly<CreatureSimulationTag>()
+            );
         }
 
 
@@ -318,9 +322,10 @@ namespace Laboratory.Chimera.ECS
 
         public void OnCreate(ref SystemState state)
         {
-            deadCreatureQuery = SystemAPI.QueryBuilder()
-                .WithAll<CreatureData, CreatureSimulationTag>()
-                .Build();
+            deadCreatureQuery = state.GetEntityQuery(
+                ComponentType.ReadOnly<CreatureData>(),
+                ComponentType.ReadOnly<CreatureSimulationTag>()
+            );
 
             ecbSystem = state.World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
         }
