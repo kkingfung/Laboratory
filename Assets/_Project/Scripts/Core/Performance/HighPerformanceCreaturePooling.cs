@@ -8,6 +8,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Core.Configuration;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Core;
 
 namespace Laboratory.Core.Performance
 {

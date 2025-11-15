@@ -112,7 +112,7 @@ namespace Laboratory.Models
                 target: null, // Static event has limited context
                 source: null,
                 amount: staticEvent.DamageAmount,
-                damageType: DamageType.Physical,
+                damageType: Laboratory.Core.Enums.DamageType.Physical,
                 direction: staticEvent.HitDirection
             );
 

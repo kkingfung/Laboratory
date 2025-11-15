@@ -364,11 +364,19 @@ namespace Laboratory.AI
         {
             if (success && path != null && path.Length > 0 && navAgent != null)
             {
-                navAgent.SetPath(new UnityEngine.AI.NavMeshPath());
+                // Use NavMesh to calculate proper path to destination
                 var navPath = new UnityEngine.AI.NavMeshPath();
-                navPath.corners = path;
-                navAgent.SetPath(navPath);
-                status = PathfindingStatus.Following;
+                if (UnityEngine.AI.NavMesh.CalculatePath(path[0], path[path.Length - 1], UnityEngine.AI.NavMesh.AllAreas, navPath))
+                {
+                    navAgent.SetPath(navPath);
+                    status = PathfindingStatus.Following;
+                }
+                else
+                {
+                    // Fallback: just set destination directly
+                    navAgent.SetDestination(path[path.Length - 1]);
+                    status = PathfindingStatus.Following;
+                }
             }
             else
             {
