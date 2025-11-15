@@ -2,12 +2,12 @@ using UnityEngine;
 using System.Collections.Generic;
 using Unity.Profiling;
 using Laboratory.Shared.Types;
+using Laboratory.Core;
 using Laboratory.Core.Enums;
 using Laboratory.Systems.Analytics.Services;
 using Laboratory.Systems.Quests;
 using Laboratory.Systems.Breeding;
 using Laboratory.Systems.Ecosystem;
-using ProjectChimera.Core;
 
 namespace Laboratory.Systems.Analytics
 {

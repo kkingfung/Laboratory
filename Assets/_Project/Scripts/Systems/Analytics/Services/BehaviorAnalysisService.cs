@@ -2,8 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Shared.Types;
+using Laboratory.Core;
 using Laboratory.Core.Enums;
-using ProjectChimera.Core;
 
 namespace Laboratory.Systems.Analytics.Services
 {

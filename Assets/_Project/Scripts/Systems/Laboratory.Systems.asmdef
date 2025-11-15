@@ -2,8 +2,10 @@
     "name": "Laboratory.Systems",
     "rootNamespace": "Laboratory.Systems",
     "references": [
+        "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
+        "Laboratory.Core.Enums",
         "Laboratory.Shared",
         "Unity.Entities",
         "Unity.Collections",
