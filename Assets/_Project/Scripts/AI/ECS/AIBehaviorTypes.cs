@@ -54,26 +54,4 @@ namespace Laboratory.AI.ECS
         public float BehaviorDuration;
         public bool IsBehaviorComplete;
     }
-
-    /// <summary>
-    /// Placeholder for unified ECS pathfinding system
-    /// </summary>
-    public class UnifiedECSPathfindingSystem : SystemBase
-    {
-        protected override void OnUpdate()
-        {
-            // Implementation would handle ECS pathfinding
-        }
-    }
-
-    /// <summary>
-    /// Placeholder for unified AI state system
-    /// </summary>
-    public class UnifiedAIStateSystem : SystemBase
-    {
-        protected override void OnUpdate()
-        {
-            // Implementation would handle AI state management
-        }
-    }
 }

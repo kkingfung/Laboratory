@@ -120,9 +120,9 @@ namespace Laboratory.Core.Events
     }
     
     /// <summary>
-    /// Damage event for networking and ECS
+    /// Damage event for networking and ECS (renamed to avoid conflict with Messages.DamageEvent)
     /// </summary>
-    public struct DamageEvent
+    public struct NetworkDamageEvent
     {
         public float Amount;
         public EntityId Source;
@@ -130,8 +130,8 @@ namespace Laboratory.Core.Events
         public Vector3 Position;
         public int DamageType;
         public ulong targetClientId;
-        
-        public DamageEvent(float amount, EntityId source, EntityId target, Vector3 position, int damageType = 0)
+
+        public NetworkDamageEvent(float amount, EntityId source, EntityId target, Vector3 position, int damageType = 0)
         {
             Amount = amount;
             Source = source;
