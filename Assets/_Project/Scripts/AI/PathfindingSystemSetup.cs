@@ -360,6 +360,22 @@ namespace Laboratory.AI
             return !navAgent.pathPending && navAgent.remainingDistance <= stoppingDistance;
         }
 
+        public void OnPathCalculated(Vector3[] path, bool success)
+        {
+            if (success && path != null && path.Length > 0 && navAgent != null)
+            {
+                navAgent.SetPath(new UnityEngine.AI.NavMeshPath());
+                var navPath = new UnityEngine.AI.NavMeshPath();
+                navPath.corners = path;
+                navAgent.SetPath(navPath);
+                status = PathfindingStatus.Following;
+            }
+            else
+            {
+                status = PathfindingStatus.Failed;
+            }
+        }
+
         // Public methods
         public void SetDestination(Vector3 destination)
         {

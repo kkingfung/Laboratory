@@ -89,6 +89,9 @@ namespace Laboratory.AI.Pathfinding
 
         /// <summary>Check if agent has reached destination</summary>
         bool HasReachedDestination();
+
+        /// <summary>Callback when path calculation completes</summary>
+        void OnPathCalculated(Vector3[] path, bool success);
     }
 
     /// <summary>

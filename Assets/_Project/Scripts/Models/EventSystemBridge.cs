@@ -3,6 +3,7 @@ using UnityEngine;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Core.Enums;
 using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models
@@ -111,10 +112,8 @@ namespace Laboratory.Models
                 target: null, // Static event has limited context
                 source: null,
                 amount: staticEvent.DamageAmount,
-                type: Laboratory.Core.Health.DamageType.Physical,
-                direction: staticEvent.HitDirection,
-                targetClientId: staticEvent.TargetClientId,
-                attackerClientId: staticEvent.AttackerClientId
+                damageType: DamageType.Physical,
+                direction: staticEvent.HitDirection
             );
 
             _eventBus?.Publish(unifiedEvent);
@@ -126,9 +125,7 @@ namespace Laboratory.Models
             // Convert static death event to unified format
             var unifiedEvent = new Laboratory.Core.Events.Messages.DeathEvent(
                 target: null,
-                source: null,
-                victimClientId: staticEvent.VictimClientId,
-                killerClientId: staticEvent.KillerClientId
+                source: null
             );
 
             _eventBus?.Publish(unifiedEvent);
@@ -142,15 +139,9 @@ namespace Laboratory.Models
         private void OnUnifiedDeathEvent(Laboratory.Core.Events.Messages.DeathEvent unifiedEvent)
         {
             // Forward to static MessageBus for systems still using it
-            if (unifiedEvent.VictimClientId > 0 && unifiedEvent.KillerClientId > 0)
-            {
-                var staticEvent = new Laboratory.Models.ECS.Components.DeathEvent(
-                    unifiedEvent.VictimClientId,
-                    unifiedEvent.KillerClientId
-                );
-
-                Laboratory.Models.ECS.Components.MessageBus.Publish(staticEvent);
-            }
+            // Note: Unified event doesn't have client IDs, so we can't forward to static MessageBus
+            // This migration path is disabled until we add client ID tracking to unified events
+            Debug.LogWarning("EventSystemBridge: OnUnifiedDeathEvent called but cannot forward to static MessageBus (no client ID tracking)");
         }
 
         #endregion
