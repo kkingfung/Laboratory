@@ -92,7 +92,7 @@ namespace Laboratory.Core.Activities
     /// <summary>
     /// Placeholder for ActivityCenterSystem referenced in equipment code
     /// </summary>
-    public class ActivityCenterSystem : SystemBase
+    public partial class ActivityCenterSystem : SystemBase
     {
         protected override void OnUpdate()
         {

@@ -1,6 +1,5 @@
 using Unity.Entities;
 using Unity.Mathematics;
-using Laboratory.Core.Activities;
 
 namespace Laboratory.Core.ECS.Components
 {

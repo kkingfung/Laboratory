@@ -12,8 +12,7 @@
         "R3.Unity",
         "UniTask",
         "Laboratory.Core.Events",
-        "Laboratory.Core.Health",
-        "Laboratory.Core.Activities"
+        "Laboratory.Core.Health"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
