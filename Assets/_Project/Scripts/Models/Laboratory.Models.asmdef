@@ -5,6 +5,7 @@
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
         "Laboratory.Core.Enums",
+        "Laboratory.Core.Health",
         "Laboratory.Shared",
         "Unity.Entities",
         "Unity.Mathematics",

@@ -63,6 +63,8 @@ namespace Laboratory.Core.Configuration
         {
             if (!enableLiveMonitoring) return;
 
+            // Temporarily disabled to avoid circular dependency with Laboratory.Core.Performance
+            /* DISABLED - Circular dependency issue
             // Monitor update manager statistics
             var updateManager = OptimizedUpdateManager.Instance;
             if (updateManager != null)
@@ -70,6 +72,7 @@ namespace Laboratory.Core.Configuration
                 var stats = updateManager.GetStatistics();
                 Debug.Log($"📈 [Config Monitor] Update Manager: {stats.TotalRegisteredSystems} systems, {stats.SystemsUpdatedThisFrame} updated this frame");
             }
+            */
 
             // Show configuration values in use
             ShowConfigurationInUse();
