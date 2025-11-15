@@ -9,7 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9, type: 3}
+  m_Script: {fileID: 11500000, guid: 9c0d582fe2a773d4080b54878690288d, type: 3}
   m_Name: ProgressionConfig
   m_EditorClassIdentifier:
   maxLevel: 100
