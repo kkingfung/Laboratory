@@ -559,7 +559,7 @@ namespace Laboratory.Chimera.ECS
             health.healthTrend = health.overallHealth - oldHealth;
         }
 
-        private void CheckEarlyWarningSigns(Entity entity, EcosystemHealth health)
+        void CheckEarlyWarningSigns(Entity entity, EcosystemHealth health)
         {
             // Check for patterns that indicate impending emergencies
             if (health.healthTrend < -0.05f && health.overallHealth < 0.8f)
@@ -569,19 +569,19 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void IssueEarlyWarning(Entity entity, EcosystemHealth health)
+        void IssueEarlyWarning(Entity entity, EcosystemHealth health)
         {
             // Issue early warning notification
             UnityEngine.Debug.Log($"Early Warning: Ecosystem health declining rapidly (Current: {health.overallHealth:P1}, Trend: {health.healthTrend:F3})");
         }
 
-        private void ProcessEscalatedEmergency(ConservationEmergency emergency, float deltaTime)
+        void ProcessEscalatedEmergency(ConservationEmergency emergency, float deltaTime)
         {
             // Process escalated emergencies with more severe consequences
             // This might involve faster deterioration or additional requirements
         }
 
-        private EmergencyAction ConvertToECSEmergencyAction(Laboratory.Chimera.Ecosystem.EmergencyAction ecosystemAction)
+        EmergencyAction ConvertToECSEmergencyAction(Laboratory.Chimera.Ecosystem.EmergencyAction ecosystemAction)
         {
             return new EmergencyAction
             {
@@ -595,7 +595,7 @@ namespace Laboratory.Chimera.ECS
             };
         }
 
-        private FixedList128Bytes<PlayerContribution> ConvertPlayerContributionsToFixedList(Dictionary<int, float> contributions)
+        FixedList128Bytes<PlayerContribution> ConvertPlayerContributionsToFixedList(Dictionary<int, float> contributions)
         {
             var fixedList = new FixedList128Bytes<PlayerContribution>();
             foreach (var kvp in contributions)
@@ -608,7 +608,7 @@ namespace Laboratory.Chimera.ECS
             return fixedList;
         }
 
-        private FixedList64Bytes<FixedString128Bytes> ConvertStringArrayToFixedList128(string[] strings)
+        FixedList64Bytes<FixedString128Bytes> ConvertStringArrayToFixedList128(string[] strings)
         {
             var fixedList = new FixedList64Bytes<FixedString128Bytes>();
             if (strings != null)
@@ -621,7 +621,7 @@ namespace Laboratory.Chimera.ECS
             return fixedList;
         }
 
-        private FixedList32Bytes<FixedString64Bytes> ConvertStringArrayToFixedList32(string[] strings)
+        FixedList32Bytes<FixedString64Bytes> ConvertStringArrayToFixedList32(string[] strings)
         {
             var fixedList = new FixedList32Bytes<FixedString64Bytes>();
             if (strings != null)
@@ -638,7 +638,7 @@ namespace Laboratory.Chimera.ECS
 
         #region Public Methods for Player Interaction
 
-        public void StartEmergencyResponse(int playerId, int emergencyId, EmergencyActionType actionType, float resourceCommitment)
+        void StartEmergencyResponse(int playerId, int emergencyId, EmergencyActionType actionType, float resourceCommitment)
         {
             var emergency = _activeEmergencies.FirstOrDefault(e => e.emergencyId == emergencyId);
             if (emergency.emergencyId == 0)
@@ -666,7 +666,7 @@ namespace Laboratory.Chimera.ECS
             UnityEngine.Debug.Log($"Player {playerId} started response to emergency {emergencyId}");
         }
 
-        public ConservationEmergency[] GetActiveEmergencies()
+        ConservationEmergency[] GetActiveEmergencies()
         {
             return _activeEmergencies.ToArray();
         }
