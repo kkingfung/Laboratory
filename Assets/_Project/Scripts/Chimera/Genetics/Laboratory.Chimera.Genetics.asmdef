@@ -4,6 +4,7 @@
     "references": [
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
+        "Laboratory.Core.Events",
         "Laboratory.Shared",
         "Laboratory.Models",
         "Unity.Entities",
