@@ -20,7 +20,7 @@ namespace Laboratory.Core.Events
 
         public void PublishDamageEvent(GameObject target, object source, float damage, int damageType, Vector3 direction)
         {
-            var damageEvent = new DamageEvent(
+            var damageEvent = new Messages.DamageEvent(
                 target,
                 source,
                 damage,
@@ -33,7 +33,7 @@ namespace Laboratory.Core.Events
 
         public void PublishDeathEvent(GameObject target, object source)
         {
-            var deathEvent = new DeathEvent(target, source);
+            var deathEvent = new Messages.DeathEvent(target, source);
             _eventBus?.Publish(deathEvent);
         }
     }

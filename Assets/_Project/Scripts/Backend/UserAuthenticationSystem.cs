@@ -448,7 +448,7 @@ namespace Laboratory.Backend
                         Debug.Log($"[UserAuthenticationSystem] Session restored: {_currentSession.userId}");
 
                         // Refresh token if close to expiry
-                        if ((currentSession.expiresAt - DateTime.UtcNow).TotalSeconds < sessionRefreshInterval * 0.2f)
+                        if ((_currentSession.expiresAt - DateTime.UtcNow).TotalSeconds < sessionRefreshInterval * 0.2f)
                         {
                             StartCoroutine(RefreshSession());
                         }
