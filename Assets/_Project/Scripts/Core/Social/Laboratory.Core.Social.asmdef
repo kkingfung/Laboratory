@@ -1,0 +1,22 @@
+{
+    "name": "Laboratory.Core.Social",
+    "rootNamespace": "Laboratory.Core.Social",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Laboratory.Core",
+        "Laboratory.Core.Equipment",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Enums"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

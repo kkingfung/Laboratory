@@ -1,0 +1,25 @@
+{
+    "name": "Laboratory.Core.TownBuilding",
+    "rootNamespace": "Laboratory.Core.TownBuilding",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Burst",
+        "Laboratory.Core",
+        "Laboratory.Core.ECS",
+        "Laboratory.Core.Activities",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Enums"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

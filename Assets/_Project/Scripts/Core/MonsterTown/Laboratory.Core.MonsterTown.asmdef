@@ -1,0 +1,25 @@
+{
+    "name": "Laboratory.Core.MonsterTown",
+    "rootNamespace": "Laboratory.Core.MonsterTown",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Laboratory.Core",
+        "Laboratory.Core.ECS",
+        "Laboratory.Core.Equipment",
+        "Laboratory.Core.Activities",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Enums"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

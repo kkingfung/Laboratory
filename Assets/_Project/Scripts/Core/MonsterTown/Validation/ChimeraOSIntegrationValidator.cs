@@ -7,7 +7,6 @@ using Cysharp.Threading.Tasks;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.MonsterTown.Systems;
-using ProjectChimera.Core;
 
 namespace Laboratory.Core.MonsterTown.Validation
 {

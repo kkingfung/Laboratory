@@ -1,0 +1,21 @@
+{
+    "name": "Laboratory.Core.Services",
+    "rootNamespace": "Laboratory.Core.Services",
+    "references": [
+        "Unity.Addressables",
+        "Unity.ResourceManager",
+        "UniTask",
+        "Laboratory.Core",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
