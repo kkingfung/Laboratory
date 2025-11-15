@@ -7,7 +7,7 @@ using Unity.Transforms;
 using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Core.Configuration;
-using ProjectChimera.Core;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Core.Performance
 {

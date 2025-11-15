@@ -309,7 +309,7 @@ namespace Laboratory.Backend
         {
             string url = backendUrl + logoutEndpoint;
 
-            using (UnityWebRequest request = UnityWebRequest.Post(url, ""))
+            using (UnityWebRequest request = UnityWebRequest.PostWwwForm(url, ""))
             {
                 request.SetRequestHeader("Authorization", $"Bearer {_currentSession.accessToken}");
                 request.timeout = 5;

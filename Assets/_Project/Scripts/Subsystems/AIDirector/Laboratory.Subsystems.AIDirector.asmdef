@@ -2,7 +2,9 @@
     "name": "Laboratory.Subsystems.AIDirector",
     "rootNamespace": "Laboratory.Subsystems.AIDirector",
     "references": [
-        "Laboratory.Core",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Enums",
         "Laboratory.Infrastructure",
         "Laboratory.Subsystems",
         "Laboratory.Chimera",

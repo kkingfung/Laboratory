@@ -1,0 +1,25 @@
+{
+    "name": "Laboratory.Chimera.Creatures",
+    "rootNamespace": "Laboratory.Chimera.Creatures",
+    "references": [
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Enums",
+        "Laboratory.Shared",
+        "Laboratory.Models",
+        "Laboratory.Chimera.Genetics",
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Collections",
+        "Unity.Physics",
+        "Unity.Transforms"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

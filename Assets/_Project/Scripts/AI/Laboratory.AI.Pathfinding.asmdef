@@ -2,10 +2,12 @@
     "name": "Laboratory.AI.Pathfinding",
     "rootNamespace": "Laboratory.AI.Pathfinding",
     "references": [
-        "GUID:75469ad4d38634e559750d17036d5f7c",
-        "GUID:e0cd26848372d4e5c891c569017e11f1",
-        "GUID:d8b63aba1907145bea998dd612889d6b",
-        "GUID:26c858a044ea8e443864d1208306534e"
+        "Laboratory.Core.Configuration",
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Jobs",
+        "Unity.Burst"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

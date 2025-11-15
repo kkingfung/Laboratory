@@ -2,14 +2,10 @@
     "name": "Laboratory.Chimera.Testing",
     "rootNamespace": "Laboratory.Chimera.Testing",
     "references": [
-        "Laboratory.Core",
-        "Laboratory.Chimera",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Enums",
         "Laboratory.Shared",
-        "Laboratory.Chimera.AI",
-        "Laboratory.AI.Agents",
-        "Laboratory.AI.Pathfinding",
-        "Unity.AI.Navigation",
-        "UniTask"
+        "Unity.TestRunner.Framework"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

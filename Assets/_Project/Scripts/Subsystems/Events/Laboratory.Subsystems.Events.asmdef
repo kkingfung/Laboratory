@@ -2,7 +2,9 @@
     "name": "Laboratory.Subsystems.Events",
     "rootNamespace": "Laboratory.Subsystems.Events",
     "references": [
-        "Laboratory.Core",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Enums",
         "Laboratory.Infrastructure",
         "Laboratory.Chimera",
         "Laboratory.Subsystems",

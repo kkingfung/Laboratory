@@ -2,10 +2,9 @@
     "name": "Laboratory.Subsystems.Monitoring",
     "rootNamespace": "Laboratory.Subsystems.Monitoring",
     "references": [
-        "Laboratory.Core",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
         "Laboratory.Infrastructure",
-        "Laboratory.Chimera",
-        "Laboratory.Subsystems",
         "Unity.Mathematics",
         "Unity.Collections",
         "Unity.Entities",

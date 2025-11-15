@@ -8,7 +8,8 @@
         "Unity.Netcode.Runtime",
         "Unity.Mathematics",
         "Unity.InputSystem",
-        "Laboratory.Core",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
         "Unity.Collections",
         "Unity.Entities",
         "R3"

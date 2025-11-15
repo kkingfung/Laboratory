@@ -5,7 +5,9 @@
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",
-        "R3.Unity"
+        "R3.Unity",
+        "Laboratory.Core.Enums",
+        "Laboratory.Core.Infrastructure"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

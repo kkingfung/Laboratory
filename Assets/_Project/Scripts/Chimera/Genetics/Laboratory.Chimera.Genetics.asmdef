@@ -1,0 +1,22 @@
+{
+    "name": "Laboratory.Chimera.Genetics",
+    "rootNamespace": "Laboratory.Chimera.Genetics",
+    "references": [
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Enums",
+        "Laboratory.Shared",
+        "Laboratory.Models",
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Collections"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

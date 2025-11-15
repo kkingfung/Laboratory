@@ -1,7 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using ProjectChimera.Core;
+using Laboratory.Core.Infrastructure;
 
 namespace Laboratory.Advanced
 {

@@ -2,7 +2,8 @@
     "name": "Laboratory.Subsystems.Performance",
     "rootNamespace": "Laboratory.Subsystems.Performance",
     "references": [
-        "Laboratory.Core",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
         "Laboratory.Infrastructure",
         "Laboratory.Subsystems.Monitoring",
         "Unity.Entities",

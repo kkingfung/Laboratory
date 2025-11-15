@@ -1,0 +1,20 @@
+{
+    "name": "Laboratory.Analytics",
+    "rootNamespace": "Laboratory.Analytics",
+    "references": [
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Shared",
+        "Laboratory.Backend",
+        "Unity.Collections",
+        "Unity.Mathematics"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

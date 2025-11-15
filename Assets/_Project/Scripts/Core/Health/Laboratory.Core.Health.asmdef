@@ -7,7 +7,10 @@
         "Unity.Mathematics",
         "Unity.Jobs",
         "Unity.Burst",
-        "Unity.Transforms"
+        "Unity.Transforms",
+        "Unity.Netcode.Runtime",
+        "Laboratory.Core.Enums",
+        "Laboratory.Core.Infrastructure"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,0 +1,24 @@
+{
+    "name": "Laboratory.Chimera.Breeding",
+    "rootNamespace": "Laboratory.Chimera.Breeding",
+    "references": [
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Enums",
+        "Laboratory.Shared",
+        "Laboratory.Models",
+        "Laboratory.Chimera.Genetics",
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Collections",
+        "Unity.Netcode.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

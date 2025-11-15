@@ -1,0 +1,22 @@
+{
+    "name": "Laboratory.Core.Performance",
+    "rootNamespace": "Laboratory.Core.Performance",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Jobs",
+        "Unity.Burst",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Configuration"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

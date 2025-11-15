@@ -326,9 +326,10 @@ namespace Laboratory.Content
             if (enableCaching && !string.IsNullOrEmpty(hash))
             {
                 // Use cached version
-                var cachedBundle = Caching.GetCachedVersions(bundleName, Hash128.Parse(hash));
+                var cachedVersions = new List<Hash128>();
+                Caching.GetCachedVersions(bundleName, cachedVersions);
 
-                if (cachedBundle.Count > 0)
+                if (cachedVersions.Count > 0)
                 {
                     _cacheHits++;
                     request = UnityWebRequestAssetBundle.GetAssetBundle(url, Hash128.Parse(hash), 0);
@@ -601,7 +602,8 @@ namespace Laboratory.Content
         {
             long totalSize = 0;
 
-            var caches = Caching.GetAllCachePaths();
+            var caches = new List<string>();
+            Caching.GetAllCachePaths(caches);
             foreach (var cache in caches)
             {
                 if (Directory.Exists(cache))

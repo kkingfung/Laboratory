@@ -2,7 +2,10 @@
     "name": "Laboratory.AI.Agents",
     "rootNamespace": "Laboratory.AI.Agents",
     "references": [
-        "Laboratory.AI.Pathfinding"
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Shared",
+        "Laboratory.AI.Pathfinding",
+        "Unity.Mathematics"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

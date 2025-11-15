@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Core.Events.Messages
 {
@@ -11,17 +12,17 @@ namespace Laboratory.Core.Events.Messages
     public class MatchmakingStateChangedEvent
     {
         /// <summary>Previous matchmaking state.</summary>
-        public Laboratory.Core.MatchmakingState PreviousState { get; }
-        
+        public MatchmakingState PreviousState { get; }
+
         /// <summary>New matchmaking state.</summary>
-        public Laboratory.Core.MatchmakingState CurrentState { get; }
+        public MatchmakingState CurrentState { get; }
         
         /// <summary>Timestamp when the state change occurred.</summary>
         public DateTime ChangedAt { get; }
         
         public MatchmakingStateChangedEvent(
-            Laboratory.Core.MatchmakingState previousState, 
-            Laboratory.Core.MatchmakingState currentState)
+            MatchmakingState previousState,
+            MatchmakingState currentState)
         {
             PreviousState = previousState;
             CurrentState = currentState;

@@ -2,9 +2,12 @@
     "name": "Laboratory.AI.Testing",
     "rootNamespace": "Laboratory.AI.Testing",
     "references": [
-        "Laboratory.Core",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Enums",
+        "Laboratory.Shared",
         "Laboratory.AI.Pathfinding",
-        "Laboratory.AI.Agents"
+        "Laboratory.AI.Agents",
+        "Unity.TestRunner.Framework"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

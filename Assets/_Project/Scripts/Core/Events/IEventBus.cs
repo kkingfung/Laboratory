@@ -56,20 +56,4 @@ namespace Laboratory.Core.Events
         /// </summary>
         void ClearSubscriptions<T>() where T : class;
     }
-
-    /// <summary>
-    /// Base interface for all events.
-    /// </summary>
-    public interface IEvent
-    {
-        DateTime Timestamp { get; }
-    }
-
-    /// <summary>
-    /// Base class for events with automatic timestamp.
-    /// </summary>
-    public abstract class BaseEvent : IEvent
-    {
-        public DateTime Timestamp { get; } = DateTime.UtcNow;
-    }
 }

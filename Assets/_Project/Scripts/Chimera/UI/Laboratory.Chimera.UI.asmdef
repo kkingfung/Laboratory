@@ -8,10 +8,13 @@
         "Unity.Transforms",
         "Unity.TextMeshPro",
         "Unity.ugui",
-        "Laboratory.Core",
-        "Laboratory.Chimera",
-        "Laboratory.Chimera.ECS",
-        "Laboratory.Shared"
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Enums",
+        "Laboratory.Shared",
+        "Laboratory.Chimera.Genetics",
+        "Laboratory.Chimera.Creatures",
+        "Laboratory.Chimera.Breeding",
+        "Laboratory.Chimera.Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

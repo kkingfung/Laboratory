@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ProjectChimera.Core
+namespace Laboratory.Core
 {
     /// <summary>
     /// Centralized constants for Project Chimera

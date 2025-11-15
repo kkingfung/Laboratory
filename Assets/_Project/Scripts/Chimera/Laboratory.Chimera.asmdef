@@ -9,7 +9,9 @@
         "Unity.Burst",
         "Unity.Transforms",
         "Unity.Physics",
-        "Laboratory.Core"
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Enums"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

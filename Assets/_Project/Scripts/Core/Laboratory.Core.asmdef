@@ -10,11 +10,10 @@
         "Unity.Transforms",
         "Unity.Physics",
         "R3.Unity",
-        "GUID:32c2afa2b82a93942a8cadc3a5bcdc69",
-        "GUID:9110bd9b85e02d54080185d8ee826067",
-        "GUID:0a9148711716bcb49af12fbc113994b5",
-        "Laboratory.Core.Infrastructure",
-        "Laboratory.Core.Health"
+        "UniTask",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Health",
+        "Laboratory.Core.Activities"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ProjectChimera.Core;
+using Laboratory.Core;
 
 namespace Laboratory.Core.Persistence
 {

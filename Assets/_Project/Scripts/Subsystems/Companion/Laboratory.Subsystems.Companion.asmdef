@@ -2,7 +2,9 @@
     "name": "Laboratory.Subsystems.Companion",
     "rootNamespace": "Laboratory.Subsystems.Companion",
     "references": [
-        "Laboratory.Core",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Enums",
         "Laboratory.Infrastructure",
         "Laboratory.Chimera",
         "Laboratory.Subsystems",

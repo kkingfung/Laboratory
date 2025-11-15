@@ -2,7 +2,9 @@
     "name": "Laboratory.AI.Configuration",
     "rootNamespace": "Laboratory.AI.Configuration",
     "references": [
-        "Laboratory.Core",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Enums",
+        "Laboratory.Shared",
         "Laboratory.AI.Pathfinding",
         "Laboratory.AI.Agents"
     ],

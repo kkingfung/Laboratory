@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Laboratory.Core.Health;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Core.Health.Components
 {

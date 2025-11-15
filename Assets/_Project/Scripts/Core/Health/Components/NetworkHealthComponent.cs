@@ -2,8 +2,8 @@ using System;
 using UnityEngine;
 using Unity.Netcode;
 using Laboratory.Core.Health;
-using Laboratory.Core.Events;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Core.Enums;
 
 namespace Laboratory.Core.Health.Components
 {
@@ -49,7 +49,7 @@ namespace Laboratory.Core.Health.Components
 
         #region Private Fields
 
-        private IEventBus _eventBus;
+        private IHealthEventPublisher _healthEventPublisher;
         private float _lastInvulnerabilityTime;
         
         // Client prediction variables
@@ -108,11 +108,11 @@ namespace Laboratory.Core.Health.Components
             // Initialize predicted health from network value
             _predictedHealth = _networkCurrentHealth.Value;
 
-            // Get event bus for publishing events
+            // Get health event publisher for publishing events
             var serviceContainer = ServiceContainer.Instance;
             if (serviceContainer != null)
             {
-                _eventBus = serviceContainer.ResolveService<IEventBus>();
+                _healthEventPublisher = serviceContainer.ResolveService<IHealthEventPublisher>();
             }
         }
 
@@ -284,14 +284,14 @@ namespace Laboratory.Core.Health.Components
             var eventArgs = new HealthChangedEventArgs(oldHealth, _networkCurrentHealth.Value, damageRequest.Source);
             OnHealthChanged?.Invoke(eventArgs);
 
-            // Publish damage event
-            _eventBus?.Publish(new Laboratory.Core.Events.Messages.DamageEvent(
+            // Publish damage event through interface to avoid circular dependencies
+            _healthEventPublisher?.PublishDamageEvent(
                 gameObject,
                 damageRequest.Source,
                 damageRequest.Amount,
-                damageRequest.Type,
+                (int)damageRequest.Type,
                 damageRequest.Direction
-            ));
+            );
 
             // Check for death
             if (_networkCurrentHealth.Value <= 0 && _networkIsAlive.Value)
@@ -328,11 +328,11 @@ namespace Laboratory.Core.Health.Components
             // Broadcast death to all clients
             OnDeathClientRpc(finalDamage.DamageId);
 
-            // Publish death event
-            _eventBus?.Publish(new Laboratory.Core.Events.Messages.DeathEvent(
+            // Publish death event through interface to avoid circular dependencies
+            _healthEventPublisher?.PublishDeathEvent(
                 gameObject,
                 finalDamage.Source
-            ));
+            );
         }
 
         private void HandleServerRegeneration()
@@ -492,6 +492,4 @@ namespace Laboratory.Core.Health.Components
         #endregion
     }
 
-    // Note: DamageEvent and DeathEvent classes are defined in Laboratory.Core.Events.Messages
-    // to avoid namespace conflicts with other event systems.
 }

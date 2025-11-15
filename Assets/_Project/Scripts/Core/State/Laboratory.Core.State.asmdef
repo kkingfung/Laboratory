@@ -1,0 +1,21 @@
+{
+    "name": "Laboratory.Core.State",
+    "rootNamespace": "Laboratory.Core.State",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "UniTask",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Infrastructure"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

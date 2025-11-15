@@ -1,0 +1,22 @@
+{
+    "name": "Laboratory.Advanced",
+    "rootNamespace": "Laboratory.Advanced",
+    "references": [
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Shared",
+        "Unity.Entities",
+        "Unity.Mathematics",
+        "Unity.Collections",
+        "Unity.Jobs",
+        "Unity.Burst"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

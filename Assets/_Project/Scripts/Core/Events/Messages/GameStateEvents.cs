@@ -1,9 +1,21 @@
 #nullable enable
 using System;
-using Laboratory.Core.State;
 
 namespace Laboratory.Core.Events.Messages
 {
+    /// <summary>
+    /// Local definition of GameState to avoid circular dependency with Laboratory.Core.State
+    /// </summary>
+    public enum GameState
+    {
+        None = 0,
+        MainMenu = 1,
+        Loading = 2,
+        Gameplay = 3,
+        Paused = 4,
+        GameOver = 5
+    }
+
     #region Game State Events
     
     /// <summary>

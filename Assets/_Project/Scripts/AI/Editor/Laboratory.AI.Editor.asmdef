@@ -2,11 +2,9 @@
     "name": "Laboratory.AI.Editor",
     "rootNamespace": "Laboratory.AI.Editor",
     "references": [
-        "Laboratory.Core",
-        "Laboratory.AI.Pathfinding",
-        "Laboratory.AI.Agents",
-        "Laboratory.Chimera.AI",
-        "Laboratory.Subsystems"
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Enums",
+        "Laboratory.Shared"
     ],
     "includePlatforms": [
         "Editor"
