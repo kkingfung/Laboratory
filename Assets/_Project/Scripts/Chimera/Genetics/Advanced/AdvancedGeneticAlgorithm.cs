@@ -213,7 +213,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             return offspring;
         }
 
-        private GeneticTrait InheritTrait(GeneticTrait traitA, GeneticTrait traitB, Laboratory.Core.Enums.TraitType traitType, float inbreedingCoefficient)
+        private GeneticTrait InheritTrait(GeneticTrait traitA, GeneticTrait traitB, ChimeraTraitType traitType, float inbreedingCoefficient)
         {
             // Handle case where one parent doesn't have this trait
             if (traitA == null && traitB == null) return null;
@@ -253,7 +253,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             return ApplyMutation(inheritedTrait, traitType, inbreedingCoefficient);
         }
 
-        private GeneticTrait ApplyMutation(GeneticTrait trait, Laboratory.Core.Enums.TraitType traitType, float inbreedingCoefficient)
+        private GeneticTrait ApplyMutation(GeneticTrait trait, ChimeraTraitType traitType, float inbreedingCoefficient)
         {
             if (trait == null) return null;
 
