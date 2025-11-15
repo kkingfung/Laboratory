@@ -5,7 +5,6 @@ using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using R3;
 using UnityEngine;
-using GameState = Laboratory.Core.Events.Messages.GameState;
 
 #nullable enable
 
@@ -93,7 +92,9 @@ namespace Laboratory.Core.State
 
             if (!suppressEvents)
             {
-                var stateChangedEvent = new GameStateChangedEvent(previousState, newState);
+                var stateChangedEvent = new GameStateChangedEvent(
+                    ConvertToEventGameState(previousState),
+                    ConvertToEventGameState(newState));
                 _stateChangeSubject.OnNext(stateChangedEvent);
                 _eventBus.Publish(stateChangedEvent);
             }
@@ -164,7 +165,10 @@ namespace Laboratory.Core.State
             try
             {
                 // Publish transition request event
-                var requestEvent = new GameStateChangeRequestedEvent(previousState, targetState, context);
+                var requestEvent = new GameStateChangeRequestedEvent(
+                    ConvertToEventGameState(previousState),
+                    ConvertToEventGameState(targetState),
+                    context);
                 _eventBus.Publish(requestEvent);
 
                 // Exit current state
@@ -184,7 +188,9 @@ namespace Laboratory.Core.State
                 }
 
                 // Publish state changed event
-                var changedEvent = new GameStateChangedEvent(previousState, targetState);
+                var changedEvent = new GameStateChangedEvent(
+                    ConvertToEventGameState(previousState),
+                    ConvertToEventGameState(targetState));
                 _stateChangeSubject.OnNext(changedEvent);
                 _eventBus.Publish(changedEvent);
 
@@ -231,14 +237,16 @@ namespace Laboratory.Core.State
         private void OnStateChangeRequested(GameStateChangeRequestedEvent requestEvent)
         {
             // Handle external state change requests asynchronously
-            RequestTransitionAsync(requestEvent.ToState, requestEvent.Context).Forget();
+            // Convert from event GameState to local GameState
+            var targetState = ConvertFromEventGameState(requestEvent.ToState);
+            RequestTransitionAsync(targetState, requestEvent.Context).Forget();
         }
 
         private bool IsValidGlobalTransition(GameState from, GameState to)
         {
             // Define global transition rules that apply regardless of state implementation
             // Examples:
-            
+
             // Can't go directly from Playing to MainMenu (must go through Paused or GameOver)
             if (from == GameState.Playing && to == GameState.MainMenu)
                 return false;
@@ -256,6 +264,42 @@ namespace Laboratory.Core.State
                 return to == GameState.MainMenu;
 
             return true;
+        }
+
+        /// <summary>
+        /// Converts from Laboratory.Core.State.GameState to Laboratory.Core.Events.Messages.GameState
+        /// for event publishing compatibility.
+        /// </summary>
+        private Laboratory.Core.Events.Messages.GameState ConvertToEventGameState(GameState state)
+        {
+            return state switch
+            {
+                GameState.None => Laboratory.Core.Events.Messages.GameState.None,
+                GameState.MainMenu => Laboratory.Core.Events.Messages.GameState.MainMenu,
+                GameState.Loading => Laboratory.Core.Events.Messages.GameState.Loading,
+                GameState.Playing => Laboratory.Core.Events.Messages.GameState.Gameplay,
+                GameState.Paused => Laboratory.Core.Events.Messages.GameState.Paused,
+                GameState.GameOver => Laboratory.Core.Events.Messages.GameState.GameOver,
+                _ => Laboratory.Core.Events.Messages.GameState.None
+            };
+        }
+
+        /// <summary>
+        /// Converts from Laboratory.Core.Events.Messages.GameState to Laboratory.Core.State.GameState
+        /// for handling incoming events.
+        /// </summary>
+        private GameState ConvertFromEventGameState(Laboratory.Core.Events.Messages.GameState eventState)
+        {
+            return eventState switch
+            {
+                Laboratory.Core.Events.Messages.GameState.None => GameState.None,
+                Laboratory.Core.Events.Messages.GameState.MainMenu => GameState.MainMenu,
+                Laboratory.Core.Events.Messages.GameState.Loading => GameState.Loading,
+                Laboratory.Core.Events.Messages.GameState.Gameplay => GameState.Playing,
+                Laboratory.Core.Events.Messages.GameState.Paused => GameState.Paused,
+                Laboratory.Core.Events.Messages.GameState.GameOver => GameState.GameOver,
+                _ => GameState.None
+            };
         }
 
         #endregion
