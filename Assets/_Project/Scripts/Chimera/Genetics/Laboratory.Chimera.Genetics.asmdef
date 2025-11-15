@@ -2,8 +2,10 @@
     "name": "Laboratory.Chimera.Genetics",
     "rootNamespace": "Laboratory.Chimera.Genetics",
     "references": [
+        "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
+        "Laboratory.Core.Events",
         "Laboratory.Shared",
         "Laboratory.Models",
         "Laboratory.Chimera.Core",
