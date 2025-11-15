@@ -5,8 +5,10 @@
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",
+        "Unity.Transforms",
         "Unity.Jobs",
         "Unity.Burst",
+        "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Configuration"
     ],
