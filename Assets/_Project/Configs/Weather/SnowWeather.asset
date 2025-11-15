@@ -9,14 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99999999999999999999999999999999, type: 3}
+  m_Script: {fileID: 0}
   m_Name: SnowWeather
   m_EditorClassIdentifier:
   weatherName: Snow
   weatherType: 4
   transitionDuration: 30
-  particleEffect: {fileID: 6000000000000000001, guid: s3s2s3s4s5s6s7s8s9s0s1s2s3s4s5s6, type: 3}
-  skyboxMaterial: {fileID: 2100000, guid: s3s2s3s4s5s6s7s8s9s0s1s2s3s4s5s6, type: 2}
+  particleEffect: {fileID: 0}
+  skyboxMaterial: {fileID: 0}
   fogColor: {r: 0.9, g: 0.9, b: 0.95, a: 1}
   fogDensity: 0.08
   ambientLightColor: {r: 0.8, g: 0.85, b: 0.9, a: 1}
@@ -29,5 +29,5 @@ MonoBehaviour:
   damageModifier: 1.1
   windSpeed: 3
   windDirection: {x: 1, y: 0, z: 0.5}
-  soundEffect: {fileID: 8300000, guid: s1s2s3s4s5s6s7s8s9s0s1s2s3s4s5s6, type: 3}
+  soundEffect: {fileID: 0}
   soundVolume: 0.3
