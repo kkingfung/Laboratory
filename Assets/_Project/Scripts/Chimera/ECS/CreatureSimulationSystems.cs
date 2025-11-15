@@ -41,7 +41,8 @@ namespace Laboratory.Chimera.ECS
 
                 var agingJob = new CreatureAgingJob
                 {
-                    deltaTime = deltaTime
+                    deltaTime = deltaTime,
+                    CreatureDataLookup = state.GetComponentLookup<CreatureData>(false)
                 };
 
                 state.Dependency = agingJob.ScheduleParallel(creatureQuery, state.Dependency);
@@ -54,10 +55,14 @@ namespace Laboratory.Chimera.ECS
     public partial struct CreatureAgingJob : IJobEntity
     {
         public float deltaTime;
+        public ComponentLookup<CreatureData> CreatureDataLookup;
 
 
-        public void Execute(ref CreatureData creatureData)
+        public void Execute(Entity entity)
         {
+            if (!CreatureDataLookup.TryGetComponent(entity, out var creatureData))
+                return;
+
             if (!creatureData.isAlive) return;
 
             // Age creatures by seconds (convert to days in a real system)
@@ -68,6 +73,8 @@ namespace Laboratory.Chimera.ECS
             {
                 creatureData.isAlive = false;
             }
+
+            CreatureDataLookup[entity] = creatureData;
         }
     }
 
@@ -101,7 +108,8 @@ namespace Laboratory.Chimera.ECS
                 {
                     time = time,
                     deltaTime = deltaTime,
-                    random = Unity.Mathematics.Random.CreateFromIndex((uint)(time * 1000))
+                    random = Unity.Mathematics.Random.CreateFromIndex((uint)(time * 1000)),
+                    CreatureDataLookup = state.GetComponentLookup<CreatureData>(true)
                 };
 
                 state.Dependency = aiJob.ScheduleParallel(aiQuery, state.Dependency);
@@ -116,10 +124,14 @@ namespace Laboratory.Chimera.ECS
         public float time;
         public float deltaTime;
         public Unity.Mathematics.Random random;
+        [ReadOnly] public ComponentLookup<CreatureData> CreatureDataLookup;
 
 
-        public void Execute(ref CreatureAIComponent ai, in CreatureData data, ref LocalTransform transform)
+        public void Execute(Entity entity, ref CreatureAIComponent ai, ref LocalTransform transform)
         {
+            if (!CreatureDataLookup.TryGetComponent(entity, out var data))
+                return;
+
             if (!data.isAlive) return;
 
             // Update AI behavior based on time
@@ -201,7 +213,11 @@ namespace Laboratory.Chimera.ECS
         {
             using (s_OnUpdateMarker.Auto())
             {
-                var geneticsJob = new CreatureGeneticsJob();
+                var geneticsJob = new CreatureGeneticsJob
+                {
+                    CreatureDataLookup = state.GetComponentLookup<CreatureData>(true),
+                    CreatureStatsLookup = state.GetComponentLookup<CreatureStats>(false)
+                };
                 state.Dependency = geneticsJob.ScheduleParallel(geneticsQuery, state.Dependency);
             }
         }
@@ -211,10 +227,16 @@ namespace Laboratory.Chimera.ECS
     [BurstCompile]
     public partial struct CreatureGeneticsJob : IJobEntity
     {
+        [ReadOnly] public ComponentLookup<CreatureData> CreatureDataLookup;
+        public ComponentLookup<CreatureStats> CreatureStatsLookup;
 
-        public void Execute(in CreatureData data, ref CreatureStats stats,
-                          in DynamicBuffer<CreatureGeneticTrait> traits)
+        public void Execute(Entity entity, in DynamicBuffer<CreatureGeneticTrait> traits)
         {
+            if (!CreatureDataLookup.TryGetComponent(entity, out var data))
+                return;
+            if (!CreatureStatsLookup.TryGetComponent(entity, out var stats))
+                return;
+
             if (!data.isAlive) return;
 
             // Apply genetic modifiers to stats over time
@@ -227,6 +249,8 @@ namespace Laboratory.Chimera.ECS
             float influence = 0.01f; // Small influence per frame
             stats.attack = math.lerp(stats.attack, stats.attack * (1f + strengthMod * 0.5f), influence);
             stats.health = math.lerp(stats.health, stats.maxHealth * (1f + vitalityMod * 0.3f), influence);
+
+            CreatureStatsLookup[entity] = stats;
         }
 
 
@@ -309,7 +333,8 @@ namespace Laboratory.Chimera.ECS
 
                 var cleanupJob = new CreatureCleanupJob
                 {
-                    ecb = ecb
+                    ecb = ecb,
+                    CreatureDataLookup = state.GetComponentLookup<CreatureData>(true)
                 };
 
                 state.Dependency = cleanupJob.ScheduleParallel(deadCreatureQuery, state.Dependency);
@@ -323,10 +348,14 @@ namespace Laboratory.Chimera.ECS
     public partial struct CreatureCleanupJob : IJobEntity
     {
         public EntityCommandBuffer.ParallelWriter ecb;
+        [ReadOnly] public ComponentLookup<CreatureData> CreatureDataLookup;
 
 
-        public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity, in CreatureData data)
+        public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity)
         {
+            if (!CreatureDataLookup.TryGetComponent(entity, out var data))
+                return;
+
             if (!data.isAlive)
             {
                 // Remove dead creatures from simulation

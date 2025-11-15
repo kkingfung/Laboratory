@@ -132,34 +132,34 @@ namespace Laboratory.Chimera.ECS
             {
                 float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
-            Entities.WithAll<SpeciesPopulationData>().ForEach((Entity entity, ref SpeciesPopulationData populationData) =>
-            {
-                // Check for critical population decline
-                if (populationData.currentPopulation <= _config.criticalPopulationThreshold &&
-                    populationData.populationTrend < 0f &&
-                    !HasActiveEmergency(populationData.speciesId, EmergencyType.PopulationCollapse))
+                foreach (var (populationData, entity) in SystemAPI.Query<RefRO<SpeciesPopulationData>>().WithEntityAccess())
                 {
-                    var emergency = EmergencyCreationService.CreatePopulationEmergency(_config, populationData, currentTime);
-                    AddEmergency(emergency);
-                }
+                    // Check for critical population decline
+                    if (populationData.ValueRO.currentPopulation <= _config.criticalPopulationThreshold &&
+                        populationData.ValueRO.populationTrend < 0f &&
+                        !HasActiveEmergency(populationData.ValueRO.speciesId, EmergencyType.PopulationCollapse))
+                    {
+                        var emergency = EmergencyCreationService.CreatePopulationEmergency(_config, populationData.ValueRO, currentTime);
+                        AddEmergency(emergency);
+                    }
 
-                // Check for breeding failure
-                if (populationData.reproductiveSuccess < _config.breedingFailureThreshold &&
-                    populationData.breedingAge > _config.breedingAgeThreshold &&
-                    !HasActiveEmergency(populationData.speciesId, EmergencyType.BreedingFailure))
-                {
-                    var emergency = EmergencyCreationService.CreateBreedingEmergency(_config, populationData, currentTime);
-                    AddEmergency(emergency);
-                }
+                    // Check for breeding failure
+                    if (populationData.ValueRO.reproductiveSuccess < _config.breedingFailureThreshold &&
+                        populationData.ValueRO.breedingAge > _config.breedingAgeThreshold &&
+                        !HasActiveEmergency(populationData.ValueRO.speciesId, EmergencyType.BreedingFailure))
+                    {
+                        var emergency = EmergencyCreationService.CreateBreedingEmergency(_config, populationData.ValueRO, currentTime);
+                        AddEmergency(emergency);
+                    }
 
-                // Check for juvenile mortality crisis
-                if (populationData.juvenileSurvivalRate < _config.juvenileSurvivalThreshold &&
-                    !HasActiveEmergency(populationData.speciesId, EmergencyType.JuvenileMortality))
-                {
-                    var emergency = EmergencyCreationService.CreateJuvenileEmergency(_config, populationData, currentTime);
-                    AddEmergency(emergency);
+                    // Check for juvenile mortality crisis
+                    if (populationData.ValueRO.juvenileSurvivalRate < _config.juvenileSurvivalThreshold &&
+                        !HasActiveEmergency(populationData.ValueRO.speciesId, EmergencyType.JuvenileMortality))
+                    {
+                        var emergency = EmergencyCreationService.CreateJuvenileEmergency(_config, populationData.ValueRO, currentTime);
+                        AddEmergency(emergency);
+                    }
                 }
-            }).WithoutBurst().Run();
             }
         }
 
@@ -202,18 +202,18 @@ namespace Laboratory.Chimera.ECS
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
-            Entities.WithAll<SpeciesPopulationData, CreatureGeneticsComponent>().ForEach((Entity entity, ref SpeciesPopulationData populationData, in CreatureGeneticsComponent genetics) =>
+            foreach (var (populationData, genetics, entity) in SystemAPI.Query<RefRO<SpeciesPopulationData>, RefRO<CreatureGeneticsComponent>>().WithEntityAccess())
             {
                 // Calculate genetic diversity
-                float geneticDiversity = CalculateGeneticDiversity(genetics, populationData);
+                float geneticDiversity = CalculateGeneticDiversity(genetics.ValueRO, populationData.ValueRO);
 
                 if (geneticDiversity < _config.geneticDiversityThreshold &&
-                    !HasActiveEmergency(populationData.speciesId, EmergencyType.GeneticBottleneck))
+                    !HasActiveEmergency(populationData.ValueRO.speciesId, EmergencyType.GeneticBottleneck))
                 {
-                    var emergency = EmergencyCreationService.CreateGeneticEmergency(_config, populationData, geneticDiversity, currentTime);
+                    var emergency = EmergencyCreationService.CreateGeneticEmergency(_config, populationData.ValueRO, geneticDiversity, currentTime);
                     AddEmergency(emergency);
                 }
-            }).WithoutBurst().Run();
+            }
         }
 
         void CheckHabitatEmergencies()
@@ -221,30 +221,30 @@ namespace Laboratory.Chimera.ECS
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
             // Check for rapid habitat loss
-            Entities.WithAll<EcosystemData>().ForEach((Entity entity, ref EcosystemData ecosystemData) =>
+            foreach (var (ecosystemData, entity) in SystemAPI.Query<RefRO<EcosystemData>>().WithEntityAccess())
             {
-                if (ecosystemData.habitatLossRate > _config.habitatLossRateThreshold &&
-                    !HasActiveEmergency(ecosystemData.ecosystemId, EmergencyType.HabitatDestruction))
+                if (ecosystemData.ValueRO.habitatLossRate > _config.habitatLossRateThreshold &&
+                    !HasActiveEmergency(ecosystemData.ValueRO.ecosystemId, EmergencyType.HabitatDestruction))
                 {
-                    var emergency = EmergencyCreationService.CreateHabitatDestructionEmergency(_config, ecosystemData, currentTime);
+                    var emergency = EmergencyCreationService.CreateHabitatDestructionEmergency(_config, ecosystemData.ValueRO, currentTime);
                     AddEmergency(emergency);
                 }
-            }).WithoutBurst().Run();
+            }
         }
 
         void CheckDiseaseEmergencies()
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
-            Entities.WithAll<SpeciesPopulationData>().ForEach((Entity entity, ref SpeciesPopulationData populationData) =>
+            foreach (var (populationData, entity) in SystemAPI.Query<RefRO<SpeciesPopulationData>>().WithEntityAccess())
             {
-                if (populationData.diseasePrevalence > _config.diseaseOutbreakThreshold &&
-                    !HasActiveEmergency(populationData.speciesId, EmergencyType.DiseaseOutbreak))
+                if (populationData.ValueRO.diseasePrevalence > _config.diseaseOutbreakThreshold &&
+                    !HasActiveEmergency(populationData.ValueRO.speciesId, EmergencyType.DiseaseOutbreak))
                 {
-                    var emergency = EmergencyCreationService.CreateDiseaseEmergency(_config, populationData, currentTime);
+                    var emergency = EmergencyCreationService.CreateDiseaseEmergency(_config, populationData.ValueRO, currentTime);
                     AddEmergency(emergency);
                 }
-            }).WithoutBurst().Run();
+            }
         }
 
         void CheckClimateEmergencies()
@@ -252,15 +252,15 @@ namespace Laboratory.Chimera.ECS
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
             // Check for climate-related threats
-            Entities.WithAll<EcosystemData>().ForEach((Entity entity, ref EcosystemData ecosystemData) =>
+            foreach (var (ecosystemData, entity) in SystemAPI.Query<RefRO<EcosystemData>>().WithEntityAccess())
             {
-                if (ecosystemData.climateStressLevel > _config.climateStressThreshold &&
-                    !HasActiveEmergency(ecosystemData.ecosystemId, EmergencyType.ClimateChange))
+                if (ecosystemData.ValueRO.climateStressLevel > _config.climateStressThreshold &&
+                    !HasActiveEmergency(ecosystemData.ValueRO.ecosystemId, EmergencyType.ClimateChange))
                 {
-                    var emergency = EmergencyCreationService.CreateClimateEmergency(_config, ecosystemData, currentTime);
+                    var emergency = EmergencyCreationService.CreateClimateEmergency(_config, ecosystemData.ValueRO, currentTime);
                     AddEmergency(emergency);
                 }
-            }).WithoutBurst().Run();
+            }
         }
 
         void UpdateActiveEmergencies(float deltaTime)
@@ -315,14 +315,16 @@ namespace Laboratory.Chimera.ECS
 
         void MonitorEcosystemHealth()
         {
-            Entities.WithAll<EcosystemHealth>().ForEach((Entity entity, ref EcosystemHealth health) =>
+            foreach (var (health, entity) in SystemAPI.Query<RefRW<EcosystemHealth>>().WithEntityAccess())
             {
                 // Track health trends for early warning
-                UpdateHealthTrends(ref health);
+                var healthValue = health.ValueRW;
+                UpdateHealthTrends(ref healthValue);
+                health.ValueRW = healthValue;
 
                 // Check for early warning signs
-                CheckEarlyWarningSigns(entity, health);
-            }).WithoutBurst().Run();
+                CheckEarlyWarningSigns(entity, health.ValueRO);
+            }
         }
 
         void ProcessEmergencyEscalations(float deltaTime)
@@ -338,17 +340,20 @@ namespace Laboratory.Chimera.ECS
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
             // Check for successful conservation outcomes
-            Entities.WithAll<SpeciesPopulationData>().ForEach((Entity entity, ref SpeciesPopulationData populationData) =>
+            foreach (var (populationData, entity) in SystemAPI.Query<RefRW<SpeciesPopulationData>>().WithEntityAccess())
             {
-                if (populationData.wasEndangered &&
-                    populationData.currentPopulation > _config.recoveryPopulationThreshold &&
-                    populationData.populationTrend > 0f)
+                if (populationData.ValueRO.wasEndangered &&
+                    populationData.ValueRO.currentPopulation > _config.recoveryPopulationThreshold &&
+                    populationData.ValueRO.populationTrend > 0f)
                 {
-                    var success = EmergencyResolutionService.CreateConservationSuccess(populationData, currentTime);
+                    var success = EmergencyResolutionService.CreateConservationSuccess(populationData.ValueRO, currentTime);
                     OnConservationSuccess?.Invoke(success);
-                    populationData.wasEndangered = false;
+
+                    var popData = populationData.ValueRW;
+                    popData.wasEndangered = false;
+                    populationData.ValueRW = popData;
                 }
-            }).WithoutBurst().Run();
+            }
         }
 
         #region Helper Methods
