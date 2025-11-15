@@ -21,8 +21,7 @@ namespace Laboratory.Core.Progression.Systems
             achievementQuery = GetEntityQuery(new ComponentType[]
             {
                 ComponentType.ReadWrite<CreatureAchievementsComponent>(),
-                ComponentType.ReadOnly<CreatureProgressionComponent>(),
-                ComponentType.ReadOnly<ActivityParticipantComponent>()
+                ComponentType.ReadOnly<CreatureProgressionComponent>()
             });
         }
 
@@ -38,8 +37,7 @@ namespace Laboratory.Core.Progression.Systems
     public partial struct AchievementCheckJob : IJobEntity
     {
         public void Execute(ref CreatureAchievementsComponent achievements,
-            in CreatureProgressionComponent progression,
-            in ActivityParticipantComponent activity)
+            in CreatureProgressionComponent progression)
         {
             // Check for first win achievement
             if (!achievements.FirstWin && progression.WinsAchieved >= 1)
