@@ -5,6 +5,7 @@ using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using R3;
 using UnityEngine;
+using GameState = Laboratory.Core.Events.Messages.GameState;
 
 #nullable enable
 
