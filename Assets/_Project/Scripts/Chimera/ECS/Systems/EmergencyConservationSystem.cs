@@ -486,7 +486,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetEscalatedRequirementTypes(ConservationEmergency emergency)
+        FixedList32Bytes<RequirementType> GetEscalatedRequirementTypes(ConservationEmergency emergency)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.PopulationTarget);
@@ -515,7 +515,7 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private Dictionary<int, float> GetPlayerContributionsForEmergency(int emergencyId)
+        Dictionary<int, float> GetPlayerContributionsForEmergency(int emergencyId)
         {
             if (_emergencyPlayerContributions.TryGetValue(emergencyId, out var contributions))
             {
@@ -877,4 +877,5 @@ namespace Laboratory.Chimera.ECS
     }
 
     #endregion
+    }
 }
