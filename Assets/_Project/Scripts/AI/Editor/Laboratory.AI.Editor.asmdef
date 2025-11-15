@@ -4,7 +4,11 @@
     "references": [
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
-        "Laboratory.Shared"
+        "Laboratory.Shared",
+        "Laboratory.AI.Pathfinding",
+        "Laboratory.AI.Agents",
+        "Laboratory.Chimera.AI",
+        "Laboratory.Subsystems"
     ],
     "includePlatforms": [
         "Editor"

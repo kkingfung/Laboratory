@@ -111,7 +111,7 @@ namespace Laboratory.Models
                 target: null, // Static event has limited context
                 source: null,
                 amount: staticEvent.DamageAmount,
-                type: Laboratory.Core.Health.DamageType.Physical,
+                type: Laboratory.Core.Enums.DamageType.Physical,
                 direction: staticEvent.HitDirection,
                 targetClientId: staticEvent.TargetClientId,
                 attackerClientId: staticEvent.AttackerClientId
