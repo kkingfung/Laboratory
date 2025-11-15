@@ -1,6 +1,6 @@
 using UnityEngine;
 using Laboratory.Core.Configuration;
-using Laboratory.Core.Performance;
+// using Laboratory.Core.Performance; // Removed to avoid circular dependency
 
 namespace Laboratory.Core.Configuration
 {
@@ -16,7 +16,7 @@ namespace Laboratory.Core.Configuration
 
         [Header("Configuration Override Testing")]
         [SerializeField] private bool allowRuntimeOverrides = false;
-        [SerializeField] private PerformanceConfiguration testConfiguration;
+        // [SerializeField] private PerformanceConfiguration testConfiguration; // Commented to avoid circular dependency
 
         private float lastMonitorTime;
 
@@ -92,6 +92,10 @@ namespace Laboratory.Core.Configuration
 
         private void TestConfigurationOverride()
         {
+            // Temporarily disabled to avoid circular dependency with Laboratory.Core.Performance
+            Debug.LogWarning("[ConfigurationDemonstrator] TestConfigurationOverride is disabled to avoid circular assembly dependency");
+
+            /* DISABLED - Circular dependency issue
             if (testConfiguration == null)
             {
                 Debug.LogWarning("[ConfigurationDemonstrator] No test configuration assigned for override testing");
@@ -108,6 +112,7 @@ namespace Laboratory.Core.Configuration
 
             // Restore after 5 seconds
             Invoke(nameof(RestoreOriginalConfiguration), 5f);
+            */
         }
 
         private void RestoreOriginalConfiguration()
