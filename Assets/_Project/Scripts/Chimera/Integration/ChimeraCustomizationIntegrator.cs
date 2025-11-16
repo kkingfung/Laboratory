@@ -33,6 +33,7 @@ namespace Laboratory.Chimera.Integration
         [Header("🎭 Customization Priorities")]
         [SerializeField] private CustomizationPriority defaultPriority = CustomizationPriority.Genetic;
         [SerializeField] private bool equipmentOverridesGenetics = true;
+        [SerializeField] private bool outfitsOverrideEquipment = false;
 
         #endregion
 
@@ -285,7 +286,7 @@ namespace Laboratory.Chimera.Integration
 
         private void ApplyGeneticPriority(bool geneticsChanged, bool equipmentChanged, bool customizationChanged)
         {
-            // Genetics has highest priority, then equipment, then custom
+            // Genetics has highest priority, then equipment, then custom outfits, then customization
             if (geneticsChanged)
             {
                 SyncGeneticsToCustomization();
@@ -296,6 +297,11 @@ namespace Laboratory.Chimera.Integration
                 SyncEquipmentToCustomization();
             }
 
+            if (customizationChanged && outfitsOverrideEquipment)
+            {
+                SyncOutfitToCustomization();
+            }
+
             if (customizationChanged)
             {
                 SyncCustomizationToVisuals();
@@ -304,7 +310,7 @@ namespace Laboratory.Chimera.Integration
 
         private void ApplyEquipmentPriority(bool geneticsChanged, bool equipmentChanged, bool customizationChanged)
         {
-            // Equipment has highest priority
+            // Equipment has highest priority, then custom outfits, then genetics
             if (equipmentChanged)
             {
                 SyncEquipmentToCustomization();
@@ -312,6 +318,11 @@ namespace Laboratory.Chimera.Integration
             else if (geneticsChanged)
             {
                 SyncGeneticsToCustomization();
+            }
+
+            if (customizationChanged && outfitsOverrideEquipment)
+            {
+                SyncOutfitToCustomization();
             }
 
             if (customizationChanged)
@@ -322,9 +333,13 @@ namespace Laboratory.Chimera.Integration
 
         private void ApplyCustomPriority(bool geneticsChanged, bool equipmentChanged, bool customizationChanged)
         {
-            // Custom changes have highest priority
+            // Custom changes have highest priority (including custom outfits)
             if (customizationChanged)
             {
+                if (outfitsOverrideEquipment)
+                {
+                    SyncOutfitToCustomization();
+                }
                 SyncCustomizationToVisuals();
             }
             else if (equipmentChanged)
@@ -386,6 +401,19 @@ namespace Laboratory.Chimera.Integration
                 if (handler is EquipmentVisualIntegration equipmentHandler)
                 {
                     equipmentHandler.SyncCustomizationToEquipment();
+                }
+            }
+        }
+
+        public void SyncOutfitToCustomization()
+        {
+            if (customizationManager == null) return;
+
+            foreach (var handler in integrationHandlers)
+            {
+                if (handler is CustomOutfitIntegration outfitHandler)
+                {
+                    outfitHandler.SyncToVisuals();
                 }
             }
         }
