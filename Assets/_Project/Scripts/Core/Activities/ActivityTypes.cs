@@ -28,6 +28,16 @@ namespace Laboratory.Core.Activities
         Foraging = 8,
         /// <summary>Resting activity</summary>
         Resting = 9,
+        /// <summary>Strategy activity</summary>
+        Strategy = 10,
+        /// <summary>Music activity</summary>
+        Music = 11,
+        /// <summary>Adventure activity</summary>
+        Adventure = 12,
+        /// <summary>Platforming activity</summary>
+        Platforming = 13,
+        /// <summary>Crafting activity</summary>
+        Crafting = 14,
         /// <summary>Custom activity</summary>
         Custom = 255
     }
