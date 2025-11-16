@@ -113,30 +113,31 @@ namespace Laboratory.Chimera.Discovery.Systems
 
     /// <summary>
     /// Burst-compatible string constants for discovery names
+    /// Uses properties to avoid static constructor (BC1091 error)
     /// </summary>
     public static class DiscoveryStrings
     {
-        public static readonly FixedString32Bytes Enhanced = new FixedString32Bytes("Enhanced");
-        public static readonly FixedString32Bytes Mutant = new FixedString32Bytes("Mutant");
-        public static readonly FixedString32Bytes Marked = new FixedString32Bytes("Marked");
-        public static readonly FixedString32Bytes Perfect = new FixedString32Bytes("Perfect");
-        public static readonly FixedString32Bytes Hybrid = new FixedString32Bytes("Hybrid");
-        public static readonly FixedString32Bytes Legendary = new FixedString32Bytes("Legendary");
-        public static readonly FixedString32Bytes Unknown = new FixedString32Bytes("Unknown");
+        public static FixedString32Bytes Enhanced { get { var result = new FixedString32Bytes(); result.Append("Enhanced"); return result; } }
+        public static FixedString32Bytes Mutant { get { var result = new FixedString32Bytes(); result.Append("Mutant"); return result; } }
+        public static FixedString32Bytes Marked { get { var result = new FixedString32Bytes(); result.Append("Marked"); return result; } }
+        public static FixedString32Bytes Perfect { get { var result = new FixedString32Bytes(); result.Append("Perfect"); return result; } }
+        public static FixedString32Bytes Hybrid { get { var result = new FixedString32Bytes(); result.Append("Hybrid"); return result; } }
+        public static FixedString32Bytes Legendary { get { var result = new FixedString32Bytes(); result.Append("Legendary"); return result; } }
+        public static FixedString32Bytes Unknown { get { var result = new FixedString32Bytes(); result.Append("Unknown"); return result; } }
 
-        public static readonly FixedString32Bytes Titan = new FixedString32Bytes("Titan");
-        public static readonly FixedString32Bytes Eternal = new FixedString32Bytes("Eternal");
-        public static readonly FixedString32Bytes Swift = new FixedString32Bytes("Swift");
-        public static readonly FixedString32Bytes Genius = new FixedString32Bytes("Genius");
-        public static readonly FixedString32Bytes Evolved = new FixedString32Bytes("Evolved");
-        public static readonly FixedString32Bytes Alpha = new FixedString32Bytes("Alpha");
-        public static readonly FixedString32Bytes Balanced = new FixedString32Bytes("Balanced");
+        public static FixedString32Bytes Titan { get { var result = new FixedString32Bytes(); result.Append("Titan"); return result; } }
+        public static FixedString32Bytes Eternal { get { var result = new FixedString32Bytes(); result.Append("Eternal"); return result; } }
+        public static FixedString32Bytes Swift { get { var result = new FixedString32Bytes(); result.Append("Swift"); return result; } }
+        public static FixedString32Bytes Genius { get { var result = new FixedString32Bytes(); result.Append("Genius"); return result; } }
+        public static FixedString32Bytes Evolved { get { var result = new FixedString32Bytes(); result.Append("Evolved"); return result; } }
+        public static FixedString32Bytes Alpha { get { var result = new FixedString32Bytes(); result.Append("Alpha"); return result; } }
+        public static FixedString32Bytes Balanced { get { var result = new FixedString32Bytes(); result.Append("Balanced"); return result; } }
 
-        public static readonly FixedString32Bytes Lumina = new FixedString32Bytes(" Lumina");
-        public static readonly FixedString32Bytes Elemental = new FixedString32Bytes(" Elemental");
-        public static readonly FixedString32Bytes Prime = new FixedString32Bytes(" Prime");
-        public static readonly FixedString32Bytes HybridSuffix = new FixedString32Bytes(" Hybrid");
-        public static readonly FixedString32Bytes Rex = new FixedString32Bytes(" Rex");
+        public static FixedString32Bytes Lumina { get { var result = new FixedString32Bytes(); result.Append(" Lumina"); return result; } }
+        public static FixedString32Bytes Elemental { get { var result = new FixedString32Bytes(); result.Append(" Elemental"); return result; } }
+        public static FixedString32Bytes Prime { get { var result = new FixedString32Bytes(); result.Append(" Prime"); return result; } }
+        public static FixedString32Bytes HybridSuffix { get { var result = new FixedString32Bytes(); result.Append(" Hybrid"); return result; } }
+        public static FixedString32Bytes Rex { get { var result = new FixedString32Bytes(); result.Append(" Rex"); return result; } }
     }
 
     [BurstCompile]
