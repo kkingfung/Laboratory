@@ -289,7 +289,7 @@ namespace Laboratory.Systems.Analytics
             };
 
             TrackPlayerAction("QuestFailed", "Quest", parameters);
-            TrackEmotionalResponse(EmotionalState.Frustrated, 0.6f, "Quest Failed");
+            TrackEmotionalResponse(EmotionalState.Angry, 0.6f, "Quest Failed");
         }
 
         /// <summary>
@@ -299,13 +299,13 @@ namespace Laboratory.Systems.Analytics
         {
             var parameters = new Dictionary<ParamKey, object>
             {
-                [ParamKey.SessionId] = session.sessionId,
-                [ParamKey.CreatureId] = offspring.creatureId
+                [ParamKey.BreedingTime] = session.id,
+                [ParamKey.CreatureId] = offspring.UniqueId
             };
 
             TrackPlayerAction("BreedingCompleted", "Breeding", parameters);
-            TrackEmotionalResponse(EmotionalState.Curious, 0.6f, "Breeding Completed");
-            _sessionManager.AddMilestone(MilestoneType.BreedingCompleted);
+            TrackEmotionalResponse(EmotionalState.Excited, 0.6f, "Breeding Completed");
+            _sessionManager.AddMilestone(MilestoneType.Completion);
         }
 
         /// <summary>
@@ -315,8 +315,8 @@ namespace Laboratory.Systems.Analytics
         {
             var parameters = new Dictionary<ParamKey, object>
             {
-                [ParamKey.CreatureId] = offspring.creatureId,
-                [ParamKey.Accepted] = accepted
+                [ParamKey.CreatureId] = offspring.UniqueId,
+                [ParamKey.Success] = accepted
             };
 
             TrackPlayerAction(accepted ? "OffspringAccepted" : "OffspringRejected", "Breeding", parameters);
