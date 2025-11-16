@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Subsystems.Genetics;
 using Laboratory.Subsystems.Ecosystem;
+using Laboratory.Chimera.Genetics;
 
 namespace Laboratory.Subsystems.AIDirector.Services
 {

@@ -170,7 +170,7 @@ namespace Laboratory.Gameplay
 
         protected override void ApplyPickupEffect(PlayerController player)
         {
-            if (GameManager.Instance)
+            if (GameManager.Instance != null)
             {
                 GameManager.Instance.AddScore(scoreValue);
             }
@@ -268,7 +268,7 @@ namespace Laboratory.Gameplay
             // This would require an inventory system on the player
             Debug.Log($"Collected {keyType} key with ID: {keyId}");
 
-            if (GameManager.Instance)
+            if (GameManager.Instance != null)
             {
                 GameManager.Instance.AddScore(200);
             }

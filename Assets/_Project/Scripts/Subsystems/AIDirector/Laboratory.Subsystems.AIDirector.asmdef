@@ -8,6 +8,7 @@
         "Laboratory.Infrastructure",
         "Laboratory.Subsystems",
         "Laboratory.Chimera",
+        "Laboratory.Chimera.Genetics",
         "Unity.Mathematics",
         "Unity.Collections",
         "Unity.Entities",
