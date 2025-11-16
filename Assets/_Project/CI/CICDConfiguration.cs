@@ -25,6 +25,7 @@ namespace Laboratory.CI
         [SerializeField] private BuildTarget[] targetPlatforms = { BuildTarget.StandaloneWindows64 };
         [SerializeField] private bool optimizeBuildSize = true;
         [SerializeField] private bool stripDebugSymbols = true;
+        [SerializeField] private bool cleanupDiskSpaceBeforeBuild = true;
 
         [Header("Performance")]
         [SerializeField] private bool trackPerformanceBaselines = true;
@@ -97,6 +98,23 @@ namespace Laboratory.CI
                 sb.AppendLine("    needs: test");
                 sb.AppendLine("    steps:");
                 sb.AppendLine("      - uses: actions/checkout@v3");
+
+                // Add disk space cleanup if enabled
+                if (cleanupDiskSpaceBeforeBuild)
+                {
+                    sb.AppendLine("      - name: Free Disk Space");
+                    sb.AppendLine("        run: |");
+                    sb.AppendLine("          echo \"Disk space before cleanup:\"");
+                    sb.AppendLine("          df -h");
+                    sb.AppendLine("          sudo rm -rf /usr/share/dotnet");
+                    sb.AppendLine("          sudo rm -rf /usr/local/lib/android");
+                    sb.AppendLine("          sudo rm -rf /opt/ghc");
+                    sb.AppendLine("          sudo rm -rf /opt/hostedtoolcache/CodeQL");
+                    sb.AppendLine("          sudo docker image prune --all --force");
+                    sb.AppendLine("          echo \"Disk space after cleanup:\"");
+                    sb.AppendLine("          df -h");
+                }
+
                 sb.AppendLine("      - name: Build Project");
                 string buildArgs = "";
                 if (optimizeBuildSize)
@@ -121,6 +139,21 @@ namespace Laboratory.CI
                         sb.AppendLine("          echo 'Stripping debug symbols...'");
                     }
                 }
+
+                // Clean up build artifacts to save space
+                if (cleanupDiskSpaceBeforeBuild)
+                {
+                    sb.AppendLine("      - name: Clean Build Cache");
+                    sb.AppendLine("        if: always()");
+                    sb.AppendLine("        run: |");
+                    sb.AppendLine("          echo \"Cleaning Unity build cache...\"");
+                    sb.AppendLine("          rm -rf Library/");
+                    sb.AppendLine("          rm -rf Temp/");
+                    sb.AppendLine("          rm -rf obj/");
+                    sb.AppendLine("          echo \"Final disk space:\"");
+                    sb.AppendLine("          df -h");
+                }
+
                 sb.AppendLine();
             }
 
