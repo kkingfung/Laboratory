@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using Laboratory.Core;
-using Laboratory.Core.Management;
 
 namespace Laboratory.Core
 {
@@ -384,13 +383,28 @@ namespace Laboratory.Core
 
             OnLevelComplete?.Invoke(levelName, success);
 
-            // Notify game manager
-            if (GameManager.Instance)
+            // Notify game manager using reflection to avoid assembly dependency
+            var gameManagerType = System.Type.GetType("Laboratory.Core.Management.GameManager");
+            if (gameManagerType != null)
             {
-                if (success)
-                    GameManager.Instance.LoadNextLevel();
-                else
-                    GameManager.Instance.EndGame(false);
+                var instanceProperty = gameManagerType.GetProperty("Instance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+                if (instanceProperty != null)
+                {
+                    var gameManagerInstance = instanceProperty.GetValue(null);
+                    if (gameManagerInstance != null)
+                    {
+                        if (success)
+                        {
+                            var loadNextLevelMethod = gameManagerType.GetMethod("LoadNextLevel");
+                            loadNextLevelMethod?.Invoke(gameManagerInstance, null);
+                        }
+                        else
+                        {
+                            var endGameMethod = gameManagerType.GetMethod("EndGame");
+                            endGameMethod?.Invoke(gameManagerInstance, new object[] { false });
+                        }
+                    }
+                }
             }
         }
 
