@@ -16,8 +16,6 @@ namespace Laboratory.Chimera.Visuals.Systems
         [Header("Adaptation Settings")]
         [SerializeField] private float adaptationSpeed = 1.0f;
         [SerializeField] private float maxAdaptationStrength = 0.8f;
-        [SerializeField] private bool enableRealTimeAdaptation = true;
-        [SerializeField] private bool enableSeasonalChanges = true;
 
         [Header("Biome Configurations")]
         [SerializeField] private BiomeAdaptationConfig[] biomeConfigs;

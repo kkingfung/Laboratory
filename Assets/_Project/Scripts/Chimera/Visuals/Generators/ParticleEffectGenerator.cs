@@ -13,7 +13,6 @@ namespace Laboratory.Chimera.Visuals.Generators
         [Header("Particle Configuration")]
         [SerializeField] private float complexityLevel = 1.0f;
         [SerializeField] private int maxActiveEffects = 10;
-        [SerializeField] private bool enableEnvironmentalEffects = true;
         [SerializeField] private bool enableGeneticEffects = true;
 
         [Header("Effect Presets")]

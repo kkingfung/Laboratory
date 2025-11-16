@@ -22,7 +22,6 @@ namespace Laboratory.Chimera.Visuals.Systems
         [SerializeField] private bool generateOnStart = true;
         [SerializeField] private bool enableRealTimeUpdates = false;
         [SerializeField] private float updateInterval = 1.0f;
-        [SerializeField] private bool enableDebugMode = false;
 
         [Header("Feature Systems")]
         [SerializeField] private bool enableAdvancedPatterns = true;
@@ -31,8 +30,6 @@ namespace Laboratory.Chimera.Visuals.Systems
         [SerializeField] private bool enableEnvironmentalAdaptation = true;
 
         [Header("Performance")]
-        [SerializeField] private int maxSimultaneousEffects = 5;
-        [SerializeField] private bool enableLODOptimization = true;
         [SerializeField] private float visualComplexityMultiplier = 1.0f;
 
         [Header("Visual Components")]
