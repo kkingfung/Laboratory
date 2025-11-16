@@ -92,7 +92,7 @@ namespace Laboratory.Chimera.Discovery.Systems
                 ecb.AddComponent(discoveryEntity, discovery);
 
                 // Mark trait as discovered globally
-                uint traitHash = CalculateTraitHash(discovery.DiscoveredGenetics);
+                uint traitHash = DiscoveryDetectionJob.CalculateTraitHash(discovery.DiscoveredGenetics);
                 _discoveredTraits.TryAdd(traitHash, true);
 
                 // Trigger celebration event
@@ -104,16 +104,6 @@ namespace Laboratory.Chimera.Discovery.Systems
                     IntensityLevel = discovery.CelebrationIntensity
                 });
             }
-        }
-
-
-        private static uint CalculateTraitHash(in VisualGeneticData genetics)
-        {
-            uint hash = 0;
-            hash = math.hash(new uint4(genetics.Strength, genetics.Vitality, genetics.Agility, genetics.Intelligence));
-            hash ^= math.hash(new uint2(genetics.Adaptability, genetics.Social));
-            hash ^= (uint)genetics.SpecialMarkers;
-            return hash;
         }
     }
 
@@ -304,7 +294,7 @@ namespace Laboratory.Chimera.Discovery.Systems
         }
 
 
-        private static uint CalculateTraitHash(in VisualGeneticData genetics)
+        public static uint CalculateTraitHash(in VisualGeneticData genetics)
         {
             uint hash = 0;
             hash = math.hash(new uint4(genetics.Strength, genetics.Vitality, genetics.Agility, genetics.Intelligence));
