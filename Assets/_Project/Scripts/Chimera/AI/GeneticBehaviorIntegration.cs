@@ -22,7 +22,7 @@ namespace Laboratory.Chimera.AI
         // Component references
         private GeneticBehaviorAdapter basicAdapter;
         private ChimeraMonsterAI monsterAI;
-        private CreatureInstanceComponent creatureInstanceComponent;
+        private Laboratory.Chimera.CreatureInstanceComponent creatureInstanceComponent;
 
         private void Awake()
         {
@@ -45,7 +45,7 @@ namespace Laboratory.Chimera.AI
         {
             basicAdapter = GetComponent<GeneticBehaviorAdapter>();
             monsterAI = GetComponent<ChimeraMonsterAI>();
-            creatureInstanceComponent = GetComponent<CreatureInstanceComponent>();
+            creatureInstanceComponent = GetComponent<Laboratory.Chimera.CreatureInstanceComponent>();
 
             if (basicAdapter == null || monsterAI == null)
             {

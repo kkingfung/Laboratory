@@ -1,4 +1,5 @@
 using UnityEngine;
+using Laboratory.Chimera;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.AI;
 using Laboratory.Chimera.Breeding;
@@ -61,7 +62,7 @@ namespace Laboratory.Chimera.AI
         
         private void InitializeAdvancedBehaviors()
         {
-            var creatureInstance = GetComponent<Laboratory.Chimera.CreatureInstanceComponent>();
+            var creatureInstance = GetComponent<CreatureInstanceComponent>();
             if (creatureInstance?.Instance?.GeneticProfile != null)
             {
                 genetics = creatureInstance.Instance.GeneticProfile;

@@ -883,5 +883,4 @@ namespace Laboratory.Chimera.ECS
     }
 
     #endregion
-    }
 }
