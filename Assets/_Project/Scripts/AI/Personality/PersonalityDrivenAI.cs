@@ -8,6 +8,7 @@ using Laboratory.Chimera.AI;
 using Laboratory.Core;
 using Laboratory.Core.Diagnostics;
 using Laboratory.Core.Enums;
+using SocialInteractionType = Laboratory.Core.SocialInteractionType;
 
 namespace Laboratory.AI.Personality
 {
