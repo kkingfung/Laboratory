@@ -6,6 +6,7 @@
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
         "Laboratory.Core.Events",
+        "Laboratory.Core.Diagnostics",
         "Laboratory.Shared",
         "Laboratory.Models",
         "Laboratory.Chimera.Core",
