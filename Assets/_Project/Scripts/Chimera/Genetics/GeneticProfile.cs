@@ -20,7 +20,7 @@ namespace Laboratory.Chimera.Genetics
     {
         [SerializeField] private Gene[] genes = Array.Empty<Gene>();
         [SerializeField] private Mutation[] mutations = Array.Empty<Mutation>();
-        [SerializeField] private float mutationRate = 0.02f; // 2% chance per gene
+        [SerializeField] private float mutationRate = GeneticConstants.DefaultMutationRate;
         [SerializeField] private int generationNumber = 1;
         [SerializeField] private string lineageId = "";
         [SerializeField] private string speciesId = "DefaultSpecies";
@@ -110,7 +110,7 @@ namespace Laboratory.Chimera.Genetics
         /// <summary>
         /// Get trait value using performance-optimized enum lookup
         /// </summary>
-        public float GetTraitValue(TraitType traitID, float defaultValue = 0.5f)
+        public float GetTraitValue(TraitType traitID, float defaultValue = GeneticConstants.DefaultTraitValue)
         {
             var traitValues = GetTraitValuesByEnum();
             return traitValues.TryGetValue(traitID, out float value) ? value : defaultValue;
@@ -119,7 +119,7 @@ namespace Laboratory.Chimera.Genetics
         /// <summary>
         /// Get trait value using string name (converts to enum internally)
         /// </summary>
-        public float GetTraitValue(string traitName, float defaultValue = 0.5f)
+        public float GetTraitValue(string traitName, float defaultValue = GeneticConstants.DefaultTraitValue)
         {
             if (System.Enum.TryParse<TraitType>(traitName, true, out var traitType))
             {
@@ -290,9 +290,9 @@ namespace Laboratory.Chimera.Genetics
             {
                 mutationType = mutationType,
                 affectedTrait = originalGene.traitName,
-                severity = Random.Range(0.1f, 0.3f), // Mild to moderate mutations
+                severity = Random.Range(GeneticConstants.MildMutationMin, GeneticConstants.MildMutationMax),
                 generation = offspring.generationNumber,
-                isHarmful = Random.value < 0.3f // 30% chance of harmful mutation
+                isHarmful = Random.value < GeneticConstants.HarmfulMutationChance
             };
             
             // Apply mutation effect
@@ -317,8 +317,7 @@ namespace Laboratory.Chimera.Genetics
                     break;
                     
                 case MutationType.NewTrait:
-                    // This would create entirely new traits - very rare
-                    mutation.severity *= 0.1f; // Much rarer
+                    mutation.severity *= GeneticConstants.NovelMutationRarityFactor;
                     break;
             }
             
@@ -400,68 +399,6 @@ namespace Laboratory.Chimera.Genetics
         // NOTE: ApplyModifiers moved to GeneticProfileExtensions in main Chimera assembly
         // to avoid circular dependency between Genetics and Creatures assemblies.
         // See Laboratory.Chimera/GeneticProfileExtensions.cs
-
-        /*
-        /// <summary>
-        /// Applies genetic modifiers to creature stats
-        /// </summary>
-        public Creatures.CreatureStats ApplyModifiers(Creatures.CreatureStats baseStats)
-        {
-            var modifiedStats = baseStats;
-
-            foreach (var gene in genes.Where(g => g.isActive))
-            {
-                if (!gene.value.HasValue) continue;
-
-                float modifier = CalculateGeneModifier(gene);
-
-                switch (gene.traitType)
-                {
-                    case TraitType.Strength:
-                        modifiedStats.attack = Mathf.RoundToInt(modifiedStats.attack * modifier);
-                        break;
-                    case TraitType.Vitality:
-                        modifiedStats.health = Mathf.RoundToInt(modifiedStats.health * modifier);
-                        break;
-                    case TraitType.Agility:
-                        modifiedStats.speed = Mathf.RoundToInt(modifiedStats.speed * modifier);
-                        break;
-                    case TraitType.Stamina:
-                        modifiedStats.defense = Mathf.RoundToInt(modifiedStats.defense * modifier);
-                        break;
-                    case TraitType.Intelligence:
-                        modifiedStats.intelligence = Mathf.RoundToInt(modifiedStats.intelligence * modifier);
-                        break;
-                    case TraitType.Sociability:
-                        modifiedStats.charisma = Mathf.RoundToInt(modifiedStats.charisma * modifier);
-                        break;
-                }
-            }
-
-            return modifiedStats;
-        }
-
-        private float CalculateGeneModifier(Gene gene)
-        {
-            float baseModifier = 0.5f + (gene.value.Value * 0.5f); // 0.5 to 1.0 range
-
-            // Expression affects the modifier
-            switch (gene.expression)
-            {
-                case GeneExpression.Enhanced:
-                    baseModifier *= 1.2f;
-                    break;
-                case GeneExpression.Suppressed:
-                    baseModifier *= 0.8f;
-                    break;
-                case GeneExpression.Normal:
-                default:
-                    break;
-            }
-
-            return baseModifier;
-        }
-        */
 
         /// <summary>
         /// Gets the purity of this genetic line (less mutations = higher purity)
@@ -709,13 +646,12 @@ namespace Laboratory.Chimera.Genetics
         /// </summary>
         public bool TryActivateAncestralTrait(float stressLevel, BiomeType currentBiome)
         {
-            if (stressLevel < 0.7f) return false; // Stress threshold
+            if (stressLevel < GeneticConstants.StressActivationThreshold) return false;
 
             var ancestralTraits = GetPossibleAncientTraits(currentBiome);
             if (ancestralTraits.Length == 0) return false;
 
-            // Higher stress = higher activation chance
-            float activationChance = Mathf.Clamp01((stressLevel - 0.7f) * 0.3f);
+            float activationChance = Mathf.Clamp01((stressLevel - GeneticConstants.StressActivationThreshold) * GeneticConstants.StressActivationChanceFactor);
 
             if (Random.value < activationChance)
             {
