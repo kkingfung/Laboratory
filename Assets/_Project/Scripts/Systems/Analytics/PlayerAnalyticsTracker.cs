@@ -9,6 +9,7 @@ using Laboratory.Systems.Quests;
 using Laboratory.Systems.Breeding;
 using Laboratory.Systems.Ecosystem;
 using Laboratory.Subsystems.AIDirector;
+using Laboratory.Chimera.Social.Types;
 
 namespace Laboratory.Systems.Analytics
 {
@@ -265,7 +266,7 @@ namespace Laboratory.Systems.Analytics
         /// <summary>
         /// Called when a quest is completed
         /// </summary>
-        public void OnQuestCompleted(QuestData quest)
+        public void OnQuestCompleted(ProceduralQuest quest)
         {
             var parameters = new Dictionary<ParamKey, object>
             {
@@ -281,7 +282,7 @@ namespace Laboratory.Systems.Analytics
         /// <summary>
         /// Called when a quest fails
         /// </summary>
-        public void OnQuestFailed(QuestData quest)
+        public void OnQuestFailed(ProceduralQuest quest)
         {
             var parameters = new Dictionary<ParamKey, object>
             {
