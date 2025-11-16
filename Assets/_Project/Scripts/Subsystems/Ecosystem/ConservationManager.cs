@@ -28,7 +28,9 @@ namespace Laboratory.Subsystems.Ecosystem
         [SerializeField] private bool enableAutomaticInterventions = true;
         [SerializeField] private bool enableBreedingPrograms = true;
         [SerializeField] private bool enableHabitatProtection = true;
+        #pragma warning disable CS0414
         [SerializeField] private bool enableReintroduction = true;
+        #pragma warning restore CS0414
 
         // Conservation data
         private readonly Dictionary<string, ConservationRecord> _conservationRecords = new();

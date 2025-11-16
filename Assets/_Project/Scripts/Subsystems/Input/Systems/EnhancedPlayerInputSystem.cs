@@ -56,29 +56,21 @@ namespace Laboratory.Models.ECS.Input.Systems
             var currentTime = SystemAPI.Time.ElapsedTime;
 
             // Process input for all player entities
-            Entities
-                .WithAll<LocalPlayerTag, InputEnabledTag>()
-                .WithoutBurst()
-                .ForEach((ref EnhancedPlayerInputComponent inputComponent,
-                         in InputConfigurationComponent config) =>
-                {
-                    ProcessPlayerInput(ref inputComponent, config, currentTime);
-                })
-                .Run();
+            foreach (var (inputComponent, config) in SystemAPI.Query<RefRW<EnhancedPlayerInputComponent>, RefRO<InputConfigurationComponent>>()
+                .WithAll<LocalPlayerTag, InputEnabledTag>())
+            {
+                ProcessPlayerInput(ref inputComponent.ValueRW, config.ValueRO, currentTime);
+            }
 
             // Update input buffers
-            Entities
-                .WithAll<LocalPlayerTag>()
-                .WithoutBurst()
-                .ForEach((ref InputBufferComponent buffer,
-                         in EnhancedPlayerInputComponent inputComponent) =>
+            foreach (var (buffer, inputComponent) in SystemAPI.Query<RefRW<InputBufferComponent>, RefRO<EnhancedPlayerInputComponent>>()
+                .WithAll<LocalPlayerTag>())
+            {
+                if (HasInputChanged(inputComponent.ValueRO))
                 {
-                    if (HasInputChanged(inputComponent))
-                    {
-                        buffer.AddInput(inputComponent);
-                    }
-                })
-                .Run();
+                    buffer.ValueRW.AddInput(inputComponent.ValueRO);
+                }
+            }
         }
 
         protected override void OnDestroy()

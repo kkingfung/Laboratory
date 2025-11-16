@@ -21,7 +21,9 @@ namespace Laboratory.Subsystems.Genetics.Services
 
         public event Action<AdaptationEvent> OnAdaptationOccurred;
         public event Action<EnvironmentalPressure> OnNewPressureDetected;
+        #pragma warning disable CS0067
         public event Action<ExtinctionEvent> OnExtinctionRisk;
+        #pragma warning restore CS0067
 
         public EnvironmentalAdaptationEngine(GeneticsSubsystemConfig config)
         {
@@ -528,7 +530,7 @@ namespace Laboratory.Subsystems.Genetics.Services
         // Additional helper methods would be implemented here...
         private List<GeneticProfile> GetPopulationGenetics(string speciesId) => new List<GeneticProfile>();
         private float CalculateTraitFrequency(List<GeneticProfile> population, string trait) => 0f;
-        private async System.Threading.Tasks.Task UpdatePopulationGenetics(string speciesId, List<GeneticProfile> population) { }
+        private async System.Threading.Tasks.Task UpdatePopulationGenetics(string speciesId, List<GeneticProfile> population) { await System.Threading.Tasks.Task.CompletedTask; }
         private void RecordAdaptationEvent(string speciesId, AdaptationResult result) { }
         private void TriggerExtinctionRisk(string speciesId, float survivalRate) { }
         private bool EvaluateAdaptationSuccess(Dictionary<string, float> original, Dictionary<string, float> adapted, List<string> traits) => true;

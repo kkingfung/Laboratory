@@ -138,30 +138,24 @@ namespace Laboratory.Models.ECS.Systems
         private void ProcessReplayInputForPlayers(float3 moveDirection, bool jump, bool attack)
         {
             // Process movement input for entities with physics
-            Entities
-                .WithAll<PlayerTag>() // Process only entities tagged as players
-                .ForEach((ref PhysicsVelocity velocity, in LocalTransform transform) =>
-                {
-                    // Apply movement direction to physics velocity
-                    velocity.Linear = moveDirection * MovementSpeedMultiplier;
-                    
-                }).ScheduleParallel();
+            foreach (var velocity in SystemAPI.Query<RefRW<PhysicsVelocity>>().WithAll<PlayerTag>())
+            {
+                // Apply movement direction to physics velocity
+                velocity.ValueRW.Linear = moveDirection * MovementSpeedMultiplier;
+            }
 
             // Process action inputs (jump and attack) for entities with input components
-            Entities
-                .WithAll<PlayerTag>() // Process only entities tagged as players
-                .ForEach((ref PlayerInputComponent playerInput) =>
-                {
-                    // Apply jump input from replay data
-                    playerInput.JumpPressed = jump;
-                    
-                    // Apply attack input from replay data
-                    playerInput.AttackPressed = attack;
-                    
-                    // Convert 3D movement back to 2D for input component
-                    playerInput.MoveDirection = new float2(moveDirection.x, moveDirection.z);
-                    
-                }).ScheduleParallel();
+            foreach (var playerInput in SystemAPI.Query<RefRW<PlayerInputComponent>>().WithAll<PlayerTag>())
+            {
+                // Apply jump input from replay data
+                playerInput.ValueRW.JumpPressed = jump;
+
+                // Apply attack input from replay data
+                playerInput.ValueRW.AttackPressed = attack;
+
+                // Convert 3D movement back to 2D for input component
+                playerInput.ValueRW.MoveDirection = new float2(moveDirection.x, moveDirection.z);
+            }
         }
 
         #endregion

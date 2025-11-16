@@ -37,9 +37,11 @@ namespace Laboratory.Subsystems.AssetPipeline
 
         // Events
         public static event Action<CreatureAssetGeneratedEvent> OnCreatureAssetGenerated;
+        #pragma warning disable CS0067
         public static event Action<LODUpdateEvent> OnLODUpdated;
         public static event Action<TextureGeneratedEvent> OnTextureGenerated;
         public static event Action<AssetOptimizationEvent> OnAssetOptimized;
+        #pragma warning restore CS0067
 
         private readonly Dictionary<string, GeneratedAssetData> _generatedAssets = new();
         private readonly Dictionary<string, AssetCacheEntry> _assetCache = new();
@@ -274,6 +276,8 @@ namespace Laboratory.Subsystems.AssetPipeline
         /// </summary>
         public async Task PreloadAssetsAsync(List<GeneticProfile> upcomingProfiles)
         {
+            await Task.CompletedTask;
+
             if (!enableProceduralGeneration)
                 return;
 

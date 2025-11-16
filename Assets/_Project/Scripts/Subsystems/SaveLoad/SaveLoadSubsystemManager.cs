@@ -37,7 +37,9 @@ namespace Laboratory.Subsystems.SaveLoad
         public static event Action<LoadEvent> OnLoadStarted;
         public static event Action<LoadEvent> OnLoadCompleted;
         public static event Action<SaveLoadError> OnSaveLoadError;
+        #pragma warning disable CS0067
         public static event Action<CloudSyncEvent> OnCloudSyncEvent;
+        #pragma warning restore CS0067
 
         // Public Properties
         public bool IsInitialized { get; private set; }

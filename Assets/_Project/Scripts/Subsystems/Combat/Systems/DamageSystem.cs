@@ -38,12 +38,11 @@ namespace Laboratory.Models.ECS.Systems
         {
             var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
 
-            Entities
-                .WithAll<Laboratory.Models.ECS.Components.DamageRequest, ECSHealthComponent>()
-                .ForEach((Entity entity, ref ECSHealthComponent health, in Laboratory.Models.ECS.Components.DamageRequest damageRequest) =>
-                {
-                    ProcessDamageRequest(entity, ref health, in damageRequest, entityManager);
-                }).WithoutBurst().Run();
+            foreach (var (health, damageRequest, entity) in SystemAPI.Query<RefRW<ECSHealthComponent>, RefRO<Laboratory.Models.ECS.Components.DamageRequest>>()
+                .WithEntityAccess())
+            {
+                ProcessDamageRequest(entity, ref health.ValueRW, in damageRequest.ValueRO, entityManager);
+            }
         }
 
         #endregion

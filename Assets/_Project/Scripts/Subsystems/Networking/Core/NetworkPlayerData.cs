@@ -155,7 +155,7 @@ namespace Laboratory.Infrastructure.Networking
         /// Updates the player's score. Server authority required.
         /// </summary>
         /// <param name="newScore">New score value to set.</param>
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.Server, RequireOwnership = false)]
         public void SetScoreServerRpc(int newScore)
         {
             if (!IsServer) return;
@@ -166,7 +166,7 @@ namespace Laboratory.Infrastructure.Networking
         /// Updates the player's network ping. Server authority required.
         /// </summary>
         /// <param name="ping">New ping value in milliseconds.</param>
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.Server, RequireOwnership = false)]
         public void SetPingServerRpc(int ping)
         {
             if (!IsServer) return;
@@ -177,7 +177,7 @@ namespace Laboratory.Infrastructure.Networking
         /// Sets the player's display name. Server authority required.
         /// </summary>
         /// <param name="name">New player name (max 32 characters).</param>
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.Server, RequireOwnership = false)]
         public void SetPlayerNameServerRpc(FixedString32Bytes name)
         {
             if (!IsServer) return;
@@ -187,7 +187,7 @@ namespace Laboratory.Infrastructure.Networking
         /// <summary>
         /// Increments the player's kill count. Server authority required.
         /// </summary>
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.Server, RequireOwnership = false)]
         public void IncrementKillsServerRpc()
         {
             if (!IsServer) return;
@@ -197,7 +197,7 @@ namespace Laboratory.Infrastructure.Networking
         /// <summary>
         /// Increments the player's death count. Server authority required.
         /// </summary>
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.Server, RequireOwnership = false)]
         public void IncrementDeathsServerRpc()
         {
             if (!IsServer) return;
@@ -207,7 +207,7 @@ namespace Laboratory.Infrastructure.Networking
         /// <summary>
         /// Increments the player's assist count. Server authority required.
         /// </summary>
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.Server, RequireOwnership = false)]
         public void IncrementAssistsServerRpc()
         {
             if (!IsServer) return;
@@ -218,7 +218,7 @@ namespace Laboratory.Infrastructure.Networking
         /// Sets the player's avatar ID. Server authority required.
         /// </summary>
         /// <param name="avatarId">Avatar sprite identifier.</param>
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.Server, RequireOwnership = false)]
         public void SetAvatarIdServerRpc(FixedString64Bytes avatarId)
         {
             if (!IsServer) return;

@@ -253,6 +253,8 @@ namespace Laboratory.Subsystems.Moderation
         /// </summary>
         public async Task<bool> ApplyModerationActionAsync(string userId, ModerationActionType actionType, TimeSpan? duration = null, string reason = null)
         {
+            await Task.CompletedTask;
+
             if (!IsInitialized)
                 return false;
 

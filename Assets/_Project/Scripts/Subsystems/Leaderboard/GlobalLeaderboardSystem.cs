@@ -21,7 +21,9 @@ namespace Laboratory.Subsystems.Leaderboard
         [SerializeField] private float cacheRefreshInterval = 300f; // 5 minutes
 
         [Header("Leaderboard Settings")]
+        #pragma warning disable CS0414
         [SerializeField] private int maxEntriesPerBoard = 1000;
+        #pragma warning restore CS0414
         [SerializeField] private int topEntriesCache = 100;
         [SerializeField] private bool enableSeasonalLeaderboards = true;
 
