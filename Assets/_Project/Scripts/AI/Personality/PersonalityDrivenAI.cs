@@ -200,7 +200,7 @@ namespace Laboratory.AI.Personality
         private GeneticProfile GetOrCreateGenome()
         {
             // Try to get genome from existing creature components
-            var creatureInstance = GetComponent<CreatureInstanceComponent>();
+            var creatureInstance = GetComponent<Laboratory.Chimera.CreatureInstanceComponent>();
             if (creatureInstance != null && creatureInstance.CreatureData?.GeneticProfile != null)
             {
                 return creatureInstance.CreatureData.GeneticProfile;

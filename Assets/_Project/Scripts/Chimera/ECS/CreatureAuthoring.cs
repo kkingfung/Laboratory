@@ -231,7 +231,7 @@ namespace Laboratory.Chimera.ECS
                 PatrolRadius = isWild ? 20f : 5f,
                 AggressionLevel = GetGeneticTraitValue("Aggression", 0.5f),
                 CuriosityLevel = GetGeneticTraitValue("Curiosity", 0.5f),
-                LoyaltyLevel = GetGeneticTraitValue("Loyalty", isWild ? GameConstants.WILD_LOYALTY_BASELINE : GameConstants.TAME_LOYALTY_BASELINE),
+                LoyaltyLevel = GetGeneticTraitValue("Loyalty", isWild ? Laboratory.Core.GameConstants.WILD_LOYALTY_BASELINE : Laboratory.Core.GameConstants.TAME_LOYALTY_BASELINE),
                 StateTimer = 0f
             };
             entityManager.AddComponentData(creatureEntity, aiComponent);
