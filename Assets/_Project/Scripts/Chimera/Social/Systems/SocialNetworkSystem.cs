@@ -16,8 +16,6 @@ namespace Laboratory.Chimera.Social.Systems
     {
         [Header("Network Configuration")]
         [SerializeField] private float relationshipDecayRate = 0.001f;
-        [SerializeField] private float maxRelationshipDistance = 100f;
-        [SerializeField] private int maxRelationshipsPerAgent = 50;
 
         private Dictionary<uint, Data.SocialAgent> socialAgents = new();
         private Dictionary<(uint, uint), Data.SocialRelationship> relationships = new();

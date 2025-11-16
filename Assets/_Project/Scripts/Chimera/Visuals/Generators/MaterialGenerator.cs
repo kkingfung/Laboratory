@@ -13,7 +13,6 @@ namespace Laboratory.Chimera.Visuals.Generators
         [Header("Material Configuration")]
         [SerializeField] private Material baseMaterial;
         [SerializeField] private bool createUniqueMaterials = true;
-        [SerializeField] private bool enableShaderVariations = true;
         [SerializeField] private string[] availableShaders = { "Standard", "Standard (Specular setup)" };
 
         private Dictionary<string, Material> materialCache = new();

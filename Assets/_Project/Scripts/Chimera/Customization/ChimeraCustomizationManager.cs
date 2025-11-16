@@ -38,13 +38,11 @@ namespace Laboratory.Chimera.Customization
         [Header("🌈 Pattern & Color Systems")]
         [SerializeField] private bool enableGeneticPatterns = true;
         [SerializeField] private bool enableEquipmentVisuals = true;
-        [SerializeField] private bool enableCustomOutfits = true;
         [SerializeField] private float patternComplexity = 1.0f;
 
         [Header("⚙️ Configuration")]
         [SerializeField] private ChimeraCustomizationConfig config;
         [SerializeField] private bool autoUpdateOnEquipment = true;
-        [SerializeField] private bool cacheVisualAssets = true;
 
         #endregion
 
@@ -63,7 +61,6 @@ namespace Laboratory.Chimera.Customization
         // System state
         private bool isInitialized = false;
         private bool isActive = true;
-        private string lastGeneticHash = "";
 
         #endregion
 
@@ -118,7 +115,7 @@ namespace Laboratory.Chimera.Customization
         {
             creatureInstance = GetComponent<CreatureInstanceComponent>();
             visualSystem = GetComponent<ProceduralVisualSystem>();
-            equipmentManager = FindObjectOfType<EquipmentManager>();
+            equipmentManager = FindFirstObjectByType<EquipmentManager>();
 
             // Auto-find visual components if not assigned
             if (customizableRenderers == null || customizableRenderers.Length == 0)

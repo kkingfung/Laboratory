@@ -488,7 +488,6 @@ namespace Laboratory.Chimera.Progression
                 return;
 
             var challengeBuffer = EntityManager.GetBuffer<DailyChallengeElement>(entity);
-            bool challengeCompleted = false;
 
             for (int i = 0; i < challengeBuffer.Length; i++)
             {
@@ -504,7 +503,6 @@ namespace Laboratory.Chimera.Progression
                     if (challenge.currentProgress >= challenge.targetCount)
                     {
                         challenge.isCompleted = true;
-                        challengeCompleted = true;
 
                         // Award challenge rewards
                         var coinRequest = EntityManager.CreateEntity();

@@ -14,29 +14,17 @@ namespace Laboratory.Chimera.Social
     public class AdvancedSocialSystemController : ScriptableObject
     {
         [Header("Social Network Configuration")]
-        [SerializeField] private float relationshipDecayRate = 0.001f;
-        [SerializeField] private float empathyDevelopmentRate = 0.02f;
         [SerializeField] private bool enableCulturalEvolution = true;
 
         [Header("Group Dynamics")]
         [SerializeField] private int maxGroupSize = 25;
-        [SerializeField] private float groupCohesionThreshold = 0.7f;
-        [SerializeField] private float leadershipEmergenceRate = 0.05f;
-        [SerializeField] private bool enableHierarchyFormation = true;
 
         [Header("Communication System")]
-        [SerializeField] private float communicationEfficiency = 0.8f;
         [SerializeField] private bool enableLanguageEvolution = true;
-        [SerializeField] private int maxVocabularySize = 500;
-
-        [Header("Cultural Parameters")]
-        [SerializeField] private float culturalTransmissionRate = 0.3f;
-        [SerializeField] private float innovationRate = 0.01f;
 
         [Header("Emotional Intelligence")]
         [SerializeField] private float empathyRange = 50f;
         [SerializeField] private bool enableEmotionalContagion = true;
-        [SerializeField] private float emotionalSynchronizationRate = 0.1f;
 
         // System references (will be found/created at runtime)
         private SocialNetworkSystem networkSystem;

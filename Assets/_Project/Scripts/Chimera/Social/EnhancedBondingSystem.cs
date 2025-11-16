@@ -67,110 +67,110 @@ namespace Laboratory.Chimera.Social
 
         private void ProcessActiveBonds(float deltaTime)
         {
-            Entities
-                .WithAll<ActiveBond>()
-                .ForEach((Entity entity, ref ActiveBond bond, in BondingComponent bonding) =>
+            var ecb = new Unity.Entities.EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+
+            foreach (var (bond, bonding, entity) in SystemAPI.Query<RefRW<ActiveBond>, RefRO<BondingComponent>>().WithEntityAccess())
+            {
+                if (!EntityManager.Exists(bond.ValueRO.TargetEntity))
                 {
-                    if (!EntityManager.Exists(bond.TargetEntity))
+                    ecb.RemoveComponent<ActiveBond>(entity);
+                    continue;
+                }
+
+                bond.ValueRW.TimeElapsed += deltaTime;
+                float previousStrength = bond.ValueRO.Strength;
+
+                // Calculate distance factor
+                var sourcePos = EntityManager.GetComponentData<LocalTransform>(entity).Position;
+                var targetPos = EntityManager.GetComponentData<LocalTransform>(bond.ValueRO.TargetEntity).Position;
+                float distance = math.distance(sourcePos, targetPos);
+
+                // Update bond strength based on proximity and time
+                if (distance <= _config.ProximityBondingRange)
+                {
+                    float strengthGain = _config.BaseBondGrowthRate * deltaTime;
+
+                    // Apply bond type modifiers
+                    switch (bond.ValueRO.BondType)
                     {
-                        EntityManager.RemoveComponent<ActiveBond>(entity);
-                        return;
+                        case BondType.Parent:
+                            strengthGain *= _config.ParentBondMultiplier;
+                            break;
+                        case BondType.Mate:
+                            strengthGain *= _config.MateBondMultiplier;
+                            break;
+                        case BondType.Offspring:
+                            strengthGain *= _config.OffspringBondMultiplier;
+                            break;
+                        case BondType.Companion:
+                            strengthGain *= _config.CompanionBondMultiplier;
+                            break;
                     }
 
-                    bond.TimeElapsed += deltaTime;
-                    float previousStrength = bond.Strength;
+                    bond.ValueRW.Strength = math.min(1f, bond.ValueRO.Strength + strengthGain);
+                }
+                else if (distance > _config.SeparationDistanceThreshold)
+                {
+                    // Bond weakens with distance
+                    float decay = _config.SeparationDecayRate * deltaTime;
+                    bond.ValueRW.Strength = math.max(0f, bond.ValueRO.Strength - decay);
+                }
 
-                    // Calculate distance factor
-                    var sourcePos = EntityManager.GetComponentData<LocalTransform>(entity).Position;
-                    var targetPos = EntityManager.GetComponentData<LocalTransform>(bond.TargetEntity).Position;
-                    float distance = math.distance(sourcePos, targetPos);
+                // Process generational memory influence
+                if (EntityManager.HasComponent<GenerationalMemoryComponent>(entity))
+                {
+                    var memory = EntityManager.GetComponentData<GenerationalMemoryComponent>(entity);
+                    var bondValue = bond.ValueRW;
+                    ApplyGenerationalMemoryToBond(ref bondValue, memory);
+                    bond.ValueRW = bondValue;
+                }
 
-                    // Update bond strength based on proximity and time
-                    if (distance <= _config.ProximityBondingRange)
-                    {
-                        float strengthGain = _config.BaseBondGrowthRate * deltaTime;
+                // Check for bond strength changes
+                if (math.abs(bond.ValueRO.Strength - previousStrength) > 0.01f)
+                {
+                    OnBondStrengthChanged?.Invoke(entity, bond.ValueRO.TargetEntity, bond.ValueRO.Strength);
+                }
 
-                        // Apply bond type modifiers
-                        switch (bond.BondType)
-                        {
-                            case BondType.Parent:
-                                strengthGain *= _config.ParentBondMultiplier;
-                                break;
-                            case BondType.Mate:
-                                strengthGain *= _config.MateBondMultiplier;
-                                break;
-                            case BondType.Offspring:
-                                strengthGain *= _config.OffspringBondMultiplier;
-                                break;
-                            case BondType.Companion:
-                                strengthGain *= _config.CompanionBondMultiplier;
-                                break;
-                        }
+                // Remove bond if it becomes too weak
+                if (bond.ValueRO.Strength <= _config.MinimumBondStrength)
+                {
+                    ecb.RemoveComponent<ActiveBond>(entity);
+                }
+            }
 
-                        bond.Strength = math.min(1f, bond.Strength + strengthGain);
-                    }
-                    else if (distance > _config.SeparationDistanceThreshold)
-                    {
-                        // Bond weakens with distance
-                        float decay = _config.SeparationDecayRate * deltaTime;
-                        bond.Strength = math.max(0f, bond.Strength - decay);
-                    }
-
-                    // Process generational memory influence
-                    if (EntityManager.HasComponent<GenerationalMemoryComponent>(entity))
-                    {
-                        var memory = EntityManager.GetComponentData<GenerationalMemoryComponent>(entity);
-                        ApplyGenerationalMemoryToBond(ref bond, memory);
-                    }
-
-                    // Check for bond strength changes
-                    if (math.abs(bond.Strength - previousStrength) > 0.01f)
-                    {
-                        OnBondStrengthChanged?.Invoke(entity, bond.TargetEntity, bond.Strength);
-                    }
-
-                    // Remove bond if it becomes too weak
-                    if (bond.Strength <= _config.MinimumBondStrength)
-                    {
-                        EntityManager.RemoveComponent<ActiveBond>(entity);
-                    }
-                })
-                .WithStructuralChanges()
-                .WithoutBurst()
-                .Run();
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
 
         private void UpdateGenerationalMemories(float deltaTime)
         {
-            Entities
-                .WithAll<GenerationalMemoryComponent>()
-                .ForEach((Entity entity, ref GenerationalMemoryComponent memory) =>
+            foreach (var (memory, entity) in SystemAPI.Query<RefRW<GenerationalMemoryComponent>>().WithEntityAccess())
+            {
+                // Decay memory strength over time
+                for (int i = memory.ValueRO.Memories.Length - 1; i >= 0; i--)
                 {
-                    // Decay memory strength over time
-                    for (int i = memory.Memories.Length - 1; i >= 0; i--)
+                    var mem = memory.ValueRO.Memories[i];
+                    mem.Strength = math.max(0f, mem.Strength - _config.MemoryDecayRate * deltaTime);
+
+                    if (mem.Strength <= 0f)
                     {
-                        var mem = memory.Memories[i];
-                        mem.Strength = math.max(0f, mem.Strength - _config.MemoryDecayRate * deltaTime);
-
-                        if (mem.Strength <= 0f)
-                        {
-                            // Remove weak memories
-                            RemoveMemoryAtIndex(ref memory, i);
-                        }
-                        else
-                        {
-                            // Update the memory in the FixedList
-                            var memories = memory.Memories;
-                            memories[i] = mem;
-                            memory.Memories = memories;
-                        }
+                        // Remove weak memories
+                        var memoryValue = memory.ValueRW;
+                        RemoveMemoryAtIndex(ref memoryValue, i);
+                        memory.ValueRW = memoryValue;
                     }
+                    else
+                    {
+                        // Update the memory in the FixedList
+                        var memories = memory.ValueRW.Memories;
+                        memories[i] = mem;
+                        memory.ValueRW.Memories = memories;
+                    }
+                }
 
-                    // Update emotional resonance
-                    memory.EmotionalResonance = CalculateEmotionalResonance(memory);
-                })
-                .WithoutBurst()
-                .Run();
+                // Update emotional resonance
+                memory.ValueRW.EmotionalResonance = CalculateEmotionalResonance(memory.ValueRO);
+            }
         }
 
         private void CheckBondingOpportunities()
@@ -245,54 +245,50 @@ namespace Laboratory.Chimera.Social
 
         private void ProcessEmotionalInheritance()
         {
-            Entities
-                .WithAll<FamilyLineage, GenerationalMemoryComponent>()
-                .ForEach((Entity entity, ref GenerationalMemoryComponent memory, in FamilyLineage lineage) =>
+            foreach (var (memory, lineage, entity) in SystemAPI.Query<RefRW<GenerationalMemoryComponent>, RefRO<FamilyLineage>>().WithEntityAccess())
+            {
+                // Inherit memories from parents
+                if (EntityManager.Exists(lineage.ValueRO.Parent1) && EntityManager.HasComponent<GenerationalMemoryComponent>(lineage.ValueRO.Parent1))
                 {
-                    // Inherit memories from parents
-                    if (EntityManager.Exists(lineage.Parent1) && EntityManager.HasComponent<GenerationalMemoryComponent>(lineage.Parent1))
-                    {
-                        var parentMemory = EntityManager.GetComponentData<GenerationalMemoryComponent>(lineage.Parent1);
-                        InheritParentMemories(ref memory, parentMemory, _config.ParentMemoryInheritanceRate);
-                    }
+                    var parentMemory = EntityManager.GetComponentData<GenerationalMemoryComponent>(lineage.ValueRO.Parent1);
+                    var memoryValue = memory.ValueRW;
+                    InheritParentMemories(ref memoryValue, parentMemory, _config.ParentMemoryInheritanceRate);
+                    memory.ValueRW = memoryValue;
+                }
 
-                    if (EntityManager.Exists(lineage.Parent2) && EntityManager.HasComponent<GenerationalMemoryComponent>(lineage.Parent2))
-                    {
-                        var parentMemory = EntityManager.GetComponentData<GenerationalMemoryComponent>(lineage.Parent2);
-                        InheritParentMemories(ref memory, parentMemory, _config.ParentMemoryInheritanceRate);
-                    }
-                })
-                .WithoutBurst()
-                .Run();
+                if (EntityManager.Exists(lineage.ValueRO.Parent2) && EntityManager.HasComponent<GenerationalMemoryComponent>(lineage.ValueRO.Parent2))
+                {
+                    var parentMemory = EntityManager.GetComponentData<GenerationalMemoryComponent>(lineage.ValueRO.Parent2);
+                    var memoryValue = memory.ValueRW;
+                    InheritParentMemories(ref memoryValue, parentMemory, _config.ParentMemoryInheritanceRate);
+                    memory.ValueRW = memoryValue;
+                }
+            }
         }
 
         private void UpdateBondingMilestones()
         {
-            Entities
-                .WithAll<ActiveBond>()
-                .ForEach((Entity entity, ref ActiveBond bond, ref BondingComponent bonding) =>
+            foreach (var (bond, bonding, entity) in SystemAPI.Query<RefRW<ActiveBond>, RefRW<BondingComponent>>().WithEntityAccess())
+            {
+                // Check for milestone achievements
+                if (bond.ValueRO.Strength >= 0.9f && !bonding.ValueRO.HasDeepBond)
                 {
-                    // Check for milestone achievements
-                    if (bond.Strength >= 0.9f && !bonding.HasDeepBond)
-                    {
-                        bonding.HasDeepBond = true;
-                        OnBondingMilestone?.Invoke(entity, BondingMilestone.DeepBond);
-                    }
+                    bonding.ValueRW.HasDeepBond = true;
+                    OnBondingMilestone?.Invoke(entity, BondingMilestone.DeepBond);
+                }
 
-                    if (bond.TimeElapsed >= _config.LifelongBondTimeThreshold && !bonding.HasLifelongBond)
-                    {
-                        bonding.HasLifelongBond = true;
-                        OnBondingMilestone?.Invoke(entity, BondingMilestone.LifelongBond);
-                    }
+                if (bond.ValueRO.TimeElapsed >= _config.LifelongBondTimeThreshold && !bonding.ValueRO.HasLifelongBond)
+                {
+                    bonding.ValueRW.HasLifelongBond = true;
+                    OnBondingMilestone?.Invoke(entity, BondingMilestone.LifelongBond);
+                }
 
-                    if (bond.BondType == BondType.Mate && bond.Strength >= 0.8f && !bonding.HasSoulmate)
-                    {
-                        bonding.HasSoulmate = true;
-                        OnBondingMilestone?.Invoke(entity, BondingMilestone.Soulmate);
-                    }
-                })
-                .WithoutBurst()
-                .Run();
+                if (bond.ValueRO.BondType == BondType.Mate && bond.ValueRO.Strength >= 0.8f && !bonding.ValueRO.HasSoulmate)
+                {
+                    bonding.ValueRW.HasSoulmate = true;
+                    OnBondingMilestone?.Invoke(entity, BondingMilestone.Soulmate);
+                }
+            }
         }
 
         // Helper methods

@@ -123,7 +123,7 @@ namespace Laboratory.Chimera.Demo
 
                 // Get components
                 customizationManager = currentChimera.GetComponent<ChimeraCustomizationManager>();
-                equipmentManager = FindObjectOfType<EquipmentManager>();
+                equipmentManager = FindFirstObjectByType<EquipmentManager>();
 
                 // Initialize if needed
                 if (customizationManager != null && !customizationManager.IsInitialized)
