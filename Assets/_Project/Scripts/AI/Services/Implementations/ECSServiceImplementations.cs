@@ -9,7 +9,7 @@ using Laboratory.Chimera.AI;
 using BiomeType = Laboratory.Shared.Types.BiomeType;
 using SharedAIBehaviorType = Laboratory.Shared.Types.AIBehaviorType;
 using PathfindingStatus = Laboratory.AI.Pathfinding.PathfindingStatus;
-using AIBehaviorType = Laboratory.AI.Pathfinding.AIBehaviorType;
+using AIBehaviorType = Laboratory.Chimera.AI.AIBehaviorType;
 
 namespace Laboratory.AI.Services
 {
