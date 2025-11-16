@@ -100,6 +100,18 @@ namespace Laboratory.Multiplayer
                 UpdateLobby();
             }
 
+            // Check for player ready timeout
+            if (_isHost && _currentLobby != null)
+            {
+                CheckPlayerReadyTimeouts();
+            }
+
+            // Check for lobby inactivity timeout
+            if (_currentLobby != null)
+            {
+                CheckLobbyInactivityTimeout();
+            }
+
             // Auto-start if all players ready
             if (autoStartWhenReady && _isHost && AllPlayersReady())
             {
@@ -478,6 +490,56 @@ namespace Laboratory.Multiplayer
                 return false;
 
             return _currentLobby.players.All(p => p.isReady);
+        }
+
+        /// <summary>
+        /// Check for players who have not marked ready within the timeout period.
+        /// </summary>
+        private void CheckPlayerReadyTimeouts()
+        {
+            if (_currentLobby == null || _currentLobby.players == null)
+                return;
+
+            var playersToKick = new List<LobbyPlayer>();
+
+            foreach (var player in _currentLobby.players)
+            {
+                if (!player.isReady)
+                {
+                    float timeSinceJoin = (float)(DateTime.UtcNow - player.joinedAt).TotalSeconds;
+                    if (timeSinceJoin >= playerReadyTimeout)
+                    {
+                        playersToKick.Add(player);
+                        Debug.LogWarning($"[LobbySystem] Player {player.username} timed out (not ready after {playerReadyTimeout}s)");
+                    }
+                }
+            }
+
+            // Kick timed out players (host action)
+            foreach (var player in playersToKick)
+            {
+                _currentLobby.players.Remove(player);
+                OnPlayerLeft?.Invoke(player.userId);
+                Debug.Log($"[LobbySystem] Kicked player {player.username} for ready timeout");
+            }
+        }
+
+        /// <summary>
+        /// Check if the lobby has been inactive for too long.
+        /// </summary>
+        private void CheckLobbyInactivityTimeout()
+        {
+            if (_currentLobby == null)
+                return;
+
+            float lobbyAge = (float)(DateTime.UtcNow - _currentLobby.createdAt).TotalSeconds;
+
+            // Check if no players are ready after the inactivity timeout
+            if (lobbyAge >= lobbyInactiveTimeout && _currentLobby.players.All(p => !p.isReady))
+            {
+                Debug.LogWarning($"[LobbySystem] Lobby inactive for {lobbyInactiveTimeout}s, no players ready. Leaving lobby.");
+                LeaveLobby();
+            }
         }
 
         #endregion

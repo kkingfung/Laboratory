@@ -67,6 +67,20 @@ namespace Laboratory.CI
                 sb.AppendLine("      - uses: actions/checkout@v3");
                 sb.AppendLine("      - name: Run Tests");
                 sb.AppendLine("        run: echo 'Running tests...'");
+
+                if (generateTestReports)
+                {
+                    sb.AppendLine("      - name: Generate Test Report");
+                    sb.AppendLine("        if: always()");
+                    sb.AppendLine("        run: echo 'Generating test reports...'");
+                    sb.AppendLine("      - name: Upload Test Results");
+                    sb.AppendLine("        if: always()");
+                    sb.AppendLine("        uses: actions/upload-artifact@v3");
+                    sb.AppendLine("        with:");
+                    sb.AppendLine("          name: test-results");
+                    sb.AppendLine("          path: TestResults/");
+                }
+
                 sb.AppendLine();
             }
 
@@ -81,6 +95,52 @@ namespace Laboratory.CI
                 sb.AppendLine("      - uses: actions/checkout@v3");
                 sb.AppendLine("      - name: Build Project");
                 sb.AppendLine("        run: echo 'Building...'");
+                sb.AppendLine();
+            }
+
+            // Performance testing job
+            if (runPerformanceTests && trackPerformanceBaselines)
+            {
+                sb.AppendLine("  performance:");
+                sb.AppendLine("    name: Performance Tests");
+                sb.AppendLine("    runs-on: ubuntu-latest");
+                sb.AppendLine("    needs: test");
+                sb.AppendLine("    steps:");
+                sb.AppendLine("      - uses: actions/checkout@v3");
+                sb.AppendLine("      - name: Run Performance Tests");
+                sb.AppendLine("        run: echo 'Running performance tests...'");
+                sb.AppendLine($"      - name: Check Performance Regression (threshold: {performanceRegressionThreshold * 100}%)");
+                sb.AppendLine("        run: echo 'Checking performance baselines...'");
+                sb.AppendLine();
+            }
+
+            // Notification job
+            if (sendNotifications && (!string.IsNullOrEmpty(discordWebhookUrl) || !string.IsNullOrEmpty(slackWebhookUrl)))
+            {
+                sb.AppendLine("  notify:");
+                sb.AppendLine("    name: Send Notifications");
+                sb.AppendLine("    runs-on: ubuntu-latest");
+                sb.AppendLine("    if: always()");
+                sb.AppendLine("    needs: [test]");
+                sb.AppendLine("    steps:");
+
+                if (!string.IsNullOrEmpty(discordWebhookUrl))
+                {
+                    sb.AppendLine("      - name: Discord Notification");
+                    sb.AppendLine("        run: |");
+                    sb.AppendLine("          curl -X POST -H 'Content-Type: application/json' \\");
+                    sb.AppendLine("          -d '{\"content\": \"Build ${{ job.status }}: ${{ github.repository }}@${{ github.ref }}\"}' \\");
+                    sb.AppendLine($"          {discordWebhookUrl}");
+                }
+
+                if (!string.IsNullOrEmpty(slackWebhookUrl))
+                {
+                    sb.AppendLine("      - name: Slack Notification");
+                    sb.AppendLine("        run: |");
+                    sb.AppendLine("          curl -X POST -H 'Content-Type: application/json' \\");
+                    sb.AppendLine("          -d '{\"text\": \"Build ${{ job.status }}: ${{ github.repository }}@${{ github.ref }}\"}' \\");
+                    sb.AppendLine($"          {slackWebhookUrl}");
+                }
             }
 
             return sb.ToString();

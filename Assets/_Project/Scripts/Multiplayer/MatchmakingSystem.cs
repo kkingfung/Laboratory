@@ -126,7 +126,9 @@ namespace Laboratory.Multiplayer
                 mode = mode,
                 partyMembers = partyMembers ?? new string[0],
                 skillRating = GetPlayerSkillRating(),
-                timestamp = DateTime.UtcNow
+                timestamp = DateTime.UtcNow,
+                useSkillBasedMatchmaking = this.useSkillBasedMatchmaking,
+                maxSkillDifference = this.maxSkillDifference
             };
 
             _queueStartTime = DateTime.UtcNow;
@@ -480,6 +482,8 @@ namespace Laboratory.Multiplayer
         public string[] partyMembers;
         public int skillRating;
         public DateTime timestamp;
+        public bool useSkillBasedMatchmaking;
+        public float maxSkillDifference;
     }
 
     /// <summary>
