@@ -2,6 +2,7 @@
     "name": "Laboratory.Gameplay",
     "rootNamespace": "Laboratory.Gameplay",
     "references": [
+        "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
         "Laboratory.Core.Enums",
