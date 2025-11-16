@@ -206,7 +206,7 @@ namespace Laboratory.Chimera.Ecosystem
             climateService.UpdateSeasonalCycles(activeBiomes, scaledDeltaTime);
 
             // Update biome-level processes (delegated to services)
-            biomeManagementService.UpdateBiomeEvolution(activeBiomes, ecosystemNodes, scaledDeltaTime);
+            biomeManagementService.UpdateBiomeEvolution(activeBiomes, scaledDeltaTime);
             resourceDynamicsService.UpdateResourceDynamics(activeBiomes, ecosystemNodes, scaledDeltaTime);
 
             // Update ecological interactions (kept in main class - complex domain logic)
