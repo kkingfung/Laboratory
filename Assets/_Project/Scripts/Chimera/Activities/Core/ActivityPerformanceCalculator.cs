@@ -121,7 +121,7 @@ namespace Laboratory.Chimera.Activities
         [BurstCompile]
         public static ActivityResultStatus GetRankFromScore(
             float performanceScore,
-            RankThresholds thresholds)
+            in RankThresholds thresholds)
         {
             if (performanceScore >= thresholds.platinum)
                 return ActivityResultStatus.Platinum;
