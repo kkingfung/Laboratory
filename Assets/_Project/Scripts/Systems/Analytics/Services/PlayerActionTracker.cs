@@ -71,7 +71,7 @@ namespace Laboratory.Systems.Analytics.Services
         public PlayerAction TrackUIInteraction(string elementName, string interactionType, Dictionary<ParamKey, object> context = null)
         {
             var parameters = context ?? new Dictionary<ParamKey, object>();
-            parameters[ParamKey.UIElement] = elementName;
+            parameters[ParamKey.ElementName] = elementName;
             parameters[ParamKey.InteractionType] = interactionType;
 
             return TrackAction("UIInteraction", $"{interactionType} on {elementName}", parameters);

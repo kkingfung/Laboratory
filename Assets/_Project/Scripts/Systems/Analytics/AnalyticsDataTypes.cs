@@ -33,7 +33,8 @@ namespace Laboratory.Systems.Analytics
         Creativity,
         Strategy,
         Patience,
-        Aggression
+        Aggression,
+        RiskTaking
     }
 
     /// <summary>

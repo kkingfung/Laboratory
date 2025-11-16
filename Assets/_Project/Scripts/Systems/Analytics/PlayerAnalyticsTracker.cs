@@ -143,9 +143,6 @@ namespace Laboratory.Systems.Analytics
             _emotionalAnalysis = new EmotionalAnalysisService(enableEmotionalAnalysis);
             _dataPersistence = new AnalyticsDataPersistence(anonymizePlayerData, enableDataExport);
 
-            // Initialize adaptation engine
-            _adaptationEngine = new GameAdaptationEngine();
-
             // Subscribe to service events
             SubscribeToServiceEvents();
 
@@ -271,13 +268,13 @@ namespace Laboratory.Systems.Analytics
         {
             var parameters = new Dictionary<ParamKey, object>
             {
-                [ParamKey.QuestId] = quest.questId,
+                [ParamKey.QuestId] = quest.id,
                 [ParamKey.Success] = true
             };
 
             TrackPlayerAction("QuestCompleted", "Quest", parameters);
-            TrackEmotionalResponse(EmotionalState.Satisfied, 0.7f, "Quest Completed");
-            _sessionManager.AddMilestone(MilestoneType.QuestCompleted);
+            TrackEmotionalResponse(EmotionalState.Happy, 0.7f, "Quest Completed");
+            _sessionManager.AddMilestone(MilestoneType.Completion);
         }
 
         /// <summary>
@@ -287,7 +284,7 @@ namespace Laboratory.Systems.Analytics
         {
             var parameters = new Dictionary<ParamKey, object>
             {
-                [ParamKey.QuestId] = quest.questId,
+                [ParamKey.QuestId] = quest.id,
                 [ParamKey.Success] = false
             };
 
