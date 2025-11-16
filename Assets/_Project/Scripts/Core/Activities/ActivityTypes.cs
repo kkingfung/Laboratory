@@ -127,6 +127,9 @@ namespace Laboratory.Core.Activities
 
         /// <summary>Activity quality modifier</summary>
         public float QualityModifier;
+
+        /// <summary>Owner creature entity (Entity.Null if no owner)</summary>
+        public Entity OwnerCreature;
     }
 
     /// <summary>
