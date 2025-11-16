@@ -5,11 +5,13 @@
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Burst",
+        "UniTask",
         "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Configuration",
         "Laboratory.Core.State",
-        "Laboratory.Core.Events"
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Services"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
