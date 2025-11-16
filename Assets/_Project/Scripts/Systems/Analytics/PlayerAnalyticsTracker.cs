@@ -11,6 +11,7 @@ using Laboratory.Systems.Ecosystem;
 using Laboratory.Subsystems.AIDirector;
 using Laboratory.Chimera.Social.Types;
 using Laboratory.Chimera.Breeding;
+using Laboratory.Subsystems.Analytics;
 
 namespace Laboratory.Systems.Analytics
 {
@@ -103,7 +104,7 @@ namespace Laboratory.Systems.Analytics
         {
             if (enableAnalytics)
             {
-                StartNewGameplaySession();
+                StartNewAnalyticsSessionData();
                 Debug.Log("[PlayerAnalyticsTracker] Initialized with service-based architecture");
             }
         }
@@ -328,7 +329,7 @@ namespace Laboratory.Systems.Analytics
         /// <summary>
         /// Called when environmental event occurs
         /// </summary>
-        public void OnEnvironmentalEvent(EcosystemEvent envEvent)
+        public void OnEnvironmentalEvent(EnvironmentalEvent envEvent)
         {
             var parameters = new Dictionary<ParamKey, object>
             {
@@ -342,7 +343,7 @@ namespace Laboratory.Systems.Analytics
 
         #region Session Management
 
-        private void StartNewGameplaySession()
+        private void StartNewAnalyticsSessionData()
         {
             _sessionManager.StartNewSession(_currentPlayerProfile);
             _actionTracker.Reset();
@@ -359,12 +360,12 @@ namespace Laboratory.Systems.Analytics
             Debug.Log("[PlayerAnalyticsTracker] Current session ended");
         }
 
-        private void OnSessionStarted(GameplaySession session)
+        private void OnSessionStarted(AnalyticsSessionData session)
         {
             Debug.Log($"[PlayerAnalyticsTracker] Session started: {session.sessionId}");
         }
 
-        private void OnSessionEnded(GameplaySession session)
+        private void OnSessionEnded(AnalyticsSessionData session)
         {
             // Update player profile
             UpdatePlayerProfileFromSession(session);
@@ -425,10 +426,10 @@ namespace Laboratory.Systems.Analytics
         private void SaveAnalyticsData()
         {
             _dataPersistence.SavePlayerProfile(_currentPlayerProfile);
-            _dataPersistence.SaveSessionHistory(_sessionManager.SessionHistory as List<GameplaySession>);
+            _dataPersistence.SaveSessionHistory(_sessionManager.SessionHistory as List<AnalyticsSessionData>);
         }
 
-        private void UpdatePlayerProfileFromSession(GameplaySession session)
+        private void UpdatePlayerProfileFromSession(AnalyticsSessionData session)
         {
             if (_currentPlayerProfile == null) return;
 
@@ -505,7 +506,7 @@ namespace Laboratory.Systems.Analytics
         {
             _dataPersistence.ExportAnalyticsData(
                 _currentPlayerProfile,
-                _sessionManager.SessionHistory as List<GameplaySession>
+                _sessionManager.SessionHistory as List<AnalyticsSessionData>
             );
         }
 
