@@ -2,6 +2,7 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 using Laboratory.Shared.Types;
+using Laboratory.Subsystems.AIDirector;
 
 namespace Laboratory.Systems.Analytics.Services
 {

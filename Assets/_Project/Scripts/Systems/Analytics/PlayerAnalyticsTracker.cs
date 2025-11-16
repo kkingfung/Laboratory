@@ -8,6 +8,7 @@ using Laboratory.Systems.Analytics.Services;
 using Laboratory.Systems.Quests;
 using Laboratory.Systems.Breeding;
 using Laboratory.Systems.Ecosystem;
+using Laboratory.Subsystems.AIDirector;
 
 namespace Laboratory.Systems.Analytics
 {
