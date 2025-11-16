@@ -67,6 +67,10 @@ namespace Laboratory.CI
                 sb.AppendLine("      - uses: actions/checkout@v3");
                 sb.AppendLine("      - name: Run Tests");
                 sb.AppendLine("        run: echo 'Running tests...'");
+                if (failOnTestFailure)
+                {
+                    sb.AppendLine("        continue-on-error: false");
+                }
 
                 if (generateTestReports)
                 {
@@ -94,7 +98,29 @@ namespace Laboratory.CI
                 sb.AppendLine("    steps:");
                 sb.AppendLine("      - uses: actions/checkout@v3");
                 sb.AppendLine("      - name: Build Project");
-                sb.AppendLine("        run: echo 'Building...'");
+                string buildArgs = "";
+                if (optimizeBuildSize)
+                {
+                    buildArgs += " --optimize-size";
+                }
+                if (stripDebugSymbols)
+                {
+                    buildArgs += " --strip-debug";
+                }
+                sb.AppendLine($"        run: echo 'Building{buildArgs}...'");
+                if (optimizeBuildSize || stripDebugSymbols)
+                {
+                    sb.AppendLine($"      - name: Build Optimizations");
+                    sb.AppendLine($"        run: |");
+                    if (optimizeBuildSize)
+                    {
+                        sb.AppendLine("          echo 'Optimizing build size...'");
+                    }
+                    if (stripDebugSymbols)
+                    {
+                        sb.AppendLine("          echo 'Stripping debug symbols...'");
+                    }
+                }
                 sb.AppendLine();
             }
 

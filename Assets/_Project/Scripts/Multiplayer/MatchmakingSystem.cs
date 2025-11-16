@@ -103,7 +103,8 @@ namespace Laboratory.Multiplayer
         /// <summary>
         /// Join matchmaking queue.
         /// </summary>
-        public void JoinQueue(MatchmakingMode mode = MatchmakingMode.QuickPlay, string[] partyMembers = null, Action<MatchInfo> onSuccess = null, Action<string> onError = null)
+        /// <param name="mode">Matchmaking mode (uses configured default if not specified)</param>
+        public void JoinQueue(MatchmakingMode? mode = null, string[] partyMembers = null, Action<MatchInfo> onSuccess = null, Action<string> onError = null)
         {
             if (_inQueue)
             {
@@ -120,10 +121,13 @@ namespace Laboratory.Multiplayer
                 return;
             }
 
+            // Use configured default mode if not specified
+            var actualMode = mode ?? defaultMode;
+
             _currentRequest = new MatchmakingRequest
             {
                 userId = Backend.UserAuthenticationSystem.Instance.UserId,
-                mode = mode,
+                mode = actualMode,
                 partyMembers = partyMembers ?? new string[0],
                 skillRating = GetPlayerSkillRating(),
                 timestamp = DateTime.UtcNow,

@@ -439,6 +439,20 @@ namespace Laboratory.Multiplayer
                     {
                         var response = JsonUtility.FromJson<LobbyResponse>(request.downloadHandler.text);
 
+                        // Check for new players
+                        if (_currentLobby != null && _currentLobby.players != null)
+                        {
+                            var oldPlayerIds = _currentLobby.players.Select(p => p.userId).ToHashSet();
+                            foreach (var player in response.lobby.players)
+                            {
+                                if (!oldPlayerIds.Contains(player.userId))
+                                {
+                                    OnPlayerJoined?.Invoke(player);
+                                    Debug.Log($"[LobbySystem] Player joined: {player.username}");
+                                }
+                            }
+                        }
+
                         _currentLobby = response.lobby;
 
                         OnLobbyUpdated?.Invoke(_currentLobby);

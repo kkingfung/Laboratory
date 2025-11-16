@@ -235,6 +235,13 @@ namespace Laboratory.Multiplayer
                     yield break;
                 }
 
+                if (!lobbyJoined)
+                {
+                    HandleSessionError("Failed to join lobby");
+                    onError?.Invoke("Failed to join lobby");
+                    yield break;
+                }
+
                 ChangeState(MultiplayerSessionState.InLobby);
             }
 
