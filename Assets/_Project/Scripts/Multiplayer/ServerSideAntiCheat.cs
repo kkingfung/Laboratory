@@ -550,7 +550,7 @@ namespace Laboratory.Multiplayer
     /// Cheat violation record for server-side anti-cheat.
     /// </summary>
     [Serializable]
-    internal class ServerCheatViolation
+    public class ServerCheatViolation
     {
         public string playerId;
         public ViolationType type;
