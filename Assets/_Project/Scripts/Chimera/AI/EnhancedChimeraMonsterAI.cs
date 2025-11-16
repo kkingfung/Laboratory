@@ -24,7 +24,7 @@ namespace Laboratory.Chimera.AI
         [SerializeField] private LayerMask enemyLayers = 1 << 8;
 
         [Header("Enhanced Pathfinding")]
-        [SerializeField] private PathfindingMode preferredPathfindingMode = PathfindingMode.Hybrid;
+        [SerializeField] private PathfindingMode preferredPathfindingMode = PathfindingMode.Auto;
         [SerializeField] private float pathUpdateFrequency = 0.5f;
         [SerializeField] private float pathRecalculationThreshold = 2f;
         [SerializeField] private bool useSmartPathing = true;
@@ -110,7 +110,7 @@ namespace Laboratory.Chimera.AI
             }
 
             // Configure AI agent
-            aiAgent.SetAgentType(EnhancedAIAgent.AgentType.Medium);
+            aiAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Medium);
 
             // Configure pathfinding settings
             if (useSmartPathing)

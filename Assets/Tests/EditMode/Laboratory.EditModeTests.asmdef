@@ -4,8 +4,13 @@
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
+        "Unity.Entities",
+        "Unity.Collections",
         "Laboratory.Core",
-        "Laboratory.Chimera"
+        "Laboratory.Core.Activities",
+        "Laboratory.Core.ECS",
+        "Laboratory.Chimera",
+        "Laboratory.Chimera.Genetics"
     ],
     "includePlatforms": [
         "Editor"
