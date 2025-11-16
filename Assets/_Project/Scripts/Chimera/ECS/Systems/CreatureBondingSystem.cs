@@ -72,21 +72,27 @@ namespace Laboratory.Chimera.ECS
 
         private void ProcessBondingInteractions(float deltaTime)
         {
-            Entities.WithAll<CreatureBondData, CreatureGeneticsComponent>().ForEach((Entity entity, ref CreatureBondData bondData, in CreatureGeneticsComponent genetics) =>
+            foreach (var (bondData, genetics, entity) in SystemAPI.Query<RefRW<CreatureBondData>, RefRO<CreatureGeneticsComponent>>().WithEntityAccess())
             {
                 // Update interaction tracking
-                bondData.timeSinceLastInteraction += deltaTime;
-                bondData.timeAlive += deltaTime;
+                bondData.ValueRW.timeSinceLastInteraction += deltaTime;
+                bondData.ValueRW.timeAlive += deltaTime;
 
                 // Check for special bonding moments
-                CheckForBondingMoments(entity, ref bondData, genetics);
+                var bondValue = bondData.ValueRW;
+                CheckForBondingMoments(entity, ref bondValue, genetics.ValueRO);
+                bondData.ValueRW = bondValue;
 
                 // Process active memories
-                ProcessActiveMemories(ref bondData, deltaTime);
+                bondValue = bondData.ValueRW;
+                ProcessActiveMemories(ref bondValue, deltaTime);
+                bondData.ValueRW = bondValue;
 
                 // Update emotional state based on interactions
-                UpdateBondingEmotionalState(ref bondData, deltaTime);
-            }).WithoutBurst().Run();
+                bondValue = bondData.ValueRW;
+                UpdateBondingEmotionalState(ref bondValue, deltaTime);
+                bondData.ValueRW = bondValue;
+            }
         }
 
         private void CheckForBondingMoments(Entity entity, ref CreatureBondData bondData, in CreatureGeneticsComponent genetics)
@@ -194,14 +200,14 @@ namespace Laboratory.Chimera.ECS
 
         private void UpdateGenerationalMemories(float deltaTime)
         {
-            Entities.WithAll<PlayerBondingHistory>().ForEach((Entity playerEntity, ref PlayerBondingHistory history) =>
+            foreach (var (history, playerEntity) in SystemAPI.Query<RefRW<PlayerBondingHistory>>().WithEntityAccess())
             {
                 // Update memory fade over time
-                for (int i = 0; i < history.legacyConnections.Length; i++)
+                for (int i = 0; i < history.ValueRO.legacyConnections.Length; i++)
                 {
-                    if (history.legacyConnections[i].isActive)
+                    if (history.ValueRO.legacyConnections[i].isActive)
                     {
-                        var connection = history.legacyConnections[i];
+                        var connection = history.ValueRO.legacyConnections[i];
                         connection.memoryStrength -= _config.memoryFadeRate * deltaTime;
 
                         if (connection.memoryStrength <= 0f)
@@ -209,13 +215,17 @@ namespace Laboratory.Chimera.ECS
                             connection.isActive = false;
                         }
 
-                        history.legacyConnections[i] = connection;
+                        var connections = history.ValueRW.legacyConnections;
+                        connections[i] = connection;
+                        history.ValueRW.legacyConnections = connections;
                     }
                 }
 
                 // Check for new legacy connections
-                CheckForNewLegacyConnections(playerEntity, ref history);
-            }).WithoutBurst().Run();
+                var historyValue = history.ValueRW;
+                CheckForNewLegacyConnections(playerEntity, ref historyValue);
+                history.ValueRW = historyValue;
+            }
         }
 
         private void CheckForNewLegacyConnections(Entity playerEntity, ref PlayerBondingHistory history)
@@ -226,9 +236,9 @@ namespace Laboratory.Chimera.ECS
             var newConnections = new List<LegacyConnection>();
 
             // Look for creatures that share genetic lineage with previously bonded creatures
-            Entities.WithAll<CreatureBondData, CreatureGeneticsComponent>().WithoutBurst().ForEach((Entity creatureEntity, ref CreatureBondData bondData, in CreatureGeneticsComponent genetics) =>
+            foreach (var (bondData, genetics, creatureEntity) in SystemAPI.Query<RefRW<CreatureBondData>, RefRO<CreatureGeneticsComponent>>().WithEntityAccess())
             {
-                if (bondData.playerId != playerId) return;
+                if (bondData.ValueRO.playerId != playerId) continue;
 
                 // Check genetic connections to past creatures
                 for (int i = 0; i < pastBonds.Length; i++)
@@ -236,30 +246,32 @@ namespace Laboratory.Chimera.ECS
                     var pastBond = pastBonds[i];
                     if (!pastBond.isActive) continue;
 
-                    float geneticSimilarity = CalculateGeneticSimilarityFromHash(genetics, pastBond.geneticHash);
+                    float geneticSimilarity = CalculateGeneticSimilarityFromHash(genetics.ValueRO, pastBond.geneticHash);
 
                     if (geneticSimilarity > _config.legacyConnectionThreshold)
                     {
                         var connection = new LegacyConnection
                         {
-                            currentCreatureId = bondData.creatureId,
+                            currentCreatureId = bondData.ValueRO.creatureId,
                             ancestorCreatureId = pastBond.creatureId,
                             connectionType = DetermineLegacyType(geneticSimilarity, pastBond),
                             memoryStrength = geneticSimilarity * _config.legacyMemoryMultiplier,
                             discoveredAt = (float)SystemAPI.Time.ElapsedTime,
                             isActive = true,
-                            description = GenerateLegacyDescription(genetics, pastBond, geneticSimilarity)
+                            description = GenerateLegacyDescription(genetics.ValueRO, pastBond, geneticSimilarity)
                         };
 
                         newConnections.Add(connection);
 
                         // Trigger emotional memory in current creature
-                        TriggerAncestralMemory(ref bondData, connection);
+                        var bondValue = bondData.ValueRW;
+                        TriggerAncestralMemory(ref bondValue, connection);
+                        bondData.ValueRW = bondValue;
                     }
                 }
-            }).Run();
+            }
 
-            // Add all new connections after the lambda
+            // Add all new connections after iteration
             foreach (var connection in newConnections)
             {
                 AddLegacyConnection(ref history, connection);
@@ -273,10 +285,12 @@ namespace Laboratory.Chimera.ECS
             if ((float)SystemAPI.Time.ElapsedTime - _lastLegacyCheck < _config.legacyCheckInterval) return;
             _lastLegacyCheck = (float)SystemAPI.Time.ElapsedTime;
 
-            Entities.WithAll<PlayerBondingHistory>().WithoutBurst().ForEach((Entity playerEntity, ref PlayerBondingHistory history) =>
+            foreach (var (history, playerEntity) in SystemAPI.Query<RefRW<PlayerBondingHistory>>().WithEntityAccess())
             {
-                ProcessDeepLegacyConnections(playerEntity, ref history);
-            }).Run();
+                var historyValue = history.ValueRW;
+                ProcessDeepLegacyConnections(playerEntity, ref historyValue);
+                history.ValueRW = historyValue;
+            }
         }
 
         private float _lastLegacyCheck = 0f;
@@ -332,10 +346,12 @@ namespace Laboratory.Chimera.ECS
 
         private void ProcessEmotionalMemories(float deltaTime)
         {
-            Entities.WithAll<CreatureBondData>().WithoutBurst().ForEach((Entity entity, ref CreatureBondData bondData) =>
+            foreach (var (bondData, entity) in SystemAPI.Query<RefRW<CreatureBondData>>().WithEntityAccess())
             {
-                ProcessCreatureEmotionalMemories(entity, ref bondData, deltaTime);
-            }).Run();
+                var bondValue = bondData.ValueRW;
+                ProcessCreatureEmotionalMemories(entity, ref bondValue, deltaTime);
+                bondData.ValueRW = bondValue;
+            }
         }
 
         private void ProcessCreatureEmotionalMemories(Entity entity, ref CreatureBondData bondData, float deltaTime)
@@ -364,27 +380,29 @@ namespace Laboratory.Chimera.ECS
 
         private void UpdateBondStrengths(float deltaTime)
         {
-            Entities.WithAll<CreatureBondData>().WithoutBurst().ForEach((Entity entity, ref CreatureBondData bondData) =>
+            foreach (var (bondData, entity) in SystemAPI.Query<RefRW<CreatureBondData>>().WithEntityAccess())
             {
                 // Decay bond strength over time without interaction
-                if (bondData.timeSinceLastInteraction > _config.interactionTimeThreshold)
+                if (bondData.ValueRO.timeSinceLastInteraction > _config.interactionTimeThreshold)
                 {
-                    bondData.bondStrength -= _config.bondDecayRate * deltaTime;
+                    bondData.ValueRW.bondStrength -= _config.bondDecayRate * deltaTime;
                 }
 
                 // Increase bond strength with recent positive interactions
-                if (bondData.recentPositiveInteractions > _config.positiveInteractionThreshold)
+                if (bondData.ValueRO.recentPositiveInteractions > _config.positiveInteractionThreshold)
                 {
-                    bondData.bondStrength += _config.bondGrowthRate * deltaTime;
-                    bondData.recentPositiveInteractions = 0; // Reset counter
+                    bondData.ValueRW.bondStrength += _config.bondGrowthRate * deltaTime;
+                    bondData.ValueRW.recentPositiveInteractions = 0; // Reset counter
                 }
 
                 // Clamp bond strength
-                bondData.bondStrength = Mathf.Clamp(bondData.bondStrength, 0f, _config.maxBondStrength);
+                bondData.ValueRW.bondStrength = Mathf.Clamp(bondData.ValueRO.bondStrength, 0f, _config.maxBondStrength);
 
                 // Update loyalty based on bond strength
-                UpdateCreatureLoyalty(ref bondData);
-            }).Run();
+                var bondValue = bondData.ValueRW;
+                UpdateCreatureLoyalty(ref bondValue);
+                bondData.ValueRW = bondValue;
+            }
         }
 
         private void UpdateCreatureLoyalty(ref CreatureBondData bondData)

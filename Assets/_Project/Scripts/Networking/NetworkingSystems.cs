@@ -333,27 +333,25 @@ namespace Laboratory.Networking
             }
 
             // Sync AI states to network components (Burst-optimized)
-            Entities
-                .WithAll<NetworkedAIStateComponent>()
-                .ForEach((Entity entity, ref NetworkedAIStateComponent networked) =>
+            foreach (var (networked, entity) in SystemAPI.Query<RefRW<NetworkedAIStateComponent>>().WithEntityAccess())
+            {
+                // Inlined sync interval calculation for Burst compatibility
+                float syncInterval = networked.ValueRO.networkPriority switch
                 {
-                    // Inlined sync interval calculation for Burst compatibility
-                    float syncInterval = networked.networkPriority switch
-                    {
-                        >= 8 => 0.05f,  // High priority: 20 Hz
-                        >= 5 => 0.1f,   // Medium priority: 10 Hz
-                        >= 2 => 0.2f,   // Low priority: 5 Hz
-                        _ => 0.5f       // Very low priority: 2 Hz
-                    };
+                    >= 8 => 0.05f,  // High priority: 20 Hz
+                    >= 5 => 0.1f,   // Medium priority: 10 Hz
+                    >= 2 => 0.2f,   // Low priority: 5 Hz
+                    _ => 0.5f       // Very low priority: 2 Hz
+                };
 
-                    bool shouldSync = currentTime - networked.lastSyncTime > syncInterval;
+                bool shouldSync = currentTime - networked.ValueRO.lastSyncTime > syncInterval;
 
-                    if (shouldSync)
-                    {
-                        networked.lastSyncTime = currentTime;
-                        networked.stateVersion++;
-                    }
-                }).Run(); // Burst compilation enabled!
+                if (shouldSync)
+                {
+                    networked.ValueRW.lastSyncTime = currentTime;
+                    networked.ValueRW.stateVersion++;
+                }
+            }
         }
 
         private float GetSyncInterval(byte priority)
@@ -387,18 +385,16 @@ namespace Laboratory.Networking
         protected override void OnUpdate()
         {
             // Sync pathfinding states (Burst-optimized)
-            Entities
-                .WithAll<NetworkedPathfindingComponent>()
-                .ForEach((Entity entity, ref NetworkedPathfindingComponent networked) =>
+            foreach (var (networked, entity) in SystemAPI.Query<RefRW<NetworkedPathfindingComponent>>().WithEntityAccess())
+            {
+                // Simplified pathfinding sync - Burst compatible
+                if (networked.ValueRO.needsResync)
                 {
-                    // Simplified pathfinding sync - Burst compatible
-                    if (networked.needsResync)
-                    {
-                        networked.pathVersion++;
-                        networked.needsResync = false;
-                        networked.pathProgress = 0f;
-                    }
-                }).Run(); // Burst compilation enabled!
+                    networked.ValueRW.pathVersion++;
+                    networked.ValueRW.needsResync = false;
+                    networked.ValueRW.pathProgress = 0f;
+                }
+            }
         }
 
         private float CalculatePathProgress(Entity entity, PathfindingComponent pathfinding)
@@ -438,17 +434,15 @@ namespace Laboratory.Networking
             var randomSeed = (uint)(currentTime * 1000) + 1;
             var random = Unity.Mathematics.Random.CreateFromIndex(randomSeed);
 
-            Entities
-                .WithAll<NetworkedGeneticsComponent>()
-                .ForEach((Entity entity, ref NetworkedGeneticsComponent networked) =>
+            foreach (var (networked, entity) in SystemAPI.Query<RefRW<NetworkedGeneticsComponent>>().WithEntityAccess())
+            {
+                // Burst-compatible genetics sync using Unity.Mathematics.Random
+                if (networked.ValueRO.geneticHash == 0)
                 {
-                    // Burst-compatible genetics sync using Unity.Mathematics.Random
-                    if (networked.geneticHash == 0)
-                    {
-                        networked.geneticHash = (uint)random.NextInt(1000, 9999);
-                        networked.geneticVersion++;
-                    }
-                }).Run(); // Burst compilation enabled!
+                    networked.ValueRW.geneticHash = (uint)random.NextInt(1000, 9999);
+                    networked.ValueRW.geneticVersion++;
+                }
+            }
         }
 
         private uint CalculateGeneticHash(Laboratory.Chimera.ECS.CreatureGeneticsComponent genetics)
@@ -472,13 +466,16 @@ namespace Laboratory.Networking
         protected override void OnUpdate()
         {
             // Process breeding requests (simplified implementation)
-            Entities
-                .WithAll<BreedingRequestEvent>()
-                .ForEach((Entity reqEntity, in BreedingRequestEvent request) =>
-                {
-                    ProcessBreedingRequest(request);
-                    EntityManager.DestroyEntity(reqEntity);
-                }).WithStructuralChanges().Run();
+            var ecb = new Unity.Entities.EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+
+            foreach (var (request, reqEntity) in SystemAPI.Query<RefRO<BreedingRequestEvent>>().WithEntityAccess())
+            {
+                ProcessBreedingRequest(request.ValueRO);
+                ecb.DestroyEntity(reqEntity);
+            }
+
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
 
         private void ProcessBreedingRequest(BreedingRequestEvent request)
@@ -566,13 +563,16 @@ namespace Laboratory.Networking
         protected override void OnUpdate()
         {
             // Process AI coordination commands (simplified implementation)
-            Entities
-                .WithAll<AICoordinationEvent>()
-                .ForEach((Entity reqEntity, in AICoordinationEvent coordination) =>
-                {
-                    ProcessAICoordination(coordination);
-                    EntityManager.DestroyEntity(reqEntity);
-                }).WithStructuralChanges().Run();
+            var ecb = new Unity.Entities.EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+
+            foreach (var (coordination, reqEntity) in SystemAPI.Query<RefRO<AICoordinationEvent>>().WithEntityAccess())
+            {
+                ProcessAICoordination(coordination.ValueRO);
+                ecb.DestroyEntity(reqEntity);
+            }
+
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
 
         private void ProcessAICoordination(AICoordinationEvent coordination)

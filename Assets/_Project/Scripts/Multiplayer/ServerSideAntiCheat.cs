@@ -50,7 +50,7 @@ namespace Laboratory.Multiplayer
         private readonly Dictionary<string, PlayerValidationState> _playerStates = new Dictionary<string, PlayerValidationState>();
 
         // Violation tracking
-        private readonly Dictionary<string, List<CheatViolation>> _violations = new Dictionary<string, List<CheatViolation>>();
+        private readonly Dictionary<string, List<ServerCheatViolation>> _violations = new Dictionary<string, List<ServerCheatViolation>>();
 
         // Statistics
         private int _totalValidations = 0;
@@ -59,7 +59,7 @@ namespace Laboratory.Multiplayer
         private int _playersBanned = 0;
 
         // Events
-        public event Action<string, CheatViolation> OnViolationDetected;
+        public event Action<string, ServerCheatViolation> OnViolationDetected;
         public event Action<string> OnPlayerKicked;
         public event Action<string> OnPlayerBanned;
 
@@ -119,7 +119,7 @@ namespace Laboratory.Multiplayer
                 violationScore = 0
             };
 
-            _violations[playerId] = new List<CheatViolation>();
+            _violations[playerId] = new List<ServerCheatViolation>();
 
             Debug.Log($"[ServerSideAntiCheat] Player registered: {playerId}");
         }
@@ -315,7 +315,7 @@ namespace Laboratory.Multiplayer
             if (!_playerStates.TryGetValue(playerId, out var state))
                 return;
 
-            var violation = new CheatViolation
+            var violation = new ServerCheatViolation
             {
                 playerId = playerId,
                 type = type,
@@ -423,7 +423,7 @@ namespace Laboratory.Multiplayer
 
         #region Backend Reporting
 
-        private IEnumerator ReportViolation(CheatViolation violation)
+        private IEnumerator ReportViolation(ServerCheatViolation violation)
         {
             var requestData = new ViolationReportRequest
             {
@@ -472,14 +472,14 @@ namespace Laboratory.Multiplayer
         /// <summary>
         /// Get violations for a player.
         /// </summary>
-        public CheatViolation[] GetPlayerViolations(string playerId)
+        public ServerCheatViolation[] GetPlayerViolations(string playerId)
         {
             if (_violations.TryGetValue(playerId, out var violations))
             {
                 return violations.ToArray();
             }
 
-            return new CheatViolation[0];
+            return new ServerCheatViolation[0];
         }
 
         /// <summary>
@@ -547,10 +547,10 @@ namespace Laboratory.Multiplayer
     }
 
     /// <summary>
-    /// Cheat violation record.
+    /// Cheat violation record for server-side anti-cheat.
     /// </summary>
     [Serializable]
-    public class CheatViolation
+    public class ServerCheatViolation
     {
         public string playerId;
         public ViolationType type;
@@ -573,7 +573,7 @@ namespace Laboratory.Multiplayer
     }
 
     // Request structures
-    [Serializable] class ViolationReportRequest { public CheatViolation violation; }
+    [Serializable] class ViolationReportRequest { public ServerCheatViolation violation; }
 
     /// <summary>
     /// Violation types.

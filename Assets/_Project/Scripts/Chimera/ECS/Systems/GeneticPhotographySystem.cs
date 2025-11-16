@@ -368,23 +368,23 @@ namespace Laboratory.Chimera.ECS
             if (!_isInPhotographyMode) return;
 
             // Update visualization effects for all creatures
-            Entities.WithAll<PhotographyData>().ForEach((Entity entity, ref PhotographyData photoData) =>
+            foreach (var (photoData, entity) in SystemAPI.Query<RefRW<PhotographyData>>().WithEntityAccess())
             {
                 // Update animation timers
-                photoData.visualizationTimer += deltaTime;
+                photoData.ValueRW.visualizationTimer += deltaTime;
 
                 // Update genetic aura effects
                 if (_config.enableGeneticAuras)
                 {
-                    UpdateGeneticAura(entity, photoData, deltaTime);
+                    UpdateGeneticAura(entity, photoData.ValueRO, deltaTime);
                 }
 
                 // Update trait highlighting
                 if (_config.enableTraitHighlighting)
                 {
-                    UpdateTraitHighlighting(entity, photoData, deltaTime);
+                    UpdateTraitHighlighting(entity, photoData.ValueRO, deltaTime);
                 }
-            }).WithoutBurst().Run();
+            }
         }
 
         private void CheckAutomaticCaptures()
@@ -476,20 +476,24 @@ namespace Laboratory.Chimera.ECS
 
         private void UpdateCameraSystems(float deltaTime)
         {
-            Entities.WithAll<GeneticCameraData>().ForEach((Entity entity, ref GeneticCameraData cameraData) =>
+            foreach (var (cameraData, entity) in SystemAPI.Query<RefRW<GeneticCameraData>>().WithEntityAccess())
             {
                 // Update camera state
-                cameraData.operationTimer += deltaTime;
+                cameraData.ValueRW.operationTimer += deltaTime;
 
                 // Process active photo sessions
-                if (cameraData.isActive)
+                if (cameraData.ValueRO.isActive)
                 {
-                    ProcessCameraSession(entity, ref cameraData, deltaTime);
+                    var cameraValue = cameraData.ValueRW;
+                    ProcessCameraSession(entity, ref cameraValue, deltaTime);
+                    cameraData.ValueRW = cameraValue;
                 }
 
                 // Handle camera maintenance
-                ProcessCameraMaintenance(ref cameraData, deltaTime);
-            }).WithoutBurst().Run();
+                var cameraValue2 = cameraData.ValueRW;
+                ProcessCameraMaintenance(ref cameraValue2, deltaTime);
+                cameraData.ValueRW = cameraValue2;
+            }
         }
 
         #region Helper Methods
@@ -497,10 +501,10 @@ namespace Laboratory.Chimera.ECS
         private void EnableGeneticOverlays(bool enable)
         {
             // Enable/disable genetic visualization overlays
-            Entities.WithAll<PhotographyData>().ForEach((Entity entity, ref PhotographyData photoData) =>
+            foreach (var (photoData, entity) in SystemAPI.Query<RefRW<PhotographyData>>().WithEntityAccess())
             {
-                photoData.showGeneticOverlay = enable;
-            }).Run();
+                photoData.ValueRW.showGeneticOverlay = enable;
+            }
         }
 
         private void ShowPhotographyUI(bool show)

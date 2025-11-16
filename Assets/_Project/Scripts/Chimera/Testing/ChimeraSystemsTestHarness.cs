@@ -67,6 +67,9 @@ namespace Laboratory.Chimera.Testing
         private float _fps = 0f;
         private float _frameTime = 0f;
 
+        // Tracking for incremental updates
+        private int _lastTrackedLevel = 0;
+
         private EntityManager _entityManager;
         private Unity.Mathematics.Random _random;
 
@@ -271,16 +274,44 @@ namespace Laboratory.Chimera.Testing
                 _frameTime = Time.deltaTime * 1000f;
                 _lastStatsUpdate = Time.time;
 
-                // Count active activities
+                // Track statistics
                 if (_entityManager != null)
                 {
+                    // Count active activities
                     var activeQuery = _entityManager.CreateEntityQuery(typeof(ActiveActivityComponent));
                     int activeActivities = activeQuery.CalculateEntityCount();
                     activeQuery.Dispose();
 
+                    // Track completed activities
+                    var resultQuery = _entityManager.CreateEntityQuery(typeof(ActivityResultComponent));
+                    _activitiesCompleted = resultQuery.CalculateEntityCount();
+                    resultQuery.Dispose();
+
+                    // Track total levels gained
+                    var levelQuery = _entityManager.CreateEntityQuery(typeof(MonsterLevelComponent));
+                    if (levelQuery.CalculateEntityCount() > 0)
+                    {
+                        var levels = levelQuery.ToComponentDataArray<MonsterLevelComponent>(Allocator.Temp);
+                        int currentTotalLevel = 0;
+                        for (int i = 0; i < levels.Length; i++)
+                        {
+                            currentTotalLevel += levels[i].level;
+                        }
+
+                        // Calculate levels gained since last check
+                        if (_lastTrackedLevel > 0)
+                        {
+                            _levelsGained += (currentTotalLevel - _lastTrackedLevel);
+                        }
+                        _lastTrackedLevel = currentTotalLevel;
+
+                        levels.Dispose();
+                    }
+                    levelQuery.Dispose();
+
                     if (enableProfiling)
                     {
-                        Debug.Log($"[Test Harness] FPS: {_fps:F1}, Frame: {_frameTime:F2}ms, Active: {activeActivities}");
+                        Debug.Log($"[Test Harness] FPS: {_fps:F1}, Frame: {_frameTime:F2}ms, Active: {activeActivities}, Completed: {_activitiesCompleted}, Levels: +{_levelsGained}");
                     }
                 }
             }
@@ -308,16 +339,24 @@ namespace Laboratory.Chimera.Testing
             GUILayout.Label($"Target: 60 FPS (16.67ms)");
             GUILayout.Space(10);
 
-            // Entities
-            GUILayout.Label("<b>Entities</b>");
+            // Entities & Activities
+            GUILayout.Label("<b>Entities & Activities</b>");
             GUILayout.Label($"Creatures Spawned: {_entitiesSpawned}");
+            GUILayout.Label($"Activities Started: {_activitiesStarted}");
             if (_entityManager != null)
             {
                 var activeQuery = _entityManager.CreateEntityQuery(typeof(ActiveActivityComponent));
                 int activeActivities = activeQuery.CalculateEntityCount();
                 activeQuery.Dispose();
-                GUILayout.Label($"Active Activities: {activeActivities}");
+                GUILayout.Label($"Activities Active: {activeActivities}");
             }
+            GUILayout.Label($"Activities Completed: {_activitiesCompleted}");
+            GUILayout.Space(10);
+
+            // Progression
+            GUILayout.Label("<b>Progression</b>");
+            GUILayout.Label($"Items Equipped: {_itemsEquipped}");
+            GUILayout.Label($"Total Levels Gained: {_levelsGained}");
             GUILayout.Space(10);
 
             // Systems
@@ -366,6 +405,7 @@ namespace Laboratory.Chimera.Testing
             _activitiesCompleted = 0;
             _itemsEquipped = 0;
             _levelsGained = 0;
+            _lastTrackedLevel = 0;
 
             Debug.Log("[Test Harness] Test reset complete");
         }
