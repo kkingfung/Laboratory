@@ -61,14 +61,14 @@ namespace Laboratory.Chimera
             // Expression affects the modifier
             switch (gene.expression)
             {
-                case GeneExpression.Dominant:
-                    baseModifier *= 1.2f; // 20% boost for dominant genes
+                case GeneExpression.Enhanced:
+                    baseModifier *= 1.2f; // 20% boost for enhanced genes
                     break;
-                case GeneExpression.Recessive:
-                    baseModifier *= 0.8f; // 20% reduction for recessive genes
+                case GeneExpression.Suppressed:
+                    baseModifier *= 0.8f; // 20% reduction for suppressed genes
                     break;
-                case GeneExpression.Codominant:
-                    baseModifier *= 1.0f; // No change for codominant
+                case GeneExpression.Normal:
+                    baseModifier *= 1.0f; // No change for normal expression
                     break;
                 default:
                     break;

@@ -1,7 +1,7 @@
 using Unity.Mathematics;
 using Unity.Burst;
 using Laboratory.Chimera.Genetics;
-using Laboratory.Chimera.Creatures;
+using Laboratory.Chimera.ECS.Components;
 
 namespace Laboratory.Chimera.Activities
 {
