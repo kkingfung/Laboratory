@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Collections;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Shared.Types;
+using Laboratory.Chimera; // Added for GeneticProfileExtensions
 
 namespace Laboratory.Chimera.Creatures
 {
@@ -77,28 +78,23 @@ namespace Laboratory.Chimera.Creatures
         public CreatureStats CalculateEffectiveStats(int level, GeneticProfile genetics, EnvironmentalModifiers environment)
         {
             var stats = baseStats;
-            
+
             // Apply level scaling (each level adds 5% to base stats)
             float levelMultiplier = 1f + (level - 1) * 0.05f;
             stats = stats * levelMultiplier;
 
-            // TODO: Apply genetic modifiers when circular dependency is resolved
-            // Currently commented out due to circular dependency between Genetics and Creatures assemblies
-            // Genetics assembly cannot reference Creatures (would create cycle: Genetics -> Creatures -> Genetics)
-            // Solution: Move ApplyModifiers to a bridge class in a separate assembly
-            /*
+            // Apply genetic modifiers using extension method from GeneticProfileExtensions
             if (genetics != null)
             {
                 stats = genetics.ApplyModifiers(stats);
             }
-            */
 
             // Apply environmental modifiers
             if (environment != null)
             {
                 stats = environment.ApplyModifiers(stats, this);
             }
-            
+
             return stats;
         }
         

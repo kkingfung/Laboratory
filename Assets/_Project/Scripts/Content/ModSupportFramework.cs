@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -578,10 +579,38 @@ namespace Laboratory.Content
                 if (request.result == UnityWebRequest.Result.Success)
                 {
                     // Extract zip to mods directory
-                    // TODO: Implement zip extraction
-                    onSuccess?.Invoke();
+                    try
+                    {
+                        string extractPath = Path.Combine(ModsPath, workshopId);
 
-                    Debug.Log($"[ModSupportFramework] Workshop mod downloaded: {workshopId}");
+                        // Create extraction directory if it doesn't exist
+                        if (!Directory.Exists(extractPath))
+                        {
+                            Directory.CreateDirectory(extractPath);
+                        }
+
+                        // Extract the zip file
+                        ZipFile.ExtractToDirectory(downloadPath, extractPath, overwriteFiles: true);
+
+                        // Clean up the zip file after extraction
+                        if (File.Exists(downloadPath))
+                        {
+                            File.Delete(downloadPath);
+                        }
+
+                        Debug.Log($"[ModSupportFramework] Workshop mod extracted to: {extractPath}");
+
+                        // Rescan to pick up the new mod
+                        ScanForMods(() =>
+                        {
+                            onSuccess?.Invoke();
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        onError?.Invoke($"Extraction failed: {ex.Message}");
+                        Debug.LogError($"[ModSupportFramework] Failed to extract mod: {ex.Message}");
+                    }
                 }
                 else
                 {
