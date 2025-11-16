@@ -10,6 +10,7 @@
         "Unity.NetCode",
         "Unity.Burst",
         "UniTask",
+        "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
         "Laboratory.Core.Events",
