@@ -19,7 +19,7 @@ namespace Laboratory.Subsystems.SaveLoad
 
         [Header("Integrity State")]
         [SerializeField] private bool isValidationEnabled = true;
-        [SerializeField] private ValidationLevel currentValidationLevel = ValidationLevel.Standard;
+        [SerializeField] private IntegrityValidationLevel currentValidationLevel = IntegrityValidationLevel.Standard;
         [SerializeField] private bool autoRepairEnabled = true;
 
         [Header("Statistics")]
@@ -522,13 +522,13 @@ namespace Laboratory.Subsystems.SaveLoad
         {
             switch (currentValidationLevel)
             {
-                case ValidationLevel.Basic:
+                case IntegrityValidationLevel.Basic:
                     // Only critical validation
                     break;
-                case ValidationLevel.Standard:
+                case IntegrityValidationLevel.Standard:
                     // Standard validation rules
                     break;
-                case ValidationLevel.Strict:
+                case IntegrityValidationLevel.Strict:
                     // Comprehensive validation
                     await PerformStrictValidation(gameData, result);
                     break;

@@ -157,7 +157,7 @@ namespace Laboratory.Subsystems.SaveLoad
         [SerializeField] private bool enableDataValidation = true;
         [SerializeField] private bool enableChecksums = true;
         [SerializeField] private bool enableSchemaValidation = true;
-        [SerializeField] private ValidationLevel validationLevel = ValidationLevel.Standard;
+        [SerializeField] private IntegrityValidationLevel validationLevel = IntegrityValidationLevel.Standard;
 
         [Header("Repair Settings")]
         [SerializeField] private bool enableAutoRepair = true;
@@ -172,7 +172,7 @@ namespace Laboratory.Subsystems.SaveLoad
         public bool EnableDataValidation => enableDataValidation;
         public bool EnableChecksums => enableChecksums;
         public bool EnableSchemaValidation => enableSchemaValidation;
-        public ValidationLevel ValidationLevel => validationLevel;
+        public IntegrityValidationLevel ValidationLevel => validationLevel;
         public bool EnableAutoRepair => enableAutoRepair;
         public bool BackupBeforeRepair => backupBeforeRepair;
         public RepairStrategy RepairStrategy => repairStrategy;
@@ -282,7 +282,7 @@ namespace Laboratory.Subsystems.SaveLoad
         KeepRemote
     }
 
-    public enum ValidationLevel
+    public enum IntegrityValidationLevel
     {
         None,
         Basic,
