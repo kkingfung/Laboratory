@@ -12,7 +12,7 @@ namespace Laboratory.AI.Configuration
     public class PathfindingConfiguration : ScriptableObject
     {
         [Header("Algorithm Selection")]
-        [SerializeField] private PathfindingMode defaultMode = PathfindingMode.Hybrid;
+        [SerializeField] private PathfindingMode defaultMode = PathfindingMode.Auto;
         [SerializeField] private float aStarMaxDistance = 20f;
         [SerializeField] private float flowFieldMinAgents = 3;
         [SerializeField] private float hierarchicalMinDistance = 100f;
@@ -86,9 +86,9 @@ namespace Laboratory.AI.Configuration
             if (enableFlowFields && nearbyAgents >= flowFieldMinAgents && distance <= flowFieldRadius)
                 return PathfindingMode.FlowField;
             
-            // Long distances or complex scenarios - use hybrid approach
+            // Long distances or complex scenarios - use hierarchical approach
             if (distance >= hierarchicalMinDistance)
-                return PathfindingMode.Hybrid;
+                return PathfindingMode.Hierarchical;
             
             // Default fallback
             return PathfindingMode.NavMesh;
@@ -249,21 +249,21 @@ namespace Laboratory.AI.Configuration
 
             switch (type)
             {
-                case EnhancedAIAgent.AgentType.Small:
+                case Laboratory.AI.Pathfinding.AgentType.Small:
                     config.maxSpeed = 4f;
                     config.agentRadius = 0.3f;
                     config.agentHeight = 1f;
                     config.pathUpdateFrequency = 0.3f;
                     break;
 
-                case EnhancedAIAgent.AgentType.Medium:
+                case Laboratory.AI.Pathfinding.AgentType.Medium:
                     config.maxSpeed = 5f;
                     config.agentRadius = 0.5f;
                     config.agentHeight = 2f;
                     config.pathUpdateFrequency = 0.5f;
                     break;
 
-                case EnhancedAIAgent.AgentType.Large:
+                case Laboratory.AI.Pathfinding.AgentType.Large:
                     config.maxSpeed = 3f;
                     config.agentRadius = 1f;
                     config.agentHeight = 3f;
@@ -271,7 +271,7 @@ namespace Laboratory.AI.Configuration
                     config.acceleration = 4f;
                     break;
 
-                case EnhancedAIAgent.AgentType.Flying:
+                case Laboratory.AI.Pathfinding.AgentType.Flying:
                     config.maxSpeed = 8f;
                     config.agentRadius = 0.5f;
                     config.agentHeight = 2f;

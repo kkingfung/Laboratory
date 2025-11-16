@@ -8,7 +8,6 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Laboratory.Core.ECS;
 using Laboratory.Core.Configuration;
 
 namespace Laboratory.Subsystems.Performance
