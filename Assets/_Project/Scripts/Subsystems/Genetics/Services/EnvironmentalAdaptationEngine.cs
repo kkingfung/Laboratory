@@ -21,9 +21,6 @@ namespace Laboratory.Subsystems.Genetics.Services
 
         public event Action<AdaptationEvent> OnAdaptationOccurred;
         public event Action<EnvironmentalPressure> OnNewPressureDetected;
-        #pragma warning disable CS0067
-        public event Action<ExtinctionEvent> OnExtinctionRisk;
-        #pragma warning restore CS0067
 
         public EnvironmentalAdaptationEngine(GeneticsSubsystemConfig config)
         {

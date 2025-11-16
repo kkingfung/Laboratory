@@ -550,10 +550,6 @@ namespace Laboratory.Subsystems.Team.GenreImplementations
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class GenreTeamActivationSystem : SystemBase
     {
-        #pragma warning disable CS0414
-        private GameGenre _currentGenre = GameGenre.Exploration;
-        #pragma warning restore CS0414
-
         protected override void OnUpdate()
         {
             // This would integrate with GenreGameModeManager to detect genre changes

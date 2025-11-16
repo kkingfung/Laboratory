@@ -22,9 +22,7 @@ namespace Laboratory.Subsystems.Ecosystem
 
         [Header("Event Categories")]
         [SerializeField] private bool enableWeatherEvents = true;
-        #pragma warning disable CS0414
         [SerializeField] private bool enableSeasonalEvents = true;
-        #pragma warning restore CS0414
         [SerializeField] private bool enableMigrationEvents = true;
         [SerializeField] private bool enableDisasterEvents = true;
         [SerializeField] private bool enableResourceEvents = true;
@@ -32,9 +30,7 @@ namespace Laboratory.Subsystems.Ecosystem
         [Header("Event Severity")]
         [SerializeField] [Range(0f, 1f)] private float minorEventChance = 0.6f;
         [SerializeField] [Range(0f, 1f)] private float moderateEventChance = 0.3f;
-        #pragma warning disable CS0414
         [SerializeField] [Range(0f, 1f)] private float severeEventChance = 0.1f;
-        #pragma warning restore CS0414
 
         // Event tracking
         private readonly List<EnvironmentalEvent> _activeEvents = new();

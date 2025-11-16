@@ -26,9 +26,7 @@ namespace Laboratory.Subsystems.Genetics
         [SerializeField] private GeneticDatabaseManager databaseManager;
 
         [Header("Services")]
-        #pragma warning disable CS0414
         [SerializeField] private bool enableAutomaticBreeding = false;
-        #pragma warning restore CS0414
         [SerializeField] private bool enableMutationTracking = true;
         [SerializeField] private bool enableGeneticValidation = true;
 
