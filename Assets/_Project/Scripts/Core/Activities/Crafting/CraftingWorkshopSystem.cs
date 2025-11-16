@@ -7,7 +7,6 @@ using UnityEngine;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Core.Activities.Components;
 using Laboratory.Core.Activities.Types;
-using Laboratory.Core.Equipment;
 
 namespace Laboratory.Core.Activities.Crafting
 {
