@@ -33,7 +33,6 @@ namespace Laboratory.Chimera.Integration
         [Header("🎭 Customization Priorities")]
         [SerializeField] private CustomizationPriority defaultPriority = CustomizationPriority.Genetic;
         [SerializeField] private bool equipmentOverridesGenetics = true;
-        [SerializeField] private bool outfitsOverrideEquipment = false;
 
         #endregion
 
@@ -97,7 +96,7 @@ namespace Laboratory.Chimera.Integration
                 customizationManager = GetComponent<ChimeraCustomizationManager>();
 
             if (equipmentManager == null)
-                equipmentManager = FindObjectOfType<EquipmentManager>();
+                equipmentManager = FindFirstObjectByType<EquipmentManager>();
 
             if (visualSystem == null)
                 visualSystem = GetComponent<ProceduralVisualSystem>();
@@ -120,7 +119,7 @@ namespace Laboratory.Chimera.Integration
                 RegisterSystem<ChimeraCustomizationManager>(customizationManager);
 
             // Register other systems that implement ICustomizationSystem
-            var customizationSystems = FindObjectsOfType<MonoBehaviour>();
+            var customizationSystems = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
             foreach (var system in customizationSystems)
             {
                 if (system is ICustomizationSystem customSystem && system != customizationManager)

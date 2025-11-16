@@ -730,22 +730,20 @@ namespace Laboratory.Networking.Entities
         {
             float bandwidthPressure = _networkBandwidthUsage / _targetBandwidth;
 
-            Entities
-                .WithAll<NetworkSyncPriority>()
-                .ForEach((ref NetworkSyncPriority syncPriority, in NetworkOwnership ownership) =>
+            foreach (var (syncPriority, ownership) in SystemAPI.Query<RefRW<NetworkSyncPriority>, RefRO<NetworkOwnership>>())
+            {
+                // Adjust sync interval based on bandwidth pressure and importance
+                float baseSyncRate = syncPriority.ValueRO.priorityLevel / 255f; // 0-1 priority
+                float adjustedSyncRate = baseSyncRate / math.max(1f, bandwidthPressure);
+
+                syncPriority.ValueRW.syncInterval = math.lerp(0.05f, 1f, 1f - adjustedSyncRate); // 20Hz to 1Hz
+
+                // Higher priority for player-owned entities
+                if (ownership.ValueRO.hasAuthority)
                 {
-                    // Adjust sync interval based on bandwidth pressure and importance
-                    float baseSyncRate = syncPriority.priorityLevel / 255f; // 0-1 priority
-                    float adjustedSyncRate = baseSyncRate / math.max(1f, bandwidthPressure);
-
-                    syncPriority.syncInterval = math.lerp(0.05f, 1f, 1f - adjustedSyncRate); // 20Hz to 1Hz
-
-                    // Higher priority for player-owned entities
-                    if (ownership.hasAuthority)
-                    {
-                        syncPriority.syncInterval *= 0.5f; // Double the sync rate
-                    }
-                }).Run();
+                    syncPriority.ValueRW.syncInterval *= 0.5f; // Double the sync rate
+                }
+            }
         }
     }
 }

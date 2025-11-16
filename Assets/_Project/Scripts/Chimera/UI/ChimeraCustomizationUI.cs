@@ -119,8 +119,8 @@ namespace Laboratory.Chimera.UI
 
         private void InitializeComponents()
         {
-            customizationManager = FindObjectOfType<ChimeraCustomizationManager>();
-            equipmentManager = FindObjectOfType<EquipmentManager>();
+            customizationManager = FindFirstObjectByType<ChimeraCustomizationManager>();
+            equipmentManager = FindFirstObjectByType<EquipmentManager>();
 
             if (customizationManager != null)
             {
