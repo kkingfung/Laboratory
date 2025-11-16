@@ -13,6 +13,7 @@
         "Laboratory.Core.Events",
         "Laboratory.Core.Equipment",
         "Laboratory.Core.MonsterTown",
+        "Laboratory.Core.Performance",
         "Laboratory.Shared",
         "Laboratory.Models",
         "Laboratory.Chimera",
