@@ -15,7 +15,9 @@
         "Laboratory.Core.ECS",
         "Laboratory.Shared",
         "Laboratory.Models",
+        "Laboratory.Chimera",
         "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.AI",
         "Laboratory.Chimera.Breeding",
         "Laboratory.Chimera.Genetics",
         "Laboratory.Chimera.Creatures"
