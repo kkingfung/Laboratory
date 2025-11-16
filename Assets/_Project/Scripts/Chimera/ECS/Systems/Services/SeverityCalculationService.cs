@@ -99,10 +99,10 @@ namespace Laboratory.Chimera.ECS.Services
         /// </summary>
         public static EmergencySeverity CalculateClimateSeverity(EmergencyConservationConfig config, EcosystemData ecosystemData)
         {
-            float temperatureChange = UnityEngine.Mathf.Abs(ecosystemData.temperatureChangeRate);
-            if (temperatureChange >= config.climateChangeRateThreshold * 2f) return EmergencySeverity.Critical;
-            if (temperatureChange >= config.climateChangeRateThreshold * 1.5f) return EmergencySeverity.Severe;
-            if (temperatureChange >= config.climateChangeRateThreshold) return EmergencySeverity.Moderate;
+            float climateStress = ecosystemData.climateStressLevel;
+            if (climateStress >= config.climateStressThreshold * 2f) return EmergencySeverity.Critical;
+            if (climateStress >= config.climateStressThreshold * 1.5f) return EmergencySeverity.Severe;
+            if (climateStress >= config.climateStressThreshold) return EmergencySeverity.Moderate;
             return EmergencySeverity.Minor;
         }
 

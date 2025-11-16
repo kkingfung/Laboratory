@@ -13,7 +13,7 @@ namespace Laboratory.Chimera.Activities
         Combat = 2,
         Puzzle = 3,
         Strategy = 4,
-        Rhythm = 5,
+        Music = 5,
         Adventure = 6,
         Platforming = 7,
         Crafting = 8

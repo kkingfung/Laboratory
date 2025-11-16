@@ -10,6 +10,8 @@ using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Ecosystem;
 using Laboratory.Chimera.ECS.Services;
+using EmergencyStatus = Laboratory.Chimera.ECS.Services.EmergencyStatus;
+using ConservationSuccessType = Laboratory.Chimera.ECS.Services.ConservationSuccessType;
 
 namespace Laboratory.Chimera.ECS
 {
@@ -883,5 +885,4 @@ namespace Laboratory.Chimera.ECS
     }
 
     #endregion
-    }
 }

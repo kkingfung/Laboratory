@@ -71,7 +71,7 @@ namespace Laboratory.Systems.Analytics.Services
         public PlayerAction TrackUIInteraction(string elementName, string interactionType, Dictionary<ParamKey, object> context = null)
         {
             var parameters = context ?? new Dictionary<ParamKey, object>();
-            parameters[ParamKey.UIElement] = elementName;
+            parameters[ParamKey.ElementName] = elementName;
             parameters[ParamKey.InteractionType] = interactionType;
 
             return TrackAction("UIInteraction", $"{interactionType} on {elementName}", parameters);
@@ -169,9 +169,9 @@ namespace Laboratory.Systems.Analytics.Services
         private ActionType GetMostCommonActionType()
         {
             if (_actionTypeCounters.Count == 0)
-                return ActionType.Unknown;
+                return ActionType.Exploration;
 
-            ActionType mostCommon = ActionType.Unknown;
+            ActionType mostCommon = ActionType.Exploration;
             int maxCount = 0;
 
             foreach (var kvp in _actionTypeCounters)

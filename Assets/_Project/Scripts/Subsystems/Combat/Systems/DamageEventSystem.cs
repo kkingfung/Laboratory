@@ -4,7 +4,7 @@ using Laboratory.Models.ECS.Components;
 using Laboratory.Core.Health.Components;
 using Laboratory.Core.Health;
 using DamageRequest = Laboratory.Core.Health.DamageRequest;
-using DamageType = Laboratory.Core.Health.DamageType;
+using DamageType = Laboratory.Core.Enums.DamageType;
 
 // Resolve DamageEvent ambiguity - use the ECS version in this context
 using DamageEvent = Laboratory.Models.ECS.Components.DamageEvent;

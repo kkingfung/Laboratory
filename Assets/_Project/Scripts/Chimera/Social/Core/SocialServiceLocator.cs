@@ -12,7 +12,7 @@ namespace Laboratory.Chimera.Social.Core
     {
         private static SocialNetworkSystem _networkSystem;
         private static GroupDynamicsSystem _groupDynamicsSystem;
-        private static CommunicationSystem _communicationSystem;
+        private static Systems.CommunicationSystem _communicationSystem;
 
         // Social Network System
         public static void RegisterSocialNetwork(SocialNetworkSystem system)
@@ -51,14 +51,14 @@ namespace Laboratory.Chimera.Social.Core
         }
 
         // Communication System
-        public static void RegisterCommunication(CommunicationSystem system)
+        public static void RegisterCommunication(Systems.CommunicationSystem system)
         {
             if (_communicationSystem != null && _communicationSystem != system)
                 Debug.LogWarning($"[SocialServiceLocator] Replacing existing CommunicationSystem");
             _communicationSystem = system;
         }
 
-        public static CommunicationSystem Communication
+        public static Systems.CommunicationSystem Communication
         {
             get
             {

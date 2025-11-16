@@ -1,7 +1,6 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using System;
-using Laboratory.Chimera;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Shared.Types;

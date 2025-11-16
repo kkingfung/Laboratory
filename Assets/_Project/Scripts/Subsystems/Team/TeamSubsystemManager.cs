@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Unity.Entities;
+using Unity.Collections;
 using UnityEngine;
 using Laboratory.Core.GameModes;
 using Laboratory.Subsystems.Team.Core;
@@ -433,18 +434,14 @@ namespace Laboratory.Subsystems.Team
                 var em = _ecsWorld.EntityManager;
 
                 // Count active teams
-                int teamCount = 0;
-                foreach (var team in SystemAPI.Query<RefRO<TeamComponent>>())
-                {
-                    teamCount++;
-                }
+                var teamQuery = em.CreateEntityQuery(typeof(TeamComponent));
+                int teamCount = teamQuery.CalculateEntityCount();
+                teamQuery.Dispose();
 
                 // Count players in queue
-                int queueCount = 0;
-                foreach (var queue in SystemAPI.Query<RefRO<MatchmakingQueueComponent>>())
-                {
-                    queueCount++;
-                }
+                var queueQuery = em.CreateEntityQuery(typeof(MatchmakingQueueComponent));
+                int queueCount = queueQuery.CalculateEntityCount();
+                queueQuery.Dispose();
 
                 Debug.Log($"Active Teams: {teamCount}");
                 Debug.Log($"Players in Queue: {queueCount}");

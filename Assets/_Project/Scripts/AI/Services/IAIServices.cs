@@ -3,7 +3,9 @@ using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.AI.Pathfinding;
 using Laboratory.AI.ECS;
-using Laboratory.Shared.Types;
+using PathfindingStatus = Laboratory.AI.ECS.PathfindingStatus;
+using AIBehaviorType = Laboratory.Shared.Types.AIBehaviorType;
+using BiomeType = Laboratory.Shared.Types.BiomeType;
 
 namespace Laboratory.AI.Services
 {

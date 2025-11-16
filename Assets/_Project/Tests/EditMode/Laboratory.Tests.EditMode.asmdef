@@ -7,9 +7,14 @@
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
         "Laboratory.Core.Enums",
+        "Laboratory.Core.Activities",
+        "Laboratory.Core.ECS",
         "Laboratory.Chimera",
+        "Laboratory.Chimera.Genetics",
+        "Laboratory.Chimera.Genetics.Advanced",
         "Laboratory.Shared",
         "Unity.Entities",
+        "Unity.Collections",
         "Unity.Mathematics"
     ],
     "includePlatforms": [

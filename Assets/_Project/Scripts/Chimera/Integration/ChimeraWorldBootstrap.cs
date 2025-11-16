@@ -10,6 +10,10 @@ using Laboratory.Core.ECS.Systems;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
+using Laboratory.Chimera.ECS;
+using CreatureIdentityComponent = Laboratory.Chimera.ECS.CreatureIdentityComponent;
+using LifeStage = Laboratory.Chimera.ECS.LifeStage;
+using RarityLevel = Laboratory.Chimera.ECS.RarityLevel;
 
 namespace Laboratory.Chimera.Integration
 {
@@ -733,8 +737,9 @@ namespace Laboratory.Chimera.Integration
                 // Add a marker component to indicate this is a bridged entity
                 _entityManager.AddComponentData(bridgeEntity, new BridgedCreatureComponent
                 {
-                    OriginalGameObject = creatureMonoBehaviour.gameObject.GetInstanceID(),
-                    IsActive = creatureMonoBehaviour.enabled
+                    monoBehaviourInstanceID = creatureMonoBehaviour.gameObject.GetInstanceID(),
+                    syncEnabled = creatureMonoBehaviour.enabled,
+                    lastSyncTime = 0f
                 });
 
                 return bridgeEntity;
@@ -906,14 +911,5 @@ namespace Laboratory.Chimera.Integration
         [Range(1, 10)] public int count;
         public float radius;
         public Vector3 centerOffset;
-    }
-
-    /// <summary>
-    /// Component to mark ECS entities that are bridged from MonoBehaviour creatures
-    /// </summary>
-    public struct BridgedCreatureComponent : IComponentData
-    {
-        public int OriginalGameObject;
-        public bool IsActive;
     }
 }

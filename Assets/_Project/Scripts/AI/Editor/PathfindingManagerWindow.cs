@@ -270,15 +270,15 @@ namespace Laboratory.AI.Editor
             // Auto-configure based on NavMeshAgent properties
             if (navAgent.radius <= 0.4f)
             {
-                enhancedAgent.SetAgentType(EnhancedAIAgent.AgentType.Small);
+                enhancedAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Small);
             }
             else if (navAgent.radius >= 0.8f)
             {
-                enhancedAgent.SetAgentType(EnhancedAIAgent.AgentType.Large);
+                enhancedAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Large);
             }
             else
             {
-                enhancedAgent.SetAgentType(EnhancedAIAgent.AgentType.Medium);
+                enhancedAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Medium);
             }
             
             enhancedAgent.SetSpeed(navAgent.speed);
@@ -391,7 +391,7 @@ namespace Laboratory.AI.Editor
                 navAgent.height = 2f;
                 navAgent.speed = 3.5f;
                 
-                enhancedAgent.SetAgentType(EnhancedAIAgent.AgentType.Medium);
+                enhancedAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Medium);
                 
                 EditorUtility.SetDirty(agentGO);
             }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using Laboratory.Subsystems.Player;
+using Laboratory.Core.Management;
 
 namespace Laboratory.Gameplay
 {
@@ -146,10 +147,10 @@ namespace Laboratory.Gameplay
         protected override void ApplyPickupEffect(PlayerController player)
         {
             player.Heal(healAmount);
-            
-            if (Laboratory.Core.GameManager.Instance)
+
+            if (GameManager.Instance != null)
             {
-                Laboratory.Core.GameManager.Instance.AddScore(25);
+                GameManager.Instance.AddScore(25);
             }
         }
     }
@@ -169,9 +170,9 @@ namespace Laboratory.Gameplay
 
         protected override void ApplyPickupEffect(PlayerController player)
         {
-            if (Laboratory.Core.GameManager.Instance)
+            if (GameManager.Instance != null)
             {
-                Laboratory.Core.GameManager.Instance.AddScore(scoreValue);
+                GameManager.Instance.AddScore(scoreValue);
             }
         }
     }
@@ -214,9 +215,9 @@ namespace Laboratory.Gameplay
                     break;
             }
 
-            if (Laboratory.Core.GameManager.Instance)
+            if (GameManager.Instance != null)
             {
-                Laboratory.Core.GameManager.Instance.AddScore(50);
+                GameManager.Instance.AddScore(50);
             }
         }
 
@@ -267,9 +268,9 @@ namespace Laboratory.Gameplay
             // This would require an inventory system on the player
             Debug.Log($"Collected {keyType} key with ID: {keyId}");
 
-            if (Laboratory.Core.GameManager.Instance)
+            if (GameManager.Instance != null)
             {
-                Laboratory.Core.GameManager.Instance.AddScore(200);
+                GameManager.Instance.AddScore(200);
             }
         }
     }

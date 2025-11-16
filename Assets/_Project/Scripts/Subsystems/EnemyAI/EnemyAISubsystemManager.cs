@@ -7,6 +7,7 @@ using Laboratory.Core.Events;
 using Laboratory.Core.Health.Components;
 using Laboratory.Core.NPC;
 using Laboratory.Subsystems.EnemyAI.NPC;
+using DamageType = Laboratory.Core.Enums.DamageType;
 
 namespace Laboratory.Subsystems.EnemyAI
 {
@@ -621,7 +622,7 @@ namespace Laboratory.Subsystems.EnemyAI
                 {
                     Amount = config.AttackDamage,
                     Source = gameObject,
-                    Type = Laboratory.Core.Health.DamageType.Normal,
+                    Type = DamageType.Normal,
                     Direction = (_currentTarget.transform.position - transform.position).normalized
                 };
 

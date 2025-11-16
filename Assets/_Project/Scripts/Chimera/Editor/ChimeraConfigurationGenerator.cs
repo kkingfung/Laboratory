@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using Laboratory.Chimera.Configuration;
+using Laboratory.Chimera.Integration;
 
 namespace Laboratory.Chimera.Editor
 {
@@ -171,7 +172,7 @@ namespace Laboratory.Chimera.Editor
         {
             // Create a demo scene GameObject with bootstrap
             var demoSetup = new GameObject("Chimera World Demo");
-            var bootstrap = demoSetup.AddComponent<Laboratory.Chimera.ECS.ChimeraWorldBootstrap>();
+            var bootstrap = demoSetup.AddComponent<ChimeraWorldBootstrap>();
 
             // Load the configuration we just created
             string configPath = Path.Combine(CONFIG_PATH, _configAssetName + ".asset");
@@ -180,7 +181,7 @@ namespace Laboratory.Chimera.Editor
             if (config != null)
             {
                 // Use reflection to set the private universeConfig field
-                var field = typeof(Laboratory.Chimera.ECS.ChimeraWorldBootstrap).GetField("universeConfig",
+                var field = typeof(ChimeraWorldBootstrap).GetField("universeConfig",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 field?.SetValue(bootstrap, config);
             }
@@ -249,7 +250,7 @@ namespace Laboratory.Chimera.Editor
 
             // Add Chimera World Bootstrap
             var chimeraWorldGO = new GameObject("Chimera World");
-            chimeraWorldGO.AddComponent<Laboratory.Chimera.ECS.ChimeraWorldBootstrap>();
+            chimeraWorldGO.AddComponent<ChimeraWorldBootstrap>();
 
             // Add ground plane
             var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);

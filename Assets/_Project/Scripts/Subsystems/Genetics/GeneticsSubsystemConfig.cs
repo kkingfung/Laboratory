@@ -1,7 +1,7 @@
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Configuration;
-using ProjectChimera.Core;
+using Laboratory.Core;
 
 namespace Laboratory.Subsystems.Genetics
 {

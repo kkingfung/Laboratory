@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Unity.Mathematics;
 using Laboratory.Chimera.Ecosystem.Core;
+using Laboratory.Chimera.Ecosystem.Data;
 using Laboratory.Shared.Types;
 using Laboratory.Core.Enums;
 
@@ -84,7 +85,7 @@ namespace Laboratory.Chimera.Ecosystem
         {
             if (!enableSeasonalCycles) return;
 
-            seasonalManager.UpdateCycle(deltaTime);
+            seasonalManager.UpdateSeason(deltaTime);
             var currentSeason = seasonalManager.GetCurrentSeason();
 
             foreach (var biome in biomes.Values)
@@ -106,9 +107,10 @@ namespace Laboratory.Chimera.Ecosystem
             biome.climateConditions.precipitation *= modifier.precipitationModifier;
 
             // Apply resource and breeding modifiers
-            foreach (var resource in biome.resources.Keys.ToArray())
+            foreach (var resourceKey in biome.resources.Keys.ToArray())
             {
-                biome.resources[resource] *= modifier.resourceModifier;
+                var resource = biome.resources[resourceKey];
+                resource.currentAmount *= modifier.resourceModifier;
             }
         }
 

@@ -106,7 +106,7 @@ namespace Laboratory.Chimera.ECS.Services
                 case EmergencyActionType.GeneticManagement:
                     updatedEmergency = ApplyGeneticManagement(updatedEmergency, response);
                     break;
-                case EmergencyActionType.EcosystemRestoration:
+                case EmergencyActionType.HabitatRestoration:
                     updatedEmergency = ApplyEcosystemRestoration(updatedEmergency, response);
                     break;
             }
@@ -221,8 +221,11 @@ namespace Laboratory.Chimera.ECS.Services
             EmergencyConservationConfig config,
             float resourceCommitment)
         {
-            return resourceCommitment >= config.minimumResourceCommitment &&
-                   resourceCommitment <= config.maximumResourceCommitment;
+            // Use reasonable default limits for resource commitment
+            float minimumResourceCommitment = 10f;
+            float maximumResourceCommitment = 10000f;
+            return resourceCommitment >= minimumResourceCommitment &&
+                   resourceCommitment <= maximumResourceCommitment;
         }
 
         #endregion

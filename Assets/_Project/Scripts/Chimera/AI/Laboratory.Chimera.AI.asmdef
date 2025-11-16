@@ -4,7 +4,10 @@
     "references": [
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
+        "Laboratory.Core.Health",
         "Laboratory.Shared",
+        "Laboratory.Chimera",
+        "Laboratory.Chimera.Core",
         "Laboratory.Chimera.Genetics",
         "Laboratory.Chimera.Breeding",
         "Laboratory.Chimera.Creatures",

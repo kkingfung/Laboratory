@@ -4,6 +4,7 @@ using Unity.Burst;
 using Unity.Profiling;
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Chimera.Creatures;
 using System.Collections.Generic;
 
 namespace Laboratory.Chimera.Activities
@@ -71,7 +72,7 @@ namespace Laboratory.Chimera.Activities
             _activityRequestQuery = GetEntityQuery(ComponentType.ReadOnly<StartActivityRequest>());
             _activeActivitiesQuery = GetEntityQuery(
                 ComponentType.ReadWrite<ActiveActivityComponent>(),
-                ComponentType.ReadOnly<CreatureGeneticsComponent>());
+                ComponentType.ReadOnly<ActivityGeneticsData>());
             _activityResultsQuery = GetEntityQuery(
                 ComponentType.ReadOnly<ActivityResultComponent>(),
                 ComponentType.ReadWrite<CurrencyComponent>(),
@@ -170,7 +171,7 @@ namespace Laboratory.Chimera.Activities
                     continue;
                 }
 
-                if (!EntityManager.HasComponent<CreatureGeneticsComponent>(monsterEntity))
+                if (!EntityManager.HasComponent<ActivityGeneticsData>(monsterEntity))
                 {
                     Debug.LogWarning($"Monster entity missing genetics component");
                     ecb.DestroyEntity(entity);
@@ -236,7 +237,7 @@ namespace Laboratory.Chimera.Activities
 
             // Step 2: Process newly completed activities (requires managed access for activity implementations)
             foreach (var (activeActivity, genetics, entity) in
-                SystemAPI.Query<RefRW<ActiveActivityComponent>, RefRO<CreatureGeneticsComponent>>()
+                SystemAPI.Query<RefRW<ActiveActivityComponent>, RefRO<ActivityGeneticsData>>()
                 .WithEntityAccess())
             {
                 // Only process activities that just completed
@@ -328,7 +329,7 @@ namespace Laboratory.Chimera.Activities
         /// Calculates activity performance based on genetics and equipment
         /// </summary>
         private float CalculateActivityPerformance(
-            in CreatureGeneticsComponent genetics,
+            in ActivityGeneticsData genetics,
             ActivityType activityType,
             ActivityDifficulty difficulty,
             Entity monsterEntity)
@@ -353,7 +354,7 @@ namespace Laboratory.Chimera.Activities
         /// <summary>
         /// Default performance calculation when no specific implementation exists
         /// </summary>
-        private float CalculateDefaultPerformance(in CreatureGeneticsComponent genetics, ActivityDifficulty difficulty)
+        private float CalculateDefaultPerformance(in ActivityGeneticsData genetics, ActivityDifficulty difficulty)
         {
             ActivityPerformanceCalculator.ExtractGeneticStats(
                 in genetics,
@@ -388,7 +389,7 @@ namespace Laboratory.Chimera.Activities
                     ActivityType.Combat => bonusCache.combatBonus,
                     ActivityType.Puzzle => bonusCache.puzzleBonus,
                     ActivityType.Strategy => bonusCache.strategyBonus,
-                    ActivityType.Rhythm => bonusCache.rhythmBonus,
+                    ActivityType.Music => bonusCache.rhythmBonus,
                     ActivityType.Adventure => bonusCache.adventureBonus,
                     ActivityType.Platforming => bonusCache.platformingBonus,
                     ActivityType.Crafting => bonusCache.craftingBonus,

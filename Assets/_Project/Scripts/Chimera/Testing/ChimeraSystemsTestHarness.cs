@@ -6,6 +6,8 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Activities;
 using Laboratory.Chimera.Equipment;
 using Laboratory.Chimera.Progression;
+using Laboratory.Core.ECS.Components;
+using Laboratory.Chimera.ECS;
 
 namespace Laboratory.Chimera.Testing
 {
@@ -66,12 +68,12 @@ namespace Laboratory.Chimera.Testing
         private float _frameTime = 0f;
 
         private EntityManager _entityManager;
-        private Random _random;
+        private Unity.Mathematics.Random _random;
 
         private void Start()
         {
-            _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            _random = new Random((uint)System.DateTime.Now.Ticks);
+            _entityManager = Unity.Entities.World.DefaultGameObjectInjectionWorld.EntityManager;
+            _random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
 
             // Load configurations
             LoadConfigurations();
@@ -146,15 +148,15 @@ namespace Laboratory.Chimera.Testing
             {
                 Entity creature = _entityManager.CreateEntity(archetype);
 
-                // Random genetics (0-100 stats)
+                // Random genetics (0-100 stats normalized to 0-1 range)
                 _entityManager.SetComponentData(creature, new CreatureGeneticsComponent
                 {
-                    strength = _random.NextFloat(20f, 100f),
-                    agility = _random.NextFloat(20f, 100f),
-                    intelligence = _random.NextFloat(20f, 100f),
-                    vitality = _random.NextFloat(20f, 100f),
-                    social = _random.NextFloat(20f, 100f),
-                    adaptability = _random.NextFloat(20f, 100f)
+                    StrengthTrait = _random.NextFloat(0.2f, 1f),
+                    AgilityTrait = _random.NextFloat(0.2f, 1f),
+                    IntellectTrait = _random.NextFloat(0.2f, 1f),
+                    VitalityTrait = _random.NextFloat(0.2f, 1f),
+                    CharmTrait = _random.NextFloat(0.2f, 1f),
+                    ResilienceTrait = _random.NextFloat(0.2f, 1f)
                 });
 
                 // Starting currency
@@ -169,8 +171,8 @@ namespace Laboratory.Chimera.Testing
                 int startLevel = _random.NextInt(1, 11);
                 _entityManager.SetComponentData(creature, new MonsterLevelComponent
                 {
-                    currentLevel = startLevel,
-                    currentExperience = 0,
+                    level = startLevel,
+                    experiencePoints = 0,
                     experienceToNextLevel = progressionConfig != null ?
                         progressionConfig.GetExperienceToNextLevel(startLevel) : 100,
                     skillPointsAvailable = startLevel - 1,

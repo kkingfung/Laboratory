@@ -5,9 +5,10 @@ using System;
 using System.Collections.Generic;
 using Laboratory.AI.Pathfinding;
 using Laboratory.AI.ECS;
-using Laboratory.Chimera.AI;
 using BiomeType = Laboratory.Shared.Types.BiomeType;
 using SharedAIBehaviorType = Laboratory.Shared.Types.AIBehaviorType;
+using PathfindingStatus = Laboratory.AI.ECS.PathfindingStatus;
+using AIBehaviorType = Laboratory.AI.ECS.AIBehaviorType;
 
 namespace Laboratory.AI.Services
 {
@@ -241,7 +242,7 @@ namespace Laboratory.AI.Services
         // Interface implementations with type conversion
         bool IAIBehaviorService.SetBehavior(Entity entity, SharedAIBehaviorType behavior, float intensity)
         {
-            return SetBehavior(entity, ConvertToChimera(behavior), intensity);
+            return SetBehavior(entity, ConvertToECS(behavior), intensity);
         }
 
         SharedAIBehaviorType IAIBehaviorService.GetCurrentBehavior(Entity entity)
@@ -256,7 +257,7 @@ namespace Laboratory.AI.Services
 
         bool IAIBehaviorService.QueueBehavior(Entity entity, SharedAIBehaviorType behavior, float delay)
         {
-            return QueueBehavior(entity, ConvertToChimera(behavior), delay);
+            return QueueBehavior(entity, ConvertToECS(behavior), delay);
         }
 
         void IAIBehaviorService.RegisterBehaviorCallback(Entity entity, Action<SharedAIBehaviorType, SharedAIBehaviorType> onBehaviorChanged)
@@ -265,51 +266,53 @@ namespace Laboratory.AI.Services
         }
 
         // Type conversion methods
-        private AIBehaviorType ConvertToChimera(SharedAIBehaviorType shared)
+        private AIBehaviorType ConvertToECS(SharedAIBehaviorType shared)
         {
-            // Convert SharedAIBehaviorType to Chimera AIBehaviorType
+            // Convert SharedAIBehaviorType to ECS AIBehaviorType
             return shared switch
             {
                 SharedAIBehaviorType.None => AIBehaviorType.None,
                 SharedAIBehaviorType.Idle => AIBehaviorType.Idle,
                 SharedAIBehaviorType.Wander => AIBehaviorType.Wander,
                 SharedAIBehaviorType.Follow => AIBehaviorType.Follow,
-                SharedAIBehaviorType.Flee => AIBehaviorType.Fleeing,
-                SharedAIBehaviorType.Attack => AIBehaviorType.Aggressive,
-                SharedAIBehaviorType.Guard => AIBehaviorType.Guard,
+                SharedAIBehaviorType.Flee => AIBehaviorType.Flee,
+                SharedAIBehaviorType.Attack => AIBehaviorType.Attack,
+                SharedAIBehaviorType.Guard => AIBehaviorType.Defend,
                 SharedAIBehaviorType.Patrol => AIBehaviorType.Patrol,
-                SharedAIBehaviorType.Search => AIBehaviorType.Investigate,
-                SharedAIBehaviorType.Hunt => AIBehaviorType.Hunt,
-                SharedAIBehaviorType.Forage => AIBehaviorType.Feed,
+                SharedAIBehaviorType.Search => AIBehaviorType.Search,
+                SharedAIBehaviorType.Hunt => AIBehaviorType.Investigate,
+                SharedAIBehaviorType.Forage => AIBehaviorType.Gather,
                 SharedAIBehaviorType.Rest => AIBehaviorType.Rest,
                 SharedAIBehaviorType.Social => AIBehaviorType.Social,
-                SharedAIBehaviorType.Mate => AIBehaviorType.Mate,
-                SharedAIBehaviorType.Territorial => AIBehaviorType.Territorial,
+                SharedAIBehaviorType.Mate => AIBehaviorType.Breed,
+                SharedAIBehaviorType.Territorial => AIBehaviorType.Territory,
                 SharedAIBehaviorType.Custom => AIBehaviorType.Custom,
                 _ => AIBehaviorType.None
             };
         }
 
-        private SharedAIBehaviorType ConvertToShared(AIBehaviorType chimera)
+        private SharedAIBehaviorType ConvertToShared(AIBehaviorType ecs)
         {
-            // Convert Chimera AIBehaviorType to SharedAIBehaviorType
-            return chimera switch
+            // Convert ECS AIBehaviorType to SharedAIBehaviorType
+            return ecs switch
             {
                 AIBehaviorType.None => SharedAIBehaviorType.None,
                 AIBehaviorType.Idle => SharedAIBehaviorType.Idle,
                 AIBehaviorType.Wander => SharedAIBehaviorType.Wander,
                 AIBehaviorType.Follow => SharedAIBehaviorType.Follow,
-                AIBehaviorType.Fleeing => SharedAIBehaviorType.Flee,
-                AIBehaviorType.Aggressive => SharedAIBehaviorType.Attack,
-                AIBehaviorType.Guard => SharedAIBehaviorType.Guard,
+                AIBehaviorType.Flee => SharedAIBehaviorType.Flee,
+                AIBehaviorType.Attack => SharedAIBehaviorType.Attack,
+                AIBehaviorType.Defend => SharedAIBehaviorType.Guard,
                 AIBehaviorType.Patrol => SharedAIBehaviorType.Patrol,
-                AIBehaviorType.Investigate => SharedAIBehaviorType.Search,
-                AIBehaviorType.Hunt => SharedAIBehaviorType.Hunt,
-                AIBehaviorType.Feed => SharedAIBehaviorType.Forage,
+                AIBehaviorType.Search => SharedAIBehaviorType.Search,
+                AIBehaviorType.Investigate => SharedAIBehaviorType.Hunt,
+                AIBehaviorType.Gather => SharedAIBehaviorType.Forage,
                 AIBehaviorType.Rest => SharedAIBehaviorType.Rest,
                 AIBehaviorType.Social => SharedAIBehaviorType.Social,
-                AIBehaviorType.Mate => SharedAIBehaviorType.Mate,
-                AIBehaviorType.Territorial => SharedAIBehaviorType.Territorial,
+                AIBehaviorType.Breed => SharedAIBehaviorType.Mate,
+                AIBehaviorType.Territory => SharedAIBehaviorType.Territorial,
+                AIBehaviorType.Feed => SharedAIBehaviorType.Forage,
+                AIBehaviorType.ReturnHome => SharedAIBehaviorType.Idle,
                 AIBehaviorType.Custom => SharedAIBehaviorType.Custom,
                 _ => SharedAIBehaviorType.None
             };

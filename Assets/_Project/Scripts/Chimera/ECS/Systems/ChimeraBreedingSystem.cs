@@ -11,7 +11,7 @@ using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.ECS;
 using Laboratory.Shared.Types;
-using ProjectChimera.Core;
+using Laboratory.Core;
 using ChimeraCreatureIdentity = Laboratory.Chimera.ECS.CreatureIdentityComponent;
 using UnityEngine;
 
@@ -80,7 +80,7 @@ namespace Laboratory.Core.ECS.Systems
 
             // Initialize spatial hash
             _spatialBreedingHash = new NativeParallelMultiHashMap<int, BreedingCandidate>(
-                GameConstants.BREEDING_SPATIAL_HASH_CAPACITY, Allocator.Persistent);
+                Laboratory.Core.GameConstants.BREEDING_SPATIAL_HASH_CAPACITY, Allocator.Persistent);
 
             // Initialize legacy system for complex breeding calculations
             _legacyBreedingSystem = new Laboratory.Chimera.Breeding.BreedingSystem(null);

@@ -109,7 +109,7 @@ namespace Laboratory.Chimera.Ecosystem
                 UpdateSuccessionStage(biome, deltaTime);
 
                 // Check for biome transitions
-                var potentialTransition = transitionMatrix.GetPotentialTransition(
+                var potentialTransition = transitionMatrix.EvaluateTransition(
                     biome.biomeType,
                     biome.climateConditions);
 
@@ -164,7 +164,7 @@ namespace Laboratory.Chimera.Ecosystem
         /// </summary>
         private void UpdateSuccessionStage(Biome biome, float deltaTime)
         {
-            successionManager.UpdateSuccession(biome, deltaTime);
+            successionManager.ProcessSuccession(biome, deltaTime);
         }
 
         /// <summary>

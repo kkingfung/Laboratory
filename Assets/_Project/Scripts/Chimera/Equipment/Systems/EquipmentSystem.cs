@@ -559,7 +559,7 @@ namespace Laboratory.Chimera.Equipment
                 case ActivityType.Strategy:
                     cache.strategyBonus += config.activityBonusValue;
                     break;
-                case ActivityType.Rhythm:
+                case ActivityType.Music:
                     cache.rhythmBonus += config.activityBonusValue;
                     break;
                 case ActivityType.Adventure:

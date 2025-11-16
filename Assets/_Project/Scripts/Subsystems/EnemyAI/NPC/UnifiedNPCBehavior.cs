@@ -6,6 +6,7 @@ using Laboratory.Core.Events;
 using Laboratory.Core.Health;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Character;
+using DamageType = Laboratory.Core.Enums.DamageType;
 
 namespace Laboratory.Subsystems.EnemyAI.NPC
 {

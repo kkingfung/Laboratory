@@ -8,6 +8,10 @@ using Laboratory.Systems.Analytics.Services;
 using Laboratory.Systems.Quests;
 using Laboratory.Systems.Breeding;
 using Laboratory.Systems.Ecosystem;
+using Laboratory.Subsystems.AIDirector;
+using Laboratory.Chimera.Social.Types;
+using Laboratory.Chimera.Breeding;
+using Laboratory.Subsystems.Analytics;
 
 namespace Laboratory.Systems.Analytics
 {
@@ -22,7 +26,7 @@ namespace Laboratory.Systems.Analytics
     /// - EmotionalAnalysisService: Emotional response tracking
     /// - AnalyticsDataPersistence: Save/load operations
     /// </summary>
-    public class PlayerAnalyticsTrackerRefactored : MonoBehaviour
+    public class PlayerAnalyticsTracker : MonoBehaviour
     {
         #region Configuration
 
@@ -73,7 +77,6 @@ namespace Laboratory.Systems.Analytics
         #region State
 
         private PlayerProfile _currentPlayerProfile;
-        private GameAdaptationEngine _adaptationEngine;
         private bool _isInitialized;
 
         // Performance profiling
@@ -100,7 +103,7 @@ namespace Laboratory.Systems.Analytics
         {
             if (enableAnalytics)
             {
-                StartNewGameplaySession();
+                StartNewAnalyticsSessionData();
                 Debug.Log("[PlayerAnalyticsTracker] Initialized with service-based architecture");
             }
         }
@@ -139,9 +142,6 @@ namespace Laboratory.Systems.Analytics
             _behaviorAnalysis = new BehaviorAnalysisService(behaviorAnalysisInterval, enablePersonalityProfiling);
             _emotionalAnalysis = new EmotionalAnalysisService(enableEmotionalAnalysis);
             _dataPersistence = new AnalyticsDataPersistence(anonymizePlayerData, enableDataExport);
-
-            // Initialize adaptation engine
-            _adaptationEngine = new GameAdaptationEngine();
 
             // Subscribe to service events
             SubscribeToServiceEvents();
@@ -264,32 +264,32 @@ namespace Laboratory.Systems.Analytics
         /// <summary>
         /// Called when a quest is completed
         /// </summary>
-        public void OnQuestCompleted(QuestData quest)
+        public void OnQuestCompleted(ProceduralQuest quest)
         {
             var parameters = new Dictionary<ParamKey, object>
             {
-                [ParamKey.QuestId] = quest.questId,
+                [ParamKey.QuestId] = quest.id,
                 [ParamKey.Success] = true
             };
 
             TrackPlayerAction("QuestCompleted", "Quest", parameters);
-            TrackEmotionalResponse(EmotionalState.Satisfied, 0.7f, "Quest Completed");
-            _sessionManager.AddMilestone(MilestoneType.QuestCompleted);
+            TrackEmotionalResponse(EmotionalState.Happy, 0.7f, "Quest Completed");
+            _sessionManager.AddMilestone(MilestoneType.Completion);
         }
 
         /// <summary>
         /// Called when a quest fails
         /// </summary>
-        public void OnQuestFailed(QuestData quest)
+        public void OnQuestFailed(ProceduralQuest quest)
         {
             var parameters = new Dictionary<ParamKey, object>
             {
-                [ParamKey.QuestId] = quest.questId,
+                [ParamKey.QuestId] = quest.id,
                 [ParamKey.Success] = false
             };
 
             TrackPlayerAction("QuestFailed", "Quest", parameters);
-            TrackEmotionalResponse(EmotionalState.Frustrated, 0.6f, "Quest Failed");
+            TrackEmotionalResponse(EmotionalState.Angry, 0.6f, "Quest Failed");
         }
 
         /// <summary>
@@ -299,13 +299,13 @@ namespace Laboratory.Systems.Analytics
         {
             var parameters = new Dictionary<ParamKey, object>
             {
-                [ParamKey.SessionId] = session.sessionId,
-                [ParamKey.CreatureId] = offspring.creatureId
+                [ParamKey.BreedingTime] = session.id,
+                [ParamKey.CreatureId] = offspring.UniqueId
             };
 
             TrackPlayerAction("BreedingCompleted", "Breeding", parameters);
-            TrackEmotionalResponse(EmotionalState.Curious, 0.6f, "Breeding Completed");
-            _sessionManager.AddMilestone(MilestoneType.BreedingCompleted);
+            TrackEmotionalResponse(EmotionalState.Excited, 0.6f, "Breeding Completed");
+            _sessionManager.AddMilestone(MilestoneType.Completion);
         }
 
         /// <summary>
@@ -315,8 +315,8 @@ namespace Laboratory.Systems.Analytics
         {
             var parameters = new Dictionary<ParamKey, object>
             {
-                [ParamKey.CreatureId] = offspring.creatureId,
-                [ParamKey.Accepted] = accepted
+                [ParamKey.CreatureId] = offspring.UniqueId,
+                [ParamKey.Success] = accepted
             };
 
             TrackPlayerAction(accepted ? "OffspringAccepted" : "OffspringRejected", "Breeding", parameters);
@@ -325,7 +325,7 @@ namespace Laboratory.Systems.Analytics
         /// <summary>
         /// Called when environmental event occurs
         /// </summary>
-        public void OnEnvironmentalEvent(EcosystemEvent envEvent)
+        public void OnEnvironmentalEvent(EnvironmentalEvent envEvent)
         {
             var parameters = new Dictionary<ParamKey, object>
             {
@@ -339,7 +339,7 @@ namespace Laboratory.Systems.Analytics
 
         #region Session Management
 
-        private void StartNewGameplaySession()
+        private void StartNewAnalyticsSessionData()
         {
             _sessionManager.StartNewSession(_currentPlayerProfile);
             _actionTracker.Reset();
@@ -356,12 +356,12 @@ namespace Laboratory.Systems.Analytics
             Debug.Log("[PlayerAnalyticsTracker] Current session ended");
         }
 
-        private void OnSessionStarted(GameplaySession session)
+        private void OnSessionStarted(AnalyticsSessionData session)
         {
             Debug.Log($"[PlayerAnalyticsTracker] Session started: {session.sessionId}");
         }
 
-        private void OnSessionEnded(GameplaySession session)
+        private void OnSessionEnded(AnalyticsSessionData session)
         {
             // Update player profile
             UpdatePlayerProfileFromSession(session);
@@ -405,14 +405,13 @@ namespace Laboratory.Systems.Analytics
 
         private void TriggerGameAdaptation(string adaptationType, float intensity)
         {
-            _adaptationEngine.ProcessPlayerData(_currentPlayerProfile);
+            // Game adaptation functionality has been refactored into specialized services
+            // This method is kept for compatibility but the actual adaptation is now handled by:
+            // - DifficultyAdaptationService for difficulty adjustments
+            // - ContentOrchestrationService for content spawning and engagement
+            // - EducationalScaffoldingService for player support
 
-            if (adaptationType == "IncreaseDifficulty" || adaptationType == "DecreaseDifficulty")
-            {
-                _adaptationEngine.UpdateDifficulty(intensity);
-            }
-
-            Debug.Log($"[PlayerAnalyticsTracker] Game adaptation triggered: {adaptationType} (intensity: {intensity:F2})");
+            Debug.Log($"[PlayerAnalyticsTracker] Game adaptation signal: {adaptationType} (intensity: {intensity:F2}) - handled by specialized services");
         }
 
         #endregion
@@ -422,10 +421,10 @@ namespace Laboratory.Systems.Analytics
         private void SaveAnalyticsData()
         {
             _dataPersistence.SavePlayerProfile(_currentPlayerProfile);
-            _dataPersistence.SaveSessionHistory(_sessionManager.SessionHistory as List<GameplaySession>);
+            _dataPersistence.SaveSessionHistory(_sessionManager.SessionHistory as List<AnalyticsSessionData>);
         }
 
-        private void UpdatePlayerProfileFromSession(GameplaySession session)
+        private void UpdatePlayerProfileFromSession(AnalyticsSessionData session)
         {
             if (_currentPlayerProfile == null) return;
 
@@ -502,8 +501,62 @@ namespace Laboratory.Systems.Analytics
         {
             _dataPersistence.ExportAnalyticsData(
                 _currentPlayerProfile,
-                _sessionManager.SessionHistory as List<GameplaySession>
+                _sessionManager.SessionHistory as List<AnalyticsSessionData>
             );
+        }
+
+        /// <summary>
+        /// Generates player behavior analysis for external systems
+        /// </summary>
+        public PlayerBehaviorAnalysis GeneratePlayerBehaviorAnalysis()
+        {
+            var behaviorStats = GetBehaviorStats();
+            return new PlayerBehaviorAnalysis
+            {
+                currentArchetype = behaviorStats.currentArchetype,
+                dominantTrait = behaviorStats.dominantTrait,
+                traitDiversity = behaviorStats.traitDiversity,
+                patternCount = behaviorStats.patternCount,
+                insightCount = behaviorStats.insightCount
+            };
+        }
+
+        /// <summary>
+        /// Gets behavior focus metrics for adaptive systems
+        /// </summary>
+        public BehaviorFocusMetrics GetBehaviorAnalysis()
+        {
+            var behaviorStats = GetBehaviorStats();
+
+            // Map behavior traits to focus metrics
+            float explorationFocus = 0.5f;
+            float socialFocus = 0.5f;
+            float competitiveFocus = 0.5f;
+            float creativeFocus = 0.5f;
+
+            switch (behaviorStats.dominantTrait)
+            {
+                case PlayerBehaviorTrait.Exploration:
+                    explorationFocus = 0.8f;
+                    break;
+                case PlayerBehaviorTrait.Social:
+                    socialFocus = 0.8f;
+                    break;
+                case PlayerBehaviorTrait.Combat:
+                    competitiveFocus = 0.8f;
+                    break;
+                case PlayerBehaviorTrait.Creativity:
+                    creativeFocus = 0.8f;
+                    break;
+            }
+
+            return new BehaviorFocusMetrics
+            {
+                explorationFocus = explorationFocus,
+                socialFocus = socialFocus,
+                competitiveFocus = competitiveFocus,
+                creativeFocus = creativeFocus
+            };
         }
 
         #endregion

@@ -950,7 +950,7 @@ namespace Laboratory.Chimera.Marketplace
         {
             return new CreatureMarketData
             {
-                geneticProfile = GeneticProfile.CreateRandom(new Laboratory.Chimera.Creatures.CreatureStats()),
+                geneticProfile = GeneticProfile.CreateRandom(),
                 generation = UnityEngine.Random.Range(2, 15),
                 rarityScore = UnityEngine.Random.Range(0.1f, 0.9f),
                 healthStatus = UnityEngine.Random.Range(0.7f, 1f),

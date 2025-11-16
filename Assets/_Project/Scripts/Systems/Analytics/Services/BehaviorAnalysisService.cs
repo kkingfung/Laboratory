@@ -61,7 +61,8 @@ namespace Laboratory.Systems.Analytics.Services
         /// </summary>
         public void AnalyzeAction(PlayerAction action)
         {
-            if (action == null) return;
+            // PlayerAction is a struct, cannot be null
+            if (string.IsNullOrEmpty(action.actionType)) return;
 
             UpdateBehaviorTraitsFromAction(action);
             DetectBehaviorPatterns(action);
@@ -184,7 +185,7 @@ namespace Laboratory.Systems.Analytics.Services
             // Identify dominant archetype
             PlayerArchetype newArchetype = IdentifyPlayerArchetype();
 
-            if (newArchetype != _currentArchetype)
+            if (newArchetype.archetypeType != _currentArchetype.archetypeType)
             {
                 _currentArchetype = newArchetype;
                 OnPlayerArchetypeIdentified?.Invoke(_currentArchetype);

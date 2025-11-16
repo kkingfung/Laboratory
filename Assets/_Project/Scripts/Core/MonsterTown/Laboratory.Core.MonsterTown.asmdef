@@ -5,6 +5,7 @@
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",
+        "Unity.Transforms",
         "Laboratory.Core",
         "Laboratory.Core.ECS",
         "Laboratory.Core.Equipment",

@@ -398,9 +398,9 @@ namespace Laboratory.Subsystems.SaveLoad
 
         public bool ShouldPerformFullSave()
         {
-            // Perform full save periodically
+            // Perform full save periodically (default: 30 minutes)
             var timeSinceLastFullSave = DateTime.UtcNow - _lastFullSaveTime;
-            var fullSaveInterval = TimeSpan.FromMinutes(_config?.SaveConfig.FullSaveIntervalMinutes ?? 30);
+            var fullSaveInterval = TimeSpan.FromMinutes(30);
 
             if (timeSinceLastFullSave >= fullSaveInterval)
                 return true;

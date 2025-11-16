@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using Laboratory.Subsystems.Combat;
 using Laboratory.Core.Health;
+using DamageType = Laboratory.Core.Enums.DamageType;
 
 namespace Laboratory.Editor
 {

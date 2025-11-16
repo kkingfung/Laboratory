@@ -56,7 +56,7 @@ namespace Laboratory.Chimera.Ecosystem
                 // Consume resources proportionally
                 foreach (var resourceType in biome.resources.Keys.ToArray())
                 {
-                    float consumption = consumptionRate * species.populationSize * deltaTime;
+                    float consumption = consumptionRate * species.population * deltaTime;
                     var currentResourceValue = GetResourceValue(biome.resources[resourceType]);
                     SetResourceValue(biome.resources, resourceType, Mathf.Max(0f, currentResourceValue - consumption));
                 }
@@ -74,10 +74,10 @@ namespace Laboratory.Chimera.Ecosystem
             // Adjust for trophic level (carnivores consume less but require more energy)
             float trophicModifier = species.trophicLevel switch
             {
-                Laboratory.Chimera.Ecosystem.Data.TrophicLevel.Producer => 0.0f, // Producers don't consume, they produce
-                Laboratory.Chimera.Ecosystem.Data.TrophicLevel.PrimaryConsumer => 1.0f,
-                Laboratory.Chimera.Ecosystem.Data.TrophicLevel.SecondaryConsumer => 0.8f, // More efficient
-                Laboratory.Chimera.Ecosystem.Data.TrophicLevel.TertiaryConsumer => 0.6f, // Most efficient
+                TrophicLevel.Producer => 0.0f, // Producers don't consume, they produce
+                TrophicLevel.Primary_Consumer => 1.0f,
+                TrophicLevel.Secondary_Consumer => 0.8f, // More efficient
+                TrophicLevel.Tertiary_Consumer => 0.6f, // Most efficient
                 _ => 0.5f
             };
 
@@ -89,7 +89,15 @@ namespace Laboratory.Chimera.Ecosystem
         /// </summary>
         private void UpdateResourceFlows(Dictionary<uint, EcosystemNode> ecosystemNodes, float deltaTime)
         {
-            resourceNetwork.UpdateFlows(ecosystemNodes, deltaTime);
+            // Process resource flows through the network
+            // Note: ResourceNetwork has stub implementation, would process flows in full version
+            foreach (var node in ecosystemNodes.Values)
+            {
+                if (node.biome != null)
+                {
+                    resourceNetwork.UpdateBiomeResources(node.biome, deltaTime);
+                }
+            }
         }
 
         /// <summary>
@@ -152,7 +160,11 @@ namespace Laboratory.Chimera.Ecosystem
         /// </summary>
         public float GetAvailableResources(Biome biome, string resourceType)
         {
-            return biome.resources.GetValueOrDefault(resourceType, 0f);
+            if (biome.resources.TryGetValue(resourceType, out var resource))
+            {
+                return resource.currentAmount;
+            }
+            return 0f;
         }
 
         public ResourceNetwork GetResourceNetwork() => resourceNetwork;
@@ -162,8 +174,7 @@ namespace Laboratory.Chimera.Ecosystem
         /// </summary>
         private float GetResourceValue(Resource resource)
         {
-            // Assuming Resource has a Value or Amount property
-            return resource.Amount; // Stub implementation
+            return resource.currentAmount;
         }
 
         /// <summary>
@@ -171,8 +182,20 @@ namespace Laboratory.Chimera.Ecosystem
         /// </summary>
         private void SetResourceValue(Dictionary<string, Resource> resources, string resourceType, float value)
         {
-            // Create new Resource with the specified amount
-            resources[resourceType] = new Resource { Amount = value };
+            if (resources.TryGetValue(resourceType, out var existingResource))
+            {
+                existingResource.currentAmount = value;
+            }
+            else
+            {
+                resources[resourceType] = new Resource
+                {
+                    currentAmount = value,
+                    maxAmount = 1000f,
+                    regenerationRate = 1f,
+                    renewable = true
+                };
+            }
         }
     }
 }

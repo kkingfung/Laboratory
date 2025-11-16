@@ -5,6 +5,7 @@ using UnityEngine;
 using Laboratory.Models.ECS.Components;
 using Laboratory.Infrastructure.Networking;
 using Laboratory.Core.Health.Components;
+using DamageType = Laboratory.Core.Enums.DamageType;
 
 namespace Laboratory.Models.ECS.Systems
 {
@@ -95,7 +96,7 @@ namespace Laboratory.Models.ECS.Systems
                 var damageRequest = new Laboratory.Core.Health.DamageRequest
                 {
                     Amount = damageAmount,
-                    Type = Laboratory.Core.Health.DamageType.Normal,
+                    Type = DamageType.Normal,
                     Source = null,
                     Direction = Vector3.zero
                 };

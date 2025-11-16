@@ -1,6 +1,7 @@
 using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Chimera.Creatures;
 
 namespace Laboratory.Chimera.Activities.Puzzle
 {
@@ -12,14 +13,14 @@ namespace Laboratory.Chimera.Activities.Puzzle
     public class PuzzleActivity : IActivity
     {
         private readonly PuzzleConfig _config;
-        private Random _random;
+        private Unity.Mathematics.Random _random;
 
         public ActivityType Type => ActivityType.Puzzle;
 
         public PuzzleActivity(PuzzleConfig config)
         {
             _config = config ?? throw new System.ArgumentNullException(nameof(config));
-            _random = new Random((uint)(System.DateTime.Now.Ticks + 2)); // +2 to avoid same seed as Combat/Racing
+            _random = new Unity.Mathematics.Random((uint)(System.DateTime.Now.Ticks + 2)); // +2 to avoid same seed as Combat/Racing
         }
 
         /// <summary>
@@ -29,7 +30,7 @@ namespace Laboratory.Chimera.Activities.Puzzle
         /// Tertiary: Social (collaborative puzzle solving)
         /// </summary>
         public float CalculatePerformance(
-            in CreatureGeneticsComponent genetics,
+            in ActivityGeneticsData genetics,
             ActivityDifficulty difficulty,
             float equipmentBonus,
             float masteryBonus)

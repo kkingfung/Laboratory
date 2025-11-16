@@ -16,6 +16,7 @@ using System;
 using ECSComponents = Laboratory.Models.ECS.Components;
 using CoreHealth = Laboratory.Core.Health;
 using CoreMessages = Laboratory.Core.Events.Messages;
+using CoreDamageType = Laboratory.Core.Enums.DamageType;
 
 namespace Laboratory.UI.Helper
 {
@@ -350,13 +351,13 @@ namespace Laboratory.UI.Helper
         /// </summary>
         /// <param name="coreDamageType">Core damage type</param>
         /// <returns>Corresponding ECS damage type</returns>
-        private ECSComponents.DamageType ConvertCoreToECSDamageType(Laboratory.Core.Health.DamageType coreDamageType)
+        private ECSComponents.DamageType ConvertCoreToECSDamageType(CoreDamageType coreDamageType)
         {
             return coreDamageType switch
             {
-                Laboratory.Core.Health.DamageType.Critical => ECSComponents.DamageType.Critical,
-                Laboratory.Core.Health.DamageType.Fire => ECSComponents.DamageType.Fire,
-                Laboratory.Core.Health.DamageType.Ice => ECSComponents.DamageType.Ice,
+                CoreDamageType.Critical => ECSComponents.DamageType.Critical,
+                CoreDamageType.Fire => ECSComponents.DamageType.Fire,
+                CoreDamageType.Ice => ECSComponents.DamageType.Ice,
                 _ => ECSComponents.DamageType.Normal
             };
         }

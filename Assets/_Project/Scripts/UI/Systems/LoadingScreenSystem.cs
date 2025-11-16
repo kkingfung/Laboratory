@@ -9,6 +9,7 @@ using Laboratory.Core.Infrastructure;
 using Laboratory.Core.State;
 using Laboratory.Core.Events.Messages;
 using Laboratory.Infrastructure.AsyncUtils;
+using GameState = Laboratory.Core.State.GameState;
 
 #nullable enable
 
@@ -133,7 +134,7 @@ namespace Laboratory.Models.ECS.Systems
                 {
                     var observable = _gameStateService.StateChanges as Observable<GameStateChangedEvent>;
                     _stateSubscription = observable?
-                        .Where(evt => evt.CurrentState == GameState.Loading)
+                        .Where(evt => (int)evt.CurrentState == (int)GameState.Loading)
                         .Subscribe(async _ => await HandleLoadingStateAsync());
                 }
                 else

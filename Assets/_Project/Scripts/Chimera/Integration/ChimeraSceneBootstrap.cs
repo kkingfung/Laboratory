@@ -12,6 +12,8 @@ using Laboratory.Core.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Shared.Types;
+using EnvironmentalFactors = Laboratory.Chimera.Genetics.EnvironmentalFactors;
+using LifeStage = Laboratory.Chimera.ECS.LifeStage;
 
 namespace Laboratory.Chimera.Integration
 {

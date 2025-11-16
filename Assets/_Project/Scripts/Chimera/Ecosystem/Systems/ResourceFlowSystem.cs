@@ -5,7 +5,7 @@ using UnityEngine;
 using Unity.Profiling;
 using Laboratory.Chimera.Ecosystem.Data;
 using Laboratory.Chimera.Ecosystem.Core;
-using Laboratory.Chimera.Diagnostics;
+using Laboratory.Core.Diagnostics;
 using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.Ecosystem.Systems

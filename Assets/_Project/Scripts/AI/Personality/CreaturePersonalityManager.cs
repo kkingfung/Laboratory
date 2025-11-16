@@ -6,6 +6,7 @@ using Laboratory.Chimera.AI;
 using Laboratory.Core;
 using Laboratory.Core.Events;
 using Laboratory.Core.Diagnostics;
+using SocialInteractionType = Laboratory.Core.SocialInteractionType;
 
 namespace Laboratory.AI.Personality
 {
@@ -96,7 +97,7 @@ namespace Laboratory.AI.Personality
         /// <summary>
         /// Registers a creature with the personality system
         /// </summary>
-        public CreaturePersonalityProfile RegisterCreature(uint creatureId, CreatureGenome genome)
+        public CreaturePersonalityProfile RegisterCreature(uint creatureId, Laboratory.Chimera.Genetics.Advanced.CreatureGenome genome)
         {
             if (!enablePersonalitySystem) return null;
 
@@ -391,7 +392,7 @@ namespace Laboratory.AI.Personality
             return Random.Range(0f, 1f) < 0.1f; // 10% chance for demo purposes
         }
 
-        private void HandleEliteCreature(CreatureGenome eliteCreature)
+        private void HandleEliteCreature(Laboratory.Chimera.Genetics.Advanced.CreatureGenome eliteCreature)
         {
             if (eliteCreature != null && logPersonalityEvents)
             {
@@ -498,7 +499,7 @@ namespace Laboratory.AI.Personality
         /// <summary>
         /// Converts CreatureGenome from Advanced genetics to GeneticProfile for personality system
         /// </summary>
-        private Laboratory.Chimera.Genetics.GeneticProfile ConvertGenomeToGeneticProfile(CreatureGenome genome)
+        private Laboratory.Chimera.Genetics.GeneticProfile ConvertGenomeToGeneticProfile(Laboratory.Chimera.Genetics.Advanced.CreatureGenome genome)
         {
             var geneticProfile = new Laboratory.Chimera.Genetics.GeneticProfile();
 
@@ -549,7 +550,7 @@ namespace Laboratory.AI.Personality
     public class CreaturePersonalityProfile
     {
         public uint creatureId;
-        public CreatureGenome genome;
+        public Laboratory.Chimera.Genetics.Advanced.CreatureGenome genome;
         public PersonalityTrait personalityTraits;
         public MoodState currentMood;
         public BehavioralTendency behavioralTendencies;

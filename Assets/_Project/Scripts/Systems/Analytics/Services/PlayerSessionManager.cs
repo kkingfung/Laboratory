@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Shared.Types;
 using Laboratory.Core.Enums;
+using Laboratory.Chimera.Social.Types;
 
 namespace Laboratory.Systems.Analytics.Services
 {
@@ -13,12 +14,12 @@ namespace Laboratory.Systems.Analytics.Services
     public class PlayerSessionManager
     {
         // Events
-        public System.Action<GameplaySession> OnSessionStarted;
-        public System.Action<GameplaySession> OnSessionEnded;
+        public System.Action<AnalyticsSessionData> OnSessionStarted;
+        public System.Action<AnalyticsSessionData> OnSessionEnded;
 
         // Session state
-        private GameplaySession _currentSession;
-        private List<GameplaySession> _sessionHistory = new List<GameplaySession>();
+        private AnalyticsSessionData _currentSession;
+        private List<AnalyticsSessionData> _sessionHistory = new List<AnalyticsSessionData>();
         private List<PlayerAction> _currentSessionActions = new List<PlayerAction>();
         private Dictionary<EmotionalState, float> _emotionalHistory = new Dictionary<EmotionalState, float>();
         private List<MilestoneType> _sessionMilestones = new List<MilestoneType>();
@@ -27,8 +28,8 @@ namespace Laboratory.Systems.Analytics.Services
         // Configuration
         private int _maxSessionActions;
 
-        public GameplaySession CurrentSession => _currentSession;
-        public IReadOnlyList<GameplaySession> SessionHistory => _sessionHistory.AsReadOnly();
+        public AnalyticsSessionData CurrentSession => _currentSession;
+        public IReadOnlyList<AnalyticsSessionData> SessionHistory => _sessionHistory.AsReadOnly();
         public IReadOnlyList<PlayerAction> CurrentSessionActions => _currentSessionActions.AsReadOnly();
         public float SessionDuration => _currentSession != null ? Time.time - _sessionStartTime : 0f;
 
@@ -42,7 +43,7 @@ namespace Laboratory.Systems.Analytics.Services
         /// </summary>
         public void StartNewSession(PlayerProfile playerProfile)
         {
-            _currentSession = new GameplaySession
+            _currentSession = new AnalyticsSessionData
             {
                 sessionId = (uint)UnityEngine.Random.Range(1000000, 9999999),
                 startTime = Time.time,

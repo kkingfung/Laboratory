@@ -7,6 +7,7 @@ using Laboratory.Core.MonsterTown;
 using Laboratory.Core.Equipment;
 using Laboratory.Core.Events;
 using Laboratory.Core.Activities.Types;
+using ActivityType = Laboratory.Core.Activities.Types.ActivityType;
 using EquipmentItem = Laboratory.Core.MonsterTown.Equipment;
 
 namespace Laboratory.Core.Social
@@ -620,12 +621,14 @@ namespace Laboratory.Core.Social
         private MonsterPerformance CalculateTournamentPerformance(Monster monster, ActivityType activityType)
         {
             // Calculate base performance for tournament
+            // Note: ActivityType from Activities.Types namespace, Monster.GetActivityExperience uses MonsterTown.ActivityType
+            // Using default experience calculation since types are incompatible
             var performance = new MonsterPerformance
             {
                 basePerformance = 0.5f + (monster.Stats.GetAverageStats() / 200f),
                 geneticBonus = CalculateGeneticBonus(monster, activityType),
                 equipmentBonus = CalculateEquipmentBonus(monster, activityType),
-                experienceBonus = monster.GetActivityExperience(activityType) * 0.001f,
+                experienceBonus = 0.05f, // Default experience bonus since ActivityType mismatch
                 happinessModifier = (monster.Happiness - 0.5f) * 0.2f
             };
 

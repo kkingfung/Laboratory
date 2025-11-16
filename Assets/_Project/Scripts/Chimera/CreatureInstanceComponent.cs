@@ -474,7 +474,7 @@ namespace Laboratory.Chimera
                 {
                     Amount = damage,
                     Source = gameObject,
-                    Type = Laboratory.Core.Health.DamageType.Physical,
+                    Type = Laboratory.Core.Enums.DamageType.Physical,
                     Description = "Environmental stress"
                 };
                 

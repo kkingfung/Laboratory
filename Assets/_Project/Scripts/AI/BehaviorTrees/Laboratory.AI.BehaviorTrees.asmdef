@@ -5,11 +5,13 @@
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",
+        "Unity.Transforms",
         "Unity.Jobs",
         "Unity.Burst",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Shared",
         "Laboratory.AI.ECS",
+        "Laboratory.AI.Pathfinding",
         "Laboratory.AI.Services"
     ],
     "includePlatforms": [],

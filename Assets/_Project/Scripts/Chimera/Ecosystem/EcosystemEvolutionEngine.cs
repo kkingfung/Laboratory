@@ -206,7 +206,7 @@ namespace Laboratory.Chimera.Ecosystem
             climateService.UpdateSeasonalCycles(activeBiomes, scaledDeltaTime);
 
             // Update biome-level processes (delegated to services)
-            biomeManagementService.UpdateBiomeEvolution(activeBiomes, ecosystemNodes, scaledDeltaTime);
+            biomeManagementService.UpdateBiomeEvolution(activeBiomes, scaledDeltaTime);
             resourceDynamicsService.UpdateResourceDynamics(activeBiomes, ecosystemNodes, scaledDeltaTime);
 
             // Update ecological interactions (kept in main class - complex domain logic)
@@ -590,7 +590,7 @@ namespace Laboratory.Chimera.Ecosystem
             health.resourceAvailability = totalResourceRatio;
 
             // Climate stress component (delegated to climate service)
-            health.climateStress = biomeManagementService.CalculateClimateStress(biome);
+            health.climateStress = climateService.CalculateClimateStress(biome);
 
             // Resilience based on stability and connectivity
             health.resilienceScore = (biome.stabilityIndex + biome.connectivityIndex) / 2f;

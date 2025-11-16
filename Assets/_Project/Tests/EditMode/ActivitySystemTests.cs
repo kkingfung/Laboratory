@@ -1,6 +1,6 @@
 using NUnit.Framework;
-using Laboratory.Core.Activities.Types;
-using Laboratory.Core.ECS.Components;
+using Laboratory.Chimera.Activities;
+using Laboratory.Chimera.Activities;
 
 namespace Laboratory.Tests.EditMode
 {
@@ -13,7 +13,7 @@ namespace Laboratory.Tests.EditMode
         public void Racing_Performance_DependsOnSpeedAndStamina()
         {
             // Arrange
-            var genetics = new GeneticDataComponent
+            var genetics = new ActivityGeneticsData
             {
                 Speed = 0.9f,
                 Stamina = 0.8f,
@@ -40,7 +40,7 @@ namespace Laboratory.Tests.EditMode
         public void Combat_Performance_DependsOnAggressionAndSize()
         {
             // Arrange
-            var genetics = new GeneticDataComponent
+            var genetics = new ActivityGeneticsData
             {
                 Speed = 0.3f,
                 Stamina = 0.4f,
@@ -66,7 +66,7 @@ namespace Laboratory.Tests.EditMode
         public void Puzzle_Performance_DependsOnIntelligenceAndCuriosity()
         {
             // Arrange
-            var genetics = new GeneticDataComponent
+            var genetics = new ActivityGeneticsData
             {
                 Speed = 0.3f,
                 Stamina = 0.4f,
@@ -92,7 +92,7 @@ namespace Laboratory.Tests.EditMode
         public void Strategy_Performance_DependsOnIntelligenceAndCaution()
         {
             // Arrange
-            var genetics = new GeneticDataComponent
+            var genetics = new ActivityGeneticsData
             {
                 Speed = 0.3f,
                 Stamina = 0.4f,
@@ -118,7 +118,7 @@ namespace Laboratory.Tests.EditMode
         public void Music_Performance_DependsOnSociabilityAndIntelligence()
         {
             // Arrange
-            var genetics = new GeneticDataComponent
+            var genetics = new ActivityGeneticsData
             {
                 Speed = 0.4f,
                 Stamina = 0.5f,
@@ -144,7 +144,7 @@ namespace Laboratory.Tests.EditMode
         public void Crafting_Performance_DependsOnIntelligenceAndAdaptability()
         {
             // Arrange
-            var genetics = new GeneticDataComponent
+            var genetics = new ActivityGeneticsData
             {
                 Speed = 0.4f,
                 Stamina = 0.5f,
@@ -170,7 +170,7 @@ namespace Laboratory.Tests.EditMode
         public void PoorGeneticFit_ProducesLowPerformance()
         {
             // Arrange - creature with low stats for racing
-            var genetics = new GeneticDataComponent
+            var genetics = new ActivityGeneticsData
             {
                 Speed = 0.1f,          // Very slow
                 Stamina = 0.2f,        // Poor stamina
@@ -219,7 +219,7 @@ namespace Laboratory.Tests.EditMode
         }
 
         // Helper method matching ActivityParticipationJob logic
-        private float CalculateActivityPerformance(ActivityType activity, GeneticDataComponent genetics)
+        private float CalculateActivityPerformance(ActivityType activity, ActivityGeneticsData genetics)
         {
             return activity switch
             {

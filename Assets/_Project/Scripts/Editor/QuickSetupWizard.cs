@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine.AI;
 using UnityEditor.AI;
 using Laboratory.Core;
+using Laboratory.Core.Management;
 using Laboratory.Subsystems.Player;
 using Laboratory.Subsystems.EnemyAI;
 

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEditor;
-using Laboratory.Infrastructure.Core;
 
 namespace Laboratory.Editor
 {

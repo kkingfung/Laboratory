@@ -6,6 +6,7 @@ using System.Linq;
 using System;
 using Laboratory.Chimera;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Chimera.Creatures;
 
 namespace Laboratory.Chimera.UI
 {

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Breeding;
+using Laboratory.Chimera.Creatures;
 using Laboratory.Core.Events;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Enums;

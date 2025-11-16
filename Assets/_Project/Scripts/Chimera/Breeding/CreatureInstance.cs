@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Chimera; // Added for GeneticProfileExtensions
 
 namespace Laboratory.Chimera.Breeding
 {
@@ -165,13 +166,10 @@ namespace Laboratory.Chimera.Breeding
             if (definition == null) return 100;
 
             var stats = definition.baseStats;
-            // TODO: Apply genetic modifiers when circular dependency is resolved
-            // Currently commented out due to circular dependency between Genetics and Creatures assemblies
-            // Solution: Move ApplyModifiers to a bridge class in a separate assembly
-            /*
+
+            // Apply genetic modifiers using extension method from GeneticProfileExtensions
             if (geneticProfile != null)
                 stats = geneticProfile.ApplyModifiers(stats);
-            */
 
             return Mathf.RoundToInt(stats.health * (1f + (level - 1) * 0.05f));
         }

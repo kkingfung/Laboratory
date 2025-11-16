@@ -2,6 +2,8 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 using Laboratory.Shared.Types;
+using Laboratory.Subsystems.AIDirector;
+using Laboratory.Subsystems.Analytics;
 
 namespace Laboratory.Systems.Analytics.Services
 {
@@ -14,7 +16,7 @@ namespace Laboratory.Systems.Analytics.Services
         // Events
         public System.Action<PlayerProfile> OnPlayerProfileLoaded;
         public System.Action OnPlayerProfileSaved;
-        public System.Action<List<GameplaySession>> OnSessionHistoryLoaded;
+        public System.Action<List<AnalyticsSessionData>> OnSessionHistoryLoaded;
 
         // Persistence configuration
         private string _saveDirectory;
@@ -102,7 +104,7 @@ namespace Laboratory.Systems.Analytics.Services
         /// <summary>
         /// Saves session history to disk
         /// </summary>
-        public void SaveSessionHistory(List<GameplaySession> sessionHistory)
+        public void SaveSessionHistory(List<AnalyticsSessionData> sessionHistory)
         {
             if (sessionHistory == null || sessionHistory.Count == 0)
             {
@@ -127,12 +129,12 @@ namespace Laboratory.Systems.Analytics.Services
         /// <summary>
         /// Loads session history from disk
         /// </summary>
-        public List<GameplaySession> LoadSessionHistory()
+        public List<AnalyticsSessionData> LoadSessionHistory()
         {
             if (!File.Exists(SessionHistoryFilePath))
             {
                 Debug.Log("[AnalyticsDataPersistence] No session history found");
-                return new List<GameplaySession>();
+                return new List<AnalyticsSessionData>();
             }
 
             try
@@ -148,14 +150,14 @@ namespace Laboratory.Systems.Analytics.Services
             catch (System.Exception ex)
             {
                 Debug.LogError($"[AnalyticsDataPersistence] Failed to load session history: {ex.Message}");
-                return new List<GameplaySession>();
+                return new List<AnalyticsSessionData>();
             }
         }
 
         /// <summary>
         /// Exports analytics data to JSON file
         /// </summary>
-        public void ExportAnalyticsData(PlayerProfile profile, List<GameplaySession> sessionHistory)
+        public void ExportAnalyticsData(PlayerProfile profile, List<AnalyticsSessionData> sessionHistory)
         {
             if (!_enableDataExport)
             {
@@ -279,7 +281,7 @@ namespace Laboratory.Systems.Analytics.Services
     [System.Serializable]
     public class SessionHistoryWrapper
     {
-        public List<GameplaySession> sessions;
+        public List<AnalyticsSessionData> sessions;
     }
 
     /// <summary>
@@ -289,7 +291,7 @@ namespace Laboratory.Systems.Analytics.Services
     public class AnalyticsExportData
     {
         public PlayerProfile profile;
-        public List<GameplaySession> sessionHistory;
+        public List<AnalyticsSessionData> sessionHistory;
         public string exportTimestamp;
     }
 

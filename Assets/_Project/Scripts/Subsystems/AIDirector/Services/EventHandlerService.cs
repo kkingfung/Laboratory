@@ -6,6 +6,7 @@ using Laboratory.Subsystems.Genetics;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Subsystems.Research;
 using Laboratory.Subsystems.Ecosystem;
+using Laboratory.Subsystems.Analytics;
 
 namespace Laboratory.Subsystems.AIDirector.Services
 {
@@ -46,7 +47,7 @@ namespace Laboratory.Subsystems.AIDirector.Services
         /// </summary>
         public void HandleBreedingEvent(GeneticBreedingResult result)
         {
-            if (result.success && result.offspring != null)
+            if (result.isSuccessful && result.offspring != null)
             {
                 _profileService.TrackPlayerAction("CurrentPlayer", "breeding_success", new Dictionary<string, object>
                 {
@@ -357,29 +358,6 @@ namespace Laboratory.Subsystems.AIDirector.Services
         private List<string> GetActivePlayerIds()
         {
             return _playerProfiles.Keys.ToList();
-        }
-
-        #endregion
-
-        #region Event Type Definitions
-
-        /// <summary>
-        /// Player action event from analytics system
-        /// </summary>
-        public class PlayerActionEvent
-        {
-            public string playerId;
-            public string actionType;
-        }
-
-        /// <summary>
-        /// Educational progress event
-        /// </summary>
-        public class EducationalProgressEvent
-        {
-            public string lessonId;
-            public bool conceptMastered;
-            public float confidenceLevel;
         }
 
         #endregion

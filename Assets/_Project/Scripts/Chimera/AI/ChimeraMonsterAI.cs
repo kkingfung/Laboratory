@@ -103,7 +103,7 @@ namespace Laboratory.Chimera.AI
                 if (healthComponent != null)
                 {
                     int damage = CalculateAttackDamage();
-                    healthComponent.TakeDamage(new Laboratory.Core.Health.DamageRequest(damage, gameObject, Laboratory.Core.Health.DamageType.Physical));
+                    healthComponent.TakeDamage(new Laboratory.Core.Health.DamageRequest(damage, gameObject, Laboratory.Core.Enums.DamageType.Physical));
                 }
             }
         }

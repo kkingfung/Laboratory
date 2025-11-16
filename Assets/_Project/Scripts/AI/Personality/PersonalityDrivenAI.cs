@@ -1,12 +1,14 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Chimera;
+using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Chimera.AI;
 using Laboratory.Core;
 using Laboratory.Core.Diagnostics;
 using Laboratory.Core.Enums;
+using SocialInteractionType = Laboratory.Core.SocialInteractionType;
 
 namespace Laboratory.AI.Personality
 {
@@ -198,7 +200,7 @@ namespace Laboratory.AI.Personality
         private GeneticProfile GetOrCreateGenome()
         {
             // Try to get genome from existing creature components
-            var creatureInstance = GetComponent<CreatureInstanceComponent>();
+            var creatureInstance = GetComponent<Laboratory.Chimera.CreatureInstanceComponent>();
             if (creatureInstance != null && creatureInstance.CreatureData?.GeneticProfile != null)
             {
                 return creatureInstance.CreatureData.GeneticProfile;
@@ -420,9 +422,9 @@ namespace Laboratory.AI.Personality
         /// <summary>
         /// Converts a GeneticProfile to CreatureGenome for compatibility with personality system
         /// </summary>
-        private CreatureGenome ConvertToCreatureGenome(GeneticProfile geneticProfile)
+        private Laboratory.Chimera.Genetics.Advanced.CreatureGenome ConvertToCreatureGenome(GeneticProfile geneticProfile)
         {
-            var genome = new CreatureGenome
+            var genome = new Laboratory.Chimera.Genetics.Advanced.CreatureGenome
             {
                 id = creatureId,
                 generation = (uint)geneticProfile.Generation,
