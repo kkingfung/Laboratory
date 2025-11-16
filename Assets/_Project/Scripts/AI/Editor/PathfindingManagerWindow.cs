@@ -391,7 +391,7 @@ namespace Laboratory.AI.Editor
                 navAgent.height = 2f;
                 navAgent.speed = 3.5f;
                 
-                enhancedAgent.SetAgentType(EnhancedAIAgent.AgentType.Medium);
+                enhancedAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Medium);
                 
                 EditorUtility.SetDirty(agentGO);
             }

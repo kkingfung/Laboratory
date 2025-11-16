@@ -6,6 +6,7 @@
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
         "Laboratory.Core.Enums",
+        "Laboratory.Core.Management",
         "Laboratory.Models",
         "Laboratory.Subsystems",
         "UniTask",

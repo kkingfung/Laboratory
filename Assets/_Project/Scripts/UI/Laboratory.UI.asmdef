@@ -2,10 +2,13 @@
     "name": "Laboratory.UI",
     "rootNamespace": "Laboratory.UI",
     "references": [
+        "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
         "Laboratory.Core.Progression",
         "Laboratory.Core.Configuration",
+        "Laboratory.Core.State",
+        "Laboratory.Chimera",
         "Laboratory.Economy",
         "Laboratory.Networking",
         "Laboratory.Subsystems",
