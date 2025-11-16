@@ -10,6 +10,7 @@ using Laboratory.Systems.Breeding;
 using Laboratory.Systems.Ecosystem;
 using Laboratory.Subsystems.AIDirector;
 using Laboratory.Chimera.Social.Types;
+using Laboratory.Chimera.Breeding;
 
 namespace Laboratory.Systems.Analytics
 {
