@@ -118,7 +118,7 @@ namespace Laboratory.Multiplayer
             if (UserAuthenticationSystem.Instance != null)
             {
                 UserAuthenticationSystem.Instance.OnLoginSuccess += HandleLoginSuccess;
-                UserAuthenticationSystem.Instance.OnLogoutSuccess += HandleLogout;
+                UserAuthenticationSystem.Instance.OnLogout += HandleLogout;
             }
 
             // Matchmaking events
