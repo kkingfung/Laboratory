@@ -56,7 +56,7 @@ namespace Laboratory.Chimera.Ecosystem
                 // Consume resources proportionally
                 foreach (var resourceType in biome.resources.Keys.ToArray())
                 {
-                    float consumption = consumptionRate * species.PopulationSize * deltaTime;
+                    float consumption = consumptionRate * species.population * deltaTime;
                     var currentResourceValue = GetResourceValue(biome.resources[resourceType]);
                     SetResourceValue(biome.resources, resourceType, Mathf.Max(0f, currentResourceValue - consumption));
                 }
@@ -72,12 +72,12 @@ namespace Laboratory.Chimera.Ecosystem
             float baseConsumption = 0.1f; // Base rate per individual per time unit
 
             // Adjust for trophic level (carnivores consume less but require more energy)
-            float trophicModifier = species.TrophicLevel switch
+            float trophicModifier = species.trophicLevel switch
             {
-                Laboratory.Chimera.Ecosystem.Data.TrophicLevel.Producer => 0.0f, // Producers don't consume, they produce
-                Laboratory.Chimera.Ecosystem.Data.TrophicLevel.PrimaryConsumer => 1.0f,
-                Laboratory.Chimera.Ecosystem.Data.TrophicLevel.SecondaryConsumer => 0.8f, // More efficient
-                Laboratory.Chimera.Ecosystem.Data.TrophicLevel.TertiaryConsumer => 0.6f, // Most efficient
+                TrophicLevel.Producer => 0.0f, // Producers don't consume, they produce
+                TrophicLevel.Primary_Consumer => 1.0f,
+                TrophicLevel.Secondary_Consumer => 0.8f, // More efficient
+                TrophicLevel.Tertiary_Consumer => 0.6f, // Most efficient
                 _ => 0.5f
             };
 

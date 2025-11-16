@@ -7,6 +7,7 @@ using Laboratory.Core.MonsterTown;
 using Laboratory.Core.Equipment;
 using Laboratory.Core.Events;
 using Laboratory.Core.Activities.Types;
+using ActivityType = Laboratory.Core.Activities.Types.ActivityType;
 using EquipmentItem = Laboratory.Core.MonsterTown.Equipment;
 
 namespace Laboratory.Core.Social
