@@ -124,7 +124,7 @@ namespace Laboratory.Core.ECS.Systems
                     breedingConfig = _configData.breeding,  // ✅ Unmanaged struct
                     deltaTime = deltaTime,
                     currentTime = (float)SystemAPI.Time.ElapsedTime,
-                    commandBuffer = GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
+                    commandBuffer = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
                         .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
                     entityTypeHandle = GetEntityTypeHandle(),
                     breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false)
@@ -142,7 +142,7 @@ namespace Laboratory.Core.ECS.Systems
                 {
                     breedingConfig = _configData.breeding,  // ✅ Unmanaged struct
                     deltaTime = deltaTime,
-                    commandBuffer = GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
+                    commandBuffer = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
                         .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
                     entityTypeHandle = GetEntityTypeHandle(),
                     breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(false)
@@ -185,7 +185,7 @@ namespace Laboratory.Core.ECS.Systems
                     deltaTime = deltaTime,
                     currentTime = currentTime,
                     randomSeed = (uint)currentTime,
-                    commandBuffer = GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
+                    commandBuffer = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
                         .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
                     entityTypeHandle = GetEntityTypeHandle(),
                     transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),

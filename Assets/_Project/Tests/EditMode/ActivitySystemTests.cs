@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using Laboratory.Chimera.Activities;
-using Laboratory.Chimera.Activities;
 
 namespace Laboratory.Tests.EditMode
 {

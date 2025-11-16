@@ -291,23 +291,23 @@ namespace Laboratory.Chimera.ECS
 
         private void FindNewMentorshipOpportunities(Entity mentorEntity, ref WisdomData mentorWisdom)
         {
-            // Copy ref parameter to local variable for use in lambda
+            // Copy ref parameter to local variable
             var localMentorWisdom = mentorWisdom;
 
             // Look for young creatures seeking guidance
-            Entities.WithAll<LearningData>().WithoutBurst().ForEach((Entity studentEntity, ref LearningData learningData) =>
+            foreach (var (learningData, studentEntity) in SystemAPI.Query<RefRW<LearningData>>().WithEntityAccess())
             {
-                if (learningData.hasActiveMentor) return;
-                if (!IsCompatibleForMentorship(localMentorWisdom, learningData)) return;
+                if (learningData.ValueRO.hasActiveMentor) continue;
+                if (!IsCompatibleForMentorship(localMentorWisdom, learningData.ValueRO)) continue;
 
                 // Form new mentorship
                 var mentorship = new MentorshipRelation
                 {
                     mentorId = localMentorWisdom.creatureId,
-                    studentId = learningData.creatureId,
+                    studentId = learningData.ValueRO.creatureId,
                     startTime = (float)SystemAPI.Time.ElapsedTime,
                     duration = 0f,
-                    mentorshipType = DetermineMentorshipType(localMentorWisdom, learningData),
+                    mentorshipType = DetermineMentorshipType(localMentorWisdom, learningData.ValueRO),
                     progress = 0f,
                     lessonsShared = 0,
                     wisdomTransferred = 0f
@@ -318,20 +318,20 @@ namespace Laboratory.Chimera.ECS
                     _mentorships[localMentorWisdom.creatureId] = new List<MentorshipRelation>();
 
                 _mentorships[localMentorWisdom.creatureId].Add(mentorship);
-                learningData.hasActiveMentor = true;
-                learningData.mentorId = localMentorWisdom.creatureId;
+                learningData.ValueRW.hasActiveMentor = true;
+                learningData.ValueRW.mentorId = localMentorWisdom.creatureId;
 
                 var mentorshipFormed = new MentorshipFormed
                 {
                     mentorId = localMentorWisdom.creatureId,
-                    studentId = learningData.creatureId,
+                    studentId = learningData.ValueRO.creatureId,
                     mentorshipType = mentorship.mentorshipType,
                     expectedDuration = CalculateExpectedMentorshipDuration(mentorship),
                     timestamp = (float)SystemAPI.Time.ElapsedTime
                 };
 
                 OnMentorshipFormed?.Invoke(localMentorWisdom.creatureId, mentorshipFormed);
-            }).Run();
+            }
 
             // Update the ref parameter with any changes
             mentorWisdom.activeMentorships++;
@@ -339,43 +339,45 @@ namespace Laboratory.Chimera.ECS
 
         private void ProcessWisdomSharing(float deltaTime)
         {
-            Entities.WithAll<WisdomData>().WithoutBurst().ForEach((Entity entity, ref WisdomData wisdomData) =>
+            foreach (var (wisdomData, entity) in SystemAPI.Query<RefRW<WisdomData>>().WithEntityAccess())
             {
-                if (wisdomData.sageLevel < SageLevel.Sage) return;
+                if (wisdomData.ValueRO.sageLevel < SageLevel.Sage) continue;
 
-                wisdomData.wisdomSharingCooldown -= deltaTime;
+                wisdomData.ValueRW.wisdomSharingCooldown -= deltaTime;
 
-                if (wisdomData.wisdomSharingCooldown <= 0f)
+                if (wisdomData.ValueRO.wisdomSharingCooldown <= 0f)
                 {
                     // Share wisdom with nearby creatures
-                    ShareWisdomWithNearbyCreatures(entity, ref wisdomData);
-                    wisdomData.wisdomSharingCooldown = _config.wisdomSharingInterval;
+                    var wisdomValue = wisdomData.ValueRW;
+                    ShareWisdomWithNearbyCreatures(entity, ref wisdomValue);
+                    wisdomData.ValueRW = wisdomValue;
+                    wisdomData.ValueRW.wisdomSharingCooldown = _config.wisdomSharingInterval;
                 }
-            }).Run();
+            }
         }
 
         private void ShareWisdomWithNearbyCreatures(Entity sageEntity, ref WisdomData sageWisdom)
         {
-            // Copy ref parameter to local variable for use in lambda
+            // Copy ref parameter to local variable
             var localSageWisdom = sageWisdom;
 
             // Find nearby creatures that can benefit from wisdom
-            Entities.WithAll<LearningData>().WithoutBurst().ForEach((Entity learnerEntity, ref LearningData learningData) =>
+            foreach (var (learningData, learnerEntity) in SystemAPI.Query<RefRW<LearningData>>().WithEntityAccess())
             {
-                if (learningData.creatureId == localSageWisdom.creatureId) return;
+                if (learningData.ValueRO.creatureId == localSageWisdom.creatureId) continue;
 
                 // Check if wisdom sharing is beneficial
-                if (CanBenefitFromWisdom(learningData, localSageWisdom))
+                if (CanBenefitFromWisdom(learningData.ValueRO, localSageWisdom))
                 {
-                    var wisdomToShare = SelectWisdomToShare(localSageWisdom, learningData);
+                    var wisdomToShare = SelectWisdomToShare(localSageWisdom, learningData.ValueRO);
 
                     if (wisdomToShare.HasValue)
                     {
-                        // We'll handle the transfer outside the lambda
+                        // We'll handle the transfer outside the loop
                         // Store transfer data for processing
                     }
                 }
-            }).Run();
+            }
         }
 
         private void TransferWisdom(Entity sageEntity, ref WisdomData sageWisdom, Entity learnerEntity, ref LearningData learningData, WisdomEntry wisdom)

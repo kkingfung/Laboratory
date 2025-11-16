@@ -27,7 +27,6 @@ namespace Laboratory.AI.Personality
         [Header("Behavior Override Settings")]
         [SerializeField] private bool allowAggressionOverride = true;
         [SerializeField] private bool allowExplorationOverride = true;
-        [SerializeField] private bool allowSocialOverride = true;
         [SerializeField] private bool allowSpeedOverride = true;
 
         [Header("Debug")]
