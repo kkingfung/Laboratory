@@ -498,7 +498,7 @@ namespace Laboratory.AI.Personality
         /// <summary>
         /// Converts CreatureGenome from Advanced genetics to GeneticProfile for personality system
         /// </summary>
-        private Laboratory.Chimera.Genetics.GeneticProfile ConvertGenomeToGeneticProfile(CreatureGenome genome)
+        private Laboratory.Chimera.Genetics.GeneticProfile ConvertGenomeToGeneticProfile(Laboratory.Chimera.Genetics.Advanced.CreatureGenome genome)
         {
             var geneticProfile = new Laboratory.Chimera.Genetics.GeneticProfile();
 
@@ -549,7 +549,7 @@ namespace Laboratory.AI.Personality
     public class CreaturePersonalityProfile
     {
         public uint creatureId;
-        public CreatureGenome genome;
+        public Laboratory.Chimera.Genetics.Advanced.CreatureGenome genome;
         public PersonalityTrait personalityTraits;
         public MoodState currentMood;
         public BehavioralTendency behavioralTendencies;
