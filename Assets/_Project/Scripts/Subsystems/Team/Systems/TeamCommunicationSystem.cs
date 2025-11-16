@@ -344,7 +344,7 @@ namespace Laboratory.Subsystems.Team.Systems
                 WorldPosition = worldPosition,
                 TargetEntity = targetEntity,
                 Message = GetPingMessage(pingType),
-                Timestamp = (float)Time.timeAsDouble,
+                Timestamp = (float)entityManager.World.Time.ElapsedTime,
                 Duration = GetPingDuration(pingType),
                 Urgency = urgency
             });
@@ -381,7 +381,7 @@ namespace Laboratory.Subsystems.Team.Systems
                 WorldPosition = float3.zero,
                 TargetEntity = Entity.Null,
                 Message = GetChatMessage(chatType),
-                Timestamp = (float)Time.timeAsDouble,
+                Timestamp = (float)entityManager.World.Time.ElapsedTime,
                 Duration = 5f,
                 Urgency = 0.3f
             });
@@ -430,7 +430,7 @@ namespace Laboratory.Subsystems.Team.Systems
                 WorldPosition = targetPosition,
                 TargetEntity = Entity.Null,
                 Message = GetCommandMessage(commandType),
-                Timestamp = (float)Time.timeAsDouble,
+                Timestamp = (float)entityManager.World.Time.ElapsedTime,
                 Duration = 10f,
                 Urgency = 0.8f
             });
