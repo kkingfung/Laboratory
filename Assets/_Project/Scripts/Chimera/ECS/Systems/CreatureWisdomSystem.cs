@@ -411,42 +411,44 @@ namespace Laboratory.Chimera.ECS
 
         private void ProcessLearningFromMentors(float deltaTime)
         {
-            Entities.WithAll<LearningData>().WithoutBurst().ForEach((Entity entity, ref LearningData learningData) =>
+            foreach (var (learningData, entity) in SystemAPI.Query<RefRW<LearningData>>().WithEntityAccess())
             {
-                if (!learningData.hasActiveMentor) return;
+                if (!learningData.ValueRO.hasActiveMentor) continue;
 
                 // Process learning progress
-                learningData.learningTimer += deltaTime;
+                learningData.ValueRW.learningTimer += deltaTime;
 
-                if (learningData.learningTimer >= _config.learningInterval)
+                if (learningData.ValueRO.learningTimer >= _config.learningInterval)
                 {
                     // Process learning session inline instead of calling method with ref
-                    float learningGain = _config.baseLearningRate * learningData.learningMultiplier;
-                    learningData.accumulatedWisdom += learningGain;
-                    learningData.learningTimer = 0f;
+                    float learningGain = _config.baseLearningRate * learningData.ValueRO.learningMultiplier;
+                    learningData.ValueRW.accumulatedWisdom += learningGain;
+                    learningData.ValueRW.learningTimer = 0f;
                 }
 
                 // Update learning capacity inline
-                learningData.learningCapacity = _config.baseLearningCapacity +
-                                               (learningData.accumulatedWisdom * _config.wisdomLearningMultiplier);
-            }).Run();
+                learningData.ValueRW.learningCapacity = _config.baseLearningCapacity +
+                                               (learningData.ValueRO.accumulatedWisdom * _config.wisdomLearningMultiplier);
+            }
         }
 
 
         private void ProcessLegacyGeneration(float deltaTime)
         {
-            Entities.WithAll<WisdomData>().WithoutBurst().ForEach((Entity entity, ref WisdomData wisdomData) =>
+            foreach (var (wisdomData, entity) in SystemAPI.Query<RefRW<WisdomData>>().WithEntityAccess())
             {
-                if (wisdomData.sageLevel >= SageLevel.Elder && wisdomData.ageInDays > _config.legacyPreparationAge)
+                if (wisdomData.ValueRO.sageLevel >= SageLevel.Elder && wisdomData.ValueRO.ageInDays > _config.legacyPreparationAge)
                 {
-                    wisdomData.legacyPreparationTimer += deltaTime;
+                    wisdomData.ValueRW.legacyPreparationTimer += deltaTime;
 
-                    if (wisdomData.legacyPreparationTimer >= _config.legacyCreationInterval && !wisdomData.hasCreatedLegacy)
+                    if (wisdomData.ValueRO.legacyPreparationTimer >= _config.legacyCreationInterval && !wisdomData.ValueRO.hasCreatedLegacy)
                     {
-                        CreateCreatureLegacy(entity, ref wisdomData);
+                        var wisdomValue = wisdomData.ValueRW;
+                        CreateCreatureLegacy(entity, ref wisdomValue);
+                        wisdomData.ValueRW = wisdomValue;
                     }
                 }
-            }).Run();
+            }
         }
 
         private void CreateCreatureLegacy(Entity entity, ref WisdomData wisdomData)
@@ -473,16 +475,18 @@ namespace Laboratory.Chimera.ECS
 
         private void ProcessWisdomSeeking(float deltaTime)
         {
-            Entities.WithAll<GuidanceSeekingData>().WithoutBurst().ForEach((Entity entity, ref GuidanceSeekingData seekingData) =>
+            foreach (var (seekingData, entity) in SystemAPI.Query<RefRW<GuidanceSeekingData>>().WithEntityAccess())
             {
-                seekingData.seekingTimer += deltaTime;
+                seekingData.ValueRW.seekingTimer += deltaTime;
 
-                if (seekingData.seekingTimer >= _config.guidanceSeekingInterval)
+                if (seekingData.ValueRO.seekingTimer >= _config.guidanceSeekingInterval)
                 {
-                    ProcessGuidanceSeeking(entity, ref seekingData);
-                    seekingData.seekingTimer = 0f;
+                    var seekingValue = seekingData.ValueRW;
+                    ProcessGuidanceSeeking(entity, ref seekingValue);
+                    seekingData.ValueRW = seekingValue;
+                    seekingData.ValueRW.seekingTimer = 0f;
                 }
-            }).Run();
+            }
         }
 
         private void ProcessGuidanceSeeking(Entity entity, ref GuidanceSeekingData seekingData)

@@ -158,32 +158,38 @@ namespace Laboratory.Chimera.Genetics.Environmental
             }
 
             // Process environmental genetic adaptations
-            Entities
-                .WithAll<EnvironmentalGeneticComponent>()
-                .ForEach((Entity entity, ref EnvironmentalGeneticComponent envGenetic,
-                    in DynamicBuffer<EnvironmentalTriggerComponent> triggers,
-                    in DynamicBuffer<DynamicTraitExpressionComponent> expressions) =>
-                {
-                    // Get components that can't be in ForEach parameters
-                    var transform = EntityManager.GetComponentData<Unity.Transforms.LocalTransform>(entity);
-                    var genetics = EntityManager.GetComponentData<GeneticModifiersComponent>(entity);
+            foreach (var (envGenetic, triggers, expressions, entity) in
+                SystemAPI.Query<RefRW<EnvironmentalGeneticComponent>,
+                               DynamicBuffer<EnvironmentalTriggerComponent>,
+                               DynamicBuffer<DynamicTraitExpressionComponent>>().WithEntityAccess())
+            {
+                // Get components that can't be in Query parameters
+                var transform = EntityManager.GetComponentData<Unity.Transforms.LocalTransform>(entity);
+                var genetics = EntityManager.GetComponentData<GeneticModifiersComponent>(entity);
 
-                    // Update environmental conditions
-                    UpdateEnvironmentalConditions(entity, ref envGenetic, transform.Position);
+                // Update environmental conditions
+                var envGeneticValue = envGenetic.ValueRW;
+                UpdateEnvironmentalConditions(entity, ref envGeneticValue, transform.Position);
+                envGenetic.ValueRW = envGeneticValue;
 
-                    // Process environmental triggers
-                    ProcessEnvironmentalTriggers(entity, ref envGenetic, triggers, currentTime, deltaTime);
+                // Process environmental triggers
+                envGeneticValue = envGenetic.ValueRW;
+                ProcessEnvironmentalTriggers(entity, ref envGeneticValue, triggers, currentTime, deltaTime);
+                envGenetic.ValueRW = envGeneticValue;
 
-                    // Update trait expressions
-                    UpdateTraitExpressions(entity, ref envGenetic, ref genetics, expressions, deltaTime);
+                // Update trait expressions
+                envGeneticValue = envGenetic.ValueRW;
+                UpdateTraitExpressions(entity, ref envGeneticValue, ref genetics, expressions, deltaTime);
+                envGenetic.ValueRW = envGeneticValue;
 
-                    // Handle adaptation process
-                    ProcessAdaptation(entity, ref envGenetic, ref genetics, currentTime, deltaTime);
+                // Handle adaptation process
+                envGeneticValue = envGenetic.ValueRW;
+                ProcessAdaptation(entity, ref envGeneticValue, ref genetics, currentTime, deltaTime);
+                envGenetic.ValueRW = envGeneticValue;
 
-                    // Write back modified genetics component
-                    EntityManager.SetComponentData(entity, genetics);
-
-                }).WithoutBurst().Run(); // WithoutBurst for service access
+                // Write back modified genetics component
+                EntityManager.SetComponentData(entity, genetics);
+            }
         }
 
         private void UpdateEnvironmentalConditions(Entity entity, ref EnvironmentalGeneticComponent envGenetic, float3 position)

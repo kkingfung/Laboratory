@@ -346,10 +346,12 @@ namespace Laboratory.Chimera.ECS
 
         private void ProcessEmotionalMemories(float deltaTime)
         {
-            Entities.WithAll<CreatureBondData>().WithoutBurst().ForEach((Entity entity, ref CreatureBondData bondData) =>
+            foreach (var (bondData, entity) in SystemAPI.Query<RefRW<CreatureBondData>>().WithEntityAccess())
             {
-                ProcessCreatureEmotionalMemories(entity, ref bondData, deltaTime);
-            }).Run();
+                var bondValue = bondData.ValueRW;
+                ProcessCreatureEmotionalMemories(entity, ref bondValue, deltaTime);
+                bondData.ValueRW = bondValue;
+            }
         }
 
         private void ProcessCreatureEmotionalMemories(Entity entity, ref CreatureBondData bondData, float deltaTime)
@@ -378,27 +380,29 @@ namespace Laboratory.Chimera.ECS
 
         private void UpdateBondStrengths(float deltaTime)
         {
-            Entities.WithAll<CreatureBondData>().WithoutBurst().ForEach((Entity entity, ref CreatureBondData bondData) =>
+            foreach (var (bondData, entity) in SystemAPI.Query<RefRW<CreatureBondData>>().WithEntityAccess())
             {
                 // Decay bond strength over time without interaction
-                if (bondData.timeSinceLastInteraction > _config.interactionTimeThreshold)
+                if (bondData.ValueRO.timeSinceLastInteraction > _config.interactionTimeThreshold)
                 {
-                    bondData.bondStrength -= _config.bondDecayRate * deltaTime;
+                    bondData.ValueRW.bondStrength -= _config.bondDecayRate * deltaTime;
                 }
 
                 // Increase bond strength with recent positive interactions
-                if (bondData.recentPositiveInteractions > _config.positiveInteractionThreshold)
+                if (bondData.ValueRO.recentPositiveInteractions > _config.positiveInteractionThreshold)
                 {
-                    bondData.bondStrength += _config.bondGrowthRate * deltaTime;
-                    bondData.recentPositiveInteractions = 0; // Reset counter
+                    bondData.ValueRW.bondStrength += _config.bondGrowthRate * deltaTime;
+                    bondData.ValueRW.recentPositiveInteractions = 0; // Reset counter
                 }
 
                 // Clamp bond strength
-                bondData.bondStrength = Mathf.Clamp(bondData.bondStrength, 0f, _config.maxBondStrength);
+                bondData.ValueRW.bondStrength = Mathf.Clamp(bondData.ValueRO.bondStrength, 0f, _config.maxBondStrength);
 
                 // Update loyalty based on bond strength
-                UpdateCreatureLoyalty(ref bondData);
-            }).Run();
+                var bondValue = bondData.ValueRW;
+                UpdateCreatureLoyalty(ref bondValue);
+                bondData.ValueRW = bondValue;
+            }
         }
 
         private void UpdateCreatureLoyalty(ref CreatureBondData bondData)

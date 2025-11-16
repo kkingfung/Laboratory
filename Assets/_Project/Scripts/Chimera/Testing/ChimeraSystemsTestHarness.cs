@@ -60,9 +60,7 @@ namespace Laboratory.Chimera.Testing
         // Runtime statistics
         private int _entitiesSpawned = 0;
         private int _activitiesStarted = 0;
-        private int _activitiesCompleted = 0;
         private int _itemsEquipped = 0;
-        private int _levelsGained = 0;
         private float _lastStatsUpdate = 0f;
         private float _fps = 0f;
         private float _frameTime = 0f;
