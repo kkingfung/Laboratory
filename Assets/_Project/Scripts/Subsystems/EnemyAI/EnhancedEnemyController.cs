@@ -570,10 +570,8 @@ namespace Laboratory.Subsystems.EnemyAI
                     break;
                 case PathfindingMode.AStar:
                 case PathfindingMode.FlowField:
+                case PathfindingMode.Hierarchical:
                     optimizedTarget = OptimizePathTarget(targetPosition);
-                    break;
-                case PathfindingMode.Hybrid:
-                    optimizedTarget = GetHybridPathTarget(targetPosition);
                     break;
                 default:
                     optimizedTarget = targetPosition;

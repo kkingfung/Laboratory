@@ -101,7 +101,7 @@ namespace Laboratory.Subsystems.SaveLoad
 
             var result = new ValidationResult
             {
-                level = currentValidationLevel,
+                level = (ValidationLevel)currentValidationLevel,
                 validatedAt = DateTime.UtcNow
             };
 
