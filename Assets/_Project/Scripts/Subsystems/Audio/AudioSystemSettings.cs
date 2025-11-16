@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.Audio;
-using ProjectChimera.Core;
+using Laboratory.Core;
 
 namespace Laboratory.Audio
 {

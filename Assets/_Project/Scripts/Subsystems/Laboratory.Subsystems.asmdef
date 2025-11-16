@@ -2,10 +2,12 @@
     "name": "Laboratory.Subsystems",
     "rootNamespace": "Laboratory.Subsystems",
     "references": [
+        "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
         "Laboratory.Core.ECS",
         "Laboratory.Core.Progression",
+        "Laboratory.Core.Services",
         "Laboratory.Infrastructure",
         "Laboratory.Shared",
         "Laboratory.Tools",
