@@ -10,6 +10,8 @@
         "Unity.Transforms",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Configuration",
+        "Laboratory.Core.ECS",
+        "Laboratory.Core.Events",
         "Laboratory.Shared",
         "Laboratory.AI.Pathfinding"
     ],

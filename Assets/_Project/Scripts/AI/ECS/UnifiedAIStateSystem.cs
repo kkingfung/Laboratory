@@ -5,7 +5,6 @@ using Unity.Jobs;
 using Unity.Burst;
 using Unity.Transforms;
 using UnityEngine;
-using Laboratory.Chimera.AI;
 using Laboratory.Core.Events;
 using System.Collections.Generic;
 

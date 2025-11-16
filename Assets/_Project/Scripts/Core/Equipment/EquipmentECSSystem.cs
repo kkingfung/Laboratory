@@ -465,13 +465,13 @@ namespace Laboratory.Core.Equipment
         {
             // Apply equipment bonuses to activity performance
             foreach (var (participant, equipment, entity) in
-                SystemAPI.Query<RefRW<ActivityParticipantComponent>, RefRO<CreatureEquipmentComponent>>().WithEntityAccess())
+                SystemAPI.Query<RefRW<Laboratory.Core.Activities.Components.ActivityParticipantComponent>, RefRO<CreatureEquipmentComponent>>().WithEntityAccess())
             {
-                if (participant.ValueRO.Status != ActivityStatus.Active)
+                if (participant.ValueRO.Status != Laboratory.Core.Activities.Types.ActivityStatus.Active)
                     continue;
 
                 // Calculate activity-specific equipment bonuses
-                float equipmentBonus = CalculateActivityBonus(participant.ValueRO.CurrentActivity, equipment.ValueRO);
+                float equipmentBonus = CalculateActivityBonus(ConvertActivityType(participant.ValueRO.CurrentActivity), equipment.ValueRO);
 
                 // Apply equipment bonus to performance
                 float basePerformance = participant.ValueRO.PerformanceScore;
@@ -479,6 +479,11 @@ namespace Laboratory.Core.Equipment
 
                 participant.ValueRW.PerformanceScore = math.clamp(enhancedPerformance, 0.1f, 3.0f);
             }
+        }
+
+        private Laboratory.Core.Activities.Types.ActivityType ConvertActivityType(Laboratory.Core.Activities.ActivityType activityType)
+        {
+            return (Laboratory.Core.Activities.Types.ActivityType)(int)activityType;
         }
 
         private float CalculateActivityBonus(Laboratory.Core.Activities.Types.ActivityType activity, CreatureEquipmentComponent equipment)

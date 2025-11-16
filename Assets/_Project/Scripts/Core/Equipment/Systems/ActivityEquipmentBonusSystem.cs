@@ -23,7 +23,7 @@ namespace Laboratory.Core.Equipment.Systems
                     continue;
 
                 // Calculate activity-specific equipment bonuses
-                float equipmentBonus = CalculateActivityBonus(participant.ValueRO.CurrentActivity, equipment.ValueRO);
+                float equipmentBonus = CalculateActivityBonus(ConvertActivityType(participant.ValueRO.CurrentActivity), equipment.ValueRO);
 
                 // Apply equipment bonus to performance
                 float basePerformance = participant.ValueRO.PerformanceScore;
@@ -31,6 +31,11 @@ namespace Laboratory.Core.Equipment.Systems
 
                 participant.ValueRW.PerformanceScore = math.clamp(enhancedPerformance, 0.1f, 3.0f);
             }
+        }
+
+        private ActivityType ConvertActivityType(Laboratory.Core.Activities.ActivityType activityType)
+        {
+            return (ActivityType)(int)activityType;
         }
 
         private float CalculateActivityBonus(ActivityType activity, CreatureEquipmentComponent equipment)
