@@ -356,13 +356,13 @@ namespace Laboratory.Chimera.Discovery.Systems
             // Get prefix based on type
             FixedString32Bytes prefix = type switch
             {
-                Laboratory.Chimera.Discovery.Core.DiscoveryType.NewTrait => "Enhanced",
-                Laboratory.Chimera.Discovery.Core.DiscoveryType.RareMutation => "Mutant",
-                Laboratory.Chimera.Discovery.Core.DiscoveryType.SpecialMarker => "Marked",
-                Laboratory.Chimera.Discovery.Core.DiscoveryType.PerfectGenetics => "Perfect",
-                Laboratory.Chimera.Discovery.Core.DiscoveryType.NewSpecies => "Hybrid",
-                Laboratory.Chimera.Discovery.Core.DiscoveryType.LegendaryLineage => "Legendary",
-                _ => "Unknown"
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.NewTrait => new FixedString32Bytes("Enhanced"),
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.RareMutation => new FixedString32Bytes("Mutant"),
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.SpecialMarker => new FixedString32Bytes("Marked"),
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.PerfectGenetics => new FixedString32Bytes("Perfect"),
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.NewSpecies => new FixedString32Bytes("Hybrid"),
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.LegendaryLineage => new FixedString32Bytes("Legendary"),
+                _ => new FixedString32Bytes("Unknown")
             };
 
             // Get descriptor based on highest trait
@@ -371,10 +371,10 @@ namespace Laboratory.Chimera.Discovery.Systems
             // Get marker suffix
             GetMarkerSuffixBurst(markers, out FixedString32Bytes markerSuffix);
 
-            // Combine parts
+            // Combine parts using Unicode for space character
             result = new FixedString64Bytes();
             result.Append(prefix);
-            result.Append(" ");
+            result.Append((byte)' ');
             result.Append(descriptor);
             result.Append(markerSuffix);
         }
@@ -385,25 +385,25 @@ namespace Laboratory.Chimera.Discovery.Systems
                            math.max((int)genetics.Agility, math.max((int)genetics.Intelligence,
                            math.max((int)genetics.Adaptability, (int)genetics.Social)))));
 
-            if (genetics.Strength == maxTrait) { result = "Titan"; return; }
-            if (genetics.Vitality == maxTrait) { result = "Eternal"; return; }
-            if (genetics.Agility == maxTrait) { result = "Swift"; return; }
-            if (genetics.Intelligence == maxTrait) { result = "Genius"; return; }
-            if (genetics.Adaptability == maxTrait) { result = "Evolved"; return; }
-            if (genetics.Social == maxTrait) { result = "Alpha"; return; }
+            if (genetics.Strength == maxTrait) { result = new FixedString32Bytes("Titan"); return; }
+            if (genetics.Vitality == maxTrait) { result = new FixedString32Bytes("Eternal"); return; }
+            if (genetics.Agility == maxTrait) { result = new FixedString32Bytes("Swift"); return; }
+            if (genetics.Intelligence == maxTrait) { result = new FixedString32Bytes("Genius"); return; }
+            if (genetics.Adaptability == maxTrait) { result = new FixedString32Bytes("Evolved"); return; }
+            if (genetics.Social == maxTrait) { result = new FixedString32Bytes("Alpha"); return; }
 
-            result = "Balanced";
+            result = new FixedString32Bytes("Balanced");
         }
 
         private static void GetMarkerSuffixBurst(GeneticMarkerFlags markers, out FixedString32Bytes result)
         {
-            if ((markers & GeneticMarkerFlags.Bioluminescent) != 0) { result = " Lumina"; return; }
-            if ((markers & GeneticMarkerFlags.ElementalAffinity) != 0) { result = " Elemental"; return; }
-            if ((markers & GeneticMarkerFlags.RareLineage) != 0) { result = " Prime"; return; }
-            if ((markers & GeneticMarkerFlags.HybridVigor) != 0) { result = " Hybrid"; return; }
-            if ((markers & GeneticMarkerFlags.PackLeader) != 0) { result = " Rex"; return; }
+            if ((markers & GeneticMarkerFlags.Bioluminescent) != 0) { result = new FixedString32Bytes(" Lumina"); return; }
+            if ((markers & GeneticMarkerFlags.ElementalAffinity) != 0) { result = new FixedString32Bytes(" Elemental"); return; }
+            if ((markers & GeneticMarkerFlags.RareLineage) != 0) { result = new FixedString32Bytes(" Prime"); return; }
+            if ((markers & GeneticMarkerFlags.HybridVigor) != 0) { result = new FixedString32Bytes(" Hybrid"); return; }
+            if ((markers & GeneticMarkerFlags.PackLeader) != 0) { result = new FixedString32Bytes(" Rex"); return; }
 
-            result = "";
+            result = new FixedString32Bytes();
         }
     }
 
