@@ -24,6 +24,7 @@
         "Laboratory.Chimera.Creatures",
         "Laboratory.Chimera.Breeding",
         "Laboratory.Chimera.Genetics",
+        "Laboratory.Chimera.ECS",
         "Laboratory.Shared",
         "Unity.TextMeshPro"
     ],
