@@ -446,7 +446,7 @@ namespace Laboratory.Subsystems.AIDirector
             _playerAnalysisService?.TrackCollaboration(playerId, collaborationType);
 
             // Generate collaborative storylines
-            GenerateCollaborativeStorylines(playerId, collaborationType);
+            _emergentStorytellingService?.GenerateCollaborativeStorylines(playerId, collaborationType);
         }
 
         private void ProcessStruggleEvent(DirectorEvent directorEvent)

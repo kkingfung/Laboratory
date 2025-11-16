@@ -47,7 +47,7 @@ namespace Laboratory.Subsystems.AIDirector.Services
         /// </summary>
         public void HandleBreedingEvent(GeneticBreedingResult result)
         {
-            if (result.success && result.offspring != null)
+            if (result.isSuccessful && result.offspring != null)
             {
                 _profileService.TrackPlayerAction("CurrentPlayer", "breeding_success", new Dictionary<string, object>
                 {

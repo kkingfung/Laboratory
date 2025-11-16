@@ -147,10 +147,10 @@ namespace Laboratory.Gameplay
         protected override void ApplyPickupEffect(PlayerController player)
         {
             player.Heal(healAmount);
-            
-            if (Laboratory.Core.GameManager.Instance)
+
+            if (GameManager.Instance != null)
             {
-                Laboratory.Core.GameManager.Instance.AddScore(25);
+                GameManager.Instance.AddScore(25);
             }
         }
     }
