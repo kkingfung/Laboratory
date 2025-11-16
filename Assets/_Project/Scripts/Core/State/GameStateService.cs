@@ -5,7 +5,6 @@ using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using R3;
 using UnityEngine;
-using GameState = Laboratory.Core.Events.Messages.GameState;
 
 #nullable enable
 
@@ -167,7 +166,10 @@ namespace Laboratory.Core.State
             try
             {
                 // Publish transition request event
-                var requestEvent = new GameStateChangeRequestedEvent(previousState, targetState, context);
+                // Convert Laboratory.Core.State.GameState to Laboratory.Core.Events.Messages.GameState
+                var eventPreviousState = (Laboratory.Core.Events.Messages.GameState)(int)previousState;
+                var eventTargetState = (Laboratory.Core.Events.Messages.GameState)(int)targetState;
+                var requestEvent = new GameStateChangeRequestedEvent(eventPreviousState, eventTargetState, context);
                 _eventBus.Publish(requestEvent);
 
                 // Exit current state
@@ -237,7 +239,9 @@ namespace Laboratory.Core.State
         private void OnStateChangeRequested(GameStateChangeRequestedEvent requestEvent)
         {
             // Handle external state change requests asynchronously
-            RequestTransitionAsync(requestEvent.ToState, requestEvent.Context).Forget();
+            // Convert Laboratory.Core.Events.Messages.GameState to Laboratory.Core.State.GameState
+            var localTargetState = (GameState)(int)requestEvent.ToState;
+            RequestTransitionAsync(localTargetState, requestEvent.Context).Forget();
         }
 
         private bool IsValidGlobalTransition(GameState from, GameState to)
