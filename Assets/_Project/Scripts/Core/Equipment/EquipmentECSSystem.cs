@@ -481,12 +481,12 @@ namespace Laboratory.Core.Equipment
             }
         }
 
-        private Laboratory.Core.Activities.Types.ActivityType ConvertActivityType(Laboratory.Core.Activities.Types.ActivityType activityType)
+        private ActivityType ConvertActivityType(ActivityType activityType)
         {
             return activityType;
         }
 
-        private float CalculateActivityBonus(Laboratory.Core.Activities.Types.ActivityType activity, CreatureEquipmentComponent equipment)
+        private float CalculateActivityBonus(ActivityType activity, CreatureEquipmentComponent equipment)
         {
             // This would query the actual equipment entities and sum their bonuses
             // For now, simplified calculation based on equipped item count

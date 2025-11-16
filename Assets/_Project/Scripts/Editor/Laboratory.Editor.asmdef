@@ -7,7 +7,7 @@
         "Laboratory.Shared",
         "Laboratory.Tools",
         "Laboratory.Chimera.AI",
-        "Laboratory.Subsystems.EnemyAI",
+        "Laboratory.Subsystems",
         "Laboratory.AI.Agents",
         "Laboratory.AI.Pathfinding",
         "Unity.TextMeshPro"
