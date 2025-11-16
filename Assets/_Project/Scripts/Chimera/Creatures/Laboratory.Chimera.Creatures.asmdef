@@ -6,7 +6,6 @@
         "Laboratory.Core.Enums",
         "Laboratory.Shared",
         "Laboratory.Models",
-        "Laboratory.Chimera",
         "Laboratory.Chimera.Genetics",
         "Unity.Entities",
         "Unity.Mathematics",
