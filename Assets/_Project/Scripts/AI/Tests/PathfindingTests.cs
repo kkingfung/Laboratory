@@ -208,7 +208,7 @@ namespace Laboratory.AI.Tests
         public void EnhancedAIAgent_SetAgentType_UpdatesAgentType()
         {
             // Arrange
-            EnhancedAIAgent.AgentType newType = EnhancedAIAgent.AgentType.Large;
+            AgentType newType = AgentType.Large;
 
             // Act
             agent.SetAgentType(newType);
@@ -492,7 +492,7 @@ namespace Laboratory.AI.Tests
         public void RequestPath(Vector3 destination, PathfindingMode mode = PathfindingMode.Auto)
         {
             Destination = destination;
-            Status = PathfindingStatus.Calculating;
+            Status = PathfindingStatus.Computing;
         }
 
         public void CancelPath()

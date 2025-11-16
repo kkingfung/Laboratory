@@ -6,6 +6,7 @@
         "Unity.Collections",
         "Unity.Mathematics",
         "Unity.Burst",
+        "Unity.Transforms",
         "Laboratory.Core",
         "Laboratory.Core.ECS",
         "Laboratory.Core.Activities",
