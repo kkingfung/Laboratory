@@ -169,9 +169,9 @@ namespace Laboratory.Systems.Analytics.Services
         private ActionType GetMostCommonActionType()
         {
             if (_actionTypeCounters.Count == 0)
-                return ActionType.Unknown;
+                return ActionType.Exploration;
 
-            ActionType mostCommon = ActionType.Unknown;
+            ActionType mostCommon = ActionType.Exploration;
             int maxCount = 0;
 
             foreach (var kvp in _actionTypeCounters)
