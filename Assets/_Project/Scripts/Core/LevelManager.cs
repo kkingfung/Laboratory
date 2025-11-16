@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using Laboratory.Core;
+using Laboratory.Core.Management;
 
 namespace Laboratory.Core
 {
