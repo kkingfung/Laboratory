@@ -8,6 +8,7 @@
         "Unity.Burst",
         "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Diagnostics",
         "Laboratory.Core.Enums",
         "Laboratory.Core.Events",
         "Laboratory.Shared",

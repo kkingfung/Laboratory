@@ -68,7 +68,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             randomGenerator = seed == 0 ? new Unity.Mathematics.Random((uint)UnityEngine.Random.Range(1, int.MaxValue)) : new Unity.Mathematics.Random(seed);
             InitializeEvolutionaryPressure();
 
-            Laboratory.Core.Diagnostics.DebugManager.Log("Advanced Genetic Algorithm initialized");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug("Advanced Genetic Algorithm initialized");
         }
 
         private void InitializeEvolutionaryPressure()
@@ -93,7 +93,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             genealogyTree.Clear();
             generationCounter = 0;
 
-            Laboratory.Core.Diagnostics.DebugManager.Log($"Initializing population of {populationSize} creatures");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Initializing population of {populationSize} creatures");
 
             for (int i = 0; i < populationSize; i++)
             {
@@ -102,7 +102,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             }
 
             CalculatePopulationStatistics();
-            Laboratory.Core.Diagnostics.DebugManager.Log($"Population initialized with diversity: {currentStats.geneticDiversity:F3}");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Population initialized with diversity: {currentStats.geneticDiversity:F3}");
         }
 
         private CreatureGenome GenerateRandomGenome(CreatureSpeciesConfig speciesConfig)
@@ -172,7 +172,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             AddCreatureToPopulation(offspring);
             OnBreedingComplete?.Invoke(parentA, parentB, offspring);
 
-            Laboratory.Core.Diagnostics.DebugManager.Log($"Breeding successful: Gen {offspring.generation}, Fitness {offspring.fitness:F3}");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Breeding successful: Gen {offspring.generation}, Fitness {offspring.fitness:F3}");
 
             return offspring;
         }
@@ -302,7 +302,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
                     float adaptiveMutation = UnityEngine.Random.Range(-0.05f, 0.05f); // Gaussian approximation
                     trait.value += adaptiveMutation;
 
-                    Laboratory.Core.Diagnostics.DebugManager.Log($"Environmental adaptation in {traitType}: {adaptiveMutation:F3}");
+                    Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Environmental adaptation in {traitType}: {adaptiveMutation:F3}");
                     offspring.traits[traitType] = trait; // Update the trait back to the dictionary
                 }
             }
@@ -327,7 +327,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         {
             if (population.Count <= 1) return;
 
-            Laboratory.Core.Diagnostics.DebugManager.Log($"Running natural selection on population of {population.Count}");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Running natural selection on population of {population.Count}");
 
             // Calculate fitness for all creatures
             foreach (var creature in population)
@@ -374,7 +374,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             CalculatePopulationStatistics();
 
             OnEvolutionaryEvent?.Invoke($"Natural selection complete: {survivors.Count} survivors, generation {generationCounter}");
-            Laboratory.Core.Diagnostics.DebugManager.Log($"Natural selection: {survivors.Count} survivors, avg fitness: {currentStats.averageFitness:F3}");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Natural selection: {survivors.Count} survivors, avg fitness: {currentStats.averageFitness:F3}");
         }
 
         private CreatureGenome TournamentSelection(int tournamentSize)

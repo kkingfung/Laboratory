@@ -67,7 +67,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
 
         private void InitializeGeneticSystem()
         {
-            Laboratory.Chimera.Diagnostics.DebugManager.Log("Initializing Genetic Evolution Manager");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug("Initializing Genetic Evolution Manager");
 
             // Create main population
             geneticAlgorithm = new AdvancedGeneticAlgorithm(geneticSeed);
@@ -84,7 +84,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             lastEvolutionTime = Time.time;
             lastEnvironmentUpdate = Time.time;
 
-            Laboratory.Chimera.Diagnostics.DebugManager.Log($"Genetic system initialized with {availableSpecies?.Length ?? 0} species");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Genetic system initialized with {availableSpecies?.Length ?? 0} species");
         }
 
         private void InitializeSpeciesPopulations()
@@ -153,7 +153,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         /// </summary>
         public void RunEvolutionCycle()
         {
-            Laboratory.Chimera.Diagnostics.DebugManager.Log("Starting evolution cycle for all species");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug("Starting evolution cycle for all species");
 
             int totalSurvivors = 0;
             foreach (var kvp in speciesPopulations)
@@ -166,7 +166,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
                 int survivors = population.PopulationSize;
                 totalSurvivors += survivors;
 
-                Laboratory.Chimera.Diagnostics.DebugManager.Log($"Species {speciesName}: {initialSize} → {survivors} survivors");
+                Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Species {speciesName}: {initialSize} → {survivors} survivors");
             }
 
             analytics.totalEvolutionCycles++;
@@ -189,7 +189,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
                 population.UpdateEnvironmentalPressure(currentResourceLevel, currentClimaticStress, diseaseOutbreak);
             }
 
-            Laboratory.Chimera.Diagnostics.DebugManager.Log($"Environmental update: Resources {currentResourceLevel:F2}, Climate {currentClimaticStress:F2}");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Environmental update: Resources {currentResourceLevel:F2}, Climate {currentClimaticStress:F2}");
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         {
             if (!speciesPopulations.TryGetValue(speciesName, out var population))
             {
-                Laboratory.Chimera.Diagnostics.DebugManager.LogError($"Species not found: {speciesName}");
+                Laboratory.Core.Diagnostics.DebugManager.LogError($"Species not found: {speciesName}");
                 return null;
             }
 
@@ -274,12 +274,12 @@ namespace Laboratory.Chimera.Genetics.Advanced
         {
             if (!speciesPopulations.TryGetValue(speciesName, out var population))
             {
-                Laboratory.Chimera.Diagnostics.DebugManager.LogError($"Cannot introduce creature: Species {speciesName} not found");
+                Laboratory.Core.Diagnostics.DebugManager.LogError($"Cannot introduce creature: Species {speciesName} not found");
                 return null;
             }
 
             // Create custom genome (this would need to be implemented in the genetic algorithm)
-            Laboratory.Chimera.Diagnostics.DebugManager.Log($"Introducing custom creature to species {speciesName}");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Introducing custom creature to species {speciesName}");
             analytics.totalIntroductions++;
 
             // For now, return null - this would require extending the genetic algorithm
@@ -288,7 +288,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
 
         private void HandleGenerationComplete(GenerationRecord record)
         {
-            Laboratory.Chimera.Diagnostics.DebugManager.Log($"Generation {record.generation} complete: Avg fitness {record.averageFitness:F3}, Diversity {record.geneticDiversity:F3}");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Generation {record.generation} complete: Avg fitness {record.averageFitness:F3}, Diversity {record.geneticDiversity:F3}");
 
             // Check for elite emergence
             if (record.maxFitness > analytics.bestFitnessEver)
@@ -305,7 +305,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
 
         private void HandleBreedingComplete(CreatureGenome parentA, CreatureGenome parentB, CreatureGenome offspring)
         {
-            Laboratory.Chimera.Diagnostics.DebugManager.Log($"Breeding complete: Parents (Gen {parentA.generation}, {parentB.generation}) → Offspring (Gen {offspring.generation}, Fitness {offspring.fitness:F3})");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Breeding complete: Parents (Gen {parentA.generation}, {parentB.generation}) → Offspring (Gen {offspring.generation}, Fitness {offspring.fitness:F3})");
 
             // Track successful breedings
             analytics.successfulBreedings++;
@@ -314,13 +314,13 @@ namespace Laboratory.Chimera.Genetics.Advanced
             if (offspring.fitness > Mathf.Max(parentA.fitness, parentB.fitness))
             {
                 analytics.fitnessImprovements++;
-                Laboratory.Chimera.Diagnostics.DebugManager.Log("Breeding resulted in fitness improvement!");
+                Laboratory.Core.Diagnostics.DebugManager.LogDebug("Breeding resulted in fitness improvement!");
             }
         }
 
         private void HandleEvolutionaryEvent(string eventMessage)
         {
-            Laboratory.Chimera.Diagnostics.DebugManager.Log($"Evolutionary event: {eventMessage}");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Evolutionary event: {eventMessage}");
 
             // Use circular buffer to prevent unbounded memory growth
             analytics.evolutionaryEvents.Add(new EvolutionaryEvent
@@ -364,11 +364,11 @@ namespace Laboratory.Chimera.Genetics.Advanced
             try
             {
                 System.IO.File.WriteAllText(filePath, jsonData);
-                Laboratory.Chimera.Diagnostics.DebugManager.Log($"Genetic data exported to: {filePath}");
+                Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Genetic data exported to: {filePath}");
             }
             catch (System.Exception ex)
             {
-                Laboratory.Chimera.Diagnostics.DebugManager.LogError($"Failed to export genetic data: {ex.Message}");
+                Laboratory.Core.Diagnostics.DebugManager.LogError($"Failed to export genetic data: {ex.Message}");
             }
         }
 
@@ -390,7 +390,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             }
             else
             {
-                Laboratory.Chimera.Diagnostics.DebugManager.LogWarning("Genetic Evolution Manager not available");
+                Laboratory.Core.Diagnostics.DebugManager.LogWarning("Genetic Evolution Manager not available");
             }
         }
 
@@ -400,11 +400,11 @@ namespace Laboratory.Chimera.Genetics.Advanced
             if (Application.isPlaying && Instance != null)
             {
                 var report = Instance.GenerateGlobalReport();
-                Laboratory.Chimera.Diagnostics.DebugManager.Log($"Population Report: {report.totalPopulationSize} creatures, {report.averageFitness:F3} avg fitness");
+                Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Population Report: {report.totalPopulationSize} creatures, {report.averageFitness:F3} avg fitness");
             }
             else
             {
-                Laboratory.Chimera.Diagnostics.DebugManager.LogWarning("Genetic Evolution Manager not available");
+                Laboratory.Core.Diagnostics.DebugManager.LogWarning("Genetic Evolution Manager not available");
             }
         }
     }
