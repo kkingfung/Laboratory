@@ -79,7 +79,7 @@ namespace Laboratory.AI.Testing
 
             // Add EnhancedAIAgent
             var enhancedAgent = testAgent.AddComponent<EnhancedAIAgent>();
-            enhancedAgent.SetAgentType(EnhancedAIAgent.AgentType.Medium);
+            enhancedAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Medium);
 
             // Test path request
             Vector3 destination = testDestination;

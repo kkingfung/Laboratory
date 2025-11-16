@@ -11,7 +11,7 @@ using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
 
-namespace Laboratory.Chimera.ECS
+namespace Laboratory.Chimera.Integration
 {
     /// <summary>
     /// INSTANT SCENE SETUP - Drop this MonoBehaviour into any scene for instant Chimera world

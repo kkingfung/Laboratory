@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Laboratory.Core.Configuration;
 
 namespace Laboratory.Core.Performance
 {
@@ -188,13 +187,13 @@ namespace Laboratory.Core.Performance
 
         private void LoadUpdateIntervals()
         {
-            var config = Config.Performance;
-
-            _updateIntervals[UpdateFrequency.EveryFrame] = 0f; // Always every frame
-            _updateIntervals[UpdateFrequency.HighFrequency] = config.GetUpdateInterval(Laboratory.Core.Configuration.UpdateFrequency.High);
-            _updateIntervals[UpdateFrequency.MediumFrequency] = config.GetUpdateInterval(Laboratory.Core.Configuration.UpdateFrequency.Medium);
-            _updateIntervals[UpdateFrequency.LowFrequency] = config.GetUpdateInterval(Laboratory.Core.Configuration.UpdateFrequency.Low);
-            _updateIntervals[UpdateFrequency.VeryLowFrequency] = config.GetUpdateInterval(Laboratory.Core.Configuration.UpdateFrequency.Background);
+            // Default update intervals optimized for performance
+            // These match typical game performance targets (60 FPS = 0.0167s, 30 FPS = 0.0333s, etc.)
+            _updateIntervals[UpdateFrequency.EveryFrame] = 0f;         // Every frame
+            _updateIntervals[UpdateFrequency.HighFrequency] = 0.0333f; // ~30 FPS (30 updates/sec)
+            _updateIntervals[UpdateFrequency.MediumFrequency] = 0.0667f; // ~15 FPS (15 updates/sec)
+            _updateIntervals[UpdateFrequency.LowFrequency] = 0.2f;     // 5 updates/sec
+            _updateIntervals[UpdateFrequency.VeryLowFrequency] = 1.0f; // 1 update/sec (background)
         }
 
         private bool ShouldUpdate(UpdateFrequency frequency)

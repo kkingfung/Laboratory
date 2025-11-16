@@ -30,10 +30,10 @@ namespace Laboratory.Chimera.Discovery.Systems
 
         public void OnCreate(ref SystemState state)
         {
-            _newCreatureQuery = SystemAPI.QueryBuilder()
-                .WithAll<VisualGeneticData>()
-                .WithNone<Laboratory.Chimera.Discovery.Core.DiscoveryEvent>()
-                .Build();
+            _newCreatureQuery = state.GetEntityQuery(
+                ComponentType.ReadOnly<VisualGeneticData>(),
+                ComponentType.Exclude<Laboratory.Chimera.Discovery.Core.DiscoveryEvent>()
+            );
 
             _geneticsLookup = SystemAPI.GetComponentLookup<VisualGeneticData>(true);
             _discoveryLookup = SystemAPI.GetComponentLookup<Laboratory.Chimera.Discovery.Core.DiscoveryEvent>(false);
@@ -131,8 +131,11 @@ namespace Laboratory.Chimera.Discovery.Systems
         public uint CurrentTime;
 
 
-        public void Execute(Entity entity, [EntityIndexInQuery] int entityInQueryIndex, in VisualGeneticData genetics)
+        public void Execute(Entity entity, [EntityIndexInQuery] int entityInQueryIndex)
         {
+            if (!GeneticsLookup.TryGetComponent(entity, out var genetics))
+                return;
+
             var discoveries = AnalyzeGenetics(entity, genetics);
 
             for (int i = 0; i < discoveries.Length; i++)

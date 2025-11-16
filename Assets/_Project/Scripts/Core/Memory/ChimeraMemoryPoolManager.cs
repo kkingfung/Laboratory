@@ -7,7 +7,6 @@ using Laboratory.Shared.Interfaces;
 using Laboratory.Compatibility;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using ProjectChimera.Core;
 
 namespace Laboratory.Core.Memory
 {

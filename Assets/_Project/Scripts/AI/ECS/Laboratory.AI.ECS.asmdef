@@ -9,7 +9,11 @@
         "Unity.Burst",
         "Unity.Transforms",
         "Laboratory.Core.Infrastructure",
-        "Laboratory.Shared"
+        "Laboratory.Core.Configuration",
+        "Laboratory.Core.ECS",
+        "Laboratory.Core.Events",
+        "Laboratory.Shared",
+        "Laboratory.AI.Pathfinding"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

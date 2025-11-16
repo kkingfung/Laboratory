@@ -6,7 +6,6 @@ using Laboratory.Core.MonsterTown;
 using Laboratory.Core.Configuration;
 using Laboratory.Core.Activities.Types;
 using Laboratory.Core.Equipment.Types;
-using ProjectChimera.Core;
 using EquipmentItem = Laboratory.Core.MonsterTown.Equipment;
 using ActivityType = Laboratory.Core.Activities.Types.ActivityType;
 using EquipmentRarity = Laboratory.Core.Equipment.Types.EquipmentRarity;

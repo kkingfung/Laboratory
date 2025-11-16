@@ -139,9 +139,13 @@ namespace Laboratory.Models
         private void OnUnifiedDeathEvent(Laboratory.Core.Events.Messages.DeathEvent unifiedEvent)
         {
             // Forward to static MessageBus for systems still using it
-            // Note: Unified event doesn't have client IDs, so we can't forward to static MessageBus
-            // This migration path is disabled until we add client ID tracking to unified events
-            Debug.LogWarning("EventSystemBridge: OnUnifiedDeathEvent called but cannot forward to static MessageBus (no client ID tracking)");
+            // Note: Unified DeathEvent doesn't contain client IDs, so we can't create a complete static event
+            // This is a limitation of the event bridge - consider enhancing the unified DeathEvent class
+            if (unifiedEvent.Target != null)
+            {
+                Debug.LogWarning($"EventSystemBridge: Cannot fully convert unified DeathEvent to static format - missing client ID data");
+                // Could create a default static event here if needed
+            }
         }
 
         #endregion

@@ -8,9 +8,9 @@ using Unity.Jobs;
 using Unity.Profiling;
 using System.Collections;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Core.ECS;
 using Laboratory.Subsystems.Monitoring;
 using Unity.Transforms;
-using Laboratory.Core.ECS;
 
 namespace Laboratory.Subsystems.Performance
 {

@@ -5,7 +5,6 @@ using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using R3;
 using UnityEngine;
-using GameState = Laboratory.Core.Events.Messages.GameState;
 
 #nullable enable
 
@@ -164,10 +163,14 @@ namespace Laboratory.Core.State
             _isTransitioning = true;
             var previousState = _currentState;
 
+            // Convert Laboratory.Core.State.GameState to Laboratory.Core.Events.Messages.GameState once
+            var eventPreviousState = (Laboratory.Core.Events.Messages.GameState)(int)previousState;
+            var eventTargetState = (Laboratory.Core.Events.Messages.GameState)(int)targetState;
+
             try
             {
                 // Publish transition request event
-                var requestEvent = new GameStateChangeRequestedEvent(previousState, targetState, context);
+                var requestEvent = new GameStateChangeRequestedEvent(eventPreviousState, eventTargetState, context);
                 _eventBus.Publish(requestEvent);
 
                 // Exit current state
@@ -187,9 +190,6 @@ namespace Laboratory.Core.State
                 }
 
                 // Publish state changed event
-                // Convert Laboratory.Core.State.GameState to Laboratory.Core.Events.Messages.GameState
-                var eventPreviousState = (Laboratory.Core.Events.Messages.GameState)(int)previousState;
-                var eventTargetState = (Laboratory.Core.Events.Messages.GameState)(int)targetState;
                 var changedEvent = new GameStateChangedEvent(eventPreviousState, eventTargetState);
                 _stateChangeSubject.OnNext(changedEvent);
                 _eventBus.Publish(changedEvent);
@@ -237,7 +237,9 @@ namespace Laboratory.Core.State
         private void OnStateChangeRequested(GameStateChangeRequestedEvent requestEvent)
         {
             // Handle external state change requests asynchronously
-            RequestTransitionAsync(requestEvent.ToState, requestEvent.Context).Forget();
+            // Convert Laboratory.Core.Events.Messages.GameState to Laboratory.Core.State.GameState
+            var localTargetState = (GameState)(int)requestEvent.ToState;
+            RequestTransitionAsync(localTargetState, requestEvent.Context).Forget();
         }
 
         private bool IsValidGlobalTransition(GameState from, GameState to)

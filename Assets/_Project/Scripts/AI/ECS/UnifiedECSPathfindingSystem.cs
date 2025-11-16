@@ -8,7 +8,6 @@ using Unity.Burst;
 using Unity.Burst.Intrinsics;
 using UnityEngine;
 using Laboratory.AI.Pathfinding;
-using Laboratory.Core.ECS.Components;
 
 namespace Laboratory.AI.ECS
 {

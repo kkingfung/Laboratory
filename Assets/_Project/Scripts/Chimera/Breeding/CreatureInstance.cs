@@ -163,11 +163,16 @@ namespace Laboratory.Chimera.Breeding
         public int GetEffectiveHealth()
         {
             if (definition == null) return 100;
-            
+
             var stats = definition.baseStats;
+            // TODO: Apply genetic modifiers when circular dependency is resolved
+            // Currently commented out due to circular dependency between Genetics and Creatures assemblies
+            // Solution: Move ApplyModifiers to a bridge class in a separate assembly
+            /*
             if (geneticProfile != null)
                 stats = geneticProfile.ApplyModifiers(stats);
-                
+            */
+
             return Mathf.RoundToInt(stats.health * (1f + (level - 1) * 0.05f));
         }
         

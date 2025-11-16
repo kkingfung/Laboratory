@@ -9,8 +9,7 @@
         "Unity.Jobs",
         "Unity.Burst",
         "Laboratory.Core",
-        "Laboratory.Core.Infrastructure",
-        "Laboratory.Core.Configuration"
+        "Laboratory.Core.Infrastructure"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

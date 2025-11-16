@@ -7,6 +7,7 @@ using Laboratory.Core.Infrastructure;
 using Laboratory.Core.State;
 using Laboratory.Core.Events.Messages;
 using R3;
+using GameState = Laboratory.Core.State.GameState;
 
 namespace Laboratory.Core.GameModes
 {
@@ -264,7 +265,9 @@ namespace Laboratory.Core.GameModes
         private void OnGameStateChanged(GameStateChangedEvent evt)
         {
             // Handle transitions back to main menu, pause, etc.
-            if (evt.CurrentState == GameState.MainMenu || evt.CurrentState == GameState.Paused)
+            // Note: evt.CurrentState is Laboratory.Core.Events.Messages.GameState
+            if (evt.CurrentState == Laboratory.Core.Events.Messages.GameState.MainMenu ||
+                evt.CurrentState == Laboratory.Core.Events.Messages.GameState.Paused)
             {
                 // Optionally deactivate current genre mode
             }

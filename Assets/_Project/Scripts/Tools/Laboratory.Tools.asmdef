@@ -2,12 +2,15 @@
     "name": "Laboratory.Tools",
     "rootNamespace": "Laboratory.Tools",
     "references": [
+        "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
+        "Laboratory.Core.Performance",
         "Laboratory.Shared",
         "Unity.Collections",
         "Unity.Mathematics",
-        "Laboratory.Core.Performance"
+        "Unity.Addressables",
+        "UniRx"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -12,8 +12,13 @@
         "UniTask",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
+        "Laboratory.Core.ECS",
         "Laboratory.Shared",
-        "Laboratory.Models"
+        "Laboratory.Models",
+        "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.Breeding",
+        "Laboratory.Chimera.Genetics",
+        "Laboratory.Chimera.Creatures"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

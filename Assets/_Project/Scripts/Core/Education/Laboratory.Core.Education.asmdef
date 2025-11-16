@@ -1,0 +1,23 @@
+{
+    "name": "Laboratory.Core.Education",
+    "rootNamespace": "Laboratory.Core.Education",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.TextMeshPro",
+        "Laboratory.Core",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.MonsterTown",
+        "Laboratory.Core.Activities"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -7,7 +7,6 @@ using Unity.Transforms;
 using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Core;
-using Laboratory.Core.Configuration;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Core;
 

@@ -193,9 +193,7 @@ namespace Laboratory.Core.Equipment
         {
             equippedCreatureQuery = GetEntityQuery(new ComponentType[]
             {
-                ComponentType.ReadWrite<CreatureEquipmentComponent>(),
-                ComponentType.ReadOnly<GeneticDataComponent>(),
-                ComponentType.ReadOnly<ActivityParticipantComponent>()
+                ComponentType.ReadWrite<CreatureEquipmentComponent>()
             });
 
             equipmentQuery = GetEntityQuery(new ComponentType[]
@@ -233,9 +231,7 @@ namespace Laboratory.Core.Equipment
     {
         public float DeltaTime;
 
-        public void Execute(ref CreatureEquipmentComponent equipment,
-            RefRO<GeneticDataComponent> genetics,
-            RefRO<ActivityParticipantComponent> activity)
+        public void Execute(ref CreatureEquipmentComponent equipment)
         {
             // Calculate total equipment bonuses
             float totalStatBonus = 0f;
@@ -469,13 +465,13 @@ namespace Laboratory.Core.Equipment
         {
             // Apply equipment bonuses to activity performance
             foreach (var (participant, equipment, entity) in
-                SystemAPI.Query<RefRW<ActivityParticipantComponent>, RefRO<CreatureEquipmentComponent>>().WithEntityAccess())
+                SystemAPI.Query<RefRW<Laboratory.Core.Activities.Components.ActivityParticipantComponent>, RefRO<CreatureEquipmentComponent>>().WithEntityAccess())
             {
-                if (participant.ValueRO.Status != ActivityStatus.Active)
+                if (participant.ValueRO.Status != Laboratory.Core.Activities.Types.ActivityStatus.Active)
                     continue;
 
                 // Calculate activity-specific equipment bonuses
-                float equipmentBonus = CalculateActivityBonus(participant.ValueRO.CurrentActivity, equipment.ValueRO);
+                float equipmentBonus = CalculateActivityBonus(ConvertActivityType(participant.ValueRO.CurrentActivity), equipment.ValueRO);
 
                 // Apply equipment bonus to performance
                 float basePerformance = participant.ValueRO.PerformanceScore;
@@ -483,6 +479,11 @@ namespace Laboratory.Core.Equipment
 
                 participant.ValueRW.PerformanceScore = math.clamp(enhancedPerformance, 0.1f, 3.0f);
             }
+        }
+
+        private ActivityType ConvertActivityType(ActivityType activityType)
+        {
+            return activityType;
         }
 
         private float CalculateActivityBonus(ActivityType activity, CreatureEquipmentComponent equipment)

@@ -1,0 +1,24 @@
+{
+    "name": "Laboratory.Chimera.Ecosystem",
+    "rootNamespace": "Laboratory.Chimera.Ecosystem",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Enums",
+        "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.Genetics",
+        "Laboratory.Shared"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

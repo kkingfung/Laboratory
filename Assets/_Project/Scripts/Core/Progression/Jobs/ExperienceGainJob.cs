@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Burst;
+using Unity.Collections;
 using Laboratory.Core.Progression.Components;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Core.Activities.Components;
@@ -15,13 +16,19 @@ namespace Laboratory.Core.Progression.Jobs
     {
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
         public float CurrentTime;
+        [ReadOnly] public ComponentLookup<ActivityParticipantComponent> ActivityLookup;
+        [ReadOnly] public ComponentLookup<GeneticDataComponent> GeneticsLookup;
 
         public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity,
             ref CreatureProgressionComponent progression,
-            ref CreatureSkillsComponent skills,
-            in ActivityParticipantComponent activity,
-            in GeneticDataComponent genetics)
+            ref CreatureSkillsComponent skills)
         {
+            // Get activity and genetics components via lookup
+            if (!ActivityLookup.TryGetComponent(entity, out var activity))
+                return;
+
+            var genetics = GeneticsLookup.HasComponent(entity) ? GeneticsLookup[entity] : default;
+
             // Process experience gain from completed activities
             if (activity.Status == ActivityStatus.Completed && activity.ExperienceGained > 0)
             {

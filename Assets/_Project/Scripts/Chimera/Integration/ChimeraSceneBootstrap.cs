@@ -6,13 +6,14 @@ using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Core;
+using Laboratory.Chimera.ECS;
 using Laboratory.Core.Events;
 using Laboratory.Core.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Shared.Types;
 
-namespace Laboratory.Chimera.ECS
+namespace Laboratory.Chimera.Integration
 {
     /// <summary>
     /// Scene bootstrap for Project Chimera - sets up complete creature ecosystem in any scene.
@@ -496,7 +497,7 @@ namespace Laboratory.Chimera.ECS
             {
                 AgeInDays = instance.AgeInDays,
                 IsAdult = instance.AgeInDays >= 30,
-                LifeStage = Laboratory.Chimera.ECS.LifeStage.Adult
+                LifeStage = LifeStage.Adult
             };
             var behaviorComp = new CreatureBehaviorComponent
             {

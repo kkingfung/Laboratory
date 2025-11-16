@@ -11,12 +11,12 @@ namespace Laboratory.Chimera.Breeding
     /// System managing the breeding of chimera creatures
     /// Handles genetic combinations, trait inheritance, and offspring generation
     /// </summary>
-    public class ChimeraBreedingSystem : SystemBase
+    public partial class ChimeraBreedingSystem : SystemBase
     {
         #region Fields
 
         private readonly Dictionary<uint, BreedingRequest> _activeBreedingRequests = new Dictionary<uint, BreedingRequest>();
-        private readonly List<BreedingResult> _completedBreedings = new List<BreedingResult>();
+        private readonly List<ECSBreedingResult> _completedBreedings = new List<ECSBreedingResult>();
 
         #endregion
 
@@ -39,11 +39,11 @@ namespace Laboratory.Chimera.Breeding
         /// <summary>
         /// Initiate breeding between two creatures
         /// </summary>
-        public BreedingResult StartBreeding(CreatureInstanceComponent parent1, CreatureInstanceComponent parent2)
+        public ECSBreedingResult StartBreeding(CreatureInstanceComponent parent1, CreatureInstanceComponent parent2)
         {
             if (!CanBreed(parent1, parent2))
             {
-                return new BreedingResult { Success = false, ErrorMessage = "Creatures cannot breed" };
+                return new ECSBreedingResult { Success = false, ErrorMessage = "Creatures cannot breed" };
             }
 
             var request = new BreedingRequest
@@ -51,13 +51,13 @@ namespace Laboratory.Chimera.Breeding
                 RequestId = (uint)UnityEngine.Random.Range(1000, 999999),
                 Parent1 = parent1,
                 Parent2 = parent2,
-                StartTime = Time.time,
+                StartTime = (float)SystemAPI.Time.ElapsedTime,
                 Duration = CalculateBreedingDuration(parent1, parent2)
             };
 
             _activeBreedingRequests[request.RequestId] = request;
 
-            return new BreedingResult
+            return new ECSBreedingResult
             {
                 Success = true,
                 RequestId = request.RequestId,
@@ -120,7 +120,7 @@ namespace Laboratory.Chimera.Breeding
             {
                 var request = kvp.Value;
 
-                if (Time.time >= request.StartTime + request.Duration)
+                if ((float)SystemAPI.Time.ElapsedTime >= request.StartTime + request.Duration)
                 {
                     var result = CompleteBreeding(request);
                     _completedBreedings.Add(result);
@@ -134,17 +134,17 @@ namespace Laboratory.Chimera.Breeding
             }
         }
 
-        private BreedingResult CompleteBreeding(BreedingRequest request)
+        private ECSBreedingResult CompleteBreeding(BreedingRequest request)
         {
             // Generate offspring based on parents
             var offspring = GenerateOffspring(request.Parent1, request.Parent2);
 
-            return new BreedingResult
+            return new ECSBreedingResult
             {
                 Success = true,
                 RequestId = request.RequestId,
                 Offspring = offspring,
-                CompletedAt = Time.time
+                CompletedAt = (float)SystemAPI.Time.ElapsedTime
             };
         }
 
@@ -168,7 +168,7 @@ namespace Laboratory.Chimera.Breeding
                 IsAlive = true,
                 IsOwned = parent1.IsOwned || parent2.IsOwned,
                 OwnerId = parent1.IsOwned ? parent1.OwnerId : parent2.OwnerId,
-                CreationTime = Time.timeAsDouble
+                CreationTime = SystemAPI.Time.ElapsedTime
             };
         }
 
@@ -198,10 +198,10 @@ namespace Laboratory.Chimera.Breeding
     }
 
     /// <summary>
-    /// Breeding result data
+    /// ECS breeding result data (internal use only)
     /// </summary>
     [System.Serializable]
-    public struct BreedingResult
+    public struct ECSBreedingResult
     {
         public bool Success;
         public uint RequestId;

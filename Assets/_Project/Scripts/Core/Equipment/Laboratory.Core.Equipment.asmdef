@@ -1,0 +1,26 @@
+{
+    "name": "Laboratory.Core.Equipment",
+    "rootNamespace": "Laboratory.Core.Equipment",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Burst",
+        "Laboratory.Core",
+        "Laboratory.Core.ECS",
+        "Laboratory.Core.Configuration",
+        "Laboratory.Core.Activities",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Enums"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

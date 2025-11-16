@@ -494,7 +494,7 @@ namespace Laboratory.AI.Agents
             currentDestination = destination;
             preferredMode = mode;
             status = PathfindingStatus.Computing;
-            RequestPathFromSystem();
+            RequestNewPath();
         }
 
         public void CancelPath()

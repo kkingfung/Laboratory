@@ -9,11 +9,15 @@
         "Unity.Burst",
         "Unity.Transforms",
         "Unity.Physics",
+        "Unity.TextMeshPro",
         "R3.Unity",
         "UniTask",
         "Laboratory.Core.Events",
         "Laboratory.Core.Health",
-        "Laboratory.Core.Activities"
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.State",
+        "Laboratory.Shared",
+        "Laboratory.Compatibility"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Laboratory.Core.Performance;
+using Laboratory.Core.Utilities;
 
 namespace Laboratory.Tools
 {
@@ -9,7 +10,7 @@ namespace Laboratory.Tools
     /// including frames per second (FPS), frame time, and memory usage.
     /// Automatically updates the UI with smoothed performance data.
     /// </summary>
-    public class PerformanceOverlay : MonoBehaviour
+    public class PerformanceOverlay : OptimizedMonoBehaviour
     {
         #region Serialized Fields
 

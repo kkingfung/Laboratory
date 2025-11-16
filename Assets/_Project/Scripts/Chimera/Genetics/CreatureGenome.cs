@@ -61,15 +61,28 @@ namespace Laboratory.Chimera.Genetics
         /// </summary>
         public TraitExpression[] GetExpressedTraits()
         {
-            return GeneticProfile?.TraitExpressions ?? new TraitExpression[0];
+            if (GeneticProfile == null)
+                return new TraitExpression[0];
+
+            var traitDict = GeneticProfile.TraitExpressions;
+            if (traitDict == null)
+                return new TraitExpression[0];
+
+            var traits = new TraitExpression[traitDict.Count];
+            int index = 0;
+            foreach (var kvp in traitDict)
+            {
+                traits[index++] = kvp.Value;
+            }
+            return traits;
         }
 
         /// <summary>
         /// Check if genome has a specific mutation
         /// </summary>
-        public bool HasMutation(int mutationId)
+        public bool HasMutation(string mutationId)
         {
-            return Mutations.Exists(m => m.MutationId == mutationId);
+            return Mutations.Exists(m => m.mutationId == mutationId);
         }
     }
 

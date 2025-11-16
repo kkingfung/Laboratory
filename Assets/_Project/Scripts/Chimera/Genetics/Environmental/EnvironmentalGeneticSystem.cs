@@ -160,10 +160,14 @@ namespace Laboratory.Chimera.Genetics.Environmental
             // Process environmental genetic adaptations
             Entities
                 .WithAll<EnvironmentalGeneticComponent>()
-                .ForEach((Entity entity, ref EnvironmentalGeneticComponent envGenetic, ref GeneticModifiersComponent genetics,
-                    in Unity.Transforms.LocalTransform transform, in DynamicBuffer<EnvironmentalTriggerComponent> triggers,
+                .ForEach((Entity entity, ref EnvironmentalGeneticComponent envGenetic,
+                    in DynamicBuffer<EnvironmentalTriggerComponent> triggers,
                     in DynamicBuffer<DynamicTraitExpressionComponent> expressions) =>
                 {
+                    // Get components that can't be in ForEach parameters
+                    var transform = EntityManager.GetComponentData<Unity.Transforms.LocalTransform>(entity);
+                    var genetics = EntityManager.GetComponentData<GeneticModifiersComponent>(entity);
+
                     // Update environmental conditions
                     UpdateEnvironmentalConditions(entity, ref envGenetic, transform.Position);
 
@@ -175,6 +179,9 @@ namespace Laboratory.Chimera.Genetics.Environmental
 
                     // Handle adaptation process
                     ProcessAdaptation(entity, ref envGenetic, ref genetics, currentTime, deltaTime);
+
+                    // Write back modified genetics component
+                    EntityManager.SetComponentData(entity, genetics);
 
                 }).WithoutBurst().Run(); // WithoutBurst for service access
         }

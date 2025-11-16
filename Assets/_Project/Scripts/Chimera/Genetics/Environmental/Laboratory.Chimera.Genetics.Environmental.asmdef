@@ -7,9 +7,14 @@
         "Unity.Mathematics",
         "Unity.Jobs",
         "Unity.Burst",
+        "Unity.Transforms",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
-        "Laboratory.Shared"
+        "Laboratory.Shared",
+        "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.Genetics",
+        "Laboratory.Chimera.ECS",
+        "Laboratory.AI.ECS"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

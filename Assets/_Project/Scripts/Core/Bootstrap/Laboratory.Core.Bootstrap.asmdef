@@ -1,0 +1,25 @@
+{
+    "name": "Laboratory.Core.Bootstrap",
+    "rootNamespace": "Laboratory.Core.Bootstrap",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Burst",
+        "UniTask",
+        "Laboratory.Core",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Configuration",
+        "Laboratory.Core.State",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Services"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

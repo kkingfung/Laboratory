@@ -1,0 +1,26 @@
+{
+    "name": "Laboratory.Core.Economy",
+    "rootNamespace": "Laboratory.Core.Economy",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.TextMeshPro",
+        "Laboratory.Core",
+        "Laboratory.Core.ECS",
+        "Laboratory.Core.Equipment",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
+        "Laboratory.Core.Enums",
+        "Laboratory.Core.MonsterTown"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

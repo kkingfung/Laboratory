@@ -4,6 +4,11 @@
     "references": [
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
+        "Laboratory.Core.Progression",
+        "Laboratory.Core.Configuration",
+        "Laboratory.Economy",
+        "Laboratory.Networking",
+        "Laboratory.Subsystems",
         "Laboratory.Models",
         "Laboratory.Shared",
         "Unity.Entities",

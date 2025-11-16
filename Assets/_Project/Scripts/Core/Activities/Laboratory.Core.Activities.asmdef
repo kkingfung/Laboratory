@@ -8,11 +8,12 @@
         "Unity.Jobs",
         "Unity.Burst",
         "Unity.Transforms",
+        "Laboratory.Core",
         "Laboratory.Core.ECS",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
         "Laboratory.Core.Enums",
-        "Laboratory.Chimera.ECS"
+        "Laboratory.Core.Configuration"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

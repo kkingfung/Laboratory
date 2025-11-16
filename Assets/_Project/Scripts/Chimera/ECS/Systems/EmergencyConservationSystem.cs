@@ -102,7 +102,7 @@ namespace Laboratory.Chimera.ECS
             CheckConservationSuccesses();
         }
 
-        private void CheckForNewEmergencies()
+        void CheckForNewEmergencies()
         {
             using (s_CheckForNewEmergenciesMarker.Auto())
             {
@@ -126,44 +126,44 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void CheckPopulationEmergencies()
+        void CheckPopulationEmergencies()
         {
             using (s_CheckPopulationEmergenciesMarker.Auto())
             {
                 float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
-            Entities.WithAll<SpeciesPopulationData>().ForEach((Entity entity, ref SpeciesPopulationData populationData) =>
-            {
-                // Check for critical population decline
-                if (populationData.currentPopulation <= _config.criticalPopulationThreshold &&
-                    populationData.populationTrend < 0f &&
-                    !HasActiveEmergency(populationData.speciesId, EmergencyType.PopulationCollapse))
+                foreach (var (populationData, entity) in SystemAPI.Query<RefRO<SpeciesPopulationData>>().WithEntityAccess())
                 {
-                    var emergency = EmergencyCreationService.CreatePopulationEmergency(_config, populationData, currentTime);
-                    AddEmergency(emergency);
-                }
+                    // Check for critical population decline
+                    if (populationData.ValueRO.currentPopulation <= _config.criticalPopulationThreshold &&
+                        populationData.ValueRO.populationTrend < 0f &&
+                        !HasActiveEmergency(populationData.ValueRO.speciesId, EmergencyType.PopulationCollapse))
+                    {
+                        var emergency = EmergencyCreationService.CreatePopulationEmergency(_config, populationData.ValueRO, currentTime);
+                        AddEmergency(emergency);
+                    }
 
-                // Check for breeding failure
-                if (populationData.reproductiveSuccess < _config.breedingFailureThreshold &&
-                    populationData.breedingAge > _config.breedingAgeThreshold &&
-                    !HasActiveEmergency(populationData.speciesId, EmergencyType.BreedingFailure))
-                {
-                    var emergency = EmergencyCreationService.CreateBreedingEmergency(_config, populationData, currentTime);
-                    AddEmergency(emergency);
-                }
+                    // Check for breeding failure
+                    if (populationData.ValueRO.reproductiveSuccess < _config.breedingFailureThreshold &&
+                        populationData.ValueRO.breedingAge > _config.breedingAgeThreshold &&
+                        !HasActiveEmergency(populationData.ValueRO.speciesId, EmergencyType.BreedingFailure))
+                    {
+                        var emergency = EmergencyCreationService.CreateBreedingEmergency(_config, populationData.ValueRO, currentTime);
+                        AddEmergency(emergency);
+                    }
 
-                // Check for juvenile mortality crisis
-                if (populationData.juvenileSurvivalRate < _config.juvenileSurvivalThreshold &&
-                    !HasActiveEmergency(populationData.speciesId, EmergencyType.JuvenileMortality))
-                {
-                    var emergency = EmergencyCreationService.CreateJuvenileEmergency(_config, populationData, currentTime);
-                    AddEmergency(emergency);
+                    // Check for juvenile mortality crisis
+                    if (populationData.ValueRO.juvenileSurvivalRate < _config.juvenileSurvivalThreshold &&
+                        !HasActiveEmergency(populationData.ValueRO.speciesId, EmergencyType.JuvenileMortality))
+                    {
+                        var emergency = EmergencyCreationService.CreateJuvenileEmergency(_config, populationData.ValueRO, currentTime);
+                        AddEmergency(emergency);
+                    }
                 }
-            }).WithoutBurst().Run();
             }
         }
 
-        private void CheckEcosystemEmergencies()
+        void CheckEcosystemEmergencies()
         {
             using (s_CheckEcosystemEmergenciesMarker.Auto())
             {
@@ -199,72 +199,72 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void CheckGeneticDiversityEmergencies()
+        void CheckGeneticDiversityEmergencies()
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
-            Entities.WithAll<SpeciesPopulationData, CreatureGeneticsComponent>().ForEach((Entity entity, ref SpeciesPopulationData populationData, in CreatureGeneticsComponent genetics) =>
+            foreach (var (populationData, genetics, entity) in SystemAPI.Query<RefRO<SpeciesPopulationData>, RefRO<CreatureGeneticsComponent>>().WithEntityAccess())
             {
                 // Calculate genetic diversity
-                float geneticDiversity = CalculateGeneticDiversity(genetics, populationData);
+                float geneticDiversity = CalculateGeneticDiversity(genetics.ValueRO, populationData.ValueRO);
 
                 if (geneticDiversity < _config.geneticDiversityThreshold &&
-                    !HasActiveEmergency(populationData.speciesId, EmergencyType.GeneticBottleneck))
+                    !HasActiveEmergency(populationData.ValueRO.speciesId, EmergencyType.GeneticBottleneck))
                 {
-                    var emergency = EmergencyCreationService.CreateGeneticEmergency(_config, populationData, geneticDiversity, currentTime);
+                    var emergency = EmergencyCreationService.CreateGeneticEmergency(_config, populationData.ValueRO, geneticDiversity, currentTime);
                     AddEmergency(emergency);
                 }
-            }).WithoutBurst().Run();
+            }
         }
 
-        private void CheckHabitatEmergencies()
+        void CheckHabitatEmergencies()
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
             // Check for rapid habitat loss
-            Entities.WithAll<EcosystemData>().ForEach((Entity entity, ref EcosystemData ecosystemData) =>
+            foreach (var (ecosystemData, entity) in SystemAPI.Query<RefRO<EcosystemData>>().WithEntityAccess())
             {
-                if (ecosystemData.habitatLossRate > _config.habitatLossRateThreshold &&
-                    !HasActiveEmergency(ecosystemData.ecosystemId, EmergencyType.HabitatDestruction))
+                if (ecosystemData.ValueRO.habitatLossRate > _config.habitatLossRateThreshold &&
+                    !HasActiveEmergency(ecosystemData.ValueRO.ecosystemId, EmergencyType.HabitatDestruction))
                 {
-                    var emergency = EmergencyCreationService.CreateHabitatDestructionEmergency(_config, ecosystemData, currentTime);
+                    var emergency = EmergencyCreationService.CreateHabitatDestructionEmergency(_config, ecosystemData.ValueRO, currentTime);
                     AddEmergency(emergency);
                 }
-            }).WithoutBurst().Run();
+            }
         }
 
-        private void CheckDiseaseEmergencies()
+        void CheckDiseaseEmergencies()
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
-            Entities.WithAll<SpeciesPopulationData>().ForEach((Entity entity, ref SpeciesPopulationData populationData) =>
+            foreach (var (populationData, entity) in SystemAPI.Query<RefRO<SpeciesPopulationData>>().WithEntityAccess())
             {
-                if (populationData.diseasePrevalence > _config.diseaseOutbreakThreshold &&
-                    !HasActiveEmergency(populationData.speciesId, EmergencyType.DiseaseOutbreak))
+                if (populationData.ValueRO.diseasePrevalence > _config.diseaseOutbreakThreshold &&
+                    !HasActiveEmergency(populationData.ValueRO.speciesId, EmergencyType.DiseaseOutbreak))
                 {
-                    var emergency = EmergencyCreationService.CreateDiseaseEmergency(_config, populationData, currentTime);
+                    var emergency = EmergencyCreationService.CreateDiseaseEmergency(_config, populationData.ValueRO, currentTime);
                     AddEmergency(emergency);
                 }
-            }).WithoutBurst().Run();
+            }
         }
 
-        private void CheckClimateEmergencies()
+        void CheckClimateEmergencies()
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
             // Check for climate-related threats
-            Entities.WithAll<EcosystemData>().ForEach((Entity entity, ref EcosystemData ecosystemData) =>
+            foreach (var (ecosystemData, entity) in SystemAPI.Query<RefRO<EcosystemData>>().WithEntityAccess())
             {
-                if (ecosystemData.climateStressLevel > _config.climateStressThreshold &&
-                    !HasActiveEmergency(ecosystemData.ecosystemId, EmergencyType.ClimateChange))
+                if (ecosystemData.ValueRO.climateStressLevel > _config.climateStressThreshold &&
+                    !HasActiveEmergency(ecosystemData.ValueRO.ecosystemId, EmergencyType.ClimateChange))
                 {
-                    var emergency = EmergencyCreationService.CreateClimateEmergency(_config, ecosystemData, currentTime);
+                    var emergency = EmergencyCreationService.CreateClimateEmergency(_config, ecosystemData.ValueRO, currentTime);
                     AddEmergency(emergency);
                 }
-            }).WithoutBurst().Run();
+            }
         }
 
-        private void UpdateActiveEmergencies(float deltaTime)
+        void UpdateActiveEmergencies(float deltaTime)
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
@@ -294,7 +294,7 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void ProcessPlayerResponses(float deltaTime)
+        void ProcessPlayerResponses(float deltaTime)
         {
             foreach (var kvp in _playerResponses.ToList())
             {
@@ -314,19 +314,21 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void MonitorEcosystemHealth()
+        void MonitorEcosystemHealth()
         {
-            Entities.WithAll<EcosystemHealth>().ForEach((Entity entity, ref EcosystemHealth health) =>
+            foreach (var (health, entity) in SystemAPI.Query<RefRW<EcosystemHealth>>().WithEntityAccess())
             {
                 // Track health trends for early warning
-                UpdateHealthTrends(ref health);
+                var healthValue = health.ValueRW;
+                UpdateHealthTrends(ref healthValue);
+                health.ValueRW = healthValue;
 
                 // Check for early warning signs
-                CheckEarlyWarningSigns(entity, health);
-            }).WithoutBurst().Run();
+                CheckEarlyWarningSigns(entity, health.ValueRO);
+            }
         }
 
-        private void ProcessEmergencyEscalations(float deltaTime)
+        void ProcessEmergencyEscalations(float deltaTime)
         {
             foreach (var emergency in _activeEmergencies.Where(e => e.hasEscalated))
             {
@@ -334,27 +336,30 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void CheckConservationSuccesses()
+        void CheckConservationSuccesses()
         {
             float currentTime = (float)SystemAPI.Time.ElapsedTime;
 
             // Check for successful conservation outcomes
-            Entities.WithAll<SpeciesPopulationData>().ForEach((Entity entity, ref SpeciesPopulationData populationData) =>
+            foreach (var (populationData, entity) in SystemAPI.Query<RefRW<SpeciesPopulationData>>().WithEntityAccess())
             {
-                if (populationData.wasEndangered &&
-                    populationData.currentPopulation > _config.recoveryPopulationThreshold &&
-                    populationData.populationTrend > 0f)
+                if (populationData.ValueRO.wasEndangered &&
+                    populationData.ValueRO.currentPopulation > _config.recoveryPopulationThreshold &&
+                    populationData.ValueRO.populationTrend > 0f)
                 {
-                    var success = EmergencyResolutionService.CreateConservationSuccess(populationData, currentTime);
+                    var success = EmergencyResolutionService.CreateConservationSuccess(populationData.ValueRO, currentTime);
                     OnConservationSuccess?.Invoke(success);
-                    populationData.wasEndangered = false;
+
+                    var popData = populationData.ValueRW;
+                    popData.wasEndangered = false;
+                    populationData.ValueRW = popData;
                 }
-            }).WithoutBurst().Run();
+            }
         }
 
         #region Helper Methods
 
-        private void AddEmergency(ConservationEmergency emergency)
+        void AddEmergency(ConservationEmergency emergency)
         {
             _activeEmergencies.Add(emergency);
             OnEmergencyDeclared?.Invoke(emergency);
@@ -362,19 +367,19 @@ namespace Laboratory.Chimera.ECS
             UnityEngine.Debug.Log($"Conservation Emergency Declared: {emergency.title} (Severity: {emergency.severity})");
         }
 
-        private bool HasActiveEmergency(int targetId, EmergencyType type)
+        bool HasActiveEmergency(int targetId, EmergencyType type)
         {
             return _activeEmergencies.Any(e =>
                 e.type == type &&
                 (e.affectedSpeciesId == targetId || e.affectedEcosystemId == targetId));
         }
 
-        private int GenerateEmergencyId()
+        int GenerateEmergencyId()
         {
             return UnityEngine.Random.Range(100000, 999999);
         }
 
-        private float CalculateGeneticDiversity(in CreatureGeneticsComponent genetics, SpeciesPopulationData populationData)
+        float CalculateGeneticDiversity(in CreatureGeneticsComponent genetics, SpeciesPopulationData populationData)
         {
             // Calculate genetic diversity based on trait variety and population size
             float traitDiversity = genetics.ActiveGeneCount;
@@ -382,7 +387,7 @@ namespace Laboratory.Chimera.ECS
             return (traitDiversity * populationFactor) / 20f; // Normalized to 0-1
         }
 
-        private EmergencyAction[] GetRequiredActions(EmergencyType type)
+        EmergencyAction[] GetRequiredActions(EmergencyType type)
         {
             var ecosystemActions = _config.GetRequiredActions(type);
             var ecsActions = new EmergencyAction[ecosystemActions.Length];
@@ -395,7 +400,7 @@ namespace Laboratory.Chimera.ECS
             return ecsActions;
         }
 
-        private FixedList64Bytes<EmergencyActionType> GetRequiredActionTypes(EmergencyType type)
+        FixedList64Bytes<EmergencyActionType> GetRequiredActionTypes(EmergencyType type)
         {
             var actions = _config.GetRequiredActions(type);
             var actionTypes = new FixedList64Bytes<EmergencyActionType>();
@@ -406,7 +411,7 @@ namespace Laboratory.Chimera.ECS
             return actionTypes;
         }
 
-        private FixedList64Bytes<FixedString64Bytes> ConvertStringArrayToFixedList(string[] strings)
+        FixedList64Bytes<FixedString64Bytes> ConvertStringArrayToFixedList(string[] strings)
         {
             var fixedList = new FixedList64Bytes<FixedString64Bytes>();
             foreach (var str in strings)
@@ -419,7 +424,7 @@ namespace Laboratory.Chimera.ECS
             return fixedList;
         }
 
-        private FixedList32Bytes<RequirementType> GetSuccessRequirementTypes(SpeciesPopulationData populationData)
+        FixedList32Bytes<RequirementType> GetSuccessRequirementTypes(SpeciesPopulationData populationData)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.PopulationIncrease);
@@ -428,7 +433,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetBreedingSuccessRequirementTypes(SpeciesPopulationData populationData)
+        FixedList32Bytes<RequirementType> GetBreedingSuccessRequirementTypes(SpeciesPopulationData populationData)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.ReproductiveSuccess);
@@ -437,7 +442,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetJuvenileSuccessRequirementTypes(SpeciesPopulationData populationData)
+        FixedList32Bytes<RequirementType> GetJuvenileSuccessRequirementTypes(SpeciesPopulationData populationData)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.JuvenileSurvival);
@@ -445,7 +450,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetEcosystemSuccessRequirementTypes(EcosystemData ecosystemData, EcosystemHealth health)
+        FixedList32Bytes<RequirementType> GetEcosystemSuccessRequirementTypes(EcosystemData ecosystemData, EcosystemHealth health)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.EcosystemHealth);
@@ -454,7 +459,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetGeneticSuccessRequirementTypes(SpeciesPopulationData populationData, float diversity)
+        FixedList32Bytes<RequirementType> GetGeneticSuccessRequirementTypes(SpeciesPopulationData populationData, float diversity)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.PopulationIncrease);
@@ -462,7 +467,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetHabitatSuccessRequirementTypes(EcosystemData ecosystemData)
+        FixedList32Bytes<RequirementType> GetHabitatSuccessRequirementTypes(EcosystemData ecosystemData)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.HabitatProtection);
@@ -470,7 +475,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetDiseaseSuccessRequirementTypes(SpeciesPopulationData populationData)
+        FixedList32Bytes<RequirementType> GetDiseaseSuccessRequirementTypes(SpeciesPopulationData populationData)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.HealthMonitoring);
@@ -478,7 +483,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetClimateSuccessRequirementTypes(EcosystemData ecosystemData)
+        FixedList32Bytes<RequirementType> GetClimateSuccessRequirementTypes(EcosystemData ecosystemData)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.ClimateAdaptation);
@@ -487,7 +492,7 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private FixedList32Bytes<RequirementType> GetEscalatedRequirementTypes(ConservationEmergency emergency)
+        FixedList32Bytes<RequirementType> GetEscalatedRequirementTypes(ConservationEmergency emergency)
         {
             var requirementTypes = new FixedList32Bytes<RequirementType>();
             requirementTypes.Add(RequirementType.PopulationTarget);
@@ -496,13 +501,13 @@ namespace Laboratory.Chimera.ECS
             return requirementTypes;
         }
 
-        private void UpdateEmergencySeverity(ref ConservationEmergency emergency)
+        void UpdateEmergencySeverity(ref ConservationEmergency emergency)
         {
             // Update severity based on current conditions
             // This would check current population/ecosystem status
         }
 
-        private void ResolveEmergency(ConservationEmergency emergency, float currentTime)
+        void ResolveEmergency(ConservationEmergency emergency, float currentTime)
         {
             var playerContributions = GetPlayerContributionsForEmergency(emergency.emergencyId);
             var outcome = EmergencyResolutionService.CreateOutcome(emergency, playerContributions, currentTime);
@@ -516,7 +521,7 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private Dictionary<int, float> GetPlayerContributionsForEmergency(int emergencyId)
+        Dictionary<int, float> GetPlayerContributionsForEmergency(int emergencyId)
         {
             if (_emergencyPlayerContributions.TryGetValue(emergencyId, out var contributions))
             {
@@ -525,7 +530,7 @@ namespace Laboratory.Chimera.ECS
             return new Dictionary<int, float>();
         }
 
-        private void CompletePlayerResponse(int playerId, EmergencyResponse response)
+        void CompletePlayerResponse(int playerId, EmergencyResponse response)
         {
             OnPlayerResponseRecorded?.Invoke(playerId, response);
 
@@ -549,7 +554,7 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void UpdateHealthTrends(ref EcosystemHealth health)
+        void UpdateHealthTrends(ref EcosystemHealth health)
         {
             // Update health trend tracking for early warning
             health.healthHistory[health.historyIndex] = health.overallHealth;
@@ -560,7 +565,7 @@ namespace Laboratory.Chimera.ECS
             health.healthTrend = health.overallHealth - oldHealth;
         }
 
-        private void CheckEarlyWarningSigns(Entity entity, EcosystemHealth health)
+        void CheckEarlyWarningSigns(Entity entity, EcosystemHealth health)
         {
             // Check for patterns that indicate impending emergencies
             if (health.healthTrend < -0.05f && health.overallHealth < 0.8f)
@@ -570,19 +575,19 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private void IssueEarlyWarning(Entity entity, EcosystemHealth health)
+        void IssueEarlyWarning(Entity entity, EcosystemHealth health)
         {
             // Issue early warning notification
             UnityEngine.Debug.Log($"Early Warning: Ecosystem health declining rapidly (Current: {health.overallHealth:P1}, Trend: {health.healthTrend:F3})");
         }
 
-        private void ProcessEscalatedEmergency(ConservationEmergency emergency, float deltaTime)
+        void ProcessEscalatedEmergency(ConservationEmergency emergency, float deltaTime)
         {
             // Process escalated emergencies with more severe consequences
             // This might involve faster deterioration or additional requirements
         }
 
-        private EmergencyAction ConvertToECSEmergencyAction(Laboratory.Chimera.Ecosystem.EmergencyAction ecosystemAction)
+        EmergencyAction ConvertToECSEmergencyAction(Laboratory.Chimera.Ecosystem.EmergencyAction ecosystemAction)
         {
             return new EmergencyAction
             {
@@ -596,7 +601,7 @@ namespace Laboratory.Chimera.ECS
             };
         }
 
-        private FixedList128Bytes<PlayerContribution> ConvertPlayerContributionsToFixedList(Dictionary<int, float> contributions)
+        FixedList128Bytes<PlayerContribution> ConvertPlayerContributionsToFixedList(Dictionary<int, float> contributions)
         {
             var fixedList = new FixedList128Bytes<PlayerContribution>();
             foreach (var kvp in contributions)
@@ -609,7 +614,7 @@ namespace Laboratory.Chimera.ECS
             return fixedList;
         }
 
-        private FixedList64Bytes<FixedString128Bytes> ConvertStringArrayToFixedList128(string[] strings)
+        FixedList64Bytes<FixedString128Bytes> ConvertStringArrayToFixedList128(string[] strings)
         {
             var fixedList = new FixedList64Bytes<FixedString128Bytes>();
             if (strings != null)
@@ -622,7 +627,7 @@ namespace Laboratory.Chimera.ECS
             return fixedList;
         }
 
-        private FixedList32Bytes<FixedString64Bytes> ConvertStringArrayToFixedList32(string[] strings)
+        FixedList32Bytes<FixedString64Bytes> ConvertStringArrayToFixedList32(string[] strings)
         {
             var fixedList = new FixedList32Bytes<FixedString64Bytes>();
             if (strings != null)
@@ -639,7 +644,7 @@ namespace Laboratory.Chimera.ECS
 
         #region Public Methods for Player Interaction
 
-        public void StartEmergencyResponse(int playerId, int emergencyId, EmergencyActionType actionType, float resourceCommitment)
+        void StartEmergencyResponse(int playerId, int emergencyId, EmergencyActionType actionType, float resourceCommitment)
         {
             var emergency = _activeEmergencies.FirstOrDefault(e => e.emergencyId == emergencyId);
             if (emergency.emergencyId == 0)
@@ -667,22 +672,22 @@ namespace Laboratory.Chimera.ECS
             UnityEngine.Debug.Log($"Player {playerId} started response to emergency {emergencyId}");
         }
 
-        public ConservationEmergency[] GetActiveEmergencies()
+        ConservationEmergency[] GetActiveEmergencies()
         {
             return _activeEmergencies.ToArray();
         }
 
-        public ConservationEmergency[] GetEmergenciesByType(EmergencyType type)
+        ConservationEmergency[] GetEmergenciesByType(EmergencyType type)
         {
             return _activeEmergencies.Where(e => e.type == type).ToArray();
         }
 
-        public ConservationEmergency[] GetEmergenciesBySeverity(EmergencySeverity severity)
+        ConservationEmergency[] GetEmergenciesBySeverity(EmergencySeverity severity)
         {
             return _activeEmergencies.Where(e => e.severity == severity).ToArray();
         }
 
-        public EmergencyResponse GetPlayerResponse(int playerId)
+        EmergencyResponse GetPlayerResponse(int playerId)
         {
             return _playerResponses.ContainsKey(playerId) ? _playerResponses[playerId] : default;
         }
@@ -878,4 +883,5 @@ namespace Laboratory.Chimera.ECS
     }
 
     #endregion
+    }
 }

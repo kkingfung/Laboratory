@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
+using Laboratory.Core.Utilities;
 
 namespace Laboratory.Tools
 {
@@ -21,79 +22,114 @@ namespace Laboratory.Tools
         private readonly Text _logText;
 
         /// <summary>
-        /// Input field for user command entry.
+        /// UI InputField component for command input.
         /// </summary>
-        private readonly InputField _inputField;
+        private readonly InputField _commandInputField;
 
         /// <summary>
-        /// Scroll rect component for automatic scrolling to latest logs.
+        /// Maximum number of log entries to retain.
         /// </summary>
-        private readonly ScrollRect _scrollRect;
+        private readonly int _maxLogEntries;
 
         /// <summary>
-        /// Collection of logged messages with automatic capacity management.
+        /// List of stored log messages.
         /// </summary>
-        private readonly List<string> _logEntries = new();
+        private readonly List<string> _logEntries;
 
         /// <summary>
-        /// Maximum number of log entries to retain in memory.
+        /// Subscription to Unity's log events.
         /// </summary>
-        private readonly int _maxEntries = 100;
-
-        /// <summary>
-        /// Disposable container for managing subscriptions and resources.
-        /// </summary>
-        private readonly CompositeDisposable _disposables = new();
+        private IDisposable _logSubscription;
 
         #endregion
 
-        #region Events
+        #region Initialization
 
         /// <summary>
-        /// Event raised when a command is submitted via the input field.
-        /// Subscribers can handle command processing and execution.
+        /// Initializes a new instance of the <see cref="DebugConsole"/> class.
         /// </summary>
-        public event Action<string> OnCommandEntered;
-
-        #endregion
-
-        #region Constructor
-
-        /// <summary>
-        /// Initializes a new instance of the DebugConsole class.
-        /// </summary>
-        /// <param name="logText">The text component for displaying log messages.</param>
-        /// <param name="inputField">The input field for command entry.</param>
-        /// <param name="scrollRect">The scroll rect for automatic scrolling.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any parameter is null.</exception>
-        public DebugConsole(Text logText, InputField inputField, ScrollRect scrollRect)
+        /// <param name="logText">The Text component for displaying logs.</param>
+        /// <param name="commandInputField">The InputField for command entry.</param>
+        /// <param name="maxLogEntries">Maximum log entries to retain. Default is 100.</param>
+        public DebugConsole(Text logText, InputField commandInputField, int maxLogEntries = 100)
         {
-            _logText = logText ?? throw new ArgumentNullException(nameof(logText));
-            _inputField = inputField ?? throw new ArgumentNullException(nameof(inputField));
-            _scrollRect = scrollRect ?? throw new ArgumentNullException(nameof(scrollRect));
+            _logText = logText;
+            _commandInputField = commandInputField;
+            _maxLogEntries = maxLogEntries;
+            _logEntries = new List<string>(_maxLogEntries);
 
-            Initialize();
+            InitializeCommandInput();
+            SubscribeToUnityLogs();
+        }
+
+        /// <summary>
+        /// Sets up the command input field event handlers.
+        /// </summary>
+        private void InitializeCommandInput()
+        {
+            if (_commandInputField == null) return;
+
+            _commandInputField.onEndEdit.AddListener(OnCommandSubmit);
+        }
+
+        /// <summary>
+        /// Subscribes to Unity's log output for automatic display.
+        /// </summary>
+        private void SubscribeToUnityLogs()
+        {
+            Application.logMessageReceived += HandleUnityLog;
         }
 
         #endregion
 
-        #region Public Methods
+        #region Logging
 
         /// <summary>
-        /// Adds a message to the console log with automatic scrolling and capacity management.
+        /// Adds a log entry to the console.
         /// </summary>
-        /// <param name="message">The message to add to the log.</param>
+        /// <param name="message">The message to log.</param>
         public void AddLogEntry(string message)
         {
             if (string.IsNullOrEmpty(message)) return;
 
-            if (_logEntries.Count >= _maxEntries)
+            _logEntries.Add(message);
+
+            // Remove oldest entries if limit exceeded
+            while (_logEntries.Count > _maxLogEntries)
             {
                 _logEntries.RemoveAt(0);
             }
 
-            _logEntries.Add(message);
             RefreshLogDisplay();
+        }
+
+        /// <summary>
+        /// Adds a log entry with a specified color.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="color">The color to display the message in.</param>
+        public void AddColoredLogEntry(string message, Color color)
+        {
+            string coloredMessage = $"<color=#{ColorUtility.ToHtmlStringRGB(color)}>{message}</color>";
+            AddLogEntry(coloredMessage);
+        }
+
+        /// <summary>
+        /// Logs a message with a specific log type color.
+        /// </summary>
+        /// <param name="message">The message to log.</param>
+        /// <param name="logType">The log type (Info, Warning, Error).</param>
+        public void Log(string message, LogType logType = LogType.Log)
+        {
+            Color color = logType switch
+            {
+                LogType.Error => Color.red,
+                LogType.Warning => Color.yellow,
+                LogType.Exception => Color.magenta,
+                _ => Color.white
+            };
+
+            AddColoredLogEntry(message, color);
         }
 
         /// <summary>
@@ -107,80 +143,68 @@ namespace Laboratory.Tools
 
         #endregion
 
-        #region IDisposable Implementation
+        #region Command Handling
 
         /// <summary>
-        /// Releases all resources used by the DebugConsole.
-        /// Unsubscribes from Unity log events and disposes of managed resources.
+        /// Handles command submission from the input field.
         /// </summary>
-        public void Dispose()
+        /// <param name="command">The submitted command.</param>
+        private void OnCommandSubmit(string command)
         {
-            Application.logMessageReceived -= HandleUnityLog;
-            _disposables.Dispose();
-        }
+            if (string.IsNullOrWhiteSpace(command)) return;
 
-        #endregion
+            AddLogEntry($"> {command}");
+            ProcessCommand(command);
 
-        #region Private Methods
-
-        /// <summary>
-        /// Initializes the debug console by setting up input handling and Unity log subscription.
-        /// </summary>
-        private void Initialize()
-        {
-            SetupInputHandling();
-            SubscribeToUnityLog();
-        }
-
-        /// <summary>
-        /// Configures input field event handling for command submission.
-        /// </summary>
-        private void SetupInputHandling()
-        {
-            _inputField.onEndEdit.AddListener(HandleInputSubmission);
-        }
-
-        /// <summary>
-        /// Handles input field submission and processes commands.
-        /// </summary>
-        /// <param name="inputText">The text entered in the input field.</param>
-        private void HandleInputSubmission(string inputText)
-        {
-            if (UnityEngine.Input.GetKeyDown(KeyCode.Return) || UnityEngine.Input.GetKeyDown(KeyCode.KeypadEnter))
+            // Clear input field
+            if (_commandInputField != null)
             {
-                ProcessCommand(inputText);
+                _commandInputField.text = "";
+                _commandInputField.ActivateInputField();
             }
         }
 
         /// <summary>
-        /// Processes and executes a submitted command.
+        /// Processes a console command.
         /// </summary>
-        /// <param name="command">The command string to process.</param>
+        /// <param name="command">The command to process.</param>
         private void ProcessCommand(string command)
         {
-            if (string.IsNullOrWhiteSpace(command)) return;
+            string[] parts = command.Split(' ');
+            string commandName = parts[0].ToLower();
 
-            // Echo the command in the log
-            AddLogEntry($"> {command}");
+            switch (commandName)
+            {
+                case "clear":
+                    ClearLog();
+                    break;
 
-            // Notify subscribers of the command
-            OnCommandEntered?.Invoke(command);
+                case "help":
+                    ShowHelp();
+                    break;
 
-            // Clear and refocus input field
-            _inputField.text = string.Empty;
-            _inputField.ActivateInputField();
+                default:
+                    AddLogEntry($"Unknown command: {commandName}");
+                    break;
+            }
         }
 
         /// <summary>
-        /// Subscribes to Unity's Application.logMessageReceived to display Unity logs.
+        /// Displays available commands.
         /// </summary>
-        private void SubscribeToUnityLog()
+        private void ShowHelp()
         {
-            Application.logMessageReceived += HandleUnityLog;
+            AddLogEntry("Available Commands:");
+            AddLogEntry("  clear - Clear console log");
+            AddLogEntry("  help  - Show this help message");
         }
 
+        #endregion
+
+        #region Unity Log Integration
+
         /// <summary>
-        /// Handles Unity log messages and formats them for console display.
+        /// Handles Unity log messages and forwards them to the console.
         /// </summary>
         /// <param name="condition">The log message content.</param>
         /// <param name="stackTrace">The stack trace information.</param>
@@ -204,25 +228,30 @@ namespace Laboratory.Tools
         /// </summary>
         private void RefreshLogDisplay()
         {
-            // Use pooled StringBuilder for efficient string building
-            var sb = ObjectPools.StringBuilder.Get();
-            try
-            {
-                for (int i = 0; i < _logEntries.Count; i++)
-                {
-                    if (i > 0) sb.Append("\n");
-                    sb.Append(_logEntries[i]);
-                }
-                _logText.text = sb.ToString();
-            }
-            finally
-            {
-                ObjectPools.StringBuilder.Return(sb);
-            }
+            if (_logText == null) return;
 
-            // Force canvas update and scroll to bottom
+            _logText.text = string.Join("\n", _logEntries);
+
+            // Force canvas update and scroll
             Canvas.ForceUpdateCanvases();
-            _scrollRect.verticalNormalizedPosition = 0f;
+        }
+
+        #endregion
+
+        #region Cleanup
+
+        /// <summary>
+        /// Disposes of resources and unsubscribes from events.
+        /// </summary>
+        public void Dispose()
+        {
+            Application.logMessageReceived -= HandleUnityLog;
+            _logSubscription?.Dispose();
+
+            if (_commandInputField != null)
+            {
+                _commandInputField.onEndEdit.RemoveListener(OnCommandSubmit);
+            }
         }
 
         #endregion

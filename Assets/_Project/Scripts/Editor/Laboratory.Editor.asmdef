@@ -6,6 +6,10 @@
         "Laboratory.Core.Enums",
         "Laboratory.Shared",
         "Laboratory.Tools",
+        "Laboratory.Chimera.AI",
+        "Laboratory.Subsystems",
+        "Laboratory.AI.Agents",
+        "Laboratory.AI.Pathfinding",
         "Unity.TextMeshPro"
     ],
     "includePlatforms": [

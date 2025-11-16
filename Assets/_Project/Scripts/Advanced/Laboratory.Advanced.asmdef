@@ -2,6 +2,7 @@
     "name": "Laboratory.Advanced",
     "rootNamespace": "Laboratory.Advanced",
     "references": [
+        "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Shared",
         "Unity.Entities",

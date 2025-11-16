@@ -1,0 +1,23 @@
+{
+    "name": "Laboratory.Core.Network",
+    "rootNamespace": "Laboratory.Core.Network",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Unity.Netcode.Runtime",
+        "Laboratory.Core",
+        "Laboratory.Core.ECS",
+        "Laboratory.Core.Infrastructure"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

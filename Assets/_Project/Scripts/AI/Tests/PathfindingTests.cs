@@ -208,7 +208,7 @@ namespace Laboratory.AI.Tests
         public void EnhancedAIAgent_SetAgentType_UpdatesAgentType()
         {
             // Arrange
-            EnhancedAIAgent.AgentType newType = EnhancedAIAgent.AgentType.Large;
+            AgentType newType = AgentType.Large;
 
             // Act
             agent.SetAgentType(newType);
@@ -461,6 +461,9 @@ namespace Laboratory.AI.Tests
     {
         public Vector3 Position { get; set; } = Vector3.zero;
         public Vector3 Destination { get; set; } = Vector3.zero;
+        public PathfindingStatus Status { get; set; } = PathfindingStatus.Idle;
+        public AgentType AgentType { get; set; } = AgentType.Medium;
+        public PathfindingMode PathfindingMode { get; set; } = PathfindingMode.Auto;
         public bool IsRegistered { get; set; }
         public bool PathCallbackReceived { get; private set; }
         public Vector3[] LastPath { get; private set; }
@@ -484,6 +487,22 @@ namespace Laboratory.AI.Tests
         public bool ShouldForcePathUpdate()
         {
             return false; // For testing, don't force updates
+        }
+
+        public void RequestPath(Vector3 destination, PathfindingMode mode = PathfindingMode.Auto)
+        {
+            Destination = destination;
+            Status = PathfindingStatus.Computing;
+        }
+
+        public void CancelPath()
+        {
+            Status = PathfindingStatus.Idle;
+        }
+
+        public bool HasReachedDestination()
+        {
+            return Vector3.Distance(Position, Destination) < 0.1f;
         }
 
         public void OnPathCalculated(Vector3[] path, bool success)
