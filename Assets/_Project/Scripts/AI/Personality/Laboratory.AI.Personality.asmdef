@@ -8,6 +8,7 @@
         "Laboratory.Core.Diagnostics",
         "Laboratory.Shared",
         "Laboratory.Chimera.Genetics",
+        "Laboratory.Chimera.Genetics.Advanced",
         "Laboratory.Chimera.Creatures",
         "Laboratory.Chimera.Breeding",
         "Laboratory.Chimera.AI",
