@@ -111,6 +111,34 @@ namespace Laboratory.Chimera.Discovery.Systems
     /// Job for parallel discovery detection
     /// </summary>
 
+    /// <summary>
+    /// Burst-compatible string constants for discovery names
+    /// </summary>
+    public static class DiscoveryStrings
+    {
+        public static readonly FixedString32Bytes Enhanced = new FixedString32Bytes("Enhanced");
+        public static readonly FixedString32Bytes Mutant = new FixedString32Bytes("Mutant");
+        public static readonly FixedString32Bytes Marked = new FixedString32Bytes("Marked");
+        public static readonly FixedString32Bytes Perfect = new FixedString32Bytes("Perfect");
+        public static readonly FixedString32Bytes Hybrid = new FixedString32Bytes("Hybrid");
+        public static readonly FixedString32Bytes Legendary = new FixedString32Bytes("Legendary");
+        public static readonly FixedString32Bytes Unknown = new FixedString32Bytes("Unknown");
+
+        public static readonly FixedString32Bytes Titan = new FixedString32Bytes("Titan");
+        public static readonly FixedString32Bytes Eternal = new FixedString32Bytes("Eternal");
+        public static readonly FixedString32Bytes Swift = new FixedString32Bytes("Swift");
+        public static readonly FixedString32Bytes Genius = new FixedString32Bytes("Genius");
+        public static readonly FixedString32Bytes Evolved = new FixedString32Bytes("Evolved");
+        public static readonly FixedString32Bytes Alpha = new FixedString32Bytes("Alpha");
+        public static readonly FixedString32Bytes Balanced = new FixedString32Bytes("Balanced");
+
+        public static readonly FixedString32Bytes Lumina = new FixedString32Bytes(" Lumina");
+        public static readonly FixedString32Bytes Elemental = new FixedString32Bytes(" Elemental");
+        public static readonly FixedString32Bytes Prime = new FixedString32Bytes(" Prime");
+        public static readonly FixedString32Bytes HybridSuffix = new FixedString32Bytes(" Hybrid");
+        public static readonly FixedString32Bytes Rex = new FixedString32Bytes(" Rex");
+    }
+
     [BurstCompile]
     public partial struct DiscoveryDetectionJob : IJobEntity
     {
@@ -346,13 +374,13 @@ namespace Laboratory.Chimera.Discovery.Systems
             // Get prefix based on type
             FixedString32Bytes prefix = type switch
             {
-                Laboratory.Chimera.Discovery.Core.DiscoveryType.NewTrait => new FixedString32Bytes("Enhanced"),
-                Laboratory.Chimera.Discovery.Core.DiscoveryType.RareMutation => new FixedString32Bytes("Mutant"),
-                Laboratory.Chimera.Discovery.Core.DiscoveryType.SpecialMarker => new FixedString32Bytes("Marked"),
-                Laboratory.Chimera.Discovery.Core.DiscoveryType.PerfectGenetics => new FixedString32Bytes("Perfect"),
-                Laboratory.Chimera.Discovery.Core.DiscoveryType.NewSpecies => new FixedString32Bytes("Hybrid"),
-                Laboratory.Chimera.Discovery.Core.DiscoveryType.LegendaryLineage => new FixedString32Bytes("Legendary"),
-                _ => new FixedString32Bytes("Unknown")
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.NewTrait => DiscoveryStrings.Enhanced,
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.RareMutation => DiscoveryStrings.Mutant,
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.SpecialMarker => DiscoveryStrings.Marked,
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.PerfectGenetics => DiscoveryStrings.Perfect,
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.NewSpecies => DiscoveryStrings.Hybrid,
+                Laboratory.Chimera.Discovery.Core.DiscoveryType.LegendaryLineage => DiscoveryStrings.Legendary,
+                _ => DiscoveryStrings.Unknown
             };
 
             // Get descriptor based on highest trait
@@ -375,23 +403,23 @@ namespace Laboratory.Chimera.Discovery.Systems
                            math.max((int)genetics.Agility, math.max((int)genetics.Intelligence,
                            math.max((int)genetics.Adaptability, (int)genetics.Social)))));
 
-            if (genetics.Strength == maxTrait) { result = new FixedString32Bytes("Titan"); return; }
-            if (genetics.Vitality == maxTrait) { result = new FixedString32Bytes("Eternal"); return; }
-            if (genetics.Agility == maxTrait) { result = new FixedString32Bytes("Swift"); return; }
-            if (genetics.Intelligence == maxTrait) { result = new FixedString32Bytes("Genius"); return; }
-            if (genetics.Adaptability == maxTrait) { result = new FixedString32Bytes("Evolved"); return; }
-            if (genetics.Social == maxTrait) { result = new FixedString32Bytes("Alpha"); return; }
+            if (genetics.Strength == maxTrait) { result = DiscoveryStrings.Titan; return; }
+            if (genetics.Vitality == maxTrait) { result = DiscoveryStrings.Eternal; return; }
+            if (genetics.Agility == maxTrait) { result = DiscoveryStrings.Swift; return; }
+            if (genetics.Intelligence == maxTrait) { result = DiscoveryStrings.Genius; return; }
+            if (genetics.Adaptability == maxTrait) { result = DiscoveryStrings.Evolved; return; }
+            if (genetics.Social == maxTrait) { result = DiscoveryStrings.Alpha; return; }
 
-            result = new FixedString32Bytes("Balanced");
+            result = DiscoveryStrings.Balanced;
         }
 
         private static void GetMarkerSuffixBurst(GeneticMarkerFlags markers, out FixedString32Bytes result)
         {
-            if ((markers & GeneticMarkerFlags.Bioluminescent) != 0) { result = new FixedString32Bytes(" Lumina"); return; }
-            if ((markers & GeneticMarkerFlags.ElementalAffinity) != 0) { result = new FixedString32Bytes(" Elemental"); return; }
-            if ((markers & GeneticMarkerFlags.RareLineage) != 0) { result = new FixedString32Bytes(" Prime"); return; }
-            if ((markers & GeneticMarkerFlags.HybridVigor) != 0) { result = new FixedString32Bytes(" Hybrid"); return; }
-            if ((markers & GeneticMarkerFlags.PackLeader) != 0) { result = new FixedString32Bytes(" Rex"); return; }
+            if ((markers & GeneticMarkerFlags.Bioluminescent) != 0) { result = DiscoveryStrings.Lumina; return; }
+            if ((markers & GeneticMarkerFlags.ElementalAffinity) != 0) { result = DiscoveryStrings.Elemental; return; }
+            if ((markers & GeneticMarkerFlags.RareLineage) != 0) { result = DiscoveryStrings.Prime; return; }
+            if ((markers & GeneticMarkerFlags.HybridVigor) != 0) { result = DiscoveryStrings.HybridSuffix; return; }
+            if ((markers & GeneticMarkerFlags.PackLeader) != 0) { result = DiscoveryStrings.Rex; return; }
 
             result = new FixedString32Bytes();
         }
