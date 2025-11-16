@@ -15,7 +15,6 @@
         "Laboratory.Core.ECS",
         "Laboratory.Shared",
         "Laboratory.Models",
-        "Laboratory.Chimera",
         "Laboratory.Chimera.Core",
         "Laboratory.Chimera.Breeding",
         "Laboratory.Chimera.Genetics",
