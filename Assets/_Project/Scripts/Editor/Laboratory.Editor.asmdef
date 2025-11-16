@@ -7,6 +7,7 @@
         "Laboratory.Core.Enums",
         "Laboratory.Core.Health",
         "Laboratory.Core.Management",
+        "Laboratory.Core.Performance",
         "Laboratory.Gameplay",
         "Laboratory.Shared",
         "Laboratory.Tools",
