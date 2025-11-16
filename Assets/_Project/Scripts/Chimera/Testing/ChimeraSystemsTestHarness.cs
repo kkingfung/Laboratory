@@ -148,15 +148,15 @@ namespace Laboratory.Chimera.Testing
             {
                 Entity creature = _entityManager.CreateEntity(archetype);
 
-                // Random genetics (0-100 stats)
+                // Random genetics (0-100 stats normalized to 0-1 range)
                 _entityManager.SetComponentData(creature, new CreatureGeneticsComponent
                 {
-                    strength = _random.NextFloat(20f, 100f),
-                    agility = _random.NextFloat(20f, 100f),
-                    intelligence = _random.NextFloat(20f, 100f),
-                    vitality = _random.NextFloat(20f, 100f),
-                    social = _random.NextFloat(20f, 100f),
-                    adaptability = _random.NextFloat(20f, 100f)
+                    StrengthTrait = _random.NextFloat(0.2f, 1f),
+                    AgilityTrait = _random.NextFloat(0.2f, 1f),
+                    IntellectTrait = _random.NextFloat(0.2f, 1f),
+                    VitalityTrait = _random.NextFloat(0.2f, 1f),
+                    CharmTrait = _random.NextFloat(0.2f, 1f),
+                    ResilienceTrait = _random.NextFloat(0.2f, 1f)
                 });
 
                 // Starting currency

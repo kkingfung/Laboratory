@@ -8,7 +8,7 @@ using Laboratory.Core.Health;
 using Laboratory.Core.Infrastructure;
 using ECS_DamageType = Laboratory.Models.ECS.Components.DamageType;
 using ECS_DamageRequest = Laboratory.Models.ECS.Components.DamageRequest;
-using Health_DamageType = Laboratory.Core.Health.DamageType;
+using Health_DamageType = Laboratory.Core.Enums.DamageType;
 using Health_DamageRequest = Laboratory.Core.Health.DamageRequest;
 
 #nullable enable

@@ -12,7 +12,7 @@ using Laboratory.Core.Systems;
 using Laboratory.Core.Abilities.Systems;
 using HealthChangedEventArgs = Laboratory.Core.Health.HealthChangedEventArgs;
 using DeathEventArgs = Laboratory.Core.Health.DeathEventArgs;
-using DamageType = Laboratory.Core.Health.DamageType;
+using DamageType = Laboratory.Core.Enums.DamageType;
 using CoreDamageRequest = Laboratory.Core.Health.DamageRequest;
 using EcsDamageRequest = Laboratory.Models.ECS.Components.DamageRequest;
 
