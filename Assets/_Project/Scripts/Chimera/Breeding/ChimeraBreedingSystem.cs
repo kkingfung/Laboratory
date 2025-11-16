@@ -51,7 +51,7 @@ namespace Laboratory.Chimera.Breeding
                 RequestId = (uint)UnityEngine.Random.Range(1000, 999999),
                 Parent1 = parent1,
                 Parent2 = parent2,
-                StartTime = Time.time,
+                StartTime = (float)SystemAPI.Time.ElapsedTime,
                 Duration = CalculateBreedingDuration(parent1, parent2)
             };
 
@@ -120,7 +120,7 @@ namespace Laboratory.Chimera.Breeding
             {
                 var request = kvp.Value;
 
-                if (Time.time >= request.StartTime + request.Duration)
+                if ((float)SystemAPI.Time.ElapsedTime >= request.StartTime + request.Duration)
                 {
                     var result = CompleteBreeding(request);
                     _completedBreedings.Add(result);
@@ -144,7 +144,7 @@ namespace Laboratory.Chimera.Breeding
                 Success = true,
                 RequestId = request.RequestId,
                 Offspring = offspring,
-                CompletedAt = Time.time
+                CompletedAt = (float)SystemAPI.Time.ElapsedTime
             };
         }
 
@@ -168,7 +168,7 @@ namespace Laboratory.Chimera.Breeding
                 IsAlive = true,
                 IsOwned = parent1.IsOwned || parent2.IsOwned,
                 OwnerId = parent1.IsOwned ? parent1.OwnerId : parent2.OwnerId,
-                CreationTime = Time.timeAsDouble
+                CreationTime = SystemAPI.Time.ElapsedTime
             };
         }
 
