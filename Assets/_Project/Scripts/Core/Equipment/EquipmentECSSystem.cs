@@ -193,9 +193,7 @@ namespace Laboratory.Core.Equipment
         {
             equippedCreatureQuery = GetEntityQuery(new ComponentType[]
             {
-                ComponentType.ReadWrite<CreatureEquipmentComponent>(),
-                ComponentType.ReadOnly<GeneticDataComponent>(),
-                ComponentType.ReadOnly<ActivityParticipantComponent>()
+                ComponentType.ReadWrite<CreatureEquipmentComponent>()
             });
 
             equipmentQuery = GetEntityQuery(new ComponentType[]
@@ -233,9 +231,7 @@ namespace Laboratory.Core.Equipment
     {
         public float DeltaTime;
 
-        public void Execute(ref CreatureEquipmentComponent equipment,
-            RefRO<GeneticDataComponent> genetics,
-            RefRO<ActivityParticipantComponent> activity)
+        public void Execute(ref CreatureEquipmentComponent equipment)
         {
             // Calculate total equipment bonuses
             float totalStatBonus = 0f;
@@ -485,7 +481,7 @@ namespace Laboratory.Core.Equipment
             }
         }
 
-        private float CalculateActivityBonus(ActivityType activity, CreatureEquipmentComponent equipment)
+        private float CalculateActivityBonus(Laboratory.Core.Activities.Types.ActivityType activity, CreatureEquipmentComponent equipment)
         {
             // This would query the actual equipment entities and sum their bonuses
             // For now, simplified calculation based on equipped item count
