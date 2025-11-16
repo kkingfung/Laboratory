@@ -185,7 +185,7 @@ namespace Laboratory.Systems.Analytics.Services
             // Identify dominant archetype
             PlayerArchetype newArchetype = IdentifyPlayerArchetype();
 
-            if (newArchetype != _currentArchetype)
+            if (newArchetype.archetypeType != _currentArchetype.archetypeType)
             {
                 _currentArchetype = newArchetype;
                 OnPlayerArchetypeIdentified?.Invoke(_currentArchetype);

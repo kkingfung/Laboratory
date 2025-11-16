@@ -12,6 +12,7 @@
         "Laboratory.Subsystems",
         "Laboratory.AI.Agents",
         "Laboratory.AI.Pathfinding",
+        "Unity.Entities",
         "Unity.TextMeshPro"
     ],
     "includePlatforms": [

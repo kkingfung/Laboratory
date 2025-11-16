@@ -227,14 +227,14 @@ namespace Laboratory.Systems.Analytics.Services
                 switch (kvp.Key)
                 {
                     case EmotionalState.Excited:
-                    case EmotionalState.Satisfied:
-                    case EmotionalState.Curious:
+                    case EmotionalState.Happy:       // Satisfied → Happy
+                    case EmotionalState.Confident:   // Curious → Confident
                         positive += kvp.Value;
                         break;
 
-                    case EmotionalState.Frustrated:
+                    case EmotionalState.Angry:       // Frustrated → Angry
                     case EmotionalState.Anxious:
-                    case EmotionalState.Bored:
+                    case EmotionalState.Calm:        // Bored → Calm
                         negative += kvp.Value;
                         break;
                 }
