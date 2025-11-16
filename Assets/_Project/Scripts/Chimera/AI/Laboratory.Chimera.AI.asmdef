@@ -5,6 +5,7 @@
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
         "Laboratory.Shared",
+        "Laboratory.Chimera",
         "Laboratory.Chimera.Core",
         "Laboratory.Chimera.Genetics",
         "Laboratory.Chimera.Breeding",
