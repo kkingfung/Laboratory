@@ -33,9 +33,9 @@ namespace Laboratory.Core.Equipment.Systems
             }
         }
 
-        private ActivityType ConvertActivityType(Laboratory.Core.Activities.ActivityType activityType)
+        private ActivityType ConvertActivityType(ActivityType activityType)
         {
-            return (ActivityType)(int)activityType;
+            return activityType;
         }
 
         private float CalculateActivityBonus(ActivityType activity, CreatureEquipmentComponent equipment)
