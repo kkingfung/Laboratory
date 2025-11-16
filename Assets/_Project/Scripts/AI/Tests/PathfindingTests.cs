@@ -461,6 +461,9 @@ namespace Laboratory.AI.Tests
     {
         public Vector3 Position { get; set; } = Vector3.zero;
         public Vector3 Destination { get; set; } = Vector3.zero;
+        public PathfindingStatus Status { get; set; } = PathfindingStatus.Idle;
+        public AgentType AgentType { get; set; } = AgentType.Medium;
+        public PathfindingMode PathfindingMode { get; set; } = PathfindingMode.Auto;
         public bool IsRegistered { get; set; }
         public bool PathCallbackReceived { get; private set; }
         public Vector3[] LastPath { get; private set; }

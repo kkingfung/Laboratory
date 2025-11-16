@@ -17,6 +17,44 @@ namespace Laboratory.AI.ECS
     /// ARCHITECTURE: Master-slave pattern with ECS as authoritative source
     /// </summary>
 
+    /// <summary>
+    /// AI state flags for bitwise operations
+    /// </summary>
+    [System.Flags]
+    public enum AIStateFlags : uint
+    {
+        None = 0,
+        IsMoving = 1 << 0,
+        HasTarget = 1 << 1,
+        InCombat = 1 << 2,
+        IsBlocked = 1 << 3,
+        NeedsRecalculation = 1 << 4,
+        IsInterrupted = 1 << 5,
+        IsPriorityOverride = 1 << 6,
+        IsEmergencyState = 1 << 7,
+        IsLearning = 1 << 8,
+        IsSocial = 1 << 9,
+        IsBreeding = 1 << 10,
+        IsHungry = 1 << 11,
+        IsTired = 1 << 12,
+        IsInjured = 1 << 13,
+        IsTerritory = 1 << 14,
+        IsGrouped = 1 << 15
+    }
+
+    /// <summary>
+    /// AI transition types
+    /// </summary>
+    public enum AITransitionType : byte
+    {
+        Immediate = 0,
+        Smooth = 1,
+        Interrupt = 2,
+        Queue = 3,
+        Blend = 4,
+        Emergency = 5
+    }
+
     // Unified AI State Components
     public struct UnifiedAIStateComponent : IComponentData
     {
