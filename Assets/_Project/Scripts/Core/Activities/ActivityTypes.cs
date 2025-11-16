@@ -40,6 +40,9 @@ namespace Laboratory.Core.Activities
         /// <summary>Current activity type</summary>
         public ActivityType CurrentActivity;
 
+        /// <summary>Current activity status</summary>
+        public Types.ActivityStatus Status;
+
         /// <summary>Activity instance ID</summary>
         public uint ActivityInstanceId;
 
@@ -49,11 +52,26 @@ namespace Laboratory.Core.Activities
         /// <summary>Expected duration of participation</summary>
         public float Duration;
 
-        /// <summary>Performance score in current activity</summary>
+        /// <summary>Time spent in current activity state (seconds)</summary>
+        public float TimeInActivity;
+
+        /// <summary>Activity completion progress (0-1)</summary>
+        public float ActivityProgress;
+
+        /// <summary>Performance score in current activity (0.1-2.0 scale)</summary>
         public float Performance;
+
+        /// <summary>Real-time performance score</summary>
+        public float PerformanceScore;
+
+        /// <summary>Experience gained from activity</summary>
+        public float ExperienceGained;
 
         /// <summary>Whether participant is actively engaged</summary>
         public bool IsActive;
+
+        /// <summary>Whether participant has pending rewards</summary>
+        public bool HasRewards;
 
         /// <summary>Team or group ID (0 = solo)</summary>
         public int TeamId;
