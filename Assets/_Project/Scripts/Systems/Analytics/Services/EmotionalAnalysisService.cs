@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Shared.Types;
 using Laboratory.Core.Enums;
+using Laboratory.Chimera.Social.Types;
 
 namespace Laboratory.Systems.Analytics.Services
 {

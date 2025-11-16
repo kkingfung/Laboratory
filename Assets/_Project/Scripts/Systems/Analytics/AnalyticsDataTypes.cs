@@ -35,4 +35,39 @@ namespace Laboratory.Systems.Analytics
         Patience,
         Aggression
     }
+
+    /// <summary>
+    /// Player archetype types
+    /// </summary>
+    public enum ArchetypeType
+    {
+        Explorer,
+        Achiever,
+        Socializer,
+        Collector,
+        Balanced
+    }
+
+    /// <summary>
+    /// Player archetype classification
+    /// </summary>
+    [Serializable]
+    public struct PlayerArchetype
+    {
+        public ArchetypeType archetypeType;
+        public float confidence;
+        public PlayerBehaviorTrait primaryTrait;
+    }
+
+    /// <summary>
+    /// Behavior insight from analysis
+    /// </summary>
+    [Serializable]
+    public struct BehaviorInsight
+    {
+        public string insightType;
+        public string description;
+        public float confidence;
+        public float timestamp;
+    }
 }
