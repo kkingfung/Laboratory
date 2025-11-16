@@ -391,7 +391,7 @@ namespace Laboratory.AI.Personality
             return Random.Range(0f, 1f) < 0.1f; // 10% chance for demo purposes
         }
 
-        private void HandleEliteCreature(CreatureGenome eliteCreature)
+        private void HandleEliteCreature(Laboratory.Chimera.Genetics.Advanced.CreatureGenome eliteCreature)
         {
             if (eliteCreature != null && logPersonalityEvents)
             {

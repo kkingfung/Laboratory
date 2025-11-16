@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Unity.Mathematics;
 using Unity.Collections;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Chimera.Genetics.Advanced;
 
 namespace Laboratory.Tests.EditMode
 {

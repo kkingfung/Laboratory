@@ -91,7 +91,7 @@ namespace Laboratory.Chimera.Testing
             if (verboseLogging) UnityEngine.Debug.Log("Testing Pathfinding System...");
             
             // Test pathfinding modes
-            var mode = PathfindingMode.Hybrid;
+            var mode = PathfindingMode.Auto;
             UnityEngine.Debug.Log($"Using pathfinding mode: {mode}");
             
             // Test flow field creation

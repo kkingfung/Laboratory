@@ -6,6 +6,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Activities;
 using Laboratory.Chimera.Equipment;
 using Laboratory.Chimera.Progression;
+using Laboratory.Chimera.ECS.Components;
 
 namespace Laboratory.Chimera.Testing
 {
@@ -70,7 +71,7 @@ namespace Laboratory.Chimera.Testing
 
         private void Start()
         {
-            _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
+            _entityManager = Unity.Entities.World.DefaultGameObjectInjectionWorld.EntityManager;
             _random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
 
             // Load configurations
@@ -169,8 +170,8 @@ namespace Laboratory.Chimera.Testing
                 int startLevel = _random.NextInt(1, 11);
                 _entityManager.SetComponentData(creature, new MonsterLevelComponent
                 {
-                    currentLevel = startLevel,
-                    currentExperience = 0,
+                    level = startLevel,
+                    experiencePoints = 0,
                     experienceToNextLevel = progressionConfig != null ?
                         progressionConfig.GetExperienceToNextLevel(startLevel) : 100,
                     skillPointsAvailable = startLevel - 1,
