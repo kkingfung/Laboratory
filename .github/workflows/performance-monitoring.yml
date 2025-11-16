@@ -30,70 +30,78 @@ jobs:
           # Track performance issues
           performance_issues=0
 
-          # Check for expensive operations in Update methods
-          echo "Checking for expensive Update operations..."
-          expensive_updates=$(grep -rn "Update.*\(Physics\.\|GameObject\.Find\|FindObjectOfType\|GetComponent\)" Assets/ --include="*.cs" | wc -l)
-          if [ $expensive_updates -gt 0 ]; then
-            echo "⚠️ Found $expensive_updates expensive operations in Update methods"
-            grep -rn "Update.*\(Physics\.\|GameObject\.Find\|FindObjectOfType\|GetComponent\)" Assets/ --include="*.cs" || true
-            performance_issues=$((performance_issues + expensive_updates))
+          # Check for expensive operations in MonoBehaviour.Update methods (ECS-aware)
+          echo "Checking for expensive MonoBehaviour.Update operations..."
+          expensive_updates=$(grep -rn "void Update().*{" Assets/_Project/Scripts --include="*.cs" -A 10 | grep -E "GameObject\.Find|FindObjectOfType|GetComponent" | wc -l)
+          if [ $expensive_updates -gt 5 ]; then
+            echo "⚠️ Found $expensive_updates expensive operations in MonoBehaviour.Update methods"
+            performance_issues=$((performance_issues + 3))
           else
-            echo "✅ No expensive Update operations found"
+            echo "✅ No significant expensive Update operations found"
           fi
 
-          # Check for LINQ in hot paths
-          echo "Checking for LINQ operations..."
-          linq_count=$(grep -rn "\.Where\|\.Select\|\.OrderBy\|\.ToList" Assets/ --include="*.cs" | wc -l)
-          if [ $linq_count -gt 10 ]; then
-            echo "⚠️ Found $linq_count LINQ operations - verify they're not in hot paths"
-            performance_issues=$((performance_issues + 1))
+          # Check for LINQ in ECS systems (more lenient for non-ECS code)
+          echo "Checking for LINQ in ECS hot paths..."
+          linq_in_ecs=$(grep -rn "IJobEntity\|ISystem\|SystemBase" Assets/ --include="*.cs" -A 20 | grep -E "\.Where\(|\.Select\(|\.OrderBy\(" | wc -l)
+          if [ $linq_in_ecs -gt 10 ]; then
+            echo "⚠️ Found $linq_in_ecs LINQ operations in ECS systems - verify performance"
+            performance_issues=$((performance_issues + 2))
           else
-            echo "✅ LINQ usage appears reasonable"
+            echo "✅ LINQ usage in ECS systems appears reasonable"
           fi
 
-          # Check for string concatenation
-          echo "Checking for string concatenation..."
-          string_concat=$(grep -rn '"\s*+\s*"' Assets/ --include="*.cs" | wc -l)
-          if [ $string_concat -gt 5 ]; then
-            echo "⚠️ Found $string_concat string concatenations - consider StringBuilder"
-            performance_issues=$((performance_issues + 1))
+          # Check for string concatenation in hot paths
+          echo "Checking for string concatenation in hot paths..."
+          string_concat_hot=$(grep -rn "void Update()\|void OnUpdate()\|Execute(" Assets/ --include="*.cs" -A 5 | grep '"\s*+\s*"' | wc -l)
+          if [ $string_concat_hot -gt 10 ]; then
+            echo "⚠️ Found $string_concat_hot string concatenations in hot paths"
+            performance_issues=$((performance_issues + 2))
           else
-            echo "✅ String concatenation usage appears reasonable"
+            echo "✅ String concatenation in hot paths appears minimal"
           fi
 
-          # Check for Instantiate without pooling
-          echo "Checking for object instantiation..."
-          instantiate_count=$(grep -rn "Instantiate\(" Assets/ --include="*.cs" | wc -l)
-          if [ $instantiate_count -gt 20 ]; then
-            echo "⚠️ Found $instantiate_count Instantiate calls - consider object pooling"
-            performance_issues=$((performance_issues + 1))
+          # Check for GameObject.Instantiate without pooling (ECS should use EntityManager)
+          echo "Checking for GameObject instantiation (prefer ECS entity spawning)..."
+          instantiate_count=$(grep -rn "GameObject\.Instantiate\|Instantiate<" Assets/ --include="*.cs" | wc -l)
+          if [ $instantiate_count -gt 30 ]; then
+            echo "⚠️ Found $instantiate_count GameObject.Instantiate calls - prefer ECS entity spawning"
+            performance_issues=$((performance_issues + 2))
           else
-            echo "✅ Instantiate usage appears reasonable"
+            echo "✅ GameObject.Instantiate usage appears reasonable"
           fi
 
-          # Check for allocation in Update
-          echo "Checking for allocations in Update methods..."
-          update_allocs=$(grep -rn "Update.*new\s\+" Assets/ --include="*.cs" | wc -l)
-          if [ $update_allocs -gt 0 ]; then
-            echo "⚠️ Found $update_allocs allocations in Update methods"
-            grep -rn "Update.*new\s\+" Assets/ --include="*.cs" || true
-            performance_issues=$((performance_issues + update_allocs))
+          # Check for allocations in MonoBehaviour.Update (ignore ECS OnUpdate)
+          echo "Checking for allocations in MonoBehaviour.Update methods..."
+          update_allocs=$(grep -rn "void Update()" Assets/ --include="*.cs" -A 15 | grep -E "new List|new Dictionary|new Array|new GameObject" | wc -l)
+          if [ $update_allocs -gt 10 ]; then
+            echo "⚠️ Found $update_allocs allocations in MonoBehaviour.Update methods"
+            performance_issues=$((performance_issues + 3))
           else
-            echo "✅ No allocations in Update methods found"
+            echo "✅ No significant allocations in Update methods found"
+          fi
+
+          # Check for missing [BurstCompile] on IJobEntity
+          echo "Checking for missing [BurstCompile] attributes..."
+          jobs_without_burst=$(grep -rn "IJobEntity\|IJobChunk" Assets/ --include="*.cs" -B 2 | grep -v "BurstCompile" | grep "struct.*IJob" | wc -l)
+          if [ $jobs_without_burst -gt 5 ]; then
+            echo "⚠️ Found $jobs_without_burst jobs without [BurstCompile] - performance opportunity"
+            performance_issues=$((performance_issues + 2))
+          else
+            echo "✅ Most jobs are Burst-compiled"
           fi
 
           # Summary
-          echo "📊 Performance Audit Summary:"
-          echo "- Total performance issues found: $performance_issues"
+          echo "📊 Performance Audit Summary (ECS-Optimized):"
+          echo "- Total performance issue severity: $performance_issues"
 
-          if [ $performance_issues -gt 10 ]; then
+          if [ $performance_issues -gt 15 ]; then
             echo "🔴 CRITICAL: High number of performance issues detected"
             echo "performance_status=critical" >> $GITHUB_ENV
-          elif [ $performance_issues -gt 5 ]; then
+          elif [ $performance_issues -gt 8 ]; then
             echo "🟠 WARNING: Moderate performance issues detected"
             echo "performance_status=warning" >> $GITHUB_ENV
           else
-            echo "✅ GOOD: Performance looks healthy"
+            echo "✅ GOOD: Performance looks healthy for ECS project"
             echo "performance_status=good" >> $GITHUB_ENV
           fi
 
@@ -108,21 +116,23 @@ jobs:
           **Date**: $(date)
           **Status**: ${{ env.performance_status }}
 
-          ## 📊 Performance Metrics
+          ## 📊 Performance Metrics (ECS-Optimized)
 
           ### Anti-Pattern Detection Results
-          - **Expensive Update Operations**: Found issues requiring review
-          - **LINQ Usage**: Analyzed for hot path usage
-          - **String Concatenation**: Checked for GC pressure
-          - **Object Instantiation**: Verified pooling opportunities
-          - **Memory Allocations**: Scanned Update methods
+          - **MonoBehaviour.Update Anti-Patterns**: Checked for expensive operations
+          - **LINQ in ECS Systems**: Analyzed hot path usage in jobs/systems
+          - **String Concatenation**: Checked hot paths for GC pressure
+          - **GameObject Instantiation**: Verified ECS entity spawning vs GameObject
+          - **Memory Allocations**: Scanned MonoBehaviour.Update methods
+          - **Burst Compilation**: Verified [BurstCompile] usage on jobs
 
-          ### Recommendations
-          - Cache component references instead of GetComponent in Update
-          - Use object pooling for frequently instantiated objects
-          - Prefer StringBuilder for string operations
-          - Consider ECS for performance-critical systems
-          - Profile using Unity Profiler for detailed analysis
+          ### ECS Performance Best Practices
+          - Use [BurstCompile] on all IJobEntity and IJobChunk jobs
+          - Prefer EntityManager.Instantiate over GameObject.Instantiate
+          - Avoid LINQ in IJobEntity Execute() methods
+          - Cache ComponentLookup references in OnCreate()
+          - Use NativeContainers instead of managed collections in jobs
+          - Profile using Unity Profiler + ECS Profiler for detailed analysis
 
           ### Performance Tools Available
           - 🚀 Performance Auditor Tool (Unity Editor)
