@@ -199,17 +199,15 @@ namespace Laboratory.Infrastructure.Health
         /// <summary>
         /// Requests damage to be applied to a target player over the network. Server validates and applies damage.
         /// </summary>
+        /// <param name="attackerClientId">Client ID of the attacking player.</param>
         /// <param name="targetPlayerClientId">Client ID of the target player to damage.</param>
         /// <param name="damage">Amount of damage to apply.</param>
         /// <param name="damageType">Type of damage being applied.</param>
         /// <param name="hitDirection">Direction vector of the hit for physics effects.</param>
-        /// <param name="rpcParams">Server RPC parameters containing sender information.</param>
         [Rpc(SendTo.Server, RequireOwnership = false)]
-        public void RequestPlayerDamageServerRpc(ulong targetPlayerClientId, float damage, DamageType damageType, Vector3 hitDirection, ServerRpcParams rpcParams = default)
+        public void RequestPlayerDamageServerRpc(ulong attackerClientId, ulong targetPlayerClientId, float damage, DamageType damageType, Vector3 hitDirection)
         {
             if (!NetworkManager.Singleton.IsServer) return;
-
-            ulong attackerClientId = rpcParams.Receive.SenderClientId;
 
             var targetNetObj = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(targetPlayerClientId);
             if (targetNetObj == null)

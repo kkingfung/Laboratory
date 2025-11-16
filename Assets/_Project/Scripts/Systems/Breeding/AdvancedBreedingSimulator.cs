@@ -33,7 +33,6 @@ namespace Laboratory.Systems.Breeding
         [Header("Simulation Configuration")]
         [SerializeField] private bool enableBreedingSimulation = true;
         [SerializeField] private int maxActiveBreedings = 10;
-        [SerializeField] private float breedingCooldown = 30f;
         [SerializeField] private int generationHistoryLimit = 50;
 
         [Header("UI References")]
