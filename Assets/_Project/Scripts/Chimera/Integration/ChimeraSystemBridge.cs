@@ -10,6 +10,7 @@ using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
 using System.Collections.Generic;
+using ChimeraBreedingSystem = Laboratory.Core.ECS.Systems.ChimeraBreedingSystem;
 
 namespace Laboratory.Chimera.Integration
 {
