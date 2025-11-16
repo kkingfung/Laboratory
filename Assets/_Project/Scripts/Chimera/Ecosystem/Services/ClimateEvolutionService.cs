@@ -110,13 +110,7 @@ namespace Laboratory.Chimera.Ecosystem
             foreach (var resourceKey in biome.resources.Keys.ToArray())
             {
                 var resource = biome.resources[resourceKey];
-                biome.resources[resourceKey] = new Resource
-                {
-                    Amount = resource.Amount * modifier.resourceModifier,
-                    MaxCapacity = resource.MaxCapacity,
-                    RegenerationRate = resource.RegenerationRate,
-                    Type = resource.Type
-                };
+                resource.currentAmount *= modifier.resourceModifier;
             }
         }
 
