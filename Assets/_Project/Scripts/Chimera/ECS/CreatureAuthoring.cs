@@ -10,7 +10,7 @@ using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
-using ProjectChimera.Core;
+using Laboratory.Core;
 
 namespace Laboratory.Chimera.ECS
 {
