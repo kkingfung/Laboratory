@@ -70,6 +70,9 @@ namespace Laboratory.Core.Activities
         /// <summary>Activity center ID</summary>
         public uint CenterId;
 
+        /// <summary>Primary activity type for this center</summary>
+        public ActivityType ActivityType;
+
         /// <summary>Supported activity types (bitfield)</summary>
         public int SupportedActivities;
 
@@ -79,11 +82,20 @@ namespace Laboratory.Core.Activities
         /// <summary>Current participant count</summary>
         public int CurrentParticipants;
 
+        /// <summary>Duration of activities in seconds</summary>
+        public float ActivityDuration;
+
+        /// <summary>Difficulty level (0-5 scale)</summary>
+        public float DifficultyLevel;
+
         /// <summary>Center capacity (0-1)</summary>
         public float Capacity;
 
         /// <summary>Whether center is currently active</summary>
         public bool IsActive;
+
+        /// <summary>Quality rating (0.5-2.0 scale)</summary>
+        public float QualityRating;
 
         /// <summary>Activity quality modifier</summary>
         public float QualityModifier;
