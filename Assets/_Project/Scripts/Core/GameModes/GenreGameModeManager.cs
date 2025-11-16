@@ -7,6 +7,7 @@ using Laboratory.Core.Infrastructure;
 using Laboratory.Core.State;
 using Laboratory.Core.Events.Messages;
 using R3;
+using GameState = Laboratory.Core.State.GameState;
 
 namespace Laboratory.Core.GameModes
 {
