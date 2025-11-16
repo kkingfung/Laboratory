@@ -8,6 +8,7 @@ using Laboratory.Core.State;
 using Laboratory.Core.Events.Messages;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Models.ECS.Components;
+using GameState = Laboratory.Core.State.GameState;
 
 #nullable enable
 

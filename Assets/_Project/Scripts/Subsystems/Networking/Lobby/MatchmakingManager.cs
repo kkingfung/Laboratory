@@ -16,7 +16,7 @@ using Laboratory.Core.Infrastructure;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using Laboratory.Core.Services;
-using CoreMatchmakingState = Laboratory.Core.MatchmakingState;
+using CoreMatchmakingState = Laboratory.Core.Enums.MatchmakingState;
 
 #nullable enable
 
