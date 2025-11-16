@@ -907,13 +907,4 @@ namespace Laboratory.Chimera.Integration
         public float radius;
         public Vector3 centerOffset;
     }
-
-    /// <summary>
-    /// Component to mark ECS entities that are bridged from MonoBehaviour creatures
-    /// </summary>
-    public struct BridgedCreatureComponent : IComponentData
-    {
-        public int OriginalGameObject;
-        public bool IsActive;
-    }
 }

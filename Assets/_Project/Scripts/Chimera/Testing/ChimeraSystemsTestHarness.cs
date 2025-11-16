@@ -6,7 +6,7 @@ using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Activities;
 using Laboratory.Chimera.Equipment;
 using Laboratory.Chimera.Progression;
-using Laboratory.Chimera.ECS.Components;
+using Laboratory.Core.ECS.Components;
 
 namespace Laboratory.Chimera.Testing
 {
