@@ -1,6 +1,7 @@
 using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Chimera.Creatures;
 
 namespace Laboratory.Chimera.Activities.Combat
 {
@@ -12,14 +13,14 @@ namespace Laboratory.Chimera.Activities.Combat
     public class CombatActivity : IActivity
     {
         private readonly CombatConfig _config;
-        private Random _random;
+        private Unity.Mathematics.Random _random;
 
         public ActivityType Type => ActivityType.Combat;
 
         public CombatActivity(CombatConfig config)
         {
             _config = config ?? throw new System.ArgumentNullException(nameof(config));
-            _random = new Random((uint)(System.DateTime.Now.Ticks + 1)); // +1 to avoid same seed as Racing
+            _random = new Unity.Mathematics.Random((uint)(System.DateTime.Now.Ticks + 1)); // +1 to avoid same seed as Racing
         }
 
         /// <summary>

@@ -2,6 +2,8 @@ using System;
 using Unity.Collections;
 using Laboratory.Chimera.Activities;
 using Laboratory.Core.Enums;
+using EquipmentSlot = Laboratory.Chimera.Activities.EquipmentSlot;
+using EquipmentRarity = Laboratory.Chimera.Activities.EquipmentRarity;
 
 namespace Laboratory.Chimera.Equipment
 {

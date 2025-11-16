@@ -1,4 +1,5 @@
 using Laboratory.Chimera.Genetics;
+using Laboratory.Chimera.Creatures;
 using Unity.Entities;
 
 namespace Laboratory.Chimera.Activities

@@ -17,6 +17,7 @@
         "Laboratory.Core.ECS",
         "Laboratory.Core.Equipment",
         "Laboratory.Core.Customization",
+        "Laboratory.Core.Configuration",
         "Laboratory.Core.MonsterTown",
         "Laboratory.Chimera.Core",
         "Laboratory.Chimera.Creatures",
