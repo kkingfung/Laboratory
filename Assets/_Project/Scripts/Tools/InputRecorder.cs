@@ -1,3 +1,4 @@
+#if UNITY_INPUT_SYSTEM_INSTALLED
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -543,3 +544,4 @@ namespace Laboratory.Tools
 
     #endregion
 }
+#endif // UNITY_INPUT_SYSTEM_INSTALLED

@@ -1,3 +1,4 @@
+#if ADDRESSABLES_INSTALLED
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -723,3 +724,4 @@ namespace Laboratory.Tools
 
     #endregion
 }
+#endif // ADDRESSABLES_INSTALLED

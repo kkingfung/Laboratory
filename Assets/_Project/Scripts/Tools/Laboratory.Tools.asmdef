@@ -5,6 +5,7 @@
         "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
+        "Laboratory.Core.Performance",
         "Laboratory.Shared",
         "Unity.Collections",
         "Unity.Mathematics",

@@ -89,5 +89,48 @@ namespace Laboratory.AI.Pathfinding
 
         /// <summary>Check if agent has reached destination</summary>
         bool HasReachedDestination();
+
+        /// <summary>Callback when path calculation completes</summary>
+        void OnPathCalculated(Vector3[] path, bool success);
+    }
+
+    /// <summary>
+    /// Data structure representing a pathfinding calculation request.
+    /// Contains all information needed to calculate a path for an AI agent.
+    /// </summary>
+    [System.Serializable]
+    public class PathRequest
+    {
+        /// <summary>Starting position for path calculation</summary>
+        public Vector3 start;
+
+        /// <summary>Target destination for path calculation</summary>
+        public Vector3 destination;
+
+        /// <summary>Agent requesting the path (receives callback when complete)</summary>
+        public IPathfindingAgent agent;
+
+        /// <summary>Preferred pathfinding algorithm to use for this request</summary>
+        public PathfindingMode mode;
+
+        /// <summary>Request priority (higher values processed first). Range: 0-10</summary>
+        public int priority;
+
+        /// <summary>Time when this request was created (for timeout handling)</summary>
+        public float timestamp;
+    }
+
+    /// <summary>
+    /// Cached path data to avoid redundant pathfinding calculations.
+    /// Paths are cached based on start/destination pairs and expire after a timeout.
+    /// </summary>
+    [System.Serializable]
+    public class CachedPath
+    {
+        /// <summary>Array of waypoints forming the cached path</summary>
+        public Vector3[] path;
+
+        /// <summary>Time when this path was cached (for expiration)</summary>
+        public float timestamp;
     }
 }

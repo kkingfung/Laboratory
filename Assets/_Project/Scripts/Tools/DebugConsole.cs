@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UniRx;
 using UnityEngine;
 using UnityEngine.UI;
-using Laboratory.Core.Utilities;
 
 namespace Laboratory.Tools
 {

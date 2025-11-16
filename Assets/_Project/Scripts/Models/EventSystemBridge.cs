@@ -3,6 +3,7 @@ using UnityEngine;
 using Laboratory.Core.Events;
 using Laboratory.Core.Events.Messages;
 using Laboratory.Core.Infrastructure;
+using Laboratory.Core.Enums;
 using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.Models

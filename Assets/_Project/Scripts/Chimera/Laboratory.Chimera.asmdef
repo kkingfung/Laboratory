@@ -13,6 +13,7 @@
         "Laboratory.Core.Events",
         "Laboratory.Core.Enums",
         "Laboratory.Chimera.Genetics",
+        "Laboratory.Shared",
         "Unity.TextMeshPro"
     ],
     "includePlatforms": [],

@@ -1,8 +1,8 @@
 using UnityEngine;
 using Laboratory.AI.Pathfinding;
-using Laboratory.Core.Utilities;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
 
 namespace Laboratory.AI
 {
@@ -17,7 +17,7 @@ namespace Laboratory.AI
         [SerializeField] private bool findAndUpgradeExistingAI = true;
 
         [Header("System Configuration")]
-        [SerializeField] private PathfindingMode defaultMode = PathfindingMode.Hybrid;
+        [SerializeField] private PathfindingMode defaultMode = PathfindingMode.Auto;
         [SerializeField] private int maxAgentsPerFrame = 10;
         [SerializeField] private float pathUpdateInterval = 0.2f;
         [SerializeField] private bool enableFlowFields = true;
@@ -144,7 +144,7 @@ namespace Laboratory.AI
             {
                 yield return new WaitForSeconds(1f);
                 
-                int activeAgents = testAgents.CountWhere(a => a != null && a.IsMoving());
+                int activeAgents = testAgents.Count(a => a != null && a.IsMoving());
                 Debug.Log($"📊 Performance Test - Active Agents: {activeAgents}, FPS: {1f / Time.deltaTime:F1}");
             }
 
@@ -264,7 +264,7 @@ namespace Laboratory.AI
     public class PathfindingSystemTracker : MonoBehaviour
     {
         [Header("System Settings")]
-        public PathfindingMode mode = PathfindingMode.Hybrid;
+        public PathfindingMode mode = PathfindingMode.Auto;
         public int maxAgentsPerFrame = 10;
         public float pathUpdateInterval = 0.2f;
         public bool enableFlowFields = true;
@@ -303,10 +303,13 @@ namespace Laboratory.AI
         public float baseSpeed = 3.5f;
         public float stoppingDistance = 0.5f;
         public float acceleration = 8f;
+        public AgentType agentType = AgentType.Medium;
 
         private UnityEngine.AI.NavMeshAgent navAgent;
         private Vector3 currentDestination;
         private bool hasDestination = false;
+        private PathfindingStatus status = PathfindingStatus.Idle;
+        private PathfindingMode pathfindingMode = PathfindingMode.Auto;
 
         void Start()
         {
@@ -318,42 +321,66 @@ namespace Laboratory.AI
         }
 
         // IPathfindingAgent implementation
-        public Vector3 GetPosition()
+        public AgentType AgentType => agentType;
+        public PathfindingMode PathfindingMode => pathfindingMode;
+        public PathfindingStatus Status => status;
+        public Vector3 Position => transform.position;
+        public Vector3 Destination => currentDestination;
+
+        public void RequestPath(Vector3 destination, PathfindingMode mode = PathfindingMode.Auto)
         {
-            return transform.position;
+            currentDestination = destination;
+            hasDestination = true;
+            pathfindingMode = mode;
+            status = PathfindingStatus.Computing;
+
+            if (navAgent != null)
+            {
+                navAgent.SetDestination(destination);
+                status = PathfindingStatus.Following;
+            }
         }
 
-        public Vector3 GetDestination()
+        public void CancelPath()
         {
-            return currentDestination;
+            hasDestination = false;
+            status = PathfindingStatus.Cancelled;
+
+            if (navAgent != null)
+            {
+                navAgent.ResetPath();
+            }
         }
 
-        public bool NeedsPathUpdate()
+        public bool HasReachedDestination()
         {
-            return hasDestination && navAgent != null && !navAgent.pathPending;
-        }
+            if (!hasDestination || navAgent == null)
+                return false;
 
-        public bool ShouldForcePathUpdate()
-        {
-            return false;
+            return !navAgent.pathPending && navAgent.remainingDistance <= stoppingDistance;
         }
 
         public void OnPathCalculated(Vector3[] path, bool success)
         {
-            if (success && navAgent != null && path.Length > 0)
+            if (success && path != null && path.Length > 0 && navAgent != null)
             {
-                navAgent.SetDestination(path[path.Length - 1]);
-            }
-        }
-
-        public void DrawDebugPath()
-        {
-            if (navAgent != null && navAgent.hasPath)
-            {
-                for (int i = 1; i < navAgent.path.corners.Length; i++)
+                // Use NavMesh to calculate proper path to destination
+                var navPath = new UnityEngine.AI.NavMeshPath();
+                if (UnityEngine.AI.NavMesh.CalculatePath(path[0], path[path.Length - 1], UnityEngine.AI.NavMesh.AllAreas, navPath))
                 {
-                    Debug.DrawLine(navAgent.path.corners[i - 1], navAgent.path.corners[i], Color.red, 0.1f);
+                    navAgent.SetPath(navPath);
+                    status = PathfindingStatus.Following;
                 }
+                else
+                {
+                    // Fallback: just set destination directly
+                    navAgent.SetDestination(path[path.Length - 1]);
+                    status = PathfindingStatus.Following;
+                }
+            }
+            else
+            {
+                status = PathfindingStatus.Failed;
             }
         }
 

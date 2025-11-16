@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Diagnostics;
-using ProjectChimera.Core;
+using Laboratory.Core;
 
 #if UNITY_EDITOR
 using UnityEditor;

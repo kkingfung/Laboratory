@@ -4,7 +4,6 @@ using System.Linq;
 using UnityEngine;
 using Unity.Collections;
 using Laboratory.Chimera.Core;
-using Laboratory.Chimera.Configuration;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
 using Random = UnityEngine.Random;
@@ -148,7 +147,7 @@ namespace Laboratory.Chimera.Genetics
         /// <summary>
         /// Creates a random genetic profile with basic traits
         /// </summary>
-        public static GeneticProfile CreateRandom(Laboratory.Chimera.Creatures.CreatureStats baseStats)
+        public static GeneticProfile CreateRandom()
         {
             var traitTypes = new[]
             {
@@ -398,19 +397,24 @@ namespace Laboratory.Chimera.Genetics
             }
         }
         
+        // NOTE: ApplyModifiers method commented out to avoid circular dependency between
+        // Laboratory.Chimera.Genetics and Laboratory.Chimera.Creatures assemblies.
+        // This method should be moved to the Creatures assembly or a bridge class in the future.
+
+        /*
         /// <summary>
         /// Applies genetic modifiers to creature stats
         /// </summary>
         public Creatures.CreatureStats ApplyModifiers(Creatures.CreatureStats baseStats)
         {
             var modifiedStats = baseStats;
-            
+
             foreach (var gene in genes.Where(g => g.isActive))
             {
                 if (!gene.value.HasValue) continue;
-                
+
                 float modifier = CalculateGeneModifier(gene);
-                
+
                 switch (gene.traitType)
                 {
                     case TraitType.Strength:
@@ -433,14 +437,14 @@ namespace Laboratory.Chimera.Genetics
                         break;
                 }
             }
-            
+
             return modifiedStats;
         }
-        
+
         private float CalculateGeneModifier(Gene gene)
         {
             float baseModifier = 0.5f + (gene.value.Value * 0.5f); // 0.5 to 1.0 range
-            
+
             // Expression affects the modifier
             switch (gene.expression)
             {
@@ -454,9 +458,10 @@ namespace Laboratory.Chimera.Genetics
                 default:
                     break;
             }
-            
+
             return baseModifier;
         }
+        */
         
         /// <summary>
         /// Gets the purity of this genetic line (less mutations = higher purity)
