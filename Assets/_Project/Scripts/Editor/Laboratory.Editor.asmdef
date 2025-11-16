@@ -2,6 +2,7 @@
     "name": "Laboratory.Editor",
     "rootNamespace": "Laboratory.Editor",
     "references": [
+        "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
         "Laboratory.Shared",

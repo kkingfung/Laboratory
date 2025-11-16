@@ -1,5 +1,6 @@
 using UnityEngine;
 using Laboratory.Subsystems.Player;
+using Laboratory.Core.Management;
 
 namespace Laboratory.Gameplay
 {
@@ -309,9 +310,9 @@ namespace Laboratory.Gameplay
             GiveRewards(player);
 
             // Add score
-            if (Laboratory.Core.GameManager.Instance)
+            if (GameManager.Instance)
             {
-                Laboratory.Core.GameManager.Instance.AddScore(scoreReward);
+                GameManager.Instance.AddScore(scoreReward);
             }
         }
 
