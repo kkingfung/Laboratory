@@ -10,7 +10,8 @@
         "Laboratory.Core.Infrastructure",
         "Laboratory.Shared",
         "Laboratory.AI.Pathfinding",
-        "Laboratory.AI.ECS"
+        "Laboratory.AI.ECS",
+        "Laboratory.Chimera.AI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
