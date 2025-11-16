@@ -309,8 +309,7 @@ namespace Laboratory.Chimera.Configuration
     }
     
     /// <summary>
-    /// AI behavior types for creatures (local copy to avoid assembly dependencies)
-    /// </summary>
+    /// AI behavior types for creatures
     public enum CreatureAIBehaviorType
     {
         Companion,    // Follows player, moderate aggression

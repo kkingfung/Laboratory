@@ -284,7 +284,7 @@ namespace Laboratory.Core.Health.Components
             var eventArgs = new HealthChangedEventArgs(oldHealth, _networkCurrentHealth.Value, damageRequest.Source);
             OnHealthChanged?.Invoke(eventArgs);
 
-            // Publish damage event through interface to avoid circular dependencies
+            // Publish damage event through interface 
             _healthEventPublisher?.PublishDamageEvent(
                 gameObject,
                 damageRequest.Source,
@@ -328,7 +328,7 @@ namespace Laboratory.Core.Health.Components
             // Broadcast death to all clients
             OnDeathClientRpc(finalDamage.DamageId);
 
-            // Publish death event through interface to avoid circular dependencies
+            // Publish death event through interface 
             _healthEventPublisher?.PublishDeathEvent(
                 gameObject,
                 finalDamage.Source

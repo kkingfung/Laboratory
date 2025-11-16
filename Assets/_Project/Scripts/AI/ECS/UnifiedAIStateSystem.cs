@@ -146,10 +146,8 @@ namespace Laboratory.AI.ECS
         private readonly Dictionary<MonoBehaviour, Entity> _monoBehaviourToEntity = new Dictionary<MonoBehaviour, Entity>();
 
         // Performance optimization
-        private NativeHashMap<Entity, int> _stateSnapshots; // Simplified to avoid complex type issues
-        private NativeQueue<int> _conflictQueue; // Simplified to avoid complex type issues
-
-        // Event system integration - removed for now to avoid dependencies
+        private NativeHashMap<Entity, int> _stateSnapshots;
+        private NativeQueue<int> _conflictQueue;
 
         protected override void OnCreate()
         {

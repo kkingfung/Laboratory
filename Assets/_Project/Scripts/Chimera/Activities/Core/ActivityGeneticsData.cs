@@ -4,7 +4,6 @@ namespace Laboratory.Chimera.Activities
 {
     /// <summary>
     /// Lightweight struct containing genetic trait values for activity performance calculations.
-    /// This is a simplified version used by the activity system to avoid circular assembly dependencies.
     /// </summary>
     public struct ActivityGeneticsData : IComponentData
     {

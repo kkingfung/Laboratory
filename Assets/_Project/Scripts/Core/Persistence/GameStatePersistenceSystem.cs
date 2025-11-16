@@ -47,7 +47,7 @@ namespace Laboratory.Core.Persistence
         private bool loadInProgress;
         private PersistenceAnalytics analytics = new PersistenceAnalytics();
 
-        // Connected systems (using generic references to avoid circular dependencies)
+        // Connected systems (using generic references )
         private MonoBehaviour integrationManager;
         private MonoBehaviour evolutionManager;
         private MonoBehaviour personalityManager;

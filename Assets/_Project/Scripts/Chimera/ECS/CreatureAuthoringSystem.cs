@@ -211,5 +211,5 @@ namespace Laboratory.Chimera.ECS
     }
 
     // ECS Components are now defined in the main Laboratory.Chimera assembly
-    // in ChimeraECSComponents.cs to avoid circular dependencies
+    // in ChimeraECSComponents.cs 
 }

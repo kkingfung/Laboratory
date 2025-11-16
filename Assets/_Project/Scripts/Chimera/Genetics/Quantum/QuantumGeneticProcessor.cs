@@ -6,7 +6,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Jobs;
 using Unity.Burst;
-// Note: Advanced types stubbed locally to avoid circular dependencies
+// Note: Advanced types stubbed locally 
 
 namespace Laboratory.Chimera.Genetics.Quantum
 {
@@ -652,7 +652,7 @@ namespace Laboratory.Chimera.Genetics.Quantum
         }
     }
 
-    // Stub types to avoid circular dependencies with Advanced assembly
+    // Stub types with Advanced assembly
     // These should eventually be moved to proper Advanced types when architecture allows
 
     /// <summary>

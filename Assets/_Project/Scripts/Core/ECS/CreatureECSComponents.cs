@@ -71,7 +71,7 @@ namespace Laboratory.Core.ECS
 
     // AI behavior types - core subset for basic systems
     // Note: Full AIBehaviorType enum is defined in Laboratory.Chimera.AI.AIBehaviorType
-    // This is a minimal subset for ECS components to avoid circular dependencies
+    // This is a minimal subset for ECS components 
     public enum AIBehaviorType : byte
     {
         None = 0,
@@ -87,7 +87,7 @@ namespace Laboratory.Core.ECS
 
     // AI states - core subset for basic systems
     // Note: Full AIBehaviorState enum is defined in Laboratory.Chimera.AI.AIBehaviorState
-    // This is a minimal subset for ECS components to avoid circular dependencies
+    // This is a minimal subset for ECS components 
     public enum AIState : byte
     {
         Idle = 0,

@@ -7,7 +7,7 @@ using Laboratory.Core.Enums;
 namespace Laboratory.Chimera
 {
     /// <summary>
-    /// Extension methods for GeneticProfile to avoid circular dependencies.
+    /// Extension methods for GeneticProfile
     /// This class bridges the Genetics and Creatures assemblies.
     /// </summary>
     public static class GeneticProfileExtensions
