@@ -4,6 +4,7 @@ using Unity.Burst;
 using Unity.Profiling;
 using UnityEngine;
 using Laboratory.Chimera.Genetics;
+using Laboratory.Chimera.Creatures;
 using System.Collections.Generic;
 
 namespace Laboratory.Chimera.Activities
