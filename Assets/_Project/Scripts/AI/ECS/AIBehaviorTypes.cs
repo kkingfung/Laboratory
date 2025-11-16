@@ -7,38 +7,40 @@ namespace Laboratory.AI.ECS
     /// </summary>
     public enum AIBehaviorType : byte
     {
+        /// <summary>No behavior set</summary>
+        None = 0,
         /// <summary>Idle behavior - standing around</summary>
-        Idle = 0,
+        Idle = 1,
         /// <summary>Wandering randomly</summary>
-        Wander = 1,
+        Wander = 2,
         /// <summary>Patrolling between points</summary>
-        Patrol = 2,
+        Patrol = 3,
         /// <summary>Following a target</summary>
-        Follow = 3,
+        Follow = 4,
         /// <summary>Fleeing from a threat</summary>
-        Flee = 4,
+        Flee = 5,
         /// <summary>Attacking a target</summary>
-        Attack = 5,
+        Attack = 6,
         /// <summary>Defending a position or ally</summary>
-        Defend = 6,
+        Defend = 7,
         /// <summary>Searching for something</summary>
-        Search = 7,
+        Search = 8,
         /// <summary>Investigating a disturbance</summary>
-        Investigate = 8,
+        Investigate = 9,
         /// <summary>Returning to home position</summary>
-        ReturnHome = 9,
+        ReturnHome = 10,
         /// <summary>Gathering resources</summary>
-        Gather = 10,
+        Gather = 11,
         /// <summary>Socializing with others</summary>
-        Social = 11,
+        Social = 12,
         /// <summary>Resting or sleeping</summary>
-        Rest = 12,
+        Rest = 13,
         /// <summary>Eating or feeding</summary>
-        Feed = 13,
+        Feed = 14,
         /// <summary>Breeding behavior</summary>
-        Breed = 14,
+        Breed = 15,
         /// <summary>Territorial behavior</summary>
-        Territory = 15,
+        Territory = 16,
         /// <summary>Custom scripted behavior</summary>
         Custom = 255
     }

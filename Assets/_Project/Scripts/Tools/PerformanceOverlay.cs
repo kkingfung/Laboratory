@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using Laboratory.Core.Performance;
+using Laboratory.Core.Utilities;
 
 namespace Laboratory.Tools
 {
