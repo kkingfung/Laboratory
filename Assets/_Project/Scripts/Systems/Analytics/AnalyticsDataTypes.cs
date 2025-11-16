@@ -98,4 +98,49 @@ namespace Laboratory.Systems.Analytics
         public float peakEngagementPeriod;
         public float sessionQuality;
     }
+
+    /// <summary>
+    /// Analytics session data for tracking player sessions
+    /// </summary>
+    [Serializable]
+    public class AnalyticsSessionData
+    {
+        public uint sessionId;
+        public float startTime;
+        public float endTime;
+        public float duration;
+        public float totalPauseTime;
+        public int totalActions;
+        public int uniqueActionTypes;
+        public ArchetypeType playerArchetype;
+        public List<PlayerAction> actions;
+        public EngagementMetrics engagementMetrics;
+        public Dictionary<string, float> behaviorMetrics;
+        public Dictionary<Laboratory.Chimera.Social.Types.EmotionalState, float> emotionalProfile;
+    }
+
+    /// <summary>
+    /// Player behavior analysis data (alias for BehaviorAnalysisStats)
+    /// </summary>
+    [Serializable]
+    public struct PlayerBehaviorAnalysis
+    {
+        public ArchetypeType currentArchetype;
+        public PlayerBehaviorTrait dominantTrait;
+        public float traitDiversity;
+        public int patternCount;
+        public int insightCount;
+    }
+
+    /// <summary>
+    /// Behavior focus metrics for adaptive systems
+    /// </summary>
+    [Serializable]
+    public struct BehaviorFocusMetrics
+    {
+        public float explorationFocus;
+        public float socialFocus;
+        public float competitiveFocus;
+        public float creativeFocus;
+    }
 }

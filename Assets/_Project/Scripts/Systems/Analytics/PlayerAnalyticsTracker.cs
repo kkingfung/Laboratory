@@ -26,7 +26,7 @@ namespace Laboratory.Systems.Analytics
     /// - EmotionalAnalysisService: Emotional response tracking
     /// - AnalyticsDataPersistence: Save/load operations
     /// </summary>
-    public class PlayerAnalyticsTrackerRefactored : MonoBehaviour
+    public class PlayerAnalyticsTracker : MonoBehaviour
     {
         #region Configuration
 
@@ -506,6 +506,60 @@ namespace Laboratory.Systems.Analytics
                 _currentPlayerProfile,
                 _sessionManager.SessionHistory as List<AnalyticsSessionData>
             );
+        }
+
+        /// <summary>
+        /// Generates player behavior analysis for external systems
+        /// </summary>
+        public PlayerBehaviorAnalysis GeneratePlayerBehaviorAnalysis()
+        {
+            var behaviorStats = GetBehaviorStats();
+            return new PlayerBehaviorAnalysis
+            {
+                currentArchetype = behaviorStats.currentArchetype,
+                dominantTrait = behaviorStats.dominantTrait,
+                traitDiversity = behaviorStats.traitDiversity,
+                patternCount = behaviorStats.patternCount,
+                insightCount = behaviorStats.insightCount
+            };
+        }
+
+        /// <summary>
+        /// Gets behavior focus metrics for adaptive systems
+        /// </summary>
+        public BehaviorFocusMetrics GetBehaviorAnalysis()
+        {
+            var behaviorStats = GetBehaviorStats();
+
+            // Map behavior traits to focus metrics
+            float explorationFocus = 0.5f;
+            float socialFocus = 0.5f;
+            float competitiveFocus = 0.5f;
+            float creativeFocus = 0.5f;
+
+            switch (behaviorStats.dominantTrait)
+            {
+                case PlayerBehaviorTrait.Exploration:
+                    explorationFocus = 0.8f;
+                    break;
+                case PlayerBehaviorTrait.Social:
+                    socialFocus = 0.8f;
+                    break;
+                case PlayerBehaviorTrait.Combat:
+                    competitiveFocus = 0.8f;
+                    break;
+                case PlayerBehaviorTrait.Creativity:
+                    creativeFocus = 0.8f;
+                    break;
+            }
+
+            return new BehaviorFocusMetrics
+            {
+                explorationFocus = explorationFocus,
+                socialFocus = socialFocus,
+                competitiveFocus = competitiveFocus,
+                creativeFocus = creativeFocus
+            };
         }
 
         #endregion
