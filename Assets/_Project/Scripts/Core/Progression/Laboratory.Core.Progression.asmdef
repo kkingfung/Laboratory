@@ -7,6 +7,7 @@
         "Laboratory.Core.Events",
         "Laboratory.Core.ECS",
         "Laboratory.Core.Activities",
+        "Laboratory.Core.Equipment",
         "Laboratory.Core.Enums",
         "Laboratory.Core.Diagnostics",
         "Laboratory.Chimera.Core",

@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Burst;
+using Unity.Collections;
 using Laboratory.Core.Progression.Components;
 using Laboratory.Core.ECS.Components;
 using Laboratory.Core.Activities.Components;
