@@ -11,6 +11,7 @@
         "Laboratory.Chimera.Creatures",
         "Laboratory.Chimera.Genetics",
         "Laboratory.Chimera.Breeding",
+        "Laboratory.Chimera.Activities",
         "Laboratory.Chimera.AI",
         "Laboratory.AI.Pathfinding",
         "Unity.Entities",
