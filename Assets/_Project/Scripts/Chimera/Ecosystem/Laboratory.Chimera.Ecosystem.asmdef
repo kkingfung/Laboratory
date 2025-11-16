@@ -1,15 +1,16 @@
 {
-    "name": "Laboratory.Core.Network",
-    "rootNamespace": "Laboratory.Core.Network",
+    "name": "Laboratory.Chimera.Ecosystem",
+    "rootNamespace": "Laboratory.Chimera.Ecosystem",
     "references": [
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",
         "Unity.Transforms",
-        "Unity.Netcode.Runtime",
-        "Laboratory.Core",
-        "Laboratory.Core.ECS",
-        "Laboratory.Core.Infrastructure"
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Enums",
+        "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.Genetics",
+        "Laboratory.Shared"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
