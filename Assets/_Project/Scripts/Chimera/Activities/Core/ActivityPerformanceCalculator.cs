@@ -200,13 +200,13 @@ namespace Laboratory.Chimera.Activities
             out float social,
             out float adaptability)
         {
-            // Extract normalized stat values (0.0 to 1.0)
-            strength = math.clamp(genetics.strength / 100f, 0f, 1f);
-            agility = math.clamp(genetics.agility / 100f, 0f, 1f);
-            intelligence = math.clamp(genetics.intelligence / 100f, 0f, 1f);
-            vitality = math.clamp(genetics.vitality / 100f, 0f, 1f);
-            social = math.clamp(genetics.social / 100f, 0f, 1f);
-            adaptability = math.clamp(genetics.adaptability / 100f, 0f, 1f);
+            // Extract normalized stat values (already 0.0 to 1.0 from genetic traits)
+            strength = math.clamp(genetics.StrengthTrait, 0f, 1f);
+            agility = math.clamp(genetics.AgilityTrait, 0f, 1f);
+            intelligence = math.clamp(genetics.IntellectTrait, 0f, 1f);
+            vitality = math.clamp(genetics.VitalityTrait, 0f, 1f);
+            social = math.clamp(genetics.CharmTrait, 0f, 1f);
+            adaptability = math.clamp(genetics.ResilienceTrait, 0f, 1f);
         }
     }
 }

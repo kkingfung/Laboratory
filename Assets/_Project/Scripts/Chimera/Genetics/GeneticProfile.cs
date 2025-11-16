@@ -397,11 +397,6 @@ namespace Laboratory.Chimera.Genetics
             }
         }
         
-        // NOTE: ApplyModifiers method commented out to avoid circular dependency between
-        // Laboratory.Chimera.Genetics and Laboratory.Chimera.Creatures assemblies.
-        // This method should be moved to the Creatures assembly or a bridge class in the future.
-
-        /*
         /// <summary>
         /// Applies genetic modifiers to creature stats
         /// </summary>
@@ -461,8 +456,7 @@ namespace Laboratory.Chimera.Genetics
 
             return baseModifier;
         }
-        */
-        
+
         /// <summary>
         /// Gets the purity of this genetic line (less mutations = higher purity)
         /// </summary>
