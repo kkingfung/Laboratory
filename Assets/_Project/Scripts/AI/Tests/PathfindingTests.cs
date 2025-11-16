@@ -489,6 +489,22 @@ namespace Laboratory.AI.Tests
             return false; // For testing, don't force updates
         }
 
+        public void RequestPath(Vector3 destination, PathfindingMode mode = PathfindingMode.Auto)
+        {
+            Destination = destination;
+            Status = PathfindingStatus.Calculating;
+        }
+
+        public void CancelPath()
+        {
+            Status = PathfindingStatus.Idle;
+        }
+
+        public bool HasReachedDestination()
+        {
+            return Vector3.Distance(Position, Destination) < 0.1f;
+        }
+
         public void OnPathCalculated(Vector3[] path, bool success)
         {
             LastPath = path;

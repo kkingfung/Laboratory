@@ -11,7 +11,10 @@
         "Laboratory.Core.Activities",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
-        "Laboratory.Core.Enums"
+        "Laboratory.Core.Enums",
+        "Laboratory.Core.TownBuilding",
+        "Laboratory.Core.Configuration",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
