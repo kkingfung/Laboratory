@@ -6,6 +6,7 @@ using Laboratory.Subsystems.Genetics;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Subsystems.Research;
 using Laboratory.Subsystems.Ecosystem;
+using Laboratory.Subsystems.Analytics;
 
 namespace Laboratory.Subsystems.AIDirector.Services
 {

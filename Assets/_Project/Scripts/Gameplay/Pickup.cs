@@ -215,9 +215,9 @@ namespace Laboratory.Gameplay
                     break;
             }
 
-            if (Laboratory.Core.GameManager.Instance)
+            if (GameManager.Instance != null)
             {
-                Laboratory.Core.GameManager.Instance.AddScore(50);
+                GameManager.Instance.AddScore(50);
             }
         }
 

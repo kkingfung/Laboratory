@@ -422,10 +422,7 @@ namespace Laboratory.Subsystems.AIDirector
             _playerAnalysisService?.TrackDiscovery(playerId, discoveryType);
 
             // Check for narrative opportunities
-            CheckDiscoveryNarrativeOpportunities(playerId, discoveryType);
-
-            // Update global discovery state
-            UpdateGlobalDiscoveryState(discoveryType);
+            _narrativeGenerationService?.AnalyzeDiscoveryOpportunities(playerId, discoveryType);
         }
 
         private void ProcessAchievementEvent(DirectorEvent directorEvent)
