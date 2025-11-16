@@ -76,7 +76,7 @@ namespace Laboratory.AI.Configuration
         /// <summary>
         /// Get the optimal pathfinding mode based on current configuration and parameters
         /// </summary>
-        public PathfindingMode GetOptimalMode(float distance, int nearbyAgents, EnhancedAIAgent.AgentType agentType)
+        public PathfindingMode GetOptimalMode(float distance, int nearbyAgents, Laboratory.AI.Pathfinding.AgentType agentType)
         {
             // Short distances - use A*
             if (distance <= aStarMaxDistance)
@@ -203,7 +203,7 @@ namespace Laboratory.AI.Configuration
         [SerializeField] private int stuckFrames = 30;
 
         [Header("Agent Type Specific")]
-        [SerializeField] private EnhancedAIAgent.AgentType agentType = EnhancedAIAgent.AgentType.Medium;
+        [SerializeField] private Laboratory.AI.Pathfinding.AgentType agentType = Laboratory.AI.Pathfinding.AgentType.Medium;
         [SerializeField] private float agentRadius = 0.5f;
         [SerializeField] private float agentHeight = 2f;
 
@@ -222,7 +222,7 @@ namespace Laboratory.AI.Configuration
         public bool EnableStuckDetection => enableStuckDetection;
         public float StuckThreshold => stuckThreshold;
         public int StuckFrames => stuckFrames;
-        public EnhancedAIAgent.AgentType CurrentAgentType => agentType;
+        public Laboratory.AI.Pathfinding.AgentType CurrentAgentType => agentType;
         public float AgentRadius => agentRadius;
         public float AgentHeight => agentHeight;
 
@@ -241,7 +241,7 @@ namespace Laboratory.AI.Configuration
         /// <summary>
         /// Create configuration for different agent types
         /// </summary>
-        public static AgentConfiguration CreateForType(EnhancedAIAgent.AgentType type)
+        public static AgentConfiguration CreateForType(Laboratory.AI.Pathfinding.AgentType type)
         {
             var config = CreateInstance<AgentConfiguration>();
             config.agentType = type;
