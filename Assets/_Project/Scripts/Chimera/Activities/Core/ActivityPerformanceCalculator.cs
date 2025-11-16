@@ -1,7 +1,7 @@
 using Unity.Mathematics;
 using Unity.Burst;
 using Laboratory.Chimera.Genetics;
-using Laboratory.Chimera.ECS.Components;
+using Laboratory.Chimera.Creatures;
 
 namespace Laboratory.Chimera.Activities
 {
@@ -192,7 +192,7 @@ namespace Laboratory.Chimera.Activities
         /// </summary>
         [BurstCompile]
         public static void ExtractGeneticStats(
-            in CreatureGeneticsComponent genetics,
+            in ActivityGeneticsData genetics,
             out float strength,
             out float agility,
             out float intelligence,

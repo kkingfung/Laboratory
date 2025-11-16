@@ -30,7 +30,7 @@ namespace Laboratory.Chimera.Activities.Puzzle
         /// Tertiary: Social (collaborative puzzle solving)
         /// </summary>
         public float CalculatePerformance(
-            in CreatureGeneticsComponent genetics,
+            in ActivityGeneticsData genetics,
             ActivityDifficulty difficulty,
             float equipmentBonus,
             float masteryBonus)

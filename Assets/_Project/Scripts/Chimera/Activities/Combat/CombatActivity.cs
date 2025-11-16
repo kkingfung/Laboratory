@@ -30,7 +30,7 @@ namespace Laboratory.Chimera.Activities.Combat
         /// Tertiary: Intelligence (tactical decisions and combos)
         /// </summary>
         public float CalculatePerformance(
-            in CreatureGeneticsComponent genetics,
+            in ActivityGeneticsData genetics,
             ActivityDifficulty difficulty,
             float equipmentBonus,
             float masteryBonus)

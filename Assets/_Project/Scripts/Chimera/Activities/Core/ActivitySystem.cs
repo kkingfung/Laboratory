@@ -72,7 +72,7 @@ namespace Laboratory.Chimera.Activities
             _activityRequestQuery = GetEntityQuery(ComponentType.ReadOnly<StartActivityRequest>());
             _activeActivitiesQuery = GetEntityQuery(
                 ComponentType.ReadWrite<ActiveActivityComponent>(),
-                ComponentType.ReadOnly<CreatureGeneticsComponent>());
+                ComponentType.ReadOnly<ActivityGeneticsData>());
             _activityResultsQuery = GetEntityQuery(
                 ComponentType.ReadOnly<ActivityResultComponent>(),
                 ComponentType.ReadWrite<CurrencyComponent>(),
@@ -171,7 +171,7 @@ namespace Laboratory.Chimera.Activities
                     continue;
                 }
 
-                if (!EntityManager.HasComponent<CreatureGeneticsComponent>(monsterEntity))
+                if (!EntityManager.HasComponent<ActivityGeneticsData>(monsterEntity))
                 {
                     Debug.LogWarning($"Monster entity missing genetics component");
                     ecb.DestroyEntity(entity);
@@ -237,7 +237,7 @@ namespace Laboratory.Chimera.Activities
 
             // Step 2: Process newly completed activities (requires managed access for activity implementations)
             foreach (var (activeActivity, genetics, entity) in
-                SystemAPI.Query<RefRW<ActiveActivityComponent>, RefRO<CreatureGeneticsComponent>>()
+                SystemAPI.Query<RefRW<ActiveActivityComponent>, RefRO<ActivityGeneticsData>>()
                 .WithEntityAccess())
             {
                 // Only process activities that just completed
@@ -329,7 +329,7 @@ namespace Laboratory.Chimera.Activities
         /// Calculates activity performance based on genetics and equipment
         /// </summary>
         private float CalculateActivityPerformance(
-            in CreatureGeneticsComponent genetics,
+            in ActivityGeneticsData genetics,
             ActivityType activityType,
             ActivityDifficulty difficulty,
             Entity monsterEntity)
@@ -354,7 +354,7 @@ namespace Laboratory.Chimera.Activities
         /// <summary>
         /// Default performance calculation when no specific implementation exists
         /// </summary>
-        private float CalculateDefaultPerformance(in CreatureGeneticsComponent genetics, ActivityDifficulty difficulty)
+        private float CalculateDefaultPerformance(in ActivityGeneticsData genetics, ActivityDifficulty difficulty)
         {
             ActivityPerformanceCalculator.ExtractGeneticStats(
                 in genetics,

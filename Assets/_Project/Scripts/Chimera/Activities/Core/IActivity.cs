@@ -24,7 +24,7 @@ namespace Laboratory.Chimera.Activities
         /// <param name="masteryBonus">Bonus from activity mastery (1.0 to 1.5)</param>
         /// <returns>Performance score (0.0 to 1.0)</returns>
         float CalculatePerformance(
-            in CreatureGeneticsComponent genetics,
+            in ActivityGeneticsData genetics,
             ActivityDifficulty difficulty,
             float equipmentBonus,
             float masteryBonus);

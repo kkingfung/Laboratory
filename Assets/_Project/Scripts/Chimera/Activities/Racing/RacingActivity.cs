@@ -30,7 +30,7 @@ namespace Laboratory.Chimera.Activities.Racing
         /// Tertiary: Adaptability (handling different track conditions)
         /// </summary>
         public float CalculatePerformance(
-            in CreatureGeneticsComponent genetics,
+            in ActivityGeneticsData genetics,
             ActivityDifficulty difficulty,
             float equipmentBonus,
             float masteryBonus)
