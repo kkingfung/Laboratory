@@ -12,6 +12,7 @@
         "Unity.TextMeshPro",
         "R3.Unity",
         "UniTask",
+        "Laboratory.Core.ECS",
         "Laboratory.Core.Events",
         "Laboratory.Core.Health",
         "Laboratory.Core.Infrastructure",

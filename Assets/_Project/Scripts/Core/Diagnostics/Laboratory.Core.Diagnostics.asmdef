@@ -3,11 +3,13 @@
     "rootNamespace": "Laboratory.Core.Diagnostics",
     "references": [
         "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.ECS",
         "Laboratory.Core.Enums",
         "Laboratory.Shared",
         "Unity.Entities",
         "Unity.Collections",
-        "Unity.Mathematics"
+        "Unity.Mathematics",
+        "Unity.Transforms"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
