@@ -9,6 +9,7 @@ using Laboratory.Core.Infrastructure;
 using Laboratory.Core.State;
 using Laboratory.Core.Events.Messages;
 using Laboratory.Infrastructure.AsyncUtils;
+using GameState = Laboratory.Core.Events.Messages.GameState;
 
 #nullable enable
 
