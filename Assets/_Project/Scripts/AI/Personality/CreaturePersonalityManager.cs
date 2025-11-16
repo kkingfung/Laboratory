@@ -6,6 +6,7 @@ using Laboratory.Chimera.AI;
 using Laboratory.Core;
 using Laboratory.Core.Events;
 using Laboratory.Core.Diagnostics;
+using SocialInteractionType = Laboratory.Core.SocialInteractionType;
 
 namespace Laboratory.AI.Personality
 {

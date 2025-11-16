@@ -11,6 +11,7 @@
         "Laboratory.Core.Infrastructure",
         "Laboratory.Shared",
         "Laboratory.AI.ECS",
+        "Laboratory.AI.Pathfinding",
         "Laboratory.AI.Services"
     ],
     "includePlatforms": [],

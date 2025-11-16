@@ -20,7 +20,8 @@
         "Laboratory.Chimera.AI",
         "Laboratory.Chimera.Breeding",
         "Laboratory.Chimera.Genetics",
-        "Laboratory.Chimera.Creatures"
+        "Laboratory.Chimera.Creatures",
+        "Laboratory.Chimera.Ecosystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

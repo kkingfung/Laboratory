@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Chimera;
+using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Chimera.AI;

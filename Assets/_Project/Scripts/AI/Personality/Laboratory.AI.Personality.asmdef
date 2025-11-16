@@ -2,6 +2,7 @@
     "name": "Laboratory.AI.Personality",
     "rootNamespace": "Laboratory.AI.Personality",
     "references": [
+        "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
         "Laboratory.Core.Events",
