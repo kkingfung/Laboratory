@@ -389,7 +389,7 @@ namespace Laboratory.Chimera.Activities
                     ActivityType.Combat => bonusCache.combatBonus,
                     ActivityType.Puzzle => bonusCache.puzzleBonus,
                     ActivityType.Strategy => bonusCache.strategyBonus,
-                    ActivityType.Rhythm => bonusCache.rhythmBonus,
+                    ActivityType.Music => bonusCache.rhythmBonus,
                     ActivityType.Adventure => bonusCache.adventureBonus,
                     ActivityType.Platforming => bonusCache.platformingBonus,
                     ActivityType.Crafting => bonusCache.craftingBonus,
