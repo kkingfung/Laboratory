@@ -16,8 +16,7 @@ namespace Laboratory.Core.TownBuilding.Jobs
         public EntityCommandBuffer.ParallelWriter CommandBuffer;
 
         public void Execute([ChunkIndexInQuery] int chunkIndex, Entity entity,
-            ref BuildingComponent building,
-            in LocalTransform transform)
+            ref BuildingComponent building)
         {
             switch (building.Status)
             {
