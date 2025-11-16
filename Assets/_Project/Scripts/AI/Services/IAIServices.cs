@@ -3,7 +3,8 @@ using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.AI.Pathfinding;
 using Laboratory.AI.ECS;
-using Laboratory.Shared.Types;
+using PathfindingStatus = Laboratory.AI.Pathfinding.PathfindingStatus;
+using AIBehaviorType = Laboratory.AI.Pathfinding.AIBehaviorType;
 
 namespace Laboratory.AI.Services
 {
