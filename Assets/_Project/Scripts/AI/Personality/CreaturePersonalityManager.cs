@@ -96,7 +96,7 @@ namespace Laboratory.AI.Personality
         /// <summary>
         /// Registers a creature with the personality system
         /// </summary>
-        public CreaturePersonalityProfile RegisterCreature(uint creatureId, CreatureGenome genome)
+        public CreaturePersonalityProfile RegisterCreature(uint creatureId, Laboratory.Chimera.Genetics.Advanced.CreatureGenome genome)
         {
             if (!enablePersonalitySystem) return null;
 

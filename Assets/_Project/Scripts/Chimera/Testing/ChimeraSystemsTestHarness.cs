@@ -66,12 +66,12 @@ namespace Laboratory.Chimera.Testing
         private float _frameTime = 0f;
 
         private EntityManager _entityManager;
-        private Random _random;
+        private Unity.Mathematics.Random _random;
 
         private void Start()
         {
             _entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-            _random = new Random((uint)System.DateTime.Now.Ticks);
+            _random = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
 
             // Load configurations
             LoadConfigurations();

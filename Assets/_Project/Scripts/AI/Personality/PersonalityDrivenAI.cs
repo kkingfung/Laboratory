@@ -420,9 +420,9 @@ namespace Laboratory.AI.Personality
         /// <summary>
         /// Converts a GeneticProfile to CreatureGenome for compatibility with personality system
         /// </summary>
-        private CreatureGenome ConvertToCreatureGenome(GeneticProfile geneticProfile)
+        private Laboratory.Chimera.Genetics.Advanced.CreatureGenome ConvertToCreatureGenome(GeneticProfile geneticProfile)
         {
-            var genome = new CreatureGenome
+            var genome = new Laboratory.Chimera.Genetics.Advanced.CreatureGenome
             {
                 id = creatureId,
                 generation = (uint)geneticProfile.Generation,
