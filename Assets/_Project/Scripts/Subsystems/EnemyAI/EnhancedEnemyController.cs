@@ -29,7 +29,7 @@ namespace Laboratory.Subsystems.EnemyAI
         [SerializeField] private float fieldOfViewAngle = 90f;
 
         [Header("Enhanced Pathfinding")]
-        [SerializeField] private PathfindingMode pathfindingMode = PathfindingMode.Hybrid;
+        [SerializeField] private PathfindingMode pathfindingMode = PathfindingMode.Auto;
         [SerializeField] private float pathUpdateInterval = 0.3f;
         [SerializeField] private float pathRecalculationDistance = 3f;
         [SerializeField] private bool enablePathOptimization = true;
@@ -142,7 +142,7 @@ namespace Laboratory.Subsystems.EnemyAI
 
             // Configure AI agent
             aiAgent.SetSpeed(moveSpeed);
-            aiAgent.SetAgentType(EnhancedAIAgent.AgentType.Medium);
+            aiAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Medium);
         }
 
         private void SetupInitialState()

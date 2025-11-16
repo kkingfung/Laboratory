@@ -8,7 +8,7 @@ using Laboratory.Core.State;
 using Laboratory.Core.Events.Messages;
 using Laboratory.Infrastructure.AsyncUtils;
 using Laboratory.Models.ECS.Components;
-using GameState = Laboratory.Core.State.GameState;
+using GameState = Laboratory.Core.Events.Messages.GameState;
 
 #nullable enable
 
@@ -125,10 +125,10 @@ namespace Laboratory.Models.ECS.Systems
         {
             switch (evt.CurrentState)
             {
-                case GameState.Playing:
+                case GameState.Gameplay:
                     EnableGameplaySystems(true);
                     break;
-                    
+
                 case GameState.Paused:
                 case GameState.MainMenu:
                 case GameState.Loading:
