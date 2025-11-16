@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using Laboratory.Core.MonsterTown;
 using Laboratory.Core.Equipment;
 using Laboratory.Core.Events;
+using Laboratory.Core.Activities.Types;
 using EquipmentItem = Laboratory.Core.MonsterTown.Equipment;
 
 namespace Laboratory.Core.Social

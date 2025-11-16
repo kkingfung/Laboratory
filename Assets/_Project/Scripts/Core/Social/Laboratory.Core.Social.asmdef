@@ -8,7 +8,10 @@
         "Laboratory.Core.Equipment",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
-        "Laboratory.Core.Enums"
+        "Laboratory.Core.Enums",
+        "Laboratory.Core.MonsterTown",
+        "Laboratory.Core.Activities",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
