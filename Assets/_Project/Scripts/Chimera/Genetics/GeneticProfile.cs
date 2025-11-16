@@ -4,7 +4,6 @@ using System.Linq;
 using UnityEngine;
 using Unity.Collections;
 using Laboratory.Chimera.Core;
-using Laboratory.Chimera.Creatures;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
 using Random = UnityEngine.Random;
@@ -397,11 +396,16 @@ namespace Laboratory.Chimera.Genetics
                 }
             }
         }
-        
+
+        // NOTE: ApplyModifiers moved to GeneticProfileExtensions in main Chimera assembly
+        // to avoid circular dependency between Genetics and Creatures assemblies.
+        // See Laboratory.Chimera/GeneticProfileExtensions.cs
+
+        /*
         /// <summary>
         /// Applies genetic modifiers to creature stats
         /// </summary>
-        public CreatureStats ApplyModifiers(CreatureStats baseStats)
+        public Creatures.CreatureStats ApplyModifiers(Creatures.CreatureStats baseStats)
         {
             var modifiedStats = baseStats;
 
@@ -457,6 +461,7 @@ namespace Laboratory.Chimera.Genetics
 
             return baseModifier;
         }
+        */
 
         /// <summary>
         /// Gets the purity of this genetic line (less mutations = higher purity)

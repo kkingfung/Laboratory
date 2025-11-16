@@ -10,7 +10,6 @@
         "Laboratory.Shared",
         "Laboratory.Models",
         "Laboratory.Chimera.Core",
-        "Laboratory.Chimera.Creatures",
         "Laboratory.AI.ECS",
         "Unity.Entities",
         "Unity.Mathematics",
