@@ -77,7 +77,6 @@ namespace Laboratory.Systems.Analytics
         #region State
 
         private PlayerProfile _currentPlayerProfile;
-        private GameAdaptationEngine _adaptationEngine;
         private bool _isInitialized;
 
         // Performance profiling
@@ -409,14 +408,13 @@ namespace Laboratory.Systems.Analytics
 
         private void TriggerGameAdaptation(string adaptationType, float intensity)
         {
-            _adaptationEngine.ProcessPlayerData(_currentPlayerProfile);
+            // Game adaptation functionality has been refactored into specialized services
+            // This method is kept for compatibility but the actual adaptation is now handled by:
+            // - DifficultyAdaptationService for difficulty adjustments
+            // - ContentOrchestrationService for content spawning and engagement
+            // - EducationalScaffoldingService for player support
 
-            if (adaptationType == "IncreaseDifficulty" || adaptationType == "DecreaseDifficulty")
-            {
-                _adaptationEngine.UpdateDifficulty(intensity);
-            }
-
-            Debug.Log($"[PlayerAnalyticsTracker] Game adaptation triggered: {adaptationType} (intensity: {intensity:F2})");
+            Debug.Log($"[PlayerAnalyticsTracker] Game adaptation signal: {adaptationType} (intensity: {intensity:F2}) - handled by specialized services");
         }
 
         #endregion

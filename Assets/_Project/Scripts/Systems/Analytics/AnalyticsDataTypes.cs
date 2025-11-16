@@ -45,7 +45,8 @@ namespace Laboratory.Systems.Analytics
         Achiever,
         Socializer,
         Collector,
-        Balanced
+        Balanced,
+        Unknown
     }
 
     /// <summary>
@@ -69,5 +70,32 @@ namespace Laboratory.Systems.Analytics
         public string description;
         public float confidence;
         public float timestamp;
+    }
+
+    /// <summary>
+    /// Player profile for Analytics system
+    /// </summary>
+    [Serializable]
+    public class PlayerProfile
+    {
+        public string playerId;
+        public string creationDate;
+        public float totalPlayTime;
+        public int totalSessions;
+        public string lastPlayDate;
+        public ArchetypeType dominantArchetype;
+    }
+
+    /// <summary>
+    /// Engagement metrics for session analysis
+    /// </summary>
+    [Serializable]
+    public struct EngagementMetrics
+    {
+        public float sessionDuration;
+        public float actionsPerMinute;
+        public float averageActionInterval;
+        public float peakEngagementPeriod;
+        public float sessionQuality;
     }
 }
