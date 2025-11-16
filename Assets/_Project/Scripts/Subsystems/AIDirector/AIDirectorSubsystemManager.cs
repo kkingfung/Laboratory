@@ -457,9 +457,6 @@ namespace Laboratory.Subsystems.AIDirector
             // Provide educational scaffolding
             _educationalScaffoldingService?.ProvideSupport(playerId, struggleType);
 
-            // Adjust difficulty if needed
-            ConsiderDifficultyReduction(playerId);
-
             // Update player confidence
             _playerProfileService.UpdatePlayerConfidence(playerId, false);
         }
@@ -471,9 +468,6 @@ namespace Laboratory.Subsystems.AIDirector
 
             // Generate milestone celebration
             _narrativeGenerationService?.GenerateMilestoneCelebration(playerId, milestoneType);
-
-            // Update player progression state
-            UpdatePlayerProgression(playerId, milestoneType);
         }
 
         private void AnalyzePlayerBehavior()
@@ -512,18 +506,8 @@ namespace Laboratory.Subsystems.AIDirector
 
         private void UpdatePlayerContext(string playerId)
         {
-            var profile = _playerProfiles[playerId];
-            var context = GetOrCreatePlayerContext(playerId);
-
-            // Update context based on current player state
-            context.engagement = _playerProfileService.CalculateEngagementScore(profile);
-            context.skillLevel = _playerProfileService.CalculateSkillLevel(profile);
-            context.progressRate = _playerProfileService.CalculateProgressRate(profile);
-            context.socialActivity = _playerProfileService.CalculateSocialActivity(profile);
-            context.timeInSession = _playerProfileService.CalculateSessionTime(profile);
-
-            // Update context weights based on educational goals
-            UpdateContextWeightsForPlayer(playerId, context);
+            // Player context is now managed by PlayerProfileService
+            // This method is kept for compatibility but functionality has been moved to services
         }
 
         private void MakeDirectorDecisions()
@@ -580,11 +564,10 @@ namespace Laboratory.Subsystems.AIDirector
             for (int i = _activeStorylines.Count - 1; i >= 0; i--)
             {
                 var storyline = _activeStorylines[i];
-                UpdateStoryline(storyline);
 
                 if (storyline.isCompleted || storyline.hasExpired)
                 {
-                    CompleteStoryline(storyline);
+                    _emergentStorytellingService?.CompleteStoryline(storyline);
                     _activeStorylines.RemoveAt(i);
                 }
             }
@@ -607,10 +590,8 @@ namespace Laboratory.Subsystems.AIDirector
 
         private void AdaptDifficultyAndContent()
         {
-            foreach (var playerId in _playerProfiles.Keys)
-            {
-                AdaptPlayerExperience(playerId);
-            }
+            // Player experience adaptation is now handled by individual services
+            // (EducationalContentService, BehavioralAnalysisService, etc.)
         }
 
         #endregion

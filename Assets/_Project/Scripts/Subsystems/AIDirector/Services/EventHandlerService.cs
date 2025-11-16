@@ -361,28 +361,5 @@ namespace Laboratory.Subsystems.AIDirector.Services
         }
 
         #endregion
-
-        #region Event Type Definitions
-
-        /// <summary>
-        /// Player action event from analytics system
-        /// </summary>
-        public class PlayerActionEvent
-        {
-            public string playerId;
-            public string actionType;
-        }
-
-        /// <summary>
-        /// Educational progress event
-        /// </summary>
-        public class EducationalProgressEvent
-        {
-            public string lessonId;
-            public bool conceptMastered;
-            public float confidenceLevel;
-        }
-
-        #endregion
     }
 }
