@@ -9,6 +9,7 @@
         "Unity.TextMeshPro",
         "Unity.ugui",
         "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Events",
         "Laboratory.Core.Enums",
         "Laboratory.Shared",
         "Laboratory.Chimera.Genetics",
