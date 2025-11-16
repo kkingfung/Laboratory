@@ -5,6 +5,7 @@ using Unity.Burst;
 using UnityEngine;
 using Laboratory.Subsystems.Team.Core;
 using Laboratory.Core.GameModes;
+using Laboratory.Subsystems.Combat.Advanced;
 
 namespace Laboratory.Subsystems.Team.GenreImplementations
 {

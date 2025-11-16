@@ -10,6 +10,7 @@ using Laboratory.Core.Systems;
 
 // Resolve DeathEvent ambiguity - use the one from Events.Messages
 using DeathEvent = Laboratory.Core.Events.Messages.DeathEvent;
+using DamageType = Laboratory.Core.Enums.DamageType;
 
 namespace Laboratory.Core.Health.Services
 {

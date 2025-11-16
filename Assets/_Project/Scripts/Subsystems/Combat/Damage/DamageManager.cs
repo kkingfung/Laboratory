@@ -10,6 +10,7 @@ using ECS_DamageType = Laboratory.Models.ECS.Components.DamageType;
 using ECS_DamageRequest = Laboratory.Models.ECS.Components.DamageRequest;
 using Health_DamageType = Laboratory.Core.Enums.DamageType;
 using Health_DamageRequest = Laboratory.Core.Health.DamageRequest;
+using DamageType = Laboratory.Core.Enums.DamageType;
 
 #nullable enable
 
