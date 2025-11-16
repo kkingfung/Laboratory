@@ -240,20 +240,23 @@ namespace Laboratory.Networking.Entities
         private void ProcessPlayerCommands(float currentTime)
         {
             // Process all pending player commands
-            Entities
-                .WithAll<PlayerNetworkCommand>()
-                .ForEach((Entity cmdEntity, in PlayerNetworkCommand command) =>
-                {
-                    // Validate command authority
-                    if (ValidatePlayerCommand(command))
-                    {
-                        ExecutePlayerCommand(command, currentTime);
-                        _pendingCommands[command.commandId] = command.commandType;
-                    }
+            var ecb = new Unity.Entities.EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
-                    // Remove processed command
-                    EntityManager.DestroyEntity(cmdEntity);
-                }).WithStructuralChanges().Run();
+            foreach (var (command, cmdEntity) in SystemAPI.Query<RefRO<PlayerNetworkCommand>>().WithEntityAccess())
+            {
+                // Validate command authority
+                if (ValidatePlayerCommand(command.ValueRO))
+                {
+                    ExecutePlayerCommand(command.ValueRO, currentTime);
+                    _pendingCommands[command.ValueRO.commandId] = command.ValueRO.commandType;
+                }
+
+                // Remove processed command
+                ecb.DestroyEntity(cmdEntity);
+            }
+
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
 
         private bool ValidatePlayerCommand(PlayerNetworkCommand command)
@@ -414,33 +417,38 @@ namespace Laboratory.Networking.Entities
 
         private void ProcessBreedingSynchronization(float currentTime)
         {
-            Entities
-                .WithAll<NetworkBreedingState>()
-                .ForEach((Entity breedingEntity, ref NetworkBreedingState breeding) =>
+            var ecb = new Unity.Entities.EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+
+            foreach (var (breeding, breedingEntity) in SystemAPI.Query<RefRW<NetworkBreedingState>>().WithEntityAccess())
+            {
+                var breedingValue = breeding.ValueRW;
+                switch (breedingValue.status)
                 {
-                    switch (breeding.status)
-                    {
-                        case BreedingStatus.InProgress:
-                            breeding.breedingProgress = math.clamp(
-                                (currentTime - breeding.startTime) / (breeding.estimatedCompletion - breeding.startTime),
-                                0f, 1f
-                            );
+                    case BreedingStatus.InProgress:
+                        breedingValue.breedingProgress = math.clamp(
+                            (currentTime - breedingValue.startTime) / (breedingValue.estimatedCompletion - breedingValue.startTime),
+                            0f, 1f
+                        );
 
-                            if (breeding.breedingProgress >= 1f)
-                            {
-                                breeding.status = BreedingStatus.Completed;
-                                CompleteBreeding(breeding);
-                            }
-                            break;
+                        if (breedingValue.breedingProgress >= 1f)
+                        {
+                            breedingValue.status = BreedingStatus.Completed;
+                            CompleteBreeding(breedingValue);
+                        }
+                        breeding.ValueRW = breedingValue;
+                        break;
 
-                        case BreedingStatus.Completed:
-                        case BreedingStatus.Failed:
-                        case BreedingStatus.Cancelled:
-                            // Clean up completed breeding sessions
-                            EntityManager.DestroyEntity(breedingEntity);
-                            break;
-                    }
-                }).WithStructuralChanges().Run();
+                    case BreedingStatus.Completed:
+                    case BreedingStatus.Failed:
+                    case BreedingStatus.Cancelled:
+                        // Clean up completed breeding sessions
+                        ecb.DestroyEntity(breedingEntity);
+                        break;
+                }
+            }
+
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
 
         private void CompleteBreeding(NetworkBreedingState breeding)
@@ -454,32 +462,37 @@ namespace Laboratory.Networking.Entities
 
         private void ProcessMarketTransactions(float currentTime)
         {
-            Entities
-                .WithAll<NetworkMarketTransaction>()
-                .ForEach((Entity transactionEntity, ref NetworkMarketTransaction transaction) =>
-                {
-                    switch (transaction.status)
-                    {
-                        case MarketTransactionStatus.Accepted:
-                            // Process the transaction
-                            if (ProcessTransaction(transaction))
-                            {
-                                transaction.status = MarketTransactionStatus.Completed;
-                            }
-                            else
-                            {
-                                transaction.status = MarketTransactionStatus.Failed;
-                            }
-                            break;
+            var ecb = new Unity.Entities.EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
-                        case MarketTransactionStatus.Completed:
-                        case MarketTransactionStatus.Failed:
-                        case MarketTransactionStatus.Cancelled:
-                            // Clean up completed transactions
-                            EntityManager.DestroyEntity(transactionEntity);
-                            break;
-                    }
-                }).WithStructuralChanges().Run();
+            foreach (var (transaction, transactionEntity) in SystemAPI.Query<RefRW<NetworkMarketTransaction>>().WithEntityAccess())
+            {
+                var transactionValue = transaction.ValueRW;
+                switch (transactionValue.status)
+                {
+                    case MarketTransactionStatus.Accepted:
+                        // Process the transaction
+                        if (ProcessTransaction(transactionValue))
+                        {
+                            transactionValue.status = MarketTransactionStatus.Completed;
+                        }
+                        else
+                        {
+                            transactionValue.status = MarketTransactionStatus.Failed;
+                        }
+                        transaction.ValueRW = transactionValue;
+                        break;
+
+                    case MarketTransactionStatus.Completed:
+                    case MarketTransactionStatus.Failed:
+                    case MarketTransactionStatus.Cancelled:
+                        // Clean up completed transactions
+                        ecb.DestroyEntity(transactionEntity);
+                        break;
+                }
+            }
+
+            ecb.Playback(EntityManager);
+            ecb.Dispose();
         }
 
         private bool ProcessTransaction(NetworkMarketTransaction transaction)
@@ -504,17 +517,15 @@ namespace Laboratory.Networking.Entities
         private void UpdatePlayerProgressionSync(float currentTime)
         {
             // This would sync with the progression system we implemented
-            Entities
-                .WithAll<NetworkPlayerProgression>()
-                .ForEach((ref NetworkPlayerProgression progression) =>
+            foreach (var progression in SystemAPI.Query<RefRW<NetworkPlayerProgression>>())
+            {
+                // Check if local progression has updated
+                if (currentTime - progression.ValueRO.lastProgressionUpdate > 1.0f) // Sync every second
                 {
-                    // Check if local progression has updated
-                    if (currentTime - progression.lastProgressionUpdate > 1.0f) // Sync every second
-                    {
-                        progression.progressionVersion++;
-                        progression.lastProgressionUpdate = currentTime;
-                    }
-                }).Run();
+                    progression.ValueRW.progressionVersion++;
+                    progression.ValueRW.lastProgressionUpdate = currentTime;
+                }
+            }
         }
     }
 
@@ -611,33 +622,37 @@ namespace Laboratory.Networking.Entities
             var deltaTime = SystemAPI.Time.DeltaTime;
 
             // Update client-side prediction
-            Entities
-                .WithAll<PredictionState, ReplicatedCreatureState>()
-                .ForEach((ref PredictionState prediction, ref LocalTransform transform, in ReplicatedCreatureState replicated) =>
+            foreach (var (prediction, transform, replicated) in SystemAPI.Query<RefRW<PredictionState>, RefRW<LocalTransform>, RefRO<ReplicatedCreatureState>>())
+            {
+                // Calculate prediction based on last known server state
+                float timeSinceUpdate = currentTime - replicated.ValueRO.timestamp;
+
+                var predictionValue = prediction.ValueRW;
+                var transformValue = transform.ValueRW;
+
+                if (timeSinceUpdate < 0.5f) // Use prediction only for recent updates
                 {
-                    // Calculate prediction based on last known server state
-                    float timeSinceUpdate = currentTime - replicated.timestamp;
+                    // Predict position based on velocity
+                    predictionValue.predictedPosition = replicated.ValueRO.position + replicated.ValueRO.velocity * timeSinceUpdate;
+                    predictionValue.predictedRotation = replicated.ValueRO.rotation;
 
-                    if (timeSinceUpdate < 0.5f) // Use prediction only for recent updates
-                    {
-                        // Predict position based on velocity
-                        prediction.predictedPosition = replicated.position + replicated.velocity * timeSinceUpdate;
-                        prediction.predictedRotation = replicated.rotation;
+                    // Interpolate between current position and predicted position
+                    float interpolationFactor = math.clamp(timeSinceUpdate * 2f, 0f, 1f);
+                    transformValue.Position = math.lerp(transformValue.Position, predictionValue.predictedPosition, interpolationFactor * deltaTime * 10f);
+                    transformValue.Rotation = math.slerp(transformValue.Rotation, predictionValue.predictedRotation, interpolationFactor * deltaTime * 10f);
 
-                        // Interpolate between current position and predicted position
-                        float interpolationFactor = math.clamp(timeSinceUpdate * 2f, 0f, 1f);
-                        transform.Position = math.lerp(transform.Position, prediction.predictedPosition, interpolationFactor * deltaTime * 10f);
-                        transform.Rotation = math.slerp(transform.Rotation, prediction.predictedRotation, interpolationFactor * deltaTime * 10f);
+                    predictionValue.predictionConfidence = 1f - (timeSinceUpdate * 0.5f);
+                }
+                else
+                {
+                    // Too old - reduce confidence and use last known position
+                    predictionValue.predictionConfidence = math.max(0f, predictionValue.predictionConfidence - deltaTime);
+                    predictionValue.missedUpdates++;
+                }
 
-                        prediction.predictionConfidence = 1f - (timeSinceUpdate * 0.5f);
-                    }
-                    else
-                    {
-                        // Too old - reduce confidence and use last known position
-                        prediction.predictionConfidence = math.max(0f, prediction.predictionConfidence - deltaTime);
-                        prediction.missedUpdates++;
-                    }
-                }).Run();
+                prediction.ValueRW = predictionValue;
+                transform.ValueRW = transformValue;
+            }
         }
     }
 
@@ -664,23 +679,25 @@ namespace Laboratory.Networking.Entities
             var currentTime = (float)SystemAPI.Time.ElapsedTime;
 
             // Process lag compensation
-            Entities
-                .WithAll<LagCompensationData>()
-                .ForEach((ref LagCompensationData lagComp, in ReplicatedCreatureState replicated) =>
-                {
-                    // Calculate latency and time delta
-                    lagComp.timeDelta = currentTime - replicated.timestamp;
+            foreach (var (lagComp, replicated) in SystemAPI.Query<RefRW<LagCompensationData>, RefRO<ReplicatedCreatureState>>())
+            {
+                var lagCompValue = lagComp.ValueRW;
 
-                    // Estimate latency (simplified - real implementation would use proper RTT)
-                    lagComp.latency = lagComp.timeDelta * 0.5f;
+                // Calculate latency and time delta
+                lagCompValue.timeDelta = currentTime - replicated.ValueRO.timestamp;
 
-                    // Calculate interpolation factor for smooth movement
-                    lagComp.interpolationFactor = math.clamp(lagComp.latency * 2f, 0f, 1f);
+                // Estimate latency (simplified - real implementation would use proper RTT)
+                lagCompValue.latency = lagCompValue.timeDelta * 0.5f;
 
-                    // Check if reconciliation is needed
-                    float positionDifference = math.distance(lagComp.serverPosition, lagComp.clientPosition);
-                    lagComp.needsReconciliation = positionDifference > 1f; // 1 unit tolerance
-                }).Run();
+                // Calculate interpolation factor for smooth movement
+                lagCompValue.interpolationFactor = math.clamp(lagCompValue.latency * 2f, 0f, 1f);
+
+                // Check if reconciliation is needed
+                float positionDifference = math.distance(lagCompValue.serverPosition, lagCompValue.clientPosition);
+                lagCompValue.needsReconciliation = positionDifference > 1f; // 1 unit tolerance
+
+                lagComp.ValueRW = lagCompValue;
+            }
         }
     }
 

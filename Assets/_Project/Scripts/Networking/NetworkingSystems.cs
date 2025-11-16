@@ -385,18 +385,16 @@ namespace Laboratory.Networking
         protected override void OnUpdate()
         {
             // Sync pathfinding states (Burst-optimized)
-            Entities
-                .WithAll<NetworkedPathfindingComponent>()
-                .ForEach((Entity entity, ref NetworkedPathfindingComponent networked) =>
+            foreach (var (networked, entity) in SystemAPI.Query<RefRW<NetworkedPathfindingComponent>>().WithEntityAccess())
+            {
+                // Simplified pathfinding sync - Burst compatible
+                if (networked.ValueRO.needsResync)
                 {
-                    // Simplified pathfinding sync - Burst compatible
-                    if (networked.needsResync)
-                    {
-                        networked.pathVersion++;
-                        networked.needsResync = false;
-                        networked.pathProgress = 0f;
-                    }
-                }).Run(); // Burst compilation enabled!
+                    networked.ValueRW.pathVersion++;
+                    networked.ValueRW.needsResync = false;
+                    networked.ValueRW.pathProgress = 0f;
+                }
+            }
         }
 
         private float CalculatePathProgress(Entity entity, PathfindingComponent pathfinding)
@@ -436,17 +434,15 @@ namespace Laboratory.Networking
             var randomSeed = (uint)(currentTime * 1000) + 1;
             var random = Unity.Mathematics.Random.CreateFromIndex(randomSeed);
 
-            Entities
-                .WithAll<NetworkedGeneticsComponent>()
-                .ForEach((Entity entity, ref NetworkedGeneticsComponent networked) =>
+            foreach (var (networked, entity) in SystemAPI.Query<RefRW<NetworkedGeneticsComponent>>().WithEntityAccess())
+            {
+                // Burst-compatible genetics sync using Unity.Mathematics.Random
+                if (networked.ValueRO.geneticHash == 0)
                 {
-                    // Burst-compatible genetics sync using Unity.Mathematics.Random
-                    if (networked.geneticHash == 0)
-                    {
-                        networked.geneticHash = (uint)random.NextInt(1000, 9999);
-                        networked.geneticVersion++;
-                    }
-                }).Run(); // Burst compilation enabled!
+                    networked.ValueRW.geneticHash = (uint)random.NextInt(1000, 9999);
+                    networked.ValueRW.geneticVersion++;
+                }
+            }
         }
 
         private uint CalculateGeneticHash(Laboratory.Chimera.ECS.CreatureGeneticsComponent genetics)

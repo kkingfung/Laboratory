@@ -107,7 +107,7 @@ namespace Laboratory.Gameplay.Lobby
         /// </summary>
         /// <param name="isReady">The desired ready status</param>
         /// <param name="serverRpcParams">Server RPC parameters containing sender info</param>
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         public void RequestReadyStatusServerRpc(bool isReady, ServerRpcParams serverRpcParams = default)
         {
             var clientId = serverRpcParams.Receive.SenderClientId;
