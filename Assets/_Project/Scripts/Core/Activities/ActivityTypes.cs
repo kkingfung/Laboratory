@@ -94,11 +94,6 @@ namespace Laboratory.Core.Activities
     /// </summary>
     public partial class ActivityCenterSystem : SystemBase
     {
-        protected override void OnUpdate()
-        {
-            // Implementation would manage activity centers
-        }
-
         /// <summary>
         /// Check if an activity center supports a specific activity type
         /// </summary>
