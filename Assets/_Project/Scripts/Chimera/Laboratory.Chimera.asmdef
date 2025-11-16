@@ -9,9 +9,13 @@
         "Unity.Burst",
         "Unity.Transforms",
         "Unity.Physics",
+        "UniTask",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
         "Laboratory.Core.Enums",
+        "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.Creatures",
+        "Laboratory.Chimera.Breeding",
         "Laboratory.Chimera.Genetics",
         "Laboratory.Shared",
         "Unity.TextMeshPro"

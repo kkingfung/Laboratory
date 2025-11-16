@@ -590,7 +590,7 @@ namespace Laboratory.Chimera.Ecosystem
             health.resourceAvailability = totalResourceRatio;
 
             // Climate stress component (delegated to climate service)
-            health.climateStress = biomeManagementService.CalculateClimateStress(biome);
+            health.climateStress = climateService.CalculateClimateStress(biome);
 
             // Resilience based on stability and connectivity
             health.resilienceScore = (biome.stabilityIndex + biome.connectivityIndex) / 2f;
