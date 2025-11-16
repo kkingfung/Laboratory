@@ -6,6 +6,8 @@
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
         "Laboratory.Core.Health",
+        "Laboratory.Core.Management",
+        "Laboratory.Gameplay",
         "Laboratory.Shared",
         "Laboratory.Tools",
         "Laboratory.Chimera.AI",
@@ -13,6 +15,7 @@
         "Laboratory.AI.Agents",
         "Laboratory.AI.Pathfinding",
         "Unity.Entities",
+        "Unity.Collections",
         "Unity.TextMeshPro"
     ],
     "includePlatforms": [

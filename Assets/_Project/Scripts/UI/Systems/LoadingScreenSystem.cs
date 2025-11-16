@@ -134,7 +134,7 @@ namespace Laboratory.Models.ECS.Systems
                 {
                     var observable = _gameStateService.StateChanges as Observable<GameStateChangedEvent>;
                     _stateSubscription = observable?
-                        .Where(evt => evt.CurrentState == GameState.Loading)
+                        .Where(evt => (int)evt.CurrentState == (int)GameState.Loading)
                         .Subscribe(async _ => await HandleLoadingStateAsync());
                 }
                 else

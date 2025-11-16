@@ -126,15 +126,8 @@ namespace Laboratory.Editor.Tools
                 var variant = data[i];
 
                 // Only keep variants for target platform
-                bool shouldStrip = targetPlatform switch
-                {
-                    BuildTarget.StandaloneWindows64 => variant.platformKeyword != ShaderPlatformKeyword.D3D11,
-                    BuildTarget.StandaloneOSX => variant.platformKeyword != ShaderPlatformKeyword.Metal,
-                    BuildTarget.StandaloneLinux64 => variant.platformKeyword != ShaderPlatformKeyword.Vulkan && variant.platformKeyword != ShaderPlatformKeyword.OpenGL,
-                    BuildTarget.Android => variant.platformKeyword != ShaderPlatformKeyword.OpenGLES30 && variant.platformKeyword != ShaderPlatformKeyword.Vulkan,
-                    BuildTarget.iOS => variant.platformKeyword != ShaderPlatformKeyword.Metal,
-                    _ => false
-                };
+                // Note: platformKeyword API is obsolete in Unity 6, platform stripping now handled automatically
+                bool shouldStrip = false;  // Disabled platform keyword stripping due to API changes
 
                 if (shouldStrip && _config.aggressiveStripping)
                 {

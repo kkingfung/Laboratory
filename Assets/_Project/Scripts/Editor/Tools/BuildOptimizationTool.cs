@@ -585,7 +585,7 @@ namespace Laboratory.Editor.Tools
             if (_generateReport && _lastReport != null)
             {
                 _lastReport.buildTime = (float)(System.DateTime.Now - _lastReport.buildStartTime).TotalSeconds;
-                _lastReport.totalSize = report.summary.totalSize;
+                _lastReport.totalSize = (long)report.summary.totalSize;
 
                 foreach (var file in report.files)
                 {
