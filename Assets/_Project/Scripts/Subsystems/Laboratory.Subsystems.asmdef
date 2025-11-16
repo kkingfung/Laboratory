@@ -21,6 +21,7 @@
         "Laboratory.Chimera",
         "Laboratory.Chimera.Core",
         "Laboratory.Chimera.ECS",
+        "Laboratory.Chimera.Creatures",
         "Laboratory.Chimera.Genetics",
         "Laboratory.AI.Pathfinding",
         "Laboratory.AI.Agents",
