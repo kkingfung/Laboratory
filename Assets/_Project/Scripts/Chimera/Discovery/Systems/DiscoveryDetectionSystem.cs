@@ -113,30 +113,31 @@ namespace Laboratory.Chimera.Discovery.Systems
 
     /// <summary>
     /// Burst-compatible string constants for discovery names
+    /// Uses manual byte assignment to avoid BC1016 (managed String.get_Length calls)
     /// </summary>
     public static class DiscoveryStrings
     {
-        public static readonly FixedString32Bytes Enhanced = new FixedString32Bytes("Enhanced");
-        public static readonly FixedString32Bytes Mutant = new FixedString32Bytes("Mutant");
-        public static readonly FixedString32Bytes Marked = new FixedString32Bytes("Marked");
-        public static readonly FixedString32Bytes Perfect = new FixedString32Bytes("Perfect");
-        public static readonly FixedString32Bytes Hybrid = new FixedString32Bytes("Hybrid");
-        public static readonly FixedString32Bytes Legendary = new FixedString32Bytes("Legendary");
-        public static readonly FixedString32Bytes Unknown = new FixedString32Bytes("Unknown");
+        public static FixedString32Bytes Enhanced { get { var s = new FixedString32Bytes(); s.Length = 8; s[0]=69; s[1]=110; s[2]=104; s[3]=97; s[4]=110; s[5]=99; s[6]=101; s[7]=100; return s; } }
+        public static FixedString32Bytes Mutant { get { var s = new FixedString32Bytes(); s.Length = 6; s[0]=77; s[1]=117; s[2]=116; s[3]=97; s[4]=110; s[5]=116; return s; } }
+        public static FixedString32Bytes Marked { get { var s = new FixedString32Bytes(); s.Length = 6; s[0]=77; s[1]=97; s[2]=114; s[3]=107; s[4]=101; s[5]=100; return s; } }
+        public static FixedString32Bytes Perfect { get { var s = new FixedString32Bytes(); s.Length = 7; s[0]=80; s[1]=101; s[2]=114; s[3]=102; s[4]=101; s[5]=99; s[6]=116; return s; } }
+        public static FixedString32Bytes Hybrid { get { var s = new FixedString32Bytes(); s.Length = 6; s[0]=72; s[1]=121; s[2]=98; s[3]=114; s[4]=105; s[5]=100; return s; } }
+        public static FixedString32Bytes Legendary { get { var s = new FixedString32Bytes(); s.Length = 9; s[0]=76; s[1]=101; s[2]=103; s[3]=101; s[4]=110; s[5]=100; s[6]=97; s[7]=114; s[8]=121; return s; } }
+        public static FixedString32Bytes Unknown { get { var s = new FixedString32Bytes(); s.Length = 7; s[0]=85; s[1]=110; s[2]=107; s[3]=110; s[4]=111; s[5]=119; s[6]=110; return s; } }
 
-        public static readonly FixedString32Bytes Titan = new FixedString32Bytes("Titan");
-        public static readonly FixedString32Bytes Eternal = new FixedString32Bytes("Eternal");
-        public static readonly FixedString32Bytes Swift = new FixedString32Bytes("Swift");
-        public static readonly FixedString32Bytes Genius = new FixedString32Bytes("Genius");
-        public static readonly FixedString32Bytes Evolved = new FixedString32Bytes("Evolved");
-        public static readonly FixedString32Bytes Alpha = new FixedString32Bytes("Alpha");
-        public static readonly FixedString32Bytes Balanced = new FixedString32Bytes("Balanced");
+        public static FixedString32Bytes Titan { get { var s = new FixedString32Bytes(); s.Length = 5; s[0]=84; s[1]=105; s[2]=116; s[3]=97; s[4]=110; return s; } }
+        public static FixedString32Bytes Eternal { get { var s = new FixedString32Bytes(); s.Length = 7; s[0]=69; s[1]=116; s[2]=101; s[3]=114; s[4]=110; s[5]=97; s[6]=108; return s; } }
+        public static FixedString32Bytes Swift { get { var s = new FixedString32Bytes(); s.Length = 5; s[0]=83; s[1]=119; s[2]=105; s[3]=102; s[4]=116; return s; } }
+        public static FixedString32Bytes Genius { get { var s = new FixedString32Bytes(); s.Length = 6; s[0]=71; s[1]=101; s[2]=110; s[3]=105; s[4]=117; s[5]=115; return s; } }
+        public static FixedString32Bytes Evolved { get { var s = new FixedString32Bytes(); s.Length = 7; s[0]=69; s[1]=118; s[2]=111; s[3]=108; s[4]=118; s[5]=101; s[6]=100; return s; } }
+        public static FixedString32Bytes Alpha { get { var s = new FixedString32Bytes(); s.Length = 5; s[0]=65; s[1]=108; s[2]=112; s[3]=104; s[4]=97; return s; } }
+        public static FixedString32Bytes Balanced { get { var s = new FixedString32Bytes(); s.Length = 8; s[0]=66; s[1]=97; s[2]=108; s[3]=97; s[4]=110; s[5]=99; s[6]=101; s[7]=100; return s; } }
 
-        public static readonly FixedString32Bytes Lumina = new FixedString32Bytes(" Lumina");
-        public static readonly FixedString32Bytes Elemental = new FixedString32Bytes(" Elemental");
-        public static readonly FixedString32Bytes Prime = new FixedString32Bytes(" Prime");
-        public static readonly FixedString32Bytes HybridSuffix = new FixedString32Bytes(" Hybrid");
-        public static readonly FixedString32Bytes Rex = new FixedString32Bytes(" Rex");
+        public static FixedString32Bytes Lumina { get { var s = new FixedString32Bytes(); s.Length = 7; s[0]=32; s[1]=76; s[2]=117; s[3]=109; s[4]=105; s[5]=110; s[6]=97; return s; } }
+        public static FixedString32Bytes Elemental { get { var s = new FixedString32Bytes(); s.Length = 10; s[0]=32; s[1]=69; s[2]=108; s[3]=101; s[4]=109; s[5]=101; s[6]=110; s[7]=116; s[8]=97; s[9]=108; return s; } }
+        public static FixedString32Bytes Prime { get { var s = new FixedString32Bytes(); s.Length = 6; s[0]=32; s[1]=80; s[2]=114; s[3]=105; s[4]=109; s[5]=101; return s; } }
+        public static FixedString32Bytes HybridSuffix { get { var s = new FixedString32Bytes(); s.Length = 7; s[0]=32; s[1]=72; s[2]=121; s[3]=98; s[4]=114; s[5]=105; s[6]=100; return s; } }
+        public static FixedString32Bytes Rex { get { var s = new FixedString32Bytes(); s.Length = 4; s[0]=32; s[1]=82; s[2]=101; s[3]=120; return s; } }
     }
 
     [BurstCompile]
