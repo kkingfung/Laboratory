@@ -4,13 +4,16 @@
     "references": [
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
+        "Laboratory.Core.Events",
         "Laboratory.Shared",
         "Laboratory.Models",
         "Laboratory.Chimera.Genetics",
+        "Laboratory.Chimera.Creatures",
         "Unity.Entities",
         "Unity.Mathematics",
         "Unity.Collections",
-        "Unity.Netcode.Runtime"
+        "Unity.Netcode.Runtime",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -81,13 +81,18 @@ namespace Laboratory.Chimera.Creatures
             // Apply level scaling (each level adds 5% to base stats)
             float levelMultiplier = 1f + (level - 1) * 0.05f;
             stats = stats * levelMultiplier;
-            
-            // Apply genetic modifiers
+
+            // TODO: Apply genetic modifiers when circular dependency is resolved
+            // Currently commented out due to circular dependency between Genetics and Creatures assemblies
+            // Genetics assembly cannot reference Creatures (would create cycle: Genetics -> Creatures -> Genetics)
+            // Solution: Move ApplyModifiers to a bridge class in a separate assembly
+            /*
             if (genetics != null)
             {
                 stats = genetics.ApplyModifiers(stats);
             }
-            
+            */
+
             // Apply environmental modifiers
             if (environment != null)
             {

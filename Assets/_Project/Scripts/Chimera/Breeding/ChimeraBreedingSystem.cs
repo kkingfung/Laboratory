@@ -11,12 +11,12 @@ namespace Laboratory.Chimera.Breeding
     /// System managing the breeding of chimera creatures
     /// Handles genetic combinations, trait inheritance, and offspring generation
     /// </summary>
-    public class ChimeraBreedingSystem : SystemBase
+    public partial class ChimeraBreedingSystem : SystemBase
     {
         #region Fields
 
         private readonly Dictionary<uint, BreedingRequest> _activeBreedingRequests = new Dictionary<uint, BreedingRequest>();
-        private readonly List<BreedingResult> _completedBreedings = new List<BreedingResult>();
+        private readonly List<ECSBreedingResult> _completedBreedings = new List<ECSBreedingResult>();
 
         #endregion
 
@@ -39,11 +39,11 @@ namespace Laboratory.Chimera.Breeding
         /// <summary>
         /// Initiate breeding between two creatures
         /// </summary>
-        public BreedingResult StartBreeding(CreatureInstanceComponent parent1, CreatureInstanceComponent parent2)
+        public ECSBreedingResult StartBreeding(CreatureInstanceComponent parent1, CreatureInstanceComponent parent2)
         {
             if (!CanBreed(parent1, parent2))
             {
-                return new BreedingResult { Success = false, ErrorMessage = "Creatures cannot breed" };
+                return new ECSBreedingResult { Success = false, ErrorMessage = "Creatures cannot breed" };
             }
 
             var request = new BreedingRequest
@@ -57,7 +57,7 @@ namespace Laboratory.Chimera.Breeding
 
             _activeBreedingRequests[request.RequestId] = request;
 
-            return new BreedingResult
+            return new ECSBreedingResult
             {
                 Success = true,
                 RequestId = request.RequestId,
@@ -134,12 +134,12 @@ namespace Laboratory.Chimera.Breeding
             }
         }
 
-        private BreedingResult CompleteBreeding(BreedingRequest request)
+        private ECSBreedingResult CompleteBreeding(BreedingRequest request)
         {
             // Generate offspring based on parents
             var offspring = GenerateOffspring(request.Parent1, request.Parent2);
 
-            return new BreedingResult
+            return new ECSBreedingResult
             {
                 Success = true,
                 RequestId = request.RequestId,
@@ -198,10 +198,10 @@ namespace Laboratory.Chimera.Breeding
     }
 
     /// <summary>
-    /// Breeding result data
+    /// ECS breeding result data (internal use only)
     /// </summary>
     [System.Serializable]
-    public struct BreedingResult
+    public struct ECSBreedingResult
     {
         public bool Success;
         public uint RequestId;
