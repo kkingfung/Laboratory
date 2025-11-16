@@ -4,11 +4,11 @@ using System.Collections;
 using System.IO;
 using System.Text;
 using System.Linq;
+using Laboratory.Core;
 using Laboratory.Core.Events;
 using Laboratory.Core.Infrastructure;
 using Laboratory.Subsystems.Combat.CoreAbilities;
 using Laboratory.Subsystems.Spawning;
-using ProjectChimera.Core;
 
 namespace Laboratory.Subsystems.Analytics
 {
