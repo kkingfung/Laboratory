@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using Unity.Collections;
 using Laboratory.Chimera.Core;
+using Laboratory.Chimera.Creatures;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
 using Random = UnityEngine.Random;
@@ -400,7 +401,7 @@ namespace Laboratory.Chimera.Genetics
         /// <summary>
         /// Applies genetic modifiers to creature stats
         /// </summary>
-        public Creatures.CreatureStats ApplyModifiers(Creatures.CreatureStats baseStats)
+        public CreatureStats ApplyModifiers(CreatureStats baseStats)
         {
             var modifiedStats = baseStats;
 
