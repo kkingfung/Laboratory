@@ -163,12 +163,13 @@ namespace Laboratory.Core.State
             _isTransitioning = true;
             var previousState = _currentState;
 
+            // Convert Laboratory.Core.State.GameState to Laboratory.Core.Events.Messages.GameState once
+            var eventPreviousState = (Laboratory.Core.Events.Messages.GameState)(int)previousState;
+            var eventTargetState = (Laboratory.Core.Events.Messages.GameState)(int)targetState;
+
             try
             {
                 // Publish transition request event
-                // Convert Laboratory.Core.State.GameState to Laboratory.Core.Events.Messages.GameState
-                var eventPreviousState = (Laboratory.Core.Events.Messages.GameState)(int)previousState;
-                var eventTargetState = (Laboratory.Core.Events.Messages.GameState)(int)targetState;
                 var requestEvent = new GameStateChangeRequestedEvent(eventPreviousState, eventTargetState, context);
                 _eventBus.Publish(requestEvent);
 
@@ -189,9 +190,6 @@ namespace Laboratory.Core.State
                 }
 
                 // Publish state changed event
-                // Convert Laboratory.Core.State.GameState to Laboratory.Core.Events.Messages.GameState
-                var eventPreviousState = (Laboratory.Core.Events.Messages.GameState)(int)previousState;
-                var eventTargetState = (Laboratory.Core.Events.Messages.GameState)(int)targetState;
                 var changedEvent = new GameStateChangedEvent(eventPreviousState, eventTargetState);
                 _stateChangeSubject.OnNext(changedEvent);
                 _eventBus.Publish(changedEvent);
