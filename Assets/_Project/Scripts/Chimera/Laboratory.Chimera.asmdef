@@ -18,6 +18,7 @@
         "Laboratory.Core.Equipment",
         "Laboratory.Core.Configuration",
         "Laboratory.Core.Health",
+        "Laboratory.Core.MonsterTown",
         "Laboratory.Chimera.Core",
         "Laboratory.Chimera.Creatures",
         "Laboratory.Chimera.Breeding",
