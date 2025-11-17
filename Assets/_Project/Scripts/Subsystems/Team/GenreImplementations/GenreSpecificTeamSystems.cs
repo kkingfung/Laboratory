@@ -550,8 +550,6 @@ namespace Laboratory.Subsystems.Team.GenreImplementations
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class GenreTeamActivationSystem : SystemBase
     {
-        private GameGenre _currentGenre = GameGenre.Exploration;
-
         protected override void OnUpdate()
         {
             // This would integrate with GenreGameModeManager to detect genre changes

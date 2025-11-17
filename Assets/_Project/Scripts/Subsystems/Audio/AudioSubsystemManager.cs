@@ -68,7 +68,7 @@ namespace Laboratory.Subsystems.Audio
 
             if (coreAudioSystem == null)
             {
-                coreAudioSystem = FindObjectOfType<AudioSystemManager>();
+                coreAudioSystem = FindFirstObjectByType<AudioSystemManager>();
                 if (coreAudioSystem == null)
                 {
                     Debug.LogError($"[{SubsystemName}] AudioSystemManager not found! Please ensure it exists in the scene.");

@@ -80,6 +80,8 @@ namespace Laboratory.Subsystems.SaveLoad
 
         private async Task CreateSaveDirectories()
         {
+            await Task.CompletedTask;
+
             var saveDir = _fileSystemService.GetSaveDirectory();
             var backupDir = _fileSystemService.GetBackupDirectory();
             var tempDir = _fileSystemService.GetTempDirectory();
@@ -312,6 +314,7 @@ namespace Laboratory.Subsystems.SaveLoad
 
         public async Task<SaveSlotInfo[]> GetSaveSlotInfoAsync()
         {
+            await Task.CompletedTask;
             if (!_isInitialized)
                 return new SaveSlotInfo[0];
 
@@ -330,6 +333,7 @@ namespace Laboratory.Subsystems.SaveLoad
 
         public async Task<bool> DeleteSaveAsync(int slotId)
         {
+            await Task.CompletedTask;
             if (!_isInitialized)
                 return false;
 
@@ -381,6 +385,7 @@ namespace Laboratory.Subsystems.SaveLoad
 
         public async Task<bool> CreateBackupAsync(int slotId)
         {
+            await Task.CompletedTask;
             if (!_isInitialized)
                 return false;
 
@@ -646,11 +651,13 @@ namespace Laboratory.Subsystems.SaveLoad
 
         public async Task<long> GetFileSizeAsync(string filePath)
         {
+            await Task.CompletedTask;
             return new FileInfo(filePath).Length;
         }
 
         public async Task<DateTime> GetFileModificationTimeAsync(string filePath)
         {
+            await Task.CompletedTask;
             return File.GetLastWriteTime(filePath);
         }
 
@@ -669,6 +676,7 @@ namespace Laboratory.Subsystems.SaveLoad
 
         public async Task<string[]> GetFilesInDirectoryAsync(string directoryPath, string pattern = "*")
         {
+            await Task.CompletedTask;
             try
             {
                 return Directory.GetFiles(directoryPath, pattern);
@@ -777,6 +785,7 @@ namespace Laboratory.Subsystems.SaveLoad
 
         public async Task<byte[]> EncryptAsync(byte[] data, string key = null)
         {
+            await Task.CompletedTask;
             key ??= DefaultKey;
             // Simplified AES implementation - in production, use proper cryptographic libraries
             return data; // Placeholder
@@ -784,6 +793,7 @@ namespace Laboratory.Subsystems.SaveLoad
 
         public async Task<byte[]> DecryptAsync(byte[] encryptedData, string key = null)
         {
+            await Task.CompletedTask;
             key ??= DefaultKey;
             // Simplified AES implementation - in production, use proper cryptographic libraries
             return encryptedData; // Placeholder
@@ -791,11 +801,13 @@ namespace Laboratory.Subsystems.SaveLoad
 
         public async Task<string> GenerateKeyAsync()
         {
+            await Task.CompletedTask;
             return Guid.NewGuid().ToString();
         }
 
         public async Task<bool> ValidateKeyAsync(string key)
         {
+            await Task.CompletedTask;
             return !string.IsNullOrEmpty(key);
         }
 

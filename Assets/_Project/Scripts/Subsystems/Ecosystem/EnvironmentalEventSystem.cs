@@ -86,8 +86,8 @@ namespace Laboratory.Subsystems.Ecosystem
             if (config?.EventConfig != null)
             {
                 enableEnvironmentalEvents = config.EventConfig.EnableEnvironmentalEvents;
-                enableRandomEvents = enableRandomEvents; // Keep current value as EnableRandomEvents not available
-                eventCheckInterval = eventCheckInterval; // Keep current value as EventCheckInterval not available
+                // enableRandomEvents - Keep current value as EnableRandomEvents not available in config
+                // eventCheckInterval - Keep current value as EventCheckInterval not available in config
                 randomEventChance = config.EventConfig.BaseEventChance;
             }
 

@@ -154,6 +154,13 @@ CreatureSpawnerAuthoring (MonoBehaviour)
 4. **Loading times** under 10 seconds for world initialization
 5. **Frame pacing** consistent with no hitches
 
+### **Code Quality Standards**
+1. **NO #pragma warning disable** - Fix warnings properly or implement functionality instead
+2. **Fix, don't suppress** - Unused fields/events should be removed or implemented
+3. **Clean compilation** - All code must compile without warnings
+4. **Proper error handling** - Address issues at the root cause
+5. **Meaningful implementations** - No placeholder code that generates warnings
+
 ---
 
 ## Output Format

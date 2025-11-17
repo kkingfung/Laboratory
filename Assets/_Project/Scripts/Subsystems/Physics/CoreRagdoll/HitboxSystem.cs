@@ -57,13 +57,15 @@ namespace Laboratory.Core.Ragdoll
             var randomSeed = (uint)(currentTime * 1000) + 1; // Ensure non-zero seed
             var random = Unity.Mathematics.Random.CreateFromIndex(randomSeed);
 
-            Entities.WithAll<PartialRagdollTag>().WithoutBurst().ForEach((Entity entity, ref PhysicsVelocity velocity) =>
+            foreach (var (velocity, entity) in SystemAPI.Query<RefRW<PhysicsVelocity>>()
+                .WithAll<PartialRagdollTag>()
+                .WithEntityAccess())
             {
                 if (random.NextFloat() < TestHitProbability)
                 {
                     CreateHitEvent(entity);
                 }
-            }).Run(); // Burst compilation enabled!
+            }
         }
         
         // Removed ShouldGenerateTestHit() - now using Burst-compatible random directly in ProcessTestHitGeneration()

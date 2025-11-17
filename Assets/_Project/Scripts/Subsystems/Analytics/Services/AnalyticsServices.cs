@@ -318,7 +318,7 @@ namespace Laboratory.Subsystems.Analytics
         {
             // This would integrate with ECS entity count
             // For now, return a placeholder
-            return UnityEngine.Object.FindObjectsOfType<MonoBehaviour>().Length;
+            return UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).Length;
         }
 
         private float GetNetworkLatency()

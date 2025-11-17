@@ -405,7 +405,7 @@ namespace Laboratory.Subsystems.Networking.Advanced
         /// <summary>
         /// Update player data
         /// </summary>
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.Server, RequireOwnership = false)]
         public void UpdatePlayerDataServerRpc(ulong clientId, NetworkPlayerData playerData)
         {
             if (connectedPlayers.ContainsKey(clientId))
@@ -650,7 +650,7 @@ namespace Laboratory.Subsystems.Networking.Advanced
         /// <summary>
         /// Send custom message to specific client
         /// </summary>
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.Server, RequireOwnership = false)]
         public void SendCustomMessageServerRpc(ulong targetClientId, string messageType, string data)
         {
             SendCustomMessageClientRpc(targetClientId, messageType, data);
@@ -851,7 +851,7 @@ namespace Laboratory.Subsystems.Networking.Advanced
             return new NetworkPerformanceMetrics
             {
                 CurrentFPS = 1f / Time.deltaTime,
-                MemoryUsage = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemory() / (1024f * 1024f)
+                MemoryUsage = UnityEngine.Profiling.Profiler.GetTotalAllocatedMemoryLong() / (1024f * 1024f)
             };
         }
     }

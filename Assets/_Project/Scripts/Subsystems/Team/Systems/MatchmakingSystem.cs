@@ -27,8 +27,10 @@ namespace Laboratory.Subsystems.Team.Systems
         // Matchmaking parameters (configurable via ScriptableObject)
         private float _skillRangeExpansionRate = 50f; // Expand search range over time
         private float _maxSkillGap = 300f; // Maximum skill difference allowed
+        #pragma warning disable CS0414
         private float _beginnerProtectionThreshold = 1200f; // Protect new players
         private int _idealTeamSize = 4;
+        #pragma warning restore CS0414
         private float _matchQualityThreshold = 0.6f; // Minimum acceptable match quality
 
         protected override void OnCreate()

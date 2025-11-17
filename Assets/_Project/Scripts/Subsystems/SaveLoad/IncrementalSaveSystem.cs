@@ -94,6 +94,7 @@ namespace Laboratory.Subsystems.SaveLoad
 
         public async Task<GameSaveData> ApplyIncrementalSaveAsync(GameSaveData baselineData, IncrementalSaveData incrementalData)
         {
+            await Task.CompletedTask;
             if (baselineData == null || incrementalData == null)
             {
                 Debug.LogError("[IncrementalSaveSystem] Cannot apply incremental save: null data");

@@ -270,6 +270,7 @@ namespace Laboratory.Subsystems.SaveLoad
 
         public async Task<(GameSaveData repairedData, bool wasRepaired)> AttemptRepairAsync(GameSaveData corruptedData)
         {
+            await Task.CompletedTask;
             bool wasRepaired = false;
             var data = corruptedData ?? new GameSaveData();
 
@@ -393,6 +394,7 @@ namespace Laboratory.Subsystems.SaveLoad
 
         public async Task<bool> CanRecoverSaveAsync(GameSaveData corruptedData)
         {
+            await Task.CompletedTask;
             if (corruptedData == null)
                 return false;
 

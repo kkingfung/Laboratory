@@ -556,6 +556,8 @@ namespace Laboratory.Subsystems.SaveLoad
 
         private async Task<bool> DetectConflict(SaveSlotInfo localSlot, CloudSaveInfo cloudSave)
         {
+            await Task.CompletedTask;
+
             // Simple timestamp-based conflict detection
             var timeDifference = Math.Abs((localSlot.lastSaved - cloudSave.lastModified).TotalSeconds);
             return timeDifference > 60; // More than 1 minute difference
@@ -1242,7 +1244,7 @@ namespace Laboratory.Subsystems.SaveLoad
                             await Task.Delay(1000 * (attempt + 1)); // Exponential backoff
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         if (attempt == MAX_RETRY_ATTEMPTS - 1)
                             throw;
@@ -1315,7 +1317,7 @@ namespace Laboratory.Subsystems.SaveLoad
                             await Task.Delay(1000 * (attempt + 1));
                         }
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         if (attempt == MAX_RETRY_ATTEMPTS - 1)
                             throw;

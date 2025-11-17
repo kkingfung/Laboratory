@@ -52,7 +52,7 @@ namespace Laboratory.Subsystems.Team
         {
             if (autoInitialize)
             {
-                InitializeAsync();
+                _ = InitializeAsync();
             }
         }
 

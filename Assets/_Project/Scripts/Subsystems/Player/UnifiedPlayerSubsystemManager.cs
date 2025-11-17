@@ -218,7 +218,7 @@ namespace Laboratory.Subsystems.Player
                 // Additional fallback: look for camera controller in scene
                 if (_cameraController == null)
                 {
-                    var cameraControllers = FindObjectsOfType<MonoBehaviour>();
+                    var cameraControllers = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
                     foreach (var controller in cameraControllers)
                     {
                         if (controller is IPlayerCameraController cameraController)

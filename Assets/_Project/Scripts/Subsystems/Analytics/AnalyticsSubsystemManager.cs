@@ -122,6 +122,8 @@ namespace Laboratory.Subsystems.Analytics
 
         private async Task InitializeAsync()
         {
+            await Task.CompletedTask;
+
             try
             {
                 InitializationProgress = 0.5f;

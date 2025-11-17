@@ -351,6 +351,7 @@ namespace Laboratory.Subsystems.Research
         /// </summary>
         public async Task<ResearchSummary> GenerateResearchSummaryAsync(string playerId, TimeSpan timeWindow)
         {
+            await Task.CompletedTask;
             var profile = GetPlayerResearchProfile(playerId);
             var journal = GetPlayerJournal(playerId);
 
@@ -636,7 +637,7 @@ namespace Laboratory.Subsystems.Research
 
             // Fallback to legacy methods
             // Check if there's a player manager component in the scene
-            var playerManager = FindObjectOfType<Laboratory.Core.Player.PlayerSessionManager>();
+            var playerManager = FindFirstObjectByType<Laboratory.Core.Player.PlayerSessionManager>();
             if (playerManager != null)
             {
                 return playerManager.GetCurrentPlayerId();

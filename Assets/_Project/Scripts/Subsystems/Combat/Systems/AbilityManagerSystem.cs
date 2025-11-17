@@ -25,24 +25,24 @@ namespace Laboratory.Models.ECS.Systems
         {
             float deltaTime = SystemAPI.Time.DeltaTime;
 
-            Entities.ForEach((ref AbilityComponent ability) =>
+            foreach (var ability in SystemAPI.Query<RefRW<AbilityComponent>>())
             {
                 // Update cooldown timer
-                if (ability.CooldownRemaining > 0f)
+                if (ability.ValueRW.CooldownRemaining > 0f)
                 {
-                    ability.CooldownRemaining -= deltaTime;
-                    if (ability.CooldownRemaining < 0f)
-                        ability.CooldownRemaining = 0f;
+                    ability.ValueRW.CooldownRemaining -= deltaTime;
+                    if (ability.ValueRW.CooldownRemaining < 0f)
+                        ability.ValueRW.CooldownRemaining = 0f;
                 }
 
                 // Process activation request
-                if (ability.RequestedActivation && ability.CooldownRemaining == 0f)
+                if (ability.ValueRW.RequestedActivation && ability.ValueRW.CooldownRemaining == 0f)
                 {
-                    ability.IsActive = true;
-                    ability.CooldownRemaining = ability.CooldownDuration;
-                    ability.RequestedActivation = false;
+                    ability.ValueRW.IsActive = true;
+                    ability.ValueRW.CooldownRemaining = ability.ValueRW.CooldownDuration;
+                    ability.ValueRW.RequestedActivation = false;
                 }
-            }).Schedule();
+            }
         }
 
         #endregion

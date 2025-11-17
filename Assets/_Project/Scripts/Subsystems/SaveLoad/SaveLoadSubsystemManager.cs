@@ -37,7 +37,6 @@ namespace Laboratory.Subsystems.SaveLoad
         public static event Action<LoadEvent> OnLoadStarted;
         public static event Action<LoadEvent> OnLoadCompleted;
         public static event Action<SaveLoadError> OnSaveLoadError;
-        public static event Action<CloudSyncEvent> OnCloudSyncEvent;
 
         // Public Properties
         public bool IsInitialized { get; private set; }
