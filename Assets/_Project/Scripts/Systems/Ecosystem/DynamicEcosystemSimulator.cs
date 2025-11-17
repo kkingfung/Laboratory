@@ -37,6 +37,8 @@ namespace Laboratory.Systems.Ecosystem
 
         [Header("Population Dynamics")]
         [SerializeField, Range(1f, 100f)] private float carryingCapacityBase = 50f;
+        [SerializeField, Range(0f, 1f)] private float predationPressure = 0.1f;
+        [SerializeField, Range(0f, 1f)] private float competitionFactor = 0.2f;
 
         [Header("Environmental Events")]
         [SerializeField] private EnvironmentalEvent[] possibleEvents;
@@ -46,6 +48,7 @@ namespace Laboratory.Systems.Ecosystem
         [Header("Biome System")]
         [SerializeField] private BiomeConfig[] availableBiomes;
         [SerializeField] private Transform[] biomeRegions;
+        [SerializeField] private float biomeTransitionRange = 20f;
 
         // Core ecosystem data
         private Dictionary<BiomeType, EcosystemNode> ecosystemNodes = new Dictionary<BiomeType, EcosystemNode>();

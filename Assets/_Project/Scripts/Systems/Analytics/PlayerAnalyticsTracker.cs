@@ -40,6 +40,7 @@ namespace Laboratory.Systems.Analytics
         [SerializeField] private float actionTrackingInterval = GameConstants.ACTION_TRACKING_INTERVAL;
         [SerializeField] private int maxSessionActions = GameConstants.MAX_SESSION_ACTIONS;
         [SerializeField] private bool trackDetailedInputMetrics = true;
+        [SerializeField] private bool enableRealTimeAnalysis = true;
 
         [Header("Privacy Settings")]
         [SerializeField] private bool anonymizePlayerData = true;
@@ -47,6 +48,7 @@ namespace Laboratory.Systems.Analytics
 
         [Header("Adaptation Settings")]
         [SerializeField] private float difficultyAdaptationSensitivity = GameConstants.DIFFICULTY_ADAPTATION_SENSITIVITY;
+        [SerializeField] private bool enableContentRecommendations = true;
 
         [Header("Behavioral Analysis")]
         [SerializeField] private bool enablePersonalityProfiling = true;
