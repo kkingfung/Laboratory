@@ -99,7 +99,7 @@ namespace Laboratory.Systems.Ecosystem
         {
             Debug.Log("Initializing Dynamic Ecosystem Simulator");
 
-            // Initialize biome nodes
+            // Initialize biome nodes (limited by maxEcosystemNodes)
             InitializeBiomeNodes();
 
             // Initialize active biomes with resource states
@@ -452,6 +452,16 @@ namespace Laboratory.Systems.Ecosystem
 
                 if (ecosystemNode != null)
                 {
+                    // Apply predation pressure to population growth
+                    float predationEffect = predationPressure * populationData.totalPopulation * 0.1f;
+                    populationData.totalPopulation = Mathf.Max(0, populationData.totalPopulation - Mathf.RoundToInt(predationEffect * Time.deltaTime));
+
+                    // Apply competition factor for resource competition
+                    if (populationData.totalPopulation > carryingCapacityBase * ecosystemNode.carryingCapacityModifier)
+                    {
+                        float competitionEffect = competitionFactor * (populationData.totalPopulation - carryingCapacityBase) * 0.05f;
+                        populationData.totalPopulation -= Mathf.RoundToInt(competitionEffect * Time.deltaTime);
+                    }
                     // Calculate population pressure effects
                     float overpopulationPressure = populationData.totalPopulation / (carryingCapacityBase * ecosystemNode.carryingCapacityModifier);
 
@@ -513,8 +523,15 @@ namespace Laboratory.Systems.Ecosystem
                 CreateDefaultBiomes();
             }
 
+            int nodeCount = 0;
             foreach (var biomeConfig in availableBiomes)
             {
+                // Limit ecosystem nodes based on configuration
+                if (nodeCount >= maxEcosystemNodes)
+                {
+                    Debug.LogWarning($"Reached maximum ecosystem nodes limit ({maxEcosystemNodes}), skipping remaining biomes");
+                    break;
+                }
                 var node = new EcosystemNode
                 {
                     biomeType = biomeConfig.biomeType,
@@ -534,6 +551,7 @@ namespace Laboratory.Systems.Ecosystem
                 }
 
                 ecosystemNodes[biomeConfig.biomeType] = node;
+                nodeCount++;
             }
         }
 
@@ -596,10 +614,15 @@ namespace Laboratory.Systems.Ecosystem
             for (int i = 0; i < biomeRegions.Length && i < availableBiomes.Length; i++)
             {
                 float distance = Vector3.Distance(position, biomeRegions[i].position);
-                if (distance < closestDistance)
+
+                // Check if position is within biome transition range
+                if (distance <= biomeTransitionRange)
                 {
-                    closestDistance = distance;
-                    closestBiome = availableBiomes[i].biomeType;
+                    if (distance < closestDistance)
+                    {
+                        closestDistance = distance;
+                        closestBiome = availableBiomes[i].biomeType;
+                    }
                 }
             }
 

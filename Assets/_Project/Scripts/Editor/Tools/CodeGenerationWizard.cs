@@ -67,6 +67,11 @@ namespace Laboratory.Editor.Tools
             EditorGUILayout.LabelField("Code Type", EditorStyles.boldLabel);
             _generationType = (CodeGenerationType)EditorGUILayout.EnumPopup("Type:", _generationType);
 
+            // Update ECS flag based on generation type
+            _isEcsSystem = _generationType == CodeGenerationType.ECSSystem ||
+                          _generationType == CodeGenerationType.DataStructure ||
+                          _generationType == CodeGenerationType.AuthoringComponent;
+
             EditorGUILayout.Space(5);
 
             // Common settings

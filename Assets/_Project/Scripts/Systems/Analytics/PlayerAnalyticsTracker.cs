@@ -217,6 +217,18 @@ namespace Laboratory.Systems.Analytics
                 {
                     CheckForAdaptationTriggers(action);
                 }
+
+                // Real-time analysis if enabled
+                if (enableRealTimeAnalysis)
+                {
+                    PerformRealTimeAnalysis(action);
+                }
+
+                // Generate content recommendations if enabled
+                if (enableContentRecommendations && _behaviorAnalysis.CurrentArchetype.confidence > 0.7f)
+                {
+                    GenerateContentRecommendations();
+                }
             }
         }
 
@@ -405,6 +417,13 @@ namespace Laboratory.Systems.Analytics
 
         private void TriggerGameAdaptation(string adaptationType, float intensity)
         {
+            // Only trigger adaptation if intensity meets the configured threshold
+            if (intensity < adaptationResponseThreshold)
+            {
+                Debug.Log($"[PlayerAnalyticsTracker] Adaptation intensity {intensity:F2} below threshold {adaptationResponseThreshold:F2}, skipping adaptation");
+                return;
+            }
+
             // Game adaptation functionality has been refactored into specialized services
             // This method is kept for compatibility but the actual adaptation is now handled by:
             // - DifficultyAdaptationService for difficulty adjustments
@@ -412,6 +431,31 @@ namespace Laboratory.Systems.Analytics
             // - EducationalScaffoldingService for player support
 
             Debug.Log($"[PlayerAnalyticsTracker] Game adaptation signal: {adaptationType} (intensity: {intensity:F2}) - handled by specialized services");
+        }
+
+        private void PerformRealTimeAnalysis(PlayerAction action)
+        {
+            // Real-time analysis of player actions for immediate feedback
+            if (action.actionType == "combat" && action.context.Contains("failure"))
+            {
+                // Immediate difficulty adjustment suggestions
+                TriggerGameAdaptation("DifficultyReduction", 0.3f);
+            }
+        }
+
+        private void GenerateContentRecommendations()
+        {
+            // Generate content recommendations based on player archetype
+            var archetype = _behaviorAnalysis.CurrentArchetype;
+            string recommendation = archetype.archetypeType switch
+            {
+                Laboratory.Systems.Analytics.ArchetypeType.Explorer => "exploration_content",
+                Laboratory.Systems.Analytics.ArchetypeType.Socializer => "social_activities",
+                Laboratory.Systems.Analytics.ArchetypeType.Achiever => "challenge_content",
+                _ => "balanced_content"
+            };
+
+            Debug.Log($"[PlayerAnalyticsTracker] Content recommendation: {recommendation} for archetype {archetype.archetypeType}");
         }
 
         #endregion

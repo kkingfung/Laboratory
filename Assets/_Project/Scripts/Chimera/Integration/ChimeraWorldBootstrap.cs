@@ -765,7 +765,10 @@ namespace Laboratory.Chimera.Integration
                 if (speciesField != null)
                     return (string)speciesField.GetValue(creature) ?? "Unknown Species";
             }
-            catch { }
+            catch (System.Exception)
+            {
+                // Reflection access failed - expected for cross-assembly access
+            }
 
             return "Bridged Creature";
         }
@@ -783,7 +786,10 @@ namespace Laboratory.Chimera.Integration
                 if (ageField != null)
                     return (float)ageField.GetValue(creature);
             }
-            catch { }
+            catch (System.Exception)
+            {
+                // Reflection access failed - expected for cross-assembly access
+            }
 
             return UnityEngine.Random.Range(30f, 100f); // Default adult age
         }
