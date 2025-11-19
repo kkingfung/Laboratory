@@ -151,19 +151,23 @@ namespace Laboratory.Chimera.Consciousness.Core
         /// </summary>
         private void UpdateEmotionalContext(float deltaTime)
         {
-            foreach (var contextBuffer in
-                SystemAPI.Query<DynamicBuffer<EmotionalContext>>())
-            {
-                for (int i = 0; i < contextBuffer.Length; i++)
+            // Use Job to modify DynamicBuffer in parallel
+            Entities
+                .ForEach((DynamicBuffer<EmotionalContext> contextBuffer) =>
                 {
-                    var context = contextBuffer[i];
+                    for (int i = 0; i < contextBuffer.Length; i++)
+                    {
+                        var context = contextBuffer[i];
 
-                    // Decay intensity over time
-                    context.intensity = math.max(0f, context.intensity - (context.decayRate * deltaTime));
+                        // Decay intensity over time
+                        context.intensity = math.max(0f, context.intensity - (context.decayRate * deltaTime));
 
-                    contextBuffer[i] = context;
-                }
-            }
+                        contextBuffer[i] = context;
+                    }
+                })
+                .Schedule();
+
+            this.CompleteDependency();
         }
 
         /// <summary>
@@ -185,12 +189,8 @@ namespace Laboratory.Chimera.Consciousness.Core
                 if (indicator.ValueRO.timeSinceLastChange < updateInterval)
                     continue;
 
-                // Get bond strength
-                float bondStrength = 0.5f;
-                if (EntityManager.HasComponent<Laboratory.Chimera.ECS.CreatureBondData>(entity))
-                {
-                    bondStrength = EntityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureBondData>(entity).bondStrength;
-                }
+                // Get bond strength from personality (already tracked there)
+                float bondStrength = personality.ValueRO.PlayerBondStrength;
 
                 // Analyze recent context
                 bool hasRecentPositive = HasRecentContext(contextBuffer, isPositive: true, currentTime);
