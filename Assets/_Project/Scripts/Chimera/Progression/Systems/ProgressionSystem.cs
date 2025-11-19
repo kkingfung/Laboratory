@@ -7,9 +7,20 @@ using Laboratory.Chimera.Activities;
 namespace Laboratory.Chimera.Progression
 {
     /// <summary>
-    /// Main ECS system for monster progression and currency management
-    /// Handles leveling, experience gain, skill unlocks, and rewards
+    /// DEPRECATED - LEVEL-BASED PROGRESSION REMOVED IN NEW VISION!
+    ///
+    /// This system is kept for backward compatibility during migration.
+    /// Use PartnershipProgressionSystem instead.
+    ///
+    /// NEW VISION:
+    /// - NO LEVELS - Neither players nor chimeras have traditional RPG progression
+    /// - NO XP - Skill improves through practice, not arbitrary points
+    /// - SKILL-FIRST - Victory comes from player ability + chimera cooperation
+    /// - COSMETIC REWARDS - Milestones unlock appearances, not stat boosts
+    ///
+    /// See: PartnershipProgressionSystem.cs for the new implementation
     /// </summary>
+    [System.Obsolete("Use PartnershipProgressionSystem - no more levels/XP!")]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivitySystem))]
     public partial class ProgressionSystem : SystemBase
