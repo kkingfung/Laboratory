@@ -1,6 +1,8 @@
 using Unity.Entities;
 using Unity.Collections;
+using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Consciousness.Core;
+using Laboratory.Core.Equipment;
 
 namespace Laboratory.Chimera.Equipment
 {
