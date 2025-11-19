@@ -46,7 +46,10 @@ namespace Laboratory.Chimera.Consciousness.Core
         public int DaysSinceLastInteraction;
 
         /// <summary>
-        /// Generate personality from genetic data
+        /// Generate personality from genetic data (LEGACY - for generation 1 chimeras)
+        ///
+        /// NOTE: For bred chimeras, use GenerateFromInheritedGenetics() instead
+        /// This method generates personality from stats, not parent personalities
         /// </summary>
         public static CreaturePersonality GenerateFromGenetics(VisualGeneticData genetics, uint personalitySeed)
         {
@@ -79,6 +82,56 @@ namespace Laboratory.Chimera.Consciousness.Core
                 PreferredActivities = GenerateActivityPreferences(genetics, random),
                 SocialBehavior = GenerateSocialPreferences(genetics, random),
                 HabitatLikes = GenerateEnvironmentPreferences(genetics, random)
+            };
+
+            return personality;
+        }
+
+        /// <summary>
+        /// NEW: Generate personality from inherited personality genetics (Phase 8)
+        ///
+        /// This is the preferred method for bred chimeras - personality comes from parents,
+        /// not randomly generated from stats.
+        ///
+        /// Integration:
+        /// - PersonalityGeneticComponent provides the 8 inherited personality traits
+        /// - PersonalityBreedingSystem handles breeding and inheritance
+        /// - PersonalityStabilitySystem uses genetic baseline for elderly reversion
+        /// </summary>
+        public static CreaturePersonality GenerateFromInheritedGenetics(
+            Laboratory.Chimera.Genetics.PersonalityGeneticComponent genetics,
+            VisualGeneticData visualGenetics,
+            uint personalitySeed)
+        {
+            Unity.Mathematics.Random random = new Unity.Mathematics.Random(personalitySeed);
+
+            var personality = new CreaturePersonality
+            {
+                PersonalitySeed = personalitySeed,
+                LearningRate = 0.1f + (visualGenetics.Intelligence / 100f) * 0.4f,
+                MemoryStrength = (byte)(50 + visualGenetics.Intelligence / 2),
+
+                // INHERITED personality traits from parents (Phase 8)
+                Curiosity = genetics.geneticCuriosity,
+                Playfulness = genetics.geneticPlayfulness,
+                Aggression = genetics.geneticAggression,
+                Affection = genetics.geneticAffection,
+                Independence = genetics.geneticIndependence,
+                Nervousness = genetics.geneticNervousness,
+                Stubbornness = genetics.geneticStubbornness,
+                Loyalty = genetics.geneticLoyalty,
+
+                // Initial emotional state
+                CurrentMood = EmotionalState.Neutral,
+                StressLevel = 0.2f,
+                HappinessLevel = 0.6f,
+                EnergyLevel = 0.8f,
+
+                // Generate preferences (still from visual genetics)
+                FoodLikes = GenerateFoodPreferences(visualGenetics, random),
+                PreferredActivities = GenerateActivityPreferences(visualGenetics, random),
+                SocialBehavior = GenerateSocialPreferences(visualGenetics, random),
+                HabitatLikes = GenerateEnvironmentPreferences(visualGenetics, random)
             };
 
             return personality;

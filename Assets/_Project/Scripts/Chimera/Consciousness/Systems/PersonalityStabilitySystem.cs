@@ -128,6 +128,10 @@ namespace Laboratory.Chimera.Consciousness.Core
 
         /// <summary>
         /// Locks baseline personality when chimera first reaches elderly stage
+        ///
+        /// PHASE 8 UPDATE: Prefers genetic baseline from PersonalityGeneticComponent
+        /// If chimera has inherited genetics, use that as the baseline (their "true nature")
+        /// Otherwise, use current personality as baseline (for generation 1 chimeras)
         /// </summary>
         private void LockElderlyBaselines(float currentTime)
         {
@@ -142,26 +146,57 @@ namespace Laboratory.Chimera.Consciousness.Core
                     // Create baseline snapshot
                     if (!EntityManager.HasComponent<BaselinePersonalityComponent>(entity))
                     {
-                        ecb.AddComponent(entity, new BaselinePersonalityComponent
-                        {
-                            baselineCuriosity = personality.ValueRO.Curiosity,
-                            baselinePlayfulness = personality.ValueRO.Playfulness,
-                            baselineAggression = personality.ValueRO.Aggression,
-                            baselineAffection = personality.ValueRO.Affection,
-                            baselineIndependence = personality.ValueRO.Independence,
-                            baselineNervousness = personality.ValueRO.Nervousness,
-                            baselineStubbornness = personality.ValueRO.Stubbornness,
-                            baselineLoyalty = personality.ValueRO.Loyalty,
-                            lockTimestamp = currentTime,
-                            wasLockedAtElderly = true
-                        });
+                        BaselinePersonalityComponent baseline;
 
+                        // PHASE 8: Check if chimera has inherited personality genetics
+                        if (EntityManager.HasComponent<Laboratory.Chimera.Genetics.PersonalityGeneticComponent>(entity))
+                        {
+                            // Use GENETIC baseline (inherited from parents)
+                            var genetics = EntityManager.GetComponentData<Laboratory.Chimera.Genetics.PersonalityGeneticComponent>(entity);
+
+                            baseline = new BaselinePersonalityComponent
+                            {
+                                baselineCuriosity = genetics.geneticCuriosity,
+                                baselinePlayfulness = genetics.geneticPlayfulness,
+                                baselineAggression = genetics.geneticAggression,
+                                baselineAffection = genetics.geneticAffection,
+                                baselineIndependence = genetics.geneticIndependence,
+                                baselineNervousness = genetics.geneticNervousness,
+                                baselineStubbornness = genetics.geneticStubbornness,
+                                baselineLoyalty = genetics.geneticLoyalty,
+                                lockTimestamp = currentTime,
+                                wasLockedAtElderly = true
+                            };
+
+                            Debug.Log($"GENETIC BASELINE LOCKED for elderly chimera! " +
+                                     $"Using INHERITED personality: Curiosity={genetics.geneticCuriosity}, " +
+                                     $"Affection={genetics.geneticAffection}, Loyalty={genetics.geneticLoyalty}");
+                        }
+                        else
+                        {
+                            // Use current personality as baseline (generation 1 chimeras)
+                            baseline = new BaselinePersonalityComponent
+                            {
+                                baselineCuriosity = personality.ValueRO.Curiosity,
+                                baselinePlayfulness = personality.ValueRO.Playfulness,
+                                baselineAggression = personality.ValueRO.Aggression,
+                                baselineAffection = personality.ValueRO.Affection,
+                                baselineIndependence = personality.ValueRO.Independence,
+                                baselineNervousness = personality.ValueRO.Nervousness,
+                                baselineStubbornness = personality.ValueRO.Stubbornness,
+                                baselineLoyalty = personality.ValueRO.Loyalty,
+                                lockTimestamp = currentTime,
+                                wasLockedAtElderly = true
+                            };
+
+                            Debug.Log($"CURRENT BASELINE LOCKED for elderly chimera (no genetic data). " +
+                                     $"Personality: Curiosity={personality.ValueRO.Curiosity}, " +
+                                     $"Affection={personality.ValueRO.Affection}, Loyalty={personality.ValueRO.Loyalty}");
+                        }
+
+                        ecb.AddComponent(entity, baseline);
                         stability.ValueRW.hasLockedBaseline = true;
                         stability.ValueRW.timeSinceBaselineLock = 0f;
-
-                        Debug.Log($"BASELINE PERSONALITY LOCKED for elderly chimera! " +
-                                 $"Personality: Curiosity={personality.ValueRO.Curiosity}, " +
-                                 $"Affection={personality.ValueRO.Affection}, Loyalty={personality.ValueRO.Loyalty}");
                     }
                 }
             }
