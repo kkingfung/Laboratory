@@ -27,8 +27,10 @@ namespace Laboratory.Subsystems.Team.Systems
         // Matchmaking parameters (configurable via ScriptableObject)
         private float _skillRangeExpansionRate = 50f; // Expand search range over time
         private float _maxSkillGap = 300f; // Maximum skill difference allowed
+        #pragma warning disable CS0414
         private float _beginnerProtectionThreshold = 1200f; // Protect new players
-        private int _idealTeamSize = 4; // Target team size for optimal matches
+        private int _idealTeamSize = 4;
+        #pragma warning restore CS0414
         private float _matchQualityThreshold = 0.6f; // Minimum acceptable match quality
 
         protected override void OnCreate()
@@ -121,9 +123,7 @@ namespace Laboratory.Subsystems.Team.Systems
                 {
                     teammates.Add(j);
 
-                    // Prioritize ideal team size, but respect player preferences
-                    int targetSize = math.min(player.PreferredTeamSize, _idealTeamSize);
-                    if (teammates.Length >= targetSize)
+                    if (teammates.Length >= player.PreferredTeamSize)
                         break;
                 }
             }
@@ -166,11 +166,6 @@ namespace Laboratory.Subsystems.Team.Systems
                 player1.SkillLevel == PlayerSkillLevel.Beginner)
             {
                 if (player2.SkillLevel >= PlayerSkillLevel.Advanced)
-                    return false;
-
-                // Additional protection based on skill threshold
-                if (player1.SkillRating < _beginnerProtectionThreshold &&
-                    player2.SkillRating > _beginnerProtectionThreshold * 1.5f)
                     return false;
             }
 

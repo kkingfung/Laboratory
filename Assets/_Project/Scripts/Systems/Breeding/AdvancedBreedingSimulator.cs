@@ -85,7 +85,6 @@ namespace Laboratory.Systems.Breeding
         // Breeding state
         private List<BreedingSession> activeBreedingSessions = new List<BreedingSession>();
         private Dictionary<uint, CreatureGenome> availableParents = new Dictionary<uint, CreatureGenome>();
-        private Dictionary<uint, float> parentCooldowns = new Dictionary<uint, float>(); // Track breeding cooldowns
         private BreedingSelection currentSelection = new BreedingSelection();
 
         // UI state
@@ -266,13 +265,6 @@ namespace Laboratory.Systems.Breeding
                 return false;
             }
 
-            // Check if we've reached the maximum active breeding limit
-            if (activeBreedingSessions.Count >= maxActiveBreedings)
-            {
-                Debug.LogWarning($"Cannot start breeding: maximum active breeding limit reached ({maxActiveBreedings})");
-                return false;
-            }
-
             // Check if there's already an active breeding session
             if (activeBreedingSessions.Any(session => session.status == BreedingStatus.InProgress))
             {
@@ -292,27 +284,13 @@ namespace Laboratory.Systems.Breeding
                 return false;
             }
 
-            // Check breeding cooldowns
-            if (IsParentOnCooldown(currentSelection.parentAId) || IsParentOnCooldown(currentSelection.parentBId))
-            {
-                return false;
-            }
-
             // Additional breeding condition checks could be added here:
             // - Species compatibility
             // - Genetic distance requirements
             // - Resource availability
+            // - Cooldown periods
 
             return true;
-        }
-
-        private bool IsParentOnCooldown(uint creatureId)
-        {
-            if (parentCooldowns.TryGetValue(creatureId, out float cooldownEndTime))
-            {
-                return Time.time < cooldownEndTime;
-            }
-            return false;
         }
 
         /// <summary>
@@ -604,10 +582,6 @@ namespace Laboratory.Systems.Breeding
 
                 analytics.totalBreedingCompletions++;
                 OnBreedingCompleted?.Invoke(session, session.offspring);
-
-                // Set breeding cooldowns for parents
-                parentCooldowns[session.parentAId] = Time.time + breedingCooldown;
-                parentCooldowns[session.parentBId] = Time.time + breedingCooldown;
 
                 // Update generation history
                 RecordGenerationData(session);
@@ -937,8 +911,8 @@ namespace Laboratory.Systems.Breeding
 
             generationHistory.Add(record);
 
-            // Limit history size based on configured limit
-            while (generationHistory.Count > generationHistoryLimit)
+            // Limit history size
+            if (generationHistory.Count > 1000)
             {
                 generationHistory.RemoveAt(0);
             }

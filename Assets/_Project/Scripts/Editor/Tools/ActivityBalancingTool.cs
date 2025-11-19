@@ -75,8 +75,6 @@ namespace Laboratory.Editor.Tools
             DrawTargetPerformance();
 
             EditorGUILayout.Space(10);
-            DrawAdvancedSettings();
-            EditorGUILayout.Space(10);
 
             DrawSimulationResults();
             DrawRecommendations();
@@ -361,46 +359,6 @@ namespace Laboratory.Editor.Tools
                 $"Difficulty: {baseDifficulty * (1 + difficultyScaling * (difficultyLevel - 1)):F2}x\n" +
                 $"XP: {estimatedXP:F0} | Gold: {estimatedGold:F0}",
                 "OK");
-        }
-
-        private void DrawAdvancedSettings()
-        {
-            showAdvanced = EditorGUILayout.Foldout(showAdvanced, "Advanced Settings", true);
-
-            if (showAdvanced)
-            {
-                EditorGUI.indentLevel++;
-
-                EditorGUILayout.HelpBox("Advanced balancing parameters for fine-tuning", MessageType.Info);
-                EditorGUILayout.LabelField("Statistical Analysis");
-                EditorGUILayout.LabelField($"Difficulty Variance: {CalculateDifficultyVariance():F2}");
-                EditorGUILayout.LabelField($"Reward Efficiency: {CalculateRewardEfficiency():F2}");
-
-                EditorGUI.indentLevel--;
-            }
-        }
-
-        private float CalculateDifficultyVariance()
-        {
-            // Calculate how much difficulty varies across different levels
-            float minDifficulty = baseDifficulty;
-            float maxDifficulty = baseDifficulty * (1 + difficultyScaling * 9); // Level 10
-            float averageDifficulty = (minDifficulty + maxDifficulty) / 2f;
-
-            // Variance calculation: how much the range deviates from average
-            float range = maxDifficulty - minDifficulty;
-            return range / averageDifficulty; // Higher values = more variance
-        }
-
-        private float CalculateRewardEfficiency()
-        {
-            // Calculate how well rewards scale with difficulty
-            float currentDifficulty = baseDifficulty * (1 + difficultyScaling * (difficultyLevel - 1));
-            float expectedXPForDifficulty = 100f * currentDifficulty; // Expected XP baseline
-
-            // Efficiency = how close actual rewards are to expected rewards
-            float efficiency = Mathf.Min(estimatedXP / expectedXPForDifficulty, expectedXPForDifficulty / estimatedXP);
-            return Mathf.Clamp01(efficiency);
         }
 
         private void RunFullTest()

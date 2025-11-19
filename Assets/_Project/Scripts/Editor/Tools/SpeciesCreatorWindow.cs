@@ -354,7 +354,7 @@ namespace Laboratory.Editor.Tools
             EditorUtility.DisplayDialog("Success", $"Species '{speciesName}' created successfully!", "OK");
         }
 
-        private new void SaveChanges()
+        private void SaveChanges()
         {
             if (currentSpecies == null)
             {

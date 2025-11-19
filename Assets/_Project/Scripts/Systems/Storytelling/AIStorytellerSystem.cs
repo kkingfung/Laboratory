@@ -27,9 +27,6 @@ namespace Laboratory.Systems.Storytelling
 
         [Header("Narrative Style")]
         [SerializeField] private NarrativeStyle defaultNarrativeStyle = NarrativeStyle.Scientific;
-
-        // Property to access narrative style from nested classes
-        internal NarrativeStyle DefaultNarrativeStyle => defaultNarrativeStyle;
         [SerializeField, Range(0f, 1f)] private float dramaticIntensity = 0.6f;
         [SerializeField, Range(0f, 1f)] private float humorLevel = 0.3f;
         [SerializeField, Range(0f, 1f)] private float technicalDetail = 0.7f;
@@ -148,7 +145,7 @@ namespace Laboratory.Systems.Storytelling
         private void ConnectToGameSystems()
         {
             // Connect to analytics system
-            analyticsTracker = FindFirstObjectByType<PlayerAnalyticsTracker>();
+            analyticsTracker = FindObjectOfType<PlayerAnalyticsTracker>();
             if (analyticsTracker != null)
             {
                 analyticsTracker.OnPlayerArchetypeIdentified += HandlePlayerArchetypeChange;
@@ -409,9 +406,6 @@ namespace Laboratory.Systems.Storytelling
 
         private void HandleEnvironmentalEvent(EnvironmentalEvent envEvent)
         {
-            // Check if we should respond to ecosystem events
-            if (!respondToEcosystemEvents) return;
-
             var gameEvent = new GameEvent
             {
                 eventType = "EnvironmentalEvent",
@@ -468,9 +462,6 @@ namespace Laboratory.Systems.Storytelling
 
         private void HandleSocialInteraction(uint creatureA, uint creatureB, SocialInteractionType interactionType)
         {
-            // Check if we should track creature personalities for storytelling
-            if (!trackCreaturePersonalities) return;
-
             var gameEvent = new GameEvent
             {
                 eventType = "SocialInteraction",
@@ -852,52 +843,10 @@ namespace Laboratory.Systems.Storytelling
 
         private void HandlePlayerArchetypeChange(PlayerArchetype newArchetype)
         {
-            // Check if we should adapt to player behavior
-            if (!adaptToPlayerBehavior) return;
-
-            // Calculate adaptation significance based on archetype change
-            float adaptationLevel = CalculateAdaptationLevel(newArchetype);
-
-            // Only adapt if we meet the adaptation threshold
-            if (adaptationLevel >= adaptationThreshold)
+            // Adjust storytelling style based on player archetype
+            if (logPersonalityEvents)
             {
-                AdaptNarrativeStyleToPlayer(newArchetype);
-
-                if (logPersonalityEvents)
-                {
-                    Debug.Log($"Player archetype changed to: {newArchetype}. Adapting narrative style (level: {adaptationLevel:F2})");
-                }
-            }
-        }
-
-        private float CalculateAdaptationLevel(PlayerArchetype archetype)
-        {
-            // Calculate how much we should adapt based on player archetype
-            return archetype.archetypeType switch
-            {
-                Laboratory.Systems.Analytics.ArchetypeType.Explorer => 0.8f,
-                Laboratory.Systems.Analytics.ArchetypeType.Collector => 0.6f,
-                Laboratory.Systems.Analytics.ArchetypeType.Achiever => 0.9f,
-                Laboratory.Systems.Analytics.ArchetypeType.Socializer => 0.7f,
-                Laboratory.Systems.Analytics.ArchetypeType.Balanced => 0.5f,
-                _ => 0.4f
-            };
-        }
-
-        private void AdaptNarrativeStyleToPlayer(PlayerArchetype archetype)
-        {
-            // Adjust storytelling parameters based on player archetype
-            switch (archetype.archetypeType)
-            {
-                case Laboratory.Systems.Analytics.ArchetypeType.Explorer:
-                    dramaticIntensity = Mathf.Min(dramaticIntensity + 0.1f, 1f);
-                    break;
-                case Laboratory.Systems.Analytics.ArchetypeType.Achiever:
-                    technicalDetail = Mathf.Min(technicalDetail + 0.15f, 1f);
-                    break;
-                case Laboratory.Systems.Analytics.ArchetypeType.Socializer:
-                    humorLevel = Mathf.Min(humorLevel + 0.1f, 1f);
-                    break;
+                Debug.Log($"Player archetype changed to: {newArchetype}. Adjusting narrative style.");
             }
         }
 
@@ -1070,14 +1019,8 @@ namespace Laboratory.Systems.Storytelling
 
         private void SaveStoryHistory()
         {
-            // Limit story history based on the configured limit
-            while (storyHistory.Count > storyHistoryLimit)
-            {
-                storyHistory.RemoveAt(0); // Remove oldest entries
-            }
-
             // Save story history to persistent storage
-            Debug.Log($"Saving story history: {storyHistory.Count} fragments (max: {storyHistoryLimit}), {analytics.totalStoriesGenerated} total stories");
+            Debug.Log($"Saving story history: {storyHistory.Count} fragments, {analytics.totalStoriesGenerated} total stories");
         }
 
         private void OnDestroy()
@@ -1305,19 +1248,8 @@ namespace Laboratory.Systems.Storytelling
 
         public string GenerateTitle(StoryTemplate template, StoryGenerationContext context)
         {
-            // Generate title based on narrative style and template
-            string baseTitle = template.storyType switch
-            {
-                StoryType.Discovery => system.DefaultNarrativeStyle == NarrativeStyle.Scientific
-                    ? "Research Log: Discovery" : "The Great Discovery",
-                StoryType.Evolution => system.DefaultNarrativeStyle == NarrativeStyle.Scientific
-                    ? "Evolutionary Analysis" : "The Evolution Chronicle",
-                StoryType.Social => system.DefaultNarrativeStyle == NarrativeStyle.Scientific
-                    ? "Social Behavior Study" : "Tales of Friendship",
-                _ => "Laboratory Chronicle"
-            };
-
-            return $"{baseTitle} - Generation {Random.Range(1, 20)}";
+            // Advanced title generation based on template and context
+            return $"The {template.storyType} of Generation {Random.Range(1, 20)}";
         }
 
         public string GenerateOpeningNarrative(DynamicStory story)

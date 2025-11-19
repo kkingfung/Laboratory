@@ -158,7 +158,7 @@ namespace Laboratory.Editor.Tools
 
             if (_profiler == null)
             {
-                _profiler = FindFirstObjectByType<MemoryProfiler>();
+                _profiler = FindObjectOfType<MemoryProfiler>();
             }
         }
 

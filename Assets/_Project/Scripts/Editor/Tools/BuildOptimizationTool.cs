@@ -513,7 +513,7 @@ namespace Laboratory.Editor.Tools
 
             if (_enableCodeStripping)
             {
-                PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.Standalone, ManagedStrippingLevel.High);
+                PlayerSettings.SetManagedStrippingLevel(BuildTargetGroup.Standalone, ManagedStrippingLevel.High);
             }
 
             // Disable unused physics
