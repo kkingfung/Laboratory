@@ -23,7 +23,7 @@ namespace Laboratory.Chimera.Consciousness.Core
     /// - Modifies UpdateFromExperience learning rate
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(Laboratory.Chimera.Social.AgeSensitivitySystem))]
+    // NOTE: UpdateAfter(AgeSensitivitySystem) removed to avoid circular dependency with Social assembly
     public partial class PersonalityStabilitySystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _ecbSystem;

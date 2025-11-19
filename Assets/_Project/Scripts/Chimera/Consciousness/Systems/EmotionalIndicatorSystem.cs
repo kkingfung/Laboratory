@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Chimera.Core;
@@ -26,7 +27,7 @@ namespace Laboratory.Chimera.Consciousness.Core
     /// - Elderly: Serene, profound emotions
     /// </summary>
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-    [UpdateAfter(typeof(Laboratory.Chimera.Social.AgeSensitivitySystem))]
+    // NOTE: UpdateAfter(AgeSensitivitySystem) removed to avoid circular dependency with Social assembly
     public partial class EmotionalIndicatorSystem : SystemBase
     {
         private EndSimulationEntityCommandBufferSystem _ecbSystem;

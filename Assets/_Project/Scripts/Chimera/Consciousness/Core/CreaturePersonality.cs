@@ -87,55 +87,10 @@ namespace Laboratory.Chimera.Consciousness.Core
             return personality;
         }
 
-        /// <summary>
-        /// NEW: Generate personality from inherited personality genetics (Phase 8)
-        ///
-        /// This is the preferred method for bred chimeras - personality comes from parents,
-        /// not randomly generated from stats.
-        ///
-        /// Integration:
-        /// - PersonalityGeneticComponent provides the 8 inherited personality traits
-        /// - PersonalityBreedingSystem handles breeding and inheritance
-        /// - PersonalityStabilitySystem uses genetic baseline for elderly reversion
-        /// </summary>
-        public static CreaturePersonality GenerateFromInheritedGenetics(
-            Laboratory.Chimera.Genetics.PersonalityGeneticComponent genetics,
-            VisualGeneticData visualGenetics,
-            uint personalitySeed)
-        {
-            Unity.Mathematics.Random random = new Unity.Mathematics.Random(personalitySeed);
-
-            var personality = new CreaturePersonality
-            {
-                PersonalitySeed = personalitySeed,
-                LearningRate = 0.1f + (visualGenetics.Intelligence / 100f) * 0.4f,
-                MemoryStrength = (byte)(50 + visualGenetics.Intelligence / 2),
-
-                // INHERITED personality traits from parents (Phase 8)
-                Curiosity = genetics.geneticCuriosity,
-                Playfulness = genetics.geneticPlayfulness,
-                Aggression = genetics.geneticAggression,
-                Affection = genetics.geneticAffection,
-                Independence = genetics.geneticIndependence,
-                Nervousness = genetics.geneticNervousness,
-                Stubbornness = genetics.geneticStubbornness,
-                Loyalty = genetics.geneticLoyalty,
-
-                // Initial emotional state
-                CurrentMood = EmotionalState.Neutral,
-                StressLevel = 0.2f,
-                HappinessLevel = 0.6f,
-                EnergyLevel = 0.8f,
-
-                // Generate preferences (still from visual genetics)
-                FoodLikes = GenerateFoodPreferences(visualGenetics, random),
-                PreferredActivities = GenerateActivityPreferences(visualGenetics, random),
-                SocialBehavior = GenerateSocialPreferences(visualGenetics, random),
-                HabitatLikes = GenerateEnvironmentPreferences(visualGenetics, random)
-            };
-
-            return personality;
-        }
+        // NOTE: GenerateFromInheritedGenetics has been MOVED to Laboratory.Chimera.Genetics.PersonalityConversionHelper
+        // to avoid circular dependencies. The Genetics assembly has access to both PersonalityGeneticComponent
+        // and CreaturePersonality, so the conversion method lives there.
+        // Use: PersonalityConversionHelper.CreatePersonalityFromGenetics(geneticComponent, visualGenetics, seed)
 
         /// <summary>
         /// Calculate trait value with genetic influence and random variation
@@ -213,7 +168,7 @@ namespace Laboratory.Chimera.Consciousness.Core
         }
 
         // Helper methods for generating preferences
-        private static FoodPreferences GenerateFoodPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
+        internal static FoodPreferences GenerateFoodPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
         {
             return new FoodPreferences
             {
@@ -224,7 +179,7 @@ namespace Laboratory.Chimera.Consciousness.Core
             };
         }
 
-        private static ActivityPreferences GenerateActivityPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
+        internal static ActivityPreferences GenerateActivityPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
         {
             return new ActivityPreferences
             {
@@ -235,7 +190,7 @@ namespace Laboratory.Chimera.Consciousness.Core
             };
         }
 
-        private static SocialPreferences GenerateSocialPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
+        internal static SocialPreferences GenerateSocialPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
         {
             return new SocialPreferences
             {
@@ -245,7 +200,7 @@ namespace Laboratory.Chimera.Consciousness.Core
             };
         }
 
-        private static EnvironmentPreferences GenerateEnvironmentPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
+        internal static EnvironmentPreferences GenerateEnvironmentPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
         {
             return new EnvironmentPreferences
             {
