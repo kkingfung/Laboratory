@@ -7,23 +7,8 @@ using Laboratory.Shared.Types;
 
 namespace Laboratory.Chimera.ECS
 {
-    /// <summary>
-    /// UNIFIED creature identity - consolidates scattered identity data
-    /// Performance: 128 bytes, cache-friendly
-    /// </summary>
-    public struct CreatureIdentityComponent : IComponentData
-    {
-        public FixedString64Bytes Species;
-        public FixedString32Bytes CreatureName;
-        public uint UniqueID;
-        public int Generation;
-        public float Age;
-        public float MaxLifespan;
-        public LifeStage CurrentLifeStage;
-        public RarityLevel Rarity;
-        public Entity OriginalParent1; // For lineage tracking
-        public Entity OriginalParent2;
-    }
+    // NOTE: CreatureIdentityComponent has been MOVED to Laboratory.Chimera.Core
+    // to break circular dependencies. Import Laboratory.Chimera.Core to use it.
 
     /// <summary>
     /// GENETICS 2.0 - Performance-optimized genetic data that DRIVES behavior
@@ -315,15 +300,8 @@ namespace Laboratory.Chimera.ECS
         Predator
     }
 
-    public enum LifeStage : byte
-    {
-        Embryo,
-        Juvenile,
-        Adolescent,
-        Adult,
-        Elder,
-        Ancient
-    }
+    // NOTE: LifeStage enum has been MOVED to Laboratory.Chimera.Core.LifeStage
+    // Uses 5-stage system: Baby, Child, Teen, Adult, Elderly
 
     public enum RarityLevel : byte
     {

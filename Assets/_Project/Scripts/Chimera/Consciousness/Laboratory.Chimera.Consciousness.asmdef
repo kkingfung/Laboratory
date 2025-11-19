@@ -11,8 +11,7 @@
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
         "Laboratory.Core.ECS",
-        "Laboratory.Chimera.Core",
-        "Laboratory.Chimera.ECS"
+        "Laboratory.Chimera.Core"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
