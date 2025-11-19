@@ -168,7 +168,8 @@ namespace Laboratory.Chimera.Consciousness.Core
         }
 
         // Helper methods for generating preferences
-        internal static FoodPreferences GenerateFoodPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
+        // Public so they can be accessed from PersonalityConversionHelper in Genetics assembly
+        public static FoodPreferences GenerateFoodPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
         {
             return new FoodPreferences
             {
@@ -179,7 +180,7 @@ namespace Laboratory.Chimera.Consciousness.Core
             };
         }
 
-        internal static ActivityPreferences GenerateActivityPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
+        public static ActivityPreferences GenerateActivityPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
         {
             return new ActivityPreferences
             {
@@ -190,7 +191,7 @@ namespace Laboratory.Chimera.Consciousness.Core
             };
         }
 
-        internal static SocialPreferences GenerateSocialPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
+        public static SocialPreferences GenerateSocialPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
         {
             return new SocialPreferences
             {
@@ -200,7 +201,7 @@ namespace Laboratory.Chimera.Consciousness.Core
             };
         }
 
-        internal static EnvironmentPreferences GenerateEnvironmentPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
+        public static EnvironmentPreferences GenerateEnvironmentPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
         {
             return new EnvironmentPreferences
             {
