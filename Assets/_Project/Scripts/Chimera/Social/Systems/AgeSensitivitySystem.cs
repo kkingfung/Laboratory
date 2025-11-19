@@ -94,10 +94,10 @@ namespace Laboratory.Chimera.Social
                 sensitivity.ValueRW.agePercentage = agePercent;
 
                 // Calculate sensitivity modifiers based on life stage
+                // NEW 4-STAGE SYSTEM: Baby → Child → Teen → Adult
                 switch (currentStage)
                 {
                     case LifeStage.Baby:
-                    case LifeStage.Infant:
                         sensitivity.ValueRW.forgivenessMultiplier = BABY_FORGIVENESS;
                         sensitivity.ValueRW.memoryStrength = BABY_MEMORY;
                         sensitivity.ValueRW.bondDamageMultiplier = 0.5f; // Half damage
@@ -106,7 +106,7 @@ namespace Laboratory.Chimera.Social
                         sensitivity.ValueRW.trustVulnerability = 0.2f;
                         break;
 
-                    case LifeStage.Juvenile:
+                    case LifeStage.Child:
                         sensitivity.ValueRW.forgivenessMultiplier = CHILD_FORGIVENESS;
                         sensitivity.ValueRW.memoryStrength = CHILD_MEMORY;
                         sensitivity.ValueRW.bondDamageMultiplier = 0.8f;
@@ -115,7 +115,7 @@ namespace Laboratory.Chimera.Social
                         sensitivity.ValueRW.trustVulnerability = 0.4f;
                         break;
 
-                    case LifeStage.Adolescent:
+                    case LifeStage.Teen:
                         sensitivity.ValueRW.forgivenessMultiplier = TEEN_FORGIVENESS;
                         sensitivity.ValueRW.memoryStrength = TEEN_MEMORY;
                         sensitivity.ValueRW.bondDamageMultiplier = 1.5f; // More damage
@@ -125,14 +125,25 @@ namespace Laboratory.Chimera.Social
                         break;
 
                     case LifeStage.Adult:
-                    case LifeStage.Elder:
-                    case LifeStage.Ancient:
                         sensitivity.ValueRW.forgivenessMultiplier = ADULT_FORGIVENESS;
                         sensitivity.ValueRW.memoryStrength = ADULT_MEMORY;
                         sensitivity.ValueRW.bondDamageMultiplier = 2.0f; // Double damage!
                         sensitivity.ValueRW.recoverySpeed = ADULT_RECOVERY;
                         sensitivity.ValueRW.emotionalResilience = 0.2f;
                         sensitivity.ValueRW.trustVulnerability = 0.95f;
+                        break;
+
+                    // Legacy support for deprecated stages
+                    case LifeStage.Infant:     // Maps to Baby
+                    case LifeStage.Juvenile:   // Maps to Child
+                    case LifeStage.Adolescent: // Maps to Teen
+                    case LifeStage.Elder:      // Maps to Adult
+                    case LifeStage.Ancient:    // Maps to Adult
+                    default:
+                        // Recalculate using age percentage for legacy stages
+                        var correctedStage = LifeStageExtensions.CalculateLifeStageFromPercentage(agePercent);
+                        sensitivity.ValueRW.currentLifeStage = correctedStage;
+                        // Recursive call would happen next frame with corrected stage
                         break;
                 }
 
@@ -186,13 +197,18 @@ namespace Laboratory.Chimera.Social
                 }
 
                 // For adults, severe damage creates emotional scars
-                if (sensitivity.currentLifeStage == LifeStage.Adult ||
-                    sensitivity.currentLifeStage == LifeStage.Elder)
+                // NEW VISION: Only adults develop scars - babies/children are resilient
+                if (sensitivity.currentLifeStage == LifeStage.Adult)
                 {
                     if (actualDamage > 0.3f) // Threshold for scarring
                     {
                         CreateEmotionalScar(targetEntity, damageEvent.ValueRO, actualDamage, ecb);
                     }
+                }
+                // Teens can develop minor scars from very severe trauma
+                else if (sensitivity.currentLifeStage == LifeStage.Teen && actualDamage > 0.5f)
+                {
+                    CreateEmotionalScar(targetEntity, damageEvent.ValueRO, actualDamage * 0.7f, ecb);
                 }
 
                 // Reset recovery tracking
