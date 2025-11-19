@@ -151,17 +151,21 @@ namespace Laboratory.Chimera.Consciousness.Core
         /// </summary>
         private void UpdateEmotionalContext(float deltaTime)
         {
-            // Directly iterate over entities with EmotionalContext buffers using RefRW
-            foreach (var contextBuffer in SystemAPI.Query<RefRW<DynamicBuffer<EmotionalContext>>>())
+            // Iterate over entities and get writable buffer access via SystemAPI.GetBuffer
+            // EmotionalContext buffer is always added alongside EmotionalIndicatorComponent
+            foreach (var (indicator, entity) in
+                SystemAPI.Query<RefRO<EmotionalIndicatorComponent>>().WithEntityAccess())
             {
-                for (int i = 0; i < contextBuffer.ValueRO.Length; i++)
+                var contextBuffer = SystemAPI.GetBuffer<EmotionalContext>(entity);
+
+                for (int i = 0; i < contextBuffer.Length; i++)
                 {
-                    var context = contextBuffer.ValueRO[i];
+                    var context = contextBuffer[i];
 
                     // Decay intensity over time
                     context.intensity = math.max(0f, context.intensity - (context.decayRate * deltaTime));
 
-                    contextBuffer.ValueRW[i] = context;
+                    contextBuffer[i] = context;
                 }
             }
         }
