@@ -148,10 +148,10 @@ namespace Laboratory.Chimera.Consciousness.Core
                         BaselinePersonalityComponent baseline;
 
                         // PHASE 8: Check if chimera has inherited personality genetics
-                        if (EntityManager.HasComponent<Laboratory.Chimera.Genetics.PersonalityGeneticComponent>(entity))
+                        if (EntityManager.HasComponent<PersonalityGeneticComponent>(entity))
                         {
                             // Use GENETIC baseline (inherited from parents)
-                            var genetics = EntityManager.GetComponentData<Laboratory.Chimera.Genetics.PersonalityGeneticComponent>(entity);
+                            var genetics = EntityManager.GetComponentData<PersonalityGeneticComponent>(entity);
 
                             baseline = new BaselinePersonalityComponent
                             {
@@ -380,11 +380,11 @@ namespace Laboratory.Chimera.Consciousness.Core
         {
             return stage switch
             {
-                LifeStage.Baby or LifeStage.Infant => BABY_MALLEABILITY * 100f,
-                LifeStage.Child or LifeStage.Juvenile => CHILD_MALLEABILITY * 100f,
-                LifeStage.Teen or LifeStage.Adolescent => TEEN_MALLEABILITY * 100f,
+                LifeStage.Baby => BABY_MALLEABILITY * 100f,
+                LifeStage.Child => CHILD_MALLEABILITY * 100f,
+                LifeStage.Teen => TEEN_MALLEABILITY * 100f,
                 LifeStage.Adult => ADULT_MALLEABILITY * 100f,
-                LifeStage.Elderly or LifeStage.Elder => ELDERLY_MALLEABILITY * 100f,
+                LifeStage.Elderly => ELDERLY_MALLEABILITY * 100f,
                 _ => ADULT_MALLEABILITY * 100f
             };
         }

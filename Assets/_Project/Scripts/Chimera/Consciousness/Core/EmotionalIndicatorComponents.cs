@@ -97,6 +97,7 @@ namespace Laboratory.Chimera.Consciousness.Core
         Melancholic = 33,      // 😔 Thoughtfully sad
         Devoted = 34,          // 💙 Deep loyalty showing
         Proud = 35,            // 😌 Accomplished feeling
+        Content = 36,          // 😊 Satisfied, at peace
 
         // Elderly specific (profound)
         Wise = 40,             // 🧘 Peaceful wisdom
@@ -208,6 +209,7 @@ namespace Laboratory.Chimera.Consciousness.Core
                 EmotionalIcon.Melancholic => "😔",
                 EmotionalIcon.Devoted => "💙",
                 EmotionalIcon.Proud => "😌",
+                EmotionalIcon.Content => "😊",
 
                 // Elderly
                 EmotionalIcon.Wise => "🧘",
@@ -252,6 +254,7 @@ namespace Laboratory.Chimera.Consciousness.Core
                 EmotionalIcon.Melancholic => "Thoughtfully sad",
                 EmotionalIcon.Devoted => "Showing deep loyalty",
                 EmotionalIcon.Proud => "Feeling accomplished",
+                EmotionalIcon.Content => "Content and satisfied",
 
                 EmotionalIcon.Wise => "Peaceful and wise",
                 EmotionalIcon.Nostalgic => "Remembering fondly",

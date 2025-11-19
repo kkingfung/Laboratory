@@ -1,56 +1,12 @@
 using Unity.Entities;
 using Unity.Collections;
+using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Consciousness.Core;
 
 namespace Laboratory.Chimera.Genetics
 {
-    /// <summary>
-    /// PERSONALITY GENETICS COMPONENT
-    ///
-    /// NEW VISION: Personality traits are genetically inheritable
-    ///
-    /// Design Philosophy:
-    /// - Each of the 8 personality traits has genetic representation
-    /// - Offspring inherit personality from parents (not randomly generated)
-    /// - Personality can mutate during breeding (rare events)
-    /// - Genetic personality becomes the baseline for elderly chimeras
-    /// - Experiences can modify personality, but genetics set the foundation
-    ///
-    /// Inheritance Model:
-    /// - Blended inheritance (average parents with variation)
-    /// - Slight random variation (±15%) for uniqueness
-    /// - Personality mutations can shift traits significantly
-    /// - Compatible personalities improve breeding success
-    ///
-    /// Integration Points:
-    /// - CreaturePersonality (Phase 1): Defines the 8 personality traits
-    /// - PersonalityStabilitySystem (Phase 3.5): Elderly baseline from genetics
-    /// - BreedingEngine: Calculates personality inheritance
-    /// - Population management: Personality affects breeding compatibility
-    /// </summary>
-    public struct PersonalityGeneticComponent : IComponentData
-    {
-        // Genetic baseline for 8 personality traits (0-100)
-        // These values are inherited from parents
-        public byte geneticCuriosity;
-        public byte geneticPlayfulness;
-        public byte geneticAggression;
-        public byte geneticAffection;
-        public byte geneticIndependence;
-        public byte geneticNervousness;
-        public byte geneticStubbornness;
-        public byte geneticLoyalty;
-
-        // Inheritance tracking
-        public ushort parent1Influence;      // 0-1000 (percentage × 10 for precision)
-        public ushort parent2Influence;      // 0-1000 (should sum to ~1000)
-        public byte mutationCount;           // Number of personality mutations
-        public bool hasPersonalityMutation;
-
-        // Breeding quality
-        public float personalityFitness;     // 0.0-1.0 (how well-balanced personality is)
-        public float temperamentStability;   // 0.0-1.0 (less variation = more stable)
-    }
+    // NOTE: PersonalityGeneticComponent has been MOVED to Laboratory.Chimera.Core
+    // to break circular dependencies. Import Laboratory.Chimera.Core to use it.
 
     /// <summary>
     /// PERSONALITY INHERITANCE RECORD - Tracks which traits came from which parent
