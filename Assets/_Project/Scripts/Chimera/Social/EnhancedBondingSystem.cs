@@ -85,10 +85,27 @@ namespace Laboratory.Chimera.Social
                 var targetPos = EntityManager.GetComponentData<LocalTransform>(bond.ValueRO.TargetEntity).Position;
                 float distance = math.distance(sourcePos, targetPos);
 
+                // AGE-BASED SENSITIVITY INTEGRATION
+                // Baby chimeras bond faster and forgive separation easier
+                // Adult chimeras bond slower and are deeply hurt by separation
+                float ageSensitivityMultiplier = 1.0f;
+                float separationDamageMultiplier = 1.0f;
+
+                if (EntityManager.HasComponent<AgeSensitivityComponent>(entity))
+                {
+                    var ageSensitivity = EntityManager.GetComponentData<AgeSensitivityComponent>(entity);
+
+                    // Babies bond faster, adults slower but deeper
+                    ageSensitivityMultiplier = ageSensitivity.recoverySpeed; // Babies: 2.5x, Adults: 0.3x
+
+                    // Adults hurt more from separation
+                    separationDamageMultiplier = ageSensitivity.bondDamageMultiplier; // Adults: 2.0x, Babies: 0.5x
+                }
+
                 // Update bond strength based on proximity and time
                 if (distance <= _config.ProximityBondingRange)
                 {
-                    float strengthGain = _config.BaseBondGrowthRate * deltaTime;
+                    float strengthGain = _config.BaseBondGrowthRate * deltaTime * ageSensitivityMultiplier;
 
                     // Apply bond type modifiers
                     switch (bond.ValueRO.BondType)
@@ -111,8 +128,8 @@ namespace Laboratory.Chimera.Social
                 }
                 else if (distance > _config.SeparationDistanceThreshold)
                 {
-                    // Bond weakens with distance
-                    float decay = _config.SeparationDecayRate * deltaTime;
+                    // Bond weakens with distance - adults hurt MORE by separation!
+                    float decay = _config.SeparationDecayRate * deltaTime * separationDamageMultiplier;
                     bond.ValueRW.Strength = math.max(0f, bond.ValueRO.Strength - decay);
                 }
 
