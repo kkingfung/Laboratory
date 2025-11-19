@@ -18,6 +18,7 @@
         "Laboratory.Models",
         "Laboratory.Chimera",
         "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.Consciousness",
         "Laboratory.Chimera.ECS",
         "Laboratory.Chimera.AI",
         "Laboratory.Chimera.Breeding",

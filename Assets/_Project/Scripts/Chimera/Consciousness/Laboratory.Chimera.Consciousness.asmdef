@@ -1,0 +1,24 @@
+{
+    "name": "Laboratory.Chimera.Consciousness",
+    "rootNamespace": "Laboratory.Chimera.Consciousness",
+    "references": [
+        "Unity.Entities",
+        "Unity.Collections",
+        "Unity.Mathematics",
+        "Unity.Transforms",
+        "Laboratory.Core",
+        "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Enums",
+        "Laboratory.Core.ECS",
+        "Laboratory.Chimera.Core"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
