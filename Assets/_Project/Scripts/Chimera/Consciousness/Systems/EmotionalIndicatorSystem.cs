@@ -151,23 +151,26 @@ namespace Laboratory.Chimera.Consciousness.Core
         /// </summary>
         private void UpdateEmotionalContext(float deltaTime)
         {
-            // Use Job to modify DynamicBuffer in parallel
-            Entities
-                .ForEach((DynamicBuffer<EmotionalContext> contextBuffer) =>
+            // Use SystemAPI.QueryBuilder to get entities with EmotionalContext buffers
+            var query = SystemAPI.QueryBuilder().WithAll<DynamicBuffer<EmotionalContext>>().Build();
+            var entities = query.ToEntityArray(Allocator.Temp);
+
+            foreach (var entity in entities)
+            {
+                var contextBuffer = SystemAPI.GetBuffer<EmotionalContext>(entity);
+
+                for (int i = 0; i < contextBuffer.Length; i++)
                 {
-                    for (int i = 0; i < contextBuffer.Length; i++)
-                    {
-                        var context = contextBuffer[i];
+                    var context = contextBuffer[i];
 
-                        // Decay intensity over time
-                        context.intensity = math.max(0f, context.intensity - (context.decayRate * deltaTime));
+                    // Decay intensity over time
+                    context.intensity = math.max(0f, context.intensity - (context.decayRate * deltaTime));
 
-                        contextBuffer[i] = context;
-                    }
-                })
-                .Schedule();
+                    contextBuffer[i] = context;
+                }
+            }
 
-            this.CompleteDependency();
+            entities.Dispose();
         }
 
         /// <summary>
