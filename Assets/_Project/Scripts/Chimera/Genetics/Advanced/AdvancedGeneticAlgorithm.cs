@@ -19,18 +19,14 @@ namespace Laboratory.Chimera.Genetics.Advanced
     public class AdvancedGeneticAlgorithm
     {
         [Header("Population Settings")]
-        [SerializeField] private int maxPopulationSize = 1000;
         [SerializeField] private float survivalRate = 0.3f;
         [SerializeField] private float elitePreservationRate = 0.1f;
 
         [Header("Genetic Parameters")]
-        [SerializeField] private float baseMutationRate = 0.05f;
         [SerializeField] private float adaptiveMutationRate = 0.02f;
         [SerializeField] private float crossoverRate = 0.8f;
-        [SerializeField] private int maxGenerations = 100;
 
         [Header("Diversity Management")]
-        [SerializeField] private float diversityThreshold = 0.3f;
         [SerializeField] private float inbreedingPenalty = 0.2f;
         [SerializeField] private int genealogyDepth = 5;
 
