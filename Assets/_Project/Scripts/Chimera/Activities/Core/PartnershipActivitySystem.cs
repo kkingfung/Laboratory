@@ -394,16 +394,4 @@ namespace Laboratory.Chimera.Activities
             return baseDuration;
         }
     }
-
-    /// <summary>
-    /// Activity result status enum
-    /// </summary>
-    public enum ActivityResultStatus : byte
-    {
-        InProgress = 0,
-        Failed = 1,
-        Partial = 2,
-        Success = 3,
-        Perfect = 4
-    }
 }

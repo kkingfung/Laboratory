@@ -21,6 +21,7 @@
         "Laboratory.Core.MonsterTown",
         "Laboratory.Chimera.Core",
         "Laboratory.Chimera.Consciousness",
+        "Laboratory.Chimera.ECS",
         "Laboratory.Chimera.Creatures",
         "Laboratory.Chimera.Breeding",
         "Laboratory.Chimera.Genetics",
