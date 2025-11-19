@@ -9,6 +9,7 @@
         "Laboratory.Core.Diagnostics",
         "Laboratory.Shared",
         "Laboratory.Models",
+        "Laboratory.Chimera",
         "Laboratory.Chimera.Core",
         "Laboratory.AI.ECS",
         "Unity.Entities",
