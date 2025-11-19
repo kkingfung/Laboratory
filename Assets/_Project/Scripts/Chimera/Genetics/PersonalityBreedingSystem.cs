@@ -1,6 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
+using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Consciousness.Core;
 
 namespace Laboratory.Chimera.Genetics
