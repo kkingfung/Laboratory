@@ -3,18 +3,19 @@ namespace Laboratory.Chimera.Core
     /// <summary>
     /// Defines the life stages of creatures in Project Chimera
     ///
-    /// NEW VISION: Simplified to 4 stages matching emotional partnership growth
-    /// - Baby (0-25%): Forgiving, learning, building trust
-    /// - Child (25-50%): Developing personality, moderate sensitivity
-    /// - Teen (50-75%): Personality solidifying, less forgiving
-    /// - Adult (75-100%): Fully formed personality, deeply affected by treatment
+    /// 5-STAGE EMOTIONAL JOURNEY:
+    /// - Baby (0-20%): Forgiving, learning, building trust
+    /// - Child (20-40%): Developing personality, moderate sensitivity
+    /// - Teen (40-60%): Personality solidifying, less forgiving
+    /// - Adult (60-85%): Fully formed personality, deeply affected by treatment
+    /// - Elderly (85-100%): Deepest bonds, ultimate partnership achievement
     ///
-    /// Visual Growth: "Watch your partner mature from baby → child → teen → adult"
+    /// Visual Growth: "Watch your partner mature from baby → child → teen → adult → elderly companion"
     /// </summary>
     public enum LifeStage
     {
         /// <summary>
-        /// Baby stage (0-25% of lifespan)
+        /// Baby stage (0-20% of lifespan)
         /// - Very forgiving (90%)
         /// - Short memory (20%)
         /// - Fast bonding and recovery
@@ -26,11 +27,11 @@ namespace Laboratory.Chimera.Core
         /// DEPRECATED: Use Baby instead
         /// Kept for backward compatibility
         /// </summary>
-        [System.Obsolete("Use Baby instead - simplified to 4 stages")]
+        [System.Obsolete("Use Baby instead")]
         Infant = 0,
 
         /// <summary>
-        /// Child stage (25-50% of lifespan)
+        /// Child stage (20-40% of lifespan)
         /// - Moderately forgiving (70%)
         /// - Developing memory (40%)
         /// - Personality forming
@@ -42,11 +43,11 @@ namespace Laboratory.Chimera.Core
         /// DEPRECATED: Use Child instead
         /// Kept for backward compatibility
         /// </summary>
-        [System.Obsolete("Use Child instead - simplified to 4 stages")]
+        [System.Obsolete("Use Child instead")]
         Juvenile = 1,
 
         /// <summary>
-        /// Teen stage (50-75% of lifespan)
+        /// Teen stage (40-60% of lifespan)
         /// - Less forgiving (40%)
         /// - Strong memory (70%)
         /// - Personality solidifying
@@ -58,11 +59,11 @@ namespace Laboratory.Chimera.Core
         /// DEPRECATED: Use Teen instead
         /// Kept for backward compatibility
         /// </summary>
-        [System.Obsolete("Use Teen instead - simplified to 4 stages")]
+        [System.Obsolete("Use Teen instead")]
         Adolescent = 2,
 
         /// <summary>
-        /// Adult stage (75-100% of lifespan)
+        /// Adult stage (60-85% of lifespan)
         /// - Very low forgiveness (20%)
         /// - Permanent memory (95%)
         /// - Fully formed personality
@@ -72,18 +73,33 @@ namespace Laboratory.Chimera.Core
         Adult = 3,
 
         /// <summary>
-        /// DEPRECATED: Removed in new vision
-        /// Use Adult instead - no stat decline, relationships deepen instead
+        /// Elderly stage (85-100% of lifespan)
+        /// THE ULTIMATE PARTNERSHIP - Chimeras who reach old age with you
+        ///
+        /// - Wise forgiveness (35% - more than adults, less than teens)
+        /// - Perfect memory (99% - remembers everything)
+        /// - PROFOUND emotional bonds
+        /// - Deep cooperation with trusted partner
+        /// - Devastating if neglected/abandoned
+        /// - Represents lifetime of shared experiences
+        ///
+        /// ACHIEVEMENT: Reaching elderly stage proves exceptional partnership
         /// </summary>
-        [System.Obsolete("Use Adult - no Elder stage in new vision")]
-        Elder = 3,
+        Elderly = 4,
 
         /// <summary>
-        /// DEPRECATED: Removed in new vision
-        /// Use Adult instead - focus on emotional depth, not special powers
+        /// DEPRECATED: Was used for old 6-stage system
+        /// Now properly implemented as Elderly (stage 4)
         /// </summary>
-        [System.Obsolete("Use Adult - no Ancient stage in new vision")]
-        Ancient = 3
+        [System.Obsolete("Use Elderly (new stage 4)")]
+        Elder = 4,
+
+        /// <summary>
+        /// DEPRECATED: Removed - focus on emotional depth, not special powers
+        /// Elderly is the final stage (no Ancient)
+        /// </summary>
+        [System.Obsolete("Use Elderly - no Ancient stage")]
+        Ancient = 4
     }
     
     /// <summary>
@@ -94,11 +110,12 @@ namespace Laboratory.Chimera.Core
         /// <summary>
         /// Calculates life stage based on age and species lifespan
         ///
-        /// NEW 4-STAGE SYSTEM:
-        /// - 0-25%: Baby (forgiving, learning, fast bonding)
-        /// - 25-50%: Child (developing personality, moderate sensitivity)
-        /// - 50-75%: Teen (personality solidifying, less forgiving)
-        /// - 75-100%: Adult (fully formed, deeply affected by treatment)
+        /// 5-STAGE EMOTIONAL JOURNEY:
+        /// - 0-20%: Baby (forgiving, learning, fast bonding)
+        /// - 20-40%: Child (developing personality, moderate sensitivity)
+        /// - 40-60%: Teen (personality solidifying, less forgiving)
+        /// - 60-85%: Adult (fully formed, deeply affected by treatment)
+        /// - 85-100%: Elderly (ultimate partnership, profound bonds)
         /// </summary>
         public static LifeStage CalculateLifeStage(int ageInDays, int maxLifespanDays)
         {
@@ -106,10 +123,11 @@ namespace Laboratory.Chimera.Core
 
             return agePercentage switch
             {
-                < 0.25f => LifeStage.Baby,   // 0-25%: Baby stage
-                < 0.50f => LifeStage.Child,  // 25-50%: Child stage
-                < 0.75f => LifeStage.Teen,   // 50-75%: Teen stage
-                _ => LifeStage.Adult          // 75-100%: Adult stage
+                < 0.20f => LifeStage.Baby,    // 0-20%: Baby stage
+                < 0.40f => LifeStage.Child,   // 20-40%: Child stage
+                < 0.60f => LifeStage.Teen,    // 40-60%: Teen stage
+                < 0.85f => LifeStage.Adult,   // 60-85%: Adult stage
+                _ => LifeStage.Elderly         // 85-100%: Elderly stage (ACHIEVEMENT!)
             };
         }
 
@@ -120,10 +138,11 @@ namespace Laboratory.Chimera.Core
         {
             return agePercentage switch
             {
-                < 0.25f => LifeStage.Baby,
-                < 0.50f => LifeStage.Child,
-                < 0.75f => LifeStage.Teen,
-                _ => LifeStage.Adult
+                < 0.20f => LifeStage.Baby,
+                < 0.40f => LifeStage.Child,
+                < 0.60f => LifeStage.Teen,
+                < 0.85f => LifeStage.Adult,
+                _ => LifeStage.Elderly
             };
         }
         
@@ -151,6 +170,10 @@ namespace Laboratory.Chimera.Core
                 // Adult: Full capacity, deep cooperation, profound emotions, fully formed personality
                 LifeStage.Adult => (1.0f, 1.0f, 1.0f, 0.8f, 1.0f),
 
+                // Elderly: ULTIMATE PARTNERSHIP - Maintained capacity, perfect cooperation, transcendent emotional depth
+                // Represents lifetime of shared experiences and deepest possible bond
+                LifeStage.Elderly => (1.0f, 1.2f, 1.2f, 0.7f, 1.1f),
+
                 _ => (1.0f, 1.0f, 1.0f, 0.8f, 1.0f)
             };
         }
@@ -170,23 +193,28 @@ namespace Laboratory.Chimera.Core
         /// <summary>
         /// Checks if this life stage can breed
         ///
-        /// NEW VISION: Only Adults can breed (75%+ of lifespan)
+        /// NEW VISION: Adults and Elderly can breed
         /// Focus on quality partnerships and emotional maturity
         /// </summary>
         public static bool CanBreed(this LifeStage stage)
         {
-            return stage == LifeStage.Adult;
+            return stage == LifeStage.Adult || stage == LifeStage.Elderly;
         }
 
         /// <summary>
         /// Gets breeding efficiency for this life stage
         ///
-        /// NEW VISION: Adults maintain full breeding efficiency throughout life
-        /// No decline - relationships and bonds deepen with age instead
+        /// NEW VISION: No decline with age - relationships and bonds deepen instead
+        /// Elderly chimeras can still breed (if bond is strong)
         /// </summary>
         public static float GetBreedingEfficiency(this LifeStage stage)
         {
-            return stage == LifeStage.Adult ? 1.0f : 0.0f;
+            return stage switch
+            {
+                LifeStage.Adult => 1.0f,
+                LifeStage.Elderly => 1.0f, // No decline - maintained with good care
+                _ => 0.0f
+            };
         }
 
         /// <summary>
@@ -196,11 +224,12 @@ namespace Laboratory.Chimera.Core
         {
             return stage switch
             {
-                LifeStage.Baby => (0.00f, 0.25f),
-                LifeStage.Child => (0.25f, 0.50f),
-                LifeStage.Teen => (0.50f, 0.75f),
-                LifeStage.Adult => (0.75f, 1.00f),
-                _ => (0.75f, 1.00f)
+                LifeStage.Baby => (0.00f, 0.20f),
+                LifeStage.Child => (0.20f, 0.40f),
+                LifeStage.Teen => (0.40f, 0.60f),
+                LifeStage.Adult => (0.60f, 0.85f),
+                LifeStage.Elderly => (0.85f, 1.00f),
+                _ => (0.85f, 1.00f)
             };
         }
 
@@ -215,6 +244,7 @@ namespace Laboratory.Chimera.Core
                 LifeStage.Child => "Child",
                 LifeStage.Teen => "Teen",
                 LifeStage.Adult => "Adult",
+                LifeStage.Elderly => "Elderly",
                 _ => "Unknown"
             };
         }
@@ -230,6 +260,7 @@ namespace Laboratory.Chimera.Core
                 LifeStage.Child => "Personality developing. Moderately sensitive to treatment.",
                 LifeStage.Teen => "Testing boundaries. Less forgiving, memories starting to stick.",
                 LifeStage.Adult => "Fully formed personality. Deeply affected by treatment. Actions have lasting consequences.",
+                LifeStage.Elderly => "ULTIMATE PARTNERSHIP. Wise, deeply bonded companion. Remembers everything. Devastating if neglected.",
                 _ => ""
             };
         }

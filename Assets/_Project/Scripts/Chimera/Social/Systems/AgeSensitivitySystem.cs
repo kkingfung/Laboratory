@@ -35,16 +35,19 @@ namespace Laboratory.Chimera.Social
         private const float CHILD_FORGIVENESS = 0.7f;     // Moderately forgiving
         private const float TEEN_FORGIVENESS = 0.4f;      // Less forgiving
         private const float ADULT_FORGIVENESS = 0.2f;     // Consequences are real
+        private const float ELDERLY_FORGIVENESS = 0.35f;  // Wise forgiveness (more than adults, less than teens)
 
         private const float BABY_MEMORY = 0.2f;           // Forget quickly
         private const float CHILD_MEMORY = 0.4f;          // Remember some
         private const float TEEN_MEMORY = 0.7f;           // Remember most
         private const float ADULT_MEMORY = 0.95f;         // Never forget
+        private const float ELDERLY_MEMORY = 0.99f;       // Perfect memory - remembers everything
 
         private const float BABY_RECOVERY = 2.5f;         // Heal fast
         private const float CHILD_RECOVERY = 1.5f;        // Heal normally
         private const float TEEN_RECOVERY = 0.7f;         // Heal slowly
         private const float ADULT_RECOVERY = 0.3f;        // Heal very slowly
+        private const float ELDERLY_RECOVERY = 0.4f;      // Slow but possible with genuine care
 
         protected override void OnCreate()
         {
@@ -94,7 +97,7 @@ namespace Laboratory.Chimera.Social
                 sensitivity.ValueRW.agePercentage = agePercent;
 
                 // Calculate sensitivity modifiers based on life stage
-                // NEW 4-STAGE SYSTEM: Baby → Child → Teen → Adult
+                // 5-STAGE EMOTIONAL JOURNEY: Baby → Child → Teen → Adult → Elderly
                 switch (currentStage)
                 {
                     case LifeStage.Baby:
@@ -131,6 +134,17 @@ namespace Laboratory.Chimera.Social
                         sensitivity.ValueRW.recoverySpeed = ADULT_RECOVERY;
                         sensitivity.ValueRW.emotionalResilience = 0.2f;
                         sensitivity.ValueRW.trustVulnerability = 0.95f;
+                        break;
+
+                    case LifeStage.Elderly:
+                        // THE ULTIMATE PARTNERSHIP - Profound bonds, perfect memory
+                        // Devastating if neglected, but wise enough to forgive genuine care
+                        sensitivity.ValueRW.forgivenessMultiplier = ELDERLY_FORGIVENESS;
+                        sensitivity.ValueRW.memoryStrength = ELDERLY_MEMORY;
+                        sensitivity.ValueRW.bondDamageMultiplier = 1.8f; // Devastating but tempered by wisdom
+                        sensitivity.ValueRW.recoverySpeed = ELDERLY_RECOVERY;
+                        sensitivity.ValueRW.emotionalResilience = 0.15f; // Very vulnerable emotionally
+                        sensitivity.ValueRW.trustVulnerability = 0.98f; // Nearly impossible to repair broken trust
                         break;
 
                     // Legacy support for deprecated stages
@@ -196,9 +210,17 @@ namespace Laboratory.Chimera.Social
                     ApplyBondDamage(targetEntity, actualDamage, damageEvent.ValueRO.damageType, ecb);
                 }
 
-                // For adults, severe damage creates emotional scars
-                // NEW VISION: Only adults develop scars - babies/children are resilient
-                if (sensitivity.currentLifeStage == LifeStage.Adult)
+                // For adults and elderly, severe damage creates emotional scars
+                // NEW VISION: Only mature chimeras develop scars - babies/children are resilient
+                if (sensitivity.currentLifeStage == LifeStage.Elderly)
+                {
+                    // Elderly are most vulnerable - even moderate damage can scar
+                    if (actualDamage > 0.2f) // Lower threshold for elderly
+                    {
+                        CreateEmotionalScar(targetEntity, damageEvent.ValueRO, actualDamage * 1.1f, ecb);
+                    }
+                }
+                else if (sensitivity.currentLifeStage == LifeStage.Adult)
                 {
                     if (actualDamage > 0.3f) // Threshold for scarring
                     {
@@ -329,7 +351,7 @@ namespace Laboratory.Chimera.Social
                         currentBondStrength = GetCurrentBondStrength(entity),
                         timestamp = currentTime,
                         becameLessForgiving = becameLessForgiving,
-                        memoriesNowPermanent = currentStage >= LifeStage.Adolescent
+                        memoriesNowPermanent = currentStage >= LifeStage.Teen // Teen and beyond have strong memory
                     });
 
                     Debug.LogWarning($"AGE TRANSITION: {trackedStage} → {currentStage}. " +
@@ -482,8 +504,10 @@ namespace Laboratory.Chimera.Social
             return stage switch
             {
                 LifeStage.Baby or LifeStage.Infant => BABY_FORGIVENESS,
-                LifeStage.Juvenile => CHILD_FORGIVENESS,
-                LifeStage.Adolescent => TEEN_FORGIVENESS,
+                LifeStage.Child or LifeStage.Juvenile => CHILD_FORGIVENESS,
+                LifeStage.Teen or LifeStage.Adolescent => TEEN_FORGIVENESS,
+                LifeStage.Adult => ADULT_FORGIVENESS,
+                LifeStage.Elderly or LifeStage.Elder => ELDERLY_FORGIVENESS,
                 _ => ADULT_FORGIVENESS
             };
         }
