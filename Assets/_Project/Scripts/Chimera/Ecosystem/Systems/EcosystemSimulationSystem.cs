@@ -6,7 +6,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Chimera.Ecosystem.Core;
 using Laboratory.Chimera.Genetics;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 using System.Collections.Generic;
 using EcosystemEventType = Laboratory.Chimera.Ecosystem.Core.EcosystemEventType;
 

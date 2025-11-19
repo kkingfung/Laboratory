@@ -4,7 +4,7 @@ using Unity.Jobs;
 using Unity.Burst;
 using Unity.Mathematics;
 using UnityEngine;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Discovery.Core;
 using System.Collections.Generic;
 using DiscoveryType = Laboratory.Chimera.Discovery.Core.DiscoveryType;

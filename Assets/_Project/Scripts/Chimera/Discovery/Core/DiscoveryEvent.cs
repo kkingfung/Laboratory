@@ -4,7 +4,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Discovery.Core
 {

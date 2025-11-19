@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics.Visualization;
 using System.Collections;
 

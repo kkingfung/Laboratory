@@ -9,7 +9,7 @@ using Unity.Collections;
 using Laboratory.Chimera.Social;
 using Laboratory.Chimera.Social.Core;
 using Laboratory.Chimera.Discovery.Core;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Social.UI
 {

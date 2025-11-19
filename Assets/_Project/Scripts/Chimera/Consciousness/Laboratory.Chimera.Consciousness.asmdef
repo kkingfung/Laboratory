@@ -6,11 +6,13 @@
         "Unity.Collections",
         "Unity.Mathematics",
         "Unity.Transforms",
+        "Unity.TextMeshPro",
         "Laboratory.Core",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
         "Laboratory.Core.ECS",
-        "Laboratory.Chimera.Core"
+        "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.ECS"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

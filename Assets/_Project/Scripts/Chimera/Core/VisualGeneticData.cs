@@ -4,7 +4,7 @@ using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
 
-namespace Laboratory.Chimera.Genetics.Core
+namespace Laboratory.Chimera.Core
 {
     /// <summary>
     /// Enhanced genetic data structure for visual DNA display system
