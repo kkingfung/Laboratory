@@ -447,7 +447,7 @@ namespace Laboratory.Chimera.ECS
                 type = EmotionalMemoryType.BondingMoment,
                 strength = moment.memoryStrength,
                 timestamp = moment.timestamp,
-                triggerConditions = CreateTriggerConditionsList(GetMomentTriggerConditions(moment.type)),
+                triggerConditions = CreateTriggerConditionsList(_config.GetMomentTriggerConditions(moment.type)),
                 isActive = true,
                 description = moment.description
             };
@@ -558,7 +558,7 @@ namespace Laboratory.Chimera.ECS
                 type = EmotionalMemoryType.AncestralMemory,
                 strength = connection.memoryStrength,
                 timestamp = (float)SystemAPI.Time.ElapsedTime,
-                triggerConditions = CreateTriggerConditionsList(GetAncestralTriggerConditions(connection)),
+                triggerConditions = CreateTriggerConditionsList(_config.GetAncestralTriggerConditions(connection.connectionType)),
                 isActive = true,
                 description = $"Ancestral memory of {connection.ancestorCreatureId}"
             };
@@ -685,35 +685,9 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private Laboratory.Chimera.ECS.MemoryTriggerCondition[] GetMomentTriggerConditions(BondingMomentType type)
+        private FixedList64Bytes<MemoryTriggerCondition> CreateTriggerConditionsList(MemoryTriggerCondition[] conditions)
         {
-            var socialConditions = _config.GetMomentTriggerConditions(type);
-            var ecsConditions = new Laboratory.Chimera.ECS.MemoryTriggerCondition[socialConditions.Length];
-
-            for (int i = 0; i < socialConditions.Length; i++)
-            {
-                ecsConditions[i] = ConvertToECSMemoryTriggerCondition(socialConditions[i]);
-            }
-
-            return ecsConditions;
-        }
-
-        private Laboratory.Chimera.ECS.MemoryTriggerCondition[] GetAncestralTriggerConditions(LegacyConnection connection)
-        {
-            var socialConditions = _config.GetAncestralTriggerConditions(connection.connectionType);
-            var ecsConditions = new Laboratory.Chimera.ECS.MemoryTriggerCondition[socialConditions.Length];
-
-            for (int i = 0; i < socialConditions.Length; i++)
-            {
-                ecsConditions[i] = ConvertToECSMemoryTriggerCondition(socialConditions[i]);
-            }
-
-            return ecsConditions;
-        }
-
-        private FixedList64Bytes<Laboratory.Chimera.ECS.MemoryTriggerCondition> CreateTriggerConditionsList(Laboratory.Chimera.ECS.MemoryTriggerCondition[] conditions)
-        {
-            var fixedList = new FixedList64Bytes<Laboratory.Chimera.ECS.MemoryTriggerCondition>();
+            var fixedList = new FixedList64Bytes<MemoryTriggerCondition>();
             if (conditions != null)
             {
                 for (int i = 0; i < conditions.Length && i < fixedList.Capacity; i++)
@@ -747,7 +721,7 @@ namespace Laboratory.Chimera.ECS
             return false;
         }
 
-        private bool EvaluateTriggerCondition(Laboratory.Chimera.ECS.MemoryTriggerCondition condition, CreatureBondData bondData)
+        private bool EvaluateTriggerCondition(MemoryTriggerCondition condition, CreatureBondData bondData)
         {
             switch (condition.type)
             {
@@ -755,8 +729,6 @@ namespace Laboratory.Chimera.ECS
                     return bondData.bondStrength >= condition.threshold;
                 case TriggerConditionType.BondingEmotionalState:
                     return bondData.currentBondingEmotionalState == condition.requiredState;
-                case TriggerConditionType.TimeOfDay:
-                    return CheckTimeCondition(condition);
                 case TriggerConditionType.InteractionType:
                     return bondData.lastInteractionType == condition.requiredInteraction;
                 default:
@@ -764,165 +736,21 @@ namespace Laboratory.Chimera.ECS
             }
         }
 
-        private bool CheckTimeCondition(Laboratory.Chimera.ECS.MemoryTriggerCondition condition)
-        {
-            // Check if current time matches condition
-            float currentTime = (float)SystemAPI.Time.ElapsedTime % 86400f; // Seconds in a day
-            return currentTime >= condition.timeRange.x && currentTime <= condition.timeRange.y;
-        }
-
-        private Laboratory.Chimera.ECS.MemoryTriggerCondition ConvertToECSMemoryTriggerCondition(Laboratory.Chimera.Social.MemoryTriggerCondition socialCondition)
-        {
-            return new Laboratory.Chimera.ECS.MemoryTriggerCondition
-            {
-                type = (TriggerConditionType)socialCondition.type,
-                threshold = socialCondition.threshold,
-                requiredState = socialCondition.requiredState,
-                timeRange = new Vector2(socialCondition.timeRange, socialCondition.timeRange),
-                requiredInteraction = socialCondition.requiredInteraction
-            };
-        }
-
         #endregion
     }
 
     #region Data Structures
 
-    /// <summary>
-    /// Component data for creature bonding
-    /// </summary>
-    [Serializable]
-    public struct CreatureBondData : IComponentData
-    {
-        public int playerId;
-        public int creatureId;
-        public float bondStrength;
-        public float loyaltyLevel;
-        public float timeSinceLastInteraction;
-        public float timeAlive;
-
-        // Bonding milestones
-        public bool hasHadFirstInteraction;
-        public bool hasTrustBreakthrough;
-        public bool hasAdolescenceMoment;
-        public bool hasMaturityMoment;
-        public bool hasSharedDiscoveryMoment;
-        public bool participatedInDiscovery;
-        public bool hasLegacyConnection;
-
-        // Experience tracking
-        public int positiveExperiences;
-        public int negativeExperiences;
-        public int recentPositiveInteractions;
-        public BondingInteractionType lastInteractionType;
-
-        // Emotional state
-        public BondingEmotionalState currentBondingEmotionalState;
-        public float emotionalStateTimer;
-
-        // Memory system
-        public FixedList128Bytes<EmotionalMemory> emotionalMemories;
-    }
-
-    /// <summary>
-    /// Player's bonding history across all creatures
-    /// </summary>
-    [Serializable]
-    public struct PlayerBondingHistory : IComponentData
-    {
-        public int playerId;
-        public int totalCreaturesBonded;
-        public int totalGenerations;
-        public float overallBondingExpertise;
-
-        // Legacy connections
-        public FixedList128Bytes<LegacyConnection> legacyConnections;
-        public FixedList128Bytes<PastBondData> pastBonds;
-        public FixedList128Bytes<GenerationalPattern> generationalPatterns;
-    }
-
-    /// <summary>
-    /// Data about a bonding moment
-    /// </summary>
-    [Serializable]
-    public struct BondingMoment
-    {
-        public BondingMomentType type;
-        public float intensity;
-        public float timestamp;
-        public string description;
-        public float memoryStrength;
-    }
-
-    /// <summary>
-    /// Connection between current creature and past bonded creatures
-    /// </summary>
-    [Serializable]
-    public struct LegacyConnection
-    {
-        public int currentCreatureId;
-        public int ancestorCreatureId;
-        public LegacyConnectionType connectionType;
-        public float memoryStrength;
-        public float discoveredAt;
-        public bool isActive;
-        public FixedString64Bytes description;
-    }
-
-    /// <summary>
-    /// Emotional memory stored by creatures
-    /// </summary>
-    [Serializable]
-    public struct EmotionalMemory
-    {
-        public EmotionalMemoryType type;
-        public float strength;
-        public float timestamp;
-        public FixedList64Bytes<Laboratory.Chimera.ECS.MemoryTriggerCondition> triggerConditions;
-        public bool isActive;
-        public FixedString64Bytes description;
-    }
-
-    /// <summary>
-    /// Data about past bonded creatures
-    /// </summary>
-    [Serializable]
-    public struct PastBondData
-    {
-        public int creatureId;
-        public FixedString32Bytes creatureName;
-        public uint geneticHash; // Simplified genetics reference
-        public float finalBondStrength;
-        public float bondDurationDays;
-        public bool isActive;
-        public float endedAt;
-    }
-
-    /// <summary>
-    /// Pattern recognition across generations
-    /// </summary>
-    [Serializable]
-    public struct GenerationalPattern
-    {
-        public GenerationalPatternType patternType;
-        public float strength;
-        public FixedList32Bytes<LegacyConnectionType> connectionTypes;
-        public bool isActive;
-        public float discoveredAt;
-    }
-
-    /// <summary>
-    /// Conditions that trigger memory recall
-    /// </summary>
-    [Serializable]
-    public struct MemoryTriggerCondition
-    {
-        public TriggerConditionType type;
-        public float threshold;
-        public BondingEmotionalState requiredState;
-        public Vector2 timeRange;
-        public BondingInteractionType requiredInteraction;
-    }
+    // NOTE: All bonding data structures have been MOVED to Laboratory.Chimera.Core
+    // to break circular dependencies. Import Laboratory.Chimera.Core to use:
+    // - CreatureBondData, PlayerBondingHistory
+    // - BondingMoment, LegacyConnection, EmotionalMemory
+    // - PastBondData, GenerationalPattern, MemoryTriggerCondition
+    // - All bonding enums (BondingEmotionalState, BondingInteractionType, etc.)
+    //
+    // These types are now defined in:
+    // - Laboratory.Chimera.Core.BondingTypes.cs (enums + MemoryTriggerCondition)
+    // - Laboratory.Chimera.Core.BondingComponents.cs (IComponentData structs)
 
     #endregion
 }

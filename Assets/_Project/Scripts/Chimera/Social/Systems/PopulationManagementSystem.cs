@@ -3,7 +3,6 @@ using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Chimera.Core;
-using Laboratory.Chimera.ECS;
 
 namespace Laboratory.Chimera.Social
 {
