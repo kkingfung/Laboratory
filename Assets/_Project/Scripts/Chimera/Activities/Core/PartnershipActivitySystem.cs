@@ -3,7 +3,6 @@ using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Chimera.Progression;
 using Laboratory.Chimera.Consciousness.Core;
-using Laboratory.Chimera.ECS;
 
 namespace Laboratory.Chimera.Activities
 {
