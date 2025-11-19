@@ -76,12 +76,19 @@ namespace Laboratory.Chimera.Core
         /// Elderly stage (85-100% of lifespan)
         /// THE ULTIMATE PARTNERSHIP - Chimeras who reach old age with you
         ///
+        /// Emotional Characteristics:
         /// - Wise forgiveness (35% - more than adults, less than teens)
         /// - Perfect memory (99% - remembers everything)
         /// - PROFOUND emotional bonds
         /// - Deep cooperation with trusted partner
         /// - Devastating if neglected/abandoned
         /// - Represents lifetime of shared experiences
+        ///
+        /// Personality Mechanics:
+        /// - Baseline personality LOCKED when reaching elderly stage
+        /// - Extremely resistant to personality changes (5% learning rate)
+        /// - Temporary changes auto-revert to baseline over time
+        /// - Represents deeply ingrained lifetime habits and character
         ///
         /// ACHIEVEMENT: Reaching elderly stage proves exceptional partnership
         /// </summary>

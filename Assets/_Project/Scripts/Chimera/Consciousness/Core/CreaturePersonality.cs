@@ -96,10 +96,20 @@ namespace Laboratory.Chimera.Consciousness.Core
 
         /// <summary>
         /// Update personality based on experiences
+        ///
+        /// AGE-BASED STABILITY INTEGRATION:
+        /// - LearningRate is modified by PersonalityStabilitySystem based on age
+        /// - Baby chimeras: 100% learning rate (personality highly malleable)
+        /// - Elderly chimeras: 5% learning rate (personality extremely resistant)
+        /// - Elderly chimeras auto-revert to baseline over time
+        ///
+        /// See: PersonalityStabilitySystem.cs for age-based modifiers
         /// </summary>
         public void UpdateFromExperience(ExperienceType experience, float intensity)
         {
             // Personality slowly evolves based on experiences
+            // NOTE: LearningRate is scaled by age via PersonalityStabilitySystem
+            // Elderly chimeras will barely change and will revert to baseline
             switch (experience)
             {
                 case ExperienceType.PositivePlayerInteraction:
