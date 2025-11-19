@@ -25,14 +25,11 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         [Header("Biodiversity Metrics")]
         [SerializeField] private float speciesDiversityWeight = 0.3f;
-        [SerializeField] private float geneticDiversityWeight = 0.2f;
         [SerializeField] private float functionalDiversityWeight = 0.2f;
-        [SerializeField] private float ecosystemComplexityWeight = 0.3f;
 
         [Header("Stability Indicators")]
         [SerializeField] private int stabilityHistoryLength = 10;
         [SerializeField] private float stabilityVarianceThreshold = 0.2f;
-        [SerializeField] private float resilienceDecayRate = 0.05f;
 
         private EcosystemHealth currentHealth;
         private Dictionary<Vector2, EcosystemHealth> regionalHealth = new();

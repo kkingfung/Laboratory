@@ -6,7 +6,6 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using Laboratory.Chimera.Genetics;
-using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
 
