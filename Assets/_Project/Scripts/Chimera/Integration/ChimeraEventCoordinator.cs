@@ -129,15 +129,25 @@ namespace Laboratory.Chimera.Integration
                 // Create personality change event if applicable
                 if (result.ValueRO.cooperationImproved)
                 {
+                    // Get current affection to calculate change
+                    byte currentAffection = 50; // Default
+                    if (EntityManager.HasComponent<CreaturePersonality>(chimeraEntity))
+                    {
+                        currentAffection = EntityManager.GetComponentData<CreaturePersonality>(chimeraEntity).Affection;
+                    }
+
+                    byte newAffection = (byte)Unity.Mathematics.math.min(100, currentAffection + (result.ValueRO.skillGained * 5f));
+
                     var changeEventEntity = EntityManager.CreateEntity();
                     ecb.AddComponent(changeEventEntity, new PersonalityChangeEvent
                     {
                         targetCreature = chimeraEntity,
-                        changeType = PersonalityChangeType.ExperienceBased,
-                        traitAffected = PersonalityTrait.Affection, // Activities improve affection
-                        magnitude = result.ValueRO.skillGained * 10f,
-                        source = result.ValueRO.partnershipEntity,
-                        timestamp = currentTime
+                        traitChanged = PersonalityTraitType.Affection,
+                        previousValue = currentAffection,
+                        newValue = newAffection,
+                        changeIntensity = result.ValueRO.skillGained,
+                        timestamp = currentTime,
+                        changeReason = "Activity cooperation"
                     });
                 }
             }
@@ -160,21 +170,44 @@ namespace Laboratory.Chimera.Integration
                     continue;
                 }
 
-                // Create emotional context
-                if (EntityManager.HasBuffer<EmotionalContextEntry>(chimeraEntity))
+                // Create positive or negative memory based on equipment fit
+                if (equipEvent.ValueRO.personalityFit > 0.7f)
                 {
-                    var contextBuffer = EntityManager.GetBuffer<EmotionalContextEntry>(chimeraEntity);
-
-                    EmotionalContextType contextType = equipEvent.ValueRO.personalityFit > 0.7f
-                        ? EmotionalContextType.GiftReceived  // Likes equipment
-                        : EmotionalContextType.Discomfort;    // Dislikes equipment
-
-                    contextBuffer.Add(new EmotionalContextEntry
+                    // Likes equipment - positive memory
+                    if (EntityManager.HasBuffer<PositiveMemory>(chimeraEntity))
                     {
-                        contextType = contextType,
-                        intensity = equipEvent.ValueRO.personalityFit,
-                        timestamp = currentTime,
-                        relatedEntity = Entity.Null
+                        var memoryBuffer = EntityManager.GetBuffer<PositiveMemory>(chimeraEntity);
+
+                        LifeStage currentStage = LifeStage.Adult;
+                        if (EntityManager.HasComponent<CreatureIdentityComponent>(chimeraEntity))
+                        {
+                            currentStage = EntityManager.GetComponentData<CreatureIdentityComponent>(chimeraEntity).CurrentLifeStage;
+                        }
+
+                        memoryBuffer.Add(new PositiveMemory
+                        {
+                            type = PositiveMemoryType.ReceivedGift,
+                            intensityWhenCreated = equipEvent.ValueRO.personalityFit,
+                            ageWhenCreated = currentStage,
+                            timestamp = currentTime,
+                            currentStrength = equipEvent.ValueRO.personalityFit,
+                            description = "Equipment suits personality"
+                        });
+                    }
+                }
+                else if (equipEvent.ValueRO.personalityFit < 0.3f)
+                {
+                    // Dislikes equipment - create mild bond damage
+                    var damageEvent = EntityManager.CreateEntity();
+                    ecb.AddComponent(damageEvent, new BondDamageEvent
+                    {
+                        targetCreature = chimeraEntity,
+                        damageType = BondDamageType.Neglect, // Wrong equipment feels like neglect
+                        rawDamageAmount = 0.05f * (1f - equipEvent.ValueRO.personalityFit),
+                        creatureAgeAtDamage = EntityManager.HasComponent<CreatureIdentityComponent>(chimeraEntity)
+                            ? EntityManager.GetComponentData<CreatureIdentityComponent>(chimeraEntity).CurrentLifeStage
+                            : LifeStage.Adult,
+                        timestamp = currentTime
                     });
                 }
 
