@@ -330,7 +330,7 @@ namespace Laboratory.Core.ECS.Systems
                                                  ref Unity.Mathematics.Random random)
             {
                 int cellKey = GetSpatialHashKey(position, performanceConfig.spatialHashCellSize);
-                var bestMate = new BreedingCandidate(Entity.Null, float3.zero, default, 0, 0f, LifeStage.Embryo, default);
+                var bestMate = new BreedingCandidate(Entity.Null, float3.zero, default, 0, 0f, LifeStage.Baby, default);
                 float bestScore = 0f;
 
                 // Check current and nearby cells

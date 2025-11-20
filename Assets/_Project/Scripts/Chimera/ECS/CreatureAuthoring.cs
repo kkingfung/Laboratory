@@ -185,7 +185,7 @@ namespace Laboratory.Chimera.ECS
         private void ConvertCoreComponents(EntityManager entityManager)
         {
             // Create core creature identity component
-            var identityComponent = new CreatureIdentityComponent
+            var identityComponent = new Laboratory.Chimera.Core.CreatureIdentityComponent
             {
                 Species = creatureDefinition.speciesName,
                 CreatureName = creatureDefinition.speciesName,
