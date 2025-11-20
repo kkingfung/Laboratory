@@ -503,19 +503,19 @@ namespace Laboratory.Chimera.Social
             return stage switch
             {
                 LifeStage.Baby => BABY_FORGIVENESS,
-                LifeStage.Child or LifeStage.Juvenile => CHILD_FORGIVENESS,
-                LifeStage.Teen or LifeStage.Adolescent => TEEN_FORGIVENESS,
+                LifeStage.Child => CHILD_FORGIVENESS,
+                LifeStage.Teen => TEEN_FORGIVENESS,
                 LifeStage.Adult => ADULT_FORGIVENESS,
-                LifeStage.Elderly or LifeStage.Elder => ELDERLY_FORGIVENESS,
+                LifeStage.Elderly => ELDERLY_FORGIVENESS,
                 _ => ADULT_FORGIVENESS
             };
         }
 
         private float GetCurrentBondStrength(Entity entity)
         {
-            if (EntityManager.HasComponent<Laboratory.Chimera.ECS.CreatureBondData>(entity))
+            if (EntityManager.HasComponent<CreatureBondData>(entity))
             {
-                return EntityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureBondData>(entity).bondStrength;
+                return EntityManager.GetComponentData<CreatureBondData>(entity).bondStrength;
             }
             return 0.5f; // Default
         }

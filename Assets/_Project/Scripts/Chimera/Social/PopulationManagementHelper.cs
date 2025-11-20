@@ -135,7 +135,7 @@ namespace Laboratory.Chimera.Social
                 requestTime = currentTime
             });
 
-            Debug.Log($"Chimera acquisition requested (Method: {method})");
+            UnityEngine.Debug.Log($"Chimera acquisition requested (Method: {method})");
         }
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Laboratory.Chimera.Social
             var playerEntity = GetPlayerEntity(em);
             if (playerEntity == Entity.Null)
             {
-                Debug.LogError("Cannot release chimera: No player entity found!");
+                UnityEngine.Debug.LogError("Cannot release chimera: No player entity found!");
                 return;
             }
 
@@ -168,11 +168,11 @@ namespace Laboratory.Chimera.Social
 
             if (!isTemporary)
             {
-                Debug.LogWarning($"Chimera release requested - PERMANENT CAPACITY REDUCTION! (Reason: {reason})");
+                UnityEngine.Debug.LogWarning($"Chimera release requested - PERMANENT CAPACITY REDUCTION! (Reason: {reason})");
             }
             else
             {
-                Debug.Log($"Chimera temporary rehoming requested (Reason: {reason})");
+                UnityEngine.Debug.Log($"Chimera temporary rehoming requested (Reason: {reason})");
             }
         }
 
