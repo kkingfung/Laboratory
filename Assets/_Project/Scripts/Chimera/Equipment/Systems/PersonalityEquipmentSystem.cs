@@ -107,7 +107,7 @@ namespace Laboratory.Chimera.Equipment
                 ApplyPersonalityModifier(ref personality.ValueRW.Nervousness,
                     equipmentEffect.ValueRO.nervousnessModifier, malleability);
                 ApplyPersonalityModifier(ref personality.ValueRW.Stubbornness,
-                    equipmentEffect.ValueRO.stubbornnessModifier, malleability);
+                    equipmentEffect.ValueRO.stubbornessModifier, malleability);
                 ApplyPersonalityModifier(ref personality.ValueRW.Loyalty,
                     equipmentEffect.ValueRO.loyaltyModifier, malleability);
 
@@ -161,7 +161,7 @@ namespace Laboratory.Chimera.Equipment
                 var equipmentEffect = new PersonalityEquipmentEffect
                 {
                     equippedItemId = equipRequest.ValueRO.itemId,
-                    equippedSlot = equipRequest.ValueRO.targetSlot,
+                    equippedSlot = (Laboratory.Core.Equipment.EquipmentSlot)(byte)equipRequest.ValueRO.targetSlot,
                     equipTime = currentTime,
                     totalWearTime = 0f,
                     personalityFit = 0.7f, // TODO: Calculate from equipment profile
