@@ -4,6 +4,7 @@ using Laboratory.Chimera.Consciousness.Core;
 using Laboratory.Chimera.Progression;
 using Laboratory.Chimera.Activities;
 using Laboratory.Chimera.Social;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Integration
 {
@@ -199,9 +200,9 @@ namespace Laboratory.Chimera.Integration
             var ecb = _ecbSystem.CreateCommandBuffer();
 
             foreach (var (transitionEvent, entity) in
-                SystemAPI.Query<RefRO<LifeStageTransitionEvent>>().WithEntityAccess())
+                SystemAPI.Query<RefRO<AgeStageProgressionEvent>>().WithEntityAccess())
             {
-                var chimeraEntity = transitionEvent.ValueRO.chimeraEntity;
+                var chimeraEntity = transitionEvent.ValueRO.creature;
                 if (!EntityManager.Exists(chimeraEntity))
                 {
                     ecb.DestroyEntity(entity);

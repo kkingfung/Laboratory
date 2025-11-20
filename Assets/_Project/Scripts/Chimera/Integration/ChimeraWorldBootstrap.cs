@@ -11,9 +11,9 @@ using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
 using Laboratory.Chimera.ECS;
-using CreatureIdentityComponent = Laboratory.Chimera.ECS.CreatureIdentityComponent;
-using LifeStage = Laboratory.Chimera.ECS.LifeStage;
-using RarityLevel = Laboratory.Chimera.ECS.RarityLevel;
+using CreatureIdentityComponent = Laboratory.Chimera.Core.CreatureIdentityComponent;
+using LifeStage = Laboratory.Chimera.Core.LifeStage;
+using RarityLevel = Laboratory.Chimera.Core.RarityLevel;
 
 namespace Laboratory.Chimera.Integration
 {
