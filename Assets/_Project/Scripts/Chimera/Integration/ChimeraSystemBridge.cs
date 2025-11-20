@@ -443,11 +443,12 @@ namespace Laboratory.Chimera.Integration
             // Adjust behavior based on life stage
             switch (identity.CurrentLifeStage)
             {
-                case Laboratory.Chimera.ECS.LifeStage.Juvenile:
-                    // Juveniles are more curious and less aggressive
+                case Laboratory.Chimera.Core.LifeStage.Child:
+                case Laboratory.Chimera.Core.LifeStage.Teen:
+                    // Young chimeras are more curious and less aggressive
                     monsterAI.SetAggressionLevel(genetics.Aggression * 0.6f);
                     break;
-                case Laboratory.Chimera.ECS.LifeStage.Elder:
+                case Laboratory.Chimera.Core.LifeStage.Elderly:
                     // Elders are less active but more territorial
                     monsterAI.SetAggressionLevel(genetics.Aggression * 1.2f);
                     break;
@@ -507,7 +508,7 @@ namespace Laboratory.Chimera.Integration
                 return Laboratory.Chimera.Core.LifeStage.Elderly;
         }
 
-        private Laboratory.Chimera.ECS.RarityLevel DeriveRarityFromGenetics(GeneticProfile genetics)
+        private Laboratory.Chimera.Core.RarityLevel DeriveRarityFromGenetics(GeneticProfile genetics)
         {
             // Calculate rarity based on unique trait combinations
             float uniqueness = 0f;
@@ -523,13 +524,13 @@ namespace Laboratory.Chimera.Integration
                 uniqueness += 0.3f;
 
             if (uniqueness > 0.6f)
-                return (Laboratory.Chimera.ECS.RarityLevel)Laboratory.Chimera.Core.RarityLevel.Legendary;
+                return Laboratory.Chimera.Core.RarityLevel.Legendary;
             else if (uniqueness > 0.4f)
-                return (Laboratory.Chimera.ECS.RarityLevel)Laboratory.Chimera.Core.RarityLevel.Rare;
+                return Laboratory.Chimera.Core.RarityLevel.Rare;
             else if (uniqueness > 0.2f)
-                return (Laboratory.Chimera.ECS.RarityLevel)Laboratory.Chimera.Core.RarityLevel.Uncommon;
+                return Laboratory.Chimera.Core.RarityLevel.Uncommon;
             else
-                return (Laboratory.Chimera.ECS.RarityLevel)Laboratory.Chimera.Core.RarityLevel.Common;
+                return Laboratory.Chimera.Core.RarityLevel.Common;
         }
 
         #endregion

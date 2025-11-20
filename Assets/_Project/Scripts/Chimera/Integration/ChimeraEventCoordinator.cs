@@ -348,9 +348,13 @@ namespace Laboratory.Chimera.Integration
                     {
                         currentIcon = EmotionalIcon.Neutral,
                         previousIcon = EmotionalIcon.Neutral,
-                        intensity = 0.5f,
+                        currentEmoji = "😐",
+                        emotionDescription = "Curious newborn",
+                        emotionalIntensity = 0.5f,
                         timeSinceLastChange = 0f,
-                        displayUntil = currentTime + 30f
+                        isFluctuating = false,
+                        isSerene = false,
+                        displayPriority = 0.5f
                     });
                 }
 
