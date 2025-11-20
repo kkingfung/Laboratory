@@ -491,16 +491,20 @@ namespace Laboratory.Chimera.Integration
                 return "Common Chimera";
         }
 
-        private Laboratory.Chimera.ECS.LifeStage DeriveLifeStage(float currentAge, float maxLifespan)
+        private Laboratory.Chimera.Core.LifeStage DeriveLifeStage(float currentAge, float maxLifespan)
         {
             float ageRatio = currentAge / maxLifespan;
 
-            if (ageRatio < 0.15f)
-                return (Laboratory.Chimera.ECS.LifeStage)Laboratory.Chimera.Core.LifeStage.Juvenile;
-            else if (ageRatio < 0.75f)
-                return (Laboratory.Chimera.ECS.LifeStage)Laboratory.Chimera.Core.LifeStage.Adult;
+            if (ageRatio < 0.1f)
+                return Laboratory.Chimera.Core.LifeStage.Baby;
+            else if (ageRatio < 0.25f)
+                return Laboratory.Chimera.Core.LifeStage.Child;
+            else if (ageRatio < 0.5f)
+                return Laboratory.Chimera.Core.LifeStage.Teen;
+            else if (ageRatio < 0.8f)
+                return Laboratory.Chimera.Core.LifeStage.Adult;
             else
-                return (Laboratory.Chimera.ECS.LifeStage)Laboratory.Chimera.Core.LifeStage.Elder;
+                return Laboratory.Chimera.Core.LifeStage.Elderly;
         }
 
         private Laboratory.Chimera.ECS.RarityLevel DeriveRarityFromGenetics(GeneticProfile genetics)
