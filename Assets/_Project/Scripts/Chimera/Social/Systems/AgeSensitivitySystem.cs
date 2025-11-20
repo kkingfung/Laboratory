@@ -414,9 +414,9 @@ namespace Laboratory.Chimera.Social
 
         private void ApplyBondRecovery(Entity target, float recovery, RecoveryMethod method, EntityCommandBuffer ecb)
         {
-            if (EntityManager.HasComponent<Laboratory.Chimera.ECS.CreatureBondData>(target))
+            if (EntityManager.HasComponent<CreatureBondData>(target))
             {
-                var bondData = EntityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureBondData>(target);
+                var bondData = EntityManager.GetComponentData<CreatureBondData>(target);
                 bondData.bondStrength = math.min(1f, bondData.bondStrength + recovery);
                 bondData.positiveExperiences++;
                 bondData.recentPositiveInteractions++;
@@ -502,7 +502,7 @@ namespace Laboratory.Chimera.Social
         {
             return stage switch
             {
-                LifeStage.Baby or LifeStage.Infant => BABY_FORGIVENESS,
+                LifeStage.Baby => BABY_FORGIVENESS,
                 LifeStage.Child or LifeStage.Juvenile => CHILD_FORGIVENESS,
                 LifeStage.Teen or LifeStage.Adolescent => TEEN_FORGIVENESS,
                 LifeStage.Adult => ADULT_FORGIVENESS,
