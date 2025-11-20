@@ -130,7 +130,7 @@ namespace Laboratory.Chimera.Activities
                     elapsedTime = 0f,
                     isComplete = false,
                     finalScore = 0f,
-                    resultStatus = ActivityResultStatus.InProgress,
+                    resultStatus = ActivityResultStatus.Failed, // Will be updated upon completion
                     skillImprovement = 0f
                 };
 

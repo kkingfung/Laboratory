@@ -146,12 +146,7 @@ namespace Laboratory.Chimera.Social
                         sensitivity.ValueRW.trustVulnerability = 0.98f; // Nearly impossible to repair broken trust
                         break;
 
-                    // Legacy support for deprecated stages
-                    case LifeStage.Infant:     // Maps to Baby
-                    case LifeStage.Juvenile:   // Maps to Child
-                    case LifeStage.Adolescent: // Maps to Teen
-                    case LifeStage.Elder:      // Maps to Adult
-                    case LifeStage.Ancient:    // Maps to Adult
+                    // Legacy support for deprecated stages handled in default case
                     default:
                         // Recalculate using age percentage for legacy stages
                         var correctedStage = LifeStageExtensions.CalculateLifeStageFromPercentage(agePercent);
