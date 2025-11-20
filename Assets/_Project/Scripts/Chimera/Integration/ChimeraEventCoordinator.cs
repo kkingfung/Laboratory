@@ -65,32 +65,43 @@ namespace Laboratory.Chimera.Integration
                 if (!EntityManager.Exists(chimeraEntity))
                     continue;
 
-                // Create emotional context from activity result
-                if (EntityManager.HasBuffer<EmotionalContextEntry>(chimeraEntity))
+                // Create positive memory from successful activity results
+                if (result.ValueRO.status >= ActivityResultStatus.Silver) // Silver or better = positive memory
                 {
-                    var contextBuffer = EntityManager.GetBuffer<EmotionalContextEntry>(chimeraEntity);
-
-                    EmotionalContextType contextType = result.ValueRO.status switch
+                    if (EntityManager.HasBuffer<PositiveMemory>(chimeraEntity))
                     {
-                        ActivityResultStatus.Perfect => EmotionalContextType.ActivityPerfect,
-                        ActivityResultStatus.Success => EmotionalContextType.ActivitySuccess,
-                        ActivityResultStatus.Partial => EmotionalContextType.ActivityPartial,
-                        ActivityResultStatus.Failed => EmotionalContextType.ActivityFailed,
-                        _ => EmotionalContextType.ActivityPartial
-                    };
+                        var memoryBuffer = EntityManager.GetBuffer<PositiveMemory>(chimeraEntity);
 
-                    contextBuffer.Add(new EmotionalContextEntry
-                    {
-                        contextType = contextType,
-                        intensity = result.ValueRO.playerPerformance,
-                        timestamp = currentTime,
-                        relatedEntity = result.ValueRO.partnershipEntity
-                    });
+                        PositiveMemoryType memoryType = result.ValueRO.status switch
+                        {
+                            ActivityResultStatus.Platinum => PositiveMemoryType.PerfectCooperation,
+                            ActivityResultStatus.Gold => PositiveMemoryType.FirstVictory,
+                            ActivityResultStatus.Silver => PositiveMemoryType.SharedDiscovery,
+                            _ => PositiveMemoryType.SharedDiscovery
+                        };
 
-                    // Limit buffer size
-                    if (contextBuffer.Length > 10)
-                    {
-                        contextBuffer.RemoveAt(0);
+                        // Get chimera's current life stage
+                        LifeStage currentStage = LifeStage.Adult; // Default
+                        if (EntityManager.HasComponent<CreatureIdentityComponent>(chimeraEntity))
+                        {
+                            currentStage = EntityManager.GetComponentData<CreatureIdentityComponent>(chimeraEntity).CurrentLifeStage;
+                        }
+
+                        memoryBuffer.Add(new PositiveMemory
+                        {
+                            type = memoryType,
+                            intensityWhenCreated = result.ValueRO.playerPerformance,
+                            ageWhenCreated = currentStage,
+                            timestamp = currentTime,
+                            currentStrength = result.ValueRO.playerPerformance,
+                            description = "Activity success"
+                        });
+
+                        // Limit buffer size
+                        if (memoryBuffer.Length > 10)
+                        {
+                            memoryBuffer.RemoveAt(0);
+                        }
                     }
                 }
 
@@ -214,16 +225,18 @@ namespace Laboratory.Chimera.Integration
                 {
                     Debug.Log($"Chimera transitioning to ELDERLY - personality will lock!");
 
-                    // Create emotional context for this milestone
-                    if (EntityManager.HasBuffer<EmotionalContextEntry>(chimeraEntity))
+                    // Create positive memory for this milestone
+                    if (EntityManager.HasBuffer<PositiveMemory>(chimeraEntity))
                     {
-                        var contextBuffer = EntityManager.GetBuffer<EmotionalContextEntry>(chimeraEntity);
-                        contextBuffer.Add(new EmotionalContextEntry
+                        var memoryBuffer = EntityManager.GetBuffer<PositiveMemory>(chimeraEntity);
+                        memoryBuffer.Add(new PositiveMemory
                         {
-                            contextType = EmotionalContextType.BondingMoment, // Milestone
-                            intensity = 1.0f,
+                            type = PositiveMemoryType.MilestoneReached,
+                            intensityWhenCreated = 1.0f,
+                            ageWhenCreated = LifeStage.Elderly,
                             timestamp = currentTime,
-                            relatedEntity = Entity.Null
+                            currentStrength = 1.0f,
+                            description = "Reached elderly wisdom"
                         });
                     }
                 }
@@ -308,10 +321,16 @@ namespace Laboratory.Chimera.Integration
                     });
                 }
 
-                // Initialize emotional context buffer
-                if (!EntityManager.HasBuffer<EmotionalContextEntry>(offspringEntity))
+                // Initialize positive memory buffer
+                if (!EntityManager.HasBuffer<PositiveMemory>(offspringEntity))
                 {
-                    ecb.AddBuffer<EmotionalContextEntry>(offspringEntity);
+                    ecb.AddBuffer<PositiveMemory>(offspringEntity);
+                }
+
+                // Initialize emotional scar buffer
+                if (!EntityManager.HasBuffer<EmotionalScar>(offspringEntity))
+                {
+                    ecb.AddBuffer<EmotionalScar>(offspringEntity);
                 }
 
                 // Initialize PartnershipSkillComponent (for future partnerships)
