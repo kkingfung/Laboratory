@@ -115,13 +115,13 @@ namespace Laboratory.Chimera.Social
             var playerEntity = GetPlayerEntity(em);
             if (playerEntity == Entity.Null)
             {
-                Debug.LogError("Cannot acquire chimera: No player entity found!");
+                UnityEngine.Debug.LogError("Cannot acquire chimera: No player entity found!");
                 return;
             }
 
             if (!CanAcquireChimera(em))
             {
-                Debug.LogWarning("Cannot acquire chimera: At capacity!");
+                UnityEngine.Debug.LogWarning("Cannot acquire chimera: At capacity!");
                 return;
             }
 

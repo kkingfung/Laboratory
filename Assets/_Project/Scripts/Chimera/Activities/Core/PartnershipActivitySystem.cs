@@ -386,7 +386,7 @@ namespace Laboratory.Chimera.Activities
             float baseDuration = difficulty switch
             {
                 ActivityDifficulty.Easy => 30f,
-                ActivityDifficulty.Medium => 60f,
+                ActivityDifficulty.Normal => 60f,
                 ActivityDifficulty.Hard => 120f,
                 ActivityDifficulty.Expert => 180f,
                 _ => 60f
