@@ -129,7 +129,7 @@ namespace Laboratory.Chimera.Social
 
                 // Query all chimeras with bond data
                 foreach (var (bondData, chimeraIdentity, chimeraEntity) in
-                    SystemAPI.Query<RefRO<Laboratory.Chimera.ECS.CreatureBondData>,
+                    SystemAPI.Query<RefRO<CreatureBondData>,
                         RefRO<CreatureIdentityComponent>>().WithEntityAccess())
                 {
                     float bondStrength = bondData.ValueRO.bondStrength;
