@@ -93,9 +93,6 @@ namespace Laboratory.Chimera.Progression
             {
                 UpdatePartnershipQuality(currentTime);
             }
-
-            // Legacy XP system support (for migration)
-            ProcessLegacyExperienceRequests(currentTime);
         }
 
         /// <summary>
@@ -378,36 +375,6 @@ namespace Laboratory.Chimera.Progression
                 IncrementTotalCurrency(request.ValueRO.amount);
 
                 Debug.Log($"Awarded {request.ValueRO.amount} {request.ValueRO.currencyType} (for cosmetics!)");
-
-                ecb.DestroyEntity(entity);
-            }
-        }
-
-        /// <summary>
-        /// LEGACY SUPPORT - Converts old XP requests to skill improvements
-        /// Helps during migration period
-        /// </summary>
-        private void ProcessLegacyExperienceRequests(float currentTime)
-        {
-            var ecb = _endSimulationECBSystem.CreateCommandBuffer();
-
-            foreach (var (request, entity) in
-                SystemAPI.Query<RefRO<AwardExperienceRequest>>().WithEntityAccess())
-            {
-                Debug.LogWarning($"DEPRECATED: XP request detected. Converting to skill improvement. " +
-                                $"Please use RecordSkillImprovementRequest instead!");
-
-                // Convert to skill improvement with default values
-                var skillRequest = EntityManager.CreateEntity();
-                ecb.AddComponent(skillRequest, new RecordSkillImprovementRequest
-                {
-                    partnershipEntity = request.ValueRO.targetEntity,
-                    genre = ActivityGenreCategory.Action, // Default
-                    performanceQuality = 0.5f, // Assume average
-                    cooperatedWell = true,
-                    activityDuration = 60f,
-                    requestTime = currentTime
-                });
 
                 ecb.DestroyEntity(entity);
             }
