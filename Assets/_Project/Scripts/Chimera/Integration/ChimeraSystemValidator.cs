@@ -93,10 +93,11 @@ namespace Laboratory.Chimera.Integration
             {
                 cooperationLevel = 0.7f,
                 trustLevel = 0.6f,
-                bondQuality = 0.65f,
+                understandingLevel = 0.65f,
                 actionMastery = 0.5f,
                 totalActivitiesCompleted = 10,
-                partnershipStartTime = currentTime - 3600f
+                recentSuccessRate = 0.7f,
+                improvementTrend = 0.1f
             });
 
             // Test cooperation level
@@ -138,11 +139,11 @@ namespace Laboratory.Chimera.Integration
             Debug.Log("--- Validating Phase 3: 5-Stage Life Journey ---");
 
             // Test all 5 stages
-            Test("Baby stage valid", LifeStage.CalculateLifeStageFromPercentage(0.1f) == LifeStage.Baby);
-            Test("Child stage valid", LifeStage.CalculateLifeStageFromPercentage(0.3f) == LifeStage.Child);
-            Test("Teen stage valid", LifeStage.CalculateLifeStageFromPercentage(0.5f) == LifeStage.Teen);
-            Test("Adult stage valid", LifeStage.CalculateLifeStageFromPercentage(0.7f) == LifeStage.Adult);
-            Test("Elderly stage valid", LifeStage.CalculateLifeStageFromPercentage(0.9f) == LifeStage.Elderly);
+            Test("Baby stage valid", LifeStageExtensions.CalculateLifeStageFromPercentage(0.1f) == LifeStage.Baby);
+            Test("Child stage valid", LifeStageExtensions.CalculateLifeStageFromPercentage(0.3f) == LifeStage.Child);
+            Test("Teen stage valid", LifeStageExtensions.CalculateLifeStageFromPercentage(0.5f) == LifeStage.Teen);
+            Test("Adult stage valid", LifeStageExtensions.CalculateLifeStageFromPercentage(0.7f) == LifeStage.Adult);
+            Test("Elderly stage valid", LifeStageExtensions.CalculateLifeStageFromPercentage(0.9f) == LifeStage.Elderly);
         }
 
         // ===== PHASE 3.5: PERSONALITY STABILITY =====
@@ -180,7 +181,7 @@ namespace Laboratory.Chimera.Integration
             em.AddComponentData(testEntity, new EmotionalIndicatorComponent
             {
                 currentIcon = EmotionalIcon.Happy,
-                intensity = 0.8f,
+                emotionalIntensity = 0.8f,
                 timeSinceLastChange = 0f
             });
 
@@ -373,11 +374,12 @@ namespace Laboratory.Chimera.Integration
             {
                 cooperationLevel = 0.7f,
                 trustLevel = 0.6f,
-                bondQuality = 0.65f,
+                understandingLevel = 0.65f,
                 actionMastery = 0.3f,
                 strategyMastery = 0.2f,
                 totalActivitiesCompleted = 5,
-                partnershipStartTime = currentTime - 1800f
+                recentSuccessRate = 0.6f,
+                improvementTrend = 0.05f
             });
 
             return entity;

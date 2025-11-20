@@ -321,7 +321,7 @@ namespace Laboratory.Chimera.Integration
                     {
                         cooperationLevel = 0.5f, // Starting cooperation
                         trustLevel = 0.3f, // Low trust initially
-                        bondQuality = 0.2f, // New bond
+                        understandingLevel = 0.1f, // New partnership
                         actionMastery = 0f,
                         strategyMastery = 0f,
                         puzzleMastery = 0f,
@@ -330,8 +330,9 @@ namespace Laboratory.Chimera.Integration
                         explorationMastery = 0f,
                         economicsMastery = 0f,
                         totalActivitiesCompleted = 0,
-                        lifetimePlaytime = 0f,
-                        partnershipStartTime = currentTime
+                        genresExplored = 0,
+                        recentSuccessRate = 0.5f,
+                        improvementTrend = 0f
                     });
                 }
 
