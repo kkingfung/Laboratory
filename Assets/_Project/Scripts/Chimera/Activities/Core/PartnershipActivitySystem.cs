@@ -269,8 +269,8 @@ namespace Laboratory.Chimera.Activities
                 // Update tracker
                 var tracker = masteryBuffer[trackerIndex];
                 tracker.totalAttempts++;
-                if (result.ValueRO.status == ActivityResultStatus.Success ||
-                    result.ValueRO.status == ActivityResultStatus.Perfect)
+                if (result.ValueRO.status == ActivityResultStatus.Gold ||
+                    result.ValueRO.status == ActivityResultStatus.Platinum)
                 {
                     tracker.successfulCompletions++;
                 }
@@ -302,15 +302,17 @@ namespace Laboratory.Chimera.Activities
             activity.finalScore = activity.playerPerformance * cooperationMultiplier;
             activity.finalScore = math.clamp(activity.finalScore, 0f, 1.5f);
 
-            // Determine result status
+            // Determine result status (medal system: Failed, Bronze, Silver, Gold, Platinum)
             if (activity.finalScore >= 0.9f)
-                activity.resultStatus = ActivityResultStatus.Perfect;
+                activity.resultStatus = ActivityResultStatus.Platinum; // Perfect performance
             else if (activity.finalScore >= 0.7f)
-                activity.resultStatus = ActivityResultStatus.Success;
+                activity.resultStatus = ActivityResultStatus.Gold; // Good performance
             else if (activity.finalScore >= 0.5f)
-                activity.resultStatus = ActivityResultStatus.Partial;
+                activity.resultStatus = ActivityResultStatus.Silver; // Decent performance
+            else if (activity.finalScore >= 0.3f)
+                activity.resultStatus = ActivityResultStatus.Bronze; // Minimal success
             else
-                activity.resultStatus = ActivityResultStatus.Failed;
+                activity.resultStatus = ActivityResultStatus.Failed; // Did not meet minimum
 
             // Calculate skill improvement
             float baseImprovement = 0.01f; // 1% base improvement per activity
