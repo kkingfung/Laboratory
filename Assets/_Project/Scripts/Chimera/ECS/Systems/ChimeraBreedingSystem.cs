@@ -10,9 +10,9 @@ using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.ECS;
+using Laboratory.Chimera.Core;
 using Laboratory.Shared.Types;
-using Laboratory.Core;
-using ChimeraCreatureIdentity = Laboratory.Chimera.ECS.CreatureIdentityComponent;
+using ChimeraCreatureIdentity = Laboratory.Chimera.Core.CreatureIdentityComponent;
 using UnityEngine;
 
 namespace Laboratory.Core.ECS.Systems
