@@ -359,9 +359,14 @@ namespace Laboratory.Chimera.Social
         /// </summary>
         private void UpdateEmotionalScars(float deltaTime)
         {
-            foreach (var (scarBuffer, sensitivity, entity) in
-                SystemAPI.Query<DynamicBuffer<EmotionalScar>, RefRO<AgeSensitivityComponent>>().WithEntityAccess())
+            foreach (var (sensitivity, entity) in
+                SystemAPI.Query<RefRO<AgeSensitivityComponent>>().WithEntityAccess())
             {
+                if (!EntityManager.HasBuffer<EmotionalScar>(entity))
+                    continue;
+
+                var scarBuffer = SystemAPI.GetBuffer<EmotionalScar>(entity);
+
                 for (int i = 0; i < scarBuffer.Length; i++)
                 {
                     var scar = scarBuffer[i];
@@ -398,9 +403,9 @@ namespace Laboratory.Chimera.Social
             }
 
             // Also works with CreatureBondingSystem components
-            if (EntityManager.HasComponent<Laboratory.Chimera.ECS.CreatureBondData>(target))
+            if (EntityManager.HasComponent<CreatureBondData>(target))
             {
-                var bondData = EntityManager.GetComponentData<Laboratory.Chimera.ECS.CreatureBondData>(target);
+                var bondData = EntityManager.GetComponentData<CreatureBondData>(target);
                 bondData.bondStrength = math.max(0f, bondData.bondStrength - damage);
                 bondData.negativeExperiences++;
                 EntityManager.SetComponentData(target, bondData);
