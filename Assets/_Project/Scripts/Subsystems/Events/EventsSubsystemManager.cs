@@ -288,7 +288,21 @@ namespace Laboratory.Subsystems.Events
             if (!enableSeasonalEvents)
                 return false;
 
-            return await SeasonalEventService.StartEventAsync(eventId, forceStart);
+            var success = await SeasonalEventService.StartEventAsync(eventId, forceStart);
+
+            if (success)
+            {
+                // Fire seasonal event
+                var seasonalEvent = new SeasonalEvent
+                {
+                    eventId = eventId,
+                    eventType = "SeasonalEventStarted",
+                    startTime = DateTime.Now
+                };
+                OnSeasonalEvent?.Invoke(seasonalEvent);
+            }
+
+            return success;
         }
 
         /// <summary>
@@ -362,7 +376,23 @@ namespace Laboratory.Subsystems.Events
                 eventData = eventData ?? new Dictionary<string, object>()
             };
 
-            return await CommunityEventService.TriggerEventAsync(communityEvent);
+            var success = await CommunityEventService.TriggerEventAsync(communityEvent);
+
+            if (success)
+            {
+                // Fire community event
+                var evt = new CommunityEvent
+                {
+                    eventId = communityEvent.eventId,
+                    eventType = eventType.ToString(),
+                    description = description,
+                    timestamp = DateTime.Now,
+                    data = eventData
+                };
+                OnCommunityEvent?.Invoke(evt);
+            }
+
+            return success;
         }
 
         #endregion
@@ -428,6 +458,16 @@ namespace Laboratory.Subsystems.Events
         {
             // Handle tournament-related triggers
             Debug.Log($"[{SubsystemName}] Processing tournament trigger: {eventTrigger.triggerType}");
+
+            // Fire tournament event
+            var tournamentEvent = new TournamentEvent
+            {
+                eventId = eventTrigger.triggerId,
+                eventType = eventTrigger.triggerType.ToString(),
+                timestamp = DateTime.Now,
+                data = eventTrigger.data
+            };
+            OnTournamentEvent?.Invoke(tournamentEvent);
         }
 
         private void ProcessCommunityTrigger(EventTrigger eventTrigger)

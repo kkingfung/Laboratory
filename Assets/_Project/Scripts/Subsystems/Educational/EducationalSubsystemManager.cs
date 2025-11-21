@@ -171,7 +171,7 @@ namespace Laboratory.Subsystems.Educational
             _eventQueue = new Queue<EducationalEvent>();
         }
 
-        private async Task LoadCurriculumStandardsAsync()
+        private Task LoadCurriculumStandardsAsync()
         {
             // Load curriculum standards from configuration
             if (_config.curriculumStandards != null)
@@ -187,6 +187,8 @@ namespace Laboratory.Subsystems.Educational
 
             if (_config.enableDebugLogging)
                 Debug.Log($"[EducationalSubsystem] Loaded {_curriculumStandards.Count} curriculum standards");
+
+            return Task.CompletedTask;
         }
 
         private async Task InitializePrivacyComplianceAsync()
@@ -302,6 +304,16 @@ namespace Laboratory.Subsystems.Educational
 
                 _studentProgressService?.CompleteActivity(studentId, activityId, score);
 
+                // Fire activity completed event
+                var activity = new CurriculumActivity
+                {
+                    activityId = activityId,
+                    studentId = studentId,
+                    score = score,
+                    completedAt = DateTime.Now
+                };
+                OnActivityCompleted?.Invoke(activity);
+
                 // Check for learning objectives achieved
                 CheckLearningObjectivesForActivity(studentId, activityId, score);
 
@@ -415,7 +427,7 @@ namespace Laboratory.Subsystems.Educational
             // End expired sessions
             foreach (var sessionId in sessionsToEnd)
             {
-                EndClassroomSession(sessionId);
+                _ = EndClassroomSession(sessionId);
             }
         }
 
