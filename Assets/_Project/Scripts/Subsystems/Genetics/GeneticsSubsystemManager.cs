@@ -26,7 +26,6 @@ namespace Laboratory.Subsystems.Genetics
         [SerializeField] private GeneticDatabaseManager databaseManager;
 
         [Header("Services")]
-        [SerializeField] private bool enableAutomaticBreeding = false;
         [SerializeField] private bool enableMutationTracking = true;
         [SerializeField] private bool enableGeneticValidation = true;
 

@@ -594,6 +594,14 @@ namespace Laboratory.Subsystems.Ecosystem
                     {
                         StartConservationAction(record.speciesId, ConservationActionType.HabitatRestoration, 900f);
                     }
+
+                    // Trigger reintroduction for critically endangered species with good habitat
+                    if (enableReintroduction && record.conservationStatus == ConservationStatus.CriticallyEndangered &&
+                        record.habitatQuality > 0.6f &&
+                        !_activeActions.ContainsKey($"{record.speciesId}_{ConservationActionType.Reintroduction}"))
+                    {
+                        StartConservationAction(record.speciesId, ConservationActionType.Reintroduction, 1200f);
+                    }
                 }
             }
         }

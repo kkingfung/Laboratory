@@ -58,9 +58,7 @@ namespace Laboratory.Subsystems.Team.Systems
         private EndSimulationEntityCommandBufferSystem _ecbSystem;
 
         // Communication settings
-        private float _pingCooldown = 3f; // Prevent ping spam
         private float _pingDisplayDuration = 5f;
-        private float _maxPingDistance = 1000f;
         private int _maxActivePings = 10; // Per team
 
         private NativeHashMap<Entity, float> _lastPingTimes;
