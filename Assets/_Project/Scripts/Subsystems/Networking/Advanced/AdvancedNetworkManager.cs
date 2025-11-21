@@ -405,7 +405,7 @@ namespace Laboratory.Subsystems.Networking.Advanced
         /// <summary>
         /// Update player data
         /// </summary>
-        [Rpc(SendTo.Server, RequireOwnership = false)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         public void UpdatePlayerDataServerRpc(ulong clientId, NetworkPlayerData playerData)
         {
             if (connectedPlayers.ContainsKey(clientId))
@@ -650,7 +650,7 @@ namespace Laboratory.Subsystems.Networking.Advanced
         /// <summary>
         /// Send custom message to specific client
         /// </summary>
-        [Rpc(SendTo.Server, RequireOwnership = false)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         public void SendCustomMessageServerRpc(ulong targetClientId, string messageType, string data)
         {
             SendCustomMessageClientRpc(targetClientId, messageType, data);
