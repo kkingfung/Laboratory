@@ -46,7 +46,6 @@ namespace Laboratory.Systems.Analytics
 
         [Header("Adaptation Settings")]
         [SerializeField] private float difficultyAdaptationSensitivity = GameConstants.DIFFICULTY_ADAPTATION_SENSITIVITY;
-        [SerializeField] private bool enableContentRecommendations = true;
 
         [Header("Behavioral Analysis")]
         [SerializeField] private bool enablePersonalityProfiling = true;

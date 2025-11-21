@@ -21,7 +21,6 @@ namespace Laboratory.Systems.Ecosystem
         [Header("Ecosystem Configuration")]
         [SerializeField] private bool enableEcosystemSimulation = true;
         [SerializeField] private float simulationTimeScale = 1f;
-        [SerializeField] private int maxEcosystemNodes = 50;
         [SerializeField] private float ecosystemUpdateInterval = 5f;
 
         [Header("Environmental Parameters")]

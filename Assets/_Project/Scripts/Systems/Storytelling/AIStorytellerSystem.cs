@@ -23,10 +23,8 @@ namespace Laboratory.Systems.Storytelling
         [SerializeField] private bool enableStoryGeneration = true;
         [SerializeField] private float storyUpdateInterval = 15f;
         [SerializeField] private int maxActiveStories = 5;
-        [SerializeField] private int storyHistoryLimit = 50;
 
         [Header("Narrative Style")]
-        [SerializeField] private NarrativeStyle defaultNarrativeStyle = NarrativeStyle.Scientific;
         [SerializeField, Range(0f, 1f)] private float dramaticIntensity = 0.6f;
         [SerializeField, Range(0f, 1f)] private float humorLevel = 0.3f;
         [SerializeField, Range(0f, 1f)] private float technicalDetail = 0.7f;
@@ -42,10 +40,6 @@ namespace Laboratory.Systems.Storytelling
         [SerializeField] private string[] emotionalDescriptors;
         [SerializeField] private string[] environmentalTerms;
         [SerializeField] private string[] characterTraits;
-
-        [Header("Adaptive Storytelling")]
-        [SerializeField] private bool respondToEcosystemEvents = true;
-        [SerializeField] private float adaptationThreshold = 0.5f;
 
         [Header("Debug Settings")]
         [SerializeField] private bool logPersonalityEvents = false;
