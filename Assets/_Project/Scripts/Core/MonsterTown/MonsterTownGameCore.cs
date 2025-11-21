@@ -146,6 +146,14 @@ namespace Laboratory.Core.MonsterTown
                 return ActivityResult.Failed("Monster not found");
             }
 
+            // Check if we've reached max simultaneous activities limit
+            int activeActivitiesCount = GetActiveActivitiesCount();
+            if (activeActivitiesCount >= maxSimultaneousActivities)
+            {
+                Debug.LogWarning($"Maximum simultaneous activities limit reached ({maxSimultaneousActivities}). Wait for some to complete.");
+                return ActivityResult.Failed($"Maximum activities limit ({maxSimultaneousActivities}) reached");
+            }
+
             // Convert to Monster type for activity systems
             var monster = ConvertToMonster(monsterInstance);
 
