@@ -74,6 +74,15 @@ namespace Laboratory.Core.MonsterTown
 
             UpdateInventoryStats();
 
+            // Auto-sell junk items if enabled
+            if (autoSellJunk && equipment.Rarity == EquipmentRarity.Junk)
+            {
+                int sellValue = CalculateSellValue(equipment) * quantity;
+                RemoveEquipment(stackKey, quantity);
+                Debug.Log($"💰 Auto-sold {quantity}x {equipment.Name} for {sellValue} coins");
+                return true;
+            }
+
             Debug.Log($"🎒 Added {quantity}x {equipment.Name} to inventory");
             return true;
         }

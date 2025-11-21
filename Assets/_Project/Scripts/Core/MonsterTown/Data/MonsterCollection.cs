@@ -55,6 +55,16 @@ namespace Laboratory.Core.MonsterTown
                 return false;
             }
 
+            // Check for duplicates if not allowed
+            if (!allowDuplicates)
+            {
+                if (speciesCount.ContainsKey(monster.Species) && speciesCount[monster.Species] > 0)
+                {
+                    Debug.LogWarning($"Duplicate monster of species {monster.Species} not allowed");
+                    return false;
+                }
+            }
+
             // Add to main collection
             monsters[monster.UniqueId] = monster;
 

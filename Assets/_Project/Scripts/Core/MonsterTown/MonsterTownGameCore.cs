@@ -469,7 +469,7 @@ namespace Laboratory.Core.MonsterTown
 
         #region Utility Methods
 
-        private async Task LoadPlayerTown()
+        private Task LoadPlayerTown()
         {
             // Load from save or create new town
             _playerTown = new PlayerTown
@@ -488,6 +488,8 @@ namespace Laboratory.Core.MonsterTown
                 Level = 1,
                 IsConstructed = true
             });
+
+            return Task.CompletedTask;
         }
 
         private async Task LoadPlayerMonsters()
@@ -511,9 +513,10 @@ namespace Laboratory.Core.MonsterTown
             });
         }
 
-        private async Task LoadActivityProgression()
+        private Task LoadActivityProgression()
         {
             _activityProgression = new Dictionary<string, ActivityProgress>();
+            return Task.CompletedTask;
         }
 
         private void StartTownSimulation()
@@ -533,7 +536,7 @@ namespace Laboratory.Core.MonsterTown
             _rewardSystem.ProcessPassiveRewards(_playerTown);
         }
 
-        private async Task ProcessActivityResult(Monster monster, ActivityResult result)
+        private Task ProcessActivityResult(Monster monster, ActivityResult result)
         {
             // Improve monster stats based on activity
             monster.ImproveFromActivity(result);
@@ -547,6 +550,8 @@ namespace Laboratory.Core.MonsterTown
 
         private void UpdateActivityProgression(ActivityType activityType, ActivityResult result)
         {
+            if (!enableCrossActivityProgression) return;
+
             var key = activityType.ToString();
             if (!_activityProgression.ContainsKey(key))
             {
@@ -556,10 +561,11 @@ namespace Laboratory.Core.MonsterTown
             _activityProgression[key].UpdateProgress(result);
         }
 
-        private async Task SavePlayerData()
+        private Task SavePlayerData()
         {
             // Save town, monsters, and progression data
             // Implementation would depend on your save system
+            return Task.CompletedTask;
         }
 
         private TimeSpan GetConstructionTime(FacilityType facilityType)
