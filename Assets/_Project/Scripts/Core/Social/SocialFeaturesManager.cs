@@ -253,24 +253,24 @@ namespace Laboratory.Core.Social
         /// <summary>
         /// Join a tournament
         /// </summary>
-        public async UniTask<bool> JoinTournament(string tournamentId, Monster monster)
+        public UniTask<bool> JoinTournament(string tournamentId, Monster monster)
         {
             if (!_activeTournaments.TryGetValue(tournamentId, out var tournament))
             {
                 Debug.LogWarning($"Tournament {tournamentId} not found");
-                return false;
+                return UniTask.FromResult(false);
             }
 
             if (tournament.Status != TournamentStatus.Registration)
             {
                 Debug.LogWarning($"Tournament {tournamentId} is not accepting registrations");
-                return false;
+                return UniTask.FromResult(false);
             }
 
             if (tournament.Participants.Count >= tournament.MaxParticipants)
             {
                 Debug.LogWarning($"Tournament {tournamentId} is full");
-                return false;
+                return UniTask.FromResult(false);
             }
 
             var participant = new TournamentParticipant
@@ -284,7 +284,7 @@ namespace Laboratory.Core.Social
             tournament.Participants.Add(participant);
 
             Debug.Log($"🏆 Joined tournament: {tournament.Name} with {monster.Name}");
-            return true;
+            return UniTask.FromResult(true);
         }
 
         /// <summary>
