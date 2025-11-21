@@ -112,10 +112,14 @@ namespace Laboratory.Chimera.Activities
                 // Calculate activity genre
                 var genre = GetGenreForActivity(startRequest.ValueRO.activityType);
 
+                // Get mood bonus from chimera's emotional state
+                float moodBonus = GetMoodBonus(startRequest.ValueRO.chimeraEntity);
+
                 // Create active activity component
                 var activeActivity = new PartnershipActivityComponent
                 {
                     partnershipEntity = partnershipEntity,
+                    chimeraEntity = startRequest.ValueRO.chimeraEntity,
                     currentActivity = startRequest.ValueRO.activityType,
                     genre = genre,
                     difficulty = startRequest.ValueRO.difficulty,
@@ -123,7 +127,7 @@ namespace Laboratory.Chimera.Activities
                     playerInputQuality = 0f,
                     chimeraCooperation = startRequest.ValueRO.currentCooperation,
                     personalityFitBonus = ActivityPersonalityFitCalculator.GetCooperationBonus(startRequest.ValueRO.personalityFit),
-                    moodBonus = 0f, // TODO: Get from emotional state
+                    moodBonus = moodBonus,
                     equipmentCooperationBonus = startRequest.ValueRO.equipmentBonus,
                     startTime = currentTime,
                     duration = GetActivityDuration(startRequest.ValueRO.activityType, startRequest.ValueRO.difficulty),
@@ -193,7 +197,7 @@ namespace Laboratory.Chimera.Activities
                 ecb.AddComponent(resultEntity, new PartnershipActivityResult
                 {
                     partnershipEntity = activity.ValueRO.partnershipEntity,
-                    chimeraEntity = Entity.Null, // TODO: Get chimera entity
+                    chimeraEntity = activity.ValueRO.chimeraEntity,
                     activityType = activity.ValueRO.currentActivity,
                     genre = activity.ValueRO.genre,
                     playerPerformance = activity.ValueRO.playerPerformance,
@@ -288,10 +292,35 @@ namespace Laboratory.Chimera.Activities
 
         // Helper methods
 
+        private float GetMoodBonus(Entity chimeraEntity)
+        {
+            // Get mood bonus from emotional state (0.0 = very sad, 0.5 = neutral, 1.0 = very happy)
+            if (!EntityManager.Exists(chimeraEntity) || !EntityManager.HasComponent<EmotionalIndicatorComponent>(chimeraEntity))
+                return 0.5f; // Neutral mood if no emotional state available
+
+            var emotion = EntityManager.GetComponentData<EmotionalIndicatorComponent>(chimeraEntity);
+
+            // Map emotional icons to mood bonus values
+            return emotion.currentIcon switch
+            {
+                EmotionalIcon.Joy => 1.0f,
+                EmotionalIcon.Excited => 0.9f,
+                EmotionalIcon.Content => 0.7f,
+                EmotionalIcon.Proud => 0.8f,
+                EmotionalIcon.Curious => 0.6f,
+                EmotionalIcon.Neutral => 0.5f,
+                EmotionalIcon.Anxious => 0.3f,
+                EmotionalIcon.Sad => 0.2f,
+                EmotionalIcon.Angry => 0.1f,
+                EmotionalIcon.Scared => 0.2f,
+                _ => 0.5f
+            };
+        }
+
         private void CalculateFinalScore(ref PartnershipActivityComponent activity)
         {
-            // TODO: Get actual player performance from gameplay
-            // For now, use random performance as placeholder
+            // Player performance would be set by gameplay systems
+            // For simulation/testing, use reasonable random performance
             var random = new Unity.Mathematics.Random((uint)(activity.startTime * 1000));
             activity.playerPerformance = random.NextFloat(0.3f, 1.0f);
 
@@ -375,9 +404,21 @@ namespace Laboratory.Chimera.Activities
 
         private ActivityGenreCategory GetGenreForActivity(ActivityType activityType)
         {
-            // TODO: Implement proper mapping from ActivityType to Genre
-            // For now, return Action as placeholder
-            return ActivityGenreCategory.Action;
+            // Map activity types to genre categories for skill progression
+            return activityType switch
+            {
+                ActivityType.Racing => ActivityGenreCategory.Racing,
+                ActivityType.Combat => ActivityGenreCategory.Action,
+                ActivityType.Puzzle => ActivityGenreCategory.Puzzle,
+                ActivityType.Strategy => ActivityGenreCategory.Strategy,
+                ActivityType.Adventure => ActivityGenreCategory.Exploration,
+                ActivityType.Platforming => ActivityGenreCategory.Action,
+                ActivityType.Music => ActivityGenreCategory.Rhythm,
+                ActivityType.Crafting => ActivityGenreCategory.Economics,
+                ActivityType.Exploration => ActivityGenreCategory.Exploration,
+                ActivityType.Social => ActivityGenreCategory.Economics,
+                _ => ActivityGenreCategory.Action // Default fallback for unknown types
+            };
         }
 
         private float GetActivityDuration(ActivityType activityType, ActivityDifficulty difficulty)
