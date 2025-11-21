@@ -204,7 +204,7 @@ namespace Laboratory.Infrastructure.Health
         /// <param name="damageType">Type of damage being applied.</param>
         /// <param name="hitDirection">Direction vector of the hit for physics effects.</param>
         /// <param name="rpcParams">Server RPC parameters containing sender information.</param>
-        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        [ServerRpc(RequireOwnership = false)]
         public void RequestPlayerDamageServerRpc(ulong targetPlayerClientId, float damage, DamageType damageType, Vector3 hitDirection, ServerRpcParams rpcParams = default)
         {
             if (!NetworkManager.Singleton.IsServer) return;
