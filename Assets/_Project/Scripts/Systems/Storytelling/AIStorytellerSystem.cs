@@ -44,9 +44,7 @@ namespace Laboratory.Systems.Storytelling
         [SerializeField] private string[] characterTraits;
 
         [Header("Adaptive Storytelling")]
-        [SerializeField] private bool adaptToPlayerBehavior = true;
         [SerializeField] private bool respondToEcosystemEvents = true;
-        [SerializeField] private bool trackCreaturePersonalities = true;
         [SerializeField] private float adaptationThreshold = 0.5f;
 
         [Header("Debug Settings")]
@@ -145,7 +143,7 @@ namespace Laboratory.Systems.Storytelling
         private void ConnectToGameSystems()
         {
             // Connect to analytics system
-            analyticsTracker = FindObjectOfType<PlayerAnalyticsTracker>();
+            analyticsTracker = FindFirstObjectByType<PlayerAnalyticsTracker>();
             if (analyticsTracker != null)
             {
                 analyticsTracker.OnPlayerArchetypeIdentified += HandlePlayerArchetypeChange;
