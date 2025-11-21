@@ -58,7 +58,6 @@ namespace Laboratory.Subsystems.Team.Systems
         private EndSimulationEntityCommandBufferSystem _ecbSystem;
 
         // Communication settings
-        private float _pingDisplayDuration = 5f;
         private int _maxActivePings = 10; // Per team
 
         private NativeHashMap<Entity, float> _lastPingTimes;
