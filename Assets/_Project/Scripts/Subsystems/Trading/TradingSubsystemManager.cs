@@ -473,10 +473,12 @@ namespace Laboratory.Subsystems.Trading
             // Fire consortium event
             var consortiumEvent = new ConsortiumEvent
             {
+                eventId = Guid.NewGuid().ToString(),
                 consortiumId = transaction.transactionId,
-                eventType = "ContributionProcessed",
+                eventType = ConsortiumEventType.FundingReceived,
                 timestamp = DateTime.Now,
-                data = transaction.tradeData
+                description = "Consortium contribution processed",
+                eventData = transaction.tradeData
             };
             OnConsortiumEvent?.Invoke(consortiumEvent);
         }
@@ -539,9 +541,17 @@ namespace Laboratory.Subsystems.Trading
                 // Fire economy metrics update event
                 var economyEvent = new EconomyEvent
                 {
-                    eventType = "MetricsUpdated",
+                    eventId = Guid.NewGuid().ToString(),
+                    eventType = EconomyEventType.CurrencyInflation,
                     timestamp = DateTime.Now,
-                    metrics = _economyMetrics
+                    description = "Economy metrics updated",
+                    eventData = new Dictionary<string, object>
+                    {
+                        ["totalPlayers"] = _economyMetrics.totalPlayers,
+                        ["activeOffers"] = _economyMetrics.activeOffers,
+                        ["totalTransactions"] = _economyMetrics.totalTransactions
+                    },
+                    economicImpact = _economyMetrics.currencyInflation
                 };
                 OnEconomyEvent?.Invoke(economyEvent);
             }

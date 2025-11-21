@@ -299,7 +299,7 @@ namespace Laboratory.Subsystems.Events
                     {
                         eventId = eventId,
                         eventName = "Seasonal Event Started",
-                        eventType = SeasonalEventType.Spring, // Default, should be determined by service
+                        eventType = SeasonalEventType.BreedingSeason, // Default, should be determined by service
                         startTime = DateTime.Now,
                         isActive = true
                     },

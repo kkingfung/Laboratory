@@ -308,9 +308,9 @@ namespace Laboratory.Subsystems.Educational
                 var activity = new CurriculumActivity
                 {
                     activityId = activityId,
-                    studentId = studentId,
-                    score = score,
-                    completedAt = DateTime.Now
+                    activityName = $"Activity {activityId}",
+                    description = $"Student {studentId} completed activity with score {score}",
+                    activityType = ActivityType.Assessment // Default type
                 };
                 OnActivityCompleted?.Invoke(activity);
 
