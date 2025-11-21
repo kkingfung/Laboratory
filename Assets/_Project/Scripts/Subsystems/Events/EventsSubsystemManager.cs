@@ -295,9 +295,15 @@ namespace Laboratory.Subsystems.Events
                 // Fire seasonal event
                 var seasonalEvent = new SeasonalEvent
                 {
-                    eventId = eventId,
-                    eventType = "SeasonalEventStarted",
-                    startTime = DateTime.Now
+                    eventData = new SeasonalEventData
+                    {
+                        eventId = eventId,
+                        eventName = "Seasonal Event Started",
+                        eventType = SeasonalEventType.Spring, // Default, should be determined by service
+                        startTime = DateTime.Now,
+                        isActive = true
+                    },
+                    timestamp = DateTime.Now
                 };
                 OnSeasonalEvent?.Invoke(seasonalEvent);
             }
@@ -383,11 +389,8 @@ namespace Laboratory.Subsystems.Events
                 // Fire community event
                 var evt = new CommunityEvent
                 {
-                    eventId = communityEvent.eventId,
-                    eventType = eventType.ToString(),
-                    description = description,
-                    timestamp = DateTime.Now,
-                    data = eventData
+                    eventData = communityEvent,
+                    timestamp = DateTime.Now
                 };
                 OnCommunityEvent?.Invoke(evt);
             }
@@ -462,10 +465,9 @@ namespace Laboratory.Subsystems.Events
             // Fire tournament event
             var tournamentEvent = new TournamentEvent
             {
-                eventId = eventTrigger.triggerId,
-                eventType = eventTrigger.triggerType.ToString(),
-                timestamp = DateTime.Now,
-                data = eventTrigger.data
+                tournament = null, // Tournament data should come from eventTrigger.data
+                eventType = TournamentEventType.Started, // Should be determined from trigger type
+                timestamp = DateTime.Now
             };
             OnTournamentEvent?.Invoke(tournamentEvent);
         }
