@@ -18,8 +18,6 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         [Header("Resource Configuration")]
         [SerializeField] private float resourceUpdateInterval = 5.0f;
         [SerializeField] private float globalRegenerationRate = 1.0f;
-        [SerializeField] private float resourceCarryingCapacity = 1000f;
-        [SerializeField] private bool enableResourceDepletion = true;
 
         [Header("Resource Types")]
         [SerializeField] private ResourceConfiguration[] resourceConfigurations;

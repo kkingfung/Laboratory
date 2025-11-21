@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Consciousness.Core
 {
@@ -46,7 +46,10 @@ namespace Laboratory.Chimera.Consciousness.Core
         public int DaysSinceLastInteraction;
 
         /// <summary>
-        /// Generate personality from genetic data
+        /// Generate personality from genetic data (LEGACY - for generation 1 chimeras)
+        ///
+        /// NOTE: For bred chimeras, use GenerateFromInheritedGenetics() instead
+        /// This method generates personality from stats, not parent personalities
         /// </summary>
         public static CreaturePersonality GenerateFromGenetics(VisualGeneticData genetics, uint personalitySeed)
         {
@@ -84,6 +87,11 @@ namespace Laboratory.Chimera.Consciousness.Core
             return personality;
         }
 
+        // NOTE: GenerateFromInheritedGenetics has been MOVED to Laboratory.Chimera.Genetics.PersonalityConversionHelper
+        // to avoid circular dependencies. The Genetics assembly has access to both PersonalityGeneticComponent
+        // and CreaturePersonality, so the conversion method lives there.
+        // Use: PersonalityConversionHelper.CreatePersonalityFromGenetics(geneticComponent, visualGenetics, seed)
+
         /// <summary>
         /// Calculate trait value with genetic influence and random variation
         /// </summary>
@@ -96,10 +104,20 @@ namespace Laboratory.Chimera.Consciousness.Core
 
         /// <summary>
         /// Update personality based on experiences
+        ///
+        /// AGE-BASED STABILITY INTEGRATION:
+        /// - LearningRate is modified by PersonalityStabilitySystem based on age
+        /// - Baby chimeras: 100% learning rate (personality highly malleable)
+        /// - Elderly chimeras: 5% learning rate (personality extremely resistant)
+        /// - Elderly chimeras auto-revert to baseline over time
+        ///
+        /// See: PersonalityStabilitySystem.cs for age-based modifiers
         /// </summary>
         public void UpdateFromExperience(ExperienceType experience, float intensity)
         {
             // Personality slowly evolves based on experiences
+            // NOTE: LearningRate is scaled by age via PersonalityStabilitySystem
+            // Elderly chimeras will barely change and will revert to baseline
             switch (experience)
             {
                 case ExperienceType.PositivePlayerInteraction:
@@ -150,7 +168,8 @@ namespace Laboratory.Chimera.Consciousness.Core
         }
 
         // Helper methods for generating preferences
-        private static FoodPreferences GenerateFoodPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
+        // Public so they can be accessed from PersonalityConversionHelper in Genetics assembly
+        public static FoodPreferences GenerateFoodPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
         {
             return new FoodPreferences
             {
@@ -161,7 +180,7 @@ namespace Laboratory.Chimera.Consciousness.Core
             };
         }
 
-        private static ActivityPreferences GenerateActivityPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
+        public static ActivityPreferences GenerateActivityPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
         {
             return new ActivityPreferences
             {
@@ -172,7 +191,7 @@ namespace Laboratory.Chimera.Consciousness.Core
             };
         }
 
-        private static SocialPreferences GenerateSocialPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
+        public static SocialPreferences GenerateSocialPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
         {
             return new SocialPreferences
             {
@@ -182,7 +201,7 @@ namespace Laboratory.Chimera.Consciousness.Core
             };
         }
 
-        private static EnvironmentPreferences GenerateEnvironmentPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
+        public static EnvironmentPreferences GenerateEnvironmentPreferences(VisualGeneticData genetics, Unity.Mathematics.Random random)
         {
             return new EnvironmentPreferences
             {

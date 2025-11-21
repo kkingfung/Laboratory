@@ -11,6 +11,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
     /// Uses Unity.Mathematics for vectorized operations on genetic traits
     /// Processes multiple creatures simultaneously using SIMD instructions
     /// </summary>
+    [BurstCompile]
     public static class SIMDGeneticOptimizations
     {
         /// <summary>

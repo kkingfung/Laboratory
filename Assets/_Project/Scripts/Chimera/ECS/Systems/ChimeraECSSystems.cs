@@ -64,21 +64,23 @@ namespace Laboratory.Chimera.ECS.Systems
         {
             float ageRatio = ageInDays / lifeExpectancy;
 
-            if (ageRatio < 0.1f) return LifeStage.Embryo;
-            if (ageRatio < 0.25f) return LifeStage.Juvenile;
+            if (ageRatio < 0.1f) return LifeStage.Baby;
+            if (ageRatio < 0.25f) return LifeStage.Child;
+            if (ageRatio < 0.5f) return LifeStage.Teen;
             if (ageRatio < 0.8f) return LifeStage.Adult;
 
-            return LifeStage.Elder;
+            return LifeStage.Elderly;
         }
-        
+
         private static float3 CalculateCurrentSize(float maturationProgress, LifeStage stage)
         {
             float sizeMultiplier = stage switch
             {
-                LifeStage.Embryo => 0.1f,
-                LifeStage.Juvenile => math.lerp(0.5f, 0.8f, maturationProgress),
-                LifeStage.Adult => math.lerp(0.8f, 1f, maturationProgress),
-                LifeStage.Elder => 0.95f, // Slightly smaller due to age
+                LifeStage.Baby => 0.1f,
+                LifeStage.Child => math.lerp(0.3f, 0.6f, maturationProgress),
+                LifeStage.Teen => math.lerp(0.6f, 0.9f, maturationProgress),
+                LifeStage.Adult => math.lerp(0.9f, 1f, maturationProgress),
+                LifeStage.Elderly => 0.95f, // Slightly smaller due to age
                 _ => 1f
             };
 

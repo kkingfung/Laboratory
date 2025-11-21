@@ -17,15 +17,12 @@ namespace Laboratory.Chimera.Ecosystem.Systems
         [SerializeField] private float interactionUpdateInterval = 3.0f;
         [SerializeField] private float interactionRange = 25.0f;
         [SerializeField] private float baseInteractionProbability = 0.1f;
-        [SerializeField] private bool enableAdvancedInteractions = true;
 
         [Header("Population Effects")]
-        [SerializeField] private float populationPressureThreshold = 0.8f;
         [SerializeField] private float extinctionThreshold = 0.05f;
         [SerializeField] private bool enablePopulationDynamics = true;
 
         [Header("Behavioral Patterns")]
-        [SerializeField] private float territorialRadius = 10.0f;
         [SerializeField] private float migrationPressureThreshold = 0.7f;
         [SerializeField] private bool enableTerritorialBehavior = true;
 

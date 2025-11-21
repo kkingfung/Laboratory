@@ -4,7 +4,7 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using Laboratory.Chimera.Breeding.Core;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Breeding.Games;
 using Unity.Entities;
 

@@ -10,9 +10,9 @@ using Laboratory.Core.ECS.Components;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.ECS;
+using Laboratory.Chimera.Core;
 using Laboratory.Shared.Types;
-using Laboratory.Core;
-using ChimeraCreatureIdentity = Laboratory.Chimera.ECS.CreatureIdentityComponent;
+using ChimeraCreatureIdentity = Laboratory.Chimera.Core.CreatureIdentityComponent;
 using UnityEngine;
 
 namespace Laboratory.Core.ECS.Systems
@@ -330,7 +330,7 @@ namespace Laboratory.Core.ECS.Systems
                                                  ref Unity.Mathematics.Random random)
             {
                 int cellKey = GetSpatialHashKey(position, performanceConfig.spatialHashCellSize);
-                var bestMate = new BreedingCandidate(Entity.Null, float3.zero, default, 0, 0f, LifeStage.Embryo, default);
+                var bestMate = new BreedingCandidate(Entity.Null, float3.zero, default, 0, 0f, LifeStage.Baby, default);
                 float bestScore = 0f;
 
                 // Check current and nearby cells
@@ -560,8 +560,8 @@ namespace Laboratory.Core.ECS.Systems
                         Generation = 1, // Would be parent generation + 1
                         Age = 0f,
                         MaxLifespan = 100f,
-                        CurrentLifeStage = LifeStage.Juvenile,
-                        Rarity = RarityLevel.Common,
+                        CurrentLifeStage = LifeStage.Baby,
+                        Rarity = Laboratory.Chimera.Core.RarityLevel.Common,
                         OriginalParent1 = parent,
                         OriginalParent2 = breeding.Partner
                     });

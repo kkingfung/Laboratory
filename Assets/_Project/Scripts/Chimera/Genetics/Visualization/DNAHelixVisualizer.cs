@@ -1,5 +1,5 @@
 using UnityEngine;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 using System.Collections;
 using Unity.Mathematics;
 

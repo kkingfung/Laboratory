@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Chimera.Ecosystem.Core;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 using Laboratory.Core.Enums;
 using Laboratory.Shared.Types;
 using Unity.Entities;

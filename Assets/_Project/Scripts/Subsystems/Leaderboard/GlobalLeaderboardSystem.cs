@@ -87,19 +87,19 @@ namespace Laboratory.Subsystems.Leaderboard
                 {
                     // Global all-time leaderboard
                     var globalKey = GetLeaderboardKey(activity, LeaderboardTimeframe.AllTime);
-                    _leaderboardCaches[globalKey] = new LeaderboardCache(activity, LeaderboardTimeframe.AllTime);
+                    _leaderboardCaches[globalKey] = new LeaderboardCache(activity, LeaderboardTimeframe.AllTime, maxEntriesPerBoard);
 
                     // Seasonal leaderboards
                     if (enableSeasonalLeaderboards)
                     {
                         var weeklyKey = GetLeaderboardKey(activity, LeaderboardTimeframe.Weekly);
-                        _leaderboardCaches[weeklyKey] = new LeaderboardCache(activity, LeaderboardTimeframe.Weekly);
+                        _leaderboardCaches[weeklyKey] = new LeaderboardCache(activity, LeaderboardTimeframe.Weekly, maxEntriesPerBoard);
 
                         var monthlyKey = GetLeaderboardKey(activity, LeaderboardTimeframe.Monthly);
-                        _leaderboardCaches[monthlyKey] = new LeaderboardCache(activity, LeaderboardTimeframe.Monthly);
+                        _leaderboardCaches[monthlyKey] = new LeaderboardCache(activity, LeaderboardTimeframe.Monthly, maxEntriesPerBoard);
 
                         var seasonalKey = GetLeaderboardKey(activity, LeaderboardTimeframe.Seasonal);
-                        _leaderboardCaches[seasonalKey] = new LeaderboardCache(activity, LeaderboardTimeframe.Seasonal);
+                        _leaderboardCaches[seasonalKey] = new LeaderboardCache(activity, LeaderboardTimeframe.Seasonal, maxEntriesPerBoard);
                     }
                 }
 
@@ -532,14 +532,16 @@ namespace Laboratory.Subsystems.Leaderboard
         private List<LeaderboardEntry> _entries = new();
         private DateTime _lastUpdate;
         private float _cacheValiditySeconds = 300f;
+        private int _maxEntries;
 
         public LeaderboardActivityType Activity { get; private set; }
         public LeaderboardTimeframe Timeframe { get; private set; }
 
-        public LeaderboardCache(LeaderboardActivityType activity, LeaderboardTimeframe timeframe)
+        public LeaderboardCache(LeaderboardActivityType activity, LeaderboardTimeframe timeframe, int maxEntries = 1000)
         {
             Activity = activity;
             Timeframe = timeframe;
+            _maxEntries = maxEntries;
             _lastUpdate = DateTime.UtcNow;
         }
 
@@ -578,6 +580,12 @@ namespace Laboratory.Subsystems.Leaderboard
             {
                 _entries.Add(entry);
                 SortEntries();
+
+                // Trim to max entries if exceeded
+                if (_entries.Count > _maxEntries)
+                {
+                    _entries.RemoveRange(_maxEntries, _entries.Count - _maxEntries);
+                }
             }
 
             // Recalculate ranks

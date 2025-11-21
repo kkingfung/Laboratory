@@ -25,7 +25,6 @@ namespace Laboratory.Chimera.Ecosystem
     {
         [Header("Ecosystem Configuration")]
         [SerializeField] private int maxBiomes = 20;
-        [SerializeField] private float evolutionRate = 0.01f;
         [SerializeField] private bool enableClimateChange = true;
         [SerializeField] private bool enableSeasonalCycles = true;
 

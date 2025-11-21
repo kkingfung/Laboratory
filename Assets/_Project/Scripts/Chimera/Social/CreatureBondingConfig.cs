@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Social
 {

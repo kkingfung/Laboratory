@@ -88,7 +88,7 @@ namespace Laboratory.Chimera.Consciousness.Behavior
         {
             // Get genetic data from existing systems
             // CreatureAuthoringComponent not found, using fallback
-            var genetics = (Laboratory.Chimera.Genetics.Core.VisualGeneticData?)null;
+            var genetics = (Laboratory.Chimera.Core.VisualGeneticData?)null;
             if (genetics.HasValue)
             {
                 uint seed = (uint)(transform.position.GetHashCode() ^ Time.time.GetHashCode());

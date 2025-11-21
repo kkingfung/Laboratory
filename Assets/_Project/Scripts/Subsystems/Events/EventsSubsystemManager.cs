@@ -288,7 +288,27 @@ namespace Laboratory.Subsystems.Events
             if (!enableSeasonalEvents)
                 return false;
 
-            return await SeasonalEventService.StartEventAsync(eventId, forceStart);
+            var success = await SeasonalEventService.StartEventAsync(eventId, forceStart);
+
+            if (success)
+            {
+                // Fire seasonal event
+                var seasonalEvent = new SeasonalEvent
+                {
+                    eventData = new SeasonalEventData
+                    {
+                        eventId = eventId,
+                        eventName = "Seasonal Event Started",
+                        eventType = SeasonalEventType.BreedingSeason, // Default, should be determined by service
+                        startTime = DateTime.Now,
+                        isActive = true
+                    },
+                    timestamp = DateTime.Now
+                };
+                OnSeasonalEvent?.Invoke(seasonalEvent);
+            }
+
+            return success;
         }
 
         /// <summary>
@@ -362,7 +382,20 @@ namespace Laboratory.Subsystems.Events
                 eventData = eventData ?? new Dictionary<string, object>()
             };
 
-            return await CommunityEventService.TriggerEventAsync(communityEvent);
+            var success = await CommunityEventService.TriggerEventAsync(communityEvent);
+
+            if (success)
+            {
+                // Fire community event
+                var evt = new CommunityEvent
+                {
+                    eventData = communityEvent,
+                    timestamp = DateTime.Now
+                };
+                OnCommunityEvent?.Invoke(evt);
+            }
+
+            return success;
         }
 
         #endregion
@@ -428,6 +461,15 @@ namespace Laboratory.Subsystems.Events
         {
             // Handle tournament-related triggers
             Debug.Log($"[{SubsystemName}] Processing tournament trigger: {eventTrigger.triggerType}");
+
+            // Fire tournament event
+            var tournamentEvent = new TournamentEvent
+            {
+                tournament = null, // Tournament data should come from eventTrigger.data
+                eventType = TournamentEventType.Started, // Should be determined from trigger type
+                timestamp = DateTime.Now
+            };
+            OnTournamentEvent?.Invoke(tournamentEvent);
         }
 
         private void ProcessCommunityTrigger(EventTrigger eventTrigger)

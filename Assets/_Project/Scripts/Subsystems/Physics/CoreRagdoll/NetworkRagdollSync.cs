@@ -132,7 +132,7 @@ namespace Laboratory.Network.Ragdoll
         /// </summary>
         /// <param name="boneName">Name of the bone to hit</param>
         /// <param name="hitForce">Force vector to apply</param>
-        [Rpc(SendTo.Server, RequireOwnership = false)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         private void RequestRagdollServerRpc(string boneName, Vector3 hitForce)
         {
             NetworkedHit(boneName, hitForce);

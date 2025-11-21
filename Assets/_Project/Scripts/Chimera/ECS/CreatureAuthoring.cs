@@ -185,7 +185,7 @@ namespace Laboratory.Chimera.ECS
         private void ConvertCoreComponents(EntityManager entityManager)
         {
             // Create core creature identity component
-            var identityComponent = new CreatureIdentityComponent
+            var identityComponent = new Laboratory.Chimera.Core.CreatureIdentityComponent
             {
                 Species = creatureDefinition.speciesName,
                 CreatureName = creatureDefinition.speciesName,
@@ -592,23 +592,24 @@ namespace Laboratory.Chimera.ECS
 
             return lifeProgress switch
             {
-                < 0.1f => LifeStage.Embryo,
-                < 0.3f => LifeStage.Juvenile,
+                < 0.1f => LifeStage.Baby,
+                < 0.25f => LifeStage.Child,
+                < 0.5f => LifeStage.Teen,
                 < 0.8f => LifeStage.Adult,
-                _ => LifeStage.Elder
+                _ => LifeStage.Elderly
             };
         }
 
-        private RarityLevel DetermineRarity()
+        private Laboratory.Chimera.Core.RarityLevel DetermineRarity()
         {
             var rarityRoll = UnityEngine.Random.value;
             return rarityRoll switch
             {
-                < 0.6f => RarityLevel.Common,
-                < 0.85f => RarityLevel.Uncommon,
-                < 0.95f => RarityLevel.Rare,
-                < 0.99f => RarityLevel.Epic,
-                _ => RarityLevel.Legendary
+                < 0.6f => Laboratory.Chimera.Core.RarityLevel.Common,
+                < 0.85f => Laboratory.Chimera.Core.RarityLevel.Uncommon,
+                < 0.95f => Laboratory.Chimera.Core.RarityLevel.Rare,
+                < 0.99f => Laboratory.Chimera.Core.RarityLevel.Epic,
+                _ => Laboratory.Chimera.Core.RarityLevel.Legendary
             };
         }
 

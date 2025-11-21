@@ -23,7 +23,8 @@
         "Laboratory.Chimera.Breeding",
         "Laboratory.Chimera.Genetics",
         "Laboratory.Chimera.Creatures",
-        "Laboratory.Chimera.Ecosystem"
+        "Laboratory.Chimera.Ecosystem",
+        "Laboratory.Chimera.Consciousness"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

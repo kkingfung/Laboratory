@@ -104,10 +104,10 @@ namespace Laboratory.Subsystems.SaveLoad
             return saveVersion < CurrentSaveVersion;
         }
 
-        public async Task<bool> CanMigrateAsync(GameSaveData saveData)
+        public Task<bool> CanMigrateAsync(GameSaveData saveData)
         {
             if (saveData == null)
-                return false;
+                return Task.FromResult(false);
 
             try
             {
@@ -117,11 +117,11 @@ namespace Laboratory.Subsystems.SaveLoad
                 var hasMigrationPath = _migrations.Any(m => m.FromVersion == saveVersion) ||
                                       saveVersion == CurrentSaveVersion;
 
-                return hasMigrationPath;
+                return Task.FromResult(hasMigrationPath);
             }
             catch
             {
-                return false;
+                return Task.FromResult(false);
             }
         }
 

@@ -469,9 +469,21 @@ namespace Laboratory.Subsystems.Trading
             // Process consortium contribution
             transaction.status = TransactionStatus.Completed;
             Debug.Log($"[{SubsystemName}] Consortium contribution processed: {transaction.transactionId}");
+
+            // Fire consortium event
+            var consortiumEvent = new ConsortiumEvent
+            {
+                eventId = Guid.NewGuid().ToString(),
+                consortiumId = transaction.transactionId,
+                eventType = ConsortiumEventType.FundingReceived,
+                timestamp = DateTime.Now,
+                description = "Consortium contribution processed",
+                eventData = transaction.tradeData
+            };
+            OnConsortiumEvent?.Invoke(consortiumEvent);
         }
 
-        private async Task<bool> ExecuteTradeAsync(TradeOffer offer, string buyerId)
+        private Task<bool> ExecuteTradeAsync(TradeOffer offer, string buyerId)
         {
             var transaction = new TradeTransaction
             {
@@ -491,7 +503,7 @@ namespace Laboratory.Subsystems.Trading
             // Deduct payment from buyer
             if (!DeductPayment(buyerId, offer.requestedCurrency))
             {
-                return false;
+                return Task.FromResult(false);
             }
 
             // Add payment to seller
@@ -499,7 +511,7 @@ namespace Laboratory.Subsystems.Trading
             {
                 // Refund buyer if seller payment fails
                 AddPayment(buyerId, offer.requestedCurrency);
-                return false;
+                return Task.FromResult(false);
             }
 
             // Queue transaction for processing
@@ -508,7 +520,7 @@ namespace Laboratory.Subsystems.Trading
             // Remove offer from marketplace
             _activeOffers.Remove(offer.offerId);
 
-            return true;
+            return Task.FromResult(true);
         }
 
         #endregion
@@ -525,6 +537,23 @@ namespace Laboratory.Subsystems.Trading
                 _economyMetrics.totalTransactions = CalculateTotalTransactions();
                 _economyMetrics.averageWealthPerPlayer = CalculateAverageWealth();
                 _economyMetrics.currencyInflation = CalculateCurrencyInflation();
+
+                // Fire economy metrics update event
+                var economyEvent = new EconomyEvent
+                {
+                    eventId = Guid.NewGuid().ToString(),
+                    eventType = EconomyEventType.CurrencyInflation,
+                    timestamp = DateTime.Now,
+                    description = "Economy metrics updated",
+                    eventData = new Dictionary<string, object>
+                    {
+                        ["totalPlayers"] = _economyMetrics.totalPlayers,
+                        ["activeOffers"] = _economyMetrics.activeOffers,
+                        ["totalTransactions"] = _economyMetrics.totalTransactions
+                    },
+                    economicImpact = _economyMetrics.currencyInflation
+                };
+                OnEconomyEvent?.Invoke(economyEvent);
             }
         }
 

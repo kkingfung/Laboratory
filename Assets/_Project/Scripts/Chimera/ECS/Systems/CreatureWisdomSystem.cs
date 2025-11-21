@@ -7,7 +7,6 @@ using Unity.Collections;
 using Unity.Jobs;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
-using Laboratory.Chimera.Genetics.Core;
 using Laboratory.Chimera.Social;
 using Laboratory.Chimera.Consciousness;
 

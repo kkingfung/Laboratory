@@ -22,7 +22,6 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
         [Header("Biome Stability")]
         [SerializeField] private float stabilityThreshold = 0.7f;
-        [SerializeField] private float transitionResistance = 0.3f;
         [SerializeField] private bool enableSuccession = true;
 
         private Dictionary<Vector2, BiomeType> currentBiomes = new();

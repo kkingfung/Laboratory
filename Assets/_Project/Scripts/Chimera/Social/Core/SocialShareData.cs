@@ -4,7 +4,7 @@ using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using Laboratory.Chimera.Discovery.Core;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Social.Core
 {
@@ -38,8 +38,8 @@ namespace Laboratory.Chimera.Social.Core
         public bool IsVerified;
 
         // Visual data for share cards
-        public Laboratory.Chimera.Genetics.Core.BlittableColor PrimaryColor;
-        public Laboratory.Chimera.Genetics.Core.BlittableColor SecondaryColor;
+        public Laboratory.Chimera.Core.BlittableColor PrimaryColor;
+        public Laboratory.Chimera.Core.BlittableColor SecondaryColor;
         public GeneticMarkerFlags HighlightMarkers;
         public float VisualAppeal;
 

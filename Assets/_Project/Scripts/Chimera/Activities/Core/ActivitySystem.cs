@@ -286,14 +286,17 @@ namespace Laboratory.Chimera.Activities
                 currency.ValueRW.coins += result.ValueRO.coinsEarned;
                 currency.ValueRW.activityTokens += result.ValueRO.tokensEarned;
 
-                // Award experience via ProgressionSystem
+                // Record skill improvement via PartnershipProgressionSystem
                 if (result.ValueRO.experienceGained > 0)
                 {
-                    var expRequest = EntityManager.CreateEntity();
-                    ecb.AddComponent(expRequest, new Laboratory.Chimera.Progression.AwardExperienceRequest
+                    var skillRequest = EntityManager.CreateEntity();
+                    ecb.AddComponent(skillRequest, new Laboratory.Chimera.Progression.RecordSkillImprovementRequest
                     {
-                        targetEntity = entity,
-                        experienceAmount = result.ValueRO.experienceGained,
+                        partnershipEntity = entity,
+                        genre = ConvertActivityTypeToGenre(result.ValueRO.activityType),
+                        performanceQuality = result.ValueRO.performanceScore,
+                        cooperatedWell = result.ValueRO.status >= ActivityResultStatus.Silver,
+                        activityDuration = result.ValueRO.completionTime,
                         requestTime = (float)SystemAPI.Time.ElapsedTime
                     });
                 }
@@ -579,12 +582,32 @@ namespace Laboratory.Chimera.Activities
         /// </summary>
         private void UpdateDailyChallengeProgress(Entity entity, ActivityType activityType)
         {
-            // Get ProgressionSystem and update challenges
-            var progressionSystem = World.GetExistingSystemManaged<Laboratory.Chimera.Progression.ProgressionSystem>();
+            // Get PartnershipProgressionSystem and update challenges
+            var progressionSystem = World.GetExistingSystemManaged<Laboratory.Chimera.Progression.PartnershipProgressionSystem>();
             if (progressionSystem != null)
             {
-                progressionSystem.UpdateChallengeProgress(entity, activityType);
+                // Partnership system handles challenges differently - via events
+                // This integration point may need updating based on new challenge system
             }
+        }
+
+        /// <summary>
+        /// Converts ActivityType to ActivityGenreCategory for progression system
+        /// </summary>
+        private Laboratory.Chimera.Progression.ActivityGenreCategory ConvertActivityTypeToGenre(ActivityType activityType)
+        {
+            return activityType switch
+            {
+                ActivityType.Racing => Laboratory.Chimera.Progression.ActivityGenreCategory.Racing,
+                ActivityType.Combat => Laboratory.Chimera.Progression.ActivityGenreCategory.Action,
+                ActivityType.Puzzle => Laboratory.Chimera.Progression.ActivityGenreCategory.Puzzle,
+                ActivityType.Strategy => Laboratory.Chimera.Progression.ActivityGenreCategory.Strategy,
+                ActivityType.Music => Laboratory.Chimera.Progression.ActivityGenreCategory.Rhythm,
+                ActivityType.Adventure => Laboratory.Chimera.Progression.ActivityGenreCategory.Exploration,
+                ActivityType.Platforming => Laboratory.Chimera.Progression.ActivityGenreCategory.Action,
+                ActivityType.Crafting => Laboratory.Chimera.Progression.ActivityGenreCategory.Economics,
+                _ => Laboratory.Chimera.Progression.ActivityGenreCategory.Action
+            };
         }
     }
 }

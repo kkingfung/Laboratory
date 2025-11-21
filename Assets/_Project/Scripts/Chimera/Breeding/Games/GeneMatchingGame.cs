@@ -5,7 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Laboratory.Chimera.Breeding.Core;
 using Laboratory.Chimera.Breeding.UI;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Breeding.Games
 {

@@ -20,6 +20,7 @@
         "Laboratory.Core.Health",
         "Laboratory.Core.MonsterTown",
         "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.Consciousness",
         "Laboratory.Chimera.Creatures",
         "Laboratory.Chimera.Breeding",
         "Laboratory.Chimera.Genetics",

@@ -355,7 +355,7 @@ namespace Laboratory.Subsystems.Ecosystem
 
             // Calculate event probability with seasonal modifiers
             var template = _eventTemplates[selectedEventType];
-            var seasonalChance = GetSeasonalModifier(template, GetCurrentSeason());
+            var seasonalChance = enableSeasonalEvents ? GetSeasonalModifier(template, GetCurrentSeason()) : 1f;
             var finalChance = template.baseChance * seasonalChance;
 
             if (UnityEngine.Random.value <= finalChance)
@@ -566,8 +566,10 @@ namespace Laboratory.Subsystems.Ecosystem
                 return UnityEngine.Random.Range(0.2f, 0.5f); // Minor event
             else if (random <= minorEventChance + moderateEventChance)
                 return UnityEngine.Random.Range(0.5f, 0.8f); // Moderate event
-            else
+            else if (random <= minorEventChance + moderateEventChance + severeEventChance)
                 return UnityEngine.Random.Range(0.8f, 1f); // Severe event
+            else
+                return UnityEngine.Random.Range(0.5f, 0.8f); // Default to moderate
         }
 
         private EventSeverity CalculateEventSeverity(float intensity)

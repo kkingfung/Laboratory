@@ -4,7 +4,7 @@ using TMPro;
 using System.Collections;
 using System.Collections.Generic;
 using Laboratory.Chimera.Discovery.Core;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 using CoreDiscoveryEvent = Laboratory.Chimera.Discovery.Core.DiscoveryEvent;
 using CoreDiscoveryType = Laboratory.Chimera.Discovery.Core.DiscoveryType;
 

@@ -6,6 +6,7 @@ using Laboratory.Core.ECS;
 using Laboratory.Chimera.Breeding;
 using Laboratory.Chimera.Configuration;
 using Laboratory.Chimera.ECS;
+using Laboratory.Chimera.Core;
 using System.Collections;
 
 namespace Laboratory.Chimera.UI

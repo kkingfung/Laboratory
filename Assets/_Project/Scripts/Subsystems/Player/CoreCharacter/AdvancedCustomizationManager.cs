@@ -19,7 +19,6 @@ namespace Laboratory.Subsystems.Player.CoreCharacter
         [SerializeField] private CharacterCustomizationManager baseCustomizationManager;
 
         [Header("Advanced Features")]
-        [SerializeField] private bool enableNetworkSync = true;
         [SerializeField] private bool enableCustomizationValidation = true;
         [SerializeField] private bool enablePerformanceOptimizations = true;
         [SerializeField] private bool enableCustomizationPresets = true;

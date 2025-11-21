@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Unity.Collections;
 using Laboratory.Chimera.Discovery.Core;
-using Laboratory.Chimera.Genetics.Core;
+using Laboratory.Chimera.Core;
 
 namespace Laboratory.Chimera.Social.Core
 {
