@@ -74,8 +74,8 @@ namespace Laboratory.Core.MonsterTown
 
             UpdateInventoryStats();
 
-            // Auto-sell junk items if enabled
-            if (autoSellJunk && equipment.Rarity == EquipmentRarity.Junk)
+            // Auto-sell common items if enabled
+            if (autoSellJunk && equipment.Rarity == EquipmentRarity.Common)
             {
                 int sellValue = CalculateSellValue(equipment) * quantity;
                 RemoveEquipment(stackKey, quantity);

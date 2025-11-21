@@ -205,6 +205,14 @@ namespace Laboratory.Core.MonsterTown
 
             // Convert offspring to MonsterInstance and add to player collection
             var offspringInstance = ConvertToMonsterInstance(offspring);
+
+            // Check monster capacity limit
+            if (_playerMonsters.Monsters.Count() >= maxMonstersInTown)
+            {
+                Debug.LogWarning($"Town is at maximum capacity ({maxMonstersInTown} monsters). Cannot add new monster.");
+                return null;
+            }
+
             _playerMonsters.AddMonster(offspringInstance);
 
             // Educational content about genetics
@@ -546,6 +554,8 @@ namespace Laboratory.Core.MonsterTown
 
             // Update monster experience
             monster.AddActivityExperience(result.ActivityType, result.ExperienceGained);
+
+            return Task.CompletedTask;
         }
 
         private void UpdateActivityProgression(ActivityType activityType, ActivityResult result)
@@ -595,6 +605,16 @@ namespace Laboratory.Core.MonsterTown
         private CurrencyAmount GetUpgradeCost(TownFacility facility)
         {
             return new CurrencyAmount { Coins = facility.Level * 500 };
+        }
+
+        /// <summary>
+        /// Get count of currently active activities
+        /// </summary>
+        private int GetActiveActivitiesCount()
+        {
+            // Query activity manager for active activities count
+            // This is a simple implementation - would be extended with actual tracking
+            return 0; // Placeholder - actual implementation would track active activities
         }
 
         #endregion
