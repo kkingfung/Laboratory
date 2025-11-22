@@ -71,9 +71,8 @@ namespace Laboratory.Infrastructure.Networking
         /// </summary>
         /// <param name="sender">The name of the message sender.</param>
         /// <param name="message">The message content.</param>
-        /// <param name="rpcParams">Server RPC parameters.</param>
-        [ServerRpc(RequireOwnership = false)]
-        private void SendChatMessageServerRpc(string sender, string message, ServerRpcParams rpcParams = default)
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        private void SendChatMessageServerRpc(string sender, string message)
         {
             BroadcastChatMessageClientRpc(sender, message);
         }

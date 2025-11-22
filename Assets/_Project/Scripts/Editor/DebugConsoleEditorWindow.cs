@@ -181,7 +181,7 @@ namespace Laboratory.Editor.Diagnostics
             EditorGUI.indentLevel++;
 
             // Get debug data from Debug Manager if available
-            var debugManager = UnityEngine.Object.FindObjectOfType<Laboratory.Core.Diagnostics.DebugManager>();
+            var debugManager = UnityEngine.Object.FindAnyObjectByType<Laboratory.Core.Diagnostics.DebugManager>();
             int totalCreatures = 0;
             int activeBreeding = 0;
             float avgFitness = 0f;

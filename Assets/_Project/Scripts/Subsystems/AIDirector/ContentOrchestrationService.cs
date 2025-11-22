@@ -36,6 +36,8 @@ namespace Laboratory.Subsystems.AIDirector
 
         public async Task<bool> InitializeAsync()
         {
+            await Task.CompletedTask; // Synchronous initialization, but async for interface compatibility
+
             try
             {
                 _playerAdaptations = new Dictionary<string, List<ContentAdaptation>>();
@@ -161,6 +163,12 @@ namespace Laboratory.Subsystems.AIDirector
             if (_playerAdaptations[profile.playerId].Count > 20)
             {
                 _playerAdaptations[profile.playerId].RemoveRange(0, _playerAdaptations[profile.playerId].Count - 20);
+            }
+
+            // Trigger events for each adaptation
+            foreach (var adaptation in adaptations)
+            {
+                AIDirectorSubsystemManager.TriggerContentAdaptedEvent(adaptation);
             }
 
             if (_config.enableDebugLogging && adaptations.Count > 0)

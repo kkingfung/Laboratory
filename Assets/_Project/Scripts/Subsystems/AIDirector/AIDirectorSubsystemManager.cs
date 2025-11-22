@@ -97,7 +97,6 @@ namespace Laboratory.Subsystems.AIDirector
         private List<ActiveStoryline> _activeStorylines;
         private DirectorState _currentState;
         private DateTime _lastAnalysisUpdate;
-        private float _globalDifficultyMultiplier = 1.0f;
 
         // AI Decision Making
         private DecisionMatrix _decisionMatrix;
@@ -647,6 +646,18 @@ namespace Laboratory.Subsystems.AIDirector
         public PlayerProfile GetPlayerProfile(string playerId)
         {
             return _playerProfileService.GetPlayerProfile(playerId);
+        }
+
+        #endregion
+
+        #region Event Helpers
+
+        /// <summary>
+        /// Triggers the OnContentAdapted event. Called by ContentOrchestrationService.
+        /// </summary>
+        public static void TriggerContentAdaptedEvent(ContentAdaptation adaptation)
+        {
+            OnContentAdapted?.Invoke(adaptation);
         }
 
         #endregion
