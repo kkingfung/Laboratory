@@ -292,21 +292,21 @@ namespace Laboratory.Chimera.Rendering
         [Tooltip("Show LOD gizmos in scene view")]
         public bool showLODGizmos = true;
 
-        private class Baker : Baker<CreatureLODAuthoring>
+        /// <summary>
+        /// Helper method to create ECS components from authoring data.
+        /// Call this from your creature spawning system.
+        /// Note: Baker pattern not available in this Unity ECS version.
+        /// </summary>
+        public void AddComponentsToEntity(Entity entity, EntityManager entityManager)
         {
-            public override void Bake(CreatureLODAuthoring authoring)
+            entityManager.AddComponentData(entity, new CreatureLODComponent
             {
-                var entity = GetEntity(TransformUsageFlags.Dynamic);
-
-                AddComponent(entity, new CreatureLODComponent
-                {
-                    currentTier = authoring.initialTier,
-                    previousTier = authoring.initialTier,
-                    distanceFromCamera = 0f,
-                    transitionTimeRemaining = 0f,
-                    transitionDuration = authoring.transitionDuration
-                });
-            }
+                currentTier = initialTier,
+                previousTier = initialTier,
+                distanceFromCamera = 0f,
+                transitionTimeRemaining = 0f,
+                transitionDuration = transitionDuration
+            });
         }
 
 #if UNITY_EDITOR
