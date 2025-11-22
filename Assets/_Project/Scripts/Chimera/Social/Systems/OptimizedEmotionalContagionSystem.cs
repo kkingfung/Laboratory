@@ -1,5 +1,6 @@
 using Unity.Burst;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -27,7 +28,7 @@ namespace Laboratory.Chimera.Social.Systems
     public partial struct OptimizedEmotionalContagionSystem : ISystem
     {
         private EntityQuery _creatureQuery;
-        private NativeMultiHashMap<int, Entity> _spatialHash;
+        private NativeParallelMultiHashMap<int, Entity> _spatialHash;
         private float _lastUpdateTime;
 
         // Spatial hash configuration
@@ -50,7 +51,7 @@ namespace Laboratory.Chimera.Social.Systems
             );
 
             // Pre-allocate spatial hash for 1000+ creatures
-            _spatialHash = new NativeMultiHashMap<int, Entity>(1024, Allocator.Persistent);
+            _spatialHash = new NativeParallelMultiHashMap<int, Entity>(1024, Allocator.Persistent);
             _lastUpdateTime = 0f;
 
             state.RequireForUpdate(_creatureQuery);
@@ -110,7 +111,7 @@ namespace Laboratory.Chimera.Social.Systems
     [BurstCompile]
     public partial struct BuildSpatialHashJob : IJobEntity
     {
-        public NativeMultiHashMap<int, Entity>.ParallelWriter SpatialHash;
+        public NativeParallelMultiHashMap<int, Entity>.ParallelWriter SpatialHash;
         public float CellSize;
         public int GridWidth;
 
@@ -138,7 +139,7 @@ namespace Laboratory.Chimera.Social.Systems
     [BurstCompile]
     public partial struct EmotionalContagionJob : IJobEntity
     {
-        [ReadOnly] public NativeMultiHashMap<int, Entity> SpatialHash;
+        [ReadOnly] public NativeParallelMultiHashMap<int, Entity> SpatialHash;
         [ReadOnly] public ComponentLookup<LocalTransform> TransformLookup;
         [ReadOnly] public ComponentLookup<EmotionalStateComponent> EmotionLookup;
         [ReadOnly] public ComponentLookup<EmpathyComponent> EmpathyLookup;
@@ -342,7 +343,7 @@ namespace Laboratory.Chimera.Social.Systems
         [Range(0f, 1f)]
         public float empathyLevel = 0.5f;
 
-        private class Baker : Baker<EmotionalStateAuthoring>
+        private class EmotionalStateBaker : Unity.Entities.Baker<EmotionalStateAuthoring>
         {
             public override void Bake(EmotionalStateAuthoring authoring)
             {
