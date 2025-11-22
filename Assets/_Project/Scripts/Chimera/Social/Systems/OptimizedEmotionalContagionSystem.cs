@@ -343,7 +343,7 @@ namespace Laboratory.Chimera.Social.Systems
         [Range(0f, 1f)]
         public float empathyLevel = 0.5f;
 
-        private class Baker : Baker<EmotionalStateAuthoring>
+        private class EmotionalStateBaker : Baker<EmotionalStateAuthoring>
         {
             public override void Bake(EmotionalStateAuthoring authoring)
             {
