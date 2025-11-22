@@ -333,16 +333,4 @@ namespace Laboratory.Chimera.Social
                    $"- Players tracked: {hub._strongBondCountCache.Count()}";
         }
     }
-
-    /// <summary>
-    /// Age sensitivity component data (if not already defined)
-    /// </summary>
-    public struct AgeSensitivityComponent : IComponentData
-    {
-        public float forgivenessMultiplier;  // How quickly negative actions are forgiven
-        public float memoryStrength;         // How long chimera remembers events
-        public float recoverySpeed;          // How fast bond damage heals
-        public float bondDepthMultiplier;    // How deep bonds can become
-        public float scarPermanence;         // How permanent emotional scars are
-    }
 }
