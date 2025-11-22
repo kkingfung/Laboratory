@@ -327,8 +327,9 @@ namespace Laboratory.Chimera.Social.Systems
 
     /// <summary>
     /// Authoring component for emotional state
+    /// Uses IConvertGameObjectToEntity for compatibility
     /// </summary>
-    public class EmotionalStateAuthoring : MonoBehaviour
+    public class EmotionalStateAuthoring : MonoBehaviour, IConvertGameObjectToEntity
     {
         [Header("Initial Emotional State")]
         [Tooltip("Starting emotion type")]
@@ -343,27 +344,22 @@ namespace Laboratory.Chimera.Social.Systems
         [Range(0f, 1f)]
         public float empathyLevel = 0.5f;
 
-        private class EmotionalStateBaker : Baker<EmotionalStateAuthoring>
+        public void Convert(Entity entity, EntityManager dstManager, GameObjectConversionSystem conversionSystem)
         {
-            public override void Bake(EmotionalStateAuthoring authoring)
+            dstManager.AddComponentData(entity, new EmotionalStateComponent
             {
-                var entity = GetEntity(TransformUsageFlags.Dynamic);
+                emotionType = initialEmotion,
+                intensity = initialIntensity,
+                startTime = 0f,
+                source = Entity.Null
+            });
 
-                AddComponent(entity, new EmotionalStateComponent
-                {
-                    emotionType = authoring.initialEmotion,
-                    intensity = authoring.initialIntensity,
-                    startTime = 0f,
-                    source = Entity.Null
-                });
-
-                AddComponent(entity, new EmpathyComponent
-                {
-                    empathyLevel = authoring.empathyLevel,
-                    contagionCount = 0,
-                    lastContagionTime = 0f
-                });
-            }
+            dstManager.AddComponentData(entity, new EmpathyComponent
+            {
+                empathyLevel = empathyLevel,
+                contagionCount = 0,
+                lastContagionTime = 0f
+            });
         }
     }
 
