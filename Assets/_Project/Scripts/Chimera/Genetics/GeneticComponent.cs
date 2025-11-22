@@ -6,10 +6,23 @@ using System;
 namespace Laboratory.Chimera.Genetics
 {
     /// <summary>
-    /// ECS component for genetic data
-    /// References the main GeneticProfile class defined in GeneticProfile.cs
-    /// Uses Gene, Mutation, and other types from GeneticTypes.cs
+    /// DEPRECATED - Use ChimeraGeneticDataComponent instead!
+    ///
+    /// Legacy ECS component for genetic data.
+    /// Replaced by Laboratory.Chimera.ECS.ChimeraGeneticDataComponent which provides:
+    /// - 16 behavioral traits directly usable by behavior systems
+    /// - Physical traits (Size, Speed, Stamina)
+    /// - Environmental adaptation (Heat/Cold/Water tolerance)
+    /// - Performance optimizations (cached fitness, genetic hash)
+    ///
+    /// Migration Path:
+    /// 1. Replace GeneticComponent with ChimeraGeneticDataComponent
+    /// 2. Map GeneticProfileId to behavioral traits using genetic profile lookup
+    /// 3. Update all systems querying GeneticComponent to use ChimeraGeneticDataComponent
+    ///
+    /// See: Laboratory.Chimera.ECS.ChimeraGeneticDataComponent
     /// </summary>
+    [System.Obsolete("Use ChimeraGeneticDataComponent from Laboratory.Chimera.ECS instead - provides comprehensive genetic traits")]
     public struct GeneticComponent : IComponentData
     {
         /// <summary>Reference to genetic profile</summary>
