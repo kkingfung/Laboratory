@@ -650,6 +650,18 @@ namespace Laboratory.Subsystems.AIDirector
 
         #endregion
 
+        #region Event Helpers
+
+        /// <summary>
+        /// Triggers the OnContentAdapted event. Called by ContentOrchestrationService.
+        /// </summary>
+        public static void TriggerContentAdaptedEvent(ContentAdaptation adaptation)
+        {
+            OnContentAdapted?.Invoke(adaptation);
+        }
+
+        #endregion
+
         #region Lifecycle
 
         private void OnDestroy()

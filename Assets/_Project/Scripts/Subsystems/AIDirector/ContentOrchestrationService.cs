@@ -168,7 +168,7 @@ namespace Laboratory.Subsystems.AIDirector
             // Trigger events for each adaptation
             foreach (var adaptation in adaptations)
             {
-                AIDirectorSubsystemManager.OnContentAdapted?.Invoke(adaptation);
+                AIDirectorSubsystemManager.TriggerContentAdaptedEvent(adaptation);
             }
 
             if (_config.enableDebugLogging && adaptations.Count > 0)
