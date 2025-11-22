@@ -1,5 +1,6 @@
 using Unity.Entities;
 using Unity.Collections;
+using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Chimera.Core;
 using System;
@@ -131,7 +132,8 @@ namespace Laboratory.Chimera.Social
                 {
                     var ageSensitivity = EntityManager.GetComponentData<AgeSensitivityComponent>(entity);
                     // Age affects bond quality - babies bond faster but shallower, adults slower but deeper
-                    effectiveBondStrength *= ageSensitivity.bondDepthMultiplier;
+                    // Use memoryStrength as proxy for bond depth (adults remember more deeply)
+                    effectiveBondStrength *= ageSensitivity.memoryStrength;
                 }
 
                 _effectiveBondStrengthCache[entity] = effectiveBondStrength;
@@ -279,7 +281,7 @@ namespace Laboratory.Chimera.Social
         /// </summary>
         public static float GetEffectiveBondStrength(EntityManager em, Entity creature)
         {
-            var hub = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<SocialSystemsIntegrationHub>();
+            var hub = Unity.Entities.World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<SocialSystemsIntegrationHub>();
             if (hub != null && hub._effectiveBondStrengthCache.TryGetValue(creature, out float strength))
             {
                 return strength;
@@ -299,7 +301,7 @@ namespace Laboratory.Chimera.Social
         /// </summary>
         public static bool CheckPopulationUnlockEligibility(EntityManager em, Entity player)
         {
-            var hub = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<SocialSystemsIntegrationHub>();
+            var hub = Unity.Entities.World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<SocialSystemsIntegrationHub>();
             if (hub == null)
                 return false;
 
@@ -321,7 +323,7 @@ namespace Laboratory.Chimera.Social
         /// </summary>
         public static string GetDebugInfo()
         {
-            var hub = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<SocialSystemsIntegrationHub>();
+            var hub = Unity.Entities.World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<SocialSystemsIntegrationHub>();
             if (hub == null)
                 return "Hub not initialized";
 
@@ -329,8 +331,8 @@ namespace Laboratory.Chimera.Social
                    $"- EnhancedBonding: {(hub._enhancedBondingSystemActive ? "✅" : "❌")}\n" +
                    $"- AgeSensitivity: {(hub._ageSensitivitySystemActive ? "✅" : "❌")}\n" +
                    $"- Population: {(hub._populationSystemActive ? "✅" : "❌")}\n" +
-                   $"- Tracked bonds: {hub._effectiveBondStrengthCache.Count()}\n" +
-                   $"- Players tracked: {hub._strongBondCountCache.Count()}";
+                   $"- Tracked bonds: {hub._effectiveBondStrengthCache.Count}\n" +
+                   $"- Players tracked: {hub._strongBondCountCache.Count}";
         }
     }
 }

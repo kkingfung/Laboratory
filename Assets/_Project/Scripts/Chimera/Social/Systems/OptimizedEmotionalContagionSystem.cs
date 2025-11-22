@@ -95,6 +95,7 @@ namespace Laboratory.Chimera.Social.Systems
                 EmotionLookup = SystemAPI.GetComponentLookup<EmotionalStateComponent>(true),
                 EmpathyLookup = SystemAPI.GetComponentLookup<EmpathyComponent>(true),
                 ContagionRadiusSq = CONTAGION_RADIUS_SQ,
+                ContagionRadius = CONTAGION_RADIUS,
                 CellSize = CELL_SIZE,
                 GridWidth = GRID_WIDTH,
                 DeltaTime = currentTime - _lastUpdateTime,
@@ -144,6 +145,7 @@ namespace Laboratory.Chimera.Social.Systems
         [ReadOnly] public ComponentLookup<EmotionalStateComponent> EmotionLookup;
         [ReadOnly] public ComponentLookup<EmpathyComponent> EmpathyLookup;
         public float ContagionRadiusSq;
+        public float ContagionRadius;
         public float CellSize;
         public int GridWidth;
         public float DeltaTime;
@@ -236,7 +238,7 @@ namespace Laboratory.Chimera.Social.Systems
 
             // Calculate contagion strength
             float distance = math.sqrt(distanceSq);
-            float distanceFactor = 1f - (distance / CONTAGION_RADIUS);
+            float distanceFactor = 1f - (distance / ContagionRadius);
             float contagionStrength = sourceEmotion.intensity * targetEmpathy.empathyLevel * distanceFactor;
 
             // Probabilistic contagion (not all creatures affected equally)
