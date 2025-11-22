@@ -165,6 +165,12 @@ namespace Laboratory.Subsystems.AIDirector
                 _playerAdaptations[profile.playerId].RemoveRange(0, _playerAdaptations[profile.playerId].Count - 20);
             }
 
+            // Trigger events for each adaptation
+            foreach (var adaptation in adaptations)
+            {
+                AIDirectorSubsystemManager.OnContentAdapted?.Invoke(adaptation);
+            }
+
             if (_config.enableDebugLogging && adaptations.Count > 0)
                 Debug.Log($"[ContentOrchestrationService] Generated {adaptations.Count} adaptations for {profile.playerId}");
 

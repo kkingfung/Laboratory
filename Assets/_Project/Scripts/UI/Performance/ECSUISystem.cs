@@ -14,6 +14,7 @@ namespace Laboratory.UI.Performance
     /// Features: Batch UI updates, GPU-based text rendering, zero-allocation animations
     /// Supports 10,000+ UI elements with 60 FPS performance
     /// </summary>
+    [BurstCompile]
     public class ECSUISystem : MonoBehaviour
     {
         [Header("Performance Configuration")]

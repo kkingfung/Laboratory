@@ -447,7 +447,7 @@ namespace Laboratory.UI.Helper
         /// <summary>
         /// ServerRpc to handle game start from the host.
         /// </summary>
-        [ServerRpc(RequireOwnership = false)]
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         private void StartGameServerRpc()
         {
             if (!NetworkManager.Singleton.IsHost)
