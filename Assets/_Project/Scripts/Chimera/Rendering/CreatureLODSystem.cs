@@ -42,7 +42,6 @@ namespace Laboratory.Chimera.Rendering
         private const float TIER2_DISTANCE_SQ = 100f * 100f; // Low quality
         // Beyond TIER2 = culled
 
-        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             _creatureQuery = state.GetEntityQuery(
