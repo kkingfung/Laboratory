@@ -41,7 +41,6 @@ namespace Laboratory.Chimera.Social.Systems
         private const float CONTAGION_RADIUS_SQ = CONTAGION_RADIUS * CONTAGION_RADIUS;
         private const float UPDATE_INTERVAL = 0.5f; // Update every 0.5 seconds (not every frame)
 
-        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             _creatureQuery = state.GetEntityQuery(
@@ -57,7 +56,6 @@ namespace Laboratory.Chimera.Social.Systems
             state.RequireForUpdate(_creatureQuery);
         }
 
-        [BurstCompile]
         public void OnDestroy(ref SystemState state)
         {
             if (_spatialHash.IsCreated)
