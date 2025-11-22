@@ -327,6 +327,8 @@ namespace Laboratory.Chimera.Social.Systems
 
     /// <summary>
     /// Authoring component for emotional state
+    /// Note: This is a configuration component. Use manually or via CreatureAuthoringSystem
+    /// to add EmotionalStateComponent and EmpathyComponent to entities.
     /// </summary>
     public class EmotionalStateAuthoring : MonoBehaviour
     {
@@ -343,27 +345,26 @@ namespace Laboratory.Chimera.Social.Systems
         [Range(0f, 1f)]
         public float empathyLevel = 0.5f;
 
-        class Baker : Unity.Entities.Baker<EmotionalStateAuthoring>
+        /// <summary>
+        /// Helper method to create ECS components from authoring data
+        /// Call this from your creature spawning system
+        /// </summary>
+        public void AddComponentsToEntity(Entity entity, EntityManager entityManager)
         {
-            public override void Bake(EmotionalStateAuthoring authoring)
+            entityManager.AddComponentData(entity, new EmotionalStateComponent
             {
-                var entity = GetEntity(TransformUsageFlags.Dynamic);
+                emotionType = initialEmotion,
+                intensity = initialIntensity,
+                startTime = 0f,
+                source = Entity.Null
+            });
 
-                AddComponent(entity, new EmotionalStateComponent
-                {
-                    emotionType = authoring.initialEmotion,
-                    intensity = authoring.initialIntensity,
-                    startTime = 0f,
-                    source = Entity.Null
-                });
-
-                AddComponent(entity, new EmpathyComponent
-                {
-                    empathyLevel = authoring.empathyLevel,
-                    contagionCount = 0,
-                    lastContagionTime = 0f
-                });
-            }
+            entityManager.AddComponentData(entity, new EmpathyComponent
+            {
+                empathyLevel = empathyLevel,
+                contagionCount = 0,
+                lastContagionTime = 0f
+            });
         }
     }
 
