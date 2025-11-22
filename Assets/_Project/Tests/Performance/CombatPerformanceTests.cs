@@ -84,9 +84,9 @@ namespace Laboratory.Tests.Performance
                 _entityManager.SetComponentData(entities[i], CalculateCombatStats(genetics));
                 _entityManager.SetComponentData(entities[i], new ChimeraIdentity
                 {
-                    CreatureId = i,
-                    SpeciesId = random.NextInt(1, 10),
-                    CreatureName = new FixedString64Bytes($"Fighter_{i}")
+                    CreatureID = new FixedString64Bytes($"creature_{i}"),
+                    SpeciesID = random.NextInt(1, 10),
+                    CreatureName = new FixedString32Bytes($"Fighter_{i}")
                 });
             }
 
@@ -409,9 +409,9 @@ namespace Laboratory.Tests.Performance
                 _entityManager.SetComponentData(entities[i], CalculateCombatStats(genetics));
                 _entityManager.SetComponentData(entities[i], new ChimeraIdentity
                 {
-                    CreatureId = i,
-                    SpeciesId = random.NextInt(1, 10),
-                    CreatureName = new FixedString64Bytes($"Fighter_{i}")
+                    CreatureID = new FixedString64Bytes($"creature_{i}"),
+                    SpeciesID = random.NextInt(1, 10),
+                    CreatureName = new FixedString32Bytes($"Fighter_{i}")
                 });
             }
 

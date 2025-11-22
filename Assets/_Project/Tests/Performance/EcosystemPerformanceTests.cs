@@ -96,9 +96,9 @@ namespace Laboratory.Tests.Performance
 
                 _entityManager.SetComponentData(entities[i], new ChimeraIdentity
                 {
-                    CreatureId = i,
-                    SpeciesId = random.NextInt(1, 10),
-                    CreatureName = new FixedString64Bytes($"Creature_{i}")
+                    CreatureID = new FixedString64Bytes($"creature_{i}"),
+                    SpeciesID = random.NextInt(1, 10),
+                    CreatureName = new FixedString32Bytes($"Creature_{i}")
                 });
 
                 _entityManager.SetComponentData(entities[i], LocalTransform.FromPosition(
@@ -450,9 +450,9 @@ namespace Laboratory.Tests.Performance
 
                 _entityManager.SetComponentData(entities[i], new ChimeraIdentity
                 {
-                    CreatureId = i,
-                    SpeciesId = random.NextInt(1, 10),
-                    CreatureName = new FixedString64Bytes($"Creature_{i}")
+                    CreatureID = new FixedString64Bytes($"creature_{i}"),
+                    SpeciesID = random.NextInt(1, 10),
+                    CreatureName = new FixedString32Bytes($"Creature_{i}")
                 });
             }
         }
@@ -491,9 +491,9 @@ namespace Laboratory.Tests.Performance
 
                 _entityManager.SetComponentData(entities[i], new ChimeraIdentity
                 {
-                    CreatureId = i,
-                    SpeciesId = random.NextInt(1, 10),
-                    CreatureName = new FixedString64Bytes($"Creature_{i}")
+                    CreatureID = new FixedString64Bytes($"creature_{i}"),
+                    SpeciesID = random.NextInt(1, 10),
+                    CreatureName = new FixedString32Bytes($"Creature_{i}")
                 });
             }
         }
@@ -530,9 +530,9 @@ namespace Laboratory.Tests.Performance
 
                 _entityManager.SetComponentData(entities[i], new ChimeraIdentity
                 {
-                    CreatureId = i,
-                    SpeciesId = random.NextInt(1, 10),
-                    CreatureName = new FixedString64Bytes($"Creature_{i}")
+                    CreatureID = new FixedString64Bytes($"creature_{i}"),
+                    SpeciesID = random.NextInt(1, 10),
+                    CreatureName = new FixedString32Bytes($"Creature_{i}")
                 });
             }
         }
@@ -582,9 +582,9 @@ namespace Laboratory.Tests.Performance
 
                 _entityManager.SetComponentData(entities[i], new ChimeraIdentity
                 {
-                    CreatureId = i,
-                    SpeciesId = random.NextInt(1, 10),
-                    CreatureName = new FixedString64Bytes($"Creature_{i}")
+                    CreatureID = new FixedString64Bytes($"creature_{i}"),
+                    SpeciesID = random.NextInt(1, 10),
+                    CreatureName = new FixedString32Bytes($"Creature_{i}")
                 });
 
                 _entityManager.SetComponentData(entities[i], LocalTransform.FromPosition(
