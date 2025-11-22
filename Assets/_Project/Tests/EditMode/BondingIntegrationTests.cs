@@ -47,11 +47,14 @@ namespace Laboratory.Tests.EditMode
             var babyChimera = _entityManager.CreateEntity();
             _entityManager.AddComponentData(babyChimera, new AgeSensitivityComponent
             {
-                forgivenessMultiplier = 2.5f,  // Babies are very forgiving
-                memoryStrength = 0.2f,          // Don't remember mistreatment
-                recoverySpeed = 2.5f,           // Recover bond quickly
-                bondDepthMultiplier = 0.5f,     // Bonds are shallow
-                scarPermanence = 0.1f           // No permanent emotional scars
+                currentLifeStage = LifeStage.Baby,
+                agePercentage = 0.05f,           // 5% of lifespan (baby)
+                forgivenessMultiplier = 2.5f,    // Babies are very forgiving
+                memoryStrength = 0.2f,           // Don't remember mistreatment
+                bondDamageMultiplier = 0.5f,     // Less affected by damage
+                recoverySpeed = 2.5f,            // Recover bond quickly
+                emotionalResilience = 0.8f,      // High resilience
+                trustVulnerability = 0.2f        // Low vulnerability
             });
 
             _entityManager.AddComponentData(babyChimera, new CreatureBondData
@@ -63,14 +66,14 @@ namespace Laboratory.Tests.EditMode
                 hasHadFirstInteraction = true
             });
 
-            // Act - Calculate effective bond strength
+            // Act - Calculate effective bond strength using memoryStrength (bond depth proxy)
             float baseBondStrength = 0.5f;
-            float ageSensitivity = _entityManager.GetComponentData<AgeSensitivityComponent>(babyChimera);
-            float effectiveBondStrength = baseBondStrength * ageSensitivity.forgivenessMultiplier;
+            var ageSensitivity = _entityManager.GetComponentData<AgeSensitivityComponent>(babyChimera);
+            float effectiveBondStrength = baseBondStrength * ageSensitivity.memoryStrength;
 
             // Assert
-            Assert.That(effectiveBondStrength, Is.EqualTo(1.25f).Within(0.01f),
-                "Baby chimera should have 2.5x bond strength multiplier");
+            Assert.That(effectiveBondStrength, Is.EqualTo(0.1f).Within(0.01f),
+                "Baby chimera bond depth should be shallow (memoryStrength = 0.2)");
             Assert.That(ageSensitivity.memoryStrength, Is.LessThan(0.5f),
                 "Babies should have weak memory of mistreatment");
         }
@@ -82,11 +85,14 @@ namespace Laboratory.Tests.EditMode
             var adultChimera = _entityManager.CreateEntity();
             _entityManager.AddComponentData(adultChimera, new AgeSensitivityComponent
             {
-                forgivenessMultiplier = 0.3f,   // Adults are unforgiving
-                memoryStrength = 0.95f,         // Remember everything
-                recoverySpeed = 0.3f,           // Bond damage recovers slowly
-                bondDepthMultiplier = 2.0f,     // Deep emotional bonds
-                scarPermanence = 0.9f           // Permanent emotional scars
+                currentLifeStage = LifeStage.Adult,
+                agePercentage = 0.65f,           // 65% of lifespan (adult)
+                forgivenessMultiplier = 0.3f,    // Adults are unforgiving
+                memoryStrength = 0.95f,          // Remember everything
+                bondDamageMultiplier = 2.0f,     // Damage affects them more
+                recoverySpeed = 0.3f,            // Bond damage recovers slowly
+                emotionalResilience = 0.3f,      // Low resilience
+                trustVulnerability = 0.9f        // High vulnerability
             });
 
             _entityManager.AddComponentData(adultChimera, new CreatureBondData
@@ -98,18 +104,18 @@ namespace Laboratory.Tests.EditMode
                 hasHadFirstInteraction = true
             });
 
-            // Act - Calculate effective bond strength
+            // Act - Calculate effective bond strength using memoryStrength (bond depth proxy)
             float baseBondStrength = 0.8f;
-            float ageSensitivity = _entityManager.GetComponentData<AgeSensitivityComponent>(adultChimera);
-            float effectiveBondStrength = baseBondStrength * ageSensitivity.forgivenessMultiplier;
+            var ageSensitivity = _entityManager.GetComponentData<AgeSensitivityComponent>(adultChimera);
+            float effectiveBondStrength = baseBondStrength * ageSensitivity.memoryStrength;
 
             // Assert
-            Assert.That(effectiveBondStrength, Is.EqualTo(0.24f).Within(0.01f),
-                "Adult chimera should have 0.3x bond strength multiplier");
+            Assert.That(effectiveBondStrength, Is.EqualTo(0.76f).Within(0.01f),
+                "Adult chimera bond depth should be deep (0.8 * 0.95 memoryStrength)");
             Assert.That(ageSensitivity.memoryStrength, Is.GreaterThan(0.9f),
                 "Adults should have strong memory of mistreatment");
-            Assert.That(ageSensitivity.scarPermanence, Is.GreaterThan(0.8f),
-                "Adults should retain emotional scars permanently");
+            Assert.That(ageSensitivity.trustVulnerability, Is.GreaterThan(0.8f),
+                "Adults should have high trust vulnerability (trust easily broken)");
         }
 
         [Test]
