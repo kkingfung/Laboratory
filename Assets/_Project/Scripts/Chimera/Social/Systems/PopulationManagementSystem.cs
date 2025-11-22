@@ -154,7 +154,7 @@ namespace Laboratory.Chimera.Social
                         peakBondStrength = bondStrength, // Initial peak equals current strength
                         bondTrend = 0f, // Initial trend is neutral until calculated over time
                         countsForCapacity = countsForCapacity,
-                        chimeraName = identity.HasValue ? identity.ValueRO.CreatureName.ToString() : "Chimera"
+                        chimeraName = chimeraIdentity.ValueRO.CreatureName.ToString()
                     });
                 }
 

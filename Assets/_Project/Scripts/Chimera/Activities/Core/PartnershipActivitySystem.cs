@@ -303,9 +303,9 @@ namespace Laboratory.Chimera.Activities
             // Map emotional icons to mood bonus values
             return emotion.currentIcon switch
             {
-                EmotionalIcon.Joy => 1.0f,
+                EmotionalIcon.VeryHappy => 1.0f,
                 EmotionalIcon.Excited => 0.9f,
-                EmotionalIcon.Content => 0.7f,
+                EmotionalIcon.Happy => 0.7f,
                 EmotionalIcon.Proud => 0.8f,
                 EmotionalIcon.Curious => 0.6f,
                 EmotionalIcon.Neutral => 0.5f,
@@ -415,8 +415,6 @@ namespace Laboratory.Chimera.Activities
                 ActivityType.Platforming => ActivityGenreCategory.Action,
                 ActivityType.Music => ActivityGenreCategory.Rhythm,
                 ActivityType.Crafting => ActivityGenreCategory.Economics,
-                ActivityType.Exploration => ActivityGenreCategory.Exploration,
-                ActivityType.Social => ActivityGenreCategory.Economics,
                 _ => ActivityGenreCategory.Action // Default fallback for unknown types
             };
         }
