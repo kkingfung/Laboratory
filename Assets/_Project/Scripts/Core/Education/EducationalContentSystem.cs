@@ -987,6 +987,7 @@ namespace Laboratory.Core.Education
         public int EncounterCount;
         public float MasteryLevel; // 0-1
         public bool IsMastered;
+        public bool NeedsReview;
     }
 
     /// <summary>

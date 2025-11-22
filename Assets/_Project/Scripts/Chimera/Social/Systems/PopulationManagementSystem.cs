@@ -3,6 +3,7 @@ using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 using Laboratory.Chimera.Core;
+using ChimeraIdentity = Laboratory.Chimera.Core.CreatureIdentityComponent;
 
 namespace Laboratory.Chimera.Social
 {
@@ -130,7 +131,7 @@ namespace Laboratory.Chimera.Social
                 // Query all chimeras with bond data
                 foreach (var (bondData, chimeraIdentity, chimeraEntity) in
                     SystemAPI.Query<RefRO<CreatureBondData>,
-                        RefRO<CreatureIdentityComponent>>().WithEntityAccess())
+                        RefRO<ChimeraIdentity>>().WithEntityAccess())
                 {
                     float bondStrength = bondData.ValueRO.bondStrength;
                     totalBondStrength += bondStrength;
