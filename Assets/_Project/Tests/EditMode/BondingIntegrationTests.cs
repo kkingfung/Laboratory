@@ -148,9 +148,9 @@ namespace Laboratory.Tests.EditMode
 
             _entityManager.AddComponentData(weakBondChimera, new ChimeraIdentity
             {
-                CreatureId = 1,
-                SpeciesId = 1,
-                CreatureName = new FixedString64Bytes("Weak Bond Chimera")
+                CreatureID = new FixedString64Bytes("creature_1"),
+                SpeciesID = 1,
+                CreatureName = new FixedString32Bytes("Weak Bond Chimera")
             });
 
             // Act - Check if unlock requirements are met
@@ -196,9 +196,9 @@ namespace Laboratory.Tests.EditMode
 
             _entityManager.AddComponentData(strongBondChimera, new ChimeraIdentity
             {
-                CreatureId = 1,
-                SpeciesId = 1,
-                CreatureName = new FixedString64Bytes("Strong Bond Chimera")
+                CreatureID = new FixedString64Bytes("creature_1"),
+                SpeciesID = 1,
+                CreatureName = new FixedString32Bytes("Strong Bond Chimera")
             });
 
             // Act - Simulate unlock check
@@ -251,9 +251,9 @@ namespace Laboratory.Tests.EditMode
             });
             _entityManager.AddComponentData(chimera1, new ChimeraIdentity
             {
-                CreatureId = 1,
-                SpeciesId = 1,
-                CreatureName = new FixedString64Bytes("Chimera 1")
+                CreatureID = new FixedString64Bytes("creature_1"),
+                SpeciesID = 1,
+                CreatureName = new FixedString32Bytes("Chimera 1")
             });
 
             var chimera2 = _entityManager.CreateEntity();
@@ -265,9 +265,9 @@ namespace Laboratory.Tests.EditMode
             });
             _entityManager.AddComponentData(chimera2, new ChimeraIdentity
             {
-                CreatureId = 2,
-                SpeciesId = 1,
-                CreatureName = new FixedString64Bytes("Chimera 2")
+                CreatureID = new FixedString64Bytes("creature_2"),
+                SpeciesID = 1,
+                CreatureName = new FixedString32Bytes("Chimera 2")
             });
 
             // Act - Count strong bonds

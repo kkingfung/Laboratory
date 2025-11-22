@@ -482,11 +482,14 @@ namespace Laboratory.Tests.Performance
                 bool isBaby = i < count / 2;
                 _entityManager.SetComponentData(entities[i], new AgeSensitivityComponent
                 {
+                    currentLifeStage = isBaby ? LifeStage.Baby : LifeStage.Adult,
+                    agePercentage = isBaby ? 0.05f : 0.65f,
                     forgivenessMultiplier = isBaby ? 2.5f : 0.3f,
                     memoryStrength = isBaby ? 0.2f : 0.95f,
+                    bondDamageMultiplier = isBaby ? 0.5f : 2.0f,
                     recoverySpeed = isBaby ? 2.5f : 0.3f,
-                    bondDepthMultiplier = isBaby ? 0.5f : 2.0f,
-                    scarPermanence = isBaby ? 0.1f : 0.9f
+                    emotionalResilience = isBaby ? 0.8f : 0.3f,
+                    trustVulnerability = isBaby ? 0.2f : 0.9f
                 });
 
                 _entityManager.SetComponentData(entities[i], new ChimeraIdentity
@@ -516,15 +519,16 @@ namespace Laboratory.Tests.Performance
                     Aggression = random.NextFloat(0f, 1f),
                     Sociability = random.NextFloat(0f, 1f),
                     Curiosity = random.NextFloat(0f, 1f),
-                    Intelligence = random.NextFloat(0f, 1f),
                     Caution = random.NextFloat(0f, 1f),
-                    Playfulness = random.NextFloat(0f, 1f),
-                    Loyalty = random.NextFloat(0f, 1f),
+                    Intelligence = random.NextFloat(0f, 1f),
+                    Metabolism = random.NextFloat(0f, 1f),
+                    Fertility = random.NextFloat(0f, 1f),
                     Dominance = random.NextFloat(0f, 1f),
-                    Adaptability = random.NextFloat(0f, 1f),
+                    Size = random.NextFloat(0f, 1f),
                     Speed = random.NextFloat(0f, 1f),
                     Stamina = random.NextFloat(0f, 1f),
-                    Size = random.NextFloat(0f, 1f),
+                    Camouflage = random.NextFloat(0f, 1f),
+                    Adaptability = random.NextFloat(0f, 1f),
                     GeneticHash = (uint)random.NextInt()
                 });
 
