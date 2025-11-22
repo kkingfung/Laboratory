@@ -245,6 +245,13 @@ namespace Laboratory.Core.Social
         /// </summary>
         public Tournament CreateTournament(ActivityType activityType, string name, TournamentRewards rewards)
         {
+            // Check if multiplayer and tournament features are enabled
+            if (!enableMultiplayerFeatures || !enableTournaments)
+            {
+                Debug.LogWarning("Tournament features are currently disabled");
+                return null;
+            }
+
             var tournament = new Tournament
             {
                 TournamentId = Guid.NewGuid().ToString(),
