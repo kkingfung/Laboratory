@@ -464,13 +464,6 @@ namespace Laboratory.Chimera.Integration
                 ActivityType.Crafting => ActivityGenreCategory.Economics,
                 ActivityType.Exploration => ActivityGenreCategory.Exploration,
                 ActivityType.Social => ActivityGenreCategory.Economics,
-                ActivityType.Sports => ActivityGenreCategory.Action,
-                ActivityType.Stealth => ActivityGenreCategory.Action,
-                ActivityType.Rhythm => ActivityGenreCategory.Rhythm,
-                ActivityType.CardGame => ActivityGenreCategory.Strategy,
-                ActivityType.BoardGame => ActivityGenreCategory.Strategy,
-                ActivityType.Simulation => ActivityGenreCategory.Strategy,
-                ActivityType.Detective => ActivityGenreCategory.Puzzle,
                 _ => ActivityGenreCategory.Action // Default fallback
             };
         }

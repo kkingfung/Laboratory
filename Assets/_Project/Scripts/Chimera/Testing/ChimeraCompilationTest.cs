@@ -118,9 +118,9 @@ namespace Laboratory.Chimera.Testing
             
             UnityEngine.Debug.Log($"Infant can breed: {infantCanBreed}, Adult can breed: {adultCanBreed}");
             
-            // Test stat modifiers
-            var (health, attack, defense, speed, intelligence) = adultStage.GetStatModifiers();
-            UnityEngine.Debug.Log($"Adult stat modifiers - H:{health}, A:{attack}, D:{defense}, S:{speed}, I:{intelligence}");
+            // Test life stage modifiers
+            var (physicalCapacity, cooperation, emotionalDepth, energyLevel, personalityStrength) = adultStage.GetLifeStageModifiers();
+            UnityEngine.Debug.Log($"Adult modifiers - Physical:{physicalCapacity}, Cooperation:{cooperation}, Emotional:{emotionalDepth}, Energy:{energyLevel}, Personality:{personalityStrength}");
             
             if (verboseLogging) UnityEngine.Debug.Log("✅ Life Stages - OK");
         }
