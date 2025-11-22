@@ -97,7 +97,6 @@ namespace Laboratory.Subsystems.AIDirector
         private List<ActiveStoryline> _activeStorylines;
         private DirectorState _currentState;
         private DateTime _lastAnalysisUpdate;
-        private float _globalDifficultyMultiplier = 1.0f;
 
         // AI Decision Making
         private DecisionMatrix _decisionMatrix;
