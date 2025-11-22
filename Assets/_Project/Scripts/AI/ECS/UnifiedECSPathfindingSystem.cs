@@ -82,6 +82,12 @@ namespace Laboratory.AI.ECS
         private NativeParallelMultiHashMap<int, Entity> _spatialHashMap;
         private const float SPATIAL_CELL_SIZE = 20f;
 
+        // Throttling optimization - reduce update frequency
+        private float _lastPathfindingUpdate;
+        private const float PATHFINDING_UPDATE_INTERVAL = 0.2f; // 5Hz instead of 60Hz
+        private float _lastMovementUpdate;
+        private const float MOVEMENT_UPDATE_INTERVAL = 0.033f; // 30Hz for smooth movement
+
         protected override void OnCreate()
         {
             // Find or create legacy pathfinding system
@@ -126,20 +132,32 @@ namespace Laboratory.AI.ECS
             // Complete previous frame's pathfinding jobs
             _pathfindingJobHandle.Complete();
 
-            // Step 1: Process new pathfinding requests
+            // Step 1: ALWAYS process new pathfinding requests (immediate response)
             ProcessPathfindingRequests();
 
-            // Step 2: Update spatial hash for optimization
-            UpdateSpatialHash();
-
-            // Step 3: Update active pathfinding
-            UpdateActivePathfinding(deltaTime, currentTime);
-
-            // Step 4: Apply completed paths
+            // Step 2: ALWAYS apply completed paths (immediate path updates)
             ApplyCompletedPaths();
 
-            // Step 5: Execute movement based on current paths
-            ExecutePathfollowing(deltaTime);
+            // Step 3: THROTTLED - Update spatial hash and pathfinding calculations (5Hz)
+            if (currentTime - _lastPathfindingUpdate >= PATHFINDING_UPDATE_INTERVAL)
+            {
+                _lastPathfindingUpdate = currentTime;
+
+                // Update spatial hash for optimization
+                UpdateSpatialHash();
+
+                // Update active pathfinding (recalculations, obstacle avoidance, etc.)
+                UpdateActivePathfinding(deltaTime, currentTime);
+            }
+
+            // Step 4: THROTTLED - Execute movement (30Hz for smooth movement)
+            if (currentTime - _lastMovementUpdate >= MOVEMENT_UPDATE_INTERVAL)
+            {
+                _lastMovementUpdate = currentTime;
+
+                // Execute movement based on current paths
+                ExecutePathfollowing(deltaTime);
+            }
         }
 
         private void ProcessPathfindingRequests()
