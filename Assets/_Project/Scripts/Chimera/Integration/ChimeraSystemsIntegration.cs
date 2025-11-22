@@ -446,6 +446,27 @@ namespace Laboratory.Chimera.Integration
                 likesEquipment = LikesEquipment(em, chimeraEntity)
             };
         }
+
+        /// <summary>
+        /// Maps ActivityType to ActivityGenreCategory for skill progression
+        /// </summary>
+        private static ActivityGenreCategory MapActivityToGenre(ActivityType activityType)
+        {
+            return activityType switch
+            {
+                ActivityType.Racing => ActivityGenreCategory.Racing,
+                ActivityType.Combat => ActivityGenreCategory.Action,
+                ActivityType.Puzzle => ActivityGenreCategory.Puzzle,
+                ActivityType.Strategy => ActivityGenreCategory.Strategy,
+                ActivityType.Adventure => ActivityGenreCategory.Exploration,
+                ActivityType.Platforming => ActivityGenreCategory.Action,
+                ActivityType.Music => ActivityGenreCategory.Rhythm,
+                ActivityType.Crafting => ActivityGenreCategory.Economics,
+                ActivityType.Exploration => ActivityGenreCategory.Exploration,
+                ActivityType.Social => ActivityGenreCategory.Economics,
+                _ => ActivityGenreCategory.Action // Default fallback
+            };
+        }
     }
 
     /// <summary>
@@ -469,33 +490,5 @@ namespace Laboratory.Chimera.Integration
                    $"Equipment Fit: {equipmentFit:P0} | " +
                    $"Personality: {(personalityLocked ? "LOCKED" : "Flexible")}";
         }
-    }
-
-    /// <summary>
-    /// Maps ActivityType to ActivityGenreCategory for skill progression
-    /// </summary>
-    private static ActivityGenreCategory MapActivityToGenre(ActivityType activityType)
-    {
-        return activityType switch
-        {
-            ActivityType.Racing => ActivityGenreCategory.Racing,
-            ActivityType.Combat => ActivityGenreCategory.Action,
-            ActivityType.Puzzle => ActivityGenreCategory.Puzzle,
-            ActivityType.Strategy => ActivityGenreCategory.Strategy,
-            ActivityType.Adventure => ActivityGenreCategory.Exploration,
-            ActivityType.Platforming => ActivityGenreCategory.Action,
-            ActivityType.Music => ActivityGenreCategory.Rhythm,
-            ActivityType.Crafting => ActivityGenreCategory.Economics,
-            ActivityType.Exploration => ActivityGenreCategory.Exploration,
-            ActivityType.Social => ActivityGenreCategory.Economics,
-            ActivityType.Sports => ActivityGenreCategory.Action,
-            ActivityType.Stealth => ActivityGenreCategory.Action,
-            ActivityType.Rhythm => ActivityGenreCategory.Rhythm,
-            ActivityType.CardGame => ActivityGenreCategory.Strategy,
-            ActivityType.BoardGame => ActivityGenreCategory.Strategy,
-            ActivityType.Simulation => ActivityGenreCategory.Strategy,
-            ActivityType.Detective => ActivityGenreCategory.Puzzle,
-            _ => ActivityGenreCategory.Action // Default fallback
-        };
     }
 }

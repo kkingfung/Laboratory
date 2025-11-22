@@ -412,9 +412,11 @@ namespace Laboratory.Chimera.Activities
                 ActivityType.Puzzle => ActivityGenreCategory.Puzzle,
                 ActivityType.Strategy => ActivityGenreCategory.Strategy,
                 ActivityType.Adventure => ActivityGenreCategory.Exploration,
+                ActivityType.Exploration => ActivityGenreCategory.Exploration,
                 ActivityType.Platforming => ActivityGenreCategory.Action,
                 ActivityType.Music => ActivityGenreCategory.Rhythm,
                 ActivityType.Crafting => ActivityGenreCategory.Economics,
+                ActivityType.Social => ActivityGenreCategory.Action,
                 _ => ActivityGenreCategory.Action // Default fallback for unknown types
             };
         }

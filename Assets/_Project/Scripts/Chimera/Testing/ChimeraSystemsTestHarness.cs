@@ -62,13 +62,9 @@ namespace Laboratory.Chimera.Testing
         private int _activitiesStarted = 0;
         private int _activitiesCompleted = 0;
         private int _itemsEquipped = 0;
-        private int _levelsGained = 0;
         private float _lastStatsUpdate = 0f;
         private float _fps = 0f;
         private float _frameTime = 0f;
-
-        // Tracking for incremental updates
-        private int _lastTrackedLevel = 0;
 
         private EntityManager _entityManager;
         private Unity.Mathematics.Random _random;
@@ -142,8 +138,6 @@ namespace Laboratory.Chimera.Testing
                 typeof(EquipmentInventoryElement),
                 typeof(EquippedItemsComponent),
                 typeof(EquipmentBonusCache),
-                typeof(MonsterLevelComponent),
-                typeof(LevelStatBonusComponent),
                 typeof(DailyChallengeElement)
             );
 
@@ -168,31 +162,6 @@ namespace Laboratory.Chimera.Testing
                     coins = 1000,
                     gems = 10,
                     activityTokens = 0
-                });
-
-                // Starting level (random 1-10)
-                int startLevel = _random.NextInt(1, 11);
-                _entityManager.SetComponentData(creature, new MonsterLevelComponent
-                {
-                    level = startLevel,
-                    experiencePoints = 0,
-                    experienceToNextLevel = progressionConfig != null ?
-                        progressionConfig.GetExperienceToNextLevel(startLevel) : 100,
-                    skillPointsAvailable = startLevel - 1,
-                    skillPointsSpent = 0
-                });
-
-                // Stat bonuses
-                float statBonus = progressionConfig != null ?
-                    progressionConfig.GetStatBonusAtLevel(startLevel) : 0f;
-                _entityManager.SetComponentData(creature, new LevelStatBonusComponent
-                {
-                    strengthBonus = statBonus,
-                    agilityBonus = statBonus,
-                    intelligenceBonus = statBonus,
-                    vitalityBonus = statBonus,
-                    socialBonus = statBonus,
-                    adaptabilityBonus = statBonus
                 });
 
                 // Initialize equipment
@@ -287,31 +256,9 @@ namespace Laboratory.Chimera.Testing
                     _activitiesCompleted = resultQuery.CalculateEntityCount();
                     resultQuery.Dispose();
 
-                    // Track total levels gained
-                    var levelQuery = _entityManager.CreateEntityQuery(typeof(MonsterLevelComponent));
-                    if (levelQuery.CalculateEntityCount() > 0)
-                    {
-                        var levels = levelQuery.ToComponentDataArray<MonsterLevelComponent>(Allocator.Temp);
-                        int currentTotalLevel = 0;
-                        for (int i = 0; i < levels.Length; i++)
-                        {
-                            currentTotalLevel += levels[i].level;
-                        }
-
-                        // Calculate levels gained since last check
-                        if (_lastTrackedLevel > 0)
-                        {
-                            _levelsGained += (currentTotalLevel - _lastTrackedLevel);
-                        }
-                        _lastTrackedLevel = currentTotalLevel;
-
-                        levels.Dispose();
-                    }
-                    levelQuery.Dispose();
-
                     if (enableProfiling)
                     {
-                        Debug.Log($"[Test Harness] FPS: {_fps:F1}, Frame: {_frameTime:F2}ms, Active: {activeActivities}, Completed: {_activitiesCompleted}, Levels: +{_levelsGained}");
+                        Debug.Log($"[Test Harness] FPS: {_fps:F1}, Frame: {_frameTime:F2}ms, Active: {activeActivities}, Completed: {_activitiesCompleted}");
                     }
                 }
             }
@@ -356,7 +303,6 @@ namespace Laboratory.Chimera.Testing
             // Progression
             GUILayout.Label("<b>Progression</b>");
             GUILayout.Label($"Items Equipped: {_itemsEquipped}");
-            GUILayout.Label($"Total Levels Gained: {_levelsGained}");
             GUILayout.Space(10);
 
             // Systems
@@ -404,8 +350,6 @@ namespace Laboratory.Chimera.Testing
             _activitiesStarted = 0;
             _activitiesCompleted = 0;
             _itemsEquipped = 0;
-            _levelsGained = 0;
-            _lastTrackedLevel = 0;
 
             Debug.Log("[Test Harness] Test reset complete");
         }

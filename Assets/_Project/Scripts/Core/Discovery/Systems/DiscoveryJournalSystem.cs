@@ -22,12 +22,10 @@ namespace Laboratory.Core.Discovery.Systems
         [Header("🏆 Achievement Settings")]
         [SerializeField] private AchievementDatabase achievementDatabase;
         [SerializeField] private bool enableAchievements = true;
-        [SerializeField] private bool enableProgressiveAchievements = true;
 
         [Header("🔬 Research Features")]
         [SerializeField] private int maxActiveResearchProjects = 5;
         [SerializeField] private float researchProjectDuration = 604800f; // 7 days
-        [SerializeField] private bool enableCollaborativeResearch = true;
 
         // Services
         private JournalEntryService journalEntryService;
@@ -49,7 +47,7 @@ namespace Laboratory.Core.Discovery.Systems
         private void InitializeServices()
         {
             // Get the main DiscoveryJournalSystem from the Discovery namespace
-            var mainDiscoverySystem = FindObjectOfType<Laboratory.Core.Discovery.DiscoveryJournalSystem>();
+            var mainDiscoverySystem = FindFirstObjectByType<Laboratory.Core.Discovery.DiscoveryJournalSystem>();
             if (mainDiscoverySystem == null)
             {
                 Debug.LogWarning("Main DiscoveryJournalSystem not found. Creating services with null reference.");

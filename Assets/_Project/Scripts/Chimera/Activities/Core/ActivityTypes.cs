@@ -16,7 +16,9 @@ namespace Laboratory.Chimera.Activities
         Music = 5,
         Adventure = 6,
         Platforming = 7,
-        Crafting = 8
+        Crafting = 8,
+        Exploration = 9,
+        Social = 10
     }
 
     /// <summary>
