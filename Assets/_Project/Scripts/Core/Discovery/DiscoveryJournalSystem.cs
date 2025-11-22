@@ -29,12 +29,10 @@ namespace Laboratory.Core.Discovery
         [Header("🏆 Achievement Settings")]
         [SerializeField] private AchievementDatabase achievementDatabase;
         [SerializeField] private bool enableAchievements = true;
-        [SerializeField] private bool enableProgressiveAchievements = true;
 
         [Header("🔬 Research Features")]
         [SerializeField] private int maxActiveResearchProjects = 5;
         [SerializeField] private float researchProjectDuration = 604800f; // 7 days
-        [SerializeField] private bool enableCollaborativeResearch = true;
 
         // Journal state
         private Dictionary<string, PlayerJournal> _playerJournals = new();
