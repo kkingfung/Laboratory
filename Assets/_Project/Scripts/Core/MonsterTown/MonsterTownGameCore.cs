@@ -146,6 +146,14 @@ namespace Laboratory.Core.MonsterTown
                 return ActivityResult.Failed("Monster not found");
             }
 
+            // Check if we've reached max simultaneous activities limit
+            int activeActivitiesCount = GetActiveActivitiesCount();
+            if (activeActivitiesCount >= maxSimultaneousActivities)
+            {
+                Debug.LogWarning($"Maximum simultaneous activities limit reached ({maxSimultaneousActivities}). Wait for some to complete.");
+                return ActivityResult.Failed($"Maximum activities limit ({maxSimultaneousActivities}) reached");
+            }
+
             // Convert to Monster type for activity systems
             var monster = ConvertToMonster(monsterInstance);
 
@@ -205,6 +213,14 @@ namespace Laboratory.Core.MonsterTown
 
             // Convert offspring to MonsterInstance and add to player collection
             var offspringInstance = ConvertToMonsterInstance(offspring);
+
+            // Check monster capacity limit
+            if (_playerMonsters.Monsters.Count() >= maxMonstersInTown)
+            {
+                Debug.LogWarning($"Town is at maximum capacity ({maxMonstersInTown} monsters). Cannot add new monster.");
+                return null;
+            }
+
             _playerMonsters.AddMonster(offspringInstance);
 
             // Educational content about genetics
@@ -469,7 +485,7 @@ namespace Laboratory.Core.MonsterTown
 
         #region Utility Methods
 
-        private async Task LoadPlayerTown()
+        private Task LoadPlayerTown()
         {
             // Load from save or create new town
             _playerTown = new PlayerTown
@@ -488,6 +504,8 @@ namespace Laboratory.Core.MonsterTown
                 Level = 1,
                 IsConstructed = true
             });
+
+            return Task.CompletedTask;
         }
 
         private async Task LoadPlayerMonsters()
@@ -511,9 +529,10 @@ namespace Laboratory.Core.MonsterTown
             });
         }
 
-        private async Task LoadActivityProgression()
+        private Task LoadActivityProgression()
         {
             _activityProgression = new Dictionary<string, ActivityProgress>();
+            return Task.CompletedTask;
         }
 
         private void StartTownSimulation()
@@ -533,7 +552,7 @@ namespace Laboratory.Core.MonsterTown
             _rewardSystem.ProcessPassiveRewards(_playerTown);
         }
 
-        private async Task ProcessActivityResult(Monster monster, ActivityResult result)
+        private Task ProcessActivityResult(Monster monster, ActivityResult result)
         {
             // Improve monster stats based on activity
             monster.ImproveFromActivity(result);
@@ -543,10 +562,14 @@ namespace Laboratory.Core.MonsterTown
 
             // Update monster experience
             monster.AddActivityExperience(result.ActivityType, result.ExperienceGained);
+
+            return Task.CompletedTask;
         }
 
         private void UpdateActivityProgression(ActivityType activityType, ActivityResult result)
         {
+            if (!enableCrossActivityProgression) return;
+
             var key = activityType.ToString();
             if (!_activityProgression.ContainsKey(key))
             {
@@ -556,10 +579,11 @@ namespace Laboratory.Core.MonsterTown
             _activityProgression[key].UpdateProgress(result);
         }
 
-        private async Task SavePlayerData()
+        private Task SavePlayerData()
         {
             // Save town, monsters, and progression data
             // Implementation would depend on your save system
+            return Task.CompletedTask;
         }
 
         private TimeSpan GetConstructionTime(FacilityType facilityType)
@@ -589,6 +613,16 @@ namespace Laboratory.Core.MonsterTown
         private CurrencyAmount GetUpgradeCost(TownFacility facility)
         {
             return new CurrencyAmount { Coins = facility.Level * 500 };
+        }
+
+        /// <summary>
+        /// Get count of currently active activities
+        /// </summary>
+        private int GetActiveActivitiesCount()
+        {
+            // Query activity manager for active activities count
+            // This is a simple implementation - would be extended with actual tracking
+            return 0; // Placeholder - actual implementation would track active activities
         }
 
         #endregion

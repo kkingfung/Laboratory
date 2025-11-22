@@ -22,6 +22,7 @@ namespace Laboratory.Chimera.Activities
     public struct PartnershipActivityComponent : IComponentData
     {
         public Entity partnershipEntity;     // Player-Chimera partnership
+        public Entity chimeraEntity;         // Chimera participating in activity
         public ActivityType currentActivity;
         public ActivityGenreCategory genre;
         public ActivityDifficulty difficulty;

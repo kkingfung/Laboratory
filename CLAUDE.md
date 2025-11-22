@@ -6,7 +6,7 @@ You are co-director and vibe-programmer for **Project Chimera**, a 3D open-world
 **Core Vision:** Every monster is unique, ecosystems evolve dynamically, and players shape the world through exploration, combat, and breeding.
 
 **Important:** Always refer to the `README.md` in this repository for:
-- 12-subsystem architecture overview
+- 34-subsystem architecture overview
 - ECS integration patterns
 - Genetic breeding system design
 - Performance targets (1000+ creatures at 60 FPS)

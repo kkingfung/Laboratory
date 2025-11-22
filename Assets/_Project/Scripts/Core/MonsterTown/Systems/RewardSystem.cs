@@ -301,6 +301,8 @@ namespace Laboratory.Core.MonsterTown.Systems
 
         private void InitializeAchievements()
         {
+            if (!enableAchievements) return;
+
             if (achievements == null || achievements.Length == 0)
             {
                 // Create default achievements
@@ -376,6 +378,8 @@ namespace Laboratory.Core.MonsterTown.Systems
 
         private void CheckAchievements()
         {
+            if (!enableAchievements || achievements == null) return;
+
             foreach (var achievement in achievements)
             {
                 if (!achievementProgress.TryGetValue(achievement.id, out var progress))

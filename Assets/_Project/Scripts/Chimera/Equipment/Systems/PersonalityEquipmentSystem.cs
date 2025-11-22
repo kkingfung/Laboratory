@@ -156,16 +156,18 @@ namespace Laboratory.Chimera.Equipment
 
                 var personality = EntityManager.GetComponentData<CreaturePersonality>(targetEntity);
 
-                // TODO: Get equipment profile from database
-                // For now, create placeholder effect
+                // Calculate how well the equipment fits the chimera's personality
+                float personalityFit = CalculateEquipmentPersonalityFit(personality, equipRequest.ValueRO.itemId);
+                bool chimeraLikes = personalityFit > 0.6f;
+
                 var equipmentEffect = new PersonalityEquipmentEffect
                 {
                     equippedItemId = equipRequest.ValueRO.itemId,
                     equippedSlot = (Laboratory.Core.Equipment.EquipmentSlot)(byte)equipRequest.ValueRO.targetSlot,
                     equipTime = currentTime,
                     totalWearTime = 0f,
-                    personalityFit = 0.7f, // TODO: Calculate from equipment profile
-                    chimeraLikesEquipment = true // TODO: Check preferences
+                    personalityFit = personalityFit,
+                    chimeraLikesEquipment = chimeraLikes
                 };
 
                 // Add or update equipment effect component
@@ -249,8 +251,10 @@ namespace Laboratory.Chimera.Equipment
                 if (equipmentEffect.ValueRO.equippedItemId == 0)
                     continue;
 
-                // TODO: Get equipment profile from database and calculate actual fit
-                // For now, use placeholder calculation based on preferences
+                // Recalculate fit based on current personality (personality can change over time)
+                float updatedFit = CalculateEquipmentPersonalityFit(personality.ValueRO, equipmentEffect.ValueRO.equippedItemId);
+                equipmentEffect.ValueRW.personalityFit = updatedFit;
+                equipmentEffect.ValueRW.chimeraLikesEquipment = updatedFit > 0.6f;
 
                 // Update happiness with current equipment
                 float happinessBonus = equipmentEffect.ValueRO.chimeraLikesEquipment ? 0.1f : -0.05f;
@@ -344,6 +348,46 @@ namespace Laboratory.Chimera.Equipment
             preferences.consecutiveDaysWearingFavorite = 0;
 
             return preferences;
+        }
+
+        /// <summary>
+        /// Calculates how well equipment fits a chimera's personality
+        /// </summary>
+        private float CalculateEquipmentPersonalityFit(CreaturePersonality personality, int itemId)
+        {
+            // Base fit calculation based on personality traits
+            // In a full implementation, this would query an equipment database
+            // For now, use itemId as a seed for consistent personality-based fit
+
+            // Calculate fit based on personality profile (0.0 = terrible fit, 1.0 = perfect fit)
+            float fit = 0.5f; // Start at neutral
+
+            // Adjust based on personality traits (using itemId modulo to simulate different equipment types)
+            int equipmentType = itemId % 10;
+
+            switch (equipmentType)
+            {
+                case 0: // Playful equipment
+                    fit += (personality.Playfulness - 50f) / 100f;
+                    break;
+                case 1: // Combat equipment
+                    fit += (personality.Aggression - 50f) / 100f;
+                    break;
+                case 2: // Scholarly equipment
+                    fit += (personality.Curiosity - 50f) / 100f;
+                    break;
+                case 3: // Cute/Comfortable equipment
+                    fit += (personality.Affection - 50f) / 100f;
+                    break;
+                case 4: // Simple equipment
+                    fit += (personality.Independence - 50f) / 100f;
+                    break;
+                default: // Generic equipment - fits all moderately well
+                    fit += 0.2f;
+                    break;
+            }
+
+            return math.clamp(fit, 0f, 1f);
         }
     }
 }

@@ -275,7 +275,7 @@ Every genre supports full team mechanics with player-friendly features designed 
 
 ### **Unity ECS Architecture**
 - **Extreme Performance** - **1000+ creatures @ 60 FPS** (validated with performance tests)
-- **33 Modular Subsystems** - Genetics, Combat, Team, Networking, AI, and more
+- **34 Modular Subsystems** - Genetics, Combat, Team, Networking, AI, and more
 - **Burst Compilation** - 10-50x speedup on hot paths with native code generation
 - **Job System Parallelization** - Multi-threaded processing across all CPU cores
 - **Zero GC Allocations** - No garbage collection hitches during gameplay
@@ -330,7 +330,7 @@ Every genre supports full team mechanics with player-friendly features designed 
 
 **Performance & Architecture:**
 - ✅ **1000+ Creatures @ 60 FPS** - Validated with performance tests
-- ✅ **33 Modular Subsystems** - Fully independent, reusable systems
+- ✅ **34 Modular Subsystems** - Fully independent, reusable systems
 - ✅ **Burst Compilation** - 10-50x speedup on hot paths
 - ✅ **Job Parallelization** - Multi-threaded across all cores
 - ✅ **Zero GC Allocations** - No garbage collection hitches
@@ -481,9 +481,9 @@ cd Laboratory
 ## 📈 **Project Metrics**
 
 **Codebase Scale:**
-- **1000+ C# Files** - Production code across all subsystems
+- **950+ C# Files** - Production code across all subsystems
 - **100,000+ Lines of Code** - Fully implemented systems
-- **33 Subsystems** - Modular, independent components
+- **34 Subsystems** - Modular, independent components
 - **47 Game Genres** - Complete team support for all
 - **3,710 Lines** - Recent team system addition
 

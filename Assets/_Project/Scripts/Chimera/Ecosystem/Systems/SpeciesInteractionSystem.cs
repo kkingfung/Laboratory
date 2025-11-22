@@ -15,7 +15,6 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     {
         [Header("Interaction Configuration")]
         [SerializeField] private float interactionUpdateInterval = 3.0f;
-        [SerializeField] private float interactionRange = 25.0f;
         [SerializeField] private float baseInteractionProbability = 0.1f;
 
         [Header("Population Effects")]

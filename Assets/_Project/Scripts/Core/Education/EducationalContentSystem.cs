@@ -228,6 +228,12 @@ namespace Laboratory.Core.Education
         /// </summary>
         public EducationalContent GetBreedingEducationContent(BreedingResult breedingResult, string playerId)
         {
+            // Check if educational mode is enabled
+            if (!enableEducationalMode)
+            {
+                return null;
+            }
+
             var learningProfile = GetLearningProfile(playerId);
             var appropriateConcepts = FindAppropriateConcepts(breedingResult, learningProfile);
 
@@ -254,6 +260,12 @@ namespace Laboratory.Core.Education
         /// </summary>
         public EducationalContent GetConceptContent(string conceptId, string playerId)
         {
+            // Check if educational mode is enabled
+            if (!enableEducationalMode)
+            {
+                return null;
+            }
+
             if (!_educationalContent.TryGetValue(conceptId, out var content))
             {
                 Debug.LogWarning($"Educational content not found for concept: {conceptId}");
@@ -339,6 +351,12 @@ namespace Laboratory.Core.Education
         /// </summary>
         public void RecordLearningInteraction(string playerId, string conceptId, LearningInteractionType interactionType)
         {
+            // Check if learning progress tracking is enabled
+            if (!trackLearningProgress)
+            {
+                return;
+            }
+
             var learningProfile = GetLearningProfile(playerId);
 
             if (!learningProfile.ConceptsLearned.ContainsKey(conceptId))
@@ -368,6 +386,9 @@ namespace Laboratory.Core.Education
 
             progress.MasteryLevel = Mathf.Min(1f, progress.MasteryLevel + masteryIncrease);
 
+            // Check if concept needs review based on retention period
+            CheckKnowledgeRetention(progress);
+
             // Check if concept is now mastered
             if (progress.MasteryLevel >= 0.8f && !progress.IsMastered)
             {
@@ -386,14 +407,46 @@ namespace Laboratory.Core.Education
         }
 
         /// <summary>
+        /// Check if knowledge needs review based on retention period
+        /// </summary>
+        private void CheckKnowledgeRetention(ConceptProgress progress)
+        {
+            // Calculate time since last encounter
+            var timeSinceLastEncounter = (DateTime.UtcNow - progress.LastEncounterDate).TotalSeconds;
+
+            // If beyond retention period, reduce mastery
+            if (timeSinceLastEncounter > knowledgeRetentionPeriod)
+            {
+                var decayFactor = 0.1f; // Decay 10% per retention period exceeded
+                progress.MasteryLevel = Mathf.Max(0f, progress.MasteryLevel - decayFactor);
+                progress.NeedsReview = true;
+                Debug.LogWarning($"⏰ Concept {progress.ConceptId} needs review (last encounter: {timeSinceLastEncounter / 86400:F1} days ago)");
+            }
+
+            // Mark for review if encountered threshold times but not mastered
+            if (progress.EncounterCount >= conceptReviewThreshold && progress.MasteryLevel < 0.8f)
+            {
+                progress.NeedsReview = true;
+                Debug.Log($"📖 Concept {progress.ConceptId} needs review (encountered {progress.EncounterCount} times, mastery: {progress.MasteryLevel:P0})");
+            }
+        }
+
+        /// <summary>
         /// Conduct a learning assessment
         /// </summary>
-        public async System.Threading.Tasks.Task<AssessmentResult> ConductAssessment(string assessmentId, string playerId, List<string> answers)
+        public System.Threading.Tasks.Task<AssessmentResult> ConductAssessment(string assessmentId, string playerId, List<string> answers)
         {
+            // Check if assessments are enabled
+            if (!enableAssessments)
+            {
+                Debug.LogWarning("Assessments are disabled");
+                return System.Threading.Tasks.Task.FromResult<AssessmentResult>(null);
+            }
+
             if (!_assessments.TryGetValue(assessmentId, out var assessment))
             {
                 Debug.LogWarning($"Assessment not found: {assessmentId}");
-                return null;
+                return System.Threading.Tasks.Task.FromResult<AssessmentResult>(null);
             }
 
             var score = CalculateAssessmentScore(assessment, answers);
@@ -417,7 +470,7 @@ namespace Laboratory.Core.Education
             OnAssessmentCompleted?.Invoke(assessment);
 
             Debug.Log($"📝 Assessment completed: {assessmentId}, Score: {score:P0}, Passed: {passed}");
-            return result;
+            return System.Threading.Tasks.Task.FromResult(result);
         }
 
         /// <summary>

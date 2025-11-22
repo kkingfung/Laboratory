@@ -315,10 +315,18 @@ namespace Laboratory.Chimera.Integration
                 // Initialize CreatureIdentityComponent for offspring
                 if (!EntityManager.HasComponent<CreatureIdentityComponent>(offspringEntity))
                 {
+                    // Get species ID from parent1 if available
+                    int speciesId = 1; // Default species
+                    var parent1 = breedingResult.ValueRO.parent1Entity;
+                    if (EntityManager.Exists(parent1) && EntityManager.HasComponent<CreatureIdentityComponent>(parent1))
+                    {
+                        speciesId = EntityManager.GetComponentData<CreatureIdentityComponent>(parent1).SpeciesID;
+                    }
+
                     ecb.AddComponent(offspringEntity, new CreatureIdentityComponent
                     {
                         CreatureID = System.Guid.NewGuid().ToString(),
-                        SpeciesID = 1, // TODO: Get from parents
+                        SpeciesID = speciesId,
                         CurrentLifeStage = LifeStage.Baby, // Always born as baby
                         AgePercentage = 0f,
                         BirthTime = currentTime,

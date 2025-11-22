@@ -293,6 +293,13 @@ namespace Laboratory.Core.Economy
         /// </summary>
         public bool ListItemForSale(string sellerId, MarketItem item, TownResources price, int quantity = 1)
         {
+            // Check if player trading is enabled
+            if (!enablePlayerTrading)
+            {
+                Debug.LogWarning("Player trading is currently disabled");
+                return false;
+            }
+
             if (_activeListings.Count >= maxMarketplaceListings)
             {
                 Debug.LogWarning("Marketplace is full, cannot list more items");
@@ -329,6 +336,13 @@ namespace Laboratory.Core.Economy
         /// </summary>
         public bool PurchaseMarketItem(string buyerId, string listingId, int quantity = 1)
         {
+            // Check if player trading is enabled
+            if (!enablePlayerTrading)
+            {
+                Debug.LogWarning("Player trading is currently disabled");
+                return false;
+            }
+
             if (!_activeListings.TryGetValue(listingId, out var listing))
             {
                 Debug.LogWarning($"Listing {listingId} not found");

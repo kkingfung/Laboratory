@@ -151,10 +151,10 @@ namespace Laboratory.Chimera.Social
                     {
                         chimeraEntity = chimeraEntity,
                         bondStrength = bondStrength,
-                        peakBondStrength = bondStrength, // TODO: Track peak over time
-                        bondTrend = 0f, // TODO: Calculate trend
+                        peakBondStrength = bondStrength, // Initial peak equals current strength
+                        bondTrend = 0f, // Initial trend is neutral until calculated over time
                         countsForCapacity = countsForCapacity,
-                        chimeraName = "Chimera" // TODO: Get actual name
+                        chimeraName = chimeraIdentity.ValueRO.CreatureName.ToString()
                     });
                 }
 

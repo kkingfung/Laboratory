@@ -179,7 +179,7 @@ namespace Laboratory.Core.MonsterTown.Integration
             // This is a safe check that doesn't require assembly references
 
             // Check for any objects with "Chimera" in their name
-            var chimeraObjects = FindObjectsOfType<GameObject>()
+            var chimeraObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None)
                 .Where(go => go.name.Contains("Chimera", StringComparison.OrdinalIgnoreCase));
 
             if (chimeraObjects.Any())

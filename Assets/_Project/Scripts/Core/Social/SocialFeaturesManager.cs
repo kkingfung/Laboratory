@@ -144,6 +144,20 @@ namespace Laboratory.Core.Social
         /// </summary>
         public async UniTask<bool> SendFriendRequest(string targetPlayerId, string message = "")
         {
+            // Check if multiplayer features are enabled
+            if (!enableMultiplayerFeatures)
+            {
+                Debug.LogWarning("Multiplayer features are currently disabled");
+                return false;
+            }
+
+            // Check friend limit before sending request
+            if (_friendships.TryGetValue("LocalPlayer", out var friendList) && friendList.Count >= maxFriends)
+            {
+                Debug.LogWarning($"Friend limit reached ({maxFriends}). Cannot send more friend requests.");
+                return false;
+            }
+
             if (!_playerProfiles.ContainsKey(targetPlayerId))
             {
                 Debug.LogWarning($"Player {targetPlayerId} not found");
@@ -231,6 +245,13 @@ namespace Laboratory.Core.Social
         /// </summary>
         public Tournament CreateTournament(ActivityType activityType, string name, TournamentRewards rewards)
         {
+            // Check if multiplayer and tournament features are enabled
+            if (!enableMultiplayerFeatures || !enableTournaments)
+            {
+                Debug.LogWarning("Tournament features are currently disabled");
+                return null;
+            }
+
             var tournament = new Tournament
             {
                 TournamentId = Guid.NewGuid().ToString(),
@@ -253,24 +274,24 @@ namespace Laboratory.Core.Social
         /// <summary>
         /// Join a tournament
         /// </summary>
-        public async UniTask<bool> JoinTournament(string tournamentId, Monster monster)
+        public UniTask<bool> JoinTournament(string tournamentId, Monster monster)
         {
             if (!_activeTournaments.TryGetValue(tournamentId, out var tournament))
             {
                 Debug.LogWarning($"Tournament {tournamentId} not found");
-                return false;
+                return UniTask.FromResult(false);
             }
 
             if (tournament.Status != TournamentStatus.Registration)
             {
                 Debug.LogWarning($"Tournament {tournamentId} is not accepting registrations");
-                return false;
+                return UniTask.FromResult(false);
             }
 
             if (tournament.Participants.Count >= tournament.MaxParticipants)
             {
                 Debug.LogWarning($"Tournament {tournamentId} is full");
-                return false;
+                return UniTask.FromResult(false);
             }
 
             var participant = new TournamentParticipant
@@ -284,7 +305,7 @@ namespace Laboratory.Core.Social
             tournament.Participants.Add(participant);
 
             Debug.Log($"🏆 Joined tournament: {tournament.Name} with {monster.Name}");
-            return true;
+            return UniTask.FromResult(true);
         }
 
         /// <summary>

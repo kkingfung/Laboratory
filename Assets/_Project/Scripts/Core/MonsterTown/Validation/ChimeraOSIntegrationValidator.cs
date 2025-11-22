@@ -148,7 +148,7 @@ namespace Laboratory.Core.MonsterTown.Validation
 
         private async UniTask ValidateTownManagementSystem()
         {
-            _townManager = FindObjectOfType<TownManagementSystem>();
+            _townManager = FindFirstObjectByType<TownManagementSystem>();
             bool found = _townManager != null;
 
             AddValidationResult("Town Management System", found,
@@ -167,7 +167,7 @@ namespace Laboratory.Core.MonsterTown.Validation
 
         private async UniTask ValidateActivitySystems()
         {
-            _activityManager = FindObjectOfType<ActivityCenterManager>();
+            _activityManager = FindFirstObjectByType<ActivityCenterManager>();
             bool found = _activityManager != null;
 
             AddValidationResult("Activity Center Manager", found,
@@ -233,7 +233,7 @@ namespace Laboratory.Core.MonsterTown.Validation
 
             if (serviceContainer != null)
             {
-                _breedingSystem = FindObjectOfType<MonsterBreedingSystem>();
+                _breedingSystem = FindFirstObjectByType<MonsterBreedingSystem>();
                 breedingSystemExists = _breedingSystem != null;
             }
 
@@ -545,6 +545,7 @@ namespace Laboratory.Core.MonsterTown.Validation
         private async UniTask ValidateECSPerformance()
         {
             // Test ECS system performance with target creature count
+            // Validate that system execution times don't exceed maximum budget
             if (World.DefaultGameObjectInjectionWorld != null)
             {
                 var entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
@@ -571,6 +572,11 @@ namespace Laboratory.Core.MonsterTown.Validation
 
                 bool performanceGood = creationTime < 0.1f; // 100ms for 100 entities
                 AddPerformanceResult("ECS Entity Creation", creationTime * 1000f, "ms", performanceGood);
+
+                // Validate system execution time against budget
+                float executionTimeMs = creationTime * 1000f;
+                bool withinBudget = executionTimeMs < maxSystemExecutionTime;
+                AddPerformanceResult("System Execution Budget", executionTimeMs, "ms", withinBudget);
             }
 
             await UniTask.Yield();

@@ -64,13 +64,19 @@ namespace Laboratory.Core.MonsterTown
                 ActivityType.Crafting => new CraftingActivity(),
                 ActivityType.Exploration => new ExplorationActivity(),
                 ActivityType.Social => new SocialActivity(),
-                _ => throw new NotImplementedException($"Activity type {activityType} not implemented")
+                _ => CreateFallbackActivity(activityType)
             };
 
             await activitySystem.InitializeAsync();
             _activitySystems[activityType] = activitySystem;
 
             Debug.Log($"📍 {activityType} Activity Center initialized");
+        }
+
+        private IActivityMiniGame CreateFallbackActivity(ActivityType activityType)
+        {
+            Debug.LogWarning($"⚠️ Activity type {activityType} not fully implemented, using fallback adventure activity");
+            return new AdventureActivity();
         }
 
         #endregion
