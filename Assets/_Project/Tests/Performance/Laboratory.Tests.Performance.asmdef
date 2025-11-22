@@ -12,6 +12,8 @@
         "Laboratory.Core.Events",
         "Laboratory.Core.Enums",
         "Laboratory.Chimera",
+        "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.ECS",
         "Laboratory.Shared"
     ],
     "includePlatforms": [],
