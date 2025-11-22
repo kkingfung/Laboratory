@@ -35,6 +35,8 @@ namespace Laboratory.Subsystems.AIDirector
 
         public async Task<bool> InitializeAsync()
         {
+            await Task.CompletedTask; // Synchronous initialization, but async for interface compatibility
+
             try
             {
                 _playerNarratives = new Dictionary<string, List<NarrativeEvent>>();

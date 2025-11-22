@@ -1266,6 +1266,11 @@ namespace Laboratory.Subsystems.Companion
         public void StartDeviceDiscovery()
         {
             if (!_isInitialized) return;
+            if (_isDiscovering)
+            {
+                UnityEngine.Debug.LogWarning("[CompanionAppService] Device discovery already in progress");
+                return;
+            }
 
             _isDiscovering = true;
             UnityEngine.Debug.Log("[CompanionAppService] Started device discovery");
