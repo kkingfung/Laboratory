@@ -451,14 +451,14 @@ namespace Laboratory.Core.Platform
         // Additional utility methods would be implemented here...
         private void RegisterAllGenreManagers() { }
         private void SetupCrossGenreTransfers() { }
-        private async Task<UniversalGameElement> GetGeneticElementFromGenre(string elementId, GameGenre genre) { return null; }
-        private async Task<UniversalGenetics> AdaptGeneticsForGenre(UniversalGenetics genetics, GameGenre from, GameGenre to) { return genetics; }
+        private Task<UniversalGameElement> GetGeneticElementFromGenre(string elementId, GameGenre genre) { return Task.FromResult<UniversalGameElement>(null); }
+        private Task<UniversalGenetics> AdaptGeneticsForGenre(UniversalGenetics genetics, GameGenre from, GameGenre to) { return Task.FromResult(genetics); }
         private UniversalGenetics ApplyTransferEfficiency(UniversalGenetics genetics, float efficiency) { return genetics; }
-        private async Task<UniversalGameElement> CreateGeneticElementInGenre(UniversalGenetics genetics, GameGenre genre) { return null; }
+        private Task<UniversalGameElement> CreateGeneticElementInGenre(UniversalGenetics genetics, GameGenre genre) { return Task.FromResult<UniversalGameElement>(null); }
         private void RecordCrossGenreTransfer(string elementId, GameGenre from, GameGenre to, float efficiency) { }
         private Dictionary<GameGenre, Dictionary<GameGenre, float>> GenerateGenreCompatibilityMatrix() { return new(); }
-        private async Task EnableDirectGeneticSharing(GameGenre source, GameGenre target) { }
-        private async Task ApplyEducationalFeatures(GameGenre genre, GenreEducationalFeatures features) { }
+        private Task EnableDirectGeneticSharing(GameGenre source, GameGenre target) { return Task.CompletedTask; }
+        private Task ApplyEducationalFeatures(GameGenre genre, GenreEducationalFeatures features) { return Task.CompletedTask; }
         private string GenerateFPSEducationalContent(string gameplayEvent) { return ""; }
         private string GenerateRacingEducationalContent(string gameplayEvent) { return ""; }
         private string GeneratePuzzleEducationalContent(string gameplayEvent) { return ""; }
