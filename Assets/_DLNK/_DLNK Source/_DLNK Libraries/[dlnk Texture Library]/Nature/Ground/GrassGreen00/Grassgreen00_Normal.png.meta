@@ -48,7 +48,7 @@ TextureImporter:
   spritePixelsToUnits: 100
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
-  alphaUsage: 1
+  alphaUsage: 2
   alphaIsTransparency: 0
   spriteTessellationDetail: -1
   textureType: 1
@@ -126,3 +126,10 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 178531
+  packageName: Mediterranean Nature Pack
+  packageVersion: 1.1.2
+  assetPath: Assets/_DLNK/_DLNK Source/_DLNK Libraries/[dlnk Texture Library]/Nature/Ground/GrassGreen00/Grassgreen00_Normal.png
+  uploadId: 571524

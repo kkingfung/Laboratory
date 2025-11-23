@@ -4,7 +4,14 @@ ShaderImporter:
   externalObjects: {}
   defaultTextures: []
   nonModifiableTextures: []
-  preprocessorOverride: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 178531
+  packageName: Mediterranean Nature Pack
+  packageVersion: 1.1.2
+  assetPath: Assets/_DLNK/_DLNK Source/_DLNK Libraries/[dlnk Shader Library]/[ASE
+    Shaders]/Nature/LeavesAnim.shader
+  uploadId: 571524

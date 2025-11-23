@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 3118ae36a9e0d174688426e341e3ad54
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 178531
+  packageName: Mediterranean Nature Pack
+  packageVersion: 1.1.2
+  assetPath: Assets/_DLNK/_DLNK Source/_DLNK Libraries/[dlnk Script Library]/Basic
+    Scripts/Misc/CameraSwitchKey.cs
+  uploadId: 571524

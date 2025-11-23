@@ -17,6 +17,7 @@ public class CharControlSimple : MonoBehaviour
     public GameObject LightFocus;
     public bool CameraFollow = true;
     public KeyCode FollowKey = KeyCode.K;
+    public KeyCode UnableGravity = KeyCode.G;
     [Header("[Char Source]")]
     public CharacterController Charcon;
     public GameObject jumpEffect;
@@ -24,6 +25,7 @@ public class CharControlSimple : MonoBehaviour
     public GameObject CharacterMesh;
     private Vector3 CamRot;
     private Vector3 Jander = new Vector3(0f,0f,0f);
+    private float startgrav;
 
     // Start is called before the first frame update
     void Start()
@@ -35,6 +37,8 @@ public class CharControlSimple : MonoBehaviour
         }
         // Get original transform
         CamRot = Camera.transform.eulerAngles;
+        // Get start gravity
+        startgrav = Gravity;
     }
 
     // Update is called once per frame
@@ -100,5 +104,8 @@ public class CharControlSimple : MonoBehaviour
             if (LightFocus.activeInHierarchy) LightFocus.SetActive(false);
             else LightFocus.SetActive(true);
         }
+        // Check Gravity
+        if (Input.GetKeyUp(UnableGravity) && (Gravity != 0f)) Gravity = 0;
+        else { if (Input.GetKeyUp(UnableGravity) && (Gravity == 0f)) Gravity = startgrav; }
     }
 }

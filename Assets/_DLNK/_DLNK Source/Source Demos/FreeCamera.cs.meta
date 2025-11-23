@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 320e26f792bc2924391a8abdb1f032c2
-timeCreated: 1483536780
+timeCreated: 1484163471
 licenseType: Store
 MonoImporter:
   serializedVersion: 2
@@ -10,3 +10,10 @@ MonoImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 178531
+  packageName: Mediterranean Nature Pack
+  packageVersion: 1.1.2
+  assetPath: Assets/_DLNK/_DLNK Source/Source Demos/FreeCamera.cs
+  uploadId: 571524
