@@ -1,0 +1,125 @@
+fileFormatVersion: 2
+guid: 61276c60dd9c5cb448688f48aea76ad5
+timeCreated: 1510157061
+licenseType: Store
+ModelImporter:
+  serializedVersion: 19
+  fileIDToRecycleName:
+    100000: CarvedBlock00LOW
+    100002: CarvedBlock01LOW
+    100004: CarvedBlock02LOW
+    100006: CarvedBlock03LOW
+    100008: //RootNode
+    100010: AC_Column00
+    100012: AC_CarvedBlock00
+    100014: AC_CarvedBlock01
+    100016: AC_CarvedBlock02
+    100018: AC_CarvedBlock03
+    400000: CarvedBlock00LOW
+    400002: CarvedBlock01LOW
+    400004: CarvedBlock02LOW
+    400006: CarvedBlock03LOW
+    400008: //RootNode
+    400010: AC_Column00
+    400012: AC_CarvedBlock00
+    400014: AC_CarvedBlock01
+    400016: AC_CarvedBlock02
+    400018: AC_CarvedBlock03
+    2300000: CarvedBlock00LOW
+    2300002: CarvedBlock01LOW
+    2300004: CarvedBlock02LOW
+    2300006: CarvedBlock03LOW
+    2300008: AC_Column00
+    2300010: AC_CarvedBlock00
+    2300012: AC_CarvedBlock01
+    2300014: AC_CarvedBlock02
+    2300016: AC_CarvedBlock03
+    3300000: CarvedBlock00LOW
+    3300002: CarvedBlock01LOW
+    3300004: CarvedBlock02LOW
+    3300006: CarvedBlock03LOW
+    3300008: AC_Column00
+    3300010: AC_CarvedBlock00
+    3300012: AC_CarvedBlock01
+    3300014: AC_CarvedBlock02
+    3300016: AC_CarvedBlock03
+    4300000: CarvedBlock00LOW
+    4300002: CarvedBlock01LOW
+    4300004: CarvedBlock02LOW
+    4300006: CarvedBlock03LOW
+    4300008: AC_Column00
+    4300010: AC_CarvedBlock00
+    4300012: AC_CarvedBlock01
+    4300014: AC_CarvedBlock02
+    4300016: AC_CarvedBlock03
+    9500000: //RootNode
+  materials:
+    importMaterials: 0
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
