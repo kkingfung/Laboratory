@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: d144294b7b8f828468bafe13fcab7f4c
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 178531
+  packageName: Mediterranean Nature Pack
+  packageVersion: 1.1.2
+  assetPath: Assets/_DLNK/Nature Pack - Mediterranean/Scenes/Demo Coast/Source/Mediterranean
+    Demo/OcclusionCullingData.asset
+  uploadId: 571524

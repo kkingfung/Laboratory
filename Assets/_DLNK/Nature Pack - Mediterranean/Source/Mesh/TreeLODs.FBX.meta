@@ -1,0 +1,199 @@
+fileFormatVersion: 2
+guid: 7edd19350ed101b40bc44fda90aa146f
+ModelImporter:
+  serializedVersion: 19301
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CypressTreeLOD00
+    second: {fileID: 2100000, guid: 8df483c1ba23cb9458ad140e24094b8c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CypressTreeLOD00b
+    second: {fileID: 2100000, guid: 8108773828998d548a646ea257c17d37, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CypressTreeLOD00c
+    second: {fileID: 2100000, guid: 3a33f04928dbbfe4d943cd44ef9571cb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CypressTreeLOD00d
+    second: {fileID: 2100000, guid: 43317fafb57ce93468e01a4274d17da7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CypressTreeLOD00trunk
+    second: {fileID: 2100000, guid: c15a237d68dee724089fccebb2bccdfe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DeadTreeLOD00
+    second: {fileID: 2100000, guid: 1bdbf514b4389654288e5986b1fe8849, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: DeadTreeLOD01
+    second: {fileID: 2100000, guid: 87ba7eeecc632144883cefb42ed63513, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: FigTreeLOD00
+    second: {fileID: 2100000, guid: 999402c24c8d7df44b5d2c327a76fa3f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: OliveTreeLOD00
+    second: {fileID: 2100000, guid: 4a56d1ceddd9e3347b4f2e47bbd3d82e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: OliveTreeLOD00b
+    second: {fileID: 2100000, guid: 92974f76dd2c6a747858eda571ce3df5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: OliveTreeLOD00c
+    second: {fileID: 2100000, guid: 13256237c55b5234b98eacc894f8109b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PoplarTreeLOD00
+    second: {fileID: 2100000, guid: c8ebba0c3ae57704dbcdf31fe968b5dd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PoplarTreeLOD00b
+    second: {fileID: 2100000, guid: 14f1bbef84f878d4faf9b3798512f664, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PoplarTreeLOD00c
+    second: {fileID: 2100000, guid: 53390b08443b2bc4dab3aa3b39da52f4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PoplarTreeLOD00d
+    second: {fileID: 2100000, guid: 5504e6e85d99b0b4d96879ef774c4a19, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PoplarTreeLOD00e
+    second: {fileID: 2100000, guid: 8ccf3b877102de7428906e7fb9af5723, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PoplarTreeLOD00f
+    second: {fileID: 2100000, guid: 21c5ded468c73e744a34001bbe7d33d9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PoplarTreeLOD00g
+    second: {fileID: 2100000, guid: e15a439773e78f346b0ca502294f9a04, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PoplarTreeLOD00h
+    second: {fileID: 2100000, guid: 7ca4c2bb2a5596a4bbcfeb13878cd8ee, type: 2}
+  materials:
+    materialImportMode: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 0.2
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 0.2
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 178531
+  packageName: Mediterranean Nature Pack
+  packageVersion: 1.1.2
+  assetPath: Assets/_DLNK/Nature Pack - Mediterranean/Source/Mesh/TreeLODs.FBX
+  uploadId: 571524

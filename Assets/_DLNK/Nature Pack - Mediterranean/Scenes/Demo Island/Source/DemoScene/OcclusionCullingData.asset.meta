@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 11c33b8e3292b2f4396eefd262ea9bff
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 178531
+  packageName: Mediterranean Nature Pack
+  packageVersion: 1.1.2
+  assetPath: Assets/_DLNK/Nature Pack - Mediterranean/Scenes/Demo Island/Source/DemoScene/OcclusionCullingData.asset
+  uploadId: 571524
