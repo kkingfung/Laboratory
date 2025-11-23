@@ -25,16 +25,14 @@ namespace Laboratory.Models.ECS.Systems
             var ecb = ecbSingleton.CreateCommandBuffer(World.Unmanaged);
 
             // Query for entities with PlayerStateComponent and check if they're dead
-            Entities
-                .WithAll<PlayerStateComponent>()
-                .ForEach((Entity entity, in PlayerStateComponent state) =>
+            foreach (var (state, entity) in SystemAPI.Query<RefRO<PlayerStateComponent>>().WithEntityAccess())
+            {
+                // Check if player is dead and schedule for destruction
+                if (!state.ValueRO.IsAlive)
                 {
-                    // Check if player is dead and schedule for destruction
-                    if (!state.IsAlive)
-                    {
-                        ecb.DestroyEntity(entity);
-                    }
-                }).Schedule();
+                    ecb.DestroyEntity(entity);
+                }
+            }
         }
 
         #endregion

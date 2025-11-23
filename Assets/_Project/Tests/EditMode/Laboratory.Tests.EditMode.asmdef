@@ -9,7 +9,7 @@
         "Laboratory.Core.Enums",
         "Laboratory.Core.Activities",
         "Laboratory.Core.ECS",
-        "Laboratory.Chimera.All",
+        "Laboratory.Chimera",
         "Laboratory.Shared",
         "Unity.Entities",
         "Unity.Collections",

@@ -308,7 +308,7 @@ namespace Laboratory.Core.Memory
         private void Awake()
         {
             // Singleton pattern
-            if (FindObjectsOfType<ChimeraMemoryPoolManager>().Length > 1)
+            if (FindObjectsByType<ChimeraMemoryPoolManager>(FindObjectsSortMode.None).Length > 1)
             {
                 DestroyImmediate(gameObject);
                 return;

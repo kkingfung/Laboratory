@@ -12,7 +12,7 @@
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Events",
         "Laboratory.Core.Enums",
-        "Laboratory.Chimera.All",
+        "Laboratory.Chimera",
         "Laboratory.Shared"
     ],
     "includePlatforms": [],

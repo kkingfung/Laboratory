@@ -58,7 +58,7 @@ namespace Laboratory.Core.Platform
 
         private void Start()
         {
-            InitializePlatformAsync();
+            _ = InitializePlatformAsync();
         }
 
         private async Task InitializePlatformAsync()

@@ -392,7 +392,7 @@ namespace Laboratory.Core.Health.Components
 
         #region Network RPCs
 
-        [ServerRpc(RequireOwnership = true)]
+        [Rpc(SendTo.Server, RequireOwnership = true)]
         private void TakeDamageServerRpc(float amount, int damageType, bool canBeBlocked, bool canBeDodged, 
             bool isCritical, Vector3 hitPoint, Vector3 direction, float knockbackForce, int damageId)
         {
@@ -410,7 +410,7 @@ namespace Laboratory.Core.Health.Components
             ApplyDamageOnServer(damageRequest);
         }
 
-        [ServerRpc(RequireOwnership = true)]
+        [Rpc(SendTo.Server, RequireOwnership = true)]
         private void HealServerRpc(int amount)
         {
             ApplyHealingOnServer(amount);
