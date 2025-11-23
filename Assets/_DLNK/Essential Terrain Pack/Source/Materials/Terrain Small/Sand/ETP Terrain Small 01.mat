@@ -1,0 +1,112 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_Name: ETP Terrain Small 01
+  m_Shader: {fileID: 4800000, guid: 02143495406a2c34d8ffbb7175b730ea, type: 3}
+  m_ShaderKeywords: _DETAIL_MULX2 _METALLICGLOSSMAP _NORMALMAP
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 93a682c69ae868c48a8a04e7d3302d43, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 2800000, guid: 5f2150f9fd0fc6549a37e18e83402ffc, type: 3}
+        m_Scale: {x: 2, y: 2}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 2800000, guid: 154c3d73431a57a4b87777b175bf7b45, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 2800000, guid: a9a9a9870f5dc244cbaef14662a9e5d2, type: 3}
+        m_Scale: {x: 2, y: 2}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: e90505c936e30b34d8621f9a2b3920b6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 2800000, guid: 8df92fbf069c817458a7ed39b3aaa6ca, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OpacityMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SmoothnessMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TopDetail:
+        m_Texture: {fileID: 2800000, guid: 45257b258d2fee0469285ed6b9329441, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TopNormal:
+        m_Texture: {fileID: 2800000, guid: 31edad2c5dfcc5d43ac236443b23723b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _AffectAO: -0.64
+    - _BumpScale: 1
+    - _Cutoff: 0.5
+    - _DetailAffected: 1
+    - _DetailMixFactor: 1
+    - _DetailNormalMapScale: 1
+    - _DetailTiling: 10
+    - _DiffuseAO: 0.92
+    - _DiffuseAOMask: 1
+    - _DstBlend: 0
+    - _EmissionLM: 0
+    - _Fresnel: 2
+    - _Glossiness: 0
+    - _InvertAOMask: 0
+    - _InvertTopBottom: 0
+    - _LightWrap: -0.9
+    - _MetalAlphaGloss: 0
+    - _Metallic: 0
+    - _MixFactor: 1
+    - _Mode: 0
+    - _OcclusionStrenght: 1
+    - _OcclusionStrength: 1
+    - _Parallax: 0.0078
+    - _RimPower: 0.4
+    - _SrcBlend: 1
+    - _TopBottomBumpScale: 1
+    - _TopBottomMult: 0.73
+    - _TopBottomPower: 28.97
+    - _TopMetallic: 0.6
+    - _TopSmoothness: 0.2
+    - _UVSec: 0
+    - _UseAlpha: 0
+    - _ZWrite: 1
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _LightWarpTint: {r: 0.102941155, g: 0.33184567, b: 1, a: 1}
+    - _RimColor: {r: 0.7058823, g: 0.6971482, b: 0.38927332, a: 1}
+    - _TopTint: {r: 1, g: 1, b: 1, a: 1}

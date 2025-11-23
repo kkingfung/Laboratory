@@ -1,0 +1,130 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ETP Terrain Small 02
+  m_Shader: {fileID: 4800000, guid: 516e1d638296ed84a8111eeac2e687e3, type: 3}
+  m_ShaderKeywords: _DETAIL_MULX2 _METALALPHAGLOSS_ON _NORMALMAP
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlbedoTop:
+        m_Texture: {fileID: 2800000, guid: 526f7c6a6c6b2304cab7cb94c27dc5a2, type: 3}
+        m_Scale: {x: 5, y: 5}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 76fb06b1e158a574f93dd99bcefd447c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMapTop:
+        m_Texture: {fileID: 2800000, guid: 26fa83e91aafbc741959f6e479975cdd, type: 3}
+        m_Scale: {x: 5, y: 5}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 2800000, guid: fa48f3eb40f9df04ab0291a04f40a28f, type: 3}
+        m_Scale: {x: 6, y: 6}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 2800000, guid: 154c3d73431a57a4b87777b175bf7b45, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 2800000, guid: 6532b18624da9e8449484fb3bb1a621a, type: 3}
+        m_Scale: {x: 6, y: 6}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 051528f5717ab1e40abd92aa5a5badef, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 2800000, guid: 514e389ed09289c42830d6327c839f4b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetalnessTop:
+        m_Texture: {fileID: 2800000, guid: b916cc513d9a7fb43bc4048ad4ff4bc6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 2800000, guid: 154c3d73431a57a4b87777b175bf7b45, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SmoothnessMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TopDetail:
+        m_Texture: {fileID: 2800000, guid: 45257b258d2fee0469285ed6b9329441, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TopNormal:
+        m_Texture: {fileID: 2800000, guid: 31edad2c5dfcc5d43ac236443b23723b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _AffectAO: -1.2
+    - _Ammount: 0.87
+    - _BumpScale: 1
+    - _BumpScaleTop: 1
+    - _Cutoff: 0.5
+    - _DetailAffected: 0.36
+    - _DetailMixFactor: 0.97
+    - _DetailNormalMapScale: 0.68
+    - _DetailTiling: 9
+    - _DiffuseAO: 2.1
+    - _DiffuseAOMask: 0.62
+    - _DstBlend: 0
+    - _EmissionLM: 0
+    - _Fresnel: 2
+    - _Glossiness: 0.24
+    - _GlossinessTop: 0.5
+    - _InvertAOMask: 0
+    - _InvertTopBottom: 0
+    - _LightWrap: 0
+    - _MetalAlphaGloss: 1
+    - _Metallic: 0
+    - _MetallicTop: 0
+    - _Mode: 0
+    - _OcclusionStrenght: 1
+    - _OcclusionStrength: 1
+    - _OcclusionTop: 0
+    - _Parallax: 0.0078
+    - _RimPower: 0
+    - _SrcBlend: 1
+    - _TopBottomBumpScale: 1
+    - _TopBottomMult: 29.31
+    - _TopBottomPower: 1.86
+    - _TopMetallic: 0
+    - _TopSmoothness: 0
+    - _UVSec: 0
+    - _ZWrite: 1
+    - __dirty: 1
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorTop: {r: 0.4528302, g: 0.4528302, b: 0.4528302, a: 0}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _LightWarpTint: {r: 0.75735295, g: 0.7458314, b: 0.5902898, a: 1}
+    - _RimColor: {r: 0.75735295, g: 0.737075, b: 0.6237024, a: 1}
+    - _TopTint: {r: 1, g: 1, b: 1, a: 1}

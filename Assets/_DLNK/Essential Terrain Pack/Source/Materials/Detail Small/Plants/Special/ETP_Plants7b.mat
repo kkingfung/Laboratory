@@ -1,0 +1,90 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ETP_Plants7b
+  m_Shader: {fileID: 4800000, guid: 1943d357ba4d6c8438f2b80309da5570, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 5
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 929c55b318650cd4caa83ca88b5286c6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 48a2917b17b0f8b46a45f4d8a073b76f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 2800000, guid: 48a2917b17b0f8b46a45f4d8a073b76f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OpacityMap:
+        m_Texture: {fileID: 2800000, guid: 48a2917b17b0f8b46a45f4d8a073b76f, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SmoothnessMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _WorldNoise:
+        m_Texture: {fileID: 2800000, guid: c3715659aaeb1604090700e84c4054cb, type: 3}
+        m_Scale: {x: 0.01, y: 0.01}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _AnimIntensity: 1
+    - _BumpScale: 1
+    - _Cutoff: 0.43
+    - _EmissionLM: 0
+    - _Fresnel: 2
+    - _Glossiness: 0
+    - _LenghtAnim: 1
+    - _LengthOffset: 0
+    - _LightWrap: 0
+    - _MetalAlphaGloss: 0
+    - _Metallic: 0
+    - _MovementAOMask: 1.72
+    - _NoiseScale: 1
+    - _Noisespeed: 1
+    - _NormalScale: 0
+    - _OcclusionStrenght: 1
+    - _RimPower: 0
+    - _Smoothness: 0
+    - _UpDownVelocity: 1
+    - _UseAlpha: 0
+    - _WeightAnim: 0.18
+    - _WeightOffset: 0
+    - _WorldNoiseVelocity: 20
+    - __dirty: 1
+    m_Colors:
+    - _Color: {r: 0.07807838, g: 0.2205882, b: 0.009731829, a: 1}
+    - _ColorA: {r: 0.5943396, g: 0.5943396, b: 0.5943396, a: 0}
+    - _ColorB: {r: 1, g: 1, b: 1, a: 0}
+    - _ColorFade: {r: 0.11742996, g: 0.6397059, b: 0.098778136, a: 1}
+    - _EmissionColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+    - _MotionValue: {r: 1, g: 1, b: 0, a: 0}
+    - _RimColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
