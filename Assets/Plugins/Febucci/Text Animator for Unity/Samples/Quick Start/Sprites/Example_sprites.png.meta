@@ -1,12 +1,5 @@
 fileFormatVersion: 2
 guid: 4dffe6eab57ca4e4ba2f967307bd1c29
-AssetOrigin:
-  serializedVersion: 1
-  productId: 341308
-  packageName: Text Animator for Unity | UI Toolkit and Text Mesh Pro
-  packageVersion: 3.0.0
-  assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Samples/Quick Start/Sprites/Example_sprites.png
-  uploadId: 821622
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -43,7 +36,7 @@ TextureImporter:
       213: 9166712023175037457
     second: foliage_2
   externalObjects: {}
-  serializedVersion: 13
+  serializedVersion: 11
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -60,12 +53,11 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
-    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
   vTOnly: 0
-  ignoreMipmapLimit: 0
+  ignoreMasterTextureLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -104,10 +96,8 @@ TextureImporter:
   textureFormatSet: 0
   ignorePngGamma: 0
   applyGammaDecoding: 0
-  swizzle: 50462976
-  cookieLightType: 1
   platformSettings:
-  - serializedVersion: 4
+  - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 1024
     resizeAlgorithm: 0
@@ -117,10 +107,9 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
-    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
+  - serializedVersion: 3
     buildTarget: Standalone
     maxTextureSize: 1024
     resizeAlgorithm: 0
@@ -130,7 +119,6 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
-    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
@@ -147,7 +135,6 @@ TextureImporter:
       alignment: 9
       pivot: {x: 0.45761597, y: 0.06519315}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
@@ -169,7 +156,6 @@ TextureImporter:
       alignment: 9
       pivot: {x: 0.51184386, y: 0.04596246}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
@@ -191,7 +177,6 @@ TextureImporter:
       alignment: 9
       pivot: {x: 0.5000006, y: 0.055941995}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
@@ -213,7 +198,6 @@ TextureImporter:
       alignment: 9
       pivot: {x: 0.505643, y: 0.06142858}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
@@ -235,7 +219,6 @@ TextureImporter:
       alignment: 9
       pivot: {x: 0.49346823, y: 0.06790024}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
@@ -257,7 +240,6 @@ TextureImporter:
       alignment: 9
       pivot: {x: 0.49394536, y: 0.07286704}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
@@ -279,7 +261,6 @@ TextureImporter:
       alignment: 9
       pivot: {x: 0.48316002, y: 0.06293368}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
@@ -301,7 +282,6 @@ TextureImporter:
       alignment: 9
       pivot: {x: 0.47071308, y: 0.05999434}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
@@ -323,7 +303,6 @@ TextureImporter:
       alignment: 9
       pivot: {x: 0.50298166, y: 0.06253005}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
@@ -345,7 +324,6 @@ TextureImporter:
       alignment: 9
       pivot: {x: 0.5266284, y: 0.16375333}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
@@ -367,7 +345,6 @@ TextureImporter:
       alignment: 9
       pivot: {x: 0.54126304, y: 0.08308223}
       border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
       outline: []
       physicsShape: []
       tessellationDetail: 0
@@ -379,7 +356,6 @@ TextureImporter:
       edges: []
       weights: []
     outline: []
-    customData: 
     physicsShape: []
     bones: []
     spriteID: 5e97eb03825dee720800000000000000
@@ -389,22 +365,28 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    spriteCustomMetadata:
-      entries: []
     nameFileIdTable:
-      character_sprites_0: 3351748369286481944
-      character_sprites_1: 567328745045655870
-      character_sprites_2: 2750705142841656183
-      character_sprites_3: -7053939661997144990
       character_sprites_4: 1892523670701107293
-      character_sprites_5: 405182146505222058
+      character_sprites_1: 567328745045655870
       character_sprites_6: 2785564300681498144
-      character_sprites_7: 6645427384175290001
-      crate_0: 834852548192020694
-      foliage_1: -7061757903698255618
+      character_sprites_5: 405182146505222058
       foliage_2: 9166712023175037457
-  mipmapLimitGroupName: 
+      character_sprites_7: 6645427384175290001
+      character_sprites_3: -7053939661997144990
+      character_sprites_2: 2750705142841656183
+      foliage_1: -7061757903698255618
+      character_sprites_0: 3351748369286481944
+      crate_0: 834852548192020694
+  spritePackingTag: 
   pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 341308
+  packageName: Text Animator for Unity | UI Toolkit and Text Mesh Pro
+  packageVersion: 3.0.0
+  assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Samples/Quick Start/Sprites/Example_sprites.png
+  uploadId: 821622

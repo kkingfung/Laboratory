@@ -1,5 +1,10 @@
 fileFormatVersion: 2
 guid: 00c3ff69a8133b34c9df87ba6dd26bf2
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -7,8 +12,3 @@ AssetOrigin:
   packageVersion: 3.0.0
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Samples/Quick Start/Font/OFL.txt
   uploadId: 821622
-TextScriptImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 

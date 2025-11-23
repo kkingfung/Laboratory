@@ -1,5 +1,6 @@
 fileFormatVersion: 2
 guid: 1fc3d995535f4f26bedfe6138bae00aa
+timeCreated: 1760264707
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -7,12 +8,3 @@ AssetOrigin:
   packageVersion: 3.0.0
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Scripts/Runtime/Scriptables/Animations/Effects/Built-in/Curves/LinearCurve.cs
   uploadId: 821622
-MonoImporter:
-  externalObjects: {}
-  serializedVersion: 2
-  defaultReferences: []
-  executionOrder: 0
-  icon: {instanceID: 0}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 

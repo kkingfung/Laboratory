@@ -1,5 +1,10 @@
 fileFormatVersion: 2
 guid: 2a2023c41f62247d7b19e36018698d2c
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -8,8 +13,3 @@ AssetOrigin:
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Samples/Quick Start/Prefabs/Canvas
     Examples TMPro.prefab
   uploadId: 821622
-PrefabImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 

@@ -1,5 +1,6 @@
 fileFormatVersion: 2
 guid: df0bafd7682447798f93f52f77cffe47
+timeCreated: 1762272276
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -7,12 +8,3 @@ AssetOrigin:
   packageVersion: 3.0.0
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Scripts/Runtime/Components/Typewriter/_Core/UnityTypewriterSettings.cs
   uploadId: 821622
-MonoImporter:
-  externalObjects: {}
-  serializedVersion: 2
-  defaultReferences: []
-  executionOrder: 0
-  icon: {instanceID: 0}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 

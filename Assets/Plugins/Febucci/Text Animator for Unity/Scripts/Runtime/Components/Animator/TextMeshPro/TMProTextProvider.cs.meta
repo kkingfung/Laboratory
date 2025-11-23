@@ -1,5 +1,6 @@
 fileFormatVersion: 2
 guid: 8e7e8020139b459eb1cd0f34df49644d
+timeCreated: 1759588758
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -7,12 +8,3 @@ AssetOrigin:
   packageVersion: 3.0.0
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Scripts/Runtime/Components/Animator/TextMeshPro/TMProTextProvider.cs
   uploadId: 821622
-MonoImporter:
-  externalObjects: {}
-  serializedVersion: 2
-  defaultReferences: []
-  executionOrder: 0
-  icon: {instanceID: 0}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
