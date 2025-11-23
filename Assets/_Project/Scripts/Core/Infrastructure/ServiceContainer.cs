@@ -20,7 +20,7 @@ namespace Laboratory.Core.Infrastructure
             {
                 if (_instance == null)
                 {
-                    _instance = FindObjectOfType<ServiceContainer>();
+                    _instance = FindFirstObjectByType<ServiceContainer>();
                     if (_instance == null)
                     {
                         var go = new GameObject("ServiceContainer");

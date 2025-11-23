@@ -18,12 +18,10 @@ namespace Laboratory.Models.ECS.Systems
         /// </summary>
         protected override void OnUpdate()
         {
-            Entities
-                .WithAll<DeadTag>()
-                .ForEach((Entity entity, ref DeathAnimationTrigger deathAnimTrigger) =>
-                {
-                    ProcessDeathAnimation(entity, ref deathAnimTrigger);
-                }).WithoutBurst().Run();
+            foreach (var (deathAnimTrigger, entity) in SystemAPI.Query<RefRW<DeathAnimationTrigger>>().WithAll<DeadTag>().WithEntityAccess())
+            {
+                ProcessDeathAnimation(entity, ref deathAnimTrigger.ValueRW);
+            }
         }
 
         #endregion

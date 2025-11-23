@@ -296,7 +296,6 @@ namespace Laboratory.Core.Infrastructure
             int totalAccesses)
         {
             var expectedTime = 0f;
-            var cumulativeProbability = 0f;
 
             var sortedPatterns = accessPatterns
                 .OrderByDescending(kvp => kvp.Value)

@@ -13,7 +13,6 @@ namespace Laboratory.Infrastructure.Core
     {
         [Header("Consciousness Interface Configuration")]
         [SerializeField] private float consciousnessResonanceFrequency = 40.0f; // Gamma wave binding frequency
-        [SerializeField] private float realityModificationThreshold = 0.99999f;
         [SerializeField] private bool enableRealityProgramming = true;
         [SerializeField] private bool allowTemporalOptimization = false; // Extremely dangerous
 
