@@ -1,0 +1,870 @@
+fileFormatVersion: 2
+guid: 263f22bad8b11644e96d08e5885ce65e
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Box002
+    100002: Box004
+    100004: Box005
+    100006: Cylinder002
+    100008: Cylinder003
+    100010: Cylinder004
+    100012: Cylinder005
+    100014: //RootNode
+    100016: Door
+    100018: Door001
+    100020: Door002
+    100022: Door003
+    100024: Light
+    100026: Light001
+    100028: Light002
+    100030: Light003
+    100032: Light004
+    100034: Light005
+    100036: Object001
+    100038: Object002
+    100040: Object003
+    100042: Object004
+    100044: Object005
+    100046: Object006
+    100048: Object007
+    100050: Object008
+    100052: Object009
+    100054: Object010
+    100056: Object011
+    100058: Object012
+    100060: Object013
+    100062: Object014
+    100064: Object015
+    100066: Object016
+    100068: Object017
+    100070: Object018
+    100072: Object019
+    100074: Object020
+    100076: Object021
+    100078: Object022
+    100080: Object023
+    100082: Plane002
+    100084: TAG
+    100086: TAG_HolderBase
+    100088: TagBase
+    100090: Light006
+    100092: Light007
+    100094: Light008
+    100096: Object024
+    100098: Object025
+    100100: Object026
+    100102: Object027
+    100104: Object028
+    100106: Object029
+    100108: Object030
+    100110: Object031
+    100112: Object032
+    100114: Object033
+    100116: Object034
+    100118: Object035
+    100120: RobotArm
+    100122: RobotArm001
+    100124: RobotArm002
+    100126: RobotArm003
+    100128: Rotating Parts
+    100130: TubeHI
+    100132: TubeLOW
+    100134: BaseRound
+    100136: BaseRoundLod
+    100138: Compass
+    100140: TagHolder
+    100142: GlowLight
+    400000: Box002
+    400002: Box004
+    400004: Box005
+    400006: Cylinder002
+    400008: Cylinder003
+    400010: Cylinder004
+    400012: Cylinder005
+    400014: //RootNode
+    400016: Door
+    400018: Door001
+    400020: Door002
+    400022: Door003
+    400024: Light
+    400026: Light001
+    400028: Light002
+    400030: Light003
+    400032: Light004
+    400034: Light005
+    400036: Object001
+    400038: Object002
+    400040: Object003
+    400042: Object004
+    400044: Object005
+    400046: Object006
+    400048: Object007
+    400050: Object008
+    400052: Object009
+    400054: Object010
+    400056: Object011
+    400058: Object012
+    400060: Object013
+    400062: Object014
+    400064: Object015
+    400066: Object016
+    400068: Object017
+    400070: Object018
+    400072: Object019
+    400074: Object020
+    400076: Object021
+    400078: Object022
+    400080: Object023
+    400082: Plane002
+    400084: TAG
+    400086: TAG_HolderBase
+    400088: TagBase
+    400090: Light006
+    400092: Light007
+    400094: Light008
+    400096: Object024
+    400098: Object025
+    400100: Object026
+    400102: Object027
+    400104: Object028
+    400106: Object029
+    400108: Object030
+    400110: Object031
+    400112: Object032
+    400114: Object033
+    400116: Object034
+    400118: Object035
+    400120: RobotArm
+    400122: RobotArm001
+    400124: RobotArm002
+    400126: RobotArm003
+    400128: Rotating Parts
+    400130: TubeHI
+    400132: TubeLOW
+    400134: BaseRound
+    400136: BaseRoundLod
+    400138: Compass
+    400140: TagHolder
+    400142: GlowLight
+    2300000: Box002
+    2300002: Box004
+    2300004: Box005
+    2300006: Cylinder002
+    2300008: Cylinder003
+    2300010: Cylinder004
+    2300012: Cylinder005
+    2300014: Light
+    2300016: Light001
+    2300018: Light002
+    2300020: Light003
+    2300022: Light004
+    2300024: Light005
+    2300026: Object001
+    2300028: Object002
+    2300030: Object003
+    2300032: Object004
+    2300034: Object005
+    2300036: Object006
+    2300038: Object007
+    2300040: Object008
+    2300042: Object009
+    2300044: Object010
+    2300046: Object011
+    2300048: Object012
+    2300050: Object013
+    2300052: Object014
+    2300054: Object015
+    2300056: Object016
+    2300058: Object017
+    2300060: Object018
+    2300062: Object019
+    2300064: Object020
+    2300066: Object021
+    2300068: Object022
+    2300070: Object023
+    2300072: Plane002
+    2300074: TAG
+    2300076: TAG_HolderBase
+    2300078: TagBase
+    2300080: Light006
+    2300082: Light007
+    2300084: Light008
+    2300086: Object024
+    2300088: Object025
+    2300090: Object026
+    2300092: Object027
+    2300094: Object028
+    2300096: Object029
+    2300098: Object030
+    2300100: Object031
+    2300102: Object032
+    2300104: Object033
+    2300106: Object034
+    2300108: Object035
+    2300110: TubeHI
+    2300112: TubeLOW
+    2300114: BaseRound
+    2300116: BaseRoundLod
+    2300118: Compass
+    2300120: GlowLight
+    3300000: Box002
+    3300002: Box004
+    3300004: Box005
+    3300006: Cylinder002
+    3300008: Cylinder003
+    3300010: Cylinder004
+    3300012: Cylinder005
+    3300014: Light
+    3300016: Light001
+    3300018: Light002
+    3300020: Light003
+    3300022: Light004
+    3300024: Light005
+    3300026: Object001
+    3300028: Object002
+    3300030: Object003
+    3300032: Object004
+    3300034: Object005
+    3300036: Object006
+    3300038: Object007
+    3300040: Object008
+    3300042: Object009
+    3300044: Object010
+    3300046: Object011
+    3300048: Object012
+    3300050: Object013
+    3300052: Object014
+    3300054: Object015
+    3300056: Object016
+    3300058: Object017
+    3300060: Object018
+    3300062: Object019
+    3300064: Object020
+    3300066: Object021
+    3300068: Object022
+    3300070: Object023
+    3300072: Plane002
+    3300074: TAG
+    3300076: TAG_HolderBase
+    3300078: TagBase
+    3300080: Light006
+    3300082: Light007
+    3300084: Light008
+    3300086: Object024
+    3300088: Object025
+    3300090: Object026
+    3300092: Object027
+    3300094: Object028
+    3300096: Object029
+    3300098: Object030
+    3300100: Object031
+    3300102: Object032
+    3300104: Object033
+    3300106: Object034
+    3300108: Object035
+    3300110: TubeHI
+    3300112: TubeLOW
+    3300114: BaseRound
+    3300116: BaseRoundLod
+    3300118: Compass
+    3300120: GlowLight
+    4300000: TAG_HolderBase
+    4300002: Light001
+    4300004: Light
+    4300006: Light002
+    4300008: Light003
+    4300010: Light004
+    4300012: Light005
+    4300014: Box002
+    4300016: Cylinder002
+    4300018: Object020
+    4300020: Cylinder003
+    4300022: Object021
+    4300024: TagBase
+    4300026: TAG
+    4300028: Object006
+    4300030: Plane002
+    4300032: Object007
+    4300034: Object001
+    4300036: Object016
+    4300038: Object017
+    4300040: Object018
+    4300042: Object019
+    4300044: Object012
+    4300046: Object013
+    4300048: Object014
+    4300050: Object015
+    4300052: Object002
+    4300054: Object003
+    4300056: Object004
+    4300058: Object005
+    4300060: Object008
+    4300062: Object009
+    4300064: Object010
+    4300066: Object011
+    4300068: Box005
+    4300070: Box004
+    4300072: Cylinder004
+    4300074: Object022
+    4300076: Cylinder005
+    4300078: Object023
+    4300080: Object028
+    4300082: Object029
+    4300084: Object030
+    4300086: Object031
+    4300088: Object032
+    4300090: Object033
+    4300092: Object034
+    4300094: Object035
+    4300096: Object024
+    4300098: Object025
+    4300100: Object026
+    4300102: Object027
+    4300104: Light006
+    4300106: Light007
+    4300108: Light008
+    4300110: TubeLOW
+    4300112: TubeHI
+    4300114: BaseRound
+    4300116: Compass
+    4300118: BaseRoundLod
+    4300120: GlowLight
+    7400000: Open
+    7400002: Close
+    7400004: Complete
+    11100000: //RootNode
+    2186277476908879412: ImportLogs
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: No Name
+    second: {fileID: 2100000, guid: d41146da5d461034b939f0f484f47cf5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TAG_BlackPlastic
+    second: {fileID: 2100000, guid: d91cd2828e8057742bda1c8e642b594a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TAG_Crystal
+    second: {fileID: 2100000, guid: d1da4cc5e817cea4c825345504816494, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TAG_Light00
+    second: {fileID: 2100000, guid: 07a7f57306ce6af47b9f1e03a2ba0b90, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TAG_Light01
+    second: {fileID: 2100000, guid: ad8f58faf83a1b24db61b629c6b18a14, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TAG_Logo
+    second: {fileID: 2100000, guid: 0d3ed1a45fcc3a64494d8452a471c171, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TAG_Material
+    second: {fileID: 2100000, guid: a7b14827bb9a8f74ea6e3c57352a0727, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TAG_Metal00
+    second: {fileID: 2100000, guid: c58e19eadbf8bfb48914e2c1c0443442, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TAG_Metal01
+    second: {fileID: 2100000, guid: 9733ad4a58a4368499504618d36d662b, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 1
+    materialSearch: 2
+    materialLocation: 0
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 1
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations:
+    - serializedVersion: 16
+      name: Open
+      takeName: Take 001
+      firstFrame: 0
+      lastFrame: 50
+      wrapMode: 1
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: TAG_HolderBase
+        weight: 1
+      - path: TAG_HolderBase/Box002
+        weight: 1
+      - path: TAG_HolderBase/Box002/Box004
+        weight: 1
+      - path: TAG_HolderBase/Box002/Box005
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door/Cylinder002
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door/Cylinder002/Object020
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door001
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door001/Cylinder003
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door001/Cylinder003/Object021
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door002
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door002/Cylinder004
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door002/Cylinder004/Object022
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door003
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door003/Cylinder005
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door003/Cylinder005/Object023
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Object006
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Object006/Plane002
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Object007
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Object007/Object001
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm/Object002
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm/Object002/Object003
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm/Object002/Object003/Object004
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm/Object002/Object003/Object004/Object005
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001/Object024
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001/Object024/Object025
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001/Object024/Object025/Object026
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001/Object024/Object025/Object026/Object027
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002/Object028
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002/Object028/Object029
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002/Object028/Object029/Object030
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002/Object028/Object029/Object030/Object031
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003/Object032
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003/Object032/Object033
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003/Object032/Object033/Object034
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003/Object032/Object033/Object034/Object035
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Rotating Parts
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Rotating Parts/Light006
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Rotating Parts/Light007
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Rotating Parts/Light008
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/TAG
+        weight: 1
+      - path: TAG_HolderBase/Light
+        weight: 1
+      - path: TAG_HolderBase/Light001
+        weight: 1
+      - path: TAG_HolderBase/Light002
+        weight: 1
+      - path: TAG_HolderBase/Light003
+        weight: 1
+      - path: TAG_HolderBase/Light004
+        weight: 1
+      - path: TAG_HolderBase/Light005
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Close
+      takeName: Take 001
+      firstFrame: 50
+      lastFrame: 100
+      wrapMode: 1
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: TAG_HolderBase
+        weight: 1
+      - path: TAG_HolderBase/Box002
+        weight: 1
+      - path: TAG_HolderBase/Box002/Box004
+        weight: 1
+      - path: TAG_HolderBase/Box002/Box005
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door/Cylinder002
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door/Cylinder002/Object020
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door001
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door001/Cylinder003
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door001/Cylinder003/Object021
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door002
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door002/Cylinder004
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door002/Cylinder004/Object022
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door003
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door003/Cylinder005
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door003/Cylinder005/Object023
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Object006
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Object006/Plane002
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Object007
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Object007/Object001
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm/Object002
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm/Object002/Object003
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm/Object002/Object003/Object004
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm/Object002/Object003/Object004/Object005
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001/Object024
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001/Object024/Object025
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001/Object024/Object025/Object026
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001/Object024/Object025/Object026/Object027
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002/Object028
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002/Object028/Object029
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002/Object028/Object029/Object030
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002/Object028/Object029/Object030/Object031
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003/Object032
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003/Object032/Object033
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003/Object032/Object033/Object034
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003/Object032/Object033/Object034/Object035
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Rotating Parts
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Rotating Parts/Light006
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Rotating Parts/Light007
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Rotating Parts/Light008
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/TAG
+        weight: 1
+      - path: TAG_HolderBase/Light
+        weight: 1
+      - path: TAG_HolderBase/Light001
+        weight: 1
+      - path: TAG_HolderBase/Light002
+        weight: 1
+      - path: TAG_HolderBase/Light003
+        weight: 1
+      - path: TAG_HolderBase/Light004
+        weight: 1
+      - path: TAG_HolderBase/Light005
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    - serializedVersion: 16
+      name: Complete
+      takeName: Take 001
+      firstFrame: 0
+      lastFrame: 100
+      wrapMode: 2
+      orientationOffsetY: 0
+      level: 0
+      cycleOffset: 0
+      loop: 0
+      hasAdditiveReferencePose: 0
+      loopTime: 0
+      loopBlend: 0
+      loopBlendOrientation: 0
+      loopBlendPositionY: 0
+      loopBlendPositionXZ: 0
+      keepOriginalOrientation: 0
+      keepOriginalPositionY: 1
+      keepOriginalPositionXZ: 0
+      heightFromFeet: 0
+      mirror: 0
+      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
+      curves: []
+      events: []
+      transformMask:
+      - path: 
+        weight: 1
+      - path: TAG_HolderBase
+        weight: 1
+      - path: TAG_HolderBase/Box002
+        weight: 1
+      - path: TAG_HolderBase/Box002/Box004
+        weight: 1
+      - path: TAG_HolderBase/Box002/Box005
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door/Cylinder002
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door/Cylinder002/Object020
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door001
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door001/Cylinder003
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door001/Cylinder003/Object021
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door002
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door002/Cylinder004
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door002/Cylinder004/Object022
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door003
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door003/Cylinder005
+        weight: 1
+      - path: TAG_HolderBase/Box002/Door003/Cylinder005/Object023
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Object006
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Object006/Plane002
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Object007
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Object007/Object001
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm/Object002
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm/Object002/Object003
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm/Object002/Object003/Object004
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm/Object002/Object003/Object004/Object005
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001/Object024
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001/Object024/Object025
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001/Object024/Object025/Object026
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm001/Object024/Object025/Object026/Object027
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002/Object028
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002/Object028/Object029
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002/Object028/Object029/Object030
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm002/Object028/Object029/Object030/Object031
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003/Object032
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003/Object032/Object033
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003/Object032/Object033/Object034
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/RobotArm003/Object032/Object033/Object034/Object035
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Rotating Parts
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Rotating Parts/Light006
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Rotating Parts/Light007
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/Rotating Parts/Light008
+        weight: 1
+      - path: TAG_HolderBase/Box002/TagBase/TAG
+        weight: 1
+      - path: TAG_HolderBase/Light
+        weight: 1
+      - path: TAG_HolderBase/Light001
+        weight: 1
+      - path: TAG_HolderBase/Light002
+        weight: 1
+      - path: TAG_HolderBase/Light003
+        weight: 1
+      - path: TAG_HolderBase/Light004
+        weight: 1
+      - path: TAG_HolderBase/Light005
+        weight: 1
+      maskType: 0
+      maskSource: {instanceID: 0}
+      additiveReferencePoseFrame: 0
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 8
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 0
+    importBlendShapes: 1
+    importCameras: 0
+    importLights: 0
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 4
+    normalCalculationMode: 0
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 1
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 0
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 1
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
