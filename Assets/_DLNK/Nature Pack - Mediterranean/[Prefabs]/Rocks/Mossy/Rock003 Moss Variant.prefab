@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &7086982188076853223
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 65903002171096263, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 65903002171096263, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 65903002171096263, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 65903002171096263, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 65903002171096263, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 65903002171096263, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 65903002171096263, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 65903002171096263, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 65903002171096263, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 65903002171096263, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 65903002171096263, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 192653821008237131, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 34d4dc32b3cdbd94d808821c69fc15c6, type: 2}
+    - target: {fileID: 539735749256155399, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 34d4dc32b3cdbd94d808821c69fc15c6, type: 2}
+    - target: {fileID: 2921777637774122200, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_FadeMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2921777637774122200, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_AnimateCrossFading
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4719904926729758817, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_Name
+      value: Rock003 Moss Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 6652813903624733512, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 34d4dc32b3cdbd94d808821c69fc15c6, type: 2}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 340d671ec74e7324ba4093edba17c18d, type: 3}

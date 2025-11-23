@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &2320743873652943616
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 913600284791979466, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 913600284791979466, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 913600284791979466, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 913600284791979466, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 913600284791979466, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 913600284791979466, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 913600284791979466, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 913600284791979466, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 913600284791979466, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 913600284791979466, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 913600284791979466, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1220465108902521643, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_FadeMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1220465108902521643, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_AnimateCrossFading
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3119047764432506207, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ffc38a82e6415024a98c8b6b59c76e0d, type: 2}
+    - target: {fileID: 3472035825200826402, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_Name
+      value: RockFormation003 Moss Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 4220591667952296110, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ffc38a82e6415024a98c8b6b59c76e0d, type: 2}
+    - target: {fileID: 7484911106053695792, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: ffc38a82e6415024a98c8b6b59c76e0d, type: 2}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8c704e819d021214d8053ccb7ce7ec35, type: 3}

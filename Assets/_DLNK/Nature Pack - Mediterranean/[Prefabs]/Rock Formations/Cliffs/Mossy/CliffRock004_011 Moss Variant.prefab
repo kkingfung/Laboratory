@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &4496649083600843547
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 821188153273303396, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: d361bd07585b6d741b4ce11e46dba703, type: 2}
+    - target: {fileID: 2922742496805573240, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: d361bd07585b6d741b4ce11e46dba703, type: 2}
+    - target: {fileID: 3508099031266089362, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: d361bd07585b6d741b4ce11e46dba703, type: 2}
+    - target: {fileID: 6561449145373821470, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_FadeMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6561449145373821470, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_AnimateCrossFading
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785149025176146102, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785149025176146102, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785149025176146102, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785149025176146102, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785149025176146102, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785149025176146102, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.000000021855694
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785149025176146102, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785149025176146102, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785149025176146102, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785149025176146102, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6785149025176146102, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8134684348392182023, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}
+      propertyPath: m_Name
+      value: CliffRock004_011 Moss Variant
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4a390bd2b6d411c4ab672b3fec73d487, type: 3}

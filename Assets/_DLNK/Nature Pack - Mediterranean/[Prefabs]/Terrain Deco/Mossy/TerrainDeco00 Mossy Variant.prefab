@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &8472804441844425875
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 518664993231327110, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518664993231327110, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518664993231327110, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518664993231327110, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518664993231327110, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 518664993231327110, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518664993231327110, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518664993231327110, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518664993231327110, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518664993231327110, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 518664993231327110, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106907654538102247, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_FadeMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106907654538102247, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_AnimateCrossFading
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6056632347670186454, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e3f96c675055bc647acd108bd92ea1e7, type: 2}
+    - target: {fileID: 6434711593209126724, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e3f96c675055bc647acd108bd92ea1e7, type: 2}
+    - target: {fileID: 8418192983466557831, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: e3f96c675055bc647acd108bd92ea1e7, type: 2}
+    - target: {fileID: 8509085012295329601, guid: fec9529514298db49b28151f81643039, type: 3}
+      propertyPath: m_Name
+      value: TerrainDeco00 Mossy Variant
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: fec9529514298db49b28151f81643039, type: 3}

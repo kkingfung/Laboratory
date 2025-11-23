@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &788865245994979182
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2163061980597451858, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 498ad7a2a71e8ae40953dd660fa5986b, type: 2}
+    - target: {fileID: 3214419511937048372, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_FadeMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3214419511937048372, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_AnimateCrossFading
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5582966541797851595, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5582966541797851595, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5582966541797851595, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5582966541797851595, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5582966541797851595, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5582966541797851595, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5582966541797851595, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5582966541797851595, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5582966541797851595, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5582966541797851595, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5582966541797851595, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5699875178036378951, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_Name
+      value: TerrainDeco010 Mossy Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 6056037605906025513, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 498ad7a2a71e8ae40953dd660fa5986b, type: 2}
+    - target: {fileID: 6499340582965181166, guid: 18371d9dbc2cd024091b20509a586044, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 498ad7a2a71e8ae40953dd660fa5986b, type: 2}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 18371d9dbc2cd024091b20509a586044, type: 3}

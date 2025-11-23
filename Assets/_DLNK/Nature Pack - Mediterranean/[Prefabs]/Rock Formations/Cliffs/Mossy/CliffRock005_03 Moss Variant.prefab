@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &8126088274775506157
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 584046412424720095, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: dd76ad85570c9a8429e5aedbc9ca3e96, type: 2}
+    - target: {fileID: 739905082181533939, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_FadeMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 739905082181533939, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_AnimateCrossFading
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 779093289906440903, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: dd76ad85570c9a8429e5aedbc9ca3e96, type: 2}
+    - target: {fileID: 3446094750816254466, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: dd76ad85570c9a8429e5aedbc9ca3e96, type: 2}
+    - target: {fileID: 5601444598104442647, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_Name
+      value: CliffRock005_03 Moss Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 7614894265826493609, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7614894265826493609, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7614894265826493609, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7614894265826493609, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7614894265826493609, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7614894265826493609, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.000000021855694
+      objectReference: {fileID: 0}
+    - target: {fileID: 7614894265826493609, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7614894265826493609, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7614894265826493609, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7614894265826493609, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7614894265826493609, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8fb2ec6fea5505340978b36b7ba92749, type: 3}

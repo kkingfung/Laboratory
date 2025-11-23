@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &935838954436719243
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 659687383283947877, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 659687383283947877, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 659687383283947877, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 659687383283947877, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 659687383283947877, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 659687383283947877, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.000000021855694
+      objectReference: {fileID: 0}
+    - target: {fileID: 659687383283947877, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 659687383283947877, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 659687383283947877, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 659687383283947877, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 659687383283947877, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2545088700486174040, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: d361bd07585b6d741b4ce11e46dba703, type: 2}
+    - target: {fileID: 3072299326467905150, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_Name
+      value: CliffRock004_05 Moss Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939963603394244164, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_FadeMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4939963603394244164, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_AnimateCrossFading
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6869601705306695052, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: d361bd07585b6d741b4ce11e46dba703, type: 2}
+    - target: {fileID: 6890222813876599431, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: d361bd07585b6d741b4ce11e46dba703, type: 2}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d198f69697f45b44aa9e490c64026beb, type: 3}
