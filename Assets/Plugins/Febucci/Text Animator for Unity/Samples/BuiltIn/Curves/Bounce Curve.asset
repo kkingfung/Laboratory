@@ -1,14 +1,3 @@
-%YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
---- !u!114 &11400000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aafee2a4402d495f842112c4926238a3, type: 3}
-  m_Name: Bounce Curve
-  m_EditorClassIdentifier: Febucci.TextAnimator.Runtime::Febucci.TextAnimatorForUnity.Effects.BounceCurve
+version https://git-lfs.github.com/spec/v1
+oid sha256:d0756657864d8943aefbc3b5db71cb9129cccd864d6a4cd31bd9b40eff26709a
+size 479
