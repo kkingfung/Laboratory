@@ -1,0 +1,124 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: MeshTerrain01b
+  m_Shader: {fileID: 4800000, guid: ce29135f33bad8e46b582fca14e478b9, type: 3}
+  m_ShaderKeywords: _ALPHAPREMULTIPLY_ON _DETAILDISTORSION_ON _DETAIL_MULX2 _METALLICGLOSSMAP
+    _NORMALMAP _REFRACTDEPTH_ON _USEDETMASK_ON _UVWORLD_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlbedoTop:
+        m_Texture: {fileID: 2800000, guid: 384f9a1ad45e901438e288b77eb4a76d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: b2e4721264e38a84abdedf373557296c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMapTop:
+        m_Texture: {fileID: 2800000, guid: 2a2da984a6af369408b716da8bdd6296, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedo:
+        m_Texture: {fileID: 2800000, guid: 0c8795e43e7063a49966f20be610c89a, type: 3}
+        m_Scale: {x: 10, y: 10}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 2800000, guid: 0c8795e43e7063a49966f20be610c89a, type: 3}
+        m_Scale: {x: 5, y: 5}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 2800000, guid: 1eb241ca6007c7a42936f7cfcd5e552c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 2800000, guid: 8f925442ab1daa748808b04b489fe0e7, type: 3}
+        m_Scale: {x: 10, y: 10}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: eb3e237ea9444864299c696c46b1e1d7, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 2800000, guid: 1eb241ca6007c7a42936f7cfcd5e552c, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetalnessTop:
+        m_Texture: {fileID: 2800000, guid: b449395b5e3ec5e4fa31c87a752509ed, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OclussionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _Ammount: 1
+    - _BumpMix: 1
+    - _BumpScale: 0.5
+    - _BumpScaleTop: 0.26
+    - _Cutoff: 0.5
+    - _DetailDistorsion: 1
+    - _DetailNormalMapScale: 0.5
+    - _Distorsion: 0.1
+    - _DstBlend: 10
+    - _EmissionScaleUI: 0
+    - _GlossMapScale: 0.697
+    - _Glossiness: 0.76
+    - _GlossinessTop: 1
+    - _GlossyReflections: 1
+    - _Metallic: 0
+    - _MetallicTop: 1
+    - _Mode: 3
+    - _OcclusionStrength: 0.5
+    - _OcclusionTop: 0
+    - _Parallax: 0.02
+    - _RefractDepth: 1
+    - _Smooth: 1
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _TopTiling: 1
+    - _UVSec: 0
+    - _UVWorld: 1
+    - _UseDetMask: 1
+    - _ZWrite: 0
+    - __dirty: 0
+    m_Colors:
+    - _Clamp: {r: 1, g: 0.99, b: 0, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color1: {r: 2.2901962, g: 2.572549, b: 2.9960785, a: 1}
+    - _ColorTintRefract: {r: 1.4980392, g: 1.4980392, b: 1.4980392, a: 1}
+    - _ColorTop: {r: 1, g: 1, b: 1, a: 0}
+    - _Depth: {r: 10, g: 90, b: 0, a: 0}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
+    - _EmissionColorUI: {r: 1, g: 1, b: 1, a: 1}
+    - _RefractionMaskRemap: {r: 0.2, g: 1, b: 0, a: 0}

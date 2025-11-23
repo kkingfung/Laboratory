@@ -1,0 +1,109 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: TreeWinter00_Lod2
+  m_Shader: {fileID: 4800000, guid: f2c0444b567948d3ab6d4aa603e03a15, type: 3}
+  m_ShaderKeywords: _ALPHATEST_ON _METALLICGLOSSMAP _NORMALMAP _PARALLAXMAP
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 5a7791f7802978c4f928e79451f12db2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 394275c4ba48a8b4ab16dcd31334d82b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 2800000, guid: 9e301b04dbb496746adbfc1473e9de91, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 2800000, guid: 67f54963bec272343bdb0e720e89aef9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 2800000, guid: 33067b0f1e748c84a8b0bc7cd2d3d61a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord2:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _A0Power: 0
+    - _AOPower: 0
+    - _BumpScale: 1
+    - _Cutoff: 0.05
+    - _CutoffThreshold: 0.75
+    - _DetailNormalMapScale: 1
+    - _DstBlend: 0
+    - _GlossMapScale: 1
+    - _Glossiness: 0.5
+    - _GlossyReflections: 1
+    - _LeavesNoise: 0.56
+    - _LeavesNoisePower: 0.3
+    - _Metallic: 0
+    - _Mode: 1
+    - _NoiseScale: 0.2
+    - _Noisespeed: 10
+    - _NormalScale: 2
+    - _OcclusionStrength: 1
+    - _Parallax: 0.02
+    - _Smoothness: 0
+    - _SmoothnessTextureChannel: 0
+    - _SpecularHighlights: 1
+    - _SrcBlend: 1
+    - _TintTreeHeight: 0
+    - _UVSec: 0
+    - _VerticalOffset: -0.21
+    - _WindPower: 1
+    - _WorldNoiseScale: 0.02
+    - _ZWrite: 1
+    - __dirty: 1
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorA: {r: 0.5304824, g: 0.682772, b: 0.8584906, a: 0.3764706}
+    - _ColorB: {r: 1, g: 1, b: 1, a: 0}
+    - _ColorBAOalpha: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorCAOalpha: {r: 0.47058824, g: 0.54867953, b: 0.65882355, a: 1}
+    - _ColorDAOalpha: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _LeavesOffset: {r: -0.05, g: 1, b: 0, a: 0}
+    - _MotionValue: {r: 1, g: 1, b: 0, a: 0}
+    - _Tintpowerxyoffsetzw: {r: 1.26, g: 0.27, b: 0.09, a: -0.6}
+    - _Vector0: {r: -13.38, g: 0, b: 0, a: 0}
+    - _VerticalOffset: {r: -0.5, g: 2, b: 0, a: 0}

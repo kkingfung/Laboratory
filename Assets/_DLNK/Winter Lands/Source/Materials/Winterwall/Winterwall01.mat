@@ -1,0 +1,203 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Winterwall01
+  m_Shader: {fileID: 4800000, guid: 516e1d638296ed84a8111eeac2e687e3, type: 3}
+  m_ShaderKeywords: _AFFECTAO_ON _COLORDETAIL_ON _DETAIL_MULX2 _INVERTTRANSLUCENT_ON
+    _METALLICGLOSSMAP _NORMALMAP _PARALLAXMAP _PARALLAXON_ON _RIMAO_ON _RIMON_ON
+    _SPECULARAO_ON _USENORMALDETAIL_ON _UVWORLD_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlbedoTop:
+        m_Texture: {fileID: 2800000, guid: 384f9a1ad45e901438e288b77eb4a76d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpDetail:
+        m_Texture: {fileID: 2800000, guid: 6bd13ec8663b58547add76406b2a9963, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMap:
+        m_Texture: {fileID: 2800000, guid: 52004c20c631f6140bab375805d4557e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpMapTop:
+        m_Texture: {fileID: 2800000, guid: 2a2da984a6af369408b716da8bdd6296, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailAlbedoMap:
+        m_Texture: {fileID: 2800000, guid: 995c42895c800734c89637a265e4a774, type: 3}
+        m_Scale: {x: 15, y: 15}
+        m_Offset: {x: 0, y: 0}
+    - _DetailMask:
+        m_Texture: {fileID: 2800000, guid: 6fa0402d1ff8970429cb68954d778e0b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormal:
+        m_Texture: {fileID: 2800000, guid: 163123f5fc1136345aed0beb51bf6358, type: 3}
+        m_Scale: {x: 5, y: 5}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormalMap:
+        m_Texture: {fileID: 2800000, guid: 56c1ddb3fe77bb94c8009ccb7909c80f, type: 3}
+        m_Scale: {x: 15, y: 15}
+        m_Offset: {x: 0, y: 0}
+    - _DetailTex:
+        m_Texture: {fileID: 2800000, guid: 35855a91f15f0084397d71ec97b7d90d, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DiffuseDetail:
+        m_Texture: {fileID: 2800000, guid: 4283782af33e69244b154eed01465b4d, type: 3}
+        m_Scale: {x: 5, y: 5}
+        m_Offset: {x: 0, y: 0}
+    - _DifuseMain:
+        m_Texture: {fileID: 2800000, guid: ca5e317756e13454dad69a18991b9f62, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _EmissionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _HeightMap:
+        m_Texture: {fileID: 2800000, guid: 39bc36e4ad2d50f48bb71bac86e046c9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainNormal:
+        m_Texture: {fileID: 2800000, guid: 52004c20c631f6140bab375805d4557e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 2800000, guid: 954a65b2aaa6cca46915fc11973727f6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetallicGlossMap:
+        m_Texture: {fileID: 2800000, guid: 954a65b2aaa6cca46915fc11973727f6, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MetalnessTop:
+        m_Texture: {fileID: 2800000, guid: b449395b5e3ec5e4fa31c87a752509ed, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OcclusionMap:
+        m_Texture: {fileID: 2800000, guid: 6fa0402d1ff8970429cb68954d778e0b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _Oclussion:
+        m_Texture: {fileID: 2800000, guid: ca5e317756e13454dad69a18991b9f62, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _ParallaxMap:
+        m_Texture: {fileID: 2800000, guid: 39bc36e4ad2d50f48bb71bac86e046c9, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _SpecularMap:
+        m_Texture: {fileID: 2800000, guid: ca5e317756e13454dad69a18991b9f62, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _TopBump:
+        m_Texture: {fileID: 2800000, guid: fe8767050c0bf3944916692e633e6c83, type: 3}
+        m_Scale: {x: 20, y: 20}
+        m_Offset: {x: 0, y: 0}
+    - _TopTex:
+        m_Texture: {fileID: 2800000, guid: 5cccdb17450082b4394ffb13bc1cd1f7, type: 3}
+        m_Scale: {x: 20, y: 20}
+        m_Offset: {x: 0, y: 0}
+    - _TranslucencyMap:
+        m_Texture: {fileID: 2800000, guid: 6fa0402d1ff8970429cb68954d778e0b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - _AOBlendPower: 1.63
+    - _AOPower: 2
+    - _AffectAO: 1
+    - _Ammount: 2.01
+    - _BumpDetailPower: 0.5
+    - _BumpMix: 2
+    - _BumpScale: 1
+    - _BumpScaleTop: 1
+    - _ColorDetail: 1
+    - _Cutoff: 0.5
+    - _DetailNormalMapScale: 0.31
+    - _DetailPower: 0.85714287
+    - _DetailTiling: 8
+    - _DifusePower: 3
+    - _DstBlend: 0
+    - _EmissionScaleUI: 0
+    - _Gloss: 0.017857144
+    - _GlossMapScale: 1
+    - _Glossiness: 0.68
+    - _GlossinessTop: 1
+    - _GlossyReflections: 1
+    - _HeightPower: 0.01
+    - _InvertTranslucent: 1
+    - _MainTiling: 1
+    - _MasterTile: 1
+    - _Metallic: 1
+    - _MetallicTop: 1
+    - _Mode: 0
+    - _OcclusionStrength: 0.5
+    - _OcclusionTop: 0.5
+    - _OclussionFade: 0
+    - _OclussionIntensity: 0.375
+    - _OclussionPower: 0.5357143
+    - _Parallax: 0.01
+    - _ParallaxOn: 1
+    - _RimAO: 1
+    - _RimFresnel: 1.0714287
+    - _RimOn: 1
+    - _RimPower: 0.19642857
+    - _Shininess: 0.3
+    - _Smooth: 0.79
+    - _SmoothnessTextureChannel: 0
+    - _SpecularAO: 1
+    - _SpecularHighlights: 1
+    - _SpecularLevel: 1.1607143
+    - _SpecularPower: 2
+    - _SrcBlend: 1
+    - _TopBottomLevel: 2.42
+    - _TopShininess: 0
+    - _TopSpecularPower: 2
+    - _TopTiling: 2
+    - _TransAmbient: 0.2
+    - _TransDirect: 1
+    - _TransNormalDistortion: 0.2
+    - _TransScattering: 2
+    - _TransShadow: 0.8
+    - _Translucency: 3
+    - _TranslucencyPower: 1
+    - _TranslucencyTop: 0
+    - _UVSec: 0
+    - _UVWorld: 1
+    - _UseDetailAlpha: 0
+    - _UseNormalDetail: 1
+    - _UseSpecularMap: 0
+    - _ZWrite: 1
+    - __dirty: 0
+    m_Colors:
+    - _Clamp: {r: 0.9, g: 1, b: 0, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorTint: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorTop: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorTop1: {r: 0.8490566, g: 0.8450516, b: 0.8450516, a: 0}
+    - _ColorTrans: {r: 0.5286579, g: 0.65070605, b: 0.8301887, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 0}
+    - _EmissionColorUI: {r: 1, g: 1, b: 1, a: 1}
+    - _RimColor: {r: 0.48356402, g: 0.51537406, b: 0.63235295, a: 1}
+    - _SpecColor: {r: 1, g: 1, b: 1, a: 1}
+    - _SpecularTint: {r: 1, g: 1, b: 1, a: 1}
+    - _TopColor: {r: 1, g: 1, b: 1, a: 1}
