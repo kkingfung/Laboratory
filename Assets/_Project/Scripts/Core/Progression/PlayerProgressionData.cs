@@ -424,6 +424,7 @@ namespace Laboratory.Core.Progression
         TerritoryExpanded,
         AchievementUnlocked,
         MilestoneReached,
+        SkillMilestone,
         Warning,
         Error
     }

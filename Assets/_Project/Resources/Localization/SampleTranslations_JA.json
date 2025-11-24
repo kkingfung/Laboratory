@@ -1,0 +1,70 @@
+{
+  "language": "日本語",
+  "languageCode": "ja",
+  "translations": {
+    "ui.common.yes": "はい",
+    "ui.common.no": "いいえ",
+    "ui.common.ok": "OK",
+    "ui.common.cancel": "キャンセル",
+    "ui.common.confirm": "確認",
+    "ui.common.back": "戻る",
+    "ui.common.next": "次へ",
+    "ui.common.close": "閉じる",
+    "ui.common.save": "保存",
+    "ui.common.load": "読み込み",
+
+    "ui.menu.start": "ゲーム開始",
+    "ui.menu.continue": "続ける",
+    "ui.menu.settings": "設定",
+    "ui.menu.quit": "終了",
+
+    "ui.progression.mastery": "熟練度",
+    "ui.progression.activities": "活動",
+    "ui.progression.cooperation": "協力",
+    "ui.progression.trust": "信頼",
+    "ui.progression.understanding": "理解",
+    "ui.progression.successRate": "成功率",
+    "ui.progression.trend": "傾向",
+
+    "ui.progression.tier.novice": "初心者",
+    "ui.progression.tier.beginner": "見習い",
+    "ui.progression.tier.competent": "有能",
+    "ui.progression.tier.proficient": "熟練",
+    "ui.progression.tier.expert": "エキスパート",
+    "ui.progression.tier.master": "マスター",
+
+    "ui.progression.title.novice": "新しいパートナーシップ - ようこそ！",
+    "ui.progression.title.beginner": "見習いパートナーシップ - 旅の始まり",
+    "ui.progression.title.competent": "有能なパートナーシップ - スキル構築",
+    "ui.progression.title.proficient": "熟練パートナーシップ - 共に成長",
+    "ui.progression.title.expert": "エキスパートパートナーシップ - 高度なスキルチーム",
+    "ui.progression.title.master": "エリートパートナーシップ - 複数ジャンルのマスター",
+
+    "ui.genres.action": "アクション",
+    "ui.genres.strategy": "戦略",
+    "ui.genres.puzzle": "パズル",
+    "ui.genres.racing": "レース",
+    "ui.genres.rhythm": "リズム",
+    "ui.genres.exploration": "探索",
+    "ui.genres.economics": "経済",
+
+    "notification.milestone.title": "{0}マイルストーン！",
+    "notification.milestone.message": "{0}に到達（{1}％）\n解除：{2}",
+
+    "gameplay.chimera.cooperation.high": "あなたのキメラはとても協力的です！",
+    "gameplay.chimera.cooperation.low": "あなたのキメラは励ましが必要です。",
+    "gameplay.chimera.trust.building": "信頼が育っています...",
+    "gameplay.chimera.understanding.improving": "彼らの性格を学んでいます！",
+
+    "equipment.fit.perfect": "完璧！キメラが大好きです！",
+    "equipment.fit.good": "キメラはこの装備が好きです。",
+    "equipment.fit.neutral": "キメラはこの装備を許容します。",
+    "equipment.fit.poor": "キメラはこの装備が嫌いです。",
+
+    "system.loading": "読み込み中...",
+    "system.saving": "保存中...",
+    "system.error.generic": "エラーが発生しました。もう一度お試しください。",
+    "system.error.save": "進行状況の保存に失敗しました。",
+    "system.error.load": "データの読み込みに失敗しました。"
+  }
+}

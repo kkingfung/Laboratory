@@ -1,0 +1,70 @@
+{
+  "language": "Français",
+  "languageCode": "fr",
+  "translations": {
+    "ui.common.yes": "Oui",
+    "ui.common.no": "Non",
+    "ui.common.ok": "OK",
+    "ui.common.cancel": "Annuler",
+    "ui.common.confirm": "Confirmer",
+    "ui.common.back": "Retour",
+    "ui.common.next": "Suivant",
+    "ui.common.close": "Fermer",
+    "ui.common.save": "Sauvegarder",
+    "ui.common.load": "Charger",
+
+    "ui.menu.start": "Démarrer",
+    "ui.menu.continue": "Continuer",
+    "ui.menu.settings": "Paramètres",
+    "ui.menu.quit": "Quitter",
+
+    "ui.progression.mastery": "Maîtrise",
+    "ui.progression.activities": "Activités",
+    "ui.progression.cooperation": "Coopération",
+    "ui.progression.trust": "Confiance",
+    "ui.progression.understanding": "Compréhension",
+    "ui.progression.successRate": "Taux de Réussite",
+    "ui.progression.trend": "Tendance",
+
+    "ui.progression.tier.novice": "Novice",
+    "ui.progression.tier.beginner": "Débutant",
+    "ui.progression.tier.competent": "Compétent",
+    "ui.progression.tier.proficient": "Habile",
+    "ui.progression.tier.expert": "Expert",
+    "ui.progression.tier.master": "Maître",
+
+    "ui.progression.title.novice": "Nouveau Partenariat - Bienvenue!",
+    "ui.progression.title.beginner": "Partenariat Débutant - Début du Voyage",
+    "ui.progression.title.competent": "Partenariat Compétent - Développement des Compétences",
+    "ui.progression.title.proficient": "Partenariat Habile - Progresser Ensemble",
+    "ui.progression.title.expert": "Partenariat Expert - Équipe Hautement Qualifiée",
+    "ui.progression.title.master": "Partenariat Élite - Maître de Plusieurs Genres",
+
+    "ui.genres.action": "Action",
+    "ui.genres.strategy": "Stratégie",
+    "ui.genres.puzzle": "Puzzle",
+    "ui.genres.racing": "Course",
+    "ui.genres.rhythm": "Rythme",
+    "ui.genres.exploration": "Exploration",
+    "ui.genres.economics": "Économie",
+
+    "notification.milestone.title": "Étape {0}!",
+    "notification.milestone.message": "Atteint {0} ({1}%)\nDébloqué: {2}",
+
+    "gameplay.chimera.cooperation.high": "Votre chimère est très coopérative!",
+    "gameplay.chimera.cooperation.low": "Votre chimère a besoin d'encouragement.",
+    "gameplay.chimera.trust.building": "La confiance grandit...",
+    "gameplay.chimera.understanding.improving": "Vous apprenez sa personnalité!",
+
+    "equipment.fit.perfect": "Parfait! La chimère adore ça!",
+    "equipment.fit.good": "La chimère aime cet équipement.",
+    "equipment.fit.neutral": "La chimère tolère cet équipement.",
+    "equipment.fit.poor": "La chimère n'aime pas cet équipement.",
+
+    "system.loading": "Chargement...",
+    "system.saving": "Sauvegarde...",
+    "system.error.generic": "Une erreur s'est produite. Veuillez réessayer.",
+    "system.error.save": "Échec de la sauvegarde.",
+    "system.error.load": "Échec du chargement."
+  }
+}

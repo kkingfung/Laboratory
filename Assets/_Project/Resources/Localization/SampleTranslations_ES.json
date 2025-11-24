@@ -1,0 +1,70 @@
+{
+  "language": "Español",
+  "languageCode": "es",
+  "translations": {
+    "ui.common.yes": "Sí",
+    "ui.common.no": "No",
+    "ui.common.ok": "Aceptar",
+    "ui.common.cancel": "Cancelar",
+    "ui.common.confirm": "Confirmar",
+    "ui.common.back": "Atrás",
+    "ui.common.next": "Siguiente",
+    "ui.common.close": "Cerrar",
+    "ui.common.save": "Guardar",
+    "ui.common.load": "Cargar",
+
+    "ui.menu.start": "Iniciar Juego",
+    "ui.menu.continue": "Continuar",
+    "ui.menu.settings": "Configuración",
+    "ui.menu.quit": "Salir",
+
+    "ui.progression.mastery": "Maestría",
+    "ui.progression.activities": "Actividades",
+    "ui.progression.cooperation": "Cooperación",
+    "ui.progression.trust": "Confianza",
+    "ui.progression.understanding": "Comprensión",
+    "ui.progression.successRate": "Tasa de Éxito",
+    "ui.progression.trend": "Tendencia",
+
+    "ui.progression.tier.novice": "Novato",
+    "ui.progression.tier.beginner": "Principiante",
+    "ui.progression.tier.competent": "Competente",
+    "ui.progression.tier.proficient": "Hábil",
+    "ui.progression.tier.expert": "Experto",
+    "ui.progression.tier.master": "Maestro",
+
+    "ui.progression.title.novice": "Nueva Asociación - ¡Bienvenido!",
+    "ui.progression.title.beginner": "Asociación Principiante - Comenzando el Viaje",
+    "ui.progression.title.competent": "Asociación Competente - Desarrollando Habilidades",
+    "ui.progression.title.proficient": "Asociación Hábil - Creciendo Juntos",
+    "ui.progression.title.expert": "Asociación Experta - Equipo Altamente Capacitado",
+    "ui.progression.title.master": "Asociación Elite - Maestro de Múltiples Géneros",
+
+    "ui.genres.action": "Acción",
+    "ui.genres.strategy": "Estrategia",
+    "ui.genres.puzzle": "Rompecabezas",
+    "ui.genres.racing": "Carreras",
+    "ui.genres.rhythm": "Ritmo",
+    "ui.genres.exploration": "Exploración",
+    "ui.genres.economics": "Economía",
+
+    "notification.milestone.title": "¡Hito de {0}!",
+    "notification.milestone.message": "Alcanzado {0} ({1}%)\nDesbloqueado: {2}",
+
+    "gameplay.chimera.cooperation.high": "¡Tu chimera es muy cooperativa!",
+    "gameplay.chimera.cooperation.low": "Tu chimera necesita ánimo.",
+    "gameplay.chimera.trust.building": "La confianza está creciendo...",
+    "gameplay.chimera.understanding.improving": "¡Estás aprendiendo su personalidad!",
+
+    "equipment.fit.perfect": "¡Perfecto! ¡A la chimera le encanta!",
+    "equipment.fit.good": "A la chimera le gusta este equipo.",
+    "equipment.fit.neutral": "La chimera tolera este equipo.",
+    "equipment.fit.poor": "A la chimera no le gusta este equipo.",
+
+    "system.loading": "Cargando...",
+    "system.saving": "Guardando...",
+    "system.error.generic": "Ocurrió un error. Por favor, inténtalo de nuevo.",
+    "system.error.save": "Error al guardar el progreso.",
+    "system.error.load": "Error al cargar los datos."
+  }
+}
