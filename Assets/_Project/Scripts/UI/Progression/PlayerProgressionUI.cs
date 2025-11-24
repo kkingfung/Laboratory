@@ -11,9 +11,10 @@ using Laboratory.Shared.Types;
 namespace Laboratory.UI.Progression
 {
     /// <summary>
-    /// Comprehensive UI system for displaying player progression information including
-    /// geneticist levels, experience tracking, biome specializations, research progress,
-    /// territory status, and creature slot management with animated updates and notifications.
+    /// Comprehensive UI system for displaying player-chimera partnership progression
+    /// including skill mastery in 7 genres, partnership quality metrics (cooperation, trust,
+    /// understanding), milestone achievements, and cosmetic unlocks. NO LEVELS - victory
+    /// through player skill and chimera cooperation!
     /// </summary>
     public class PlayerProgressionUI : MonoBehaviour
     {
@@ -22,12 +23,34 @@ namespace Laboratory.UI.Progression
         [SerializeField] private GameObject progressionPanel;
         [SerializeField] private Button toggleProgressionButton;
 
-        [Header("Level and Experience Display")]
-        [SerializeField] private TextMeshProUGUI levelText;
-        [SerializeField] private TextMeshProUGUI levelTitleText;
-        [SerializeField] private Slider experienceSlider;
-        [SerializeField] private TextMeshProUGUI experienceText;
-        [SerializeField] private Image experienceFillImage;
+        [Header("Mastery Tier Display (replaces levels)")]
+        [SerializeField] private TextMeshProUGUI masteryTierText;
+        [SerializeField] private TextMeshProUGUI masteryTitleText;
+        [SerializeField] private TextMeshProUGUI activitiesCompletedText;
+
+        [Header("Genre Skill Displays (7 categories)")]
+        [SerializeField] private Transform genreSkillsContainer;
+        [SerializeField] private GameObject genreSkillPrefab;
+        [SerializeField] private Slider actionMasterySlider;
+        [SerializeField] private Slider strategyMasterySlider;
+        [SerializeField] private Slider puzzleMasterySlider;
+        [SerializeField] private Slider racingMasterySlider;
+        [SerializeField] private Slider rhythmMasterySlider;
+        [SerializeField] private Slider explorationMasterySlider;
+        [SerializeField] private Slider economicsMasterySlider;
+
+        [Header("Partnership Quality Indicators")]
+        [SerializeField] private Slider cooperationSlider;
+        [SerializeField] private TextMeshProUGUI cooperationText;
+        [SerializeField] private Slider trustSlider;
+        [SerializeField] private TextMeshProUGUI trustText;
+        [SerializeField] private Slider understandingSlider;
+        [SerializeField] private TextMeshProUGUI understandingText;
+
+        [Header("Skill Improvement Display (replaces XP)")]
+        [SerializeField] private TextMeshProUGUI recentSuccessRateText;
+        [SerializeField] private TextMeshProUGUI improvementTrendText;
+        [SerializeField] private Image improvementTrendIndicator;
 
         [Header("Creature Slots Display")]
         [SerializeField] private TextMeshProUGUI creatureSlotsText;
@@ -55,14 +78,14 @@ namespace Laboratory.UI.Progression
 
         [Header("Progress Notifications")]
         [SerializeField] private Transform notificationContainer;
-        [SerializeField] private GameObject levelUpNotificationPrefab;
+        [SerializeField] private GameObject skillMilestoneNotificationPrefab;
         [SerializeField] private GameObject researchUnlockNotificationPrefab;
         [SerializeField] private GameObject biomeUnlockNotificationPrefab;
 
         [Header("Animation Settings")]
-        [SerializeField] private float experienceAnimationSpeed = 2f;
-        [SerializeField] private float levelUpAnimationDuration = 1.5f;
-        [SerializeField] private AnimationCurve experienceAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+        [SerializeField] private float skillAnimationSpeed = 2f;
+        [SerializeField] private float milestoneAnimationDuration = 1.5f;
+        [SerializeField] private AnimationCurve skillAnimationCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         [Header("Update Settings")]
         [SerializeField] private float uiUpdateInterval = 0.5f;
@@ -76,10 +99,16 @@ namespace Laboratory.UI.Progression
         private List<ResearchItemUI> researchItemUIs = new List<ResearchItemUI>();
         private Queue<ProgressionNotification> pendingNotifications = new Queue<ProgressionNotification>();
 
+        // Partnership skill tracking (ECS data access)
+        private Unity.Entities.Entity currentPartnershipEntity;
+        private float lastCooperationLevel;
+        private float lastTrustLevel;
+        private float lastUnderstandingLevel;
+
         // Animation tracking
-        private float targetExperience;
-        private float currentDisplayedExperience;
-        private bool isAnimatingExperience = false;
+        private float targetSkillValue;
+        private float currentDisplayedSkillValue;
+        private bool isAnimatingSkill = false;
         private float lastUIUpdate;
 
         // UI visibility
@@ -106,10 +135,10 @@ namespace Laboratory.UI.Progression
                 lastUIUpdate = Time.time;
             }
 
-            // Handle experience animation
-            if (isAnimatingExperience)
+            // Handle skill animation
+            if (isAnimatingSkill)
             {
-                AnimateExperienceProgress();
+                AnimateSkillProgress();
             }
 
             // Process pending notifications
@@ -137,12 +166,28 @@ namespace Laboratory.UI.Progression
                 expandTerritoryButton.onClick.AddListener(AttemptTerritoryExpansion);
             }
 
-            // Initialize experience slider
-            if (experienceSlider != null)
+            // Initialize genre mastery sliders
+            InitializeSlider(actionMasterySlider);
+            InitializeSlider(strategyMasterySlider);
+            InitializeSlider(puzzleMasterySlider);
+            InitializeSlider(racingMasterySlider);
+            InitializeSlider(rhythmMasterySlider);
+            InitializeSlider(explorationMasterySlider);
+            InitializeSlider(economicsMasterySlider);
+
+            // Initialize partnership quality sliders
+            InitializeSlider(cooperationSlider);
+            InitializeSlider(trustSlider);
+            InitializeSlider(understandingSlider);
+        }
+
+        private void InitializeSlider(Slider slider)
+        {
+            if (slider != null)
             {
-                experienceSlider.minValue = 0f;
-                experienceSlider.maxValue = 1f;
-                experienceSlider.value = 0f;
+                slider.minValue = 0f;
+                slider.maxValue = 1f;
+                slider.value = 0f;
             }
         }
 
@@ -163,13 +208,14 @@ namespace Laboratory.UI.Progression
         {
             if (progressionManager == null) return;
 
-            // Listen to progression events
-            progressionManager.OnLevelUp += HandleLevelUp;
-            progressionManager.OnExperienceGained += HandleExperienceGained;
+            // Listen to progression events (updated for skill-based system)
+            progressionManager.OnSkillMilestoneReached += HandleSkillMilestone;
+            progressionManager.OnSkillImproved += HandleSkillImproved;
             progressionManager.OnBiomeSpecializationUp += HandleBiomeSpecializationUp;
             progressionManager.OnResearchUnlocked += HandleResearchUnlocked;
             progressionManager.OnTerritoryExpanded += HandleTerritoryExpanded;
             progressionManager.OnCreatureSlotsIncreased += HandleCreatureSlotsIncreased;
+            progressionManager.OnPartnershipQualityChanged += HandlePartnershipQualityChanged;
         }
 
         /// <summary>
@@ -182,8 +228,13 @@ namespace Laboratory.UI.Progression
             var stats = progressionManager.GetProgressionStats();
             lastKnownStats = stats;
 
-            UpdateLevelDisplay(stats);
-            UpdateExperienceDisplay(stats);
+            // Get partnership skill data from ECS
+            var partnershipSkillData = GetCurrentPartnershipSkillData();
+
+            UpdateMasteryDisplay(partnershipSkillData);
+            UpdateGenreSkillsDisplay(partnershipSkillData);
+            UpdatePartnershipQualityDisplay(partnershipSkillData);
+            UpdateSkillProgressDisplay(partnershipSkillData);
             UpdateCreatureSlotsDisplay(stats);
             UpdateBiomeSpecializationDisplay(stats);
             UpdateResearchDisplay(stats);
@@ -198,12 +249,15 @@ namespace Laboratory.UI.Progression
             if (progressionManager == null) return;
 
             var currentStats = progressionManager.GetProgressionStats();
+            var partnershipSkillData = GetCurrentPartnershipSkillData();
 
             // Only update if there are changes
-            if (HasStatsChanged(currentStats, lastKnownStats))
+            if (HasStatsChanged(currentStats, lastKnownStats) || HasPartnershipQualityChanged(partnershipSkillData))
             {
-                UpdateLevelDisplay(currentStats);
-                UpdateExperienceDisplay(currentStats);
+                UpdateMasteryDisplay(partnershipSkillData);
+                UpdateGenreSkillsDisplay(partnershipSkillData);
+                UpdatePartnershipQualityDisplay(partnershipSkillData);
+                UpdateSkillProgressDisplay(partnershipSkillData);
                 UpdateCreatureSlotsDisplay(currentStats);
 
                 lastKnownStats = currentStats;
@@ -228,36 +282,108 @@ namespace Laboratory.UI.Progression
             }
         }
 
-        private void UpdateLevelDisplay(PlayerProgressionStats stats)
+        private void UpdateMasteryDisplay(Laboratory.Chimera.Progression.PartnershipSkillComponent? skillData)
         {
-            if (levelText != null)
-                levelText.text = $"Level {stats.geneticistLevel}";
+            if (!skillData.HasValue) return;
 
-            if (levelTitleText != null)
-                levelTitleText.text = ProgressionUtilities.GetLevelTitle(stats.geneticistLevel);
+            // Calculate highest mastery tier across all genres
+            float highestMastery = Mathf.Max(
+                skillData.Value.actionMastery,
+                skillData.Value.strategyMastery,
+                skillData.Value.puzzleMastery,
+                skillData.Value.racingMastery,
+                skillData.Value.rhythmMastery,
+                skillData.Value.explorationMastery,
+                skillData.Value.economicsMastery
+            );
+
+            string masteryTier = GetMasteryTierName(highestMastery);
+            string masteryTitle = GetMasteryTitle(highestMastery);
+
+            if (masteryTierText != null)
+                masteryTierText.text = masteryTier;
+
+            if (masteryTitleText != null)
+                masteryTitleText.text = masteryTitle;
+
+            if (activitiesCompletedText != null)
+                activitiesCompletedText.text = $"Activities: {skillData.Value.totalActivitiesCompleted}";
         }
 
-        private void UpdateExperienceDisplay(PlayerProgressionStats stats)
+        private void UpdateGenreSkillsDisplay(Laboratory.Chimera.Progression.PartnershipSkillComponent? skillData)
         {
-            if (experienceSlider != null)
-            {
-                float progress = stats.experienceToNextLevel > 0
-                    ? 1f - (stats.experienceToNextLevel / ProgressionUtilities.GetExperienceRequiredForLevel(stats.geneticistLevel + 1))
-                    : 1f;
+            if (!skillData.HasValue) return;
 
-                if (!isAnimatingExperience)
+            UpdateSkillSlider(actionMasterySlider, skillData.Value.actionMastery, "Action");
+            UpdateSkillSlider(strategyMasterySlider, skillData.Value.strategyMastery, "Strategy");
+            UpdateSkillSlider(puzzleMasterySlider, skillData.Value.puzzleMastery, "Puzzle");
+            UpdateSkillSlider(racingMasterySlider, skillData.Value.racingMastery, "Racing");
+            UpdateSkillSlider(rhythmMasterySlider, skillData.Value.rhythmMastery, "Rhythm");
+            UpdateSkillSlider(explorationMasterySlider, skillData.Value.explorationMastery, "Exploration");
+            UpdateSkillSlider(economicsMasterySlider, skillData.Value.economicsMastery, "Economics");
+        }
+
+        private void UpdatePartnershipQualityDisplay(Laboratory.Chimera.Progression.PartnershipSkillComponent? skillData)
+        {
+            if (!skillData.HasValue) return;
+
+            // Update cooperation
+            if (cooperationSlider != null)
+                cooperationSlider.value = skillData.Value.cooperationLevel;
+            if (cooperationText != null)
+                cooperationText.text = $"Cooperation: {skillData.Value.cooperationLevel:P0}";
+
+            // Update trust
+            if (trustSlider != null)
+                trustSlider.value = skillData.Value.trustLevel;
+            if (trustText != null)
+                trustText.text = $"Trust: {skillData.Value.trustLevel:P0}";
+
+            // Update understanding
+            if (understandingSlider != null)
+                understandingSlider.value = skillData.Value.understandingLevel;
+            if (understandingText != null)
+                understandingText.text = $"Understanding: {skillData.Value.understandingLevel:P0}";
+
+            // Track changes for animations
+            lastCooperationLevel = skillData.Value.cooperationLevel;
+            lastTrustLevel = skillData.Value.trustLevel;
+            lastUnderstandingLevel = skillData.Value.understandingLevel;
+        }
+
+        private void UpdateSkillProgressDisplay(Laboratory.Chimera.Progression.PartnershipSkillComponent? skillData)
+        {
+            if (!skillData.HasValue) return;
+
+            if (recentSuccessRateText != null)
+                recentSuccessRateText.text = $"Success Rate: {skillData.Value.recentSuccessRate:P0}";
+
+            if (improvementTrendText != null)
+            {
+                float trend = skillData.Value.improvementTrend;
+                string trendSymbol = trend > 0 ? "↑" : (trend < 0 ? "↓" : "→");
+                improvementTrendText.text = $"Trend: {trendSymbol} {Mathf.Abs(trend):P1}";
+            }
+
+            if (improvementTrendIndicator != null)
+            {
+                float trend = skillData.Value.improvementTrend;
+                improvementTrendIndicator.color = trend > 0 ? Color.green : (trend < 0 ? Color.red : Color.yellow);
+            }
+        }
+
+        private void UpdateSkillSlider(Slider slider, float value, string genreName)
+        {
+            if (slider != null)
+            {
+                if (!isAnimatingSkill)
                 {
-                    experienceSlider.value = progress;
+                    slider.value = value;
                 }
                 else
                 {
-                    targetExperience = progress;
+                    targetSkillValue = value;
                 }
-            }
-
-            if (experienceText != null)
-            {
-                experienceText.text = $"{stats.currentExperience:F0} / {(stats.currentExperience + stats.experienceToNextLevel):F0} XP";
             }
         }
 
@@ -363,20 +489,34 @@ namespace Laboratory.UI.Progression
             }
         }
 
-        private void AnimateExperienceProgress()
+        private void AnimateSkillProgress()
         {
-            if (experienceSlider == null) return;
+            // Animate all skill sliders smoothly
+            AnimateSlider(actionMasterySlider);
+            AnimateSlider(strategyMasterySlider);
+            AnimateSlider(puzzleMasterySlider);
+            AnimateSlider(racingMasterySlider);
+            AnimateSlider(rhythmMasterySlider);
+            AnimateSlider(explorationMasterySlider);
+            AnimateSlider(economicsMasterySlider);
 
-            float currentValue = experienceSlider.value;
-            float newValue = Mathf.MoveTowards(currentValue, targetExperience,
-                experienceAnimationSpeed * Time.deltaTime);
-
-            experienceSlider.value = newValue;
-
-            if (Mathf.Approximately(newValue, targetExperience))
+            // Check if animation is complete
+            if (Mathf.Approximately(currentDisplayedSkillValue, targetSkillValue))
             {
-                isAnimatingExperience = false;
+                isAnimatingSkill = false;
             }
+        }
+
+        private void AnimateSlider(Slider slider)
+        {
+            if (slider == null) return;
+
+            float currentValue = slider.value;
+            float newValue = Mathf.MoveTowards(currentValue, targetSkillValue,
+                skillAnimationSpeed * Time.deltaTime);
+
+            slider.value = newValue;
+            currentDisplayedSkillValue = newValue;
         }
 
         private void ProcessNotificationQueue()
@@ -395,7 +535,7 @@ namespace Laboratory.UI.Progression
 
             GameObject notificationPrefab = notification.type switch
             {
-                ProgressionNotificationType.LevelUp => levelUpNotificationPrefab,
+                ProgressionNotificationType.SkillMilestone => skillMilestoneNotificationPrefab,
                 ProgressionNotificationType.ResearchUnlocked => researchUnlockNotificationPrefab,
                 ProgressionNotificationType.BiomeUnlocked => biomeUnlockNotificationPrefab,
                 _ => null
@@ -414,24 +554,32 @@ namespace Laboratory.UI.Progression
         }
 
         // Event handlers
-        private void HandleLevelUp(int oldLevel, int newLevel)
+        private void HandleSkillMilestone(Laboratory.Chimera.Progression.ActivityGenreCategory genre, Laboratory.Chimera.Progression.SkillMilestoneType milestoneType, float masteryLevel, string cosmeticReward)
         {
             pendingNotifications.Enqueue(new ProgressionNotification
             {
-                type = ProgressionNotificationType.LevelUp,
-                title = "Level Up!",
-                message = $"Reached Level {newLevel} (was {oldLevel})",
-                displayDuration = levelUpAnimationDuration
+                type = ProgressionNotificationType.SkillMilestone,
+                title = $"{genre} Milestone!",
+                message = $"Reached {milestoneType} ({masteryLevel:P0})\nUnlocked: {cosmeticReward}",
+                displayDuration = milestoneAnimationDuration
             });
 
-            // Trigger experience animation
-            isAnimatingExperience = true;
+            // Trigger skill animation
+            isAnimatingSkill = true;
         }
 
-        private void HandleExperienceGained(float amount)
+        private void HandleSkillImproved(Laboratory.Chimera.Progression.ActivityGenreCategory genre, float improvementAmount)
         {
-            // Trigger experience bar animation
-            isAnimatingExperience = true;
+            // Trigger skill bar animation
+            isAnimatingSkill = true;
+        }
+
+        private void HandlePartnershipQualityChanged(float cooperation, float trust, float understanding)
+        {
+            // Update partnership quality display with animation
+            lastCooperationLevel = cooperation;
+            lastTrustLevel = trust;
+            lastUnderstandingLevel = understanding;
         }
 
         private void HandleBiomeSpecializationUp(BiomeType biome, int newLevel)
@@ -542,13 +690,64 @@ namespace Laboratory.UI.Progression
             // Cleanup event listeners
             if (progressionManager != null)
             {
-                progressionManager.OnLevelUp -= HandleLevelUp;
-                progressionManager.OnExperienceGained -= HandleExperienceGained;
+                progressionManager.OnSkillMilestoneReached -= HandleSkillMilestone;
+                progressionManager.OnSkillImproved -= HandleSkillImproved;
                 progressionManager.OnBiomeSpecializationUp -= HandleBiomeSpecializationUp;
                 progressionManager.OnResearchUnlocked -= HandleResearchUnlocked;
                 progressionManager.OnTerritoryExpanded -= HandleTerritoryExpanded;
                 progressionManager.OnCreatureSlotsIncreased -= HandleCreatureSlotsIncreased;
+                progressionManager.OnPartnershipQualityChanged -= HandlePartnershipQualityChanged;
             }
+        }
+
+        // Helper methods for skill-based progression
+        private string GetMasteryTierName(float mastery)
+        {
+            if (mastery >= 0.90f) return "Master";
+            if (mastery >= 0.75f) return "Expert";
+            if (mastery >= 0.50f) return "Proficient";
+            if (mastery >= 0.25f) return "Competent";
+            if (mastery >= 0.10f) return "Beginner";
+            return "Novice";
+        }
+
+        private string GetMasteryTitle(float mastery)
+        {
+            if (mastery >= 0.90f) return "Elite Partnership - Master of Multiple Genres";
+            if (mastery >= 0.75f) return "Expert Partnership - Highly Skilled Team";
+            if (mastery >= 0.50f) return "Proficient Partnership - Growing Together";
+            if (mastery >= 0.25f) return "Competent Partnership - Building Skills";
+            if (mastery >= 0.10f) return "Beginner Partnership - Starting Journey";
+            return "New Partnership - Welcome!";
+        }
+
+        private Laboratory.Chimera.Progression.PartnershipSkillComponent? GetCurrentPartnershipSkillData()
+        {
+            // TODO: Get current partnership entity from PlayerProgressionManager or ECS World
+            // For now, return null until ECS integration is complete
+            // In production, this would query the ECS world for the player's active partnership
+
+            // Example implementation (to be completed with actual ECS access):
+            // var world = World.DefaultGameObjectInjectionWorld;
+            // var entityManager = world?.EntityManager;
+            // if (entityManager != null && currentPartnershipEntity != Entity.Null)
+            // {
+            //     if (entityManager.HasComponent<PartnershipSkillComponent>(currentPartnershipEntity))
+            //     {
+            //         return entityManager.GetComponentData<PartnershipSkillComponent>(currentPartnershipEntity);
+            //     }
+            // }
+
+            return null;
+        }
+
+        private bool HasPartnershipQualityChanged(Laboratory.Chimera.Progression.PartnershipSkillComponent? skillData)
+        {
+            if (!skillData.HasValue) return false;
+
+            return !Mathf.Approximately(skillData.Value.cooperationLevel, lastCooperationLevel) ||
+                   !Mathf.Approximately(skillData.Value.trustLevel, lastTrustLevel) ||
+                   !Mathf.Approximately(skillData.Value.understandingLevel, lastUnderstandingLevel);
         }
 
         // Editor utilities
@@ -558,10 +757,15 @@ namespace Laboratory.UI.Progression
             RefreshUI();
         }
 
-        [ContextMenu("Test Level Up Notification")]
-        private void EditorTestLevelUpNotification()
+        [ContextMenu("Test Skill Milestone Notification")]
+        private void EditorTestSkillMilestoneNotification()
         {
-            HandleLevelUp(10, 11);
+            HandleSkillMilestone(
+                Laboratory.Chimera.Progression.ActivityGenreCategory.Action,
+                Laboratory.Chimera.Progression.SkillMilestoneType.Expert,
+                0.75f,
+                "Expert Action outfit"
+            );
         }
     }
 
@@ -640,7 +844,7 @@ namespace Laboratory.UI.Progression
 
             Color backgroundColor = type switch
             {
-                ProgressionNotificationType.LevelUp => Color.gold,
+                ProgressionNotificationType.SkillMilestone => new Color(1f, 0.84f, 0f), // Gold
                 ProgressionNotificationType.ResearchUnlocked => Color.blue,
                 ProgressionNotificationType.BiomeUnlocked => Color.green,
                 ProgressionNotificationType.TerritoryExpanded => Color.magenta,
