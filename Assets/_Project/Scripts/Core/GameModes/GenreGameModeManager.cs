@@ -70,7 +70,7 @@ namespace Laboratory.Core.GameModes
             try
             {
                 _gameStateService = _services.ResolveService<IGameStateService>();
-                await DiscoverGenreSubsystems();
+                DiscoverGenreSubsystems();
                 SubscribeToGameStateChanges();
                 _isInitialized = true;
 
@@ -83,10 +83,10 @@ namespace Laboratory.Core.GameModes
             }
         }
 
-        private async Task DiscoverGenreSubsystems()
+        private void DiscoverGenreSubsystems()
         {
             // Find all IGenreSubsystemManager implementations in the scene
-            var genreManagers = FindObjectsOfType<MonoBehaviour>()
+            var genreManagers = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
                 .OfType<IGenreSubsystemManager>()
                 .ToList();
 
