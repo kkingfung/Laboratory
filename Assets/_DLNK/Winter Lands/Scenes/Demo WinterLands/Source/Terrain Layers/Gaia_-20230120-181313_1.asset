@@ -1,3 +1,22 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:9cdc565780a5de4616746f7f3b5972ec565cd5ba3537613ea19933005d31be2a
-size 859
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1953259897 &8574412962073106934
+TerrainLayer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Gaia_-20230120-181313_1
+  m_DiffuseTexture: {fileID: 2800000, guid: c2eec56b788e0a6499a7a8e2931355af, type: 3}
+  m_NormalMapTexture: {fileID: 2800000, guid: b471b16bd79b5f849a4ae3bbeb8726a5, type: 3}
+  m_MaskMapTexture: {fileID: 2800000, guid: 0d271df7dc3d7a94b8a17e85cb019b7e, type: 3}
+  m_TileSize: {x: 30, y: 30}
+  m_TileOffset: {x: 0, y: 0}
+  m_Specular: {r: 0, g: 0, b: 0, a: 0}
+  m_Metallic: 0
+  m_Smoothness: 0.084
+  m_NormalScale: 0.28
+  m_DiffuseRemapMin: {x: 0, y: 0, z: 0, w: 0}
+  m_DiffuseRemapMax: {x: 1, y: 1, z: 1, w: 1}
+  m_MaskMapRemapMin: {x: 0, y: 0, z: 0, w: 0}
+  m_MaskMapRemapMax: {x: 1, y: 1, z: 1, w: 1}
