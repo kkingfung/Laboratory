@@ -1,6 +1,5 @@
 fileFormatVersion: 2
 guid: 296ecaee31224982b1337ae53dc0a6a2
-timeCreated: 1762178413
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -8,3 +7,12 @@ AssetOrigin:
   packageVersion: 3.0.0
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Scripts/Runtime/Scriptables/Animations/Effects/Built-in/States/ExpandEffectScriptable.cs
   uploadId: 821622
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

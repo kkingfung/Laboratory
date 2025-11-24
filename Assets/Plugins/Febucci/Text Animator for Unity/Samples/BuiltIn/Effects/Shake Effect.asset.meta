@@ -1,11 +1,5 @@
 fileFormatVersion: 2
 guid: b1cc7e673d0824d23baf5e9f7181e74f
-NativeFormatImporter:
-  externalObjects: {}
-  mainObjectFileID: 11400000
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -14,3 +8,9 @@ AssetOrigin:
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Samples/BuiltIn/Effects/Shake
     Effect.asset
   uploadId: 821622
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

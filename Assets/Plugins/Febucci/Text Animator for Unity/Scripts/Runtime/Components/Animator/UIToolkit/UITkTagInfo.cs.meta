@@ -1,6 +1,5 @@
 fileFormatVersion: 2
 guid: eff9a1c2ec5b45728c900aaf69935e1d
-timeCreated: 1759747052
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -8,3 +7,12 @@ AssetOrigin:
   packageVersion: 3.0.0
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Scripts/Runtime/Components/Animator/UIToolkit/UITkTagInfo.cs
   uploadId: 821622
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

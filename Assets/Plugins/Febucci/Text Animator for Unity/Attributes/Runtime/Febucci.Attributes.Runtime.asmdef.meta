@@ -1,10 +1,5 @@
 fileFormatVersion: 2
 guid: 448b0b55421917e4784a8f2f7449081f
-AssemblyDefinitionImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -12,3 +7,8 @@ AssetOrigin:
   packageVersion: 3.0.0
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Attributes/Runtime/Febucci.Attributes.Runtime.asmdef
   uploadId: 821622
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

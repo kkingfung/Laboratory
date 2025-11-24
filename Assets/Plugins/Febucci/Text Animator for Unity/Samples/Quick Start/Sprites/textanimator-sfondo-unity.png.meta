@@ -1,5 +1,12 @@
 fileFormatVersion: 2
 guid: aefdeb69b4be8fe41ab2965fd0f8aff9
+AssetOrigin:
+  serializedVersion: 1
+  productId: 341308
+  packageName: Text Animator for Unity | UI Toolkit and Text Mesh Pro
+  packageVersion: 3.0.0
+  assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Samples/Quick Start/Sprites/textanimator-sfondo-unity.png
+  uploadId: 821622
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -141,10 +148,3 @@ TextureImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 341308
-  packageName: Text Animator for Unity | UI Toolkit and Text Mesh Pro
-  packageVersion: 3.0.0
-  assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Samples/Quick Start/Sprites/textanimator-sfondo-unity.png
-  uploadId: 821622

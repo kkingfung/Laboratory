@@ -1,6 +1,5 @@
 fileFormatVersion: 2
 guid: ac28723dc2cb4bf196e6de51ffd19953
-timeCreated: 1760262843
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -8,3 +7,12 @@ AssetOrigin:
   packageVersion: 3.0.0
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Scripts/Runtime/Scriptables/Animations/Data/Wrapper/Curves/EffectCurveScriptableBase.cs
   uploadId: 821622
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,6 +1,5 @@
 fileFormatVersion: 2
 guid: b9700f24a46c45cf9419ace18d1b4a88
-timeCreated: 1761149494
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -8,3 +7,12 @@ AssetOrigin:
   packageVersion: 3.0.0
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Scripts/Runtime/Scriptables/Animations/Data/Wrapper/Phase/DefaultPhaseParams.cs
   uploadId: 821622
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

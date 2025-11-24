@@ -1,6 +1,5 @@
 fileFormatVersion: 2
 guid: 7c8e4addf5f444778cef152732f7cafa
-timeCreated: 1760532553
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -8,3 +7,12 @@ AssetOrigin:
   packageVersion: 3.0.0
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Scripts/Runtime/Scriptables/Animations/Data/Wrapper/Playback/CoreLibraryPlaybackScriptable.cs
   uploadId: 821622
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

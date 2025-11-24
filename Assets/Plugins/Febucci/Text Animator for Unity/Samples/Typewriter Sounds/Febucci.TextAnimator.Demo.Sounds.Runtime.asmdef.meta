@@ -1,10 +1,5 @@
 fileFormatVersion: 2
 guid: b9f1cafbe8334ae4b66e89fd79c7d4fd
-AssemblyDefinitionImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -12,3 +7,8 @@ AssetOrigin:
   packageVersion: 3.0.0
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Samples/Typewriter Sounds/Febucci.TextAnimator.Demo.Sounds.Runtime.asmdef
   uploadId: 821622
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

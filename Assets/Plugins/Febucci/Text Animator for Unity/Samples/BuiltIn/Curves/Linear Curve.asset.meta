@@ -1,11 +1,5 @@
 fileFormatVersion: 2
 guid: 0c3a3b3cb6a84ef45806f0ffb1a2bdc5
-NativeFormatImporter:
-  externalObjects: {}
-  mainObjectFileID: 11400000
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -14,3 +8,9 @@ AssetOrigin:
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Samples/BuiltIn/Curves/Linear
     Curve.asset
   uploadId: 821622
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

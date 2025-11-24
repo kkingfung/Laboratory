@@ -1,11 +1,5 @@
 fileFormatVersion: 2
 guid: 503730955ff7ed9468949780cdcb9806
-NativeFormatImporter:
-  externalObjects: {}
-  mainObjectFileID: 11400000
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -14,3 +8,9 @@ AssetOrigin:
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Samples/BuiltIn/Settings/Shared
     Animator Settings.asset
   uploadId: 821622
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

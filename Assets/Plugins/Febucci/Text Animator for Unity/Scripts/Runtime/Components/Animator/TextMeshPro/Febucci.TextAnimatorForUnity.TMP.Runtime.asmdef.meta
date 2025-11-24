@@ -1,10 +1,5 @@
 fileFormatVersion: 2
 guid: e539678cf69674b418d82e89c16a9753
-AssemblyDefinitionImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -12,3 +7,8 @@ AssetOrigin:
   packageVersion: 3.0.0
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Scripts/Runtime/Components/Animator/TextMeshPro/Febucci.TextAnimatorForUnity.TMP.Runtime.asmdef
   uploadId: 821622
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

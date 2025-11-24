@@ -1,11 +1,5 @@
 fileFormatVersion: 2
 guid: 8128bfefef1915a459d529118f454b3e
-NativeFormatImporter:
-  externalObjects: {}
-  mainObjectFileID: 11400000
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -14,3 +8,9 @@ AssetOrigin:
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Samples/BuiltIn/Curves/Square
     Curve.asset
   uploadId: 821622
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

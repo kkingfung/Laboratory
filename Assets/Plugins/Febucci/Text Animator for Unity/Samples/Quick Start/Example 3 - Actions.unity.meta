@@ -1,10 +1,5 @@
 fileFormatVersion: 2
 guid: ba92474cac6c572459cd8fb75148ea94
-DefaultImporter:
-  externalObjects: {}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
   productId: 341308
@@ -13,3 +8,8 @@ AssetOrigin:
   assetPath: Assets/Plugins/Febucci/Text Animator for Unity/Samples/Quick Start/Example
     3 - Actions.unity
   uploadId: 821622
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
