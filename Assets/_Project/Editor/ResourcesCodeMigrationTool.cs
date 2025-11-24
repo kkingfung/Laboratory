@@ -97,7 +97,10 @@ namespace Laboratory.Editor
 
             // File and line number (clickable)
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button($"{Path.GetFileName(usage.FilePath)}:{usage.LineNumber}", EditorStyles.label))
+            var linkStyle = new GUIStyle(GUI.skin.label);
+            linkStyle.normal.textColor = new Color(0.3f, 0.5f, 1f);
+            linkStyle.hover.textColor = new Color(0.4f, 0.6f, 1f);
+            if (GUILayout.Button($"{Path.GetFileName(usage.FilePath)}:{usage.LineNumber}", linkStyle))
             {
                 OpenScriptAtLine(usage.FilePath, usage.LineNumber);
             }
