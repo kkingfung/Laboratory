@@ -7,6 +7,8 @@ using Laboratory.Core.Progression;
 using Laboratory.Core.Utilities;
 using Laboratory.Core.Configuration;
 using Laboratory.Shared.Types;
+using Unity.Entities;
+using Laboratory.Models.ECS.Components;
 
 namespace Laboratory.UI.Progression
 {
@@ -723,20 +725,47 @@ namespace Laboratory.UI.Progression
 
         private Laboratory.Chimera.Progression.PartnershipSkillComponent? GetCurrentPartnershipSkillData()
         {
-            // TODO: Get current partnership entity from PlayerProgressionManager or ECS World
-            // For now, return null until ECS integration is complete
-            // In production, this would query the ECS world for the player's active partnership
+            // Access ECS World to query for player's partnership entity
+            var world = World.DefaultGameObjectInjectionWorld;
+            if (world == null || !world.IsCreated)
+                return null;
 
-            // Example implementation (to be completed with actual ECS access):
-            // var world = World.DefaultGameObjectInjectionWorld;
-            // var entityManager = world?.EntityManager;
-            // if (entityManager != null && currentPartnershipEntity != Entity.Null)
-            // {
-            //     if (entityManager.HasComponent<PartnershipSkillComponent>(currentPartnershipEntity))
-            //     {
-            //         return entityManager.GetComponentData<PartnershipSkillComponent>(currentPartnershipEntity);
-            //     }
-            // }
+            var entityManager = world.EntityManager;
+
+            // Query for entities with LocalPlayerTag and PartnershipSkillComponent
+            var query = entityManager.CreateEntityQuery(
+                ComponentType.ReadOnly<LocalPlayerTag>(),
+                ComponentType.ReadOnly<Laboratory.Chimera.Progression.PartnershipSkillComponent>()
+            );
+
+            if (query.CalculateEntityCount() > 0)
+            {
+                // Get the first matching entity (should only be one local player)
+                var entity = query.GetSingletonEntity();
+
+                if (entityManager.HasComponent<Laboratory.Chimera.Progression.PartnershipSkillComponent>(entity))
+                {
+                    return entityManager.GetComponentData<Laboratory.Chimera.Progression.PartnershipSkillComponent>(entity);
+                }
+            }
+
+            // Fallback: Try querying without LocalPlayerTag (for testing scenarios)
+            var fallbackQuery = entityManager.CreateEntityQuery(
+                ComponentType.ReadOnly<Laboratory.Chimera.Progression.PartnershipSkillComponent>()
+            );
+
+            if (fallbackQuery.CalculateEntityCount() > 0)
+            {
+                // Get the first partnership entity found
+                var entities = fallbackQuery.ToEntityArray(Unity.Collections.Allocator.Temp);
+                if (entities.Length > 0)
+                {
+                    var skillData = entityManager.GetComponentData<Laboratory.Chimera.Progression.PartnershipSkillComponent>(entities[0]);
+                    entities.Dispose();
+                    return skillData;
+                }
+                entities.Dispose();
+            }
 
             return null;
         }
