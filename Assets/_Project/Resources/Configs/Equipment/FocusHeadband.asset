@@ -1,3 +1,35 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:daa118d57ecba55f348dc0b5b9a476480fe5ee9a9b50bde343e9c126bcba7e2f
-size 1048
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0, type: 3}
+  m_Name: FocusHeadband
+  m_EditorClassIdentifier:
+  itemId: 1003
+  itemName: Focus Headband
+  description: "A mystical headband that enhances mental clarity and problem-solving abilities. Ideal for puzzle challenges."
+  icon: {fileID: 0}
+  category: 2
+  slot: 0
+  rarity: 2
+  statBonusType: 4
+  statBonusValue: 0.25
+  activityBonus: 3
+  activityBonusValue: 0.20
+  requiredLevel: 10
+  requiredActivityLevel: 5
+  maxDurability: 200
+  durabilityLossPerUse: 1
+  purchasePrice: 2500
+  sellPrice: 1250
+  specialEffects: []
+  equipmentSetName: "Scholar's Attire"
+  setPiecesRequired: 3
+  setBonusDescription: "3-Piece Bonus: +12% intelligence, +10% puzzle speed bonus"

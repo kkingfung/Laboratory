@@ -1,3 +1,35 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:d768ae7913446b04185f281e2ec623a1bd7bf95c54935b5fd693f9402b8cc208
-size 1033
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0, type: 3}
+  m_Name: SpeedBoots
+  m_EditorClassIdentifier:
+  itemId: 1001
+  itemName: Speed Boots
+  description: "Lightweight racing boots that enhance your monster's agility. Perfect for maintaining high speeds through tight corners."
+  icon: {fileID: 0}
+  category: 0
+  slot: 3
+  rarity: 0
+  statBonusType: 2
+  statBonusValue: 0.15
+  activityBonus: 1
+  activityBonusValue: 0.1
+  requiredLevel: 1
+  requiredActivityLevel: 0
+  maxDurability: 100
+  durabilityLossPerUse: 1
+  purchasePrice: 250
+  sellPrice: 125
+  specialEffects: []
+  equipmentSetName: "Racer's Kit"
+  setPiecesRequired: 3
+  setBonusDescription: "3-Piece Bonus: +5% overall racing performance"

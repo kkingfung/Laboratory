@@ -1,3 +1,40 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:96ab54fc97af73d7998709d0afc48c42358943e050e68ebcfe3848307b283645
-size 1197
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77777777777777777777777777777777, type: 3}
+  m_Name: TundraBiome
+  m_EditorClassIdentifier:
+  biomeName: Tundra
+  biomeId: biome_tundra
+  elevationRange: {x: 0.6, y: 0.9}
+  moistureRange: {x: 0.2, y: 0.5}
+  temperatureRange: {x: 0, y: 0.3}
+  terrainColor: {r: 0.9, g: 0.95, b: 1, a: 1}
+  groundTexture: {fileID: 2800000, guid: b1b2b3b4b5b6b7b8b9b0b1b2b3b4b5b6, type: 3}
+  vegetationDensity: 0.1
+  creatureSpawnRate: 0.2
+  allowedCreatureTypes:
+  - aggressive_bear
+  - passive_caribou
+  weatherProbabilities:
+  - weatherType: 0
+    probability: 0.2
+  - weatherType: 1
+    probability: 0.3
+  - weatherType: 2
+    probability: 0
+  - weatherType: 3
+    probability: 0
+  - weatherType: 4
+    probability: 0.5
+  ambientSound: {fileID: 8300000, guid: c1c2c3c4c5c6c7c8c9c0c1c2c3c4c5c6, type: 3}
+  fogColor: {r: 0.8, g: 0.85, b: 0.9, a: 1}
+  fogDensity: 0.05

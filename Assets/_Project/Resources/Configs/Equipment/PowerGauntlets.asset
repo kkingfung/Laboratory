@@ -1,3 +1,35 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:d7cb8ad38c2d9681f799665e3ef441bda2ca2f2200840866f6fd0f996e0197c9
-size 1043
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0, type: 3}
+  m_Name: PowerGauntlets
+  m_EditorClassIdentifier:
+  itemId: 1004
+  itemName: Power Gauntlets
+  description: "Legendary gauntlets that amplify physical strength. Devastating in combat arenas."
+  icon: {fileID: 0}
+  category: 3
+  slot: 2
+  rarity: 3
+  statBonusType: 1
+  statBonusValue: 0.35
+  activityBonus: 2
+  activityBonusValue: 0.25
+  requiredLevel: 25
+  requiredActivityLevel: 15
+  maxDurability: 300
+  durabilityLossPerUse: 1
+  purchasePrice: 8000
+  sellPrice: 4000
+  specialEffects: []
+  equipmentSetName: "Champion's Arsenal"
+  setPiecesRequired: 5
+  setBonusDescription: "5-Piece Bonus: +15% strength, +12% combat performance, critical hit chance"
