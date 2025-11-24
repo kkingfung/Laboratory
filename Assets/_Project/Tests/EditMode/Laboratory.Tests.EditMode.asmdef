@@ -10,6 +10,8 @@
         "Laboratory.Core.Activities",
         "Laboratory.Core.ECS",
         "Laboratory.Chimera",
+        "Laboratory.Chimera.Core",
+        "Laboratory.Chimera.Genetics",
         "Laboratory.Shared",
         "Unity.Entities",
         "Unity.Collections",
