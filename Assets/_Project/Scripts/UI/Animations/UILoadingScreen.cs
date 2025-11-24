@@ -337,5 +337,14 @@ namespace Laboratory.UI.Animations
         }
 
         #endregion
+
+        private void OnDestroy()
+        {
+            // Clean up singleton reference
+            if (_instance == this)
+            {
+                _instance = null;
+            }
+        }
     }
 }

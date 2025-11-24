@@ -27,10 +27,8 @@ namespace Laboratory.Subsystems.Team.Systems
         // Matchmaking parameters (configurable via ScriptableObject)
         private float _skillRangeExpansionRate = 50f; // Expand search range over time
         private float _maxSkillGap = 300f; // Maximum skill difference allowed
-        #pragma warning disable CS0414
-        private float _beginnerProtectionThreshold = 1200f; // Protect new players
-        private int _idealTeamSize = 4;
-        #pragma warning restore CS0414
+        private float _beginnerProtectionThreshold = 1200f; // Skill rating threshold for beginner protection
+        private int _idealTeamSize = 4; // Default team size when preference not specified
         private float _matchQualityThreshold = 0.6f; // Minimum acceptable match quality
 
         protected override void OnCreate()
@@ -123,7 +121,9 @@ namespace Laboratory.Subsystems.Team.Systems
                 {
                     teammates.Add(j);
 
-                    if (teammates.Length >= player.PreferredTeamSize)
+                    // Use preferred team size, or ideal team size if not specified
+                    int targetTeamSize = player.PreferredTeamSize > 0 ? player.PreferredTeamSize : _idealTeamSize;
+                    if (teammates.Length >= targetTeamSize)
                         break;
                 }
             }
@@ -161,12 +161,16 @@ namespace Laboratory.Subsystems.Team.Systems
             if (skillGap > skillRange)
                 return false;
 
-            // Beginner protection - don't match beginners with experts
-            if (player1.SkillLevel == PlayerSkillLevel.Tutorial ||
-                player1.SkillLevel == PlayerSkillLevel.Beginner)
+            // Beginner protection - don't match low-skilled players with high-skilled players
+            bool player1IsBeginner = player1.SkillRating < _beginnerProtectionThreshold ||
+                                    player1.SkillLevel == PlayerSkillLevel.Tutorial ||
+                                    player1.SkillLevel == PlayerSkillLevel.Beginner;
+
+            bool player2IsExpert = player2.SkillLevel >= PlayerSkillLevel.Advanced;
+
+            if (player1IsBeginner && player2IsExpert)
             {
-                if (player2.SkillLevel >= PlayerSkillLevel.Advanced)
-                    return false;
+                return false;
             }
 
             // Check preference compatibility
