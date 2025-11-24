@@ -1,3 +1,16 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:6839fb156576792ca78ce68f134323b8637de2d2b96a5304177bb813d6d0bffd
-size 505
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1
+MonoBehaviour:
+  m_ObjectHideFlags: 61
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2ea235c1fcfe29488ed97c467a0da53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Entities.Build::Unity.Entities.Build.EntitiesClientSettings
+  FilterSettings:
+    ExcludedBakingSystemAssemblies: []
