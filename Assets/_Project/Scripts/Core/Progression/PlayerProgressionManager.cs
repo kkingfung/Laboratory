@@ -57,6 +57,11 @@ namespace Laboratory.Core.Progression
         public System.Action<TerritoryTier> OnTerritoryExpanded; // newTier
         public System.Action<int> OnCreatureSlotsIncreased; // newSlotCount
 
+        // Skill-based progression events (for partnership system)
+        public System.Action<string, string, float> OnSkillMilestoneReached; // genre, milestoneType, masteryLevel
+        public System.Action<string, float, float> OnSkillImproved; // skillName, oldValue, newValue
+        public System.Action<float, float, float> OnPartnershipQualityChanged; // cooperation, trust, understanding
+
         // Singleton access
         private static PlayerProgressionManager instance;
         public static PlayerProgressionManager Instance => instance;
