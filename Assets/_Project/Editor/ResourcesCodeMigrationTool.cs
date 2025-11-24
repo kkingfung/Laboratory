@@ -93,11 +93,11 @@ namespace Laboratory.Editor
 
         private void DrawUsageBox(ResourcesUsage usage)
         {
-            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.BeginVertical(GUI.skin.box);
 
             // File and line number (clickable)
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button($"{Path.GetFileName(usage.FilePath)}:{usage.LineNumber}", EditorStyles.linkLabel))
+            if (GUILayout.Button($"{Path.GetFileName(usage.FilePath)}:{usage.LineNumber}", EditorStyles.label))
             {
                 OpenScriptAtLine(usage.FilePath, usage.LineNumber);
             }
