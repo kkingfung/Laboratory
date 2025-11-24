@@ -117,7 +117,7 @@ namespace Laboratory.Advanced
 
         private void LoadAllShaders()
         {
-            var shaders = Resources.FindObjectsOfTypeAll<Shader>();
+            var shaders = UnityEngine.Object.FindObjectsByType<Shader>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
             foreach (var shader in shaders)
             {

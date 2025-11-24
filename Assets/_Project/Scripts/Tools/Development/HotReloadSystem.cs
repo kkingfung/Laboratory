@@ -175,7 +175,7 @@ namespace ProjectChimera.Tools.Development
             _preservedActiveStates.Clear();
 
             // Save all GameObjects with PreserveStateComponent
-            var preserveComponents = FindObjectsOfType<PreserveStateComponent>();
+            var preserveComponents = FindObjectsByType<PreserveStateComponent>(FindObjectsSortMode.None);
             foreach (var comp in preserveComponents)
             {
                 string id = GetObjectID(comp.gameObject);
@@ -226,7 +226,7 @@ namespace ProjectChimera.Tools.Development
             _preservedActiveStates = DeserializeActiveStates(activeStatesJson);
 
             // Restore all components
-            var preserveComponents = FindObjectsOfType<PreserveStateComponent>();
+            var preserveComponents = FindObjectsByType<PreserveStateComponent>(FindObjectsSortMode.None);
             foreach (var comp in preserveComponents)
             {
                 string id = GetObjectID(comp.gameObject);

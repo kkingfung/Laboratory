@@ -617,7 +617,7 @@ namespace Laboratory.Core.Network
             isServer = false;
 
             // Check for Unity Netcode for GameObjects
-            var netcodeNetworkManager = FindObjectOfType<Unity.Netcode.NetworkManager>();
+            var netcodeNetworkManager = FindFirstObjectByType<Unity.Netcode.NetworkManager>();
             if (netcodeNetworkManager != null)
             {
                 isServer = netcodeNetworkManager.IsServer;
@@ -628,7 +628,7 @@ namespace Laboratory.Core.Network
             }
 
             // Check for Mirror Networking (if available)
-            var mirrorNetworkManager = GameObject.FindObjectOfType<MonoBehaviour>();
+            var mirrorNetworkManager = GameObject.FindFirstObjectByType<MonoBehaviour>();
             if (mirrorNetworkManager != null && mirrorNetworkManager.GetType().Name.Contains("NetworkManager"))
             {
                 // Use reflection to safely check Mirror's NetworkManager
@@ -647,7 +647,7 @@ namespace Laboratory.Core.Network
             }
 
             // Check for custom network implementations
-            var customNetworkComponents = FindObjectsOfType<MonoBehaviour>();
+            var customNetworkComponents = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
             foreach (var component in customNetworkComponents)
             {
                 var typeName = component.GetType().Name.ToLower();
