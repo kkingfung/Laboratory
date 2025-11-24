@@ -3,3 +3,4 @@
 *.fbx binary
 *.png binary
 *.wav binary
+"Assets/_DLNK/Winter[[:space:]]Lands/Scenes/Demo[[:space:]]WinterLands/WinterLands/OcclusionCullingData.asset" filter=lfs diff=lfs merge=lfs -text
