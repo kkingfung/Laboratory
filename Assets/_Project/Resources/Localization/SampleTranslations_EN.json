@@ -1,0 +1,70 @@
+{
+  "language": "English",
+  "languageCode": "en",
+  "translations": {
+    "ui.common.yes": "Yes",
+    "ui.common.no": "No",
+    "ui.common.ok": "OK",
+    "ui.common.cancel": "Cancel",
+    "ui.common.confirm": "Confirm",
+    "ui.common.back": "Back",
+    "ui.common.next": "Next",
+    "ui.common.close": "Close",
+    "ui.common.save": "Save",
+    "ui.common.load": "Load",
+
+    "ui.menu.start": "Start Game",
+    "ui.menu.continue": "Continue",
+    "ui.menu.settings": "Settings",
+    "ui.menu.quit": "Quit",
+
+    "ui.progression.mastery": "Mastery",
+    "ui.progression.activities": "Activities",
+    "ui.progression.cooperation": "Cooperation",
+    "ui.progression.trust": "Trust",
+    "ui.progression.understanding": "Understanding",
+    "ui.progression.successRate": "Success Rate",
+    "ui.progression.trend": "Trend",
+
+    "ui.progression.tier.novice": "Novice",
+    "ui.progression.tier.beginner": "Beginner",
+    "ui.progression.tier.competent": "Competent",
+    "ui.progression.tier.proficient": "Proficient",
+    "ui.progression.tier.expert": "Expert",
+    "ui.progression.tier.master": "Master",
+
+    "ui.progression.title.novice": "New Partnership - Welcome!",
+    "ui.progression.title.beginner": "Beginner Partnership - Starting Journey",
+    "ui.progression.title.competent": "Competent Partnership - Building Skills",
+    "ui.progression.title.proficient": "Proficient Partnership - Growing Together",
+    "ui.progression.title.expert": "Expert Partnership - Highly Skilled Team",
+    "ui.progression.title.master": "Elite Partnership - Master of Multiple Genres",
+
+    "ui.genres.action": "Action",
+    "ui.genres.strategy": "Strategy",
+    "ui.genres.puzzle": "Puzzle",
+    "ui.genres.racing": "Racing",
+    "ui.genres.rhythm": "Rhythm",
+    "ui.genres.exploration": "Exploration",
+    "ui.genres.economics": "Economics",
+
+    "notification.milestone.title": "{0} Milestone!",
+    "notification.milestone.message": "Reached {0} ({1}%)\nUnlocked: {2}",
+
+    "gameplay.chimera.cooperation.high": "Your chimera is very cooperative!",
+    "gameplay.chimera.cooperation.low": "Your chimera needs encouragement.",
+    "gameplay.chimera.trust.building": "Trust is growing...",
+    "gameplay.chimera.understanding.improving": "You're learning their personality!",
+
+    "equipment.fit.perfect": "Perfect fit! Chimera loves this!",
+    "equipment.fit.good": "Chimera likes this equipment.",
+    "equipment.fit.neutral": "Chimera tolerates this equipment.",
+    "equipment.fit.poor": "Chimera dislikes this equipment.",
+
+    "system.loading": "Loading...",
+    "system.saving": "Saving...",
+    "system.error.generic": "An error occurred. Please try again.",
+    "system.error.save": "Failed to save progress.",
+    "system.error.load": "Failed to load data."
+  }
+}

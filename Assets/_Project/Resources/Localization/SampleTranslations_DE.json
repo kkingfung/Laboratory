@@ -1,0 +1,70 @@
+{
+  "language": "Deutsch",
+  "languageCode": "de",
+  "translations": {
+    "ui.common.yes": "Ja",
+    "ui.common.no": "Nein",
+    "ui.common.ok": "OK",
+    "ui.common.cancel": "Abbrechen",
+    "ui.common.confirm": "Bestätigen",
+    "ui.common.back": "Zurück",
+    "ui.common.next": "Weiter",
+    "ui.common.close": "Schließen",
+    "ui.common.save": "Speichern",
+    "ui.common.load": "Laden",
+
+    "ui.menu.start": "Spiel Starten",
+    "ui.menu.continue": "Fortsetzen",
+    "ui.menu.settings": "Einstellungen",
+    "ui.menu.quit": "Beenden",
+
+    "ui.progression.mastery": "Meisterschaft",
+    "ui.progression.activities": "Aktivitäten",
+    "ui.progression.cooperation": "Zusammenarbeit",
+    "ui.progression.trust": "Vertrauen",
+    "ui.progression.understanding": "Verständnis",
+    "ui.progression.successRate": "Erfolgsrate",
+    "ui.progression.trend": "Trend",
+
+    "ui.progression.tier.novice": "Anfänger",
+    "ui.progression.tier.beginner": "Neuling",
+    "ui.progression.tier.competent": "Kompetent",
+    "ui.progression.tier.proficient": "Versiert",
+    "ui.progression.tier.expert": "Experte",
+    "ui.progression.tier.master": "Meister",
+
+    "ui.progression.title.novice": "Neue Partnerschaft - Willkommen!",
+    "ui.progression.title.beginner": "Anfängerpartnerschaft - Reisebeginn",
+    "ui.progression.title.competent": "Kompetente Partnerschaft - Fähigkeiten Aufbauen",
+    "ui.progression.title.proficient": "Versierte Partnerschaft - Gemeinsam Wachsen",
+    "ui.progression.title.expert": "Expertenpartnerschaft - Hochqualifiziertes Team",
+    "ui.progression.title.master": "Elite-Partnerschaft - Meister Mehrerer Genres",
+
+    "ui.genres.action": "Action",
+    "ui.genres.strategy": "Strategie",
+    "ui.genres.puzzle": "Puzzle",
+    "ui.genres.racing": "Rennen",
+    "ui.genres.rhythm": "Rhythmus",
+    "ui.genres.exploration": "Erkundung",
+    "ui.genres.economics": "Wirtschaft",
+
+    "notification.milestone.title": "{0} Meilenstein!",
+    "notification.milestone.message": "{0} Erreicht ({1}%)\nFreigeschaltet: {2}",
+
+    "gameplay.chimera.cooperation.high": "Deine Chimäre ist sehr kooperativ!",
+    "gameplay.chimera.cooperation.low": "Deine Chimäre braucht Ermutigung.",
+    "gameplay.chimera.trust.building": "Das Vertrauen wächst...",
+    "gameplay.chimera.understanding.improving": "Du lernst ihre Persönlichkeit kennen!",
+
+    "equipment.fit.perfect": "Perfekt! Die Chimäre liebt das!",
+    "equipment.fit.good": "Die Chimäre mag diese Ausrüstung.",
+    "equipment.fit.neutral": "Die Chimäre toleriert diese Ausrüstung.",
+    "equipment.fit.poor": "Die Chimäre mag diese Ausrüstung nicht.",
+
+    "system.loading": "Lädt...",
+    "system.saving": "Speichert...",
+    "system.error.generic": "Ein Fehler ist aufgetreten. Bitte versuche es erneut.",
+    "system.error.save": "Speichern fehlgeschlagen.",
+    "system.error.load": "Laden fehlgeschlagen."
+  }
+}
