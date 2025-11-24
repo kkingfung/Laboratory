@@ -1,3 +1,4 @@
+using System;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -8,9 +9,22 @@ using Laboratory.Chimera.Creatures;
 namespace Laboratory.Chimera.Breeding
 {
     /// <summary>
-    /// System managing the breeding of chimera creatures
-    /// Handles genetic combinations, trait inheritance, and offspring generation
+    /// ⚠️ DEPRECATED - DO NOT USE
+    /// This breeding system has been superseded by Laboratory.Core.ECS.Systems.ChimeraBreedingSystem
+    ///
+    /// MIGRATION PATH:
+    /// - Use Laboratory.Core.ECS.Systems.ChimeraBreedingSystem (Burst-compiled, 10-100x faster)
+    /// - Use Laboratory.Chimera.Breeding.BreedingSystem for service-layer breeding logic
+    ///
+    /// REASON FOR DEPRECATION:
+    /// - Not Burst-compiled (performance issue)
+    /// - Lacks environmental factors integration
+    /// - No spatial hashing for mate finding
+    /// - Duplicate functionality with canonical ECS system
+    ///
+    /// This class will be removed in a future version.
     /// </summary>
+    [Obsolete("Use Laboratory.Core.ECS.Systems.ChimeraBreedingSystem instead. This implementation is deprecated and will be removed.", true)]
     public partial class ChimeraBreedingSystem : SystemBase
     {
         #region Fields
