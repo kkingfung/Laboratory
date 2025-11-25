@@ -1,13 +1,13 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using DG.Tweening;
+using System.Collections;
 
 namespace Laboratory.UI.Animations
 {
     /// <summary>
     /// Provides visual animations for UI buttons including hover, press, and click effects
-    /// Uses DOTween for smooth, performant animations
+    /// Uses Unity coroutines for smooth, performant animations
     /// Includes scale, color, rotation, and punch animations
     /// </summary>
     [RequireComponent(typeof(Button))]
@@ -24,7 +24,6 @@ namespace Laboratory.UI.Animations
 
         [SerializeField] private bool enableClickPunch = true;
         [SerializeField] private float punchStrength = 0.1f;
-        [SerializeField] private int punchVibrato = 10;
         [SerializeField] private float punchDuration = 0.3f;
 
         [Header("Color Animation")]
@@ -38,9 +37,9 @@ namespace Laboratory.UI.Animations
         [SerializeField] private float rotationAngle = 5f;
         [SerializeField] private float rotationDuration = 0.2f;
 
-        [Header("Ease Settings")]
-        [SerializeField] private Ease hoverEase = Ease.OutQuad;
-        [SerializeField] private Ease pressEase = Ease.InQuad;
+        [Header("Animation Curves")]
+        [SerializeField] private AnimationCurve hoverCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+        [SerializeField] private AnimationCurve pressCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
         // Component references
         private Button _button;
@@ -53,7 +52,7 @@ namespace Laboratory.UI.Animations
         // Animation state
         private bool _isHovering = false;
         private bool _isPressing = false;
-        private Tweener _currentTween;
+        private Coroutine _currentAnimation;
 
         private void Awake()
         {
@@ -77,10 +76,10 @@ namespace Laboratory.UI.Animations
 
         private void OnDestroy()
         {
-            // Clean up tweens
-            if (_currentTween != null && _currentTween.IsActive())
+            // Clean up animations
+            if (_currentAnimation != null)
             {
-                _currentTween.Kill();
+                StopCoroutine(_currentAnimation);
             }
 
             // Remove listener
@@ -126,123 +125,134 @@ namespace Laboratory.UI.Animations
 
         private void AnimateHoverEnter()
         {
-            KillCurrentTween();
+            StopCurrentAnimation();
 
-            Sequence sequence = DOTween.Sequence();
+            Vector3 targetScale = enableHoverScale ? _originalScale * hoverScale : _originalScale;
+            Color targetColor = enableColorChange && _image != null ? hoverColor : _originalColor;
+            Vector3 targetRotation = enableRotation ? new Vector3(0, 0, rotationAngle) : Vector3.zero;
 
-            // Scale animation
-            if (enableHoverScale)
-            {
-                sequence.Join(_rectTransform.DOScale(_originalScale * hoverScale, hoverDuration).SetEase(hoverEase));
-            }
-
-            // Color animation
-            if (enableColorChange && _image != null)
-            {
-                sequence.Join(_image.DOColor(hoverColor, colorDuration));
-            }
-
-            // Rotation animation
-            if (enableRotation)
-            {
-                sequence.Join(_rectTransform.DOLocalRotate(new Vector3(0, 0, rotationAngle), rotationDuration).SetEase(hoverEase));
-            }
-
-            _currentTween = sequence;
+            _currentAnimation = StartCoroutine(AnimateTransform(
+                _rectTransform.localScale, targetScale,
+                _image != null ? _image.color : _originalColor, targetColor,
+                _rectTransform.localEulerAngles, targetRotation,
+                hoverDuration, hoverCurve
+            ));
         }
 
         private void AnimateHoverExit()
         {
-            KillCurrentTween();
+            StopCurrentAnimation();
 
-            Sequence sequence = DOTween.Sequence();
-
-            // Return to original scale
-            if (enableHoverScale)
-            {
-                sequence.Join(_rectTransform.DOScale(_originalScale, hoverDuration).SetEase(hoverEase));
-            }
-
-            // Return to original color
-            if (enableColorChange && _image != null)
-            {
-                sequence.Join(_image.DOColor(_originalColor, colorDuration));
-            }
-
-            // Return to original rotation
-            if (enableRotation)
-            {
-                sequence.Join(_rectTransform.DOLocalRotate(Vector3.zero, rotationDuration).SetEase(hoverEase));
-            }
-
-            _currentTween = sequence;
+            _currentAnimation = StartCoroutine(AnimateTransform(
+                _rectTransform.localScale, _originalScale,
+                _image != null ? _image.color : _originalColor, _originalColor,
+                _rectTransform.localEulerAngles, Vector3.zero,
+                hoverDuration, hoverCurve
+            ));
         }
 
         private void AnimatePressDown()
         {
             if (!enablePressScale) return;
 
-            KillCurrentTween();
+            StopCurrentAnimation();
 
-            Sequence sequence = DOTween.Sequence();
-
-            // Press scale
             float targetScale = _isHovering ? (hoverScale * pressScale) : pressScale;
-            sequence.Append(_rectTransform.DOScale(_originalScale * targetScale, pressDuration).SetEase(pressEase));
+            Color targetColor = enableColorChange && _image != null ? pressColor : (_image != null ? _image.color : _originalColor);
 
-            // Press color
-            if (enableColorChange && _image != null)
-            {
-                sequence.Join(_image.DOColor(pressColor, colorDuration));
-            }
-
-            _currentTween = sequence;
+            _currentAnimation = StartCoroutine(AnimateTransform(
+                _rectTransform.localScale, _originalScale * targetScale,
+                _image != null ? _image.color : _originalColor, targetColor,
+                _rectTransform.localEulerAngles, _rectTransform.localEulerAngles,
+                pressDuration, pressCurve
+            ));
         }
 
         private void AnimatePressUp()
         {
-            Sequence sequence = DOTween.Sequence();
+            StopCurrentAnimation();
 
-            // Return to hover or normal state
-            if (_isHovering)
-            {
-                if (enableHoverScale)
-                {
-                    sequence.Append(_rectTransform.DOScale(_originalScale * hoverScale, pressDuration).SetEase(hoverEase));
-                }
-                if (enableColorChange && _image != null)
-                {
-                    sequence.Join(_image.DOColor(hoverColor, colorDuration));
-                }
-            }
-            else
-            {
-                if (enableHoverScale || enablePressScale)
-                {
-                    sequence.Append(_rectTransform.DOScale(_originalScale, pressDuration).SetEase(hoverEase));
-                }
-                if (enableColorChange && _image != null)
-                {
-                    sequence.Join(_image.DOColor(_originalColor, colorDuration));
-                }
-            }
+            Vector3 targetScale = _isHovering && enableHoverScale ? _originalScale * hoverScale : _originalScale;
+            Color targetColor = _isHovering && enableColorChange ? hoverColor : _originalColor;
 
-            _currentTween = sequence;
+            _currentAnimation = StartCoroutine(AnimateTransform(
+                _rectTransform.localScale, targetScale,
+                _image != null ? _image.color : _originalColor, targetColor,
+                _rectTransform.localEulerAngles, _rectTransform.localEulerAngles,
+                pressDuration, hoverCurve
+            ));
         }
 
         private void PlayClickAnimation()
         {
             if (!enableClickPunch) return;
 
-            // Punch scale animation
-            _rectTransform.DOPunchScale(Vector3.one * punchStrength, punchDuration, punchVibrato);
+            StartCoroutine(PunchScaleAnimation());
         }
 
-        private void KillCurrentTween()
+        private IEnumerator AnimateTransform(
+            Vector3 startScale, Vector3 endScale,
+            Color startColor, Color endColor,
+            Vector3 startRotation, Vector3 endRotation,
+            float duration, AnimationCurve curve)
         {
-            if (_currentTween != null && _currentTween.IsActive())
+            float elapsed = 0f;
+
+            while (elapsed < duration)
             {
-                _currentTween.Kill();
+                elapsed += Time.unscaledDeltaTime;
+                float t = curve.Evaluate(elapsed / duration);
+
+                _rectTransform.localScale = Vector3.Lerp(startScale, endScale, t);
+
+                if (_image != null && enableColorChange)
+                {
+                    _image.color = Color.Lerp(startColor, endColor, t);
+                }
+
+                if (enableRotation)
+                {
+                    _rectTransform.localEulerAngles = Vector3.Lerp(startRotation, endRotation, t);
+                }
+
+                yield return null;
+            }
+
+            // Ensure final values
+            _rectTransform.localScale = endScale;
+            if (_image != null && enableColorChange)
+                _image.color = endColor;
+            if (enableRotation)
+                _rectTransform.localEulerAngles = endRotation;
+        }
+
+        private IEnumerator PunchScaleAnimation()
+        {
+            float elapsed = 0f;
+            Vector3 startScale = _rectTransform.localScale;
+
+            while (elapsed < punchDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = elapsed / punchDuration;
+
+                // Sine wave for punch effect
+                float punchAmount = Mathf.Sin(t * Mathf.PI * 4) * punchStrength * (1 - t);
+                _rectTransform.localScale = startScale + Vector3.one * punchAmount;
+
+                yield return null;
+            }
+
+            // Return to original scale
+            _rectTransform.localScale = startScale;
+        }
+
+        private void StopCurrentAnimation()
+        {
+            if (_currentAnimation != null)
+            {
+                StopCoroutine(_currentAnimation);
+                _currentAnimation = null;
             }
         }
 
@@ -255,7 +265,7 @@ namespace Laboratory.UI.Animations
         /// </summary>
         public void ResetToOriginal()
         {
-            KillCurrentTween();
+            StopCurrentAnimation();
             _rectTransform.localScale = _originalScale;
             _rectTransform.localRotation = _originalRotation;
             if (_image != null)
@@ -281,6 +291,7 @@ namespace Laboratory.UI.Animations
         [ContextMenu("Preview Hover Animation")]
         private void PreviewHoverAnimation()
         {
+            if (!Application.isPlaying) return;
             _isHovering = true;
             AnimateHoverEnter();
         }
@@ -288,6 +299,7 @@ namespace Laboratory.UI.Animations
         [ContextMenu("Preview Click Animation")]
         private void PreviewClickAnimation()
         {
+            if (!Application.isPlaying) return;
             PlayClickAnimation();
         }
 

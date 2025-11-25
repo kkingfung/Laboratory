@@ -1,13 +1,13 @@
 using UnityEngine;
-using DG.Tweening;
 using System;
+using System.Collections;
 
 namespace Laboratory.UI.Animations
 {
     /// <summary>
     /// Animates UI panel/screen transitions with fade, slide, scale, and custom effects
     /// Supports show/hide animations with callbacks
-    /// Uses DOTween for smooth, performant transitions
+    /// Uses Unity coroutines for smooth, performant transitions
     /// </summary>
     public class UITransitionAnimator : MonoBehaviour
     {
@@ -21,9 +21,9 @@ namespace Laboratory.UI.Animations
         [SerializeField] private float showDelay = 0f;
         [SerializeField] private float hideDelay = 0f;
 
-        [Header("Easing")]
-        [SerializeField] private Ease showEase = Ease.OutCubic;
-        [SerializeField] private Ease hideEase = Ease.InCubic;
+        [Header("Animation Curves")]
+        [SerializeField] private AnimationCurve showCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+        [SerializeField] private AnimationCurve hideCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
         [Header("Slide Settings")]
         [SerializeField] private SlideDirection slideDirection = SlideDirection.Bottom;
@@ -46,7 +46,7 @@ namespace Laboratory.UI.Animations
         private Vector3 _originalScale;
 
         // State
-        private Sequence _currentSequence;
+        private Coroutine _currentAnimation;
         private bool _isShowing = false;
 
         public enum TransitionType
@@ -95,17 +95,17 @@ namespace Laboratory.UI.Animations
 
         private void OnDisable()
         {
-            if (playHideOnDisable && _currentSequence != null)
+            if (playHideOnDisable && _currentAnimation != null)
             {
-                _currentSequence.Kill();
+                StopCoroutine(_currentAnimation);
             }
         }
 
         private void OnDestroy()
         {
-            if (_currentSequence != null && _currentSequence.IsActive())
+            if (_currentAnimation != null)
             {
-                _currentSequence.Kill();
+                StopCoroutine(_currentAnimation);
             }
         }
 
@@ -118,22 +118,10 @@ namespace Laboratory.UI.Animations
         {
             if (_isShowing) return;
 
-            KillCurrentSequence();
+            StopCurrentAnimation();
             _isShowing = true;
 
-            // Prepare initial state
-            PrepareShowState();
-
-            // Create animation sequence
-            _currentSequence = DOTween.Sequence();
-            _currentSequence.SetDelay(showDelay);
-
-            BuildShowAnimation(_currentSequence);
-
-            _currentSequence.OnComplete(() =>
-            {
-                onComplete?.Invoke();
-            });
+            _currentAnimation = StartCoroutine(ShowCoroutine(onComplete));
         }
 
         /// <summary>
@@ -143,20 +131,10 @@ namespace Laboratory.UI.Animations
         {
             if (!_isShowing) return;
 
-            KillCurrentSequence();
+            StopCurrentAnimation();
             _isShowing = false;
 
-            // Create animation sequence
-            _currentSequence = DOTween.Sequence();
-            _currentSequence.SetDelay(hideDelay);
-
-            BuildHideAnimation(_currentSequence);
-
-            _currentSequence.OnComplete(() =>
-            {
-                onComplete?.Invoke();
-                gameObject.SetActive(false);
-            });
+            _currentAnimation = StartCoroutine(HideCoroutine(onComplete));
         }
 
         /// <summary>
@@ -175,7 +153,7 @@ namespace Laboratory.UI.Animations
         /// </summary>
         public void ShowImmediate()
         {
-            KillCurrentSequence();
+            StopCurrentAnimation();
             _canvasGroup.alpha = 1f;
             _rectTransform.anchoredPosition = _originalPosition;
             _rectTransform.localScale = _originalScale;
@@ -188,7 +166,7 @@ namespace Laboratory.UI.Animations
         /// </summary>
         public void HideImmediate()
         {
-            KillCurrentSequence();
+            StopCurrentAnimation();
             _canvasGroup.alpha = 0f;
             _isShowing = false;
             gameObject.SetActive(false);
@@ -196,7 +174,35 @@ namespace Laboratory.UI.Animations
 
         #endregion
 
-        #region Private Animation Methods
+        #region Coroutine Animation Methods
+
+        private IEnumerator ShowCoroutine(Action onComplete)
+        {
+            // Prepare initial state
+            PrepareShowState();
+
+            // Wait for delay
+            if (showDelay > 0)
+                yield return new WaitForSeconds(showDelay);
+
+            // Animate based on transition type
+            yield return StartCoroutine(AnimateShow());
+
+            onComplete?.Invoke();
+        }
+
+        private IEnumerator HideCoroutine(Action onComplete)
+        {
+            // Wait for delay
+            if (hideDelay > 0)
+                yield return new WaitForSeconds(hideDelay);
+
+            // Animate based on transition type
+            yield return StartCoroutine(AnimateHide());
+
+            gameObject.SetActive(false);
+            onComplete?.Invoke();
+        }
 
         private void PrepareShowState()
         {
@@ -234,85 +240,118 @@ namespace Laboratory.UI.Animations
             }
         }
 
-        private void BuildShowAnimation(Sequence sequence)
+        private IEnumerator AnimateShow()
         {
-            switch (showTransition)
+            float elapsed = 0f;
+            float startAlpha = _canvasGroup.alpha;
+            Vector2 startPos = _rectTransform.anchoredPosition;
+            Vector3 startScaleValue = _rectTransform.localScale;
+
+            while (elapsed < showDuration)
             {
-                case TransitionType.Fade:
-                    sequence.Append(_canvasGroup.DOFade(1f, showDuration).SetEase(showEase));
-                    break;
+                elapsed += Time.unscaledDeltaTime;
+                float t = showCurve.Evaluate(elapsed / showDuration);
 
-                case TransitionType.Slide:
-                    sequence.Append(_rectTransform.DOAnchorPos(_originalPosition, showDuration).SetEase(showEase));
-                    break;
+                switch (showTransition)
+                {
+                    case TransitionType.Fade:
+                        _canvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, t);
+                        break;
 
-                case TransitionType.Scale:
-                    sequence.Append(_rectTransform.DOScale(_originalScale, showDuration).SetEase(showEase));
-                    break;
+                    case TransitionType.Slide:
+                        _rectTransform.anchoredPosition = Vector2.Lerp(startPos, _originalPosition, t);
+                        break;
 
-                case TransitionType.FadeSlideIn:
-                    sequence.Append(_canvasGroup.DOFade(1f, showDuration).SetEase(showEase));
-                    sequence.Join(_rectTransform.DOAnchorPos(_originalPosition, showDuration).SetEase(showEase));
-                    break;
+                    case TransitionType.Scale:
+                        _rectTransform.localScale = Vector3.Lerp(startScaleValue, _originalScale, t);
+                        break;
 
-                case TransitionType.FadeSlideOut:
-                    sequence.Append(_canvasGroup.DOFade(1f, showDuration).SetEase(showEase));
-                    sequence.Join(_rectTransform.DOAnchorPos(_originalPosition, showDuration).SetEase(showEase));
-                    break;
+                    case TransitionType.FadeSlideIn:
+                    case TransitionType.FadeSlideOut:
+                        _canvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, t);
+                        _rectTransform.anchoredPosition = Vector2.Lerp(startPos, _originalPosition, t);
+                        break;
 
-                case TransitionType.FadeScale:
-                    sequence.Append(_canvasGroup.DOFade(1f, showDuration).SetEase(showEase));
-                    sequence.Join(_rectTransform.DOScale(_originalScale, showDuration).SetEase(showEase));
-                    break;
+                    case TransitionType.FadeScale:
+                        _canvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, t);
+                        _rectTransform.localScale = Vector3.Lerp(startScaleValue, _originalScale, t);
+                        break;
 
-                case TransitionType.SlideScale:
-                    sequence.Append(_rectTransform.DOAnchorPos(_originalPosition, showDuration).SetEase(showEase));
-                    sequence.Join(_rectTransform.DOScale(_originalScale, showDuration).SetEase(showEase));
-                    break;
+                    case TransitionType.SlideScale:
+                        _rectTransform.anchoredPosition = Vector2.Lerp(startPos, _originalPosition, t);
+                        _rectTransform.localScale = Vector3.Lerp(startScaleValue, _originalScale, t);
+                        break;
 
-                case TransitionType.FullTransition:
-                    sequence.Append(_canvasGroup.DOFade(1f, showDuration).SetEase(showEase));
-                    sequence.Join(_rectTransform.DOAnchorPos(_originalPosition, showDuration).SetEase(showEase));
-                    sequence.Join(_rectTransform.DOScale(_originalScale, showDuration).SetEase(showEase));
-                    break;
+                    case TransitionType.FullTransition:
+                        _canvasGroup.alpha = Mathf.Lerp(startAlpha, 1f, t);
+                        _rectTransform.anchoredPosition = Vector2.Lerp(startPos, _originalPosition, t);
+                        _rectTransform.localScale = Vector3.Lerp(startScaleValue, _originalScale, t);
+                        break;
+                }
+
+                yield return null;
             }
+
+            // Ensure final values
+            _canvasGroup.alpha = 1f;
+            _rectTransform.anchoredPosition = _originalPosition;
+            _rectTransform.localScale = _originalScale;
         }
 
-        private void BuildHideAnimation(Sequence sequence)
+        private IEnumerator AnimateHide()
         {
-            switch (hideTransition)
+            float elapsed = 0f;
+            float startAlpha = _canvasGroup.alpha;
+            Vector2 startPos = _rectTransform.anchoredPosition;
+            Vector3 startScaleValue = _rectTransform.localScale;
+            Vector2 endPos = GetSlideEndPosition();
+            Vector3 endScaleValue = _originalScale * startScale;
+
+            while (elapsed < hideDuration)
             {
-                case TransitionType.Fade:
-                    sequence.Append(_canvasGroup.DOFade(0f, hideDuration).SetEase(hideEase));
-                    break;
+                elapsed += Time.unscaledDeltaTime;
+                float t = hideCurve.Evaluate(elapsed / hideDuration);
 
-                case TransitionType.Slide:
-                case TransitionType.FadeSlideOut:
-                    sequence.Append(_rectTransform.DOAnchorPos(GetSlideEndPosition(), hideDuration).SetEase(hideEase));
-                    if (hideTransition == TransitionType.FadeSlideOut)
-                        sequence.Join(_canvasGroup.DOFade(0f, hideDuration).SetEase(hideEase));
-                    break;
+                switch (hideTransition)
+                {
+                    case TransitionType.Fade:
+                        _canvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, t);
+                        break;
 
-                case TransitionType.Scale:
-                case TransitionType.FadeScale:
-                    sequence.Append(_rectTransform.DOScale(_originalScale * startScale, hideDuration).SetEase(hideEase));
-                    if (hideTransition == TransitionType.FadeScale)
-                        sequence.Join(_canvasGroup.DOFade(0f, hideDuration).SetEase(hideEase));
-                    break;
+                    case TransitionType.Slide:
+                    case TransitionType.FadeSlideOut:
+                        _rectTransform.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
+                        if (hideTransition == TransitionType.FadeSlideOut)
+                            _canvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, t);
+                        break;
 
-                case TransitionType.FadeSlideIn:
-                    sequence.Append(_canvasGroup.DOFade(0f, hideDuration).SetEase(hideEase));
-                    sequence.Join(_rectTransform.DOAnchorPos(GetSlideEndPosition(), hideDuration).SetEase(hideEase));
-                    break;
+                    case TransitionType.Scale:
+                    case TransitionType.FadeScale:
+                        _rectTransform.localScale = Vector3.Lerp(startScaleValue, endScaleValue, t);
+                        if (hideTransition == TransitionType.FadeScale)
+                            _canvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, t);
+                        break;
 
-                case TransitionType.SlideScale:
-                case TransitionType.FullTransition:
-                    sequence.Append(_rectTransform.DOAnchorPos(GetSlideEndPosition(), hideDuration).SetEase(hideEase));
-                    sequence.Join(_rectTransform.DOScale(_originalScale * startScale, hideDuration).SetEase(hideEase));
-                    if (hideTransition == TransitionType.FullTransition)
-                        sequence.Join(_canvasGroup.DOFade(0f, hideDuration).SetEase(hideEase));
-                    break;
+                    case TransitionType.FadeSlideIn:
+                        _canvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, t);
+                        _rectTransform.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
+                        break;
+
+                    case TransitionType.SlideScale:
+                    case TransitionType.FullTransition:
+                        _rectTransform.anchoredPosition = Vector2.Lerp(startPos, endPos, t);
+                        _rectTransform.localScale = Vector3.Lerp(startScaleValue, endScaleValue, t);
+                        if (hideTransition == TransitionType.FullTransition)
+                            _canvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, t);
+                        break;
+                }
+
+                yield return null;
             }
+
+            // Ensure final values
+            if (hideTransition != TransitionType.Slide && hideTransition != TransitionType.Scale && hideTransition != TransitionType.SlideScale)
+                _canvasGroup.alpha = 0f;
         }
 
         private Vector2 GetSlideStartPosition()
@@ -332,11 +371,12 @@ namespace Laboratory.UI.Animations
             return GetSlideStartPosition();
         }
 
-        private void KillCurrentSequence()
+        private void StopCurrentAnimation()
         {
-            if (_currentSequence != null && _currentSequence.IsActive())
+            if (_currentAnimation != null)
             {
-                _currentSequence.Kill();
+                StopCoroutine(_currentAnimation);
+                _currentAnimation = null;
             }
         }
 
@@ -347,12 +387,14 @@ namespace Laboratory.UI.Animations
         [ContextMenu("Preview Show")]
         private void PreviewShow()
         {
+            if (!Application.isPlaying) return;
             Show();
         }
 
         [ContextMenu("Preview Hide")]
         private void PreviewHide()
         {
+            if (!Application.isPlaying) return;
             Hide();
         }
 
