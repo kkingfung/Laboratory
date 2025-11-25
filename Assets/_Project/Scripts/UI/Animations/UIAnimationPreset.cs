@@ -1,5 +1,4 @@
 using UnityEngine;
-using DG.Tweening;
 
 namespace Laboratory.UI.Animations
 {
@@ -20,8 +19,8 @@ namespace Laboratory.UI.Animations
         [SerializeField] private TransitionType transitionType = TransitionType.FadeSlideIn;
         [SerializeField] private float showDuration = 0.4f;
         [SerializeField] private float hideDuration = 0.3f;
-        [SerializeField] private Ease showEase = Ease.OutCubic;
-        [SerializeField] private Ease hideEase = Ease.InCubic;
+        [SerializeField] private AnimationCurve showCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+        [SerializeField] private AnimationCurve hideCurve = AnimationCurve.Linear(0, 0, 1, 1);
         [SerializeField] private SlideDirection slideDirection = SlideDirection.Bottom;
         [SerializeField] private float startScale = 0.8f;
 
@@ -29,7 +28,7 @@ namespace Laboratory.UI.Animations
         [SerializeField] private bool enableHoverScale = true;
         [SerializeField] private float hoverScale = 1.1f;
         [SerializeField] private float hoverDuration = 0.2f;
-        [SerializeField] private Ease hoverEase = Ease.OutBack;
+        [SerializeField] private AnimationCurve hoverCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         [SerializeField] private bool enablePressScale = true;
         [SerializeField] private float pressScale = 0.95f;
@@ -38,7 +37,6 @@ namespace Laboratory.UI.Animations
         [SerializeField] private bool enableClickPunch = true;
         [SerializeField] private float punchStrength = 0.1f;
         [SerializeField] private float punchDuration = 0.3f;
-        [SerializeField] private int punchVibrato = 10;
 
         [Header("Color Settings")]
         [SerializeField] private bool enableColorChange = false;
@@ -51,15 +49,15 @@ namespace Laboratory.UI.Animations
         public TransitionType Transition => transitionType;
         public float ShowDuration => showDuration;
         public float HideDuration => hideDuration;
-        public Ease ShowEase => showEase;
-        public Ease HideEase => hideEase;
+        public AnimationCurve ShowCurve => showCurve;
+        public AnimationCurve HideCurve => hideCurve;
         public SlideDirection SlideDir => slideDirection;
         public float StartScale => startScale;
 
         public bool EnableHoverScale => enableHoverScale;
         public float HoverScale => hoverScale;
         public float HoverDuration => hoverDuration;
-        public Ease HoverEase => hoverEase;
+        public AnimationCurve HoverCurve => hoverCurve;
 
         public bool EnablePressScale => enablePressScale;
         public float PressScale => pressScale;
@@ -68,7 +66,6 @@ namespace Laboratory.UI.Animations
         public bool EnableClickPunch => enableClickPunch;
         public float PunchStrength => punchStrength;
         public float PunchDuration => punchDuration;
-        public int PunchVibrato => punchVibrato;
 
         public bool EnableColorChange => enableColorChange;
         public Color HoverColor => hoverColor;
@@ -90,10 +87,10 @@ namespace Laboratory.UI.Animations
 
             SetFieldValue(animator, type, "showTransition", transitionType);
             SetFieldValue(animator, type, "showDuration", showDuration);
-            SetFieldValue(animator, type, "showEase", showEase);
+            SetFieldValue(animator, type, "showCurve", showCurve);
             SetFieldValue(animator, type, "hideTransition", GetHideTransition(transitionType));
             SetFieldValue(animator, type, "hideDuration", hideDuration);
-            SetFieldValue(animator, type, "hideEase", hideEase);
+            SetFieldValue(animator, type, "hideCurve", hideCurve);
             SetFieldValue(animator, type, "slideDirection", slideDirection);
             SetFieldValue(animator, type, "startScale", startScale);
 
@@ -118,14 +115,13 @@ namespace Laboratory.UI.Animations
             SetFieldValue(animator, type, "enableHoverScale", enableHoverScale);
             SetFieldValue(animator, type, "hoverScale", hoverScale);
             SetFieldValue(animator, type, "hoverDuration", hoverDuration);
-            SetFieldValue(animator, type, "hoverEase", hoverEase);
+            SetFieldValue(animator, type, "hoverCurve", hoverCurve);
             SetFieldValue(animator, type, "enablePressScale", enablePressScale);
             SetFieldValue(animator, type, "pressScale", pressScale);
             SetFieldValue(animator, type, "pressDuration", pressDuration);
             SetFieldValue(animator, type, "enableClickPunch", enableClickPunch);
             SetFieldValue(animator, type, "punchStrength", punchStrength);
             SetFieldValue(animator, type, "punchDuration", punchDuration);
-            SetFieldValue(animator, type, "punchVibrato", punchVibrato);
             SetFieldValue(animator, type, "enableColorChange", enableColorChange);
             SetFieldValue(animator, type, "hoverColor", hoverColor);
             SetFieldValue(animator, type, "colorDuration", colorDuration);
@@ -182,10 +178,10 @@ namespace Laboratory.UI.Animations
             string path = UnityEditor.AssetDatabase.GetAssetPath(this);
             string directory = System.IO.Path.GetDirectoryName(path);
 
-            CreatePreset(directory, "Fast_Popup", TransitionType.FadeScale, 0.2f, 0.15f, Ease.OutBack, Ease.InBack);
-            CreatePreset(directory, "Smooth_SlideIn", TransitionType.FadeSlideIn, 0.4f, 0.3f, Ease.OutCubic, Ease.InCubic);
-            CreatePreset(directory, "Quick_Fade", TransitionType.Fade, 0.25f, 0.2f, Ease.Linear, Ease.Linear);
-            CreatePreset(directory, "Bouncy_Scale", TransitionType.Scale, 0.5f, 0.3f, Ease.OutBounce, Ease.InCubic);
+            CreatePreset(directory, "Fast_Popup", TransitionType.FadeScale, 0.2f, 0.15f, AnimationCurve.EaseInOut(0, 0, 1, 1));
+            CreatePreset(directory, "Smooth_SlideIn", TransitionType.FadeSlideIn, 0.4f, 0.3f, AnimationCurve.EaseInOut(0, 0, 1, 1));
+            CreatePreset(directory, "Quick_Fade", TransitionType.Fade, 0.25f, 0.2f, AnimationCurve.Linear(0, 0, 1, 1));
+            CreatePreset(directory, "Bouncy_Scale", TransitionType.Scale, 0.5f, 0.3f, CreateBounceCurve());
 
             UnityEditor.AssetDatabase.SaveAssets();
             UnityEditor.AssetDatabase.Refresh();
@@ -194,7 +190,7 @@ namespace Laboratory.UI.Animations
         }
 
         #if UNITY_EDITOR
-        private static void CreatePreset(string directory, string name, TransitionType transition, float showDuration, float hideDuration, Ease showEase, Ease hideEase)
+        private static void CreatePreset(string directory, string name, TransitionType transition, float showDuration, float hideDuration, AnimationCurve curve)
         {
             var preset = CreateInstance<UIAnimationPreset>();
             preset.presetName = name;
@@ -202,13 +198,26 @@ namespace Laboratory.UI.Animations
             preset.transitionType = transition;
             preset.showDuration = showDuration;
             preset.hideDuration = hideDuration;
-            preset.showEase = showEase;
-            preset.hideEase = hideEase;
+            preset.showCurve = curve;
+            preset.hideCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
             string assetPath = $"{directory}/UIAnimationPreset_{name}.asset";
             UnityEditor.AssetDatabase.CreateAsset(preset, assetPath);
         }
         #endif
+
+        /// <summary>
+        /// Creates a bounce-like animation curve
+        /// </summary>
+        private static AnimationCurve CreateBounceCurve()
+        {
+            var curve = new AnimationCurve();
+            curve.AddKey(new Keyframe(0f, 0f, 0f, 2f));
+            curve.AddKey(new Keyframe(0.5f, 1.1f, 0f, 0f));
+            curve.AddKey(new Keyframe(0.75f, 0.95f, 0f, 0f));
+            curve.AddKey(new Keyframe(1f, 1f, 0f, 0f));
+            return curve;
+        }
     }
 
     // Enums matching the animation components

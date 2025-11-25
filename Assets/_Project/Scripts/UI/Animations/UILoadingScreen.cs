@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using DG.Tweening;
 using System;
 using System.Collections;
 
@@ -39,7 +38,7 @@ namespace Laboratory.UI.Animations
 
         [Header("Progress Bar Animation")]
         [SerializeField] private bool animateProgressBar = true;
-        [SerializeField] private Ease progressEase = Ease.OutCubic;
+        [SerializeField] private AnimationCurve progressCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
         // State
         private float _targetProgress = 0f;
@@ -47,6 +46,8 @@ namespace Laboratory.UI.Animations
         private float _progressVelocity = 0f;
         private bool _isVisible = false;
         private Coroutine _messageRotationCoroutine;
+        private Coroutine _fadeCoroutine;
+        private Coroutine _progressCoroutine;
 
         // Singleton instance (optional)
         private static UILoadingScreen _instance;
@@ -70,6 +71,12 @@ namespace Laboratory.UI.Animations
                 canvasGroup = GetComponent<CanvasGroup>();
 
             HideImmediate();
+        }
+
+        private void OnDestroy()
+        {
+            if (_instance == this)
+                _instance = null;
         }
 
         private void Update()
@@ -103,10 +110,9 @@ namespace Laboratory.UI.Animations
             _currentProgress = 0f;
 
             // Fade in
-            canvasGroup.DOFade(1f, fadeInDuration).OnComplete(() =>
-            {
-                onComplete?.Invoke();
-            });
+            if (_fadeCoroutine != null)
+                StopCoroutine(_fadeCoroutine);
+            _fadeCoroutine = StartCoroutine(FadeCanvasGroup(canvasGroup, 1f, fadeInDuration, onComplete));
 
             // Start message rotation
             if (loadingMessages.Length > 0 && _messageRotationCoroutine == null)
@@ -138,11 +144,13 @@ namespace Laboratory.UI.Animations
             AnimateElementsOut();
 
             // Fade out
-            canvasGroup.DOFade(0f, fadeOutDuration).OnComplete(() =>
+            if (_fadeCoroutine != null)
+                StopCoroutine(_fadeCoroutine);
+            _fadeCoroutine = StartCoroutine(FadeCanvasGroup(canvasGroup, 0f, fadeOutDuration, () =>
             {
                 gameObject.SetActive(false);
                 onComplete?.Invoke();
-            });
+            }));
         }
 
         /// <summary>
@@ -154,7 +162,9 @@ namespace Laboratory.UI.Animations
 
             if (animateProgressBar && progressBar != null)
             {
-                progressBar.DOValue(_targetProgress, progressSmoothTime).SetEase(progressEase);
+                if (_progressCoroutine != null)
+                    StopCoroutine(_progressCoroutine);
+                _progressCoroutine = StartCoroutine(AnimateSlider(progressBar, _targetProgress, progressSmoothTime));
             }
         }
 
@@ -240,15 +250,14 @@ namespace Laboratory.UI.Animations
                 if (loadingText != null && loadingMessages.Length > 0)
                 {
                     // Fade out
-                    loadingText.DOFade(0f, 0.3f);
-                    yield return new WaitForSeconds(0.3f);
+                    yield return StartCoroutine(FadeText(loadingText, 0f, 0.3f));
 
                     // Change message
                     loadingText.text = loadingMessages[messageIndex];
                     messageIndex = (messageIndex + 1) % loadingMessages.Length;
 
                     // Fade in
-                    loadingText.DOFade(1f, 0.3f);
+                    yield return StartCoroutine(FadeText(loadingText, 1f, 0.3f));
                 }
 
                 yield return new WaitForSeconds(messageChangeInterval);
@@ -276,9 +285,9 @@ namespace Laboratory.UI.Animations
                 if (rt != null)
                 {
                     rt.localScale = Vector3.zero;
-                    rt.DOScale(Vector3.one, 0.5f).SetEase(Ease.OutBack).SetDelay(i * 0.1f);
+                    StartCoroutine(ScaleElement(rt, Vector3.one, 0.5f, i * 0.1f, true));
                 }
-                cg.DOFade(1f, 0.5f).SetDelay(i * 0.1f);
+                StartCoroutine(FadeCanvasGroup(cg, 1f, 0.5f, null, i * 0.1f));
             }
         }
 
@@ -295,14 +304,100 @@ namespace Laboratory.UI.Animations
 
                 if (cg != null)
                 {
-                    cg.DOFade(0f, 0.3f).SetDelay(i * 0.05f);
+                    StartCoroutine(FadeCanvasGroup(cg, 0f, 0.3f, null, i * 0.05f));
                 }
 
                 if (rt != null)
                 {
-                    rt.DOScale(Vector3.zero, 0.3f).SetEase(Ease.InBack).SetDelay(i * 0.05f);
+                    StartCoroutine(ScaleElement(rt, Vector3.zero, 0.3f, i * 0.05f, false));
                 }
             }
+        }
+
+        private IEnumerator FadeCanvasGroup(CanvasGroup group, float targetAlpha, float duration, Action onComplete = null, float delay = 0f)
+        {
+            if (delay > 0)
+                yield return new WaitForSeconds(delay);
+
+            float startAlpha = group.alpha;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = elapsed / duration;
+                group.alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
+                yield return null;
+            }
+
+            group.alpha = targetAlpha;
+            onComplete?.Invoke();
+        }
+
+        private IEnumerator FadeText(TextMeshProUGUI text, float targetAlpha, float duration)
+        {
+            Color startColor = text.color;
+            Color targetColor = new Color(startColor.r, startColor.g, startColor.b, targetAlpha);
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = elapsed / duration;
+                text.color = Color.Lerp(startColor, targetColor, t);
+                yield return null;
+            }
+
+            text.color = targetColor;
+        }
+
+        private IEnumerator AnimateSlider(Slider slider, float targetValue, float duration)
+        {
+            float startValue = slider.value;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = progressCurve.Evaluate(elapsed / duration);
+                slider.value = Mathf.Lerp(startValue, targetValue, t);
+                yield return null;
+            }
+
+            slider.value = targetValue;
+        }
+
+        private IEnumerator ScaleElement(RectTransform rt, Vector3 targetScale, float duration, float delay, bool useBackEase)
+        {
+            if (delay > 0)
+                yield return new WaitForSeconds(delay);
+
+            Vector3 startScale = rt.localScale;
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = elapsed / duration;
+
+                // Back ease approximation
+                if (useBackEase)
+                {
+                    float overshoot = 1.70158f;
+                    t = t * t * ((overshoot + 1) * t - overshoot);
+                }
+                else
+                {
+                    // InBack ease
+                    float overshoot = 1.70158f;
+                    t = 1 - (1 - t) * (1 - t) * ((overshoot + 1) * (1 - t) - overshoot);
+                }
+
+                rt.localScale = Vector3.Lerp(startScale, targetScale, Mathf.Clamp01(t));
+                yield return null;
+            }
+
+            rt.localScale = targetScale;
         }
 
         #endregion
@@ -312,6 +407,7 @@ namespace Laboratory.UI.Animations
         [ContextMenu("Test Show")]
         private void TestShow()
         {
+            if (!Application.isPlaying) return;
             Show();
             StartCoroutine(SimulateLoading());
         }
@@ -319,6 +415,7 @@ namespace Laboratory.UI.Animations
         [ContextMenu("Test Hide")]
         private void TestHide()
         {
+            if (!Application.isPlaying) return;
             Hide();
         }
 
@@ -337,14 +434,5 @@ namespace Laboratory.UI.Animations
         }
 
         #endregion
-
-        private void OnDestroy()
-        {
-            // Clean up singleton reference
-            if (_instance == this)
-            {
-                _instance = null;
-            }
-        }
     }
 }
