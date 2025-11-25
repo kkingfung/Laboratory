@@ -184,8 +184,8 @@ namespace Laboratory.Tools
                 monoUsedSize = Profiler.GetMonoUsedSizeLong(),
 
                 // Unity objects
-                totalObjectCount = FindObjectsOfType<UnityEngine.Object>().Length,
-                gameObjectCount = FindObjectsOfType<GameObject>().Length
+                totalObjectCount = FindObjectsByType<UnityEngine.Object>(FindObjectsSortMode.None).Length,
+                gameObjectCount = FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length
             };
 
             // Calculate deltas if we have a previous snapshot

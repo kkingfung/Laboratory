@@ -299,8 +299,8 @@ namespace ProjectChimera.Validation
         {
             Debug.Log("🔍 Checking monster setup...");
 
-            // Check for ChimeraManager  
-            var chimeraManagers = Resources.FindObjectsOfTypeAll<ProjectChimera.Core.ChimeraManager>();
+            // Check for ChimeraManager
+            var chimeraManagers = UnityEngine.Object.FindObjectsByType<ProjectChimera.Core.ChimeraManager>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             if (chimeraManagers == null || chimeraManagers.Length == 0)
             {
                 chimeraManagers = FindObjectsByType<ProjectChimera.Core.ChimeraManager>(FindObjectsSortMode.None);

@@ -207,7 +207,7 @@ namespace Laboratory.Tools
         private static void NotifyScriptableObjectChanged(ScriptableObject so)
         {
             // Find all components/systems that reference this SO
-            var components = UnityEngine.Object.FindObjectsOfType<MonoBehaviour>();
+            var components = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
 
             foreach (var component in components)
             {

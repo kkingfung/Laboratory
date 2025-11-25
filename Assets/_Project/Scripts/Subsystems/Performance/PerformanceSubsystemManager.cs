@@ -314,12 +314,12 @@ namespace Laboratory.Subsystems.Performance
             _currentMetrics.activeCreatures = GetActiveCreatureCount();
             _currentMetrics.visibleCreatures = GetVisibleCreatureCount();
 
-            // Update physics and audio metrics (cached to avoid expensive FindObjectsOfType)
+            // Update physics and audio metrics (cached to avoid expensive FindObjectsByType)
             // Only refresh counts every OBJECT_COUNT_UPDATE_INTERVAL seconds
             if (Time.time - _lastObjectCountUpdateTime >= OBJECT_COUNT_UPDATE_INTERVAL)
             {
-                _cachedPhysicsObjectCount = GameObject.FindObjectsOfType<Rigidbody>().Length;
-                _cachedAudioSourceCount = GameObject.FindObjectsOfType<AudioSource>().Length;
+                _cachedPhysicsObjectCount = GameObject.FindObjectsByType<Rigidbody>(FindObjectsSortMode.None).Length;
+                _cachedAudioSourceCount = GameObject.FindObjectsByType<AudioSource>(FindObjectsSortMode.None).Length;
                 _lastObjectCountUpdateTime = Time.time;
             }
 

@@ -136,7 +136,7 @@ namespace Laboratory.Advanced
             // Initialize lighting
             if (directionalLight == null)
             {
-                directionalLight = FindObjectOfType<Light>();
+                directionalLight = FindFirstObjectByType<Light>();
             }
 
             // Initialize gradient if not set

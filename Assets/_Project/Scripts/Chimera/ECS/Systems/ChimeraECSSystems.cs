@@ -504,7 +504,7 @@ namespace Laboratory.Chimera.ECS.Systems
             _gameObjectCache.Clear();
 
             // Only search once during cache refresh instead of every frame
-            var allGameObjects = UnityEngine.Resources.FindObjectsOfTypeAll<UnityEngine.GameObject>();
+            var allGameObjects = UnityEngine.Object.FindObjectsByType<UnityEngine.GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.None);
             foreach (var go in allGameObjects)
             {
                 if (go != null)

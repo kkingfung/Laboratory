@@ -138,7 +138,7 @@ namespace Laboratory.Editor.Tools
             if (_system == null)
             {
                 // Try to find in scene
-                _system = FindObjectOfType<AssetManagementSystem>();
+                _system = FindFirstObjectByType<AssetManagementSystem>();
             }
         }
 

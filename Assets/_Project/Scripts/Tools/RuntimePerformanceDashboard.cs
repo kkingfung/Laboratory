@@ -249,7 +249,7 @@ namespace Laboratory.Tools
         {
             GUILayout.Label("System Performance", headerStyle);
 
-            GUILayout.Label("Active GameObjects: " + FindObjectsOfType<GameObject>().Length);
+            GUILayout.Label("Active GameObjects: " + FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length);
             GUILayout.Label("Time Scale: " + Time.timeScale);
             GUILayout.Label("Target Frame Rate: " + Application.targetFrameRate);
             GUILayout.Label("VSync Count: " + QualitySettings.vSyncCount);
