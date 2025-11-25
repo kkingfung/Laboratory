@@ -789,12 +789,7 @@ namespace Laboratory.UI.Progression
         [ContextMenu("Test Skill Milestone Notification")]
         private void EditorTestSkillMilestoneNotification()
         {
-            HandleSkillMilestone(
-                Laboratory.Chimera.Progression.ActivityGenreCategory.Action,
-                Laboratory.Chimera.Progression.SkillMilestoneType.Expert,
-                0.75f,
-                "Expert Action outfit"
-            );
+            HandleSkillMilestone("Action", "Expert", 0.75f);
         }
     }
 
