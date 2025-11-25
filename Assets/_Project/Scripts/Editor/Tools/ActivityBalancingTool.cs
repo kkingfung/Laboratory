@@ -61,7 +61,6 @@ namespace Laboratory.Editor.Tools
         };
 
         private Vector2 scrollPosition;
-        private bool showAdvanced = false;
         private bool showSimulation = true;
 
         private void OnGUI()

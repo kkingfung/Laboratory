@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using Unity.Entities;
+using Unity.Collections;
 using Laboratory.Chimera.Progression;
 
 namespace Laboratory.Editor
