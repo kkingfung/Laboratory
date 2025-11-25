@@ -30,12 +30,10 @@ namespace Laboratory.UI.Animations
         [SerializeField] private bool enableColorChange = false;
         [SerializeField] private Color hoverColor = Color.white;
         [SerializeField] private Color pressColor = Color.gray;
-        [SerializeField] private float colorDuration = 0.2f;
 
         [Header("Rotation Animation")]
         [SerializeField] private bool enableRotation = false;
         [SerializeField] private float rotationAngle = 5f;
-        [SerializeField] private float rotationDuration = 0.2f;
 
         [Header("Animation Curves")]
         [SerializeField] private AnimationCurve hoverCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
@@ -51,7 +49,6 @@ namespace Laboratory.UI.Animations
 
         // Animation state
         private bool _isHovering = false;
-        private bool _isPressing = false;
         private Coroutine _currentAnimation;
 
         private void Awake()
@@ -109,13 +106,11 @@ namespace Laboratory.UI.Animations
         {
             if (!_button.interactable) return;
 
-            _isPressing = true;
             AnimatePressDown();
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            _isPressing = false;
             AnimatePressUp();
         }
 

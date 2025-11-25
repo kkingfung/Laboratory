@@ -31,7 +31,6 @@ namespace Laboratory.UI.Animations
 
         [Header("Scale Settings")]
         [SerializeField] private float startScale = 0.8f;
-        [SerializeField] private float endScale = 1f;
 
         [Header("Auto-Play")]
         [SerializeField] private bool playShowOnEnable = false;
