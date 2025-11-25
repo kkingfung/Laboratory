@@ -328,7 +328,7 @@ namespace Laboratory.Editor.Tests
                     int actualKeyCount = db.GetAllKeys().Count;
                     if (actualKeyCount != expectedKeyCount)
                     {
-                        issues.Add($"{db.languageName}: {actualKeyCount} keys (expected {expectedKeyCount})");
+                        issues.Add($"{db.LanguageName}: {actualKeyCount} keys (expected {expectedKeyCount})");
                     }
                 }
 
@@ -415,8 +415,8 @@ namespace Laboratory.Editor.Tests
 
             foreach (var db in databases)
             {
-                report.AppendLine($"## {db.languageName} ({db.language})");
-                report.AppendLine($"- Total Keys: {db.GetAllKeys().Length}");
+                report.AppendLine($"## {db.LanguageName} ({db.Language})");
+                report.AppendLine($"- Total Keys: {db.GetAllKeys().Count}");
                 report.AppendLine($"- Asset: {AssetDatabase.GetAssetPath(db)}");
                 report.AppendLine();
             }
