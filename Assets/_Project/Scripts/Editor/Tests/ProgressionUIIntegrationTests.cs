@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
 using Laboratory.Core.Progression;
+using Laboratory.UI.Progression;
 using Unity.Entities;
 using System.Collections.Generic;
 using System.Linq;
@@ -311,7 +312,6 @@ namespace Laboratory.Editor.Tests
                 // We'll test the logic conceptually
                 // Real implementation would use GetMasteryTier method from PlayerProgressionUI
 
-                bool allCorrect = true;
                 foreach (var (value, expectedTier) in testCases)
                 {
                     string tier = GetMasteryTierForValue(value);
