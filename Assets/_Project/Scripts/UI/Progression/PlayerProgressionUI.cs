@@ -556,13 +556,13 @@ namespace Laboratory.UI.Progression
         }
 
         // Event handlers
-        private void HandleSkillMilestone(Laboratory.Chimera.Progression.ActivityGenreCategory genre, Laboratory.Chimera.Progression.SkillMilestoneType milestoneType, float masteryLevel, string cosmeticReward)
+        private void HandleSkillMilestone(string genre, string milestoneType, float masteryLevel)
         {
             pendingNotifications.Enqueue(new ProgressionNotification
             {
                 type = ProgressionNotificationType.SkillMilestone,
                 title = $"{genre} Milestone!",
-                message = $"Reached {milestoneType} ({masteryLevel:P0})\nUnlocked: {cosmeticReward}",
+                message = $"Reached {milestoneType} ({masteryLevel:P0})",
                 displayDuration = milestoneAnimationDuration
             });
 
@@ -570,7 +570,7 @@ namespace Laboratory.UI.Progression
             isAnimatingSkill = true;
         }
 
-        private void HandleSkillImproved(Laboratory.Chimera.Progression.ActivityGenreCategory genre, float improvementAmount)
+        private void HandleSkillImproved(string skillName, float oldValue, float newValue)
         {
             // Trigger skill bar animation
             isAnimatingSkill = true;
