@@ -22,7 +22,6 @@ namespace Laboratory.Editor.Tools
         private bool _addXmlDocumentation = true;
 
         // ECS System specific
-        private bool _isEcsSystem = true;
         private string _systemGroup = "SimulationSystemGroup";
 
         // ScriptableObject specific
