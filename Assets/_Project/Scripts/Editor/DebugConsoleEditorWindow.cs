@@ -245,10 +245,10 @@ namespace Laboratory.Editor.Diagnostics
             EditorGUI.indentLevel++;
 
             // Check if Debug Manager is available in scene
-            var debugManager = UnityEngine.Object.FindObjectOfType<Laboratory.Core.Diagnostics.DebugManager>();
+            var debugManager = UnityEngine.Object.FindFirstObjectByType<Laboratory.Core.Diagnostics.DebugManager>();
             DrawSystemStatus("Debug Manager", debugManager != null);
             DrawSystemStatus("Enhanced Debug Console", debugManager != null);
-            DrawSystemStatus("Audio System", UnityEngine.Object.FindObjectOfType<AudioListener>() != null);
+            DrawSystemStatus("Audio System", UnityEngine.Object.FindFirstObjectByType<AudioListener>() != null);
 
             var world = Unity.Entities.World.DefaultGameObjectInjectionWorld;
             DrawSystemStatus("ECS World", world != null && world.IsCreated);
@@ -389,10 +389,10 @@ namespace Laboratory.Editor.Diagnostics
             report.AppendLine();
 
             report.AppendLine("System Status:");
-            var debugManager = UnityEngine.Object.FindObjectOfType<Laboratory.Core.Diagnostics.DebugManager>();
+            var debugManager = UnityEngine.Object.FindFirstObjectByType<Laboratory.Core.Diagnostics.DebugManager>();
             report.AppendLine($"• Debug Manager: {(debugManager != null ? "Online" : "Offline")}");
             report.AppendLine($"• Enhanced Debug Console: {(debugManager != null ? "Online" : "Offline")}");
-            report.AppendLine($"• Audio System: {(Object.FindObjectOfType<AudioListener>() != null ? "Online" : "Offline")}");
+            report.AppendLine($"• Audio System: {(Object.FindFirstObjectByType<AudioListener>() != null ? "Online" : "Offline")}");
 
             var world = Unity.Entities.World.DefaultGameObjectInjectionWorld;
             report.AppendLine($"• ECS World: {(world != null ? "Online" : "Offline")}");
