@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using UnityEngine.UI;
-using Laboratory.Chimera.Progression;
+using Laboratory.Core.Progression;
 using Unity.Entities;
 using System.Collections.Generic;
 using System.Linq;

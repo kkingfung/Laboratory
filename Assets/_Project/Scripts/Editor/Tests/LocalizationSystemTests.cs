@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEditor;
-using Laboratory.Chimera.Localization;
+using Laboratory.Core.Localization;
 using System.Collections.Generic;
 
 namespace Laboratory.Editor.Tests
