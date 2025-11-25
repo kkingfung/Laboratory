@@ -320,12 +320,12 @@ namespace Laboratory.Editor.Tests
                 }
 
                 // Get key count from first database
-                int expectedKeyCount = databases[0].GetAllKeys().Length;
+                int expectedKeyCount = databases[0].GetAllKeys().Count;
                 var issues = new List<string>();
 
                 foreach (var db in databases)
                 {
-                    int actualKeyCount = db.GetAllKeys().Length;
+                    int actualKeyCount = db.GetAllKeys().Count;
                     if (actualKeyCount != expectedKeyCount)
                     {
                         issues.Add($"{db.languageName}: {actualKeyCount} keys (expected {expectedKeyCount})");

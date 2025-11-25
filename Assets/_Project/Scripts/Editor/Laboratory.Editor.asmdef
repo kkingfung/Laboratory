@@ -10,6 +10,7 @@
         "Laboratory.Core.Performance",
         "Laboratory.Core.Progression",
         "Laboratory.Core.Localization",
+        "Laboratory.UI",
         "Laboratory.Gameplay",
         "Laboratory.Shared",
         "Laboratory.Tools",
