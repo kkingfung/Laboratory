@@ -1,5 +1,6 @@
 using UnityEngine;
 using Laboratory.Core.Enums;
+using Laboratory.Chimera.Progression;
 
 namespace Laboratory.Subsystems.Gameplay
 {

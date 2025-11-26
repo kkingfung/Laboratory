@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Laboratory.Core.Enums;
 using Laboratory.Gameplay;
+using Laboratory.Chimera.Progression;
 
 namespace Laboratory.Subsystems.Gameplay
 {

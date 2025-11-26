@@ -5,6 +5,7 @@ using Laboratory.Subsystems.Tutorial;
 using Laboratory.Subsystems.Settings;
 using Laboratory.Subsystems.Spawning;
 using Laboratory.Core.Enums;
+using Laboratory.Chimera.Progression;
 
 namespace Laboratory.Demo
 {
@@ -357,13 +358,11 @@ namespace Laboratory.Demo
             switch (genre)
             {
                 case ActivityGenreCategory.Action:
-                    return CameraMode.ThirdPerson;
+                    return CameraMode.ThirdPerson;  // Includes Platformers, Fighting, FPS
                 case ActivityGenreCategory.Racing:
                     return CameraMode.RacingThirdPerson;
                 case ActivityGenreCategory.Strategy:
                     return CameraMode.StrategyRTS;
-                case ActivityGenreCategory.Platforming:
-                    return CameraMode.SideScroller;
                 case ActivityGenreCategory.Puzzle:
                     return CameraMode.TopDown;
                 default:
