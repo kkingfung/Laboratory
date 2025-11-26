@@ -46,7 +46,6 @@ namespace Laboratory.Demo.UI
 
         // References
         private SettingsSubsystemManager _settingsSubsystem;
-        private bool _isInitialized = false;
 
         private void Start()
         {
@@ -66,8 +65,6 @@ namespace Laboratory.Demo.UI
             {
                 menuPanel.SetActive(false);
             }
-
-            _isInitialized = true;
         }
 
         private void Update()

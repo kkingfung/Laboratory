@@ -227,6 +227,7 @@ namespace Laboratory.Genres.Racing
         public float GetCurrentSpeed() => _currentSpeed;
         public bool IsBoosting() => _isBoosting;
         public float GetBoostCooldown() => _boostCooldownTimer;
+        public float GetBoostCharge() => config != null && config.EnableBoost ? Mathf.Clamp01(1f - (_boostCooldownTimer / config.BoostCooldown)) : 0f;
         public bool CanBoost() => config != null && config.EnableBoost && !_isBoosting && _boostCooldownTimer <= 0f;
     }
 }
