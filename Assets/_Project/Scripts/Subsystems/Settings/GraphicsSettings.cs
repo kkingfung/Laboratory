@@ -24,12 +24,10 @@ namespace Laboratory.Subsystems.Settings
         private bool _antiAliasingEnabled = true;
         private bool _shadowsEnabled = true;
         private bool _postProcessingEnabled = true;
-        private bool _particlesEnabled = true;
         private float _renderScale = 1f;
 
         // Performance monitoring
         private float _averageFPS = 60f;
-        private bool _autoQualityAdjustment = false;
 
         // Events
         public event System.Action OnGraphicsSettingsChanged;

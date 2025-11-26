@@ -33,47 +33,18 @@ namespace Laboratory.Subsystems.Gameplay
 
         /// <summary>
         /// Initialize all genre data
+        /// Maps to the 7 core ActivityGenreCategory types
         /// </summary>
         private void InitializeGenres()
         {
-            // Action Genres (7)
+            // Register the 7 core genre categories from ProgressionComponents
             RegisterGenre(ActivityGenreCategory.Action, "Action", requires3D: true, requiresPhysics: true);
-
-            // Adventure Genres
-            RegisterGenre(ActivityGenreCategory.Adventure, "Adventure", requires3D: true, requiresPhysics: false);
-
-            // Strategy Genres (5)
             RegisterGenre(ActivityGenreCategory.Strategy, "Strategy", requires3D: false, requiresPhysics: false);
-
-            // Puzzle Genres (5)
             RegisterGenre(ActivityGenreCategory.Puzzle, "Puzzle", requires3D: false, requiresPhysics: false);
-
-            // Platforming Genres
-            RegisterGenre(ActivityGenreCategory.Platforming, "Platforming", requires3D: true, requiresPhysics: true);
-
-            // Simulation Genres
-            RegisterGenre(ActivityGenreCategory.Simulation, "Simulation", requires3D: true, requiresPhysics: true);
-
-            // Arcade Genres
-            RegisterGenre(ActivityGenreCategory.Arcade, "Arcade", requires3D: false, requiresPhysics: false);
-
-            // Board & Card Genres
-            RegisterGenre(ActivityGenreCategory.BoardGame, "Board & Card", requires3D: false, requiresPhysics: false);
-
-            // Racing Genres
             RegisterGenre(ActivityGenreCategory.Racing, "Racing", requires3D: true, requiresPhysics: true);
-
-            // Music Genres
-            RegisterGenre(ActivityGenreCategory.Music, "Music & Rhythm", requires3D: false, requiresPhysics: false);
-
-            // Other core genres
+            RegisterGenre(ActivityGenreCategory.Rhythm, "Rhythm", requires3D: false, requiresPhysics: false);
             RegisterGenre(ActivityGenreCategory.Exploration, "Exploration", requires3D: true, requiresPhysics: false);
-            RegisterGenre(ActivityGenreCategory.TowerDefense, "Tower Defense", requires3D: true, requiresPhysics: false);
-            RegisterGenre(ActivityGenreCategory.BattleRoyale, "Battle Royale", requires3D: true, requiresPhysics: true);
-            RegisterGenre(ActivityGenreCategory.CityBuilder, "City Builder", requires3D: true, requiresPhysics: false);
-            RegisterGenre(ActivityGenreCategory.Detective, "Detective", requires3D: false, requiresPhysics: false);
             RegisterGenre(ActivityGenreCategory.Economics, "Economics", requires3D: false, requiresPhysics: false);
-            RegisterGenre(ActivityGenreCategory.Sports, "Sports", requires3D: true, requiresPhysics: true);
 
             Debug.Log($"[GenreManager] Initialized {_genreData.Count} genres");
         }
