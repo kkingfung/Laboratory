@@ -5,6 +5,7 @@ using Laboratory.Subsystems.Tutorial;
 using Laboratory.Subsystems.Settings;
 using Laboratory.Subsystems.Spawning;
 using Laboratory.Core.Enums;
+using Laboratory.Chimera.Progression;
 
 namespace Laboratory.Demo
 {
