@@ -164,7 +164,7 @@ namespace Laboratory.Genres.Platforming
             if (config == null) return;
 
             float targetSpeed = _moveInput * config.MoveSpeed;
-            float currentSpeed = _rigidbody.velocity.x;
+            float currentSpeed = _rigidbody.linearVelocity.x;
 
             // Apply acceleration/deceleration
             float speedDiff = targetSpeed - currentSpeed;
@@ -180,9 +180,9 @@ namespace Laboratory.Genres.Platforming
             _rigidbody.AddForce(Vector2.right * movement);
 
             // Wall slide
-            if (_isTouchingWall && !_isGrounded && _rigidbody.velocity.y < 0 && config.EnableWallSlide)
+            if (_isTouchingWall && !_isGrounded && _rigidbody.linearVelocity.y < 0 && config.EnableWallSlide)
             {
-                _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, Mathf.Max(_rigidbody.velocity.y, config.WallSlideSpeed));
+                _rigidbody.linearVelocity = new Vector2(_rigidbody.linearVelocity.x, Mathf.Max(_rigidbody.linearVelocity.y, config.WallSlideSpeed));
             }
         }
 
@@ -196,22 +196,22 @@ namespace Laboratory.Genres.Platforming
             float gravityMultiplier = 1f;
 
             // Faster falling
-            if (_rigidbody.velocity.y < 0)
+            if (_rigidbody.linearVelocity.y < 0)
             {
                 gravityMultiplier = config.FallMultiplier;
             }
             // Variable jump height
-            else if (_rigidbody.velocity.y > 0 && !_jumpHeld && config.VariableJumpHeight)
+            else if (_rigidbody.linearVelocity.y > 0 && !_jumpHeld && config.VariableJumpHeight)
             {
                 gravityMultiplier = config.FallMultiplier;
             }
 
-            _rigidbody.velocity += Vector2.up * config.Gravity * gravityMultiplier * Time.fixedDeltaTime;
+            _rigidbody.linearVelocity += Vector2.up * config.Gravity * gravityMultiplier * Time.fixedDeltaTime;
 
             // Clamp fall speed
-            if (_rigidbody.velocity.y < config.MaxFallSpeed)
+            if (_rigidbody.linearVelocity.y < config.MaxFallSpeed)
             {
-                _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, config.MaxFallSpeed);
+                _rigidbody.linearVelocity = new Vector2(_rigidbody.linearVelocity.x, config.MaxFallSpeed);
             }
         }
 
@@ -264,7 +264,7 @@ namespace Laboratory.Genres.Platforming
         {
             if (config == null) return;
 
-            _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, 0f);
+            _rigidbody.linearVelocity = new Vector2(_rigidbody.linearVelocity.x, 0f);
             _rigidbody.AddForce(Vector2.up * config.JumpForce, ForceMode2D.Impulse);
 
             _jumpBufferCounter = 0f;
@@ -291,7 +291,7 @@ namespace Laboratory.Genres.Platforming
             if (config == null) return;
 
             Vector2 force = new Vector2(config.WallJumpForce.x * -_wallDirection, config.WallJumpForce.y);
-            _rigidbody.velocity = Vector2.zero;
+            _rigidbody.linearVelocity = Vector2.zero;
             _rigidbody.AddForce(force, ForceMode2D.Impulse);
 
             _jumpBufferCounter = 0f;
@@ -325,7 +325,7 @@ namespace Laboratory.Genres.Platforming
         {
             if (config == null) return;
 
-            _rigidbody.velocity = _dashDirection * config.DashSpeed;
+            _rigidbody.linearVelocity = _dashDirection * config.DashSpeed;
         }
 
         /// <summary>
@@ -341,7 +341,7 @@ namespace Laboratory.Genres.Platforming
         /// </summary>
         public void ResetToPosition(Vector3 position)
         {
-            _rigidbody.velocity = Vector2.zero;
+            _rigidbody.linearVelocity = Vector2.zero;
             transform.position = position;
             _isDashing = false;
         }

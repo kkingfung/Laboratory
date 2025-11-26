@@ -59,7 +59,7 @@ namespace Laboratory.Genres.Racing
             if (config == null) return;
 
             // Calculate speed
-            _currentSpeed = Vector3.Dot(_rigidbody.velocity, transform.forward);
+            _currentSpeed = Vector3.Dot(_rigidbody.linearVelocity, transform.forward);
 
             // Apply acceleration/braking
             float targetSpeed = _throttleInput * (  _isBoosting ? config.BoostSpeed : config.MaxSpeed);
@@ -67,7 +67,7 @@ namespace Laboratory.Genres.Racing
             if (_brakeInput)
             {
                 targetSpeed = 0f;
-                _rigidbody.velocity = Vector3.Lerp(_rigidbody.velocity, Vector3.zero, config.BrakeForce * Time.fixedDeltaTime);
+                _rigidbody.linearVelocity = Vector3.Lerp(_rigidbody.linearVelocity, Vector3.zero, config.BrakeForce * Time.fixedDeltaTime);
             }
             else
             {
@@ -76,9 +76,9 @@ namespace Laboratory.Genres.Racing
 
                 // Limit speed
                 float maxSpeed = _isBoosting ? config.BoostSpeed : config.MaxSpeed;
-                if (_rigidbody.velocity.magnitude > maxSpeed)
+                if (_rigidbody.linearVelocity.magnitude > maxSpeed)
                 {
-                    _rigidbody.velocity = _rigidbody.velocity.normalized * maxSpeed;
+                    _rigidbody.linearVelocity = _rigidbody.linearVelocity.normalized * maxSpeed;
                 }
             }
 
@@ -91,8 +91,8 @@ namespace Laboratory.Genres.Racing
             }
 
             // Apply drift physics
-            Vector3 lateralVelocity = transform.right * Vector3.Dot(_rigidbody.velocity, transform.right);
-            _rigidbody.velocity -= lateralVelocity * (1f - config.DriftFactor);
+            Vector3 lateralVelocity = transform.right * Vector3.Dot(_rigidbody.linearVelocity, transform.right);
+            _rigidbody.linearVelocity -= lateralVelocity * (1f - config.DriftFactor);
 
             // Visual rotation for model
             if (vehicleModel != null && Mathf.Abs(_steerInput) > 0.01f)
@@ -188,7 +188,7 @@ namespace Laboratory.Genres.Racing
         /// </summary>
         public void ResetToPosition(Vector3 position, Quaternion rotation)
         {
-            _rigidbody.velocity = Vector3.zero;
+            _rigidbody.linearVelocity = Vector3.zero;
             _rigidbody.angularVelocity = Vector3.zero;
             transform.position = position;
             transform.rotation = rotation;
