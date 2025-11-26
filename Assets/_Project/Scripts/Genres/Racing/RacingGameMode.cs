@@ -245,16 +245,12 @@ namespace Laboratory.Genres.Racing
         /// <summary>
         /// Handle checkpoint passed
         /// </summary>
-        private void HandleCheckpointPassed(RacingVehicleController vehicle)
+        private void HandleCheckpointPassed(RacingVehicleController vehicle, RacingCheckpoint checkpoint)
         {
             if (!_vehicleProgress.ContainsKey(vehicle)) return;
+            if (checkpoint == null) return;
 
             VehicleProgress progress = _vehicleProgress[vehicle];
-
-            // Get checkpoint that was passed
-            RacingCheckpoint checkpoint = checkpoints.FirstOrDefault(c => c.OnVehiclePassed.GetInvocationList().Contains((System.Action<RacingVehicleController>)HandleCheckpointPassed));
-
-            if (checkpoint == null) return;
 
             // Check if this is the next expected checkpoint
             int expectedCheckpoint = progress.CurrentCheckpoint + 1;

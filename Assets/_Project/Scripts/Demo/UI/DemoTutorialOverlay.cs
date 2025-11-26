@@ -28,7 +28,6 @@ namespace Laboratory.Demo.UI
         // References
         private TutorialSubsystemManager _tutorialSubsystem;
         private NineStageOnboarding _nineStage;
-        private bool _isInitialized = false;
 
         // Animation state
         private float _celebrationTimer = 0f;
@@ -57,8 +56,6 @@ namespace Laboratory.Demo.UI
 
             // Hide overlay if tutorial not active
             UpdateOverlayVisibility();
-
-            _isInitialized = true;
         }
 
         private void Update()

@@ -17,7 +17,7 @@ namespace Laboratory.Genres.Racing
         [SerializeField] private GameObject visualIndicator;
 
         // Events
-        public event System.Action<RacingVehicleController> OnVehiclePassed;
+        public event System.Action<RacingVehicleController, RacingCheckpoint> OnVehiclePassed;
 
         // Properties
         public int CheckpointIndex => checkpointIndex;
@@ -28,7 +28,7 @@ namespace Laboratory.Genres.Racing
             RacingVehicleController vehicle = other.GetComponent<RacingVehicleController>();
             if (vehicle != null)
             {
-                OnVehiclePassed?.Invoke(vehicle);
+                OnVehiclePassed?.Invoke(vehicle, this);
             }
         }
 
