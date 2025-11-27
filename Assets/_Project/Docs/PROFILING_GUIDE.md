@@ -460,3 +460,595 @@ Total Memory: ~150 MB
 **Profiling confirms Burst+Job optimizations are working!** 🎉
 
 All systems Burst-compiled, parallel jobs executing, 60 FPS target achieved.
+
+---
+
+## 🛠️ Advanced Profiling Tools
+
+### External CPU Profilers
+
+#### Visual Studio Profiler (Windows)
+
+**Features:**
+- Native C++ profiling (Burst-compiled code)
+- Call tree analysis
+- Hot path identification
+- Function-level timing
+
+**How to Use:**
+1. Build with **Development Build** + **Script Debugging** enabled
+2. Open Visual Studio → **Debug → Performance Profiler**
+3. Select **CPU Usage** tool
+4. Attach to Unity process
+5. Start profiling, run test scenarios
+6. Analyze results in Call Tree view
+
+**When to Use:**
+- Debugging Burst-compiled code performance
+- Identifying native code hot paths
+- Deep C++ interop profiling
+
+---
+
+#### JetBrains Rider Profiler (Cross-Platform)
+
+**Features:**
+- Integrated with Rider IDE
+- Managed + native code profiling
+- Timeline view
+- Memory allocation tracking
+- Call stack analysis
+
+**How to Use:**
+1. In Rider: **Run → Profile**
+2. Select Unity process or attach to running game
+3. Choose profile type:
+   - **Sampling** (low overhead, general performance)
+   - **Tracing** (high overhead, precise call counts)
+4. Run for 30-60 seconds
+5. Stop and analyze results
+
+**Best For:**
+- C# code profiling
+- Managed allocations tracking
+- Method-level performance analysis
+
+---
+
+#### Intel VTune Profiler (Advanced)
+
+**Features:**
+- Hardware-level profiling
+- CPU microarchitecture analysis
+- Cache miss identification
+- Threading analysis
+- Platform-specific optimization
+
+**How to Use:**
+1. Download Intel VTune (free for personal use)
+2. Create new project, select Unity executable
+3. Choose analysis type:
+   - **Hotspots**: Find slow functions
+   - **Threading**: Analyze parallelism
+   - **Memory Access**: Cache efficiency
+4. Run analysis for 30-60 seconds
+5. Review Top-Down tree and Bottom-Up analysis
+
+**When to Use:**
+- Maximum performance optimization
+- Cache optimization
+- Threading efficiency analysis
+- Platform-specific tuning (Intel CPUs)
+
+**Example Insights:**
+- L1/L2/L3 cache misses
+- Branch prediction failures
+- Thread synchronization overhead
+- SIMD instruction usage
+
+---
+
+### Memory Profilers
+
+#### Unity Memory Profiler Package
+
+**Installation:**
+```
+Window → Package Manager → Search "Memory Profiler"
+Install latest version
+```
+
+**Features:**
+- Managed heap snapshots
+- Native memory tracking
+- Object reference chains
+- Memory leak detection
+
+**How to Use:**
+1. **Window → Analysis → Memory Profiler**
+2. **Capture Snapshot** (before and after gameplay)
+3. Compare snapshots to identify leaks
+4. Analyze:
+   - **All Of Memory**: Total breakdown
+   - **Managed Objects**: C# objects
+   - **Native Objects**: Unity objects
+   - **Memory Map**: Fragmentation view
+
+**Key Metrics:**
+- Managed Heap Size (target: stable over time)
+- Native Allocations (should not leak)
+- Object Count (should stabilize)
+- GC Allocations (target: 0/frame)
+
+**Example Workflow:**
+```
+1. Capture snapshot at game start
+2. Play for 5 minutes
+3. Capture second snapshot
+4. Compare: Look for growing allocations
+5. Drill down into leaking objects
+6. Fix references/disposal
+```
+
+---
+
+#### Allocation Tracker (Custom Tool)
+
+**Purpose:** Track per-frame allocations in development builds
+
+**Implementation:**
+```csharp
+public class AllocationTracker : MonoBehaviour
+{
+    private long lastFrameAllocations = 0;
+    private List<long> allocationHistory = new List<long>();
+
+    void Update()
+    {
+        long currentAllocations = GC.GetTotalMemory(false);
+        long frameAllocations = currentAllocations - lastFrameAllocations;
+
+        if (frameAllocations > 0)
+        {
+            Debug.LogWarning($"Frame {Time.frameCount}: {frameAllocations} bytes allocated");
+            allocationHistory.Add(frameAllocations);
+        }
+
+        lastFrameAllocations = currentAllocations;
+
+        // Alert on excessive allocations
+        if (frameAllocations > 10000)
+        {
+            Debug.LogError($"EXCESSIVE ALLOCATION: {frameAllocations} bytes!");
+        }
+    }
+
+    void OnGUI()
+    {
+        if (allocationHistory.Count > 0)
+        {
+            float avgAllocation = allocationHistory.Average();
+            GUI.Label(new Rect(10, 10, 400, 20),
+                $"Avg Allocation: {avgAllocation:F1} bytes/frame");
+        }
+    }
+}
+```
+
+---
+
+### GPU Profilers
+
+#### Unity Frame Debugger
+
+**Purpose:** Analyze rendering performance and draw calls
+
+**How to Use:**
+1. **Window → Analysis → Frame Debugger**
+2. **Enable** while in Play Mode
+3. Step through draw calls:
+   - Identify expensive render passes
+   - Find overdraw issues
+   - Analyze batching efficiency
+
+**Key Metrics:**
+- Total Draw Calls (target: <100 for mobile, <500 for PC)
+- Batched Draw Calls (higher is better)
+- SetPass Calls (minimize these)
+- Triangles Rendered
+
+**Optimization Tips:**
+- **Static Batching**: Mark static objects
+- **GPU Instancing**: Use same materials
+- **Atlasing**: Combine textures
+- **LOD Groups**: Reduce distant object complexity
+
+---
+
+#### RenderDoc (Advanced GPU Profiling)
+
+**Features:**
+- Frame capture and inspection
+- Shader debugging
+- Pixel history
+- GPU timeline
+
+**How to Use:**
+1. Download RenderDoc (free, open-source)
+2. Launch Unity through RenderDoc
+3. Capture frame with **F12**
+4. Analyze in RenderDoc:
+   - Event Browser: All draw calls
+   - Pipeline State: Shader states
+   - Mesh Viewer: Geometry data
+
+**Best For:**
+- Shader optimization
+- GPU bottleneck identification
+- Render target analysis
+
+---
+
+#### Platform-Specific GPU Tools
+
+**Xcode Instruments (iOS/macOS):**
+- Metal profiling
+- GPU frame capture
+- Energy impact analysis
+
+**Android GPU Inspector:**
+- Vulkan/OpenGL profiling
+- GPU counters
+- Frame pacing analysis
+
+**Nsight Graphics (NVIDIA):**
+- Deep GPU profiling
+- Ray tracing analysis
+- DLSS performance
+
+---
+
+### Network Profilers
+
+#### Unity Netcode Profiler
+
+**Purpose:** Profile multiplayer network traffic
+
+**How to Use:**
+```
+Window → Multiplayer → Netcode Profiler (if using Netcode)
+```
+
+**Key Metrics:**
+- Bytes Sent/Received per second
+- RPC call frequency
+- Snapshot size
+- Bandwidth usage
+
+**Target:** <1 MB/s for 20 players
+
+---
+
+#### Wireshark (Network Traffic Analysis)
+
+**Features:**
+- Packet capture
+- Protocol analysis
+- Bandwidth breakdown
+
+**How to Use:**
+1. Install Wireshark
+2. Start capture on network interface
+3. Filter Unity traffic (by port, e.g., 7979)
+4. Analyze:
+   - Packet size distribution
+   - Send/receive patterns
+   - Latency spikes
+
+**Best For:**
+- Identifying network bottlenecks
+- Debugging disconnections
+- Bandwidth optimization
+
+---
+
+## 🔬 Advanced Profiling Techniques
+
+### 1. Custom Profiling Markers
+
+**Add detailed markers to your code:**
+
+```csharp
+using Unity.Profiling;
+
+public partial class MySystem : SystemBase
+{
+    private static readonly ProfilerMarker s_ProcessDataMarker =
+        new ProfilerMarker("MySystem.ProcessData");
+
+    protected override void OnUpdate()
+    {
+        using (s_ProcessDataMarker.Auto())
+        {
+            // Your code here
+            ProcessData();
+        }
+    }
+}
+```
+
+**Benefits:**
+- Identify bottlenecks within systems
+- Measure specific code sections
+- Compare optimization attempts
+
+---
+
+### 2. Performance Regression Testing
+
+**Create automated performance tests:**
+
+```csharp
+using NUnit.Framework;
+using Unity.PerformanceTesting;
+
+[TestFixture, Performance]
+public class PerformanceRegressionTests
+{
+    [Test, Performance]
+    public void Breeding_1000Creatures_Performance()
+    {
+        // Setup
+        SpawnCreatures(1000);
+
+        // Measure
+        Measure.Method(() =>
+        {
+            BreedingSystem.Update();
+        })
+        .WarmupCount(10)
+        .MeasurementCount(100)
+        .Run();
+
+        // Assert
+        // Results saved for comparison in future runs
+    }
+}
+```
+
+**Run in CI/CD:**
+- Automatically detect performance regressions
+- Track performance over time
+- Alert on slowdowns
+
+---
+
+### 3. Platform-Specific Profiling
+
+#### Mobile Profiling (iOS)
+
+**Xcode Instruments:**
+1. Build for iOS device (Development Build)
+2. In Xcode: **Product → Profile**
+3. Select instrument:
+   - **Time Profiler**: CPU usage
+   - **Allocations**: Memory allocations
+   - **Energy Log**: Battery impact
+4. Run and analyze
+
+**Target Metrics:**
+- 60 FPS on iPhone 12+
+- <100 MB memory on mobile
+- <5% CPU for background tasks
+
+---
+
+#### Mobile Profiling (Android)
+
+**Android Profiler (Android Studio):**
+1. Build APK (Development Build)
+2. Open Android Studio → **View → Tool Windows → Profiler**
+3. Attach to Unity app
+4. Profile:
+   - **CPU**: Thread activity
+   - **Memory**: Heap allocations
+   - **Energy**: Battery usage
+
+**Alternative: Unity Remote Profiler:**
+1. Connect device via USB
+2. Unity Editor → **Window → Analysis → Profiler**
+3. Select connected device
+4. Profile remotely
+
+---
+
+### 4. Comparative Profiling
+
+**Before/After Optimization:**
+
+```markdown
+| Metric | Before Optimization | After Optimization | Improvement |
+|--------|---------------------|-------------------|-------------|
+| Frame Time | 25ms | 16ms | 36% faster |
+| GC Alloc | 5KB/frame | 0 bytes/frame | ∞ |
+| Draw Calls | 500 | 150 | 70% reduction |
+```
+
+**Track in version control:**
+- Commit profiling results with changes
+- Compare across branches
+- Identify regressions early
+
+---
+
+### 5. Statistical Profiling
+
+**Collect data over multiple runs:**
+
+```csharp
+public class StatisticalProfiler
+{
+    private List<float> frameTimes = new List<float>();
+
+    void Update()
+    {
+        frameTimes.Add(Time.deltaTime * 1000f);
+
+        if (frameTimes.Count >= 1000)
+        {
+            ReportStatistics();
+            frameTimes.Clear();
+        }
+    }
+
+    void ReportStatistics()
+    {
+        float min = frameTimes.Min();
+        float max = frameTimes.Max();
+        float avg = frameTimes.Average();
+        float p95 = Percentile(frameTimes, 0.95f);
+        float p99 = Percentile(frameTimes, 0.99f);
+
+        Debug.Log($"Frame Time Stats (1000 frames):\n" +
+                  $"  Min: {min:F2}ms\n" +
+                  $"  Max: {max:F2}ms\n" +
+                  $"  Avg: {avg:F2}ms\n" +
+                  $"  P95: {p95:F2}ms\n" +
+                  $"  P99: {p99:F2}ms");
+    }
+
+    float Percentile(List<float> values, float percentile)
+    {
+        var sorted = values.OrderBy(v => v).ToList();
+        int index = (int)(sorted.Count * percentile);
+        return sorted[index];
+    }
+}
+```
+
+**Why P95/P99 Matter:**
+- Average can hide frame spikes
+- P95 = worst case for 95% of frames
+- P99 = identifies rare hitches
+
+---
+
+## 📊 Profiling Workflow Recommendations
+
+### Daily Development
+
+1. **Quick Profile** (5 minutes):
+   - Unity Profiler → CPU module
+   - Run 1000 creatures, 30% active
+   - Check FPS >55
+   - Verify no GC allocations
+
+2. **Before Commit:**
+   - Full profile (30 seconds capture)
+   - Check all systems <budget
+   - Verify Burst active (⚡)
+   - No new performance regressions
+
+---
+
+### Weekly Performance Review
+
+1. **Deep Profile** (30 minutes):
+   - Unity Memory Profiler snapshot
+   - GPU Frame Debugger analysis
+   - Platform-specific testing (mobile)
+   - Statistical profiling (1000 frame sample)
+
+2. **Regression Testing:**
+   - Run automated performance tests
+   - Compare with baseline metrics
+   - Document any degradation
+
+---
+
+### Pre-Release
+
+1. **Comprehensive Profiling:**
+   - All platforms (PC, Mac, mobile, console)
+   - All test scenarios (1000, 5000 creatures)
+   - Extended sessions (1+ hour)
+   - Memory leak detection
+
+2. **External Tools:**
+   - RenderDoc GPU analysis
+   - Platform-specific profilers
+   - Network profiling (multiplayer)
+
+---
+
+## 🎯 Tool Comparison Matrix
+
+| Tool | Platform | Best For | Difficulty | Cost |
+|------|----------|----------|------------|------|
+| **Unity Profiler** | All | General profiling | Easy | Free |
+| **ECS Profiler** | All | ECS systems | Easy | Free |
+| **Memory Profiler** | All | Memory leaks | Medium | Free |
+| **Frame Debugger** | All | Rendering | Easy | Free |
+| **Visual Studio** | Windows | Native code | Medium | Free |
+| **Rider Profiler** | All | C# profiling | Easy | Paid |
+| **Intel VTune** | Intel | Deep CPU | Hard | Free |
+| **RenderDoc** | All | GPU debugging | Hard | Free |
+| **Xcode Instruments** | iOS/Mac | Mobile profiling | Medium | Free |
+| **Android Profiler** | Android | Mobile profiling | Medium | Free |
+
+---
+
+## 📚 Additional Resources
+
+### Unity Documentation
+- [Profiler Overview](https://docs.unity3d.com/Manual/Profiler.html)
+- [Memory Profiler Package](https://docs.unity3d.com/Packages/com.unity.memoryprofiler@latest)
+- [ECS Profiling](https://docs.unity3d.com/Packages/com.unity.entities@latest/manual/profiling.html)
+
+### External Resources
+- [RenderDoc User Manual](https://renderdoc.org/docs/)
+- [Intel VTune Documentation](https://www.intel.com/content/www/us/en/developer/tools/oneapi/vtune-profiler.html)
+- [Rider Performance Profiler](https://www.jetbrains.com/help/rider/Performance_Profiling.html)
+
+### Community Resources
+- Unity Forums: Performance Optimization
+- Unity DOTS Discord: #performance channel
+- Reddit: r/Unity3D performance discussions
+
+---
+
+## ✅ Profiling Best Practices Summary
+
+1. **Profile Early, Profile Often**
+   - Don't wait until optimization phase
+   - Catch regressions immediately
+
+2. **Use the Right Tool**
+   - Unity Profiler for general performance
+   - Memory Profiler for leaks
+   - External tools for deep analysis
+
+3. **Measure Before Optimizing**
+   - Establish baselines
+   - Identify actual bottlenecks
+   - Avoid premature optimization
+
+4. **Profile on Target Hardware**
+   - Editor performance != build performance
+   - Test on lowest-spec target platform
+
+5. **Track Over Time**
+   - Commit profiling results
+   - Automated regression tests
+   - Statistical analysis
+
+6. **Focus on Impact**
+   - Optimize hot paths first
+   - 80/20 rule: 20% of code = 80% of time
+   - Measure improvement
+
+---
+
+**With these tools and techniques, you have a complete profiling toolkit!** 🚀
+
+Profile smart, optimize wisely, ship performant games.
