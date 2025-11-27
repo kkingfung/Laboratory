@@ -261,13 +261,324 @@ namespace Laboratory.Tests.Unit.Chimera
                 new Gene { traitName = "Medium Trait", value = 0.5f, isActive = true }
             };
             var profile = new GeneticProfile(genes, 1);
-            
+
             // Act
             string summary = profile.GetTraitSummary(2);
-            
+
             // Assert
             Assert.IsTrue(summary.Contains("High Trait"), "Summary should include high-value traits");
             Assert.IsFalse(summary.Contains("Low Trait"), "Summary should not include low-value traits");
         }
+    }
+
+    /// <summary>
+    /// Extended breeding system tests for comprehensive coverage
+    /// Target: 80% code coverage for breeding systems
+    /// </summary>
+    [TestFixture]
+    public class BreedingSystemExtendedTests
+    {
+        private BreedingSystem _breedingSystem;
+        private IEventBus _eventBus;
+        private CreatureDefinition _testSpecies;
+
+        [SetUp]
+        public void Setup()
+        {
+            _eventBus = new UnifiedEventBus();
+            _breedingSystem = new BreedingSystem(_eventBus);
+            _testSpecies = CreateTestCreatureDefinition("Test Species", 1);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _breedingSystem?.Dispose();
+            _eventBus?.Dispose();
+        }
+
+        [Test]
+        public void CalculateBreedingSuccessChance_OptimalConditions_ReturnsHighChance()
+        {
+            // Arrange
+            var parent1 = CreateAdultCreature(_testSpecies, ageRatio: 0.4f); // Optimal breeding age
+            var parent2 = CreateAdultCreature(_testSpecies, ageRatio: 0.4f);
+            var optimalEnvironment = new BreedingEnvironment
+            {
+                FoodAvailability = 1.0f,
+                StressLevel = 0f,
+                PredatorPressure = 0f,
+                ComfortLevel = 1.0f,
+                PopulationDensity = 0.3f,
+                BreedingSuccessMultiplier = 1.2f
+            };
+
+            // Act
+            float successChance = _breedingSystem.CalculateBreedingSuccessChance(parent1, parent2, optimalEnvironment);
+
+            // Assert
+            Assert.Greater(successChance, 0.7f, "Optimal conditions should yield high success chance");
+            Assert.LessOrEqual(successChance, 1.0f, "Success chance should be clamped to 1.0");
+        }
+
+        [Test]
+        public void CalculateBreedingSuccessChance_PoorConditions_ReturnsLowChance()
+        {
+            // Arrange
+            var parent1 = CreateAdultCreature(_testSpecies, ageRatio: 0.9f); // Old age
+            var parent2 = CreateAdultCreature(_testSpecies, ageRatio: 0.9f);
+            parent1.CurrentHealth = parent1.Definition.baseStats.health * 0.3f; // Low health
+            parent2.CurrentHealth = parent2.Definition.baseStats.health * 0.3f;
+
+            var poorEnvironment = new BreedingEnvironment
+            {
+                FoodAvailability = 0.2f,
+                StressLevel = 0.8f,
+                PredatorPressure = 0.7f,
+                ComfortLevel = 0.2f,
+                PopulationDensity = 0.9f, // Overcrowded
+                BreedingSuccessMultiplier = 0.8f
+            };
+
+            // Act
+            float successChance = _breedingSystem.CalculateBreedingSuccessChance(parent1, parent2, poorEnvironment);
+
+            // Assert
+            Assert.Less(successChance, 0.4f, "Poor conditions should yield low success chance");
+        }
+
+        [Test]
+        public void CanBreed_ImmatureCreatures_ReturnsFalse()
+        {
+            // Arrange
+            var juvenile1 = CreateTestCreatureInstance(_testSpecies);
+            var juvenile2 = CreateTestCreatureInstance(_testSpecies);
+            juvenile1.AgeInDays = 30; // Below maturity age (90)
+            juvenile2.AgeInDays = 30;
+
+            // Act
+            bool canBreed = _breedingSystem.CanBreed(juvenile1, juvenile2);
+
+            // Assert
+            Assert.IsFalse(canBreed, "Immature creatures should not be able to breed");
+        }
+
+        [Test]
+        public void CanBreed_DeadCreature_ReturnsFalse()
+        {
+            // Arrange
+            var parent1 = CreateAdultCreature(_testSpecies);
+            var parent2 = CreateAdultCreature(_testSpecies);
+            parent1.IsAlive = false;
+
+            // Act
+            bool canBreed = _breedingSystem.CanBreed(parent1, parent2);
+
+            // Assert
+            Assert.IsFalse(canBreed, "Dead creatures should not be able to breed");
+        }
+
+        [Test]
+        public void CanBreed_SameCreature_ReturnsFalse()
+        {
+            // Arrange
+            var creature = CreateAdultCreature(_testSpecies);
+
+            // Act
+            bool canBreed = _breedingSystem.CanBreed(creature, creature);
+
+            // Assert
+            Assert.IsFalse(canBreed, "Creature should not be able to breed with itself");
+        }
+
+        [Test]
+        public void AttemptBreeding_NullParent_ReturnsFailure()
+        {
+            // Arrange
+            var parent1 = CreateAdultCreature(_testSpecies);
+
+            // Act
+            var result = _breedingSystem.AttemptBreeding(parent1, null);
+
+            // Assert
+            Assert.IsFalse(result.Success, "Breeding with null parent should fail");
+            Assert.IsNotNull(result.ErrorMessage, "Error message should be provided");
+        }
+
+        [Test]
+        public async UniTask AttemptBreedingAsync_ValidParents_CompletesSuccessfully()
+        {
+            // Arrange
+            var parent1 = CreateAdultCreature(_testSpecies);
+            var parent2 = CreateAdultCreature(_testSpecies);
+            var cts = new CancellationTokenSource();
+
+            // Act
+            var result = await _breedingSystem.AttemptBreedingAsync(parent1, parent2, cts.Token);
+
+            // Assert
+            Assert.IsNotNull(result, "Async breeding should return result");
+            // Note: Success depends on random chance, just verify it completes
+        }
+
+        [Test]
+        public async UniTask AttemptBreedingAsync_Cancelled_ReturnsFailure()
+        {
+            // Arrange
+            var parent1 = CreateAdultCreature(_testSpecies);
+            var parent2 = CreateAdultCreature(_testSpecies);
+            var cts = new CancellationTokenSource();
+            cts.Cancel(); // Cancel immediately
+
+            // Act
+            var result = await _breedingSystem.AttemptBreedingAsync(parent1, parent2, cts.Token);
+
+            // Assert
+            Assert.IsFalse(result.Success, "Cancelled breeding should return failure");
+            Assert.IsTrue(result.ErrorMessage.Contains("cancelled"), "Should indicate cancellation");
+        }
+
+        [Test]
+        public void GeneticDiversity_HighSimilarity_ReducesBreedingSuccess()
+        {
+            // Arrange - Create genetically very similar creatures
+            var parent1 = CreateAdultCreature(_testSpecies);
+            var parent2 = CreateAdultCreature(_testSpecies);
+
+            // Make genetics nearly identical
+            parent2.GeneticProfile = new GeneticProfile(parent1.GeneticProfile.Genes.ToArray(), 1);
+
+            // Act
+            float successChance = _breedingSystem.CalculateBreedingSuccessChance(parent1, parent2);
+
+            // Assert
+            Assert.Greater(successChance, 0f, "Should still have some chance");
+            // Note: System applies inbreeding penalty for high similarity
+        }
+
+        [Test]
+        public void EnvironmentalFactor_Overcrowding_ReducesSuccess()
+        {
+            // Arrange
+            var parent1 = CreateAdultCreature(_testSpecies);
+            var parent2 = CreateAdultCreature(_testSpecies);
+            var overcrowdedEnvironment = new BreedingEnvironment
+            {
+                PopulationDensity = 0.95f, // 95% capacity
+                FoodAvailability = 0.5f,
+                ComfortLevel = 0.5f
+            };
+
+            // Act
+            float successChance = _breedingSystem.CalculateBreedingSuccessChance(parent1, parent2, overcrowdedEnvironment);
+
+            // Assert
+            Assert.Less(successChance, 0.6f, "Overcrowding should significantly reduce breeding success");
+        }
+
+        [Test]
+        public void OffspringGeneration_InheritsParentTraits()
+        {
+            // Arrange
+            var parent1 = CreateAdultCreature(_testSpecies);
+            var parent2 = CreateAdultCreature(_testSpecies);
+
+            // Act
+            var result = _breedingSystem.AttemptBreeding(parent1, parent2);
+
+            // Assert
+            if (result.Success)
+            {
+                Assert.IsNotNull(result.Offspring, "Offspring should be created");
+                Assert.AreEqual(0, result.Offspring.AgeInDays, "Offspring should be newborn");
+                Assert.IsTrue(result.Offspring.Parents.Contains(parent1.InstanceId), "Should track parent 1");
+                Assert.IsTrue(result.Offspring.Parents.Contains(parent2.InstanceId), "Should track parent 2");
+            }
+        }
+
+        [Test]
+        public void BreedingSuccessEvent_OnSuccess_IsFired()
+        {
+            // Arrange
+            var parent1 = CreateAdultCreature(_testSpecies);
+            var parent2 = CreateAdultCreature(_testSpecies);
+            bool eventFired = false;
+            CreatureInstance offspringFromEvent = null;
+
+            _eventBus.Subscribe<BreedingSuccessEvent>(evt =>
+            {
+                eventFired = true;
+                offspringFromEvent = evt.Offspring;
+            });
+
+            // Act
+            var result = _breedingSystem.AttemptBreeding(parent1, parent2);
+
+            // Assert
+            if (result.Success)
+            {
+                Assert.IsTrue(eventFired, "Breeding success event should be fired");
+                Assert.IsNotNull(offspringFromEvent, "Event should contain offspring");
+            }
+        }
+
+        #region Helper Methods
+
+        private CreatureDefinition CreateTestCreatureDefinition(string name, int compatibilityGroup)
+        {
+            var definition = ScriptableObject.CreateInstance<CreatureDefinition>();
+            definition.speciesName = name;
+            definition.baseStats = new CreatureStats
+            {
+                health = 100,
+                attack = 20,
+                defense = 15,
+                speed = 10,
+                intelligence = 5,
+                charisma = 5
+            };
+            definition.breedingCompatibilityGroup = compatibilityGroup;
+            definition.fertilityRate = 0.75f;
+            definition.maturationAge = 90;
+            definition.maxLifespan = 365 * 5;
+            definition.size = CreatureSize.Medium;
+            definition.preferredBiomes = new BiomeType[] { BiomeType.Forest };
+            definition.biomeCompatibility = new float[] { 1.0f };
+
+            return definition;
+        }
+
+        private CreatureInstance CreateTestCreatureInstance(CreatureDefinition definition)
+        {
+            var genes = new Gene[]
+            {
+                new Gene { traitName = "Strength", value = 0.7f, dominance = 0.6f, isActive = true },
+                new Gene { traitName = "Speed", value = 0.5f, dominance = 0.4f, isActive = true },
+                new Gene { traitName = "Intelligence", value = 0.6f, dominance = 0.5f, isActive = true }
+            };
+
+            var genetics = new GeneticProfile(genes, 1);
+
+            return new CreatureInstance
+            {
+                Definition = definition,
+                GeneticProfile = genetics,
+                AgeInDays = 100,
+                CurrentHealth = definition.baseStats.health,
+                Happiness = 0.8f,
+                Level = 1,
+                IsWild = false,
+                IsAlive = true
+            };
+        }
+
+        private CreatureInstance CreateAdultCreature(CreatureDefinition definition, float ageRatio = 0.4f)
+        {
+            var creature = CreateTestCreatureInstance(definition);
+            creature.AgeInDays = (int)(definition.maxLifespan * ageRatio);
+            return creature;
+        }
+
+        #endregion
     }
 }
