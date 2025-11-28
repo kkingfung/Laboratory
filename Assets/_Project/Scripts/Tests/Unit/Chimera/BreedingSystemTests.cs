@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 using UnityEngine;
@@ -9,7 +12,6 @@ using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Core.Events;
 using Laboratory.Shared.Types;
-using System;
 
 namespace Laboratory.Tests.Unit.Chimera
 {
@@ -462,8 +464,8 @@ namespace Laboratory.Tests.Unit.Chimera
             var overcrowdedEnvironment = new BreedingEnvironment
             {
                 PopulationDensity = 0.95f, // 95% capacity
-                FoodAvailability = 0.5f,
-                ComfortLevel = 0.5f
+                FoodAvailability = 0.5f
+                // ComfortLevel is read-only (derived from other factors)
             };
 
             // Act
@@ -564,8 +566,8 @@ namespace Laboratory.Tests.Unit.Chimera
                 CurrentHealth = definition.baseStats.health,
                 Happiness = 0.8f,
                 Level = 1,
-                IsWild = false,
-                IsAlive = true
+                IsWild = false
+                // IsAlive is read-only (derived from CurrentHealth > 0)
             };
         }
 
