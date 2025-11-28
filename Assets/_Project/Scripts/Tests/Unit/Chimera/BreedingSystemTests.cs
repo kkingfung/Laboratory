@@ -325,17 +325,15 @@ namespace Laboratory.Tests.Unit.Chimera
             // Arrange
             var parent1 = CreateAdultCreature(_testSpecies, ageRatio: 0.9f); // Old age
             var parent2 = CreateAdultCreature(_testSpecies, ageRatio: 0.9f);
-            parent1.CurrentHealth = parent1.Definition.baseStats.health * 0.3f; // Low health
-            parent2.CurrentHealth = parent2.Definition.baseStats.health * 0.3f;
+            parent1.CurrentHealth = (int)(parent1.Definition.baseStats.health * 0.3f); // Low health
+            parent2.CurrentHealth = (int)(parent2.Definition.baseStats.health * 0.3f);
 
             var poorEnvironment = new BreedingEnvironment
             {
                 FoodAvailability = 0.2f,
-                StressLevel = 0.8f,
                 PredatorPressure = 0.7f,
-                ComfortLevel = 0.2f,
-                PopulationDensity = 0.9f, // Overcrowded
-                BreedingSuccessMultiplier = 0.8f
+                PopulationDensity = 0.9f // Overcrowded
+                // StressLevel, ComfortLevel, BreedingSuccessMultiplier are read-only (use defaults)
             };
 
             // Act
@@ -367,13 +365,14 @@ namespace Laboratory.Tests.Unit.Chimera
             // Arrange
             var parent1 = CreateAdultCreature(_testSpecies);
             var parent2 = CreateAdultCreature(_testSpecies);
-            parent1.IsAlive = false;
+            // Note: IsAlive is read-only, so we test by setting health to 0
+            parent1.CurrentHealth = 0;
 
             // Act
             bool canBreed = _breedingSystem.CanBreed(parent1, parent2);
 
             // Assert
-            Assert.IsFalse(canBreed, "Dead creatures should not be able to breed");
+            Assert.IsFalse(canBreed, "Dead creatures (health = 0) should not be able to breed");
         }
 
         [Test]

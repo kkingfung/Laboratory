@@ -137,17 +137,17 @@ namespace Laboratory.Tests.Unit.AI
             var behavior = new BehaviorStateComponent
             {
                 CurrentBehavior = CreatureBehaviorType.Idle,
-                PreviousBehavior = CreatureBehaviorType.None
+                QueuedBehavior = CreatureBehaviorType.Idle
             };
 
             // Act
-            var newBehavior = TransitionBehavior(behavior, CreatureBehaviorType.Wandering);
+            var newBehavior = TransitionBehavior(behavior, CreatureBehaviorType.Foraging);
 
             // Assert
-            Assert.AreEqual(CreatureBehaviorType.Wandering, newBehavior.CurrentBehavior,
-                "Should transition to wandering");
-            Assert.AreEqual(CreatureBehaviorType.Idle, newBehavior.PreviousBehavior,
-                "Should track previous behavior");
+            Assert.AreEqual(CreatureBehaviorType.Foraging, newBehavior.CurrentBehavior,
+                "Should transition to foraging");
+            Assert.AreEqual(CreatureBehaviorType.Idle, newBehavior.QueuedBehavior,
+                "Should track queued behavior");
         }
 
         [Test]
@@ -379,15 +379,15 @@ namespace Laboratory.Tests.Unit.AI
             return new BehaviorStateComponent
             {
                 CurrentBehavior = newBehavior,
-                PreviousBehavior = current.CurrentBehavior,
-                BehaviorStartTime = Time.time,
-                BehaviorDuration = 5f
+                QueuedBehavior = current.CurrentBehavior,
+                BehaviorTimer = 0f,
+                BehaviorIntensity = 1.0f
             };
         }
 
         private bool HasBehaviorExpired(BehaviorStateComponent behavior, float currentTime)
         {
-            return (currentTime - behavior.BehaviorStartTime) >= behavior.BehaviorDuration;
+            return behavior.BehaviorTimer >= 5f; // Behavior expires after 5 seconds
         }
 
         #endregion
