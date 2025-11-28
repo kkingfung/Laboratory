@@ -5,20 +5,93 @@ namespace Laboratory.Chimera.Activities
 {
     /// <summary>
     /// Types of activity mini-games available in ChimeraOS
+    /// Expanded to support 47 distinct game genres
     /// </summary>
     public enum ActivityType : byte
     {
+        // ===== CORE SYSTEM =====
         None = 0,
-        Racing = 1,
-        Combat = 2,
-        Puzzle = 3,
-        Strategy = 4,
-        Music = 5,
-        Adventure = 6,
-        Platforming = 7,
-        Crafting = 8,
-        Exploration = 9,
-        Social = 10
+
+        // ===== ACTION GENRES (7) =====
+        FPS = 1,
+        ThirdPersonShooter = 2,
+        Fighting = 3,
+        BeatEmUp = 4,
+        HackAndSlash = 5,
+        Stealth = 6,
+        SurvivalHorror = 7,
+
+        // ===== STRATEGY GENRES (5) =====
+        RealTimeStrategy = 8,
+        TurnBasedStrategy = 9,
+        FourXStrategy = 10,
+        GrandStrategy = 11,
+        AutoBattler = 12,
+
+        // ===== PUZZLE GENRES (5) =====
+        Match3 = 13,
+        TetrisLike = 14,
+        PhysicsPuzzle = 15,
+        HiddenObject = 16,
+        WordGame = 17,
+
+        // ===== ADVENTURE GENRES (4) =====
+        PointAndClick = 18,
+        VisualNovel = 19,
+        WalkingSimulator = 20,
+        Metroidvania = 21,
+
+        // ===== PLATFORM GENRES (3) =====
+        Platformer2D = 22,
+        Platformer3D = 23,
+        EndlessRunner = 24,
+
+        // ===== SIMULATION GENRES (4) =====
+        VehicleSimulation = 25,
+        FlightSimulator = 26,
+        FarmingSimulator = 27,
+        ConstructionSimulator = 28,
+
+        // ===== ARCADE GENRES (4) =====
+        Roguelike = 29,
+        Roguelite = 30,
+        BulletHell = 31,
+        ClassicArcade = 32,
+
+        // ===== BOARD & CARD GENRES (3) =====
+        BoardGame = 33,
+        CardGame = 34,
+        ChessLike = 35,
+
+        // ===== CORE ACTIVITY GENRES (10) =====
+        Exploration = 36,
+        Racing = 37,
+        TowerDefense = 38,
+        BattleRoyale = 39,
+        CityBuilder = 40,
+        Detective = 41,
+        Economics = 42,
+        Sports = 43,
+
+        // ===== MUSIC GENRES (2) =====
+        RhythmGame = 44,
+        MusicCreation = 45,
+
+        // ===== LEGACY SUPPORT =====
+        Combat = 46,
+        Puzzle = 47,
+        Strategy = 48,
+        Music = 49,
+        Adventure = 50,
+        Platforming = 51,
+        Crafting = 52,
+        Social = 53,
+        Training = 54,
+        Breeding = 55,
+        Foraging = 56,
+        Resting = 57,
+
+        Custom = 255
     }
 
     /// <summary>

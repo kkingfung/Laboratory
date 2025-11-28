@@ -1,6 +1,4 @@
 using UnityEngine;
-using Laboratory.Core.Activities;
-using Laboratory.Core.Activities.Types;
 
 namespace Laboratory.Chimera.Activities
 {

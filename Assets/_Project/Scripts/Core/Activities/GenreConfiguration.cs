@@ -1,7 +1,6 @@
 using UnityEngine;
-using Laboratory.Core.Activities.Types;
 
-namespace Laboratory.Core.Activities
+namespace Laboratory.Chimera.Activities
 {
     /// <summary>
     /// ScriptableObject configuration for all 47 game genres
