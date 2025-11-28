@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using Unity.Mathematics;
 using Laboratory.Chimera.AI;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
@@ -196,16 +197,16 @@ namespace Laboratory.Tests.Unit.AI
             var movement = new Laboratory.Chimera.ECS.CreatureMovementComponent
             {
                 HasDestination = true,
-                TargetPosition = new Vector3(10, 0, 10),
+                TargetPosition = new float3(10, 0, 10),
                 CurrentSpeed = 5f,
                 IsMoving = true
             };
 
-            var currentPosition = Vector3.zero;
+            var currentPosition = float3.zero;
 
             // Act
-            var direction = (movement.TargetPosition - currentPosition).normalized;
-            var expectedDirection = new Vector3(0.707f, 0, 0.707f); // Normalized (10,0,10)
+            var direction = math.normalize(movement.TargetPosition - currentPosition);
+            var expectedDirection = new float3(0.707f, 0, 0.707f); // Normalized (10,0,10)
 
             // Assert
             Assert.AreEqual(expectedDirection.x, direction.x, 0.01f,
