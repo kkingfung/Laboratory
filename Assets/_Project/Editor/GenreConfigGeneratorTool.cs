@@ -2,8 +2,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
-using Laboratory.Core.Activities;
-using Laboratory.Core.Activities.Types;
+using Laboratory.Chimera.Activities;
 
 namespace Laboratory.Editor.Tools
 {

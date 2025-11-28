@@ -1,9 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using Laboratory.Core.Activities.Types;
 
-namespace Laboratory.Core.Activities
+namespace Laboratory.Chimera.Activities
 {
     /// <summary>
     /// Master library of all 47 game genre configurations
