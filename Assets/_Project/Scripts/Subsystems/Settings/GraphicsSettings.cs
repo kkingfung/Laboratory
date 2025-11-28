@@ -26,9 +26,6 @@ namespace Laboratory.Subsystems.Settings
         private bool _postProcessingEnabled = true;
         private float _renderScale = 1f;
 
-        // Performance monitoring
-        private float _averageFPS = 60f;
-
         // Events
         public event System.Action OnGraphicsSettingsChanged;
 

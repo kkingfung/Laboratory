@@ -4,6 +4,7 @@ using Laboratory.Chimera.AI;
 using Laboratory.Chimera.Creatures;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Core;
+using Laboratory.Chimera.ECS;
 using Laboratory.Shared.Types;
 using Laboratory.Core.ECS.Components;
 
