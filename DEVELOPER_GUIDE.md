@@ -305,6 +305,127 @@ public class CreatureAuthoring : MonoBehaviour, IConvertGameObjectToEntity
 }
 ```
 
+### 47-Genre Activity System
+
+**Project Chimera features a comprehensive 47-genre activity system** where player skill and chimera traits combine for performance-based gameplay.
+
+#### Architecture Overview
+
+```
+GenreLibrary (Master Index)
+    ├── GenreConfiguration (47 configs)
+    │   ├── PlayerSkill (15 types)
+    │   ├── ChimeraTrait (15 types)
+    │   ├── Performance calculations
+    │   └── Reward scaling
+    └── ActivityConfig (compatibility layer)
+```
+
+#### Quick Start for Designers
+
+**1. Generate All Configurations** (One-time setup)
+```
+Tools → Chimera → Genre Configuration Generator
+1. Click "Create Genre Library"
+2. Click "Generate All 47 Genre Configurations"
+3. Wait for completion (~1 minute)
+```
+
+**2. Customize a Genre**
+```
+Location: Assets/_Project/Resources/Configs/GenreConfigurations/
+Example: Genre_Racing.asset
+
+Fields to Customize:
+- Base Duration: How long the activity takes
+- Difficulty Scaling: Challenge multiplier
+- Player Skill Weight: How much player performance matters
+- Chimera Trait Weight: How much chimera stats matter
+- Rewards: Currency, skill mastery, partnership gains
+```
+
+#### Performance Calculation
+
+```csharp
+// Genre-specific performance calculation
+var result = GenrePerformanceCalculator.CalculateActivityResult(
+    activityType: ActivityType.Racing,
+    playerSkillValue: 0.8f,    // 80% player performance
+    chimeraTraitValue: 0.9f,   // 90% chimera speed/agility
+    bondStrength: 0.85f,       // 85% partnership bond
+    chimeraAge: 120,           // 120 days old (adult)
+    personalityTraits: new[] { "Competitive", "Brave" }
+);
+
+// Results
+Debug.Log($"Performance: {result.performance}%");
+Debug.Log($"Rank: {result.rank}"); // Failed/Bronze/Silver/Gold/Platinum
+Debug.Log($"Reward: {result.currencyReward} coins");
+Debug.Log($"Skill Gain: +{result.skillGain:F3}");
+```
+
+#### 47 Genre Categories
+
+**Action (7):** FPS, TPS, Fighting, Beat Em Up, Hack and Slash, Stealth, Survival Horror
+**Strategy (5):** RTS, Turn-Based, 4X, Grand Strategy, Auto Battler
+**Puzzle (5):** Match-3, Tetris-Like, Physics Puzzle, Hidden Object, Word Game
+**Adventure (4):** Point and Click, Visual Novel, Walking Sim, Metroidvania
+**Platform (3):** 2D Platformer, 3D Platformer, Endless Runner
+**Simulation (4):** Vehicle Sim, Flight Sim, Farming Sim, Construction Sim
+**Arcade (4):** Roguelike, Roguelite, Bullet Hell, Classic Arcade
+**Board & Card (3):** Board Game, Card Game, Chess-Like
+**Core (10):** Exploration, Racing, Tower Defense, Battle Royale, City Builder, etc.
+**Music (2):** Rhythm Game, Music Creation
+**Legacy (12):** Combat, Puzzle, Strategy, Music, etc.
+
+#### Adding a New Genre-Specific Minigame
+
+```csharp
+// 1. Choose genre from ActivityType enum
+ActivityType myGenre = ActivityType.Racing;
+
+// 2. Get genre configuration
+var genreConfig = genreLibrary.GetGenreConfig(myGenre);
+
+// 3. Use genre settings in your minigame
+float duration = genreConfig.baseDuration; // 90 seconds
+PlayerSkill requiredSkill = genreConfig.primaryPlayerSkill; // Reflexes
+ChimeraTrait requiredTrait = genreConfig.primaryChimeraTrait; // Speed
+
+// 4. Calculate performance when activity completes
+float performance = genreConfig.CalculatePerformance(
+    playerSkillValue,
+    chimeraTraitValue,
+    bondStrength,
+    chimeraAge
+);
+
+// 5. Award rewards
+int reward = genreConfig.CalculateReward(performance);
+float skillGain = genreConfig.CalculateSkillGain(performance);
+```
+
+#### Integration with Existing Systems
+
+**ActivitySystem (ECS):**
+- Loads ActivityConfig assets from Resources
+- Processes activity completion
+- Awards currency and experience
+
+**PartnershipActivitySystem:**
+- Uses GenrePerformanceCalculator
+- Calculates skill + cooperation dynamics
+- Records skill improvements
+
+**GenrePerformanceCalculator:**
+- Bridge between configs and systems
+- Handles all performance math
+- Returns comprehensive results
+
+**For Complete Guide:** See `Assets/_Project/Docs/GENRE_SYSTEM_GUIDE.md`
+
+---
+
 ### Performance Principles
 
 **1. Burst Compilation**
