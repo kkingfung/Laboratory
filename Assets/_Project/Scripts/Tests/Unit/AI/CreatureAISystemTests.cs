@@ -176,9 +176,8 @@ namespace Laboratory.Tests.Unit.AI
             // Arrange
             var behavior = new BehaviorStateComponent
             {
-                CurrentBehavior = CreatureBehaviorType.Wandering,
-                BehaviorStartTime = 0f,
-                BehaviorDuration = 5f
+                CurrentBehavior = CreatureBehaviorType.Foraging,
+                BehaviorTimer = 6f // Already elapsed 6 seconds
             };
 
             float currentTime = 6f;
@@ -187,14 +186,14 @@ namespace Laboratory.Tests.Unit.AI
             bool hasExpired = HasBehaviorExpired(behavior, currentTime);
 
             // Assert
-            Assert.IsTrue(hasExpired, "Behavior should expire after duration");
+            Assert.IsTrue(hasExpired, "Behavior should expire after duration (5 seconds)");
         }
 
         [Test]
         public void CreatureMovement_HasDestination_MovesTowardTarget()
         {
             // Arrange
-            var movement = new CreatureMovementComponent
+            var movement = new Laboratory.Chimera.ECS.CreatureMovementComponent
             {
                 HasDestination = true,
                 TargetPosition = new Vector3(10, 0, 10),
@@ -221,8 +220,8 @@ namespace Laboratory.Tests.Unit.AI
             // Arrange
             var health = new CreatureHealthComponent
             {
-                CurrentHealth = 15f,
-                MaxHealth = 100f,
+                CurrentHealth = 15,
+                MaxHealth = 100,
                 IsAlive = true
             };
 
