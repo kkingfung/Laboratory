@@ -209,11 +209,10 @@ namespace Laboratory.Tests.Unit.Persistence
 
             // Act
             var loadedState = LoadGameState(savePath);
-            int expectedVersion = 2; // Current version
 
             // Assert
             Assert.IsNotNull(loadedState, "Should load old version");
-            // Note: Migration logic would update version
+            // Note: Migration logic would update version automatically
             // This test verifies the system can load old saves
         }
 

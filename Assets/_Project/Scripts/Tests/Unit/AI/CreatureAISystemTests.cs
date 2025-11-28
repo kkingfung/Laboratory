@@ -42,9 +42,9 @@ namespace Laboratory.Tests.Unit.AI
             var behaviorComponent = new BehaviorStateComponent
             {
                 CurrentBehavior = CreatureBehaviorType.Idle,
-                PreviousBehavior = CreatureBehaviorType.None,
-                BehaviorStartTime = 0f,
-                BehaviorDuration = 0f
+                QueuedBehavior = CreatureBehaviorType.Idle,
+                BehaviorTimer = 0f,
+                BehaviorIntensity = 1.0f
             };
 
             // Assert

@@ -306,11 +306,9 @@ namespace Laboratory.Tests.Unit.Chimera
             var optimalEnvironment = new BreedingEnvironment
             {
                 FoodAvailability = 1.0f,
-                StressLevel = 0f,
                 PredatorPressure = 0f,
-                ComfortLevel = 1.0f,
-                PopulationDensity = 0.3f,
-                BreedingSuccessMultiplier = 1.2f
+                PopulationDensity = 0.3f
+                // StressLevel, ComfortLevel, and BreedingSuccessMultiplier are read-only (use defaults)
             };
 
             // Act
