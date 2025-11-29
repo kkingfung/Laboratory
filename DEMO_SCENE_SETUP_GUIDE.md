@@ -1,778 +1,427 @@
 # Project Chimera - Demo Scene Setup Guide
-**Complete reference for creating demo scenes for all game modes and systems**
+**Quick reference index for creating demo scenes**
 
 ---
 
-## 📋 Table of Contents
+## 📋 Overview
 
-1. [Core Scene Template](#core-scene-template)
-2. [Activity/Genre Demo Scenes](#activitygenre-demo-scenes)
-3. [System Demo Scenes](#system-demo-scenes)
-4. [UI Requirements](#ui-requirements)
-5. [Testing Scenes](#testing-scenes)
+This guide provides a comprehensive reference for creating demo scenes for all game modes and systems in Project Chimera. The documentation is split into specialized guides for easier navigation.
 
 ---
 
-## Core Scene Template
+## 📚 Guide Index
 
-### Every Demo Scene Should Have:
+### 1. **Core Scene Template**
+Every demo scene starts with the same foundational elements. See [Core Scene Requirements](#core-scene-requirements) below.
 
-#### 1. **Scene Bootstrap** (Essential)
-```
-GameObject: "ChimeraSceneBootstrap"
-├── Component: ChimeraSceneBootstrapper (MonoBehaviour)
-│   └── Reference: ChimeraGameConfig (ScriptableObject)
-└── Component: ConvertToEntity
-```
+### 2. **Genre/Activity Demo Scenes**
+Detailed scene setups for all 47 activity genres.
 
-**Why:** Initializes all ECS systems and loads configurations automatically.
+📖 **See: [GENRE_SCENES_GUIDE.md](./GENRE_SCENES_GUIDE.md)**
 
-#### 2. **World Management**
-```
-GameObject: "WorldManager"
-├── Component: World (auto-created by DOTS)
-└── SubScene: "MainSubScene" (optional, for ECS entities)
-```
+Covers:
+- **Action Genres** (FPS, Third-Person Shooter, Fighting, Beat'Em Up, Hack & Slash, Stealth, Survival Horror)
+- **Racing Genres** (Racing, Kart Racing, Combat Racing)
+- **Puzzle Genres** (Match-3, Tetris, Physics Puzzle, Logic Puzzle, Hidden Object, Tile Matching)
+- **Strategy Genres** (RTS, Turn-Based Strategy, 4X Strategy, Grand Strategy, Auto Battler, Tower Defense)
+- **Rhythm/Music Genres** (Rhythm, Music)
+- **RPG Genres** (Action RPG, Turn-Based RPG, Roguelike, MMORPG, Dungeon Crawler)
+- **Simulation Genres** (Life Sim, Management, Tycoon, Farming, City Builder)
+- **Sports Genres** (Sports, Fighting Sports, Racing Sports)
 
-#### 3. **Camera Setup**
-```
-GameObject: "Main Camera"
-├── Component: Camera
-├── Component: AudioListener
-└── Component: CameraController (optional)
-```
+Each genre includes:
+- Complete GameObject hierarchies
+- Detailed component specifications
+- UI layouts with exact positioning
+- Step-by-step setup instructions
+- Comprehensive testing checklists
 
-#### 4. **UI Canvas**
-```
-GameObject: "UI Canvas"
-├── Component: Canvas (Screen Space - Overlay)
-├── Component: CanvasScaler
-├── Component: GraphicRaycaster
-└── Children: [Scene-specific UI]
-```
+### 3. **System Demo Scenes**
+Focused demos for testing individual systems.
 
-#### 5. **Event System**
-```
-GameObject: "EventSystem"
-├── Component: EventSystem
-└── Component: StandaloneInputModule
-```
+📖 **See: [SYSTEM_DEMOS_GUIDE.md](./SYSTEM_DEMOS_GUIDE.md)**
+
+Covers:
+- **Breeding System Demo** - Genetics, compatibility, offspring generation
+- **Partnership/Bonding Demo** - Bond strength, emotional states, personality evolution
+- **AI Behavior Demo** - Creature needs, decision-making, behavior states
+- **Save/Load System Demo** - Persistence, migration, data integrity
+- **Performance Test Scenes** - Stress testing, profiling, optimization validation
 
 ---
 
-## Activity/Genre Demo Scenes
+## Core Scene Requirements
 
-### Template: Activity Demo Scene
-**Use for any of the 47 genres**
+### Every Demo Scene Must Have:
 
-#### Scene Hierarchy
 ```
-DemoScene_[GenreName]
+[SceneName]
 ├── ChimeraSceneBootstrap ⭐ (Required)
-│   └── ChimeraSceneBootstrapper
-│       ├── Game Config: ChimeraGameConfig.asset
-│       └── Auto-spawn Test Creatures: ✓
-│
-├── ActivityCenter ⭐ (Required for activities)
-│   ├── ActivityCenterManager
-│   └── ActivityCenterAuthoring
-│       ├── Activity Type: [GenreName]
-│       ├── Available Difficulties: [Easy, Normal, Hard, Expert, Master]
-│       └── Genre Config: Genre_[GenreName].asset
-│
-├── PlayerController
-│   ├── PlayerInputHandler
-│   ├── PlayerSkillTracker (tracks player performance)
-│   └── PartnershipController (links to active chimera)
-│
-├── ChimeraSpawner (For testing)
-│   ├── CreatureSpawnerAuthoring
-│   │   ├── Species Weight: FireDragon (1.0)
-│   │   ├── Initial Population: 1
-│   │   └── Auto-spawn on Start: ✓
-│   └── ConvertToEntity
-│
+├── WorldManager
 ├── Main Camera
-│   ├── Camera
-│   ├── CameraController
-│   └── CameraFollowTarget (follows player/chimera)
-│
-├── UI Canvas ⭐ (Required)
-│   ├── ActivityHUD (Activity-specific UI)
-│   ├── PerformanceDisplay (shows real-time performance)
-│   ├── PartnershipIndicator (bond strength, cooperation)
-│   ├── TimerDisplay (activity timer)
-│   ├── ScoreDisplay (current score/rank)
-│   └── ResultsPanel (shown on completion)
-│
-├── Environment
-│   ├── ActivityPlayArea (genre-specific)
-│   ├── Lighting (DirectionalLight)
-│   └── AudioSource (background music)
-│
-└── EventSystem
-```
-
-### Genre-Specific Requirements
-
-#### 🎯 **Action Genres** (FPS, TPS, Fighting, etc.)
-
-**Additional Objects:**
-```
-├── Combat Arena
-│   ├── Spawn Points (for enemies)
-│   ├── Cover Objects (for tactical gameplay)
-│   ├── Health Pickups
-│   └── Boundaries (colliders)
-│
-├── Enemy Manager
-│   ├── EnemySpawner
-│   └── DifficultyController
-│
-└── Combat UI
-    ├── Crosshair/Reticle
-    ├── Health Bar (player)
-    ├── Health Bar (chimera)
-    ├── Ammo Counter (if applicable)
-    └── Hit Indicators
-```
-
-**Required Components:**
-- `CombatActivitySystem` (ECS)
-- `PlayerCombatController` (MonoBehaviour)
-- `ChimeraCombatAI` (attached to chimera entity)
-- `DamageSystem` (ECS)
-- `ProjectileSystem` (ECS)
-
-#### 🏎️ **Racing Genre**
-
-**Additional Objects:**
-```
-├── Race Track
-│   ├── Starting Grid
-│   ├── Checkpoints (triggers)
-│   ├── Finish Line
-│   └── Track Boundaries
-│
-├── Vehicle System
-│   ├── Player Vehicle
-│   │   ├── VehicleController
-│   │   └── ChimeraPassenger (chimera as copilot)
-│   └── AI Racers (3-7 opponents)
-│
-└── Racing UI
-    ├── Speedometer
-    ├── Lap Timer
-    ├── Position Indicator (1st, 2nd, etc.)
-    ├── Mini-map
-    └── Boost Meter (cooperation bonus)
-```
-
-**Required Components:**
-- `RacingActivitySystem` (ECS)
-- `VehiclePhysicsController`
-- `CheckpointSystem` (ECS)
-- `RaceProgressTracker`
-
-#### 🧩 **Puzzle Genres** (Match-3, Tetris, Physics, etc.)
-
-**Additional Objects:**
-```
-├── Puzzle Grid/Board
-│   ├── GridManager
-│   ├── Tile Spawner
-│   └── Match Detector
-│
-├── Input Handler
-│   └── PuzzleInputController
-│
-└── Puzzle UI
-    ├── Move Counter
-    ├── Score Display
-    ├── Combo Meter
-    ├── Hint Button
-    └── Next Piece Preview (Tetris-like)
-```
-
-**Required Components:**
-- `PuzzleActivitySystem` (ECS)
-- `GridMatchingSystem` (for Match-3)
-- `PhysicsSimulationSystem` (for physics puzzles)
-- `PuzzleSolutionValidator`
-
-#### 🎮 **Strategy Genres** (RTS, Turn-Based, etc.)
-
-**Additional Objects:**
-```
-├── Strategic Map
-│   ├── Grid System
-│   ├── Fog of War
-│   └── Resource Nodes
-│
-├── Unit Management
-│   ├── Player Units
-│   ├── Enemy Units
-│   └── Neutral Units
-│
-├── Building System (RTS)
-│   └── Buildable Structures
-│
-└── Strategy UI
-    ├── Unit Selection Panel
-    ├── Resource Counter
-    ├── Minimap
-    ├── Build Menu
-    ├── Tech Tree (if applicable)
-    └── Turn Indicator (turn-based)
-```
-
-**Required Components:**
-- `StrategyActivitySystem` (ECS)
-- `UnitSelectionSystem` (ECS)
-- `PathfindingSystem` (ECS)
-- `FogOfWarSystem` (ECS)
-- `ResourceManagementSystem`
-
-#### 🎵 **Rhythm/Music Genres**
-
-**Additional Objects:**
-```
-├── Music System
-│   ├── AudioSource (music track)
-│   ├── Beat Detector
-│   └── Note Spawner
-│
-├── Note Highway/Track
-│   ├── Note Lanes (4-6 lanes)
-│   └── Hit Zone
-│
-└── Rhythm UI
-    ├── Score Display
-    ├── Combo Counter
-    ├── Accuracy Meter
-    ├── Note Chart
-    └── Perfect/Good/Miss Indicators
-```
-
-**Required Components:**
-- `RhythmActivitySystem` (ECS)
-- `BeatSyncSystem` (ECS)
-- `NoteTimingSystem`
-- `AccuracyCalculator`
-
----
-
-## System Demo Scenes
-
-### 1. Breeding System Demo
-**Scene:** `DemoScene_Breeding`
-
-```
-BreedingDemo
-├── ChimeraSceneBootstrap ⭐
-│   └── ChimeraSceneBootstrapper
-│
-├── BreedingCenter
-│   ├── BreedingSystemManager
-│   ├── BreedingEnvironment (MonoBehaviour)
-│   │   ├── Biome Type: Temperate
-│   │   ├── Temperature: 22°C
-│   │   ├── Food Quality: 0.8
-│   │   └── Stress Level: 0.2
-│   └── BreedingPairValidator
-│
-├── Parent Chimeras (2)
-│   ├── Parent 1
-│   │   ├── EnhancedCreatureAuthoring
-│   │   │   ├── Species: FireDragon
-│   │   │   ├── Age: 180 days (adult)
-│   │   │   └── Genetic Profile: Configured
-│   │   └── ConvertToEntity
-│   │
-│   └── Parent 2
-│       ├── EnhancedCreatureAuthoring
-│       └── ConvertToEntity
-│
-├── Breeding UI
-│   ├── Canvas
-│   │   ├── Parent Selection Panel
-│   │   │   ├── Parent 1 Info (stats, genetics)
-│   │   │   └── Parent 2 Info
-│   │   ├── Compatibility Display
-│   │   │   ├── Genetic Compatibility: 85%
-│   │   │   ├── Success Chance: 72%
-│   │   │   └── Expected Traits
-│   │   ├── Breeding Controls
-│   │   │   ├── "Attempt Breeding" Button
-│   │   │   └── "View Genetics" Button
-│   │   └── Offspring Preview
-│   │       ├── Predicted Appearance
-│   │       ├── Genetic Breakdown
-│   │       └── Trait Inheritance
-│   └── EventSystem
-│
-├── Genetics Visualizer
-│   ├── DNA Strand Display
-│   ├── Gene Comparison View
-│   └── Mutation Indicator
-│
-└── Environment
-    ├── Breeding Habitat (visual)
-    └── Lighting
-```
-
-**Required Components:**
-- `BreedingSystem` (service layer)
-- `GeneticCalculator`
-- `OffspringGenerator`
-- `BreedingEnvironment`
-- `CompatibilityChecker`
-
-**ScriptableObject References:**
-- `ChimeraSpeciesConfig.asset` (for each parent)
-- `BreedingRulesConfig.asset`
-- `MutationConfig.asset`
-
----
-
-### 2. Partnership/Bonding Demo
-**Scene:** `DemoScene_Partnership`
-
-```
-PartnershipDemo
-├── ChimeraSceneBootstrap ⭐
-│
-├── Partnership Manager
-│   ├── PartnershipProgressionSystem (ECS reference)
-│   ├── BondStrengthTracker
-│   └── EmotionalStateManager
-│
-├── Player Character
-│   ├── PlayerController
-│   ├── InteractionHandler
-│   └── InventoryManager (for gifts/food)
-│
-├── Chimera Partner
-│   ├── EnhancedCreatureAuthoring
-│   │   ├── Species: Configured
-│   │   ├── Personality: Random/Configured
-│   │   ├── Age: 50 days (child)
-│   │   └── Initial Bond: 0.5
-│   ├── EmotionalIndicatorComponent
-│   └── ConvertToEntity
-│
-├── Interaction Objects
-│   ├── Food Items (3-5 varieties)
-│   │   └── FoodItemAuthoring (affects happiness)
-│   ├── Toys/Entertainment
-│   │   └── PlayItemAuthoring
-│   └── Equipment Items
-│       └── EquipmentItemAuthoring
-│
-├── Partnership UI
-│   ├── Canvas
-│   │   ├── Bond Strength Meter
-│   │   │   ├── Visual Bar (0-100%)
-│   │   │   ├── Current Level: "Friend" / "Partner" / "Soulmate"
-│   │   │   └── Progress to Next Level
-│   │   ├── Emotional Indicator
-│   │   │   ├── Current Mood Icon
-│   │   │   ├── Happiness: 75%
-│   │   │   ├── Trust: 60%
-│   │   │   └── Stress: 20%
-│   │   ├── Personality Display
-│   │   │   ├── Current Traits (5 shown)
-│   │   │   └── Trait Change Indicators
-│   │   ├── Interaction Panel
-│   │   │   ├── Feed Button
-│   │   │   ├── Play Button
-│   │   │   ├── Pet Button
-│   │   │   └── Train Button
-│   │   └── History Log
-│   │       └── Recent Interactions (last 10)
-│   └── EventSystem
-│
-├── Activity Test Area
-│   ├── Simple Mini-game (for bonding)
-│   └── Success/Failure Triggers
-│
-└── Environment
-    ├── Home/Rest Area
-    └── Interactive Objects
-```
-
-**Required Components:**
-- `PartnershipProgressionSystem` (ECS)
-- `EmotionalResponseSystem` (ECS)
-- `BondingEventHandler`
-- `PersonalityEvolutionSystem` (ECS)
-- `InteractionValidator`
-
-**ScriptableObject References:**
-- `PersonalityConfig.asset`
-- `BondingRulesConfig.asset`
-- `EmotionalResponseConfig.asset`
-
----
-
-### 3. AI Behavior Demo
-**Scene:** `DemoScene_AI`
-
-```
-AIDemo
-├── ChimeraSceneBootstrap ⭐
-│
-├── AI Test Environment
-│   ├── Large Open Area (50x50)
-│   ├── Food Sources (scattered)
-│   ├── Water Sources
-│   ├── Shelter Areas
-│   └── Danger Zones (for fleeing behavior)
-│
-├── Test Chimeras (5-10)
-│   ├── Chimera 1
-│   │   ├── EnhancedCreatureAuthoring
-│   │   ├── BehaviorStateComponent
-│   │   ├── CreatureNeedsComponent
-│   │   │   ├── Hunger: 0.5
-│   │   │   ├── Thirst: 0.7
-│   │   │   └── Energy: 0.8
-│   │   ├── CreaturePersonalityComponent
-│   │   └── ConvertToEntity
-│   │
-│   └── [Chimera 2-10 similar setup]
-│
-├── AI Debug UI
-│   ├── Canvas
-│   │   ├── Selected Creature Panel
-│   │   │   ├── Current Behavior State
-│   │   │   ├── Needs Display (all 6 needs)
-│   │   │   ├── Personality Traits
-│   │   │   └── Decision Weights
-│   │   ├── Behavior Override Panel
-│   │   │   ├── Force Behavior Dropdown
-│   │   │   └── "Override" Button
-│   │   ├── Needs Control
-│   │   │   ├── Hunger Slider
-│   │   │   ├── Thirst Slider
-│   │   │   └── [Other needs sliders]
-│   │   └── AI Stats
-│   │       ├── Total Decisions Made
-│   │       ├── Behavior Switches
-│   │       └── Average Decision Time
-│   └── EventSystem
-│
-├── Visual Debuggers
-│   ├── Path Visualizer (draws current path)
-│   ├── Need Indicators (above each chimera)
-│   └── Behavior State Labels
-│
-└── Camera
-    ├── Free-look Camera
-    └── Target Follow (optional)
-```
-
-**Required Components:**
-- `CreatureAISystem` (ECS)
-- `BehaviorStateSystem` (ECS)
-- `NeedsPrioritySystem` (ECS)
-- `PathfindingSystem` (ECS)
-- `DecisionMakingSystem` (ECS)
-
-**Debug Tools:**
-- `AIDebugVisualizer` (draws gizmos)
-- `BehaviorLogger`
-
----
-
-### 4. Save/Load System Demo
-**Scene:** `DemoScene_SaveLoad`
-
-```
-SaveLoadDemo
-├── ChimeraSceneBootstrap ⭐
-│
-├── Save System Manager
-│   ├── SaveLoadSystem
-│   ├── SaveFileManager
-│   └── MigrationHandler
-│
-├── Test Environment
-│   ├── Multiple Chimeras (3-5)
-│   ├── Player Progress Data
-│   └── World State
-│
-├── Save/Load UI
-│   ├── Canvas
-│   │   ├── Save Panel
-│   │   │   ├── Save Slot List (3 slots)
-│   │   │   │   ├── Slot 1 Info (date, time, creatures)
-│   │   │   │   ├── Slot 2 Info
-│   │   │   │   └── Slot 3 Info
-│   │   │   ├── "Quick Save" Button
-│   │   │   └── "Save As..." Button
-│   │   ├── Load Panel
-│   │   │   ├── Available Saves List
-│   │   │   ├── Save Preview
-│   │   │   │   ├── Screenshot
-│   │   │   │   ├── Save Version
-│   │   │   │   ├── Creature Count
-│   │   │   │   └── Play Time
-│   │   │   ├── "Load" Button
-│   │   │   └── "Delete" Button
-│   │   ├── Settings Panel
-│   │   │   ├── Auto-save Toggle
-│   │   │   ├── Auto-save Interval
-│   │   │   └── Backup Saves Toggle
-│   │   └── Debug Tools
-│   │       ├── "Corrupt Save" (testing)
-│   │       ├── "Test Migration" (v1.0 → v2.0)
-│   │       └── "Validate Integrity"
-│   └── EventSystem
-│
-└── Progress Indicators
-    └── Saving/Loading Overlay
-```
-
-**Required Components:**
-- `SaveLoadSystem`
-- `SaveDataSerializer`
-- `FileIOManager`
-- `DataIntegrityValidator`
-- `MigrationSystem`
-
-**Test Data:**
-- Pre-made save files (v1.0, v2.0)
-- Corrupted save (for recovery testing)
-
----
-
-## UI Requirements
-
-### Universal UI Components (Every Scene)
-
-#### 1. **Debug HUD** (Top-Left)
-```
-Debug Panel
-├── FPS Counter
-├── Entity Count
-├── System Stats
-└── Memory Usage
-```
-
-#### 2. **Performance Monitor** (Top-Right)
-```
-Performance Panel
-├── Frame Time Graph
-├── ECS Job Time
-├── Memory Allocations
-└── Warning Indicators
-```
-
-#### 3. **Scene Controls** (Bottom)
-```
-Control Panel
-├── Pause Button
-├── Restart Scene Button
-├── Time Scale Slider
-└── Settings Button
-```
-
-### Activity-Specific UI
-
-#### **Pre-Activity Screen**
-```
-Pre-Activity Panel
-├── Activity Title
-├── Genre Description
-├── Difficulty Selection
-│   └── [Easy] [Normal] [Hard] [Expert] [Master]
-├── Chimera Selection
-│   ├── Available Partners List
-│   └── Stats Preview
-├── Expected Rewards
-│   ├── Base Currency: 100 coins
-│   ├── Skill Gain: +0.015
-│   └── Partnership: +0.008
-└── "Start Activity" Button
-```
-
-#### **During Activity**
-```
-Activity HUD
-├── Timer (countdown/elapsed)
-├── Performance Meter (0-100%)
-├── Cooperation Indicator
-│   ├── Bond Strength: 75%
-│   └── Cooperation Bonus: +15%
-├── Player Skill Display
-│   └── Current Skill: 82%
-├── Chimera Contribution
-│   └── Trait Match: 90%
-├── Current Score/Rank
-│   └── Projected: Gold
-└── Objectives (genre-specific)
-```
-
-#### **Post-Activity Results**
-```
-Results Panel
-├── Final Performance: 87%
-├── Rank Achieved: [Gold Medal Icon]
-├── Breakdown
-│   ├── Player Performance: 85%
-│   ├── Chimera Contribution: 92%
-│   ├── Bond Multiplier: 1.15x
-│   └── Age Factor: 1.0x
-├── Rewards Earned
-│   ├── Currency: +187 coins
-│   ├── Skill Mastery: +0.0187 (Racing)
-│   └── Partnership Quality: +0.0087
-├── New Records
-│   └── "New Best Time!" (if applicable)
-├── Partnership Changes
-│   ├── Bond Strength: 75% → 78% (+3%)
-│   └── Emotional Impact: "Happy"
-└── Buttons
-    ├── "Retry" (same difficulty)
-    ├── "Next Difficulty"
-    └── "Exit to Menu"
+├── Directional Light
+├── UI Canvas
+│   ├── DebugPanel
+│   ├── PerformancePanel
+│   ├── SceneControlsPanel
+│   └── [Scene-Specific UI]
+├── EventSystem
+└── Environment (parent for scene-specific objects)
 ```
 
 ---
 
-## Testing Scenes
+## 1. ChimeraSceneBootstrap (Required)
 
-### Stress Test Scene
-**Scene:** `DemoScene_StressTest`
-
+### GameObject Setup
 ```
-StressTest
-├── ChimeraSceneBootstrap ⭐
-│
-├── Creature Spawner
-│   ├── CreatureSpawnerAuthoring
-│   │   ├── Spawn Count: 1000
-│   │   ├── Spawn Rate: 100/second
-│   │   └── Random Species: ✓
-│   └── ConvertToEntity
-│
-├── Performance Monitor
-│   ├── FPS Tracker
-│   ├── Entity Count Display
-│   ├── Memory Usage
-│   └── System Profiler
-│
-└── Test Controls UI
-    ├── Spawn Controls
-    │   ├── Count Slider (0-2000)
-    │   ├── "Spawn Batch" Button
-    │   └── "Clear All" Button
-    ├── Simulation Controls
-    │   ├── Time Scale Slider
-    │   ├── Enable/Disable Systems Toggles
-    │   └── Pause/Resume
-    └── Performance Stats
-        ├── Current FPS
-        ├── Entity Count
-        ├── Active Systems Count
-        └── Frame Budget Graph
+Name: "ChimeraSceneBootstrap"
+Tag: Untagged
+Layer: Default
+```
+
+### Components
+| Component | Configuration |
+|-----------|---------------|
+| `ChimeraSceneBootstrapper` | Game Config: ChimeraGameConfig.asset |
+| | Auto Spawn Test Creatures: true/false |
+| | Debug Mode: true (for demo scenes) |
+| `ConvertToEntity` | Convert and Destroy |
+
+### Required ScriptableObject
+- **Path**: `Assets/_Project/Resources/Configs/ChimeraGameConfig.asset`
+- **Type**: `ChimeraGameConfig`
+- **Must Reference**:
+  - Available species configs
+  - Biome configurations
+  - Performance settings
+  - Default genre library
+
+---
+
+## 2. WorldManager
+
+### GameObject Setup
+```
+Name: "WorldManager"
+Tag: Untagged
+Layer: Default
+```
+
+### Components
+| Component | Purpose |
+|-----------|---------|
+| `World` | Auto-created by DOTS (Default World) |
+| `SubScene` (optional) | ECS entity container for pre-placed entities |
+
+**SubScene Usage:**
+- Use for large numbers of pre-placed entities
+- Location: `Assets/_Project/Scenes/SubScenes/`
+- Naming: `[SceneName]_SubScene`
+
+---
+
+## 3. Main Camera
+
+### GameObject Setup
+```
+Name: "Main Camera"
+Tag: MainCamera
+Layer: Default
+Position: (0, 10, -10)
+Rotation: (30, 0, 0)
+```
+
+### Components
+| Component | Configuration |
+|-----------|---------------|
+| `Camera` | Clear Flags: Skybox, FOV: 60 |
+| | Near: 0.3, Far: 1000 |
+| | HDR: true, MSAA: true |
+| `AudioListener` | Default |
+| `CameraController` (optional) | Movement Speed: 10, Zoom Speed: 5 |
+
+---
+
+## 4. Directional Light
+
+### GameObject Setup
+```
+Name: "Directional Light"
+Tag: Untagged
+Layer: Default
+Position: (0, 10, 0)
+Rotation: (50, -30, 0)
+```
+
+### Components
+| Component | Configuration |
+|-----------|---------------|
+| `Light` | Type: Directional, Intensity: 1, Color: White |
+
+---
+
+## 5. UI Canvas
+
+### GameObject Setup
+```
+Name: "UI Canvas"
+Tag: Untagged
+Layer: UI
+```
+
+### Components
+| Component | Configuration |
+|-----------|---------------|
+| `Canvas` | Render Mode: Screen Space - Overlay |
+| `CanvasScaler` | UI Scale Mode: Scale With Screen Size |
+| | Reference Resolution: 1920x1080 |
+| | Match: 0.5 |
+| `GraphicRaycaster` | Default |
+
+### Standard UI Children (All Scenes)
+
+#### DebugPanel (Top-Left)
+```
+DebugPanel
+├── Background (Image)
+├── FPSText (TextMeshPro)
+├── EntityCountText (TextMeshPro)
+├── SystemStatsText (TextMeshPro)
+└── MemoryUsageText (TextMeshPro)
+
+Component: DebugPanelController
+Anchor: Top-Left (10, -10)
+Size: (300, 150)
+```
+
+#### PerformancePanel (Top-Right)
+```
+PerformancePanel
+├── Background (Image)
+├── FrameTimeGraph (Image - custom graph)
+├── JobTimeText (TextMeshPro)
+├── AllocationText (TextMeshPro)
+└── WarningIcon (Image)
+
+Components: PerformanceMonitor, GraphRenderer
+Anchor: Top-Right (-10, -10)
+Size: (350, 200)
+```
+
+#### SceneControlsPanel (Bottom-Center)
+```
+SceneControlsPanel
+├── Background (Image)
+├── PauseButton (Button)
+├── RestartButton (Button)
+├── TimeScaleSlider (Slider)
+└── SettingsButton (Button)
+
+Component: SceneControlsController
+Anchor: Bottom-Center (0, 10)
+Size: (600, 80)
 ```
 
 ---
 
-## Quick Reference Checklists
+## 6. EventSystem
 
-### ✅ Activity Demo Scene Checklist
-- [ ] ChimeraSceneBootstrap with ChimeraGameConfig
-- [ ] ActivityCenter with genre-specific config
-- [ ] Player controller with input handling
-- [ ] At least 1 test chimera (spawner or pre-placed)
-- [ ] Genre-specific environment/playarea
-- [ ] Activity HUD (timer, score, performance)
-- [ ] Results panel with breakdown
-- [ ] Camera with appropriate controls
-- [ ] Event system for UI
-- [ ] Background music/SFX (optional)
+### GameObject Setup
+```
+Name: "EventSystem"
+Tag: Untagged
+Layer: Default
+```
 
-### ✅ System Demo Scene Checklist
-- [ ] ChimeraSceneBootstrap
-- [ ] System-specific manager component
-- [ ] Test data/entities
-- [ ] Debug UI with system stats
-- [ ] Control panel for testing
-- [ ] Visual debuggers (gizmos, labels)
-- [ ] Performance monitoring
-- [ ] Documentation panel (what to test)
+### Components
+| Component | Configuration |
+|-----------|---------------|
+| `EventSystem` | Default |
+| `StandaloneInputModule` | Default |
 
-### ✅ Multiplayer Test Scene
-- [ ] Network Manager
-- [ ] Server/Client Toggle
-- [ ] Lobby UI
-- [ ] 2-4 Player spawn points
-- [ ] Synchronized activity area
-- [ ] Network stats display
-- [ ] Connection controls
-- [ ] Lag simulation controls
+---
+
+## Quick Start Checklist
+
+### For Any Demo Scene:
+
+**Phase 1: Base Setup**
+- [ ] Create new scene in Unity
+- [ ] Delete default camera and light
+- [ ] Add ChimeraSceneBootstrap with ChimeraGameConfig reference
+- [ ] Add WorldManager
+- [ ] Add Main Camera with appropriate position/rotation
+- [ ] Add Directional Light
+- [ ] Add UI Canvas with DebugPanel, PerformancePanel, SceneControlsPanel
+- [ ] Add EventSystem
+
+**Phase 2: Scene-Specific Setup**
+- [ ] Add ActivityCenter (for genre scenes) OR system-specific managers
+- [ ] Add required GameObjects for scene type
+- [ ] Configure all components with properties
+- [ ] Create and assign required ScriptableObjects
+- [ ] Setup scene-specific UI
+
+**Phase 3: Testing**
+- [ ] Verify scene loads without errors
+- [ ] Confirm ChimeraSceneBootstrap initializes
+- [ ] Check ECS World creation
+- [ ] Test all ScriptableObject references load
+- [ ] Validate UI displays correctly
+- [ ] Run scene-specific gameplay tests
 
 ---
 
 ## ScriptableObject Asset Requirements
 
 ### Every Scene Needs:
-1. **ChimeraGameConfig.asset** - Master configuration
-2. **GenreLibrary.asset** - All 47 genre configs (if using activities)
-3. **Genre_[Name].asset** - Specific genre config (per activity scene)
-4. **Activity_[Name].asset** - ActivityConfig (per activity scene)
-5. **Species configs** - For each chimera type used
 
-### Location:
+1. **ChimeraGameConfig.asset**
+   - Path: `Assets/_Project/Resources/Configs/ChimeraGameConfig.asset`
+   - Type: `ChimeraGameConfig`
+
+2. **GenreLibrary.asset** (for activity scenes)
+   - Path: `Assets/_Project/Resources/Configs/GenreLibrary.asset`
+   - Type: `GenreLibrary`
+   - Contains all 47 genre configs
+
+3. **Genre-Specific Configs** (per activity scene)
+   - Path: `Assets/_Project/Resources/Configs/GenreConfigurations/Genre_[Name].asset`
+   - Type: `GenreConfiguration`
+
+4. **Activity Configs** (per activity scene)
+   - Path: `Assets/_Project/Resources/Configs/Activities/Activity_[Name].asset`
+   - Type: `ActivityConfig`
+
+5. **Species Configs** (for each chimera used)
+   - Path: `Assets/_Project/Resources/Configs/Species/[SpeciesName].asset`
+   - Type: `ChimeraSpeciesConfig`
+
+---
+
+## Common Patterns
+
+### Pattern 1: Activity Scene Structure
 ```
-Assets/_Project/Resources/Configs/
-├── ChimeraGameConfig.asset
-├── GenreLibrary.asset
-├── GenreConfigurations/
-│   ├── Genre_Racing.asset
-│   ├── Genre_Combat.asset
-│   └── [45 more...]
-├── Activities/
-│   ├── Activity_Racing.asset
-│   ├── Activity_Combat.asset
-│   └── [45 more...]
-└── Species/
-    ├── FireDragon.asset
-    ├── IceWolf.asset
-    └── [More species...]
+DemoScene_[GenreName]
+├── Core Template (Bootstrap, Camera, UI, etc.)
+├── ActivityCenter (genre-specific)
+├── PlayerController (input + skill tracking)
+├── ChimeraPartner (bonded chimera)
+├── Genre-Specific Environment
+├── Genre-Specific UI
+└── Audio
+```
+
+### Pattern 2: System Demo Structure
+```
+DemoScene_[SystemName]
+├── Core Template
+├── System Manager (specific to system)
+├── Test Data/Entities
+├── Debug UI (system-specific)
+├── Control Panel (for testing)
+└── Visual Debuggers
+```
+
+### Pattern 3: Performance Test Structure
+```
+DemoScene_StressTest
+├── Core Template
+├── Mass Spawner (stress generator)
+├── Performance Monitor (detailed metrics)
+└── Test Controls (spawn/clear/configure)
 ```
 
 ---
 
-## Next Steps After Scene Creation
+## Design Principles
 
-1. **Test Scene Validation**
-   - Does it compile without errors?
-   - Do all systems initialize?
-   - Can you spawn chimeras?
-   - Does UI respond correctly?
+### 1. **Designer-Friendly**
+Every scene should be configurable without code changes. Use ScriptableObjects for all parameters.
 
-2. **Performance Check**
-   - Maintain 60 FPS with target entity count
-   - No memory leaks
-   - No excessive GC allocations
+### 2. **Drop-and-Play**
+Scenes should work immediately after dropping required prefabs. Minimal manual setup.
 
-3. **Gameplay Test**
-   - Can you complete the activity?
-   - Are results calculated correctly?
-   - Does partnership system respond?
+### 3. **Complete Testing**
+Each scene must validate:
+- Initialization (systems start correctly)
+- Gameplay (mechanics work as expected)
+- Performance (60 FPS target met)
+- UI (all elements display and respond)
+- Partnership (chimera cooperation functional)
 
-4. **Polish**
-   - Add visual feedback
-   - Improve UI clarity
-   - Add sound effects
-   - Smooth transitions
+### 4. **Consistent Structure**
+All scenes follow the same base template. Scene-specific elements are additions, not replacements.
+
+### 5. **Performance-First**
+Demo scenes must maintain performance targets:
+- 60 FPS minimum
+- No memory leaks
+- No excessive GC allocations
+- ECS systems optimized
 
 ---
 
-**Use this guide as a reference when creating any demo scene. Each scene type has specific requirements, but they all share the core bootstrap and UI structure.**
+## Troubleshooting
 
-Need help with a specific scene type? Refer to the detailed section for that system!
+### Scene Won't Load
+1. Check ChimeraGameConfig.asset exists and is assigned
+2. Verify all required ScriptableObjects are created
+3. Check for missing assembly references
+4. Look for errors in Console during scene load
+
+### ECS Systems Not Initializing
+1. Verify ChimeraSceneBootstrapper component is present
+2. Check ConvertToEntity is set to "Convert and Destroy"
+3. Ensure WorldManager exists in scene
+4. Check ECS systems are registered in bootstrap
+
+### UI Not Displaying
+1. Verify UI Canvas exists with CanvasScaler
+2. Check EventSystem is present
+3. Confirm UI elements have GraphicRaycaster
+4. Verify anchors and positions are correct
+
+### Performance Issues
+1. Check entity count (use DebugPanel)
+2. Profile with Unity Profiler + ECS Profiler
+3. Verify Burst compilation is enabled
+4. Check for excessive GameObject allocations
+5. Review Job System batch sizes
+
+### Chimera Not Spawning
+1. Check species config is assigned
+2. Verify EnhancedCreatureAuthoring component present
+3. Confirm ConvertToEntity component attached
+4. Check Auto Spawn is enabled (if using spawner)
+5. Look for errors in creature authoring system
+
+---
+
+## Next Steps
+
+1. **Choose your scene type**:
+   - Building an activity demo? → See [GENRE_SCENES_GUIDE.md](./GENRE_SCENES_GUIDE.md)
+   - Testing a system? → See [SYSTEM_DEMOS_GUIDE.md](./SYSTEM_DEMOS_GUIDE.md)
+
+2. **Follow the detailed guide** for your scene type
+
+3. **Use the checklists** to validate your scene
+
+4. **Test thoroughly** before moving to next scene
+
+---
+
+## Reference Quick Links
+
+- **Genre Scenes Guide**: [GENRE_SCENES_GUIDE.md](./GENRE_SCENES_GUIDE.md)
+- **System Demos Guide**: [SYSTEM_DEMOS_GUIDE.md](./SYSTEM_DEMOS_GUIDE.md)
+- **Main Project README**: [README.md](./README.md)
+- **Developer Guide**: [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)
+- **Genre System Guide**: [GENRE_SYSTEM_GUIDE.md](./GENRE_SYSTEM_GUIDE.md)
+
+---
+
+**Use this index to quickly navigate to the specific scene type you need to build. Each specialized guide provides complete, step-by-step instructions with detailed component configurations and testing procedures.**
