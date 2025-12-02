@@ -1820,4 +1820,7 @@ Summary templates provide the structure. Follow the detailed pattern from the co
 
 ---
 
-**Next:** See [SYSTEM_DEMOS_GUIDE.md](./SYSTEM_DEMOS_GUIDE.md) for system-focused demo scenes (Breeding, Partnership, AI, Save/Load, Performance Testing).
+**Next Steps:**
+- Use these genre templates to create your activity demo scenes
+- Refer back to [DEMO_SCENE_SETUP_GUIDE.md](./DEMO_SCENE_SETUP_GUIDE.md) for core requirements
+- Follow the testing checklists to validate each scene

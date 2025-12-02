@@ -37,16 +37,16 @@ Each genre includes:
 - Comprehensive testing checklists
 
 ### 3. **System Demo Scenes**
-Focused demos for testing individual systems.
+System-focused demo scenes for testing individual subsystems.
 
-📖 **See: [SYSTEM_DEMOS_GUIDE.md](./SYSTEM_DEMOS_GUIDE.md)**
+**To be created:**
+- Breeding System Demo - Genetics, compatibility, offspring generation
+- Partnership/Bonding Demo - Bond strength, emotional states, personality evolution
+- AI Behavior Demo - Creature needs, decision-making, behavior states
+- Save/Load System Demo - Persistence, migration, data integrity
+- Performance Test Scenes - Stress testing, profiling, optimization validation
 
-Covers:
-- **Breeding System Demo** - Genetics, compatibility, offspring generation
-- **Partnership/Bonding Demo** - Bond strength, emotional states, personality evolution
-- **AI Behavior Demo** - Creature needs, decision-making, behavior states
-- **Save/Load System Demo** - Persistence, migration, data integrity
-- **Performance Test Scenes** - Stress testing, profiling, optimization validation
+These will be added in future updates as needed.
 
 ---
 
@@ -404,7 +404,7 @@ Demo scenes must maintain performance targets:
 
 1. **Choose your scene type**:
    - Building an activity demo? → See [GENRE_SCENES_GUIDE.md](./GENRE_SCENES_GUIDE.md)
-   - Testing a system? → See [SYSTEM_DEMOS_GUIDE.md](./SYSTEM_DEMOS_GUIDE.md)
+   - Testing a system? → Use the core template above and customize for your system
 
 2. **Follow the detailed guide** for your scene type
 
@@ -417,10 +417,8 @@ Demo scenes must maintain performance targets:
 ## Reference Quick Links
 
 - **Genre Scenes Guide**: [GENRE_SCENES_GUIDE.md](./GENRE_SCENES_GUIDE.md)
-- **System Demos Guide**: [SYSTEM_DEMOS_GUIDE.md](./SYSTEM_DEMOS_GUIDE.md)
 - **Main Project README**: [README.md](./README.md)
 - **Developer Guide**: [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)
-- **Genre System Guide**: [GENRE_SYSTEM_GUIDE.md](./GENRE_SYSTEM_GUIDE.md)
 
 ---
 

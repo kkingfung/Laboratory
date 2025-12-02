@@ -422,7 +422,7 @@ float skillGain = genreConfig.CalculateSkillGain(performance);
 - Handles all performance math
 - Returns comprehensive results
 
-**For Complete Guide:** See `Assets/_Project/Docs/GENRE_SYSTEM_GUIDE.md`
+**Implementation Details:** See code comments in `GenrePerformanceCalculator.cs` for usage examples
 
 ---
 
