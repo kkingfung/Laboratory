@@ -219,9 +219,9 @@ cd Laboratory
 ```
 
 ### **重要ドキュメント**
-- `PROJECT_STATUS.md` - 技術ドキュメント（33サブシステム、性能ベンチマーク）
 - `README.md` - このファイル（概要と開始方法）
 - `CLAUDE.md` - プロジェクト固有のコーディングガイドラインとアーキテクチャパターン
+- `ARCHITECTURE.md` - システムアーキテクチャとデザインパターン
 
 ### **主要ディレクトリ**
 - `Assets/_Project/Scripts/Subsystems/Team/` - チームバトルシステム（3,710行）
@@ -277,9 +277,9 @@ cd Laboratory
 - **GCゼロ** ✅
 
 **ドキュメント:**
-- `PROJECT_STATUS.md` - 技術ドキュメント（554行）
 - `README.md` - 本概要
 - `CLAUDE.md` - 開発ガイドライン
+- `ARCHITECTURE.md` - システムアーキテクチャ
 
 *Project Chimera: 科学とパフォーマンスの融合* 🧬⚡
 
@@ -694,9 +694,9 @@ cd Laboratory
 ```
 
 **Key Documentation:**
-- `PROJECT_STATUS.md` - Complete technical documentation (33 subsystems, performance benchmarks)
 - `README.md` - This file (overview and getting started)
 - `CLAUDE.md` - Project-specific coding guidelines and architecture patterns
+- `ARCHITECTURE.md` - System architecture and design patterns
 
 **Key Directories:**
 - `Assets/_Project/Scripts/Subsystems/Team/` - Team battle system (3,710 lines)
@@ -753,8 +753,8 @@ cd Laboratory
 - **Zero GC Allocations** ✅
 
 **Documentation:**
-- `PROJECT_STATUS.md` - Technical documentation (554 lines)
 - `README.md` - This overview
 - `CLAUDE.md` - Development guidelines
+- `ARCHITECTURE.md` - System architecture
 
 *Project Chimera: Where Science Meets Performance* 🧬⚡
