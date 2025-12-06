@@ -1,0 +1,66 @@
+# --------------------------------------------
+# Coderabbit AI Review – Recommended Setup
+# --------------------------------------------
+
+# レビューコメントの言語
+language: ja
+
+# AI の振る舞いに関する基本設定
+reviews:
+  # コメントが多すぎるとノイズになるため、精度重視で抑える
+  comment_style: concise
+
+  # めちゃ小さな差分までコメントしない
+  min_lines_changed: 3
+
+  # コメントのカテゴリを整える（読みやすさ向上）
+  drafting:
+    summary: true
+    explanations: true
+    suggestions: true
+
+  # リスク系は強めに指摘してもらう
+  focus:
+    - security
+    - performance
+    - architecture
+    - maintainability
+    - readability
+
+  # コメントの最大数を制御（スパム防止）
+  limits:
+    max_comments: 20
+
+# 特定ファイルはレビュー対象から除外してノイズ削減
+exclude:
+  - "**/Library/**"
+  - "**/Temp/**"
+  - "**/Obj/**"
+  - "**/Build/**"
+  - "**/ProjectSettings/**"
+  - "**/*.meta"
+  - "**/*.unitypackage"
+
+# CI などで生成されるコードのレビューをスキップ
+skip_generated_files: true
+
+# PR に対する反応設定
+pull_requests:
+  enabled: true
+  drafts: false
+  auto_review_on_open: true
+  auto_review_on_revise: true
+  review_summary_comment: true
+
+# セキュリティ強化チェック
+security:
+  dependency_scan: true
+  secret_detection: true
+
+# ChatOps 設定（@coderabbit コマンドの扱い）
+chat:
+  enabled: true
+  trigger_phrases:
+    - "@coderabbit"
+    - "@ai"
+    - "@review"
