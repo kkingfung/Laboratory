@@ -1,19 +1,13 @@
 {
-    "name": "Laboratory.AI.ECS",
-    "rootNamespace": "Laboratory.AI.ECS",
+    "name": "ProjectChimera.AI.Pathfinding",
+    "rootNamespace": "ProjectChimera.AI.Pathfinding",
     "references": [
+        "Laboratory.Core.Configuration",
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",
         "Unity.Jobs",
-        "Unity.Burst",
-        "Unity.Transforms",
-        "Laboratory.Core.Infrastructure",
-        "Laboratory.Core.Configuration",
-        "Laboratory.Core.ECS",
-        "Laboratory.Core.Events",
-        "Laboratory.Shared",
-        "Laboratory.AI.Pathfinding"
+        "Unity.Burst"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

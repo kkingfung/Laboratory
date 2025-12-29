@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Genetics.Advanced;
@@ -8,7 +8,7 @@ using Laboratory.Core.Events;
 using Laboratory.Core.Diagnostics;
 using SocialInteractionType = Laboratory.Core.SocialInteractionType;
 
-namespace Laboratory.AI.Personality
+namespace ProjectChimera.AI.Personality
 {
     /// <summary>
     /// Unity manager that integrates genetic personality system with creature AI.

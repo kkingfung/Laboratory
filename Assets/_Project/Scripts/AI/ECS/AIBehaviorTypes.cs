@@ -1,6 +1,6 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 
-namespace Laboratory.AI.ECS
+namespace ProjectChimera.AI.ECS
 {
     /// <summary>
     /// Types of AI behavior for creatures

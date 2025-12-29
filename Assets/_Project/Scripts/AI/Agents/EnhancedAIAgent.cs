@@ -1,10 +1,10 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using Laboratory.AI.Pathfinding;
+using ProjectChimera.AI.Pathfinding;
 
-namespace Laboratory.AI.Agents
+namespace ProjectChimera.AI.Agents
 {
     /// <summary>
     /// Enhanced AI Agent that integrates with the Advanced Pathfinding System.
@@ -14,7 +14,7 @@ namespace Laboratory.AI.Agents
     public class EnhancedAIAgent : MonoBehaviour, IPathfindingAgent
     {
         [Header("Agent Configuration")]
-        [SerializeField] private Laboratory.AI.Pathfinding.AgentType agentType = Laboratory.AI.Pathfinding.AgentType.Medium;
+        [SerializeField] private ProjectChimera.AI.Pathfinding.AgentType agentType = ProjectChimera.AI.Pathfinding.AgentType.Medium;
         [SerializeField] private PathfindingMode preferredMode = PathfindingMode.Auto;
         [SerializeField] private float pathUpdateFrequency = 0.3f;
         [SerializeField] private float stuckDetectionThreshold = 0.1f;
@@ -62,10 +62,10 @@ namespace Laboratory.AI.Agents
         public bool HasReachedDestination => HasReachedCurrentDestination();
         public bool HasValidPath => hasValidPath && currentPath != null;
         public float CurrentSpeed => navAgent.velocity.magnitude;
-        public Laboratory.AI.Pathfinding.AgentType CurrentAgentType => agentType;
+        public ProjectChimera.AI.Pathfinding.AgentType CurrentAgentType => agentType;
 
         // IPathfindingAgent interface properties
-        Laboratory.AI.Pathfinding.AgentType IPathfindingAgent.AgentType => agentType;
+        ProjectChimera.AI.Pathfinding.AgentType IPathfindingAgent.AgentType => agentType;
         PathfindingMode IPathfindingAgent.PathfindingMode => preferredMode;
         PathfindingStatus IPathfindingAgent.Status => status;
         Vector3 IPathfindingAgent.Position => transform.position;
@@ -121,31 +121,31 @@ namespace Laboratory.AI.Agents
             // Configure NavMeshAgent based on agent type
             switch (agentType)
             {
-                case Laboratory.AI.Pathfinding.AgentType.Small:
+                case ProjectChimera.AI.Pathfinding.AgentType.Small:
                     navAgent.radius = 0.3f;
                     navAgent.height = 1f;
                     baseSpeed = 2.5f;
                     break;
 
-                case Laboratory.AI.Pathfinding.AgentType.Medium:
+                case ProjectChimera.AI.Pathfinding.AgentType.Medium:
                     navAgent.radius = 0.5f;
                     navAgent.height = 2f;
                     baseSpeed = 3.5f;
                     break;
 
-                case Laboratory.AI.Pathfinding.AgentType.Large:
+                case ProjectChimera.AI.Pathfinding.AgentType.Large:
                     navAgent.radius = 1f;
                     navAgent.height = 3f;
                     baseSpeed = 2f;
                     break;
 
-                case Laboratory.AI.Pathfinding.AgentType.Flying:
+                case ProjectChimera.AI.Pathfinding.AgentType.Flying:
                     navAgent.radius = 0.5f;
                     navAgent.height = 2f;
                     baseSpeed = 5f;
                     break;
 
-                case Laboratory.AI.Pathfinding.AgentType.Aquatic:
+                case ProjectChimera.AI.Pathfinding.AgentType.Aquatic:
                     navAgent.radius = 0.6f;
                     navAgent.height = 2f;
                     baseSpeed = 3f;
@@ -232,7 +232,7 @@ namespace Laboratory.AI.Agents
         /// <summary>
         /// Set the agent type (affects movement parameters)
         /// </summary>
-        public void SetAgentType(Laboratory.AI.Pathfinding.AgentType type)
+        public void SetAgentType(ProjectChimera.AI.Pathfinding.AgentType type)
         {
             agentType = type;
             ConfigureAgent();

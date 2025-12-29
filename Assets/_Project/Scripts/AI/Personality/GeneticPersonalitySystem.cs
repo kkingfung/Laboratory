@@ -1,10 +1,10 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Core.Enums;
 
-namespace Laboratory.AI.Personality
+namespace ProjectChimera.AI.Personality
 {
     /// <summary>
     /// AI personality system that generates unique behavioral patterns based on genetic traits.

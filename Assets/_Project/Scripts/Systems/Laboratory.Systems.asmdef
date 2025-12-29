@@ -12,7 +12,7 @@
         "Laboratory.Chimera.Genetics",
         "Laboratory.Chimera.Genetics.Advanced",
         "Laboratory.Chimera.Ecosystem",
-        "Laboratory.AI.Personality",
+        "ProjectChimera.AI.Personality",
         "Laboratory.Subsystems",
         "Laboratory.Subsystems.AIDirector",
         "Unity.Entities",

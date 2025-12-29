@@ -5,7 +5,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.Genetics;
-using Laboratory.AI.ECS;
+using ProjectChimera.AI.ECS;
 using Laboratory.Chimera.ECS;
 using Laboratory.Chimera.Genetics.Environmental;
 using Laboratory.Core.Enums;

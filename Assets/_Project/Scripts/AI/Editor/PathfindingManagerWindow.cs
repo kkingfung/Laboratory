@@ -1,11 +1,11 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
-using Laboratory.AI.Pathfinding;
-using Laboratory.AI.Agents;
+using ProjectChimera.AI.Pathfinding;
+using ProjectChimera.AI.Agents;
 using Laboratory.Chimera.AI;
 using Laboratory.Subsystems.EnemyAI;
 
-namespace Laboratory.AI.Editor
+namespace ProjectChimera.AI.Editor
 {
     /// <summary>
     /// Custom editor window for managing the Enhanced Pathfinding System.
@@ -238,7 +238,7 @@ namespace Laboratory.AI.Editor
             systemGO.AddComponent<EnhancedPathfindingSystem>();
             
             // Also add the setup script for easy access
-            systemGO.AddComponent<Laboratory.AI.PathfindingSystemSetup>();
+            systemGO.AddComponent<ProjectChimera.AI.PathfindingSystemSetup>();
             
             EditorUtility.SetDirty(systemGO);
             Selection.activeObject = systemGO;
@@ -270,15 +270,15 @@ namespace Laboratory.AI.Editor
             // Auto-configure based on NavMeshAgent properties
             if (navAgent.radius <= 0.4f)
             {
-                enhancedAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Small);
+                enhancedAgent.SetAgentType(ProjectChimera.AI.Pathfinding.AgentType.Small);
             }
             else if (navAgent.radius >= 0.8f)
             {
-                enhancedAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Large);
+                enhancedAgent.SetAgentType(ProjectChimera.AI.Pathfinding.AgentType.Large);
             }
             else
             {
-                enhancedAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Medium);
+                enhancedAgent.SetAgentType(ProjectChimera.AI.Pathfinding.AgentType.Medium);
             }
             
             enhancedAgent.SetSpeed(navAgent.speed);
@@ -391,7 +391,7 @@ namespace Laboratory.AI.Editor
                 navAgent.height = 2f;
                 navAgent.speed = 3.5f;
                 
-                enhancedAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Medium);
+                enhancedAgent.SetAgentType(ProjectChimera.AI.Pathfinding.AgentType.Medium);
                 
                 EditorUtility.SetDirty(agentGO);
             }
@@ -428,7 +428,7 @@ namespace Laboratory.AI.Editor
             
             Debug.Log("Performance test started - check console for results...");
             
-            var setupScript = FindFirstObjectByType<Laboratory.AI.PathfindingSystemSetup>();
+            var setupScript = FindFirstObjectByType<ProjectChimera.AI.PathfindingSystemSetup>();
             if (setupScript != null)
             {
                 setupScript.TestPathfindingPerformance();

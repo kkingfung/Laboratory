@@ -1,11 +1,12 @@
 {
-    "name": "Laboratory.AI.Agents",
-    "rootNamespace": "Laboratory.AI.Agents",
+    "name": "ProjectChimera.AI.Configuration",
+    "rootNamespace": "ProjectChimera.AI.Configuration",
     "references": [
         "Laboratory.Core.Infrastructure",
+        "Laboratory.Core.Enums",
         "Laboratory.Shared",
-        "Laboratory.AI.Pathfinding",
-        "Unity.Mathematics"
+        "ProjectChimera.AI.Pathfinding",
+        "ProjectChimera.AI.Agents"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

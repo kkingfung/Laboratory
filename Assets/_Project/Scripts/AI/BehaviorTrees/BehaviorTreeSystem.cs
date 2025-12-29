@@ -1,12 +1,12 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-using Laboratory.AI.ECS;
-using Laboratory.AI.Services;
+using ProjectChimera.AI.ECS;
+using ProjectChimera.AI.Services;
 
-namespace Laboratory.AI.BehaviorTrees
+namespace ProjectChimera.AI.BehaviorTrees
 {
     /// <summary>
     /// ADVANCED BEHAVIOR TREE SYSTEM - Sophisticated AI decision-making framework

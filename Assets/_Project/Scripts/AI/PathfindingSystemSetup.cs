@@ -1,10 +1,10 @@
-using UnityEngine;
-using Laboratory.AI.Pathfinding;
+﻿using UnityEngine;
+using ProjectChimera.AI.Pathfinding;
 using System.Collections.Generic;
 using System.Collections;
 using System.Linq;
 
-namespace Laboratory.AI
+namespace ProjectChimera.AI
 {
     /// <summary>
     /// Utility script to help set up and test the Enhanced Pathfinding System.

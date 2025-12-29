@@ -1,8 +1,8 @@
-using Unity.Collections;
+﻿using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using System.Collections.Generic;
 
-namespace Laboratory.AI.Pathfinding
+namespace ProjectChimera.AI.Pathfinding
 {
     /// <summary>
     /// High-performance object pool for NativeArrays to eliminate GC allocations in pathfinding systems.

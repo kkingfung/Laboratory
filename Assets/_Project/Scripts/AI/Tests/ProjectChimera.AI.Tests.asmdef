@@ -1,13 +1,13 @@
 {
-    "name": "Laboratory.AI.Tests",
-    "rootNamespace": "Laboratory.AI.Tests",
+    "name": "ProjectChimera.AI.Tests",
+    "rootNamespace": "ProjectChimera.AI.Tests",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Shared",
-        "Laboratory.AI.Pathfinding",
-        "Laboratory.AI.Agents"
+        "ProjectChimera.AI.Pathfinding",
+        "ProjectChimera.AI.Agents"
     ],
     "includePlatforms": [
         "Editor"

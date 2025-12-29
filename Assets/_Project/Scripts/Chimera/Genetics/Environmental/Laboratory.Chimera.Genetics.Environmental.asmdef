@@ -14,7 +14,7 @@
         "Laboratory.Chimera.Core",
         "Laboratory.Chimera.Genetics",
         "Laboratory.Chimera.ECS",
-        "Laboratory.AI.ECS"
+        "ProjectChimera.AI.ECS"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

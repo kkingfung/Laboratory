@@ -16,7 +16,7 @@
         "Laboratory.Chimera.Activities",
         "Laboratory.Chimera.Equipment",
         "Laboratory.Chimera.Progression",
-        "Laboratory.AI.Pathfinding",
+        "ProjectChimera.AI.Pathfinding",
         "Unity.Entities",
         "Unity.Collections",
         "Unity.Mathematics",

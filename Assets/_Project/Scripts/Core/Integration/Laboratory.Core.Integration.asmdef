@@ -12,7 +12,7 @@
         "Laboratory.Chimera.AI",
         "Laboratory.Chimera.ECS",
         "Laboratory.Chimera.Genetics.Advanced",
-        "Laboratory.AI.Personality",
+        "ProjectChimera.AI.Personality",
         "Laboratory.Shared",
         "Laboratory.Systems",
         "UniTask"

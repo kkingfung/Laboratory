@@ -1,8 +1,8 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 #if UNITY_EDITOR
-namespace Laboratory.AI.Utilities
+namespace ProjectChimera.AI.Utilities
 {
     /// <summary>
     /// Verifies that all AI system components are properly compiled
@@ -17,16 +17,16 @@ namespace Laboratory.AI.Utilities
             // Check if all types can be found
             System.Type[] requiredTypes = new System.Type[]
             {
-                System.Type.GetType("Laboratory.AI.Pathfinding.IPathfindingAgent, Assembly-CSharp"),
-                System.Type.GetType("Laboratory.AI.Pathfinding.PathfindingMode, Assembly-CSharp"),
-                System.Type.GetType("Laboratory.AI.Pathfinding.PathRequest, Assembly-CSharp"),
-                System.Type.GetType("Laboratory.AI.Pathfinding.CachedPath, Assembly-CSharp"),
-                System.Type.GetType("Laboratory.AI.Pathfinding.FlowField, Assembly-CSharp"),
-                System.Type.GetType("Laboratory.AI.Pathfinding.FlowFieldGenerator, Assembly-CSharp"),
-                System.Type.GetType("Laboratory.AI.Pathfinding.EnhancedPathfindingSystem, Assembly-CSharp"),
-                System.Type.GetType("Laboratory.AI.Agents.EnhancedAIAgent, Assembly-CSharp"),
-                System.Type.GetType("Laboratory.AI.PathfindingSystemSetup, Assembly-CSharp"),
-                System.Type.GetType("Laboratory.AI.Utilities.PathfindingProfiler, Assembly-CSharp")
+                System.Type.GetType("ProjectChimera.AI.Pathfinding.IPathfindingAgent, Assembly-CSharp"),
+                System.Type.GetType("ProjectChimera.AI.Pathfinding.PathfindingMode, Assembly-CSharp"),
+                System.Type.GetType("ProjectChimera.AI.Pathfinding.PathRequest, Assembly-CSharp"),
+                System.Type.GetType("ProjectChimera.AI.Pathfinding.CachedPath, Assembly-CSharp"),
+                System.Type.GetType("ProjectChimera.AI.Pathfinding.FlowField, Assembly-CSharp"),
+                System.Type.GetType("ProjectChimera.AI.Pathfinding.FlowFieldGenerator, Assembly-CSharp"),
+                System.Type.GetType("ProjectChimera.AI.Pathfinding.EnhancedPathfindingSystem, Assembly-CSharp"),
+                System.Type.GetType("ProjectChimera.AI.Agents.EnhancedAIAgent, Assembly-CSharp"),
+                System.Type.GetType("ProjectChimera.AI.PathfindingSystemSetup, Assembly-CSharp"),
+                System.Type.GetType("ProjectChimera.AI.Utilities.PathfindingProfiler, Assembly-CSharp")
             };
             
             bool allTypesFound = true;

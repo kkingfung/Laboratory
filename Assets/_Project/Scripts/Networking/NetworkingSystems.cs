@@ -4,7 +4,7 @@ using Unity.Mathematics;
 using Unity.Burst;
 using Unity.Burst.Intrinsics;
 using UnityEngine;
-using Laboratory.AI.ECS;
+using ProjectChimera.AI.ECS;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.AI;
 using Laboratory.Chimera.Core;

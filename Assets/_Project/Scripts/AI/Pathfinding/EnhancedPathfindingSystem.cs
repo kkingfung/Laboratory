@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 using Laboratory.Core.Configuration;
 
-namespace Laboratory.AI.Pathfinding
+namespace ProjectChimera.AI.Pathfinding
 {
     /// <summary>
     /// Advanced pathfinding system that provides multiple pathfinding algorithms

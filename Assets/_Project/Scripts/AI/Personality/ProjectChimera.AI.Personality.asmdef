@@ -1,6 +1,6 @@
 {
-    "name": "Laboratory.AI.Personality",
-    "rootNamespace": "Laboratory.AI.Personality",
+    "name": "ProjectChimera.AI.Personality",
+    "rootNamespace": "ProjectChimera.AI.Personality",
     "references": [
         "Laboratory.Core",
         "Laboratory.Core.Infrastructure",

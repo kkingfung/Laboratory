@@ -1,8 +1,8 @@
-using UnityEngine;
-using Laboratory.AI.Pathfinding;
-using Laboratory.AI.Agents;
+﻿using UnityEngine;
+using ProjectChimera.AI.Pathfinding;
+using ProjectChimera.AI.Agents;
 
-namespace Laboratory.AI.Testing
+namespace ProjectChimera.AI.Testing
 {
     /// <summary>
     /// Simple test script to verify the Enhanced Pathfinding System is working.
@@ -79,7 +79,7 @@ namespace Laboratory.AI.Testing
 
             // Add EnhancedAIAgent
             var enhancedAgent = testAgent.AddComponent<EnhancedAIAgent>();
-            enhancedAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Medium);
+            enhancedAgent.SetAgentType(ProjectChimera.AI.Pathfinding.AgentType.Medium);
 
             // Test path request
             Vector3 destination = testDestination;

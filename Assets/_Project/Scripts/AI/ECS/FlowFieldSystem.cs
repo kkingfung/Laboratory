@@ -1,4 +1,4 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Jobs;
@@ -7,11 +7,11 @@ using Unity.Burst;
 using Unity.Burst.Intrinsics;
 using UnityEngine;
 using UnityEngine.Profiling;
-using Laboratory.AI.Pathfinding;
+using ProjectChimera.AI.Pathfinding;
 using Laboratory.Shared.Types;
 using Laboratory.Core.Configuration;
 
-namespace Laboratory.AI.ECS
+namespace ProjectChimera.AI.ECS
 {
     /// <summary>
     /// FLOW FIELD SYSTEM - High-Performance Pathfinding

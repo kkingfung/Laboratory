@@ -1,9 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
-using Laboratory.AI.Pathfinding;
+using ProjectChimera.AI.Pathfinding;
 
-namespace Laboratory.AI.Utilities
+namespace ProjectChimera.AI.Utilities
 {
     /// <summary>
     /// Performance profiler integration for the Enhanced Pathfinding System

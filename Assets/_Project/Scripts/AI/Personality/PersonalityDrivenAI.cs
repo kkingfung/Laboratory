@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Chimera;
 using Laboratory.Chimera.Creatures;
@@ -10,7 +10,7 @@ using Laboratory.Core.Diagnostics;
 using Laboratory.Core.Enums;
 using SocialInteractionType = Laboratory.Core.SocialInteractionType;
 
-namespace Laboratory.AI.Personality
+namespace ProjectChimera.AI.Personality
 {
     /// <summary>
     /// Component that integrates personality system with creature AI behavior.

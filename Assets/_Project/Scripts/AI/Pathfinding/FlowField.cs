@@ -1,7 +1,7 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Laboratory.AI.Pathfinding
+namespace ProjectChimera.AI.Pathfinding
 {
     /// <summary>
     /// Flow field implementation for efficient pathfinding when many agents share the same destination.

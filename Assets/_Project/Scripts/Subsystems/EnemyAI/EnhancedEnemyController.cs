@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using Laboratory.AI.Pathfinding;
-using Laboratory.AI.Agents;
+using ProjectChimera.AI.Pathfinding;
+using ProjectChimera.AI.Agents;
 
 namespace Laboratory.Subsystems.EnemyAI
 {
@@ -142,7 +142,7 @@ namespace Laboratory.Subsystems.EnemyAI
 
             // Configure AI agent
             aiAgent.SetSpeed(moveSpeed);
-            aiAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Medium);
+            aiAgent.SetAgentType(ProjectChimera.AI.Pathfinding.AgentType.Medium);
         }
 
         private void SetupInitialState()

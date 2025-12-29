@@ -1,6 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace Laboratory.AI.Pathfinding
+namespace ProjectChimera.AI.Pathfinding
 {
     /// <summary>
     /// Pathfinding operation modes

@@ -1,4 +1,4 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
 using Unity.Jobs;
@@ -8,7 +8,7 @@ using UnityEngine;
 using Laboratory.Core.Events;
 using System.Collections.Generic;
 
-namespace Laboratory.AI.ECS
+namespace ProjectChimera.AI.ECS
 {
     /// <summary>
     /// UNIFIED AI STATE MANAGEMENT SYSTEM - Solves dual state management issues

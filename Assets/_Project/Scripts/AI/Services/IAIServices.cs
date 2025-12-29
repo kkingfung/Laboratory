@@ -1,13 +1,13 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
-using Laboratory.AI.Pathfinding;
-using Laboratory.AI.ECS;
-using PathfindingStatus = Laboratory.AI.ECS.PathfindingStatus;
+using ProjectChimera.AI.Pathfinding;
+using ProjectChimera.AI.ECS;
+using PathfindingStatus = ProjectChimera.AI.ECS.PathfindingStatus;
 using AIBehaviorType = Laboratory.Shared.Types.AIBehaviorType;
 using BiomeType = Laboratory.Shared.Types.BiomeType;
 
-namespace Laboratory.AI.Services
+namespace ProjectChimera.AI.Services
 {
     /// <summary>
     /// SERVICE ABSTRACTION LAYER - Decouples systems for better maintainability

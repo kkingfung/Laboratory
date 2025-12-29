@@ -1,11 +1,11 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-using Laboratory.AI.ECS;
-using Laboratory.AI.Pathfinding;
+using ProjectChimera.AI.ECS;
+using ProjectChimera.AI.Pathfinding;
 
-namespace Laboratory.AI.Services
+namespace ProjectChimera.AI.Services
 {
     /// <summary>
     /// AI SERVICE MANAGER - Centralized service locator and dependency injection container

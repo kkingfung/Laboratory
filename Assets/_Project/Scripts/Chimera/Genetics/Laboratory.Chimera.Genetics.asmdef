@@ -11,7 +11,7 @@
         "Laboratory.Models",
         "Laboratory.Chimera.Core",
         "Laboratory.Chimera.Consciousness",
-        "Laboratory.AI.ECS",
+        "ProjectChimera.AI.ECS",
         "Unity.Entities",
         "Unity.Mathematics",
         "Unity.Collections",

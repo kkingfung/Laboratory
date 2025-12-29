@@ -1,12 +1,12 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.TestTools;
 using NUnit.Framework;
-using Laboratory.AI.Pathfinding;
-using Laboratory.AI.Agents;
+using ProjectChimera.AI.Pathfinding;
+using ProjectChimera.AI.Agents;
 
-namespace Laboratory.AI.Tests
+namespace ProjectChimera.AI.Tests
 {
     /// <summary>
     /// Unit tests for the Enhanced Pathfinding System

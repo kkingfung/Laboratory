@@ -1,4 +1,4 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
 using Unity.Collections;
@@ -7,9 +7,9 @@ using Unity.Jobs;
 using Unity.Burst;
 using Unity.Burst.Intrinsics;
 using UnityEngine;
-using Laboratory.AI.Pathfinding;
+using ProjectChimera.AI.Pathfinding;
 
-namespace Laboratory.AI.ECS
+namespace ProjectChimera.AI.ECS
 {
     /// <summary>
     /// UNIFIED ECS PATHFINDING SYSTEM - Bridges EnhancedPathfindingSystem with ECS

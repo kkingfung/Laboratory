@@ -7,7 +7,7 @@ using Laboratory.Shared.Types;
 using Laboratory.Chimera.Genetics.Advanced;
 using Laboratory.Systems.Analytics;
 using Laboratory.Systems.Ecosystem;
-using Laboratory.AI.Personality;
+using ProjectChimera.AI.Personality;
 
 namespace Laboratory.Systems.Storytelling
 {
@@ -495,7 +495,7 @@ namespace Laboratory.Systems.Storytelling
             };
         }
 
-        private void HandleMoodChange(uint creatureId, Laboratory.AI.Personality.MoodState newMood)
+        private void HandleMoodChange(uint creatureId, ProjectChimera.AI.Personality.MoodState newMood)
         {
             // Generate mood-related story events for significant mood changes
             if (newMood.stress > 0.8f || newMood.happiness < 0.2f)

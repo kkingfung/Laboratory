@@ -17,8 +17,8 @@
         "Laboratory.Tools",
         "Laboratory.Chimera.AI",
         "Laboratory.Subsystems",
-        "Laboratory.AI.Agents",
-        "Laboratory.AI.Pathfinding",
+        "ProjectChimera.AI.Agents",
+        "ProjectChimera.AI.Pathfinding",
         "Unity.Entities",
         "Unity.Collections",
         "Unity.TextMeshPro"

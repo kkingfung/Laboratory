@@ -1,16 +1,16 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using Laboratory.AI.Pathfinding;
-using Laboratory.AI.ECS;
+using ProjectChimera.AI.Pathfinding;
+using ProjectChimera.AI.ECS;
 using BiomeType = Laboratory.Shared.Types.BiomeType;
 using SharedAIBehaviorType = Laboratory.Shared.Types.AIBehaviorType;
-using PathfindingStatus = Laboratory.AI.ECS.PathfindingStatus;
-using AIBehaviorType = Laboratory.AI.ECS.AIBehaviorType;
+using PathfindingStatus = ProjectChimera.AI.ECS.PathfindingStatus;
+using AIBehaviorType = ProjectChimera.AI.ECS.AIBehaviorType;
 
-namespace Laboratory.AI.Services
+namespace ProjectChimera.AI.Services
 {
     /// <summary>
     /// ECS SERVICE IMPLEMENTATIONS - Concrete implementations of AI service interfaces

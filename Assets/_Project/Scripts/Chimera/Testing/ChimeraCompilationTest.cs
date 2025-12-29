@@ -2,7 +2,7 @@ using UnityEngine;
 using Laboratory.Chimera.Genetics;
 using Laboratory.Chimera.Core;
 using Laboratory.Chimera.AI;
-using Laboratory.AI.Pathfinding;
+using ProjectChimera.AI.Pathfinding;
 using Laboratory.Core.Enums;
 
 namespace Laboratory.Chimera.Testing

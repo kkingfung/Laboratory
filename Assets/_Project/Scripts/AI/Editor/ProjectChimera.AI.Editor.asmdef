@@ -1,12 +1,12 @@
 {
-    "name": "Laboratory.AI.Editor",
-    "rootNamespace": "Laboratory.AI.Editor",
+    "name": "ProjectChimera.AI.Editor",
+    "rootNamespace": "ProjectChimera.AI.Editor",
     "references": [
         "Laboratory.Core.Infrastructure",
         "Laboratory.Core.Enums",
         "Laboratory.Shared",
-        "Laboratory.AI.Pathfinding",
-        "Laboratory.AI.Agents",
+        "ProjectChimera.AI.Pathfinding",
+        "ProjectChimera.AI.Agents",
         "Laboratory.Chimera.AI",
         "Laboratory.Subsystems"
     ],

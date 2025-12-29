@@ -1,8 +1,8 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using UnityEngine;
 using System;
 
-namespace Laboratory.AI.BehaviorTrees
+namespace ProjectChimera.AI.BehaviorTrees
 {
     /// <summary>
     /// BEHAVIOR TREE AUTHORING - Unity Inspector integration for behavior tree creation

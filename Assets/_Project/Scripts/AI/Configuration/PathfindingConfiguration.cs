@@ -1,8 +1,8 @@
-using UnityEngine;
-using Laboratory.AI.Pathfinding;
-using Laboratory.AI.Agents;
+﻿using UnityEngine;
+using ProjectChimera.AI.Pathfinding;
+using ProjectChimera.AI.Agents;
 
-namespace Laboratory.AI.Configuration
+namespace ProjectChimera.AI.Configuration
 {
     /// <summary>
     /// ScriptableObject configuration for the Enhanced Pathfinding System
@@ -76,7 +76,7 @@ namespace Laboratory.AI.Configuration
         /// <summary>
         /// Get the optimal pathfinding mode based on current configuration and parameters
         /// </summary>
-        public PathfindingMode GetOptimalMode(float distance, int nearbyAgents, Laboratory.AI.Pathfinding.AgentType agentType)
+        public PathfindingMode GetOptimalMode(float distance, int nearbyAgents, ProjectChimera.AI.Pathfinding.AgentType agentType)
         {
             // Short distances - use A*
             if (distance <= aStarMaxDistance)
@@ -203,7 +203,7 @@ namespace Laboratory.AI.Configuration
         [SerializeField] private int stuckFrames = 30;
 
         [Header("Agent Type Specific")]
-        [SerializeField] private Laboratory.AI.Pathfinding.AgentType agentType = Laboratory.AI.Pathfinding.AgentType.Medium;
+        [SerializeField] private ProjectChimera.AI.Pathfinding.AgentType agentType = ProjectChimera.AI.Pathfinding.AgentType.Medium;
         [SerializeField] private float agentRadius = 0.5f;
         [SerializeField] private float agentHeight = 2f;
 
@@ -222,7 +222,7 @@ namespace Laboratory.AI.Configuration
         public bool EnableStuckDetection => enableStuckDetection;
         public float StuckThreshold => stuckThreshold;
         public int StuckFrames => stuckFrames;
-        public Laboratory.AI.Pathfinding.AgentType CurrentAgentType => agentType;
+        public ProjectChimera.AI.Pathfinding.AgentType CurrentAgentType => agentType;
         public float AgentRadius => agentRadius;
         public float AgentHeight => agentHeight;
 
@@ -241,7 +241,7 @@ namespace Laboratory.AI.Configuration
         /// <summary>
         /// Create configuration for different agent types
         /// </summary>
-        public static AgentConfiguration CreateForType(Laboratory.AI.Pathfinding.AgentType type)
+        public static AgentConfiguration CreateForType(ProjectChimera.AI.Pathfinding.AgentType type)
         {
             var config = CreateInstance<AgentConfiguration>();
             config.agentType = type;
@@ -249,21 +249,21 @@ namespace Laboratory.AI.Configuration
 
             switch (type)
             {
-                case Laboratory.AI.Pathfinding.AgentType.Small:
+                case ProjectChimera.AI.Pathfinding.AgentType.Small:
                     config.maxSpeed = 4f;
                     config.agentRadius = 0.3f;
                     config.agentHeight = 1f;
                     config.pathUpdateFrequency = 0.3f;
                     break;
 
-                case Laboratory.AI.Pathfinding.AgentType.Medium:
+                case ProjectChimera.AI.Pathfinding.AgentType.Medium:
                     config.maxSpeed = 5f;
                     config.agentRadius = 0.5f;
                     config.agentHeight = 2f;
                     config.pathUpdateFrequency = 0.5f;
                     break;
 
-                case Laboratory.AI.Pathfinding.AgentType.Large:
+                case ProjectChimera.AI.Pathfinding.AgentType.Large:
                     config.maxSpeed = 3f;
                     config.agentRadius = 1f;
                     config.agentHeight = 3f;
@@ -271,7 +271,7 @@ namespace Laboratory.AI.Configuration
                     config.acceleration = 4f;
                     break;
 
-                case Laboratory.AI.Pathfinding.AgentType.Flying:
+                case ProjectChimera.AI.Pathfinding.AgentType.Flying:
                     config.maxSpeed = 8f;
                     config.agentRadius = 0.5f;
                     config.agentHeight = 2f;

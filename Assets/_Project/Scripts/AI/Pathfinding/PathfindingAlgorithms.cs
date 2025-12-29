@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Laboratory.AI.Pathfinding
+namespace ProjectChimera.AI.Pathfinding
 {
     /// <summary>
     /// High-performance A* pathfinder optimized for Unity with coroutine support.

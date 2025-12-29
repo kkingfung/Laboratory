@@ -1,6 +1,6 @@
 {
-    "name": "Laboratory.AI.Services",
-    "rootNamespace": "Laboratory.AI.Services",
+    "name": "ProjectChimera.AI.BehaviorTrees",
+    "rootNamespace": "ProjectChimera.AI.BehaviorTrees",
     "references": [
         "Unity.Entities",
         "Unity.Collections",
@@ -10,9 +10,9 @@
         "Unity.Burst",
         "Laboratory.Core.Infrastructure",
         "Laboratory.Shared",
-        "Laboratory.AI.Pathfinding",
-        "Laboratory.AI.ECS",
-        "Laboratory.Chimera.AI"
+        "ProjectChimera.AI.ECS",
+        "ProjectChimera.AI.Pathfinding",
+        "ProjectChimera.AI.Services"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

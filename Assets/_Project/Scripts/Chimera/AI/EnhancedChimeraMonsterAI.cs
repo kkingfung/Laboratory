@@ -2,8 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
-using Laboratory.AI.Pathfinding;
-using Laboratory.AI.Agents;
+using ProjectChimera.AI.Pathfinding;
+using ProjectChimera.AI.Agents;
 
 namespace Laboratory.Chimera.AI
 {
@@ -110,7 +110,7 @@ namespace Laboratory.Chimera.AI
             }
 
             // Configure AI agent
-            aiAgent.SetAgentType(Laboratory.AI.Pathfinding.AgentType.Medium);
+            aiAgent.SetAgentType(ProjectChimera.AI.Pathfinding.AgentType.Medium);
 
             // Configure pathfinding settings
             if (useSmartPathing)

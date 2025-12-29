@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Chimera.AI;
 using Laboratory.Subsystems.EnemyAI;
-using Laboratory.AI.Agents;
-using Laboratory.AI.Pathfinding;
+using ProjectChimera.AI.Agents;
+using ProjectChimera.AI.Pathfinding;
 
-namespace Laboratory.AI.Tools
+namespace ProjectChimera.AI.Tools
 {
     /// <summary>
     /// Editor utility to help migrate existing AI controllers to the enhanced pathfinding system

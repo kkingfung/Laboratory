@@ -118,7 +118,7 @@ namespace Laboratory.Core.Bootstrap
             if (enableDebugLogging) Debug.Log("🤖 Initializing AI Systems...");
 
             // Initialize pathfinding using reflection
-            var pathfindingType = System.Type.GetType("Laboratory.AI.Pathfinding.EnhancedPathfindingSystem");
+            var pathfindingType = System.Type.GetType("ProjectChimera.AI.Pathfinding.EnhancedPathfindingSystem");
             pathfindingSystem = pathfindingType != null ? FindFirstObjectByType(pathfindingType) as MonoBehaviour : null;
             if (pathfindingSystem == null && pathfindingType != null)
             {
