@@ -9,6 +9,7 @@ namespace Laboratory.Core.TownBuilding.Systems
     /// <summary>
     /// Resource production and management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(TownBuildingSystem))]
     public partial class ResourceProductionSystem : SystemBase

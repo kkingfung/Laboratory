@@ -427,7 +427,7 @@ namespace Laboratory.Core.Social
             _activeTradeOffers[tradeOffer.OfferId] = tradeOffer;
             OnTradeOfferCreated?.Invoke(tradeOffer);
 
-            Debug.Log($"?�� Trade offer created: {tradeOffer.OfferId}");
+            Debug.Log($"[Trade] Trade offer created: {tradeOffer.OfferId}");
             return true;
         }
 
@@ -463,7 +463,7 @@ namespace Laboratory.Core.Social
                 UpdateSocialRating(tradeOffer.OffererId, 10);
                 UpdateSocialRating(acceptingPlayerId, 10);
 
-                Debug.Log($"?�� Trade completed: {offerId}");
+                Debug.Log($"[Trade] Trade completed: {offerId}");
             }
 
             return success;
@@ -497,7 +497,7 @@ namespace Laboratory.Core.Social
 
             await UniTask.Delay(500); // Simulate processing time
 
-            Debug.Log($"?�� Processing trade between {tradeOffer.OffererId} and {acceptingPlayerId}");
+            Debug.Log($"[Trade] Processing trade between {tradeOffer.OffererId} and {acceptingPlayerId}");
             return true; // Demo always succeeds
         }
 
@@ -511,7 +511,7 @@ namespace Laboratory.Core.Social
             foreach (var offer in expiredOffers)
             {
                 offer.Status = TradeOfferStatus.Expired;
-                Debug.Log($"?�� Trade offer expired: {offer.OfferId}");
+                Debug.Log($"[Trade] Trade offer expired: {offer.OfferId}");
             }
         }
 
@@ -547,7 +547,7 @@ namespace Laboratory.Core.Social
 
             await UniTask.Delay(100);
 
-            Debug.Log($"?�� Accessed breeding pool: {pool.Name} with {availableGenetics.Count} genetics");
+            Debug.Log($"[Pool] Accessed breeding pool: {pool.Name} with {availableGenetics.Count} genetics");
             return availableGenetics;
         }
 
@@ -570,7 +570,7 @@ namespace Laboratory.Core.Social
             // Reward contributor
             UpdateSocialRating(playerId, 25);
 
-            Debug.Log($"?�� Contributed genetics to breeding pool: {pool.Name}");
+            Debug.Log($"[Pool] Contributed genetics to breeding pool: {pool.Name}");
             return true;
         }
 

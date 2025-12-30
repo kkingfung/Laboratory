@@ -17,6 +17,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     /// Creates a living, breathing world where creatures adapt and evolve over time
     /// </summary>
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial struct EcosystemSimulationSystem : ISystem
     {
         private EntityQuery _ecosystemQuery;
@@ -403,6 +404,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     /// Job for updating ecosystem environmental conditions
     /// </summary>
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     public partial struct EcosystemUpdateJob : IJobEntity
     {
@@ -438,6 +440,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     /// Job for updating population dynamics and natural selection
     /// </summary>
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     public partial struct PopulationDynamicsJob : IJobEntity
     {
@@ -556,6 +559,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
     /// Job for updating ecosystem resources
     /// </summary>
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     public partial struct ResourceUpdateJob : IJobEntity
     {

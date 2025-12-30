@@ -17,6 +17,7 @@ namespace Laboratory.Chimera.ECS
     /// </summary>
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial struct CreatureAgingSystem : ISystem
     {
@@ -52,6 +53,7 @@ namespace Laboratory.Chimera.ECS
     }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     public partial struct CreatureAgingJob : IJobEntity
     {
@@ -80,6 +82,7 @@ namespace Laboratory.Chimera.ECS
     }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CreatureAgingSystem))]
     public partial struct CreatureAISystem : ISystem
@@ -121,6 +124,7 @@ namespace Laboratory.Chimera.ECS
     }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     public partial struct CreatureAIJob : IJobEntity
     {
@@ -194,6 +198,7 @@ namespace Laboratory.Chimera.ECS
     }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial struct CreatureGeneticsSystem : ISystem
     {
@@ -228,6 +233,7 @@ namespace Laboratory.Chimera.ECS
     }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     public partial struct CreatureGeneticsJob : IJobEntity
     {
@@ -270,6 +276,7 @@ namespace Laboratory.Chimera.ECS
     }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public partial struct CreatureVisualizationSystem : ISystem
     {
@@ -312,6 +319,7 @@ namespace Laboratory.Chimera.ECS
     /// <summary>
     /// System for cleaning up dead creatures
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CreatureAgingSystem))]
     public partial struct CreatureCleanupSystem : ISystem
@@ -350,6 +358,7 @@ namespace Laboratory.Chimera.ECS
     }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     public partial struct CreatureCleanupJob : IJobEntity
     {
@@ -373,6 +382,7 @@ namespace Laboratory.Chimera.ECS
     /// <summary>
     /// Debug system for performance monitoring
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class CreatureDebugSystem : SystemBase
     {

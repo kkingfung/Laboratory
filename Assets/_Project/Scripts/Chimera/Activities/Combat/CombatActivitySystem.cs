@@ -9,6 +9,7 @@ namespace Laboratory.Chimera.Activities.Combat
     /// Integrates with the core ActivitySystem
     /// Performance: Lightweight registration system with tournament support
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ActivitySystem))]
     public partial class CombatActivitySystem : SystemBase

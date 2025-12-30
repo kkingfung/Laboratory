@@ -184,6 +184,7 @@ namespace Laboratory.Networking.Entities
     /// Master Network Manager for Netcode for Entities Integration
     /// Handles connection management, authority distribution, and system coordination
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup), OrderFirst = true)]
     public partial class NetcodeEntityManager : SystemBase
@@ -532,6 +533,7 @@ namespace Laboratory.Networking.Entities
     /// <summary>
     /// High-performance job for network state synchronization
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     public struct NetworkSynchronizationJob : IJobChunk
     {
@@ -600,6 +602,7 @@ namespace Laboratory.Networking.Entities
     /// <summary>
     /// Client-side prediction system for smooth multiplayer experience
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public partial class NetworkPredictionSystem : SystemBase
     {
@@ -659,6 +662,7 @@ namespace Laboratory.Networking.Entities
     /// <summary>
     /// Lag compensation system for fair multiplayer interactions
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class LagCompensationSystem : SystemBase
     {
@@ -705,6 +709,7 @@ namespace Laboratory.Networking.Entities
     /// Network bandwidth optimization system
     /// Dynamically adjusts sync rates and data compression based on network conditions
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup), OrderLast = true)]
     public partial class NetworkOptimizationSystem : SystemBase
     {

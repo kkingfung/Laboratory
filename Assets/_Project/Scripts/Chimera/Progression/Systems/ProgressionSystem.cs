@@ -21,6 +21,7 @@ namespace Laboratory.Chimera.Progression
     /// See: PartnershipProgressionSystem.cs for the new implementation
     /// </summary>
     [System.Obsolete("Use PartnershipProgressionSystem - no more levels/XP!")]
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivitySystem))]
     public partial class ProgressionSystem : SystemBase

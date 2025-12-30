@@ -9,6 +9,7 @@ namespace Laboratory.Chimera.Activities.Puzzle
     /// Integrates with the core ActivitySystem
     /// Performance: Lightweight registration system with collaboration support
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ActivitySystem))]
     public partial class PuzzleActivitySystem : SystemBase

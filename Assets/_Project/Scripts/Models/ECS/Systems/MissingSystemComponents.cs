@@ -58,6 +58,7 @@ namespace Laboratory.Models.ECS.Events
     /// <summary>
     /// Event bus implementation for ECS systems
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial class ECSEventBus : SystemBase
     {
         private IEventBus _eventBus;

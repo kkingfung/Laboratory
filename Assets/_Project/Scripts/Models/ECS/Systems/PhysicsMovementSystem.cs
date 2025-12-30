@@ -17,6 +17,7 @@ namespace Laboratory.Models.ECS.Systems
     /// This system integrates physics velocity with entity positions and provides custom
     /// physics movement logic that runs before the Unity Physics simulation group.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateBefore(typeof(PhysicsSystemGroup))]
     public partial struct PhysicsMovementSystem : ISystem
@@ -142,7 +143,6 @@ namespace Laboratory.Models.ECS.Systems
         /// <summary>
         /// Burst-compiled job for processing physics movement calculations in parallel
         /// </summary>
-
     [BurstCompile]
     private partial struct PhysicsMovementJob : IJobEntity
         {

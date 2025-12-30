@@ -17,6 +17,7 @@ namespace Laboratory.Subsystems.Team.Systems
     /// PLAYER-FRIENDLY: Fast queue times, balanced matches, new player onboarding
     /// </summary>
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class MatchmakingSystem : SystemBase
     {

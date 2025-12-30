@@ -10,6 +10,7 @@ namespace Laboratory.Core.TownBuilding.Systems
     /// <summary>
     /// Core building management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class TownBuildingSystem : SystemBase
     {

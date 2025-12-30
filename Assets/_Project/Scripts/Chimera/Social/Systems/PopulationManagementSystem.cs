@@ -29,6 +29,7 @@ namespace Laboratory.Chimera.Social
     /// Design Philosophy:
     /// "Quality over Quantity - Every chimera matters"
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(EnhancedBondingSystem))]
     public partial class PopulationManagementSystem : SystemBase

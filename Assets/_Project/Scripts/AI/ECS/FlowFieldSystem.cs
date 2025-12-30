@@ -68,6 +68,7 @@ namespace ProjectChimera.AI.ECS
     }
 
     [BurstCompile]
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(Unity.Transforms.TransformSystemGroup))]
     public partial class FlowFieldSystem : SystemBase

@@ -22,6 +22,7 @@ namespace Laboratory.Chimera.Integration
     /// Design Philosophy:
     /// "Events ripple through the system - one action triggers many reactions"
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(PartnershipActivitySystem))]
     public partial class ChimeraEventCoordinator : SystemBase

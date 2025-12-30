@@ -299,9 +299,10 @@ namespace Laboratory.Core.Activities.Strategy
     /// <summary>
     /// Main strategy command management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
-    public partial class StrategyCommandManagementSystem : SystemBase
+        public partial class StrategyCommandManagementSystem : SystemBase
     {
         private EntityQuery commandQuery;
         private EntityQuery commanderQuery;
@@ -333,9 +334,6 @@ namespace Laboratory.Core.Activities.Strategy
             ecbSystem.AddJobHandleForProducer(Dependency);
         }
     }
-
-
-
     [BurstCompile]
     public partial struct CommandCenterUpdateJob : IJobEntity
     {
@@ -499,9 +497,10 @@ namespace Laboratory.Core.Activities.Strategy
     /// <summary>
     /// Strategic decision making and AI system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(StrategyCommandManagementSystem))]
-    public partial class StrategicDecisionSystem : SystemBase
+        public partial class StrategicDecisionSystem : SystemBase
     {
         private EntityQuery strategicQuery;
         private Unity.Mathematics.Random random;
@@ -531,9 +530,6 @@ namespace Laboratory.Core.Activities.Strategy
             Dependency = strategicJob.ScheduleParallel(strategicQuery, Dependency);
         }
     }
-
-
-
     [BurstCompile]
     public partial struct StrategicDecisionJob : IJobEntity
     {
@@ -756,9 +752,10 @@ namespace Laboratory.Core.Activities.Strategy
     /// <summary>
     /// Resource management system for strategic gameplay
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(StrategicDecisionSystem))]
-    public partial class StrategicResourceSystem : SystemBase
+        public partial class StrategicResourceSystem : SystemBase
     {
         private EntityQuery resourceQuery;
 

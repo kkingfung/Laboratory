@@ -21,6 +21,7 @@ namespace Laboratory.Chimera.ECS.Systems
     /// <summary>
     /// Ages creatures over time and handles life stage transitions
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CreatureAgingSystem : SystemBase
     {
@@ -99,6 +100,7 @@ namespace Laboratory.Chimera.ECS.Systems
     /// <summary>
     /// Manages creature needs (hunger, thirst, social, etc.) and their decay over time
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CreatureNeedsSystem : SystemBase
     {
@@ -149,6 +151,7 @@ namespace Laboratory.Chimera.ECS.Systems
     /// <summary>
     /// Updates creature behavior based on genetics, personality, and current needs
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CreatureBehaviorSystem : SystemBase
     {
@@ -250,6 +253,7 @@ namespace Laboratory.Chimera.ECS.Systems
     /// <summary>
     /// Handles environmental adaptation and biome comfort levels
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class EnvironmentalAdaptationSystem : SystemBase
     {
@@ -293,6 +297,7 @@ namespace Laboratory.Chimera.ECS.Systems
     /// <summary>
     /// Synchronizes world environmental conditions to all creatures
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class BiomeConditionsSystem : SystemBase
     {
@@ -320,6 +325,7 @@ namespace Laboratory.Chimera.ECS.Systems
     /// <summary>
     /// Manages creature breeding readiness and mating behavior
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CreatureBreedingSystem : SystemBase
     {
@@ -378,6 +384,7 @@ namespace Laboratory.Chimera.ECS.Systems
     /// <summary>
     /// Manages creature bonding with players and other creatures
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CreatureBondingSystem : SystemBase
     {
@@ -422,6 +429,7 @@ namespace Laboratory.Chimera.ECS.Systems
     /// <summary>
     /// Updates creature statistics based on genetics, age, and environmental factors
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CreatureStatsSystem : SystemBase
     {
@@ -458,6 +466,7 @@ namespace Laboratory.Chimera.ECS.Systems
     /// High-performance GameObject synchronization system with cached lookups
     /// Optimized to eliminate expensive FindObjectsOfTypeAll calls
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public partial class GameObjectSyncSystem : SystemBase
     {
@@ -529,6 +538,7 @@ namespace Laboratory.Chimera.ECS.Systems
     /// <summary>
     /// Handles creature movement and pathfinding
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CreatureMovementSystem : SystemBase
     {
@@ -575,6 +585,7 @@ namespace Laboratory.Chimera.ECS.Systems
     /// <summary>
     /// Manages creature health, damage, and death
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CreatureHealthSystem : SystemBase
     {
@@ -632,6 +643,7 @@ namespace Laboratory.Chimera.ECS.Systems
     /// High-performance creature death processing system with cached lookups
     /// Optimized to eliminate expensive FindObjectsOfTypeAll calls
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CreatureDeathSystem : SystemBase
     {

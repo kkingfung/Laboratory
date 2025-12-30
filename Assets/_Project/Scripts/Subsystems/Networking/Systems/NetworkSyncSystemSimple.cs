@@ -8,6 +8,7 @@ namespace Laboratory.Models.ECS.Systems
     /// <summary>
     /// Simplified network sync system that compiles successfully
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class NetworkSyncSystemSimple : SystemBase
     {

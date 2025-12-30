@@ -9,6 +9,7 @@ namespace Laboratory.Core.Equipment.Systems
     /// <summary>
     /// Equipment management for activity performance bonuses
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(Activities.Systems.ActivityCenterSystem))]
     public partial class ActivityEquipmentBonusSystem : SystemBase

@@ -381,7 +381,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         }
 
         // Menu items for easy access
-        [UnityEditor.MenuItem("?зк Laboratory/Genetics/Run Evolution Cycle")]
+        [UnityEditor.MenuItem("Laboratory/Genetics/Run Evolution Cycle")]
         private static void MenuRunEvolution()
         {
             if (Application.isPlaying && Instance != null)
@@ -394,7 +394,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             }
         }
 
-        [UnityEditor.MenuItem("?зк Laboratory/Genetics/Generate Population Report")]
+        [UnityEditor.MenuItem("Laboratory/Genetics/Generate Population Report")]
         private static void MenuGenerateReport()
         {
             if (Application.isPlaying && Instance != null)

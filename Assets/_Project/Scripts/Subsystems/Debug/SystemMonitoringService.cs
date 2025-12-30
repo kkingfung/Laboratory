@@ -12,6 +12,7 @@ namespace Laboratory.Subsystems.Monitoring
     /// Concrete implementation of system monitoring service
     /// Tracks subsystem health, performance metrics, and operational status
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public class SystemMonitoringService : ISystemMonitoringService
     {
         #region Fields

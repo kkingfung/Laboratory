@@ -13,6 +13,7 @@ namespace Laboratory.Models.ECS.Systems
     /// Listens for damage events from the event bus and triggers appropriate UI and audio responses.
     /// Processes damage indicators, sound effects, and haptic feedback.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public partial class DamageEventListenerSystem : SystemBase
     {

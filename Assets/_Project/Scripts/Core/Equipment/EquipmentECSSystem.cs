@@ -182,6 +182,7 @@ namespace Laboratory.Core.Equipment
     /// <summary>
     /// Core equipment management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class EquipmentSystem : SystemBase
     {
@@ -280,6 +281,7 @@ namespace Laboratory.Core.Equipment
     /// <summary>
     /// Equipment crafting and creation system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class EquipmentCraftingSystem : SystemBase
     {
@@ -457,6 +459,7 @@ namespace Laboratory.Core.Equipment
     /// <summary>
     /// Equipment management for activity performance bonuses
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
     public partial class ActivityEquipmentBonusSystem : SystemBase

@@ -200,6 +200,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
     /// <summary>
     /// Genetic Combat Ability System - Derives combat abilities from creature genetics
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class GeneticCombatAbilitySystem : SystemBase
     {
@@ -232,6 +233,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
         }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     private partial struct UpdateGeneticAbilitiesJob : IJobEntity
         {
@@ -420,6 +422,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
     /// <summary>
     /// Formation Combat System - Manages group tactics and formation bonuses
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class FormationCombatSystem : SystemBase
     {
@@ -457,6 +460,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
         }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     private partial struct UpdateFormationJob : IJobEntity
         {
@@ -566,6 +570,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
     /// <summary>
     /// Advanced Status Effect System - Manages complex status effects and interactions
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class AdvancedStatusEffectSystem : SystemBase
     {
@@ -598,6 +603,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
         }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     private partial struct ProcessStatusEffectsJob : IJobEntity
         {
@@ -790,6 +796,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
     /// <summary>
     /// Tactical Combat AI System - Advanced AI decision making for combat
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class TacticalCombatAISystem : SystemBase
     {
@@ -825,6 +832,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
         }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     private partial struct TacticalAIUpdateJob : IJobEntity
         {
@@ -1012,6 +1020,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
     /// Multiplayer Combat Synchronization System
     /// Synchronizes combat state across network for competitive multiplayer
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class MultiplayerCombatSyncSystem : SystemBase
     {
@@ -1045,6 +1054,7 @@ namespace Laboratory.Subsystems.Combat.Advanced
         }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     private partial struct CombatNetworkSyncJob : IJobEntity
         {

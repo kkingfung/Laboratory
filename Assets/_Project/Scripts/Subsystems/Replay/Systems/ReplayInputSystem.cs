@@ -17,6 +17,7 @@ namespace Laboratory.Models.ECS.Systems
     /// Handles replay input playback for recorded player movements and actions.
     /// Processes replay data and applies it to player entities during replay mode.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class ReplayInputSystem : SystemBase
     {

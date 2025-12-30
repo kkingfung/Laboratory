@@ -380,9 +380,10 @@ namespace Laboratory.Core.Activities.Music
     /// <summary>
     /// Main rhythm studio management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
-    public partial class RhythmStudioManagementSystem : SystemBase
+        public partial class RhythmStudioManagementSystem : SystemBase
     {
         private EntityQuery studioQuery;
         private EntityQuery performerQuery;
@@ -414,8 +415,6 @@ namespace Laboratory.Core.Activities.Music
             ecbSystem.AddJobHandleForProducer(Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct StudioUpdateJob : IJobEntity
     {
@@ -570,9 +569,10 @@ namespace Laboratory.Core.Activities.Music
     /// <summary>
     /// Musical performance and rhythm game system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(RhythmStudioManagementSystem))]
-    public partial class MusicPerformanceSystem : SystemBase
+        public partial class MusicPerformanceSystem : SystemBase
     {
         private EntityQuery performanceQuery;
         private Unity.Mathematics.Random random;
@@ -602,8 +602,6 @@ namespace Laboratory.Core.Activities.Music
             Dependency = performanceJob.ScheduleParallel(performanceQuery, Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct MusicPerformanceJob : IJobEntity
     {
@@ -728,9 +726,10 @@ namespace Laboratory.Core.Activities.Music
     /// <summary>
     /// Genetic music signature generation system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(MusicPerformanceSystem))]
-    public partial class GeneticMusicSignatureSystem : SystemBase
+        public partial class GeneticMusicSignatureSystem : SystemBase
     {
         private EntityQuery signatureQuery;
         private Unity.Mathematics.Random random;
@@ -856,9 +855,10 @@ namespace Laboratory.Core.Activities.Music
     /// <summary>
     /// Rhythm game mechanics system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(GeneticMusicSignatureSystem))]
-    public partial class RhythmGameMechanicsSystem : SystemBase
+        public partial class RhythmGameMechanicsSystem : SystemBase
     {
         private EntityQuery rhythmGameQuery;
         private Unity.Mathematics.Random random;

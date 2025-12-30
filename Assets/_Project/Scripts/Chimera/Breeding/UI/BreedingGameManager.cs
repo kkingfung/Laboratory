@@ -421,10 +421,10 @@ namespace Laboratory.Chimera.Breeding.UI
             if (_bonusesEarned != null)
             {
                 var bonuses = new List<string>();
-                if (results.TimeBonus > 1.2f) bonuses.Add("??Speed Bonus");
-                if (results.PerfectionBonus > 1.0f) bonuses.Add("?’¯ Perfect Game");
-                if (results.BonusTraitsEarned) bonuses.Add("??Bonus Traits");
-                if (results.PerfectBreeding) bonuses.Add("?? Perfect Breeding");
+                if (results.TimeBonus > 1.2f) bonuses.Add("[Speed] Speed Bonus");
+                if (results.PerfectionBonus > 1.0f) bonuses.Add("[Perfect] Perfect Game");
+                if (results.BonusTraitsEarned) bonuses.Add("[Bonus] Bonus Traits");
+                if (results.PerfectBreeding) bonuses.Add("[Star] Perfect Breeding");
 
                 _bonusesEarned.text = bonuses.Count > 0 ? string.Join("\n", bonuses) : "No special bonuses";
             }
@@ -581,10 +581,10 @@ namespace Laboratory.Chimera.Breeding.UI
         {
             return gameType switch
             {
-                BreedingGameType.GeneMatching => "?§¬ Gene Matching",
-                BreedingGameType.DNASequencing => "?”¬ DNA Sequencing",
-                BreedingGameType.TraitBalancing => "?–ï? Trait Balancing",
-                BreedingGameType.Incubation => "?? Incubation Control",
+                BreedingGameType.GeneMatching => "[DNA] Gene Matching",
+                BreedingGameType.DNASequencing => "[Helix] DNA Sequencing",
+                BreedingGameType.TraitBalancing => "[Balance] Trait Balancing",
+                BreedingGameType.Incubation => "[Egg] Incubation Control",
                 _ => "Breeding Mini-Game"
             };
         }

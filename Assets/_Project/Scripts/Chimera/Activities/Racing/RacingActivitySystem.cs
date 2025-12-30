@@ -9,6 +9,7 @@ namespace Laboratory.Chimera.Activities.Racing
     /// Integrates with the core ActivitySystem
     /// Performance: Lightweight registration system with minimal overhead
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     [UpdateAfter(typeof(ActivitySystem))]
     public partial class RacingActivitySystem : SystemBase

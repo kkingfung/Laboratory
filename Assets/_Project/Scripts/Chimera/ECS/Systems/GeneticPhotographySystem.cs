@@ -15,6 +15,7 @@ namespace Laboratory.Chimera.ECS
     /// Advanced genetic photography and visualization system.
     /// Captures creatures with genetic information overlays and creates shareable genetic portraits.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial class GeneticPhotographySystem : SystemBase
     {
         private GeneticPhotographyConfig _config;

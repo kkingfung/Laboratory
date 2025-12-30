@@ -170,6 +170,7 @@ namespace Laboratory.Chimera.Consciousness.Core
     /// <summary>
     /// System that processes deferred emotional context add requests
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateBefore(typeof(EmotionalIndicatorSystem))]
     public partial class EmotionalContextProcessorSystem : SystemBase

@@ -21,6 +21,7 @@ namespace Laboratory.Subsystems.Team.Systems
     /// Burst-compiled job for cleaning up expired communications
     /// Runs in parallel across all teams for optimal performance
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     public partial struct CleanupExpiredCommunicationsJob : IJobEntity
     {
@@ -51,6 +52,7 @@ namespace Laboratory.Subsystems.Team.Systems
         }
     }
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class TeamCommunicationSystem : SystemBase
     {
@@ -498,6 +500,7 @@ namespace Laboratory.Subsystems.Team.Systems
     /// Smart Ping System - Context-aware ping assistance
     /// Automatically suggests appropriate pings based on game state
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(TeamCommunicationSystem))]
     public partial class SmartPingAssistSystem : SystemBase

@@ -9,6 +9,7 @@ namespace Laboratory.Models.ECS.Systems
     /// Safely destroys entities marked as dead using Entity Command Buffer.
     /// Can be extended to add delays, animations, or pooling logic.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(BeginSimulationEntityCommandBufferSystem))]
     public partial class DespawnSystem : SystemBase

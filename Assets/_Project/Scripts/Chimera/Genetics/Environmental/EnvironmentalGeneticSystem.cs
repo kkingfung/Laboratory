@@ -121,6 +121,7 @@ namespace Laboratory.Chimera.Genetics.Environmental
     }
 
     // Main environmental genetic system
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(UnifiedAIStateSystem))]
     public partial class EnvironmentalGeneticSystem : SystemBase

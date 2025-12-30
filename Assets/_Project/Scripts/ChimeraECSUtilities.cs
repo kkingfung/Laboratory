@@ -359,6 +359,7 @@ namespace ProjectChimera.ECS
     /// <summary>
     /// Example system showing safe ECS patterns for Project Chimera
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class MonsterHealthSystem : SystemBase
     {

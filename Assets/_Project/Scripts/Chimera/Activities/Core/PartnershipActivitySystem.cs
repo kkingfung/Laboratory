@@ -30,6 +30,7 @@ namespace Laboratory.Chimera.Activities
     /// - Trigger emotional responses
     /// - Update partnership cooperation
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(PartnershipProgressionSystem))]
     public partial class PartnershipActivitySystem : SystemBase

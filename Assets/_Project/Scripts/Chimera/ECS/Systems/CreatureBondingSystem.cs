@@ -17,6 +17,7 @@ namespace Laboratory.Chimera.ECS
     /// Enhanced creature bonding system with generational memory and emotional connections.
     /// Creates deep relationships between players and creatures across generations.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial class CreatureBondingSystem : SystemBase
     {
         private CreatureBondingConfig _config;

@@ -12,6 +12,7 @@ namespace Laboratory.Chimera.Discovery.Systems
     /// Processes celebration triggers and coordinates with MonoBehaviour celebration manager
     /// </summary>
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial struct CelebrationTriggerSystem : ISystem
     {
         private EntityQuery _celebrationQuery;
@@ -93,6 +94,7 @@ namespace Laboratory.Chimera.Discovery.Systems
     /// System to clean up processed celebrations after a delay
     /// </summary>
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial struct CelebrationCleanupSystem : ISystem
     {
         private EntityQuery _processedQuery;

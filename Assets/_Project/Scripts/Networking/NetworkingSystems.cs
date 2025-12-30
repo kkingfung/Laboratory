@@ -59,6 +59,7 @@ namespace Laboratory.Networking
     }
 
     // Simplified UnifiedAIStateSystem stub for networking
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial class UnifiedAIStateSystem : SystemBase
     {
         protected override void OnUpdate()
@@ -148,6 +149,7 @@ namespace Laboratory.Networking
     /// <summary>
     /// High-performance network batching and compression system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class OptimizedNetworkSyncSystem : SystemBase
@@ -199,6 +201,7 @@ namespace Laboratory.Networking
             ProcessNetworkBatches();
         }
 
+            [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
             [BurstCompile]
             private struct NetworkStateBatchingJob : IJobChunk
         {
@@ -307,6 +310,7 @@ namespace Laboratory.Networking
     }
 
     // Legacy system for compatibility
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class NetworkAISyncSystem : SystemBase
     {
@@ -367,6 +371,7 @@ namespace Laboratory.Networking
     }
 
     // Network pathfinding synchronization system
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class NetworkPathfindingSyncSystem : SystemBase
     {
@@ -412,6 +417,7 @@ namespace Laboratory.Networking
     }
 
     // Network genetics synchronization system
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class NetworkGeneticsSyncSystem : SystemBase
     {
@@ -453,6 +459,7 @@ namespace Laboratory.Networking
     }
 
     // Simplified breeding synchronization system
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class NetworkBreedingSyncSystem : SystemBase
     {
@@ -552,6 +559,7 @@ namespace Laboratory.Networking
     }
 
     // Simple coordination system for AI commands
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class NetworkAICoordinationSystem : SystemBase
     {

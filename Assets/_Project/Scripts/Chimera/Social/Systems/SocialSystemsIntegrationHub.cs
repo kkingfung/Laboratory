@@ -40,6 +40,7 @@ namespace Laboratory.Chimera.Social
     /// var bondStrength = SocialSystemsIntegrationHub.GetEffectiveBondStrength(entity);
     /// var canUnlock = SocialSystemsIntegrationHub.CheckPopulationUnlockEligibility(playerEntity);
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup), OrderFirst = true)]
     public partial class SocialSystemsIntegrationHub : SystemBase
     {
@@ -107,11 +108,11 @@ namespace Laboratory.Chimera.Social
             _populationSystemActive = World.GetExistingSystemManaged<PopulationManagementSystem>() != null;
 
             if (!_enhancedBondingSystemActive)
-                Debug.LogWarning("?ая? EnhancedBondingSystem not active - social features may not work");
+                Debug.LogWarning("[Warning] EnhancedBondingSystem not active - social features may not work");
             if (!_ageSensitivitySystemActive)
-                Debug.LogWarning("?ая? AgeSensitivitySystem not active - age-based bonding disabled");
+                Debug.LogWarning("[Warning] AgeSensitivitySystem not active - age-based bonding disabled");
             if (!_populationSystemActive)
-                Debug.LogWarning("?ая? PopulationManagementSystem not active - capacity unlocks disabled");
+                Debug.LogWarning("[Warning] PopulationManagementSystem not active - capacity unlocks disabled");
         }
 
         /// <summary>
@@ -249,7 +250,7 @@ namespace Laboratory.Chimera.Social
             {
                 if (!EntityManager.HasComponent<CreatureIdentityComponent>(entity))
                 {
-                    Debug.LogWarning($"?ая? Entity {entity.Index} has CreatureBondData but no CreatureIdentityComponent!");
+                    Debug.LogWarning($"[Warning] Entity {entity.Index} has CreatureBondData but no CreatureIdentityComponent!");
                 }
             }
 
@@ -328,9 +329,9 @@ namespace Laboratory.Chimera.Social
                 return "Hub not initialized";
 
             return $"Social Systems Status:\n" +
-                   $"- EnhancedBonding: {(hub._enhancedBondingSystemActive ? "?? : "??)}\n" +
-                   $"- AgeSensitivity: {(hub._ageSensitivitySystemActive ? "?? : "??)}\n" +
-                   $"- Population: {(hub._populationSystemActive ? "?? : "??)}\n" +
+                   $"- EnhancedBonding: {(hub._enhancedBondingSystemActive ? "[OK]" : "[X]")}\n" +
+                   $"- AgeSensitivity: {(hub._ageSensitivitySystemActive ? "[OK]" : "[X]")}\n" +
+                   $"- Population: {(hub._populationSystemActive ? "[OK]" : "[X]")}\n" +
                    $"- Tracked bonds: {hub._effectiveBondStrengthCache.Count}\n" +
                    $"- Players tracked: {hub._strongBondCountCache.Count}";
         }

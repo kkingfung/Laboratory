@@ -13,6 +13,7 @@ namespace Laboratory.Chimera.Activities
     /// Burst-compiled job for checking activity completion times
     /// Runs in parallel across all active activities
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     public partial struct CheckActivityCompletionJob : IJobEntity
     {
@@ -40,6 +41,7 @@ namespace Laboratory.Chimera.Activities
     /// Handles activity execution, performance calculation, and reward distribution
     /// Performance: Uses Burst-compiled jobs for parallel activity processing
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class ActivitySystem : SystemBase
     {

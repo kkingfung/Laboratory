@@ -20,6 +20,7 @@ namespace Laboratory.Models.ECS.Systems
     /// This system listens to game state changes and handles asynchronous loading operations
     /// when the game enters the loading state.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class LoadingScreenSystem : SystemBase
     {

@@ -64,6 +64,7 @@ namespace ProjectChimera.AI.ECS
     }
 
     // Main ECS Pathfinding System
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateBefore(typeof(TransformSystemGroup))]
@@ -411,7 +412,6 @@ namespace ProjectChimera.AI.ECS
         [ReadOnly] public EntityTypeHandle entityTypeHandle;
         [ReadOnly] public ComponentTypeHandle<LocalTransform> transformTypeHandle;
 
-        [BurstCompile]
         public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
         {
             var entities = chunk.GetNativeArray(entityTypeHandle);
@@ -441,7 +441,6 @@ namespace ProjectChimera.AI.ECS
         public ComponentTypeHandle<PathfindingComponent> pathfindingTypeHandle;
         [ReadOnly] public ComponentTypeHandle<LocalTransform> transformTypeHandle;
 
-        [BurstCompile]
         public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
         {
             var pathfindingComponents = chunk.GetNativeArray(ref pathfindingTypeHandle);
@@ -481,7 +480,6 @@ namespace ProjectChimera.AI.ECS
         public ComponentTypeHandle<LocalTransform> transformTypeHandle;
         [ReadOnly] public BufferTypeHandle<PathNodeComponent> pathBufferTypeHandle;
 
-        [BurstCompile]
         public void Execute(in ArchetypeChunk chunk, int unfilteredChunkIndex, bool useEnabledMask, in v128 chunkEnabledMask)
         {
             var pathfindingComponents = chunk.GetNativeArray(ref pathfindingTypeHandle);

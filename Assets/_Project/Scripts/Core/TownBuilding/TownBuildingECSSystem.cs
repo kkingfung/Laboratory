@@ -243,6 +243,7 @@ namespace Laboratory.Core.TownBuilding
     /// <summary>
     /// Core building management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class TownBuildingSystem : SystemBase
     {
@@ -445,6 +446,7 @@ namespace Laboratory.Core.TownBuilding
     /// <summary>
     /// Resource production and management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(TownBuildingSystem))]
     public partial class ResourceProductionSystem : SystemBase
@@ -549,6 +551,7 @@ namespace Laboratory.Core.TownBuilding
     /// <summary>
     /// District management and city planning system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class DistrictManagementSystem : SystemBase
     {

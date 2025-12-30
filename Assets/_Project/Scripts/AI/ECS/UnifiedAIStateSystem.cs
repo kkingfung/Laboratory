@@ -133,6 +133,7 @@ namespace ProjectChimera.AI.ECS
     }
 
     // Main Unified AI State System
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateBefore(typeof(TransformSystemGroup))]
     public partial class UnifiedAIStateSystem : SystemBase

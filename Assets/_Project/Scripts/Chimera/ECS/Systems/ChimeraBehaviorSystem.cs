@@ -24,6 +24,7 @@ namespace Laboratory.Core.ECS.Systems
     /// PERFORMANCE: Scales to 5000+ creatures with smooth 60fps
     /// BURST-COMPILED: 10-100x performance improvement with unmanaged configuration data
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(TransformSystemGroup))]
@@ -160,6 +161,7 @@ namespace Laboratory.Core.ECS.Systems
 
         // Job to build spatial hash for efficient neighbor queries
 
+        [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
         [BurstCompile]
         struct BuildSpatialHashJob : IJobChunk
         {
@@ -200,6 +202,7 @@ namespace Laboratory.Core.ECS.Systems
 
         // Main behavior decision job - where genetics meets AI
 
+        [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
         [BurstCompile]
         struct BehaviorDecisionJob : IJobChunk
         {
@@ -497,6 +500,7 @@ namespace Laboratory.Core.ECS.Systems
 
         // Job to execute behaviors based on decisions
 
+        [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
         [BurstCompile]
         struct ExecuteBehaviorJob : IJobChunk
         {

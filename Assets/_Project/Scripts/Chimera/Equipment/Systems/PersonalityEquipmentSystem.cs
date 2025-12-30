@@ -27,6 +27,7 @@ namespace Laboratory.Chimera.Equipment
     /// Design Philosophy:
     /// "The right equipment makes chimeras happy and cooperative"
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(PersonalityStabilitySystem))]
     public partial class PersonalityEquipmentSystem : SystemBase

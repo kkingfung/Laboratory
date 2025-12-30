@@ -377,9 +377,10 @@ namespace Laboratory.Core.Activities.Puzzle
     /// <summary>
     /// Main puzzle academy management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
-    public partial class PuzzleAcademyManagementSystem : SystemBase
+        public partial class PuzzleAcademyManagementSystem : SystemBase
     {
         private EntityQuery academyQuery;
         private EntityQuery solverQuery;
@@ -410,8 +411,6 @@ namespace Laboratory.Core.Activities.Puzzle
             ecbSystem.AddJobHandleForProducer(Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct AcademyUpdateJob : IJobEntity
     {
@@ -530,9 +529,10 @@ namespace Laboratory.Core.Activities.Puzzle
     /// <summary>
     /// Puzzle solving mechanics system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(PuzzleAcademyManagementSystem))]
-    public partial class PuzzleSolvingSystem : SystemBase
+        public partial class PuzzleSolvingSystem : SystemBase
     {
         private EntityQuery puzzleQuery;
         private Unity.Mathematics.Random random;
@@ -561,8 +561,6 @@ namespace Laboratory.Core.Activities.Puzzle
             Dependency = solvingJob.ScheduleParallel(puzzleQuery, Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct PuzzleSolvingJob : IJobEntity
     {
@@ -794,9 +792,10 @@ namespace Laboratory.Core.Activities.Puzzle
     /// <summary>
     /// Specialized Match-3 puzzle system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(PuzzleSolvingSystem))]
-    public partial class Match3PuzzleSystem : SystemBase
+        public partial class Match3PuzzleSystem : SystemBase
     {
         private EntityQuery match3Query;
         private Unity.Mathematics.Random random;
@@ -864,9 +863,10 @@ namespace Laboratory.Core.Activities.Puzzle
     /// <summary>
     /// PvP Puzzle Battle System
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(Match3PuzzleSystem))]
-    public partial class PuzzlePvPBattleSystem : SystemBase
+        public partial class PuzzlePvPBattleSystem : SystemBase
     {
         private EntityQuery battleQuery;
         private EntityQuery speedQuery;
@@ -916,8 +916,6 @@ namespace Laboratory.Core.Activities.Puzzle
             ecbSystem.AddJobHandleForProducer(Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct PuzzleBattleUpdateJob : IJobEntity
     {
@@ -1125,8 +1123,6 @@ namespace Laboratory.Core.Activities.Puzzle
             // (This would update PuzzleSolverComponent.ExperienceGained in a full implementation)
         }
     }
-
-
     [BurstCompile]
     public partial struct SpeedSolvingJob : IJobEntity
     {
@@ -1184,8 +1180,6 @@ namespace Laboratory.Core.Activities.Puzzle
             speedSolving.AccuracyPenalty2 = math.max(0f, speedSolving.Speed2Moves - optimalMoves) * 2f;
         }
     }
-
-
     [BurstCompile]
     public partial struct CollaborativePuzzleJob : IJobEntity
     {

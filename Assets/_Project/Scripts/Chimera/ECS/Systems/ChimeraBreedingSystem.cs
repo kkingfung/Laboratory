@@ -24,6 +24,7 @@ namespace Laboratory.Core.ECS.Systems
     /// BURST-COMPILED: 10-100x performance improvement with unmanaged configuration data
     /// </summary>
     [BurstCompile]
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ChimeraBehaviorSystem))]
     public partial class ChimeraBreedingSystem : SystemBase

@@ -11,6 +11,7 @@ namespace Laboratory.Core.Activities.Systems
     /// <summary>
     /// Main activity center management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class ActivityCenterSystem : SystemBase
     {

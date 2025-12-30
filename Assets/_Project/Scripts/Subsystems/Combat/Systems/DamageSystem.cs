@@ -13,6 +13,7 @@ namespace Laboratory.Models.ECS.Systems
     /// Processes damage requests and applies them to entity health components.
     /// Handles network synchronization and cleanup of processed damage requests.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class DamageSystem : SystemBase
     {

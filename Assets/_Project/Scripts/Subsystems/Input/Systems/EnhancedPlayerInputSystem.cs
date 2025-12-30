@@ -15,6 +15,7 @@ namespace Laboratory.Models.ECS.Input.Systems
     /// Enhanced ECS system responsible for capturing player input and updating ECS components.
     /// Integrates with the unified input system and provides better error handling and validation.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class EnhancedPlayerInputSystem : SystemBase
     {

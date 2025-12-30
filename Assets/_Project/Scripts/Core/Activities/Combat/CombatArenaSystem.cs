@@ -230,9 +230,10 @@ namespace Laboratory.Core.Activities.Combat
     /// <summary>
     /// Main combat arena management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
-    public partial class CombatArenaManagementSystem : SystemBase
+        public partial class CombatArenaManagementSystem : SystemBase
     {
         private EntityQuery arenaQuery;
         private EntityQuery fighterQuery;
@@ -263,8 +264,6 @@ namespace Laboratory.Core.Activities.Combat
             ecbSystem.AddJobHandleForProducer(Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct ArenaUpdateJob : IJobEntity
     {
@@ -413,9 +412,10 @@ namespace Laboratory.Core.Activities.Combat
     /// <summary>
     /// Combat mechanics and fighting system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CombatArenaManagementSystem))]
-    public partial class CombatMechanicsSystem : SystemBase
+        public partial class CombatMechanicsSystem : SystemBase
     {
         private EntityQuery combatQuery;
         private Unity.Mathematics.Random random;
@@ -445,8 +445,6 @@ namespace Laboratory.Core.Activities.Combat
             Dependency = combatJob.ScheduleParallel(combatQuery, Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct CombatMechanicsJob : IJobEntity
     {
@@ -699,9 +697,10 @@ namespace Laboratory.Core.Activities.Combat
     /// <summary>
     /// Tournament bracket and match management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CombatMechanicsSystem))]
-    public partial class TournamentBracketSystem : SystemBase
+        public partial class TournamentBracketSystem : SystemBase
     {
         private EntityQuery bracketQuery;
         private Unity.Mathematics.Random random;

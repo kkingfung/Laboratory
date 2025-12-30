@@ -19,6 +19,7 @@ namespace Laboratory.Models.ECS.Systems
     /// gameplay systems accordingly. This system listens to GameStateManager events
     /// and manages the lifecycle of various gameplay systems.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class GameStateReactionSystem : SystemBase
     {

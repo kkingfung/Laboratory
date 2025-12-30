@@ -335,7 +335,7 @@ namespace ProjectChimera.AI.Editor
             var navMeshData = UnityEngine.AI.NavMesh.CalculateTriangulation();
             if (navMeshData.vertices.Length == 0)
             {
-                Debug.LogWarning("[AI] No NavMesh found! Please bake NavMesh (Window ¡÷ AI ¡÷ Navigation)");
+                Debug.LogWarning("[AI] No NavMesh found! Please bake NavMesh (Window > AI > Navigation)");
             }
             else
             {

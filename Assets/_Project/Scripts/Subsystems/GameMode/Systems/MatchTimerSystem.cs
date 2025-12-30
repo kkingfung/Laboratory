@@ -14,6 +14,7 @@ namespace Laboratory.Models.ECS.Systems
     /// This system updates the match timer each frame and handles timer-related
     /// operations for match duration tracking and time-based game mechanics.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class MatchTimerSystem : SystemBase
     {

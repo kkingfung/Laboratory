@@ -10,6 +10,7 @@ namespace Laboratory.Core.Equipment.Systems
     /// <summary>
     /// Equipment crafting and creation system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class EquipmentCraftingSystem : SystemBase
     {

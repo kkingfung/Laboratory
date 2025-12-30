@@ -481,9 +481,10 @@ namespace Laboratory.Core.Activities.Adventure
     /// <summary>
     /// Main adventure guild management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
-    public partial class AdventureGuildManagementSystem : SystemBase
+        public partial class AdventureGuildManagementSystem : SystemBase
     {
         private EntityQuery guildQuery;
         private EntityQuery adventurerQuery;
@@ -514,8 +515,6 @@ namespace Laboratory.Core.Activities.Adventure
             ecbSystem.AddJobHandleForProducer(Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct GuildUpdateJob : IJobEntity
     {
@@ -630,9 +629,10 @@ namespace Laboratory.Core.Activities.Adventure
     /// <summary>
     /// Adventure exploration and quest progression system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(AdventureGuildManagementSystem))]
-    public partial class AdventureExplorationSystem : SystemBase
+        public partial class AdventureExplorationSystem : SystemBase
     {
         private EntityQuery explorationQuery;
         private Unity.Mathematics.Random random;
@@ -662,8 +662,6 @@ namespace Laboratory.Core.Activities.Adventure
             Dependency = explorationJob.ScheduleParallel(explorationQuery, Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct AdventureExplorationJob : IJobEntity
     {
@@ -852,9 +850,10 @@ namespace Laboratory.Core.Activities.Adventure
     /// <summary>
     /// Procedural quest generation system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(AdventureExplorationSystem))]
-    public partial class ProceduralQuestSystem : SystemBase
+        public partial class ProceduralQuestSystem : SystemBase
     {
         private EntityQuery questQuery;
         private EndSimulationEntityCommandBufferSystem ecbSystem;
@@ -945,9 +944,10 @@ namespace Laboratory.Core.Activities.Adventure
     /// <summary>
     /// Dungeon exploration system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ProceduralQuestSystem))]
-    public partial class DungeonExplorationSystem : SystemBase
+        public partial class DungeonExplorationSystem : SystemBase
     {
         private EntityQuery dungeonQuery;
         private Unity.Mathematics.Random random;
@@ -1021,9 +1021,10 @@ namespace Laboratory.Core.Activities.Adventure
     /// <summary>
     /// PvP Competition System for Adventure Activities
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(DungeonExplorationSystem))]
-    public partial class AdventurePvPCompetitionSystem : SystemBase
+        public partial class AdventurePvPCompetitionSystem : SystemBase
     {
         private EntityQuery competitionQuery;
         private EntityQuery territoryQuery;
@@ -1063,8 +1064,6 @@ namespace Laboratory.Core.Activities.Adventure
             ecbSystem.AddJobHandleForProducer(Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct CompetitionUpdateJob : IJobEntity
     {
@@ -1246,8 +1245,6 @@ namespace Laboratory.Core.Activities.Adventure
             // (This would update AdventurerComponent.ExperienceGained in a full implementation)
         }
     }
-
-
     [BurstCompile]
     public partial struct TerritoryControlJob : IJobEntity
     {

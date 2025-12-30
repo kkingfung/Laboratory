@@ -122,9 +122,10 @@ namespace Laboratory.Core.Activities.Platforming
 
     #region Platforming Systems
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
-    public partial class PlatformingCourseManagementSystem : SystemBase
+        public partial class PlatformingCourseManagementSystem : SystemBase
     {
         private EntityQuery courseQuery;
 
@@ -158,9 +159,10 @@ namespace Laboratory.Core.Activities.Platforming
         }
     }
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(PlatformingCourseManagementSystem))]
-    public partial class PlatformingMovementSystem : SystemBase
+        public partial class PlatformingMovementSystem : SystemBase
     {
         private EntityQuery platformerQuery;
 
@@ -187,8 +189,6 @@ namespace Laboratory.Core.Activities.Platforming
             Dependency = movementJob.ScheduleParallel(platformerQuery, Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct PlatformingMovementJob : IJobEntity
     {

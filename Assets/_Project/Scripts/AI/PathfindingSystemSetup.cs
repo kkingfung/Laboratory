@@ -218,7 +218,7 @@ namespace ProjectChimera.AI
             
             foreach (var agent in allAgents)
             {
-                Debug.Log($"  ¡E {agent.gameObject.name}: Moving={agent.IsMoving()}, HasDestination={agent.HasDestination()}");
+                Debug.Log($"  [Agent] {agent.gameObject.name}: Moving={agent.IsMoving()}, HasDestination={agent.HasDestination()}");
             }
         }
 

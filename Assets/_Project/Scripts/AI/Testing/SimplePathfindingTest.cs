@@ -49,7 +49,7 @@ namespace ProjectChimera.AI.Testing
             }
             else
             {
-                Debug.LogError("[AI] NavMesh not found! Please bake NavMesh: Window ¡÷ AI ¡÷ Navigation ¡÷ Bake");
+                Debug.LogError("[AI] NavMesh not found! Please bake NavMesh: Window > AI > Navigation > Bake");
                 return;
             }
 

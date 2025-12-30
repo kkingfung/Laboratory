@@ -9,7 +9,7 @@ using Laboratory.Chimera.Creatures;
 namespace Laboratory.Chimera.Breeding
 {
     /// <summary>
-    /// ?ая? DEPRECATED - DO NOT USE
+    /// [WARNING] DEPRECATED - DO NOT USE
     /// This breeding system has been superseded by Laboratory.Core.ECS.Systems.ChimeraBreedingSystem
     ///
     /// MIGRATION PATH:
@@ -25,6 +25,7 @@ namespace Laboratory.Chimera.Breeding
     /// This class will be removed in a future version.
     /// </summary>
     [Obsolete("Use Laboratory.Core.ECS.Systems.ChimeraBreedingSystem instead. This implementation is deprecated and will be removed.", true)]
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial class ChimeraBreedingSystem : SystemBase
     {
         #region Fields

@@ -16,6 +16,7 @@ namespace Laboratory.Chimera.ECS
     /// Advanced creature wisdom and sage system.
     /// Creates elderly creatures that gain wisdom through experience and can guide younger generations.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial class CreatureWisdomSystem : SystemBase
     {
         private CreatureWisdomConfig _config;

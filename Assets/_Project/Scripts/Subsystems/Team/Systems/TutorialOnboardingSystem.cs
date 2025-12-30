@@ -15,6 +15,7 @@ namespace Laboratory.Subsystems.Team.Systems
     /// RETENTION: Hooks players early, prevents overwhelming new users
     /// </summary>
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class TutorialOnboardingSystem : SystemBase
     {

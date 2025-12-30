@@ -48,6 +48,7 @@ namespace Laboratory.Core.Activities
 
     /// <summary>
     /// Placeholder for ActivityCenterSystem referenced in equipment code
+    /// NOTE: [DisableAutoCreation] is on the main partial class definition
     /// </summary>
     public partial class ActivityCenterSystem : SystemBase
     {

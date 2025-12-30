@@ -465,6 +465,7 @@ namespace Laboratory.Networking.Entities
     /// <summary>
     /// Network statistics monitoring system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public partial class NetworkStatisticsSystem : SystemBase
     {

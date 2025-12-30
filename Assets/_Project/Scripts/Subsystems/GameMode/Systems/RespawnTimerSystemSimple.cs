@@ -19,6 +19,7 @@ namespace Laboratory.Models.ECS.Systems
     /// <summary>
     /// Simplified respawn timer system that compiles successfully
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class RespawnTimerSystemSimple : SystemBase
     {

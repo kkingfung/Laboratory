@@ -13,6 +13,7 @@ namespace Laboratory.Chimera.Social
     /// Enhanced creature bonding system with generational memory and emotional inheritance.
     /// Creates deep emotional connections that persist across creature generations.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial class EnhancedBondingSystem : SystemBase
     {
         private EntityQuery _creatureQuery;

@@ -9,6 +9,7 @@ namespace Laboratory.Core.Activities.Systems
     /// <summary>
     /// Combat Arena System - Tactical combat encounters
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
     public partial class CombatActivitySystem : SystemBase

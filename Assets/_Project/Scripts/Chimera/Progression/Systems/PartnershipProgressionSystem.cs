@@ -22,6 +22,7 @@ namespace Laboratory.Chimera.Progression
     /// - Detecting skill milestones and awarding cosmetic unlocks
     /// - Managing currency rewards (cosmetic purchases)
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivitySystem))]
     public partial class PartnershipProgressionSystem : SystemBase

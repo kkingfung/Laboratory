@@ -24,6 +24,7 @@ namespace Laboratory.Chimera.Social
     /// - Modifies bond strength changes based on age
     /// - Creates permanent consequences for mistreating adults
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class AgeSensitivitySystem : SystemBase
     {

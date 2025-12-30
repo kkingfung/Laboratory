@@ -8,6 +8,7 @@ namespace Laboratory.Models.ECS.Systems
     /// System that manages ability cooldowns and activation for entities.
     /// Handles ability state transitions, cooldown management, and activation requests.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial class AbilityManagerSystem : SystemBase
     {
         #region Fields

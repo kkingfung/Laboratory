@@ -8,6 +8,7 @@ namespace Laboratory.Models.ECS.Systems
     /// Triggers death animations for entities marked as dead.
     /// Handles animation state changes and ensures animations are only triggered once per death.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     public partial class DeathAnimationSystem : SystemBase
     {

@@ -119,6 +119,7 @@ namespace Laboratory.Core.ErrorHandling
     }
 
     // Main centralized error system
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class CentralizedErrorSystem : SystemBase
     {
@@ -499,6 +500,10 @@ namespace Laboratory.Core.ErrorHandling
                 return; // Skip logging to prevent spam
             }
 
+            // Truncate strings to fit FixedString limits to avoid exceptions
+            string truncatedMessage = message?.Length > 120 ? message.Substring(0, 120) + "..." : (message ?? "");
+            string truncatedStackTrace = stackTrace?.Length > 56 ? stackTrace.Substring(0, 56) + "..." : (stackTrace ?? "");
+
             var errorEvent = new ErrorEventComponent
             {
                 timestamp = SystemAPI.Time.ElapsedTime,
@@ -506,8 +511,8 @@ namespace Laboratory.Core.ErrorHandling
                 category = category,
                 errorCode = errorCode,
                 source = source,
-                message = message,
-                stackTrace = stackTrace
+                message = truncatedMessage,
+                stackTrace = truncatedStackTrace
             };
 
             // Add to system error buffer

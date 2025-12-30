@@ -12,6 +12,7 @@ namespace Laboratory.Chimera.Equipment
     /// Main ECS system for equipment management
     /// Handles equipping, unequipping, bonuses, and durability
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class EquipmentSystem : SystemBase
     {

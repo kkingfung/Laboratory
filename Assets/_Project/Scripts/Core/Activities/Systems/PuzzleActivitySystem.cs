@@ -9,6 +9,7 @@ namespace Laboratory.Core.Activities.Systems
     /// <summary>
     /// Puzzle Academy System - Intelligence-based problem solving
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
     public partial class PuzzleActivitySystem : SystemBase

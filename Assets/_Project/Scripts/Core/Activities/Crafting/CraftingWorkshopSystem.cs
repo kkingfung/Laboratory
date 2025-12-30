@@ -428,9 +428,10 @@ namespace Laboratory.Core.Activities.Crafting
 
     #region Crafting Systems
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
-    public partial class CraftingWorkshopManagementSystem : SystemBase
+        public partial class CraftingWorkshopManagementSystem : SystemBase
     {
         private EntityQuery workshopQuery;
         private Unity.Mathematics.Random random;
@@ -500,9 +501,10 @@ namespace Laboratory.Core.Activities.Crafting
         }
     }
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CraftingWorkshopManagementSystem))]
-    public partial class CraftingProcessSystem : SystemBase
+        public partial class CraftingProcessSystem : SystemBase
     {
         private EntityQuery craftingQuery;
         private Unity.Mathematics.Random random;
@@ -532,8 +534,6 @@ namespace Laboratory.Core.Activities.Crafting
             Dependency = craftingJob.ScheduleParallel(craftingQuery, Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct CraftingProcessJob : IJobEntity
     {
@@ -611,9 +611,10 @@ namespace Laboratory.Core.Activities.Crafting
         }
     }
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CraftingProcessSystem))]
-    public partial class RecipeDiscoverySystem : SystemBase
+        public partial class RecipeDiscoverySystem : SystemBase
     {
         private EntityQuery recipeQuery;
         private Unity.Mathematics.Random random;
@@ -644,9 +645,10 @@ namespace Laboratory.Core.Activities.Crafting
     /// <summary>
     /// PvP Crafting Competition System
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(RecipeDiscoverySystem))]
-    public partial class CraftingPvPCompetitionSystem : SystemBase
+        public partial class CraftingPvPCompetitionSystem : SystemBase
     {
         private EntityQuery competitionQuery;
         private EntityQuery speedCraftingQuery;
@@ -703,8 +705,6 @@ namespace Laboratory.Core.Activities.Crafting
             ecbSystem.AddJobHandleForProducer(Dependency);
         }
     }
-
-
     [BurstCompile]
     public partial struct CraftingCompetitionUpdateJob : IJobEntity
     {
@@ -936,8 +936,6 @@ namespace Laboratory.Core.Activities.Crafting
             // (This would update CrafterComponent.ExperienceGained in a full implementation)
         }
     }
-
-
     [BurstCompile]
     public partial struct SpeedCraftingJob : IJobEntity
     {
@@ -997,8 +995,6 @@ namespace Laboratory.Core.Activities.Crafting
             speedCrafting.Status = SpeedCraftingStatus.Finished;
         }
     }
-
-
     [BurstCompile]
     public partial struct InnovationCompetitionJob : IJobEntity
     {
@@ -1062,8 +1058,6 @@ namespace Laboratory.Core.Activities.Crafting
             }
         }
     }
-
-
     [BurstCompile]
     public partial struct ResourceCompetitionJob : IJobEntity
     {

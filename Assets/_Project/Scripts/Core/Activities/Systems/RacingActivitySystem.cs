@@ -9,6 +9,7 @@ namespace Laboratory.Core.Activities.Systems
     /// <summary>
     /// Racing Circuit System - High-speed competitive racing
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
     public partial class RacingActivitySystem : SystemBase

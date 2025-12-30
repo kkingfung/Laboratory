@@ -23,6 +23,7 @@ namespace Laboratory.Chimera.Social.Systems
     /// - Contagion radius: 15m (fits within 3x3 cell check)
     /// - Burst-compiled for SIMD optimization
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(EnhancedBondingSystem))]
     public partial struct OptimizedEmotionalContagionSystem : ISystem
@@ -371,6 +372,7 @@ namespace Laboratory.Chimera.Social.Systems
     /// <summary>
     /// Statistics system for emotional contagion debugging
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup), OrderLast = true)]
     public partial class EmotionalContagionStatsSystem : SystemBase
     {

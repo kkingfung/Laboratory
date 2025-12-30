@@ -57,6 +57,7 @@ namespace Laboratory.Models.ECS.Systems
     /// Manages player state updates including stamina regeneration, death detection, and status effects.
     /// Runs during simulation group and processes all living players for state changes.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class PlayerStateSystem : SystemBase

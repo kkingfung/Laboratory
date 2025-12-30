@@ -151,6 +151,7 @@ namespace Laboratory.Core.Progression
     /// <summary>
     /// Core experience and level progression system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
     public partial class ExperienceProgressionSystem : SystemBase
@@ -189,6 +190,7 @@ namespace Laboratory.Core.Progression
     /// <summary>
     /// Achievement tracking and reward system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ExperienceProgressionSystem))]
     public partial class AchievementSystem : SystemBase
@@ -274,6 +276,7 @@ namespace Laboratory.Core.Progression
     /// <summary>
     /// Player-level progression system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class PlayerProgressionSystem : SystemBase
     {
@@ -328,6 +331,7 @@ namespace Laboratory.Core.Progression
     /// <summary>
     /// Skill point allocation system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class SkillAllocationSystem : SystemBase
     {

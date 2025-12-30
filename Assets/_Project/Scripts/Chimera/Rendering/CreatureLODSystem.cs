@@ -26,6 +26,7 @@ namespace Laboratory.Chimera.Rendering
     ///
     /// Target: <0.5ms per frame for 1000 creatures
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(PresentationSystemGroup))]
     [UpdateAfter(typeof(TransformSystemGroup))]
     public partial struct CreatureLODSystem : ISystem
@@ -238,6 +239,7 @@ namespace Laboratory.Chimera.Rendering
     /// System that updates camera position singleton from active camera
     /// Runs in PresentationSystemGroup before CreatureLODSystem
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(PresentationSystemGroup), OrderFirst = true)]
     public partial class CameraPositionUpdateSystem : SystemBase
     {
@@ -330,6 +332,7 @@ namespace Laboratory.Chimera.Rendering
     /// <summary>
     /// Statistics and debugging for LOD system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(PresentationSystemGroup), OrderLast = true)]
     public partial class CreatureLODStatsSystem : SystemBase
     {

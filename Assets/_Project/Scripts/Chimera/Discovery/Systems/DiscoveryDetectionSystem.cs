@@ -17,6 +17,7 @@ namespace Laboratory.Chimera.Discovery.Systems
     /// Analyzes genetic data to identify rare traits, mutations, and special combinations
     /// </summary>
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial struct DiscoveryDetectionSystem : ISystem
     {
         private EntityQuery _newCreatureQuery;
@@ -140,6 +141,7 @@ namespace Laboratory.Chimera.Discovery.Systems
         public static FixedString32Bytes Rex { get { var s = new FixedString32Bytes(); s.Length = 4; s[0]=32; s[1]=82; s[2]=101; s[3]=120; return s; } }
     }
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     public partial struct DiscoveryDetectionJob : IJobEntity
     {

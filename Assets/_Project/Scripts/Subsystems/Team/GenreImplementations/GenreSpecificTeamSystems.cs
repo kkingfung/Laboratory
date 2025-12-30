@@ -261,6 +261,7 @@ namespace Laboratory.Subsystems.Team.GenreImplementations
     /// Combat Genre Team System - Handles all combat-oriented genres
     /// Genres: FPS, ThirdPersonShooter, Fighting, BeatEmUp, HackAndSlash, SurvivalHorror
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CombatGenreTeamSystem : SystemBase
     {
@@ -339,6 +340,7 @@ namespace Laboratory.Subsystems.Team.GenreImplementations
     /// Racing Genre Team System - Handles all racing genres
     /// Genres: Racing, EndlessRunner, VehicleSimulation, FlightSimulator
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class RacingGenreTeamSystem : SystemBase
     {
@@ -411,6 +413,7 @@ namespace Laboratory.Subsystems.Team.GenreImplementations
     /// Puzzle Genre Team System
     /// Genres: Puzzle, Match3, TetrisLike, PhysicsPuzzle, HiddenObject, WordGame
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class PuzzleGenreTeamSystem : SystemBase
     {
@@ -445,6 +448,7 @@ namespace Laboratory.Subsystems.Team.GenreImplementations
     /// Strategy Genre Team System
     /// Genres: Strategy, RTS, TurnBased, 4X, GrandStrategy, AutoBattler, ChessLike
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class StrategyGenreTeamSystem : SystemBase
     {
@@ -480,6 +484,7 @@ namespace Laboratory.Subsystems.Team.GenreImplementations
     /// Exploration Genre Team System
     /// Genres: Exploration, Metroidvania, WalkingSimulator, PointAndClickAdventure
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class ExplorationGenreTeamSystem : SystemBase
     {
@@ -513,6 +518,7 @@ namespace Laboratory.Subsystems.Team.GenreImplementations
     /// Economics Genre Team System
     /// Genres: Economics, FarmingSimulator, ConstructionSimulator
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class EconomicsGenreTeamSystem : SystemBase
     {
@@ -547,6 +553,7 @@ namespace Laboratory.Subsystems.Team.GenreImplementations
     /// Comprehensive Genre-Specific Team Manager
     /// Activates appropriate team components based on active genre
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(InitializationSystemGroup))]
     public partial class GenreTeamActivationSystem : SystemBase
     {

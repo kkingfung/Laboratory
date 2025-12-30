@@ -11,6 +11,7 @@ namespace Laboratory.Core.Equipment.Systems
     /// <summary>
     /// Core equipment management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class EquipmentSystem : SystemBase
     {

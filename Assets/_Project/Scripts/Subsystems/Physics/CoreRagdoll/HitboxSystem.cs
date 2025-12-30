@@ -10,8 +10,8 @@ namespace Laboratory.Core.Ragdoll
     /// High-performance ECS system for hitbox interactions and ragdoll responses.
     /// Optimized with Burst compilation for maximum performance.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
-
     public partial class HitboxSystem : SystemBase
     {
         #region Fields

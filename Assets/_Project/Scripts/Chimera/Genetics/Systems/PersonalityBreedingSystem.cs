@@ -32,6 +32,7 @@ namespace Laboratory.Chimera.Genetics
     /// - BreedingEngine: Provides personality compatibility score
     /// - CreaturePersonality: Syncs with genetic personality
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class PersonalityBreedingSystem : SystemBase
     {

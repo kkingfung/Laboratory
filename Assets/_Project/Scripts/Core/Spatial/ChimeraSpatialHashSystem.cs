@@ -17,6 +17,7 @@ namespace Laboratory.Core.Spatial
     /// Uses ECS job system with Burst compilation for maximum performance.
     /// </summary>
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial struct ChimeraSpatialHashSystem : ISystem
     {
         // Spatial hash configuration
@@ -119,6 +120,7 @@ namespace Laboratory.Core.Spatial
         }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     private partial struct UpdateSpatialHashJob : IJobEntity
         {
@@ -219,6 +221,7 @@ namespace Laboratory.Core.Spatial
         }
 
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [BurstCompile]
     private struct ProcessSpatialQueriesJob : IJob
         {

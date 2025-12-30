@@ -14,6 +14,7 @@ namespace Laboratory.Chimera.Social.Systems
     /// Handles likes, shares, trending calculations, and community features
     /// </summary>
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial struct SocialEngagementSystem : ISystem
     {
         private EntityQuery _shareQuery;
@@ -188,7 +189,7 @@ namespace Laboratory.Chimera.Social.Systems
         private void CreateViralMilestoneEvent(Entity shareEntity, ViralMilestoneType type, int count)
         {
             // This would trigger notifications, achievements, etc.
-            UnityEngine.Debug.Log($"?”¥ Viral milestone reached! {type}: {count}");
+            UnityEngine.Debug.Log($"[Viral] Viral milestone reached! {type}: {count}");
 
             // Could create achievement entities, notifications, etc.
             // var achievementEntity = ecb.CreateEntity();
@@ -373,6 +374,7 @@ namespace Laboratory.Chimera.Social.Systems
     /// System for automatic content generation and community simulation
     /// </summary>
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial struct CommunitySimulationSystem : ISystem
     {
         private double _lastSimulationUpdate;
@@ -476,13 +478,13 @@ namespace Laboratory.Chimera.Social.Systems
         {
             string[] comments = {
                 "Amazing genetics! How did you breed this?",
-                "This is incredible! ?”¥",
+                "This is incredible! [Fire]",
                 "Wow, those stats are insane!",
                 "I need to try this breeding combo!",
                 "Absolutely stunning creature!",
                 "This is going to inspire my next project!",
                 "Such beautiful genetic markers!",
-                "Goals! ?Ž¯",
+                "Goals! [Heart]",
                 "The RNG gods have blessed you!",
                 "Teaching moment right here!"
             };

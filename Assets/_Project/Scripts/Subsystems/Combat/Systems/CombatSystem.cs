@@ -8,6 +8,7 @@ namespace Laboratory.Models.ECS.Systems
     /// Handles combat interactions between entities.
     /// Processes attack inputs and applies damage to targets.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class CombatSystem : SystemBase
     {

@@ -675,6 +675,7 @@ namespace Laboratory.Core.Health
         Task<bool> AttemptRecoveryAsync(string systemName);
     }
 
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public class GeneticsSystemRecovery : ISystemRecoveryStrategy
     {
         public async Task<bool> AttemptRecoveryAsync(string systemName)

@@ -6,6 +6,7 @@ namespace Laboratory.Core.Progression.Systems
     /// <summary>
     /// Skill point allocation system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class SkillAllocationSystem : SystemBase
     {

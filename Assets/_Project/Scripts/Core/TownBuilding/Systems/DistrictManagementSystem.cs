@@ -8,6 +8,7 @@ namespace Laboratory.Core.TownBuilding.Systems
     /// <summary>
     /// District management and city planning system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class DistrictManagementSystem : SystemBase
     {

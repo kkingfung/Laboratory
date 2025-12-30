@@ -10,6 +10,7 @@ namespace Laboratory.Core.Progression.Systems
     /// <summary>
     /// Achievement tracking and reward system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ExperienceProgressionSystem))]
     public partial class AchievementSystem : SystemBase

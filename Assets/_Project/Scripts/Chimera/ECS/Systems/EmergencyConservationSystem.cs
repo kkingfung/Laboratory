@@ -20,6 +20,7 @@ namespace Laboratory.Chimera.ECS
     /// Creates urgent scenarios requiring immediate action to save endangered species and ecosystems.
     /// Refactored to use service-oriented architecture with performance profiling.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public partial class EmergencyConservationSystem : SystemBase
     {
         private EmergencyConservationConfig _config;

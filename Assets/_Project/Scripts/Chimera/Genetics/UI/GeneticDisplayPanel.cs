@@ -137,14 +137,14 @@ namespace Laboratory.Chimera.Genetics.UI
 
             var markerData = new[]
             {
-                (GeneticMarkerFlags.Bioluminescent, "??", "Bioluminescent"),
-                (GeneticMarkerFlags.CamouflageGene, "?Ž­", "Camouflage"),
-                (GeneticMarkerFlags.PackLeader, "??", "Pack Leader"),
-                (GeneticMarkerFlags.SeasonalAdaptation, "??", "Seasonal"),
-                (GeneticMarkerFlags.HybridVigor, "?’ª", "Hybrid Vigor"),
-                (GeneticMarkerFlags.RareLineage, "â­?, "Rare Lineage"),
-                (GeneticMarkerFlags.MutationCarrier, "?§¬", "Mutation"),
-                (GeneticMarkerFlags.ElementalAffinity, "?”¥", "Elemental")
+                (GeneticMarkerFlags.Bioluminescent, "[Glow]", "Bioluminescent"),
+                (GeneticMarkerFlags.CamouflageGene, "[Camo]", "Camouflage"),
+                (GeneticMarkerFlags.PackLeader, "[Alpha]", "Pack Leader"),
+                (GeneticMarkerFlags.SeasonalAdaptation, "[Season]", "Seasonal"),
+                (GeneticMarkerFlags.HybridVigor, "[Hybrid]", "Hybrid Vigor"),
+                (GeneticMarkerFlags.RareLineage, "[Rare]", "Rare Lineage"),
+                (GeneticMarkerFlags.MutationCarrier, "[Mutant]", "Mutation"),
+                (GeneticMarkerFlags.ElementalAffinity, "[Element]", "Elemental")
             };
 
             foreach (var (flag, icon, name) in markerData)

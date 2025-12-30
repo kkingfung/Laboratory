@@ -12,6 +12,7 @@ namespace Laboratory.Subsystems.Performance
     /// Advanced ECS system performance profiler with automatic optimization recommendations.
     /// Tracks system execution times, entity counts, and memory usage per system.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     public class ECSPerformanceProfiler : ISystemProfiler
     {
         private readonly Dictionary<Type, ECSSystemPerformanceData> _systemMetrics = new();

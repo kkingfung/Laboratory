@@ -158,9 +158,10 @@ namespace Laboratory.Core.Activities.Racing
     /// <summary>
     /// Main racing track management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
-    public partial class RaceTrackManagementSystem : SystemBase
+        public partial class RaceTrackManagementSystem : SystemBase
     {
         private EntityQuery trackQuery;
         private EntityQuery racerQuery;
@@ -189,9 +190,6 @@ namespace Laboratory.Core.Activities.Racing
             ecbSystem.AddJobHandleForProducer(Dependency);
         }
     }
-
-
-
     [BurstCompile]
     public partial struct RaceTrackUpdateJob : IJobEntity
     {
@@ -265,9 +263,10 @@ namespace Laboratory.Core.Activities.Racing
     /// <summary>
     /// Racing physics and movement system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(RaceTrackManagementSystem))]
-    public partial class RacingPhysicsSystem : SystemBase
+        public partial class RacingPhysicsSystem : SystemBase
     {
         private EntityQuery racingQuery;
 
@@ -295,9 +294,6 @@ namespace Laboratory.Core.Activities.Racing
             Dependency = racingPhysicsJob.ScheduleParallel(racingQuery, Dependency);
         }
     }
-
-
-
     [BurstCompile]
     public partial struct RacingPhysicsJob : IJobEntity
     {
@@ -379,9 +375,10 @@ namespace Laboratory.Core.Activities.Racing
     /// <summary>
     /// Checkpoint detection and lap tracking system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(RacingPhysicsSystem))]
-    public partial class CheckpointSystem : SystemBase
+        public partial class CheckpointSystem : SystemBase
     {
         private EntityQuery racerQuery;
         private EntityQuery checkpointQuery;
@@ -456,9 +453,10 @@ namespace Laboratory.Core.Activities.Racing
     /// <summary>
     /// Racing leaderboard and results system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(CheckpointSystem))]
-    public partial class RacingResultsSystem : SystemBase
+        public partial class RacingResultsSystem : SystemBase
     {
         protected override void OnUpdate()
         {

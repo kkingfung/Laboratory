@@ -9,6 +9,7 @@ namespace Laboratory.Models.ECS.Systems
     /// Manages entity death state transitions and respawn timers.
     /// Only runs on the server to ensure authoritative death processing.
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class DeathSystem : SystemBase
     {

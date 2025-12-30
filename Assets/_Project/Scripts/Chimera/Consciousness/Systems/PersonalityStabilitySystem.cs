@@ -22,6 +22,7 @@ namespace Laboratory.Chimera.Consciousness.Core
     /// - Integrates with AgeSensitivitySystem
     /// - Modifies UpdateFromExperience learning rate
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     // NOTE: UpdateAfter(AgeSensitivitySystem) removed to avoid circular dependency with Social assembly
     public partial class PersonalityStabilitySystem : SystemBase

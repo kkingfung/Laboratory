@@ -139,6 +139,7 @@ namespace ProjectChimera.AI.BehaviorTrees
     }
 
     // Main behavior tree system
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(UnifiedAIStateSystem))]
     public partial class BehaviorTreeSystem : SystemBase

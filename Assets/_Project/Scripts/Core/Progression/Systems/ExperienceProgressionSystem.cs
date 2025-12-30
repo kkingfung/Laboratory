@@ -11,6 +11,7 @@ namespace Laboratory.Core.Progression.Systems
     /// <summary>
     /// Core experience and level progression system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(Activities.Systems.ActivityCenterSystem))]
     public partial class ExperienceProgressionSystem : SystemBase

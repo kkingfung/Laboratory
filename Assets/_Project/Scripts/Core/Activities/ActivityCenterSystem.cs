@@ -25,6 +25,7 @@ namespace Laboratory.Core.Activities
     /// <summary>
     /// Main activity center management system
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class ActivityCenterSystem : SystemBase
     {
@@ -180,6 +181,7 @@ namespace Laboratory.Core.Activities
     /// <summary>
     /// Racing Circuit System - High-speed competitive racing
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
     public partial class RacingActivitySystem : SystemBase
@@ -222,6 +224,7 @@ namespace Laboratory.Core.Activities
     /// <summary>
     /// Combat Arena System - Tactical combat encounters
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
     public partial class CombatActivitySystem : SystemBase
@@ -249,6 +252,7 @@ namespace Laboratory.Core.Activities
     /// <summary>
     /// Puzzle Academy System - Intelligence-based problem solving
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     [UpdateAfter(typeof(ActivityCenterSystem))]
     public partial class PuzzleActivitySystem : SystemBase
@@ -286,6 +290,7 @@ namespace Laboratory.Core.Activities
     /// <summary>
     /// Manages activity center operations, queues, and resource allocation
     /// </summary>
+    [DisableAutoCreation] // Prevent auto-creation when running third-party demo scenes
     [UpdateInGroup(typeof(SimulationSystemGroup))]
     public partial class ActivityCenterManagementSystem : SystemBase
     {
