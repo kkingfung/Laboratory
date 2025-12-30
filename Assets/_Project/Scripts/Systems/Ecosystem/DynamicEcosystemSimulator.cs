@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Core;
@@ -946,7 +946,7 @@ namespace Laboratory.Systems.Ecosystem
 
         // Editor menu items
 #if UNITY_EDITOR
-        [UnityEditor.MenuItem("🧪 Laboratory/Ecosystem/Trigger Random Environmental Event", false, 300)]
+        [UnityEditor.MenuItem("[Lab] Laboratory/Ecosystem/Trigger Random Environmental Event", false, 300)]
         private static void MenuTriggerRandomEvent()
         {
             if (Application.isPlaying && Instance != null)
@@ -961,7 +961,7 @@ namespace Laboratory.Systems.Ecosystem
             }
         }
 
-        [UnityEditor.MenuItem("🧪 Laboratory/Ecosystem/Analyze Ecosystem Stress", false, 301)]
+        [UnityEditor.MenuItem("[Lab] Laboratory/Ecosystem/Analyze Ecosystem Stress", false, 301)]
         private static void MenuAnalyzeStress()
         {
             if (Application.isPlaying && Instance != null)

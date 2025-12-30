@@ -11,7 +11,7 @@ using Laboratory.Core.Activities.Types;
 namespace Laboratory.Core.Activities.Music
 {
     /// <summary>
-    /// 🎵 RHYTHM STUDIO SYSTEM - Complete music and rhythm mini-game
+    /// [Music] RHYTHM STUDIO SYSTEM - Complete music and rhythm mini-game
     /// FEATURES: Genetic signature music, rhythm games, performances, composition
     /// PERFORMANCE: Real-time audio processing and rhythm detection
     /// GENETICS: Agility, Intelligence, Sociability create unique musical signatures
@@ -1000,7 +1000,7 @@ namespace Laboratory.Core.Activities.Music
                 IsActive = gameObject.activeInHierarchy
             });
 
-            Debug.Log($"✅ Created {studioType} with {supportedGenres.Length} supported genres");
+            Debug.Log($"[OK] Created {studioType} with {supportedGenres.Length} supported genres");
         }
 
         private void OnDrawGizmos()

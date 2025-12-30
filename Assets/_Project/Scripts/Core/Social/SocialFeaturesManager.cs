@@ -25,19 +25,19 @@ namespace Laboratory.Core.Social
     /// </summary>
     public class SocialFeaturesManager : MonoBehaviour
     {
-        [Header("🤝 Social System Configuration")]
+        [Header("[Social] Social System Configuration")]
         [SerializeField] private SocialConfig socialConfig;
         [SerializeField] private bool enableMultiplayerFeatures = true;
         [SerializeField] private bool enableTournaments = true;
         [SerializeField] private bool enableTrading = true;
         [SerializeField] private int maxFriends = 50;
 
-        [Header("🏆 Tournament Settings")]
+        [Header("[Tournament] Tournament Settings")]
         [SerializeField] private float tournamentDuration = 3600f; // 1 hour
         [SerializeField] private int maxTournamentParticipants = 100;
         [SerializeField] private TournamentRewards defaultTournamentRewards;
 
-        [Header("💱 Trading System")]
+        [Header("[Trading] Trading System")]
         [SerializeField] private float tradingFeePercentage = 0.05f;
         [SerializeField] private int maxActiveTradeOffers = 10;
         [SerializeField] private float tradeOfferDuration = 86400f; // 24 hours
@@ -68,7 +68,7 @@ namespace Laboratory.Core.Social
             InitializeTradingSystem();
             InitializeBreedingPools();
 
-            Debug.Log("🤝 Social Features Manager initialized");
+            Debug.Log("[Social] Social Features Manager initialized");
         }
 
         private void LoadPlayerProfiles()
@@ -177,7 +177,7 @@ namespace Laboratory.Core.Social
             // In a real implementation, this would send via network
             await SimulateFriendRequestResponse(friendRequest);
 
-            Debug.Log($"🤝 Friend request sent to {targetPlayerId}");
+            Debug.Log($"[Social] Friend request sent to {targetPlayerId}");
             return true;
         }
 
@@ -213,7 +213,7 @@ namespace Laboratory.Core.Social
             CheckSocialAchievements(player1Id);
             CheckSocialAchievements(player2Id);
 
-            Debug.Log($"🤝 Friendship created between {player1Id} and {player2Id}");
+            Debug.Log($"[Social] Friendship created between {player1Id} and {player2Id}");
             return true;
         }
 
@@ -267,7 +267,7 @@ namespace Laboratory.Core.Social
             _activeTournaments[tournament.TournamentId] = tournament;
             OnTournamentStarted?.Invoke(tournament);
 
-            Debug.Log($"🏆 Tournament created: {name} ({activityType})");
+            Debug.Log($"[Tournament] Tournament created: {name} ({activityType})");
             return tournament;
         }
 
@@ -304,7 +304,7 @@ namespace Laboratory.Core.Social
 
             tournament.Participants.Add(participant);
 
-            Debug.Log($"🏆 Joined tournament: {tournament.Name} with {monster.Name}");
+            Debug.Log($"[Tournament] Joined tournament: {tournament.Name} with {monster.Name}");
             return UniTask.FromResult(true);
         }
 
@@ -339,7 +339,7 @@ namespace Laboratory.Core.Social
 
             await UniTask.Delay(100); // Simulate processing time
 
-            Debug.Log($"🏆 Tournament result: Score {score:F2}, Rank {results.Ranking}");
+            Debug.Log($"[Tournament] Tournament result: Score {score:F2}, Rank {results.Ranking}");
             return results;
         }
 
@@ -354,7 +354,7 @@ namespace Laboratory.Core.Social
                 if (tournament.Status == TournamentStatus.Registration && currentTime >= tournament.StartTime)
                 {
                     tournament.Status = TournamentStatus.Active;
-                    Debug.Log($"🏆 Tournament started: {tournament.Name}");
+                    Debug.Log($"[Tournament] Tournament started: {tournament.Name}");
                 }
 
                 // End tournaments that have expired
@@ -380,7 +380,7 @@ namespace Laboratory.Core.Social
 
             OnTournamentEnded?.Invoke(tournament);
 
-            Debug.Log($"🏆 Tournament completed: {tournament.Name} with {tournament.Participants.Count} participants");
+            Debug.Log($"[Tournament] Tournament completed: {tournament.Name} with {tournament.Participants.Count} participants");
         }
 
         private void CreateDemoTournament(ActivityType activityType)
@@ -427,7 +427,7 @@ namespace Laboratory.Core.Social
             _activeTradeOffers[tradeOffer.OfferId] = tradeOffer;
             OnTradeOfferCreated?.Invoke(tradeOffer);
 
-            Debug.Log($"💱 Trade offer created: {tradeOffer.OfferId}");
+            Debug.Log($"?�� Trade offer created: {tradeOffer.OfferId}");
             return true;
         }
 
@@ -463,7 +463,7 @@ namespace Laboratory.Core.Social
                 UpdateSocialRating(tradeOffer.OffererId, 10);
                 UpdateSocialRating(acceptingPlayerId, 10);
 
-                Debug.Log($"💱 Trade completed: {offerId}");
+                Debug.Log($"?�� Trade completed: {offerId}");
             }
 
             return success;
@@ -497,7 +497,7 @@ namespace Laboratory.Core.Social
 
             await UniTask.Delay(500); // Simulate processing time
 
-            Debug.Log($"💱 Processing trade between {tradeOffer.OffererId} and {acceptingPlayerId}");
+            Debug.Log($"?�� Processing trade between {tradeOffer.OffererId} and {acceptingPlayerId}");
             return true; // Demo always succeeds
         }
 
@@ -511,7 +511,7 @@ namespace Laboratory.Core.Social
             foreach (var offer in expiredOffers)
             {
                 offer.Status = TradeOfferStatus.Expired;
-                Debug.Log($"💱 Trade offer expired: {offer.OfferId}");
+                Debug.Log($"?�� Trade offer expired: {offer.OfferId}");
             }
         }
 
@@ -547,7 +547,7 @@ namespace Laboratory.Core.Social
 
             await UniTask.Delay(100);
 
-            Debug.Log($"🧬 Accessed breeding pool: {pool.Name} with {availableGenetics.Count} genetics");
+            Debug.Log($"?�� Accessed breeding pool: {pool.Name} with {availableGenetics.Count} genetics");
             return availableGenetics;
         }
 
@@ -570,7 +570,7 @@ namespace Laboratory.Core.Social
             // Reward contributor
             UpdateSocialRating(playerId, 25);
 
-            Debug.Log($"🧬 Contributed genetics to breeding pool: {pool.Name}");
+            Debug.Log($"?�� Contributed genetics to breeding pool: {pool.Name}");
             return true;
         }
 
@@ -632,7 +632,7 @@ namespace Laboratory.Core.Social
             _socialAchievements[playerId].Add(achievement);
             OnSocialAchievementUnlocked?.Invoke(achievement);
 
-            Debug.Log($"🏆 Social achievement unlocked: {title}");
+            Debug.Log($"[Social] Social achievement unlocked: {title}");
         }
 
         #endregion
@@ -692,7 +692,7 @@ namespace Laboratory.Core.Social
             if (_playerProfiles.TryGetValue(playerId, out var profile))
             {
                 profile.SocialRating += points;
-                Debug.Log($"🌟 Social rating updated: {playerId} (+{points}) = {profile.SocialRating}");
+                Debug.Log($"[Social] Social rating updated: {playerId} (+{points}) = {profile.SocialRating}");
             }
         }
 

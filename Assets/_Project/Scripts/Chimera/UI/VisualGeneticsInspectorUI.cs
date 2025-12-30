@@ -124,7 +124,7 @@ namespace Laboratory.Chimera.UI
             ShowInspector();
             UpdateDisplay();
             
-            UnityEngine.Debug.Log($"🔍 Inspecting creature: {creature.name}");
+            UnityEngine.Debug.Log($"[Inspect] Inspecting creature: {creature.name}");
         }
         
         /// <summary>
@@ -225,8 +225,8 @@ namespace Laboratory.Chimera.UI
             
             var genetics = currentCreature.CreatureData.GeneticProfile;
             var summary = new StringBuilder();
-            
-            summary.AppendLine($"🧬 <b>Genetic Profile</b>");
+
+            summary.AppendLine($"[Genetics] <b>Genetic Profile</b>");
             summary.AppendLine($"Generation: {genetics.Generation}");
             summary.AppendLine($"Lineage: {genetics.LineageId}");
             summary.AppendLine($"Genetic Purity: {genetics.GetGeneticPurity():P1}");
@@ -246,7 +246,7 @@ namespace Laboratory.Chimera.UI
             var genetics = currentCreature.CreatureData.GeneticProfile;
             var visualInfo = new StringBuilder();
             
-            visualInfo.AppendLine($"🎨 <b>Visual Genetics</b>");
+            visualInfo.AppendLine($"[Visual] <b>Visual Genetics</b>");
             
             // Color traits
             var colorGenes = genetics.Genes.Where(g => g.traitName.Contains("Color")).ToArray();
@@ -317,7 +317,7 @@ namespace Laboratory.Chimera.UI
             var genetics = currentCreature.CreatureData.GeneticProfile;
             var mutationInfo = new StringBuilder();
             
-            mutationInfo.AppendLine($"🧬 <b>Genetic Mutations</b>");
+            mutationInfo.AppendLine($"[Genetics] <b>Genetic Mutations</b>");
             
             if (genetics.Mutations.Count == 0)
             {
@@ -330,7 +330,7 @@ namespace Laboratory.Chimera.UI
                 
                 foreach (var mutation in genetics.Mutations)
                 {
-                    string harmfulIcon = mutation.isHarmful ? "⚠️" : "✨";
+                    string harmfulIcon = mutation.isHarmful ? "[Warning]" : "[Note]";
                     mutationInfo.AppendLine($"{harmfulIcon} {mutation.mutationType} in {mutation.affectedTrait}");
                     mutationInfo.AppendLine($"   Severity: {mutation.severity:P0}, Generation: {mutation.generation}");
                     mutationInfo.AppendLine();
@@ -495,7 +495,7 @@ namespace Laboratory.Chimera.UI
             
             // Copy to clipboard if possible
             GUIUtility.systemCopyBuffer = export.ToString();
-            UnityEngine.Debug.Log("✅ Genetic data copied to clipboard!");
+            UnityEngine.Debug.Log("[OK] Genetic data copied to clipboard!");
         }
         
         /// <summary>
@@ -512,7 +512,7 @@ namespace Laboratory.Chimera.UI
             
             string filename = $"CreaturePreview_{currentCreature.name}_{System.DateTime.Now:yyyyMMdd_HHmmss}.png";
             ScreenCapture.CaptureScreenshot(filename);
-            UnityEngine.Debug.Log($"📸 Screenshot saved: {filename}");
+            UnityEngine.Debug.Log($"[Camera] Screenshot saved: {filename}");
         }
         
         #endregion

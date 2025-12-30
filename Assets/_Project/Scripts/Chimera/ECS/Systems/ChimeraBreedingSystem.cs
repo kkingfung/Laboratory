@@ -21,7 +21,7 @@ namespace Laboratory.Core.ECS.Systems
     /// ECS BREEDING SYSTEM - Integrates with unified Chimera architecture
     /// FEATURES: Genetics-driven mate selection, territorial breeding requirements, job parallelization
     /// INTEGRATION: Works seamlessly with ChimeraBehaviorSystem and configuration
-    /// ✅ BURST-COMPILED: 10-100x performance improvement with unmanaged configuration data
+    /// BURST-COMPILED: 10-100x performance improvement with unmanaged configuration data
     /// </summary>
     [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
@@ -34,7 +34,7 @@ namespace Laboratory.Core.ECS.Systems
         private static readonly ProfilerMarker s_UpdateParentalCareMarker = new ProfilerMarker("ChimeraBreedingSystem.UpdateParentalCare");
         private static readonly ProfilerMarker s_ProcessBreedingAttemptsMarker = new ProfilerMarker("ChimeraBreedingSystem.ProcessBreedingAttempts");
 
-        // ✅ BURST-COMPATIBLE: Unmanaged configuration data
+        // BURST-COMPATIBLE: Unmanaged configuration data
         private BurstCompatibleConfigs.ChimeraConfigData _configData;
         private EntityQuery _breedingReadyQuery;
         private EntityQuery _pregnantQuery;
@@ -93,7 +93,7 @@ namespace Laboratory.Core.ECS.Systems
             if (_spatialBreedingHash.IsCreated) _spatialBreedingHash.Dispose();
             _legacyBreedingSystem?.Dispose();
 
-            // ✅ Dispose unmanaged configuration data
+            // Dispose unmanaged configuration data
             _configData.Dispose();
         }
 
@@ -121,7 +121,7 @@ namespace Laboratory.Core.ECS.Systems
             {
                 var pregnancyUpdateJob = new PregnancyUpdateJob
                 {
-                    breedingConfig = _configData.breeding,  // ✅ Unmanaged struct
+                    breedingConfig = _configData.breeding,  // [OK] Unmanaged struct
                     deltaTime = deltaTime,
                     currentTime = (float)SystemAPI.Time.ElapsedTime,
                     commandBuffer = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
@@ -140,7 +140,7 @@ namespace Laboratory.Core.ECS.Systems
             {
                 var parentalCareJob = new ParentalCareUpdateJob
                 {
-                    breedingConfig = _configData.breeding,  // ✅ Unmanaged struct
+                    breedingConfig = _configData.breeding,  // [OK] Unmanaged struct
                     deltaTime = deltaTime,
                     commandBuffer = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>()
                         .CreateCommandBuffer(World.Unmanaged).AsParallelWriter(),
@@ -166,7 +166,7 @@ namespace Laboratory.Core.ECS.Systems
                 var buildHashJob = new BuildBreedingSpatialHashJob
                 {
                     spatialHash = _spatialBreedingHash.AsParallelWriter(),
-                    cellSize = _configData.performance.spatialHashCellSize,  // ✅ Unmanaged struct
+                    cellSize = _configData.performance.spatialHashCellSize,  // [OK] Unmanaged struct
                     entityTypeHandle = GetEntityTypeHandle(),
                     transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
                     breedingTypeHandle = GetComponentTypeHandle<BreedingComponent>(true),
@@ -179,8 +179,8 @@ namespace Laboratory.Core.ECS.Systems
                 // Step 2: Find mates and attempt breeding
                 var breedingAttemptJob = new BreedingAttemptJob
                 {
-                    breedingConfig = _configData.breeding,  // ✅ Unmanaged struct
-                    performanceConfig = _configData.performance,  // ✅ Unmanaged struct
+                    breedingConfig = _configData.breeding,  // [OK] Unmanaged struct
+                    performanceConfig = _configData.performance,  // [OK] Unmanaged struct
                     spatialHash = _spatialBreedingHash,
                     deltaTime = deltaTime,
                     currentTime = currentTime,
@@ -246,7 +246,7 @@ namespace Laboratory.Core.ECS.Systems
         [BurstCompile]
         struct BreedingAttemptJob : IJobChunk
         {
-            // ✅ BURST-COMPATIBLE: Unmanaged configuration structs
+            // BURST-COMPATIBLE: Unmanaged configuration structs
             [ReadOnly] public BurstCompatibleConfigs.BreedingConfigData breedingConfig;
             [ReadOnly] public BurstCompatibleConfigs.PerformanceConfigData performanceConfig;
             [ReadOnly] public NativeParallelMultiHashMap<int, BreedingCandidate> spatialHash;
@@ -503,7 +503,7 @@ namespace Laboratory.Core.ECS.Systems
         [BurstCompile]
         struct PregnancyUpdateJob : IJobChunk
         {
-            // ✅ BURST-COMPATIBLE: Unmanaged configuration struct
+            // BURST-COMPATIBLE: Unmanaged configuration struct
             [ReadOnly] public BurstCompatibleConfigs.BreedingConfigData breedingConfig;
             [ReadOnly] public float deltaTime;
             [ReadOnly] public float currentTime;
@@ -593,7 +593,7 @@ namespace Laboratory.Core.ECS.Systems
         [BurstCompile]
         struct ParentalCareUpdateJob : IJobChunk
         {
-            // ✅ BURST-COMPATIBLE: Unmanaged configuration struct
+            // BURST-COMPATIBLE: Unmanaged configuration struct
             [ReadOnly] public BurstCompatibleConfigs.BreedingConfigData breedingConfig;
             [ReadOnly] public float deltaTime;
             public EntityCommandBuffer.ParallelWriter commandBuffer;

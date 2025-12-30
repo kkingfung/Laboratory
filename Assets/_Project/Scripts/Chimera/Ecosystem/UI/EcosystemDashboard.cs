@@ -323,7 +323,7 @@ namespace Laboratory.Chimera.Ecosystem.UI
 
             if (_growthRateText != null)
             {
-                string trend = ecosystem.PopulationGrowthRate > 0 ? "↗" : ecosystem.PopulationGrowthRate < 0 ? "↘" : "→";
+                string trend = ecosystem.PopulationGrowthRate > 0 ? "(+)" : ecosystem.PopulationGrowthRate < 0 ? "(-)" : "(=)";
                 _growthRateText.text = $"Growth: {ecosystem.PopulationGrowthRate:P1} {trend}";
             }
 
@@ -589,21 +589,21 @@ namespace Laboratory.Chimera.Ecosystem.UI
         private void TriggerRandomEvent()
         {
             // This would trigger a random environmental event
-            UnityEngine.Debug.Log("🌪️ Random environmental event triggered!");
+            UnityEngine.Debug.Log("[Ecosystem] Random environmental event triggered!");
             // In real implementation, would create event entity
         }
 
         private void ResetEcosystem()
         {
             // This would reset the ecosystem to initial state
-            UnityEngine.Debug.Log("🔄 Ecosystem reset requested!");
+            UnityEngine.Debug.Log("[Ecosystem] Ecosystem reset requested!");
             // In real implementation, would clear and recreate ecosystem entities
         }
 
         private void ShowEventHistory()
         {
             // This would show a detailed event history
-            UnityEngine.Debug.Log("📜 Event history requested!");
+            UnityEngine.Debug.Log("[Ecosystem] Event history requested!");
             // In real implementation, would open event history panel
         }
 
@@ -680,7 +680,7 @@ namespace Laboratory.Chimera.Ecosystem.UI
                 });
             }
 
-            UnityEngine.Debug.Log("🌍 Mock ecosystem created with 5 species populations");
+            UnityEngine.Debug.Log("[Ecosystem] Mock ecosystem created with 5 species populations");
         }
 
         /// <summary>
@@ -696,7 +696,7 @@ namespace Laboratory.Chimera.Ecosystem.UI
 
         public static void AddNotification(string message)
         {
-            UnityEngine.Debug.Log($"🔔 Ecosystem Notification: {message}");
+            UnityEngine.Debug.Log($"[Ecosystem] Notification: {message}");
             // In real implementation, would show notification UI
         }
     }

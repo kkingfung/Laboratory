@@ -53,7 +53,7 @@ namespace Laboratory.Subsystems.SaveLoad
 
                     foreach (var migration in applicableMigrations)
                     {
-                        Debug.Log($"[SaveDataVersionMigrator] Applying migration: {migration.GetType().Name} (v{migration.FromVersion} → v{migration.ToVersion})");
+                        Debug.Log($"[SaveDataVersionMigrator] Applying migration: {migration.GetType().Name} (v{migration.FromVersion} -> v{migration.ToVersion})");
 
                         try
                         {
@@ -160,18 +160,18 @@ namespace Laboratory.Subsystems.SaveLoad
 
             if (_migrations.Any(m => m.FromVersion == migration.FromVersion && m.ToVersion == migration.ToVersion))
             {
-                Debug.LogWarning($"[SaveDataVersionMigrator] Migration for v{migration.FromVersion}→v{migration.ToVersion} already registered");
+                Debug.LogWarning($"[SaveDataVersionMigrator] Migration for v{migration.FromVersion}->v{migration.ToVersion} already registered");
                 return;
             }
 
             _migrations.Add(migration);
-            Debug.Log($"[SaveDataVersionMigrator] Registered migration: {migration.GetType().Name} (v{migration.FromVersion} → v{migration.ToVersion})");
+            Debug.Log($"[SaveDataVersionMigrator] Registered migration: {migration.GetType().Name} (v{migration.FromVersion} -> v{migration.ToVersion})");
         }
 
         public void RegisterGameVersion(string gameVersion, int saveFormatVersion)
         {
             _versionRegistry[gameVersion] = saveFormatVersion;
-            Debug.Log($"[SaveDataVersionMigrator] Registered game version {gameVersion} → save format v{saveFormatVersion}");
+            Debug.Log($"[SaveDataVersionMigrator] Registered game version {gameVersion} -> save format v{saveFormatVersion}");
         }
 
         private void RegisterDefaultMigrations()

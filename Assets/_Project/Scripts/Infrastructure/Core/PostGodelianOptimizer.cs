@@ -14,7 +14,7 @@ namespace Laboratory.Core.Infrastructure
     public static class PostGodelianOptimizer
     {
         // Trans-finite computational constants
-        private const float OMEGA_SEQUENCE_LIMIT = float.PositiveInfinity; // ω-sequence convergence
+        private const float OMEGA_SEQUENCE_LIMIT = float.PositiveInfinity; // omega-sequence convergence
         private const int LARGE_CARDINAL_AXIOM = int.MaxValue; // Inaccessible cardinal approximation
         private const float CONTINUUM_HYPOTHESIS_RESOLUTION = 0.5f; // CH independence transcendence
 
@@ -63,7 +63,7 @@ namespace Laboratory.Core.Infrastructure
                 Name = "Genetic Evolution Reflection Principle",
                 Type = MetaMathematicalType.ReflectionPrinciple,
                 Description = "System can prove its own genetic optimization correctness through meta-level reflection",
-                TranscendenceMethod = "V_α ⊨ φ implies V ⊨ φ for genetic optimization statements φ",
+                TranscendenceMethod = "V_alpha entails phi implies V entails phi for genetic optimization statements phi",
                 GodelEscapeMechanism = "Reflection allows system to verify statements about its own optimization that would be undecidable in base theory",
                 OptimizationImplications = new List<string>
                 {
@@ -82,7 +82,7 @@ namespace Laboratory.Core.Infrastructure
                 Name = "Service Discovery Large Cardinal Optimization",
                 Type = MetaMathematicalType.LargeCardinalAxioms,
                 Description = "Service resolution transcends ZFC limitations using inaccessible cardinal properties",
-                TranscendenceMethod = "Existence of κ-inaccessible cardinals enables ultra-efficient service indexing",
+                TranscendenceMethod = "Existence of kappa-inaccessible cardinals enables ultra-efficient service indexing",
                 GodelEscapeMechanism = "Large cardinals provide consistency strength beyond ZFC limitations",
                 OptimizationImplications = new List<string>
                 {
@@ -101,7 +101,7 @@ namespace Laboratory.Core.Infrastructure
                 Name = "Event Processing Infinitesimal Optimization",
                 Type = MetaMathematicalType.NonStandardAnalysis,
                 Description = "Event processing operates with infinitesimal time scales and hyperreal performance metrics",
-                TranscendenceMethod = "*ℝ hyperreal numbers enable infinitesimal event processing delays",
+                TranscendenceMethod = "*R hyperreal numbers enable infinitesimal event processing delays",
                 GodelEscapeMechanism = "Non-standard models transcend standard mathematical limitations",
                 OptimizationImplications = new List<string>
                 {
@@ -258,9 +258,9 @@ namespace Laboratory.Core.Infrastructure
                 Name = "Ordinal Genetic Evolution",
                 Type = TransFiniteType.OrdinalArithmetic,
                 Description = "Genetic evolution processes using ordinal arithmetic for trans-finite population management",
-                MathematicalBasis = "ω-sequences and successor ordinals for infinite population evolution",
+                MathematicalBasis = "omega-sequences and successor ordinals for infinite population evolution",
                 OptimizationTarget = "Genetic populations",
-                TransFiniteProperty = "Populations can evolve through ω generations with limit stages",
+                TransFiniteProperty = "Populations can evolve through omega generations with limit stages",
                 ExpectedImprovement = new Dictionary<string, float>
                 {
                     {"PopulationSize", float.PositiveInfinity},
@@ -283,7 +283,7 @@ namespace Laboratory.Core.Infrastructure
                 Description = "Service discovery across uncountably infinite service spaces using cardinal arithmetic",
                 MathematicalBasis = "Cantor's cardinal arithmetic and continuum hypothesis resolution",
                 OptimizationTarget = "Service registry and discovery",
-                TransFiniteProperty = "Service spaces of cardinality 2^ℵ₀ with perfect indexing",
+                TransFiniteProperty = "Service spaces of cardinality 2^aleph0 with perfect indexing",
                 ExpectedImprovement = new Dictionary<string, float>
                 {
                     {"ServiceSpaceSize", float.PositiveInfinity},
@@ -306,7 +306,7 @@ namespace Laboratory.Core.Infrastructure
                 Description = "Molecular interaction optimization in infinite-dimensional Hilbert spaces",
                 MathematicalBasis = "Functional analysis in infinite-dimensional spaces with spectral theory",
                 OptimizationTarget = "Molecular simulation accuracy",
-                TransFiniteProperty = "Molecular states exist in ℓ² infinite-dimensional sequence spaces",
+                TransFiniteProperty = "Molecular states exist in l2 infinite-dimensional sequence spaces",
                 ExpectedImprovement = new Dictionary<string, float>
                 {
                     {"SimulationAccuracy", 1.0f}, // Perfect accuracy
@@ -317,7 +317,7 @@ namespace Laboratory.Core.Infrastructure
                 {
                     "Finite-dimensional approximations",
                     "Convergence in infinite dimensions",
-                    "Computational representation of ℓ² spaces"
+                    "Computational representation of l2 spaces"
                 }
             });
         }
@@ -329,8 +329,8 @@ namespace Laboratory.Core.Infrastructure
             {
                 Name = "Phi-Optimized Genetic Algorithms",
                 Type = ConsciousnessComputationType.IntegratedInformation,
-                Description = "Genetic algorithms optimized using integrated information (Φ) as optimization criterion",
-                ConsciousnessMetric = "Φ (Phi) - measure of integrated information",
+                Description = "Genetic algorithms optimized using integrated information (Phi) as optimization criterion",
+                ConsciousnessMetric = "Phi - measure of integrated information",
                 CurrentPhiValue = 2.7f,
                 TargetPhiValue = 10.0f, // Hypothetical consciousness threshold
                 OptimizationMechanism = "Maximize integrated information in genetic decision networks",
@@ -449,9 +449,9 @@ namespace Laboratory.Core.Infrastructure
             };
 
             // Post-Gödelian computational limits
-            bounds.PostGodelianLimits["ReflectionPrincipleDepth"] = "V_{ω+ω} reflection for genetic optimization";
-            bounds.PostGodelianLimits["LargeCardinalRequirement"] = "Inaccessible cardinal κ for service space indexing";
-            bounds.PostGodelianLimits["NonStandardPrecision"] = "*ℝ hyperreal numbers for infinitesimal event processing";
+            bounds.PostGodelianLimits["ReflectionPrincipleDepth"] = "V_{omega+omega} reflection for genetic optimization";
+            bounds.PostGodelianLimits["LargeCardinalRequirement"] = "Inaccessible cardinal kappa for service space indexing";
+            bounds.PostGodelianLimits["NonStandardPrecision"] = "*R hyperreal numbers for infinitesimal event processing";
 
             // Hypercomputation theoretical bounds
             bounds.HypercomputationalBounds["OracleMachineComplexity"] = float.PositiveInfinity; // Beyond recursive functions
@@ -464,9 +464,9 @@ namespace Laboratory.Core.Infrastructure
             bounds.ConsciousnessThresholds["QuantumOrchestrationFrequency"] = 40.0f; // Hz for quantum consciousness
 
             // Trans-finite optimality conditions
-            bounds.TransFiniteOptimality["OrdinalEvolutionLimit"] = "ω^ω generations for perfect genetic optimization";
-            bounds.TransFiniteOptimality["CardinalServiceSpace"] = "2^ℵ₀ services with O(1) discovery";
-            bounds.TransFiniteOptimality["InfiniteDimensionalAccuracy"] = "Perfect molecular simulation in ℓ² spaces";
+            bounds.TransFiniteOptimality["OrdinalEvolutionLimit"] = "omega^omega generations for perfect genetic optimization";
+            bounds.TransFiniteOptimality["CardinalServiceSpace"] = "2^aleph0 services with O(1) discovery";
+            bounds.TransFiniteOptimality["InfiniteDimensionalAccuracy"] = "Perfect molecular simulation in l2 spaces";
 
             // Ultimate implementation constraints
             bounds.UltimateImplementationConstraints.AddRange(new[]

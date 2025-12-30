@@ -140,7 +140,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 globalResourceLevels[config.Type] = config.BaseAvailability;
             }
 
-            UnityEngine.Debug.Log($"💧 Initialized {resourceConfigs.Count} resource types");
+            UnityEngine.Debug.Log($"[Ecosystem] Initialized {resourceConfigs.Count} resource types");
         }
 
         private void InitializeRegionalResources()
@@ -156,7 +156,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 }
             }
 
-            UnityEngine.Debug.Log($"🗺️ Initialized resources for {regionalResources.Count} regions");
+            UnityEngine.Debug.Log($"[Ecosystem] Initialized resources for {regionalResources.Count} regions");
         }
 
         private void InitializeResourcesForLocation(Vector2 location, BiomeType biome)
@@ -476,7 +476,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                         if (resource.Availability <= threshold && resource.Availability > 0f)
                         {
                             // Resource is critically low but not depleted
-                            UnityEngine.Debug.LogWarning($"⚠️ Resource {resourceType} critically low at {location}: {resource.Availability:F1}");
+                            UnityEngine.Debug.LogWarning($"[Ecosystem] Resource {resourceType} critically low at {location}: {resource.Availability:F1}");
                         }
                         else if (resource.Availability > threshold * 2f && resource.Availability < config.CarryingCapacity * 0.9f)
                         {
@@ -547,7 +547,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 resources[resourceType] = resource;
 
                 OnResourceLevelChanged?.Invoke(location, resourceType, resource.Availability);
-                UnityEngine.Debug.Log($"💎 Added {amount} {resourceType} to {location}");
+                UnityEngine.Debug.Log($"[Ecosystem] Added {amount} {resourceType} to {location}");
             }
         }
 

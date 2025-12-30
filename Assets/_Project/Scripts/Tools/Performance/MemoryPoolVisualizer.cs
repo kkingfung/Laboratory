@@ -339,7 +339,7 @@ namespace ProjectChimera.Tools.Performance
             if (stats.leakyPoolCount > 0)
             {
                 labelStyle.normal.textColor = Color.red;
-                GUI.Label(new Rect(x + 10, currentY, 330, lineHeight), $"⚠ Potential Leaks: {stats.leakyPoolCount}", labelStyle);
+                GUI.Label(new Rect(x + 10, currentY, 330, lineHeight), $"[WARNING] Potential Leaks: {stats.leakyPoolCount}", labelStyle);
             }
         }
     }
@@ -481,7 +481,7 @@ namespace ProjectChimera.Tools.Performance
             if (stats.leakyPoolCount > 0)
             {
                 EditorGUILayout.Space();
-                EditorGUILayout.HelpBox($"⚠ {stats.leakyPoolCount} pool(s) have potential leaks!", MessageType.Warning);
+                EditorGUILayout.HelpBox($"[WARNING] {stats.leakyPoolCount} pool(s) have potential leaks!", MessageType.Warning);
             }
 
             // Hit rate progress bar
@@ -534,14 +534,14 @@ namespace ProjectChimera.Tools.Performance
 
             if (leaks.Count == 0)
             {
-                EditorGUILayout.HelpBox("No leaks detected! ✓", MessageType.Info);
+                EditorGUILayout.HelpBox("No leaks detected! [OK]", MessageType.Info);
                 return;
             }
 
             foreach (var pool in leaks)
             {
                 EditorGUILayout.BeginVertical("box");
-                EditorGUILayout.HelpBox($"⚠ {pool.poolName}", MessageType.Warning);
+                EditorGUILayout.HelpBox($"[WARNING] {pool.poolName}", MessageType.Warning);
                 EditorGUILayout.LabelField($"Active Objects: {pool.activeCount}");
                 EditorGUILayout.LabelField($"Time Since Last Return: {Time.time - pool.lastReturnTime:F1}s");
                 EditorGUILayout.LabelField("Possible Causes:");
@@ -563,7 +563,7 @@ namespace ProjectChimera.Tools.Performance
 
             if (inefficient.Count == 0)
             {
-                EditorGUILayout.HelpBox("All pools are optimized! ✓", MessageType.Info);
+                EditorGUILayout.HelpBox("All pools are optimized! [OK]", MessageType.Info);
                 return;
             }
 

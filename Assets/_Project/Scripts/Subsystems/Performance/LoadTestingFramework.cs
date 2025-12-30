@@ -492,7 +492,7 @@ namespace Laboratory.Subsystems.Performance
             reportText.AppendLine($"Test Suite Started:  {report.startTime:yyyy-MM-dd HH:mm:ss}");
             reportText.AppendLine($"Test Suite Ended:    {report.endTime:yyyy-MM-dd HH:mm:ss}");
             reportText.AppendLine($"Total Duration:      {report.totalDuration:F2} seconds");
-            reportText.AppendLine($"Overall Result:      {(report.overallPassed ? "PASSED ✓" : "FAILED ✗")}");
+            reportText.AppendLine($"Overall Result:      {(report.overallPassed ? "PASSED [OK]" : "FAILED [X]")}");
             reportText.AppendLine();
             reportText.AppendLine("Target Performance:");
             reportText.AppendLine($"  - Target FPS:        {report.targetFPS}");
@@ -506,7 +506,7 @@ namespace Laboratory.Subsystems.Performance
             foreach (var result in report.testResults)
             {
                 reportText.AppendLine($"Test: {result.testName}");
-                reportText.AppendLine($"  Status:             {(result.passed ? "PASSED ✓" : "FAILED ✗")}");
+                reportText.AppendLine($"  Status:             {(result.passed ? "PASSED [OK]" : "FAILED [X]")}");
                 reportText.AppendLine($"  Duration:           {result.duration:F2}s");
                 reportText.AppendLine($"  Creatures:          {result.targetCreatureCount}");
                 reportText.AppendLine($"  Average FPS:        {result.averageFPS:F1}");

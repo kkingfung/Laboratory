@@ -18,18 +18,18 @@ namespace Laboratory.Core.Diagnostics
     /// </summary>
     public class ECSEntityInspector : MonoBehaviour
     {
-        [Header("🔍 Inspector Settings")]
+        [Header("[Inspector] Inspector Settings")]
         [SerializeField] private bool enableInspector = true;
         [SerializeField] private KeyCode toggleKey = KeyCode.F11;
         [SerializeField] private bool autoSelectNearestEntity = false;
         [SerializeField] private float selectionRadius = 10f;
 
-        [Header("🎯 Filtering")]
+        [Header("[Filtering] Filtering")]
         [SerializeField] private bool showOnlyAliveCreatures = true;
         [SerializeField] private bool showOnlyMovingEntities = false;
         [SerializeField] private string speciesFilter = "";
 
-        [Header("📊 Display Options")]
+        [Header("[Display] Display Options")]
         [SerializeField] private bool showGizmos = true;
         [SerializeField] private bool showEntityLabels = true;
         [SerializeField] private Color selectedEntityColor = Color.cyan;
@@ -89,7 +89,7 @@ namespace Laboratory.Core.Diagnostics
                 ComponentType.ReadOnly<CreatureData>()
             );
 
-            UnityEngine.Debug.Log("✅ ECS Entity Inspector initialized");
+            UnityEngine.Debug.Log("[OK] ECS Entity Inspector initialized");
         }
 
         private void Update()
@@ -245,7 +245,7 @@ namespace Laboratory.Core.Diagnostics
             GUILayout.BeginArea(windowRect, boxStyle);
 
             // Header
-            GUILayout.Label("🔍 ECS Entity Inspector", headerStyle);
+            GUILayout.Label("[Inspector] ECS Entity Inspector", headerStyle);
             GUILayout.Space(10);
 
             // Entity count info

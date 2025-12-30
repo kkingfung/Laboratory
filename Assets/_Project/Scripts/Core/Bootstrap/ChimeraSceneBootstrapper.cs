@@ -12,16 +12,16 @@ namespace Laboratory.Core.Bootstrap
     [DefaultExecutionOrder(-1000)]
     public class ChimeraSceneBootstrapper : MonoBehaviour
     {
-        [Header("🎮 Master Configuration")]
+        [Header("[Game] Master Configuration")]
         [SerializeField] private ChimeraGameConfig gameConfig;
 
-        [Header("🔧 Bootstrap Settings")]
+        [Header("[Config] Bootstrap Settings")]
         [SerializeField] private bool autoStartSystems = true;
         [SerializeField] private bool enableDebugLogging = true;
         [SerializeField] private bool spawnTestCreatures = false;
         [SerializeField] [Range(0, 50)] private int testCreatureCount = 10;
 
-        [Header("📊 Runtime Status")]
+        [Header("[Status] Runtime Status")]
         [SerializeField] private bool systemsInitialized = false;
         [SerializeField] private float initializationTime = 0f;
 
@@ -54,7 +54,7 @@ namespace Laboratory.Core.Bootstrap
             float startTime = Time.time;
 
             if (enableDebugLogging)
-                Debug.Log("🚀 ChimeraSceneBootstrapper: Starting system initialization...");
+                Debug.Log("[Start] ChimeraSceneBootstrapper: Starting system initialization...");
 
             // 1. Core ECS World Setup
             yield return StartCoroutine(InitializeECSWorld());
@@ -79,7 +79,7 @@ namespace Laboratory.Core.Bootstrap
             systemsInitialized = true;
 
             if (enableDebugLogging)
-                Debug.Log($"✅ ChimeraSceneBootstrapper: All systems initialized in {initializationTime:F2}s");
+                Debug.Log($"[OK] ChimeraSceneBootstrapper: All systems initialized in {initializationTime:F2}s");
 
             // Set target framerate
             Application.targetFrameRate = gameConfig.targetFramerate;
@@ -87,7 +87,7 @@ namespace Laboratory.Core.Bootstrap
 
         private IEnumerator InitializeECSWorld()
         {
-            if (enableDebugLogging) Debug.Log("🔧 Initializing ECS World...");
+            if (enableDebugLogging) Debug.Log("[Config] Initializing ECS World...");
 
             ecsWorld = World.DefaultGameObjectInjectionWorld;
             if (ecsWorld == null)
@@ -101,7 +101,7 @@ namespace Laboratory.Core.Bootstrap
 
         private IEnumerator InitializeDebugSystems()
         {
-            if (enableDebugLogging) Debug.Log("🔍 Initializing Debug Systems...");
+            if (enableDebugLogging) Debug.Log("[Debug] Initializing Debug Systems...");
 
             // Debug manager integration disabled to avoid namespace conflicts
             // Use Unity's built-in Debug.Log for debugging instead
@@ -115,7 +115,7 @@ namespace Laboratory.Core.Bootstrap
 
         private IEnumerator InitializeAISystems()
         {
-            if (enableDebugLogging) Debug.Log("🤖 Initializing AI Systems...");
+            if (enableDebugLogging) Debug.Log("[AI] Initializing AI Systems...");
 
             // Initialize pathfinding using reflection
             var pathfindingType = System.Type.GetType("ProjectChimera.AI.Pathfinding.EnhancedPathfindingSystem");
@@ -140,7 +140,7 @@ namespace Laboratory.Core.Bootstrap
 
         private IEnumerator InitializeChimeraSystems()
         {
-            if (enableDebugLogging) Debug.Log("🧬 Initializing Chimera Systems...");
+            if (enableDebugLogging) Debug.Log("[DNA] Initializing Chimera Systems...");
 
             // Initialize creature ECS bootstrap
             var bootstrapType = System.Type.GetType("Laboratory.Core.ECS.ChimeraSceneBootstrap");
@@ -157,7 +157,7 @@ namespace Laboratory.Core.Bootstrap
 
         private IEnumerator SpawnTestCreatures()
         {
-            if (enableDebugLogging) Debug.Log($"🐾 Spawning {testCreatureCount} test creatures...");
+            if (enableDebugLogging) Debug.Log($"[Creature] Spawning {testCreatureCount} test creatures...");
 
             if (gameConfig.availableSpecies.Length == 0)
             {

@@ -191,7 +191,7 @@ namespace Laboratory.Subsystems.Team.Systems
                 tutorial.StageProgress = 0f;
 
                 AddHint(hints, HintType.Achievement,
-                    "✓ You joined a team! Now choose your role.",
+                    "[OK] You joined a team! Now choose your role.",
                     float3.zero, Entity.Null, 1f, 5f, true);
             }
             else
@@ -273,7 +273,7 @@ namespace Laboratory.Subsystems.Team.Systems
                     tutorial.StageProgress += 0.3f;
 
                     AddHint(hints, HintType.Achievement,
-                        "✓ Great teamwork! Keep it up!",
+                        "[OK] Great teamwork! Keep it up!",
                         float3.zero, Entity.Null, 1f, 5f, true);
                 }
             }
@@ -309,7 +309,7 @@ namespace Laboratory.Subsystems.Team.Systems
             {
                 tutorial.StageProgress += 0.5f;
                 AddHint(hints, HintType.Achievement,
-                    "✓ You used a ping! Communication is key.",
+                    "[OK] You used a ping! Communication is key.",
                     float3.zero, Entity.Null, 1f, 5f, true);
             }
 
@@ -349,7 +349,7 @@ namespace Laboratory.Subsystems.Team.Systems
                 tutorial.StageProgress = 1f;
 
                 AddHint(hints, HintType.Achievement,
-                    "✓ Objective complete! Excellent teamwork!",
+                    "[OK] Objective complete! Excellent teamwork!",
                     float3.zero, Entity.Null, 1f, 6f, true);
             }
             else
@@ -412,7 +412,7 @@ namespace Laboratory.Subsystems.Team.Systems
         {
             if (tutorial.StageProgress == 0f)
             {
-                Debug.Log($"🎓 Tutorial completed! Player graduated to full gameplay.");
+                Debug.Log($"[Graduation] Tutorial completed! Player graduated to full gameplay.");
 
                 // Unlock full features
                 adaptive.CurrentDifficulty = DifficultyLevel.Normal;
@@ -427,7 +427,7 @@ namespace Laboratory.Subsystems.Team.Systems
                 tutorial.CurrentStage = TutorialStage.Completed;
 
                 // Award completion rewards (would integrate with progression system)
-                Debug.Log("✅ Tutorial rewards granted!");
+                Debug.Log("[OK] Tutorial rewards granted!");
             }
         }
 
@@ -456,7 +456,7 @@ namespace Laboratory.Subsystems.Team.Systems
                 if (adaptive.CurrentDifficulty > DifficultyLevel.Tutorial)
                 {
                     adaptive.CurrentDifficulty = (DifficultyLevel)((int)adaptive.CurrentDifficulty - 1);
-                    Debug.Log($"📉 Difficulty reduced to {adaptive.CurrentDifficulty} for better learning");
+                    Debug.Log($"[Down] Difficulty reduced to {adaptive.CurrentDifficulty} for better learning");
                 }
             }
         }
@@ -491,7 +491,7 @@ namespace Laboratory.Subsystems.Team.Systems
 
                     ecb.AddBuffer<HintSystemComponent>(entity);
 
-                    Debug.Log($"📚 New player detected, starting tutorial");
+                    Debug.Log($"[Book] New player detected, starting tutorial");
                 }
             }
         }

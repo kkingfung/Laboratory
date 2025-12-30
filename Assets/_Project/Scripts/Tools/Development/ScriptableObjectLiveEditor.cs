@@ -113,7 +113,7 @@ namespace ProjectChimera.Tools.Development
                 {
                     foreach (var change in changes)
                     {
-                        Debug.Log($"[LiveEditor] {kvp.Key.name}.{change.fieldName}: {change.oldValue} → {change.newValue}");
+                        Debug.Log($"[LiveEditor] {kvp.Key.name}.{change.fieldName}: {change.oldValue} -> {change.newValue}");
                     }
                 }
             }
@@ -502,7 +502,7 @@ namespace ProjectChimera.Tools.Development
             EditorGUILayout.BeginVertical("box");
             foreach (var change in history.TakeLast(10))
             {
-                EditorGUILayout.LabelField($"{change.fieldName}: {change.oldValue} → {change.newValue} @ {change.timestamp:F2}s");
+                EditorGUILayout.LabelField($"{change.fieldName}: {change.oldValue} -> {change.newValue} @ {change.timestamp:F2}s");
             }
             EditorGUILayout.EndVertical();
 

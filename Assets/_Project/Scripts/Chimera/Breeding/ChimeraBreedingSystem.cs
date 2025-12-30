@@ -9,7 +9,7 @@ using Laboratory.Chimera.Creatures;
 namespace Laboratory.Chimera.Breeding
 {
     /// <summary>
-    /// тЪая╕П DEPRECATED - DO NOT USE
+    /// ?ая? DEPRECATED - DO NOT USE
     /// This breeding system has been superseded by Laboratory.Core.ECS.Systems.ChimeraBreedingSystem
     ///
     /// MIGRATION PATH:

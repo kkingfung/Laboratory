@@ -23,24 +23,24 @@ namespace Laboratory.Chimera.Customization
     {
         #region Serialized Fields
 
-        [Header("🎭 Chimera Visual Components")]
+        [Header("[Visual] Chimera Visual Components")]
         [SerializeField] private Transform[] bodyPartAnchors;
         [SerializeField] private Transform[] accessorySlots;
         [SerializeField] private Renderer[] customizableRenderers;
         [SerializeField] private ParticleSystem[] magicalEffects;
 
-        [Header("🎒 Equipment Visualization")]
+        [Header("[Equipment] Equipment Visualization")]
         [SerializeField] private Transform armorParent;
         [SerializeField] private Transform weaponParent;
         [SerializeField] private Transform accessoryParent;
         [SerializeField] private Transform ridingGearParent;
 
-        [Header("🌈 Pattern & Color Systems")]
+        [Header("[Visual] Pattern & Color Systems")]
         [SerializeField] private bool enableGeneticPatterns = true;
         [SerializeField] private bool enableEquipmentVisuals = true;
         [SerializeField] private float patternComplexity = 1.0f;
 
-        [Header("⚙️ Configuration")]
+        [Header("[Config] Configuration")]
         [SerializeField] private ChimeraCustomizationConfig config;
         [SerializeField] private bool autoUpdateOnEquipment = true;
 
@@ -155,7 +155,7 @@ namespace Laboratory.Chimera.Customization
 
             if (config?.EnableDebugLogging == true)
             {
-                UnityEngine.Debug.Log($"🎭 ChimeraCustomizationManager initialized for {creatureInstance.CreatureData.UniqueId}");
+                UnityEngine.Debug.Log($"[Visual] ChimeraCustomizationManager initialized for {creatureInstance.CreatureData.UniqueId}");
             }
         }
 
@@ -374,7 +374,7 @@ namespace Laboratory.Chimera.Customization
 
             if (config?.EnableDebugLogging == true)
             {
-                UnityEngine.Debug.Log($"🎒 Equipped {equipment.Name} on {creatureInstance.CreatureData.UniqueId}");
+                UnityEngine.Debug.Log($"[Equipment] Equipped {equipment.Name} on {creatureInstance.CreatureData.UniqueId}");
             }
         }
 
@@ -404,7 +404,7 @@ namespace Laboratory.Chimera.Customization
 
             if (config?.EnableDebugLogging == true)
             {
-                UnityEngine.Debug.Log($"🎒 Unequipped {equipmentType} from {creatureInstance.CreatureData.UniqueId}");
+                UnityEngine.Debug.Log($"[Equipment] Unequipped {equipmentType} from {creatureInstance.CreatureData.UniqueId}");
             }
         }
 
@@ -540,7 +540,7 @@ namespace Laboratory.Chimera.Customization
 
             if (config?.EnableDebugLogging == true)
             {
-                UnityEngine.Debug.Log($"🎭 Applied custom outfit '{outfit.OutfitName}' to {creatureInstance.CreatureData.UniqueId}");
+                UnityEngine.Debug.Log($"[Visual] Applied custom outfit '{outfit.OutfitName}' to {creatureInstance.CreatureData.UniqueId}");
             }
         }
 
@@ -895,7 +895,7 @@ namespace Laboratory.Chimera.Customization
 
             if (config?.EnableDebugLogging == true)
             {
-                UnityEngine.Debug.Log($"💾 Saved customization for {currentCustomization.CreatureId}");
+                UnityEngine.Debug.Log($"[Save] Saved customization for {currentCustomization.CreatureId}");
             }
         }
 
@@ -959,7 +959,7 @@ namespace Laboratory.Chimera.Customization
 
             if (config?.EnableDebugLogging == true)
             {
-                UnityEngine.Debug.Log($"🎭 Applied customization data for {customization.CreatureId}");
+                UnityEngine.Debug.Log($"[Visual] Applied customization data for {customization.CreatureId}");
             }
         }
 
@@ -1032,7 +1032,7 @@ namespace Laboratory.Chimera.Customization
 
             if (config?.EnableDebugLogging == true)
             {
-                UnityEngine.Debug.Log($"🔄 Reset {creatureInstance.CreatureData.UniqueId} to genetic defaults");
+                UnityEngine.Debug.Log($"[Reset] Reset {creatureInstance.CreatureData.UniqueId} to genetic defaults");
             }
         }
 

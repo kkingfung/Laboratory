@@ -147,7 +147,7 @@ namespace Laboratory.UI
             // Set initial UI state
             ChangeGameState(GameState.MainMenu);
 
-            Debug.Log("🎨 Chimera UI System initialized successfully!");
+            Debug.Log("[Visual] Chimera UI System initialized successfully!");
         }
 
         private IEnumerator InitializeAsync()
@@ -164,7 +164,7 @@ namespace Laboratory.UI
             ShowInitialUI();
 
             _isInitialized = true;
-            Debug.Log("✅ Chimera UI System fully initialized!");
+            Debug.Log("[OK] Chimera UI System fully initialized!");
         }
 
         private void InitializePanelControllers()
@@ -471,7 +471,7 @@ namespace Laboratory.UI
                 // Log for debugging
                 if (uiConfig.enableDebugLogging)
                 {
-                    Debug.Log($"🎨 Showed UI panel: {panel}");
+                    Debug.Log($"[Visual] Showed UI panel: {panel}");
                 }
             }
         }
@@ -488,7 +488,7 @@ namespace Laboratory.UI
 
                 if (uiConfig.enableDebugLogging)
                 {
-                    Debug.Log($"🎨 Hid UI panel: {panel}");
+                    Debug.Log($"[Visual] Hid UI panel: {panel}");
                 }
             }
         }
@@ -538,7 +538,7 @@ namespace Laboratory.UI
 
             if (uiConfig.enableDebugLogging)
             {
-                Debug.Log($"🎮 Game state changed: {oldState} → {newState}");
+                Debug.Log($"[Game] Game state changed: {oldState} -> {newState}");
             }
         }
 
@@ -758,7 +758,7 @@ namespace Laboratory.UI
         {
             // Enable accessibility features for screen readers
             // This would integrate with platform-specific accessibility APIs
-            Debug.Log("🔊 Screen reader support enabled");
+            Debug.Log("[Audio] Screen reader support enabled");
         }
 
         #endregion

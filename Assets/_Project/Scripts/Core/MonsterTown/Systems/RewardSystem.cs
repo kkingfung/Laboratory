@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Core.Infrastructure;
@@ -91,7 +91,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
             eventBus?.Publish(new DailyRewardClaimedEvent(playerId, reward));
 
-            Debug.Log($"🎁 Daily reward claimed: {dailyRewardCoins} coins, {dailyRewardGems} gems");
+            Debug.Log($"[Gift] Daily reward claimed: {dailyRewardCoins} coins, {dailyRewardGems} gems");
             return true;
         }
 
@@ -122,7 +122,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
             eventBus?.Publish(new ActivityRewardEvent(activityType, reward, performanceMultiplier));
 
-            Debug.Log($"🏆 Activity reward: {reward.coins} coins for {activityType}");
+            Debug.Log($"[Trophy] Activity reward: {reward.coins} coins for {activityType}");
         }
 
         /// <summary>
@@ -157,7 +157,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
             eventBus?.Publish(new BreedingRewardEvent(offspring, reward));
 
-            Debug.Log($"🧬 Breeding reward: {reward.coins} coins, {reward.gems} gems");
+            Debug.Log($"[Genetics] Breeding reward: {reward.coins} coins, {reward.gems} gems");
         }
 
         /// <summary>
@@ -186,7 +186,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
             eventBus?.Publish(new CareRewardEvent(monster, careAction, reward));
 
-            Debug.Log($"💖 Care reward: {reward.coins} coins for {careAction}");
+            Debug.Log($"[Heart] Care reward: {reward.coins} coins for {careAction}");
         }
 
         /// <summary>
@@ -224,7 +224,7 @@ namespace Laboratory.Core.MonsterTown.Systems
             }
 
             eventBus?.Publish(new RewardsGrantedEvent(resources));
-            Debug.Log($"💰 Rewards granted: {resources.coins} coins, {resources.gems} gems, {resources.activityTokens} tokens");
+            Debug.Log($"[Money] Rewards granted: {resources.coins} coins, {resources.gems} gems, {resources.activityTokens} tokens");
         }
 
         /// <summary>
@@ -260,7 +260,7 @@ namespace Laboratory.Core.MonsterTown.Systems
             }
 
             eventBus?.Publish(new CurrencySpentEvent(cost));
-            Debug.Log($"💸 Currency spent: {cost.Coins} coins, {cost.Gems} gems, {cost.ActivityTokens} tokens");
+            Debug.Log($"[Money] Currency spent: {cost.Coins} coins, {cost.Gems} gems, {cost.ActivityTokens} tokens");
             return true;
         }
 
@@ -291,7 +291,7 @@ namespace Laboratory.Core.MonsterTown.Systems
             if (passiveRewards.coins > 0 || passiveRewards.gems > 0 || passiveRewards.activityTokens > 0)
             {
                 GrantRewards(passiveRewards);
-                Debug.Log($"🏘️ Passive town rewards: {passiveRewards.coins} coins, {passiveRewards.gems} gems");
+            Debug.Log($"[Town] Passive town rewards: {passiveRewards.coins} coins, {passiveRewards.gems} gems");
             }
         }
 
@@ -424,7 +424,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
             eventBus?.Publish(new AchievementCompletedEvent(achievement, achievement.reward));
 
-            Debug.Log($"🏅 Achievement completed: {achievement.name} - Reward: {achievement.reward.coins} coins, {achievement.reward.gems} gems");
+            Debug.Log($"[Medal] Achievement completed: {achievement.name} - Reward: {achievement.reward.coins} coins, {achievement.reward.gems} gems");
         }
 
         private void CheckDailyRewards()

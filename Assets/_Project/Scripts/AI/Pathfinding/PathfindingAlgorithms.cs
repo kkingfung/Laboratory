@@ -154,7 +154,7 @@ namespace ProjectChimera.AI.Pathfinding
             float dx = Mathf.Abs(a.x - b.x);
             float dz = Mathf.Abs(a.z - b.z);
             // Formula: D * (dx + dz) + (D2 - 2 * D) * min(dx, dz)
-            // Where D = 1 (straight move cost), D2 = √2 ≈ 1.414 (diagonal move cost)
+            // Where D = 1 (straight move cost), D2 = sqrt(2) approximately 1.414 (diagonal move cost)
             return (dx + dz) + (1.414f - 2) * Mathf.Min(dx, dz);
         }
 
@@ -181,7 +181,7 @@ namespace ProjectChimera.AI.Pathfinding
             }
 
             path.Add(startGrid);
-            path.Reverse(); // Convert from goal→start to start→goal
+            path.Reverse(); // Convert from goal->start to start->goal
 
             // Convert grid positions to world positions, preserving exact start/end
             var worldPath = new List<Vector3> { actualStart };

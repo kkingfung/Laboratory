@@ -10,7 +10,7 @@ namespace Laboratory.Core.Configuration
     [CreateAssetMenu(fileName = "PerformanceConfiguration", menuName = "Laboratory/Configuration/Performance Configuration")]
     public class PerformanceConfiguration : ScriptableObject
     {
-        [Header("🕐 Update Frequency Settings")]
+        [Header("Update Frequency Settings")]
         [Space(5)]
 
         [Tooltip("Update frequency for critical systems (60 FPS)")]
@@ -28,7 +28,7 @@ namespace Laboratory.Core.Configuration
         [Tooltip("Update frequency for background systems (1 FPS)")]
         public float backgroundUpdateFrequency = 1f;
 
-        [Header("🧠 AI & Pathfinding Settings")]
+        [Header("AI & Pathfinding Settings")]
         [Space(5)]
 
         [Tooltip("Maximum number of pathfinding agents processed per frame")]
@@ -63,7 +63,7 @@ namespace Laboratory.Core.Configuration
         [Range(1, 20)]
         public int maxFlowFieldRequestsPerFrame = 5;
 
-        [Header("🎯 Player & Input Settings")]
+        [Header("Player & Input Settings")]
         [Space(5)]
 
         [Tooltip("How often to check if player is grounded (seconds)")]
@@ -78,7 +78,7 @@ namespace Laboratory.Core.Configuration
         [Range(15f, 60f)]
         public float playerAnimationUpdateRate = 30f;
 
-        [Header("💾 Memory Management")]
+        [Header("Memory Management")]
         [Space(5)]
 
         [Tooltip("Maximum number of pooled List<Vector3> objects")]
@@ -97,7 +97,7 @@ namespace Laboratory.Core.Configuration
         [Range(100, 5000)]
         public int nativeArrayDefaultCapacity = 1000;
 
-        [Header("🎮 Game Management")]
+        [Header("Game Management")]
         [Space(5)]
 
         [Tooltip("Delay before respawning player (seconds)")]
@@ -116,7 +116,7 @@ namespace Laboratory.Core.Configuration
         [Range(1f, 30f)]
         public float winConditionCheckRate = 5f;
 
-        [Header("📊 Performance Monitoring")]
+        [Header("Performance Monitoring")]
         [Space(5)]
 
         [Tooltip("How often to log performance statistics (seconds)")]
@@ -131,7 +131,7 @@ namespace Laboratory.Core.Configuration
         [Range(0.5f, 10f)]
         public float memoryUpdateInterval = 1f;
 
-        [Header("🔫 Combat & Physics")]
+        [Header("Combat & Physics")]
         [Space(5)]
 
         [Tooltip("Probability of generating test hits (0-1)")]
@@ -146,7 +146,7 @@ namespace Laboratory.Core.Configuration
         [Range(0.1f, 5f)]
         public float defaultAttackCooldown = 1f;
 
-        [Header("🌐 Network Synchronization")]
+        [Header("Network Synchronization")]
         [Space(5)]
 
         [Tooltip("High priority network sync rate (Hz)")]

@@ -82,7 +82,7 @@ namespace Laboratory.Chimera.World
             SubscribeToEvents();
             StartEcosystemTracking();
             
-            Log("🌍 Ecosystem Manager initialized - tracking begins!");
+            Log("[World] Ecosystem Manager initialized - tracking begins!");
         }
 
         private void Update()
@@ -231,7 +231,7 @@ namespace Laboratory.Chimera.World
             CheckForEcosystemCrises();
 
             lastEcosystemUpdate = Time.time;
-            Log($"🔄 Ecosystem update complete - {trackedCreatures.Count} creatures tracked");
+            Log($"[Sync] Ecosystem update complete - {trackedCreatures.Count} creatures tracked");
         }
 
         private void UpdateSpeciesPopulations()
@@ -325,7 +325,7 @@ namespace Laboratory.Chimera.World
                 // Log critical health states
                 if (biome.EcosystemHealth < 0.3f && enableDetailedLogging)
                 {
-                    Log($"⚠️ {biome.BiomeType} ecosystem health critically low: {biome.EcosystemHealth:P1}");
+                    Log($"[Warning] {biome.BiomeType} ecosystem health critically low: {biome.EcosystemHealth:P1}");
                 }
             }
         }
@@ -430,7 +430,7 @@ namespace Laboratory.Chimera.World
 
         private void TriggerEcosystemCrisis(BiomeEcosystem biome, EcosystemCrisisType crisisType)
         {
-            Log($"🚨 ECOSYSTEM CRISIS in {biome.BiomeType}: {crisisType}");
+            Log($"[Warning] ECOSYSTEM CRISIS in {biome.BiomeType}: {crisisType}");
             
             var crisisEvent = new EcosystemCrisisEvent
             {
@@ -502,7 +502,7 @@ namespace Laboratory.Chimera.World
 
             seasonalMultiplier = currentSeason.GetSeasonalMultiplier();
 
-            Log($"🍂 Season changed to {currentSeason.GetDisplayName()} (multiplier: {seasonalMultiplier:F2})");
+            Log($"[World] Season changed to {currentSeason.GetDisplayName()} (multiplier: {seasonalMultiplier:F2})");
 
             var seasonEvent = new SeasonChangedEvent
             {
@@ -620,7 +620,7 @@ namespace Laboratory.Chimera.World
 
         private void OnCreatureMaturation(CreatureMaturedEvent evt)
         {
-            Log($"🎂 {evt.Creature.Definition?.speciesName} reached maturity");
+            Log($"[Star] {evt.Creature.Definition?.speciesName} reached maturity");
             
             // Maturation contributes slightly to ecosystem health
             var biome = evt.Creature.Definition?.preferredBiomes?.FirstOrDefault() ?? BiomeType.Forest;
@@ -633,7 +633,7 @@ namespace Laboratory.Chimera.World
 
         private void OnEnvironmentalAdaptation(EnvironmentalAdaptationEvent evt)
         {
-            Log($"🌱 {evt.Creature.Definition?.speciesName} adapted to {evt.AdaptationType.GetDisplayName()}");
+            Log($"[World] {evt.Creature.Definition?.speciesName} adapted to {evt.AdaptationType.GetDisplayName()}");
             
             // Environmental adaptation improves biome health
             if (biomes.TryGetValue(evt.NewBiome, out var ecosystem))
@@ -707,7 +707,7 @@ namespace Laboratory.Chimera.World
         public void ForceEcosystemUpdate()
         {
             PerformEcosystemUpdate();
-            Log("🔄 Forced ecosystem update completed");
+            Log("[Sync] Forced ecosystem update completed");
         }
 
         /// <summary>
@@ -733,7 +733,7 @@ namespace Laboratory.Chimera.World
                 ecosystem.EcosystemHealth = Mathf.Clamp01(ecosystem.EcosystemHealth);
                 ecosystem.ResourceAvailability = Mathf.Clamp(ecosystem.ResourceAvailability, 0.1f, 2f);
 
-                Log($"🌱 Triggered ecosystem recovery in {biome}: +{recoveryAmount:P1}");
+                Log($"[World] Triggered ecosystem recovery in {biome}: +{recoveryAmount:P1}");
             }
         }
 
@@ -754,9 +754,9 @@ namespace Laboratory.Chimera.World
             if (!showEcosystemUI) return;
 
             var status = GetEcosystemStatus();
-            
+
             GUILayout.BeginArea(new Rect(10, 10, 300, 200));
-            GUILayout.Box("🌍 ECOSYSTEM STATUS");
+            GUILayout.Box("[World] ECOSYSTEM STATUS");
             
             GUILayout.Label($"Season: {status.CurrentSeason}");
             GUILayout.Label($"Total Creatures: {status.TotalCreatures}");

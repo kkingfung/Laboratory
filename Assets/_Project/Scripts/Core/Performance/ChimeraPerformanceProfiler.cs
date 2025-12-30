@@ -14,24 +14,24 @@ namespace Laboratory.Core.Performance
     /// </summary>
     public class ChimeraPerformanceProfiler : MonoBehaviour
     {
-        [Header("📊 Profiling Settings")]
+        [Header("[PROFILER] Profiling Settings")]
         [SerializeField] private bool enableProfiling = true;
         [SerializeField] private bool autoOptimize = false;
         [SerializeField] private float profilingInterval = 1f;
         [SerializeField] private int sampleHistorySize = 60;
 
-        [Header("🎯 Performance Targets")]
+        [Header("[TARGET] Performance Targets")]
         [SerializeField] [Range(30, 144)] private int targetFPS = 60;
         [SerializeField] [Range(1, 50)] private float maxFrameTime = 16.67f; // 60 FPS = 16.67ms
         [SerializeField] [Range(10, 5000)] private int maxCreatureCount = 1000;
         [SerializeField] [Range(100, 10000)] private long maxMemoryMB = 2048;
 
-        [Header("⚠️ Alert Thresholds")]
+        [Header("[WARNING] Alert Thresholds")]
         [SerializeField] [Range(0.5f, 0.9f)] private float fpsWarningThreshold = 0.8f;
         [SerializeField] [Range(0.1f, 1f)] private float memoryWarningThreshold = 0.8f;
         [SerializeField] private bool enableAlerts = true;
 
-        [Header("📈 Runtime Metrics")]
+        [Header("[METRICS] Runtime Metrics")]
         [SerializeField] private float currentFPS = 60f;
         [SerializeField] private float currentFrameTime = 16.67f;
         [SerializeField] private long currentMemoryMB = 0;
@@ -114,7 +114,7 @@ namespace Laboratory.Core.Performance
                 entityManager = ecsWorld.EntityManager;
             }
 
-            Debug.Log("✅ Chimera Performance Profiler initialized");
+            Debug.Log("[OK] Chimera Performance Profiler initialized");
         }
 
         private void Update()
@@ -394,7 +394,7 @@ namespace Laboratory.Core.Performance
                         if (suggestion.description.Contains("garbage collection"))
                         {
                             System.GC.Collect();
-                            Debug.Log("🔧 Auto-optimization: Forced garbage collection");
+                            Debug.Log("[AUTO] Auto-optimization: Forced garbage collection");
                         }
                         break;
 
@@ -402,7 +402,7 @@ namespace Laboratory.Core.Performance
                         if (currentCreatureCount > maxCreatureCount)
                         {
                             // This would integrate with your spawning system to reduce population
-                            Debug.Log("🔧 Auto-optimization: Population reduction suggested");
+                            Debug.Log("[AUTO] Auto-optimization: Population reduction suggested");
                         }
                         break;
                 }
@@ -463,7 +463,7 @@ namespace Laboratory.Core.Performance
 
                 if (enableAlerts && impact > 0.8f)
                 {
-                    Debug.LogWarning($"⚠️ Performance Suggestion [{category}]: {description} - {action}");
+                    Debug.LogWarning($"[WARNING] Performance Suggestion [{category}]: {description} - {action}");
                 }
             }
         }
@@ -478,7 +478,7 @@ namespace Laboratory.Core.Performance
         private void SendPerformanceAlert()
         {
             // This would integrate with your alerting system
-            Debug.LogError($"🚨 Performance Alert: {performanceStatus} - FPS: {currentFPS:F1}, Memory: {currentMemoryMB}MB, Creatures: {currentCreatureCount}");
+            Debug.LogError($"[ALERT] Performance Alert: {performanceStatus} - FPS: {currentFPS:F1}, Memory: {currentMemoryMB}MB, Creatures: {currentCreatureCount}");
         }
 
         // Estimation methods
@@ -523,7 +523,7 @@ namespace Laboratory.Core.Performance
         public void ForceOptimizationCheck()
         {
             CheckForOptimizations();
-            Debug.Log($"🔍 Optimization check complete. Found {suggestions.Count} suggestions.");
+            Debug.Log($"[CHECK] Optimization check complete. Found {suggestions.Count} suggestions.");
         }
 
         /// <summary>
@@ -535,7 +535,7 @@ namespace Laboratory.Core.Performance
             frameHistory.Clear();
             systemProfiles.Clear();
             suggestions.Clear();
-            Debug.Log("🗑️ Performance history cleared");
+            Debug.Log("[CLEAR] Performance history cleared");
         }
 
 #if UNITY_EDITOR
@@ -547,7 +547,7 @@ namespace Laboratory.Core.Performance
             GUILayout.BeginArea(new Rect(10, 10, 300, 150));
             GUILayout.BeginVertical(GUI.skin.box);
 
-            GUILayout.Label("🔥 Chimera Performance", EditorStyles.boldLabel);
+            GUILayout.Label("[PERF] Chimera Performance", EditorStyles.boldLabel);
             GUILayout.Label($"FPS: {currentFPS:F1} / {targetFPS}");
             GUILayout.Label($"Frame: {currentFrameTime:F1}ms / {maxFrameTime:F1}ms");
             GUILayout.Label($"Memory: {currentMemoryMB}MB / {maxMemoryMB}MB");

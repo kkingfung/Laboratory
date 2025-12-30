@@ -9,7 +9,7 @@ namespace Laboratory.Core.Standards
     [Serializable]
     public class StyleGuideExamples
     {
-        [Header("✅ CORRECT Examples")]
+        [Header("[OK] CORRECT Examples")]
         [TextArea(3, 5)]
         public string correctClassNaming = @"
 public class EquipmentManager : MonoBehaviour
@@ -24,7 +24,7 @@ public TownResources GetCurrentResources()
 public void InitializeSystem(SystemConfig config)
 public bool CanAffordBuilding(BuildingConfig config)";
 
-        [Header("❌ INCORRECT Examples")]
+        [Header("[X] INCORRECT Examples")]
         [TextArea(3, 5)]
         public string incorrectClassNaming = @"
 public class equipmentMgr : MonoBehaviour

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -19,18 +19,18 @@ namespace Laboratory.Core.Education
     /// </summary>
     public class EducationalContentSystem : MonoBehaviour
     {
-        [Header("📚 Educational Configuration")]
+        [Header("[Education] Educational Configuration")]
         [SerializeField] private EducationalConfig educationalConfig;
         [SerializeField] private bool enableEducationalMode = true;
         [SerializeField] private LearningLevel defaultLearningLevel = LearningLevel.Beginner;
         [SerializeField] private bool enableAssessments = true;
 
-        [Header("🎓 Learning Progress")]
+        [Header("[Learn] Learning Progress")]
         [SerializeField] private bool trackLearningProgress = true;
         [SerializeField] private float knowledgeRetentionPeriod = 2592000f; // 30 days
         [SerializeField] private int conceptReviewThreshold = 3;
 
-        [Header("👨‍🏫 Teacher Tools")]
+        [Header("[Teacher] Teacher Tools")]
         [SerializeField] private bool enableTeacherMode = false;
         [SerializeField] private ClassroomConfig classroomConfig;
 
@@ -61,7 +61,7 @@ namespace Laboratory.Core.Education
                 InitializeTeacherTools();
             }
 
-            Debug.Log("📚 Educational Content System initialized");
+            Debug.Log("[Education] Educational Content System initialized");
         }
 
         private void InitializeConceptLibrary()
@@ -216,7 +216,7 @@ namespace Laboratory.Core.Education
                 };
             }
 
-            Debug.Log("👨‍🏫 Teacher tools initialized for classroom mode");
+            Debug.Log("[Teacher] Teacher tools initialized for classroom mode");
         }
 
         #endregion
@@ -248,7 +248,7 @@ namespace Laboratory.Core.Education
                 // Record learning interaction
                 RecordLearningInteraction(playerId, selectedConcept.ConceptId, LearningInteractionType.BreedingTriggered);
 
-                Debug.Log($"📚 Providing educational content: {selectedConcept.Title}");
+                Debug.Log($"[Education] Providing educational content: {selectedConcept.Title}");
                 return content;
             }
 
@@ -403,7 +403,7 @@ namespace Laboratory.Core.Education
 
             OnLearningProgressUpdated?.Invoke(learningProfile);
 
-            Debug.Log($"📈 Learning progress: {conceptId} mastery now {progress.MasteryLevel:P0}");
+            Debug.Log($"[Progress] Learning progress: {conceptId} mastery now {progress.MasteryLevel:P0}");
         }
 
         /// <summary>
@@ -420,14 +420,14 @@ namespace Laboratory.Core.Education
                 var decayFactor = 0.1f; // Decay 10% per retention period exceeded
                 progress.MasteryLevel = Mathf.Max(0f, progress.MasteryLevel - decayFactor);
                 progress.NeedsReview = true;
-                Debug.LogWarning($"⏰ Concept {progress.ConceptId} needs review (last encounter: {timeSinceLastEncounter / 86400:F1} days ago)");
+                Debug.LogWarning($"[Time] Concept {progress.ConceptId} needs review (last encounter: {timeSinceLastEncounter / 86400:F1} days ago)");
             }
 
             // Mark for review if encountered threshold times but not mastered
             if (progress.EncounterCount >= conceptReviewThreshold && progress.MasteryLevel < 0.8f)
             {
                 progress.NeedsReview = true;
-                Debug.Log($"📖 Concept {progress.ConceptId} needs review (encountered {progress.EncounterCount} times, mastery: {progress.MasteryLevel:P0})");
+                Debug.Log($"[Book] Concept {progress.ConceptId} needs review (encountered {progress.EncounterCount} times, mastery: {progress.MasteryLevel:P0})");
             }
         }
 
@@ -469,7 +469,7 @@ namespace Laboratory.Core.Education
 
             OnAssessmentCompleted?.Invoke(assessment);
 
-            Debug.Log($"📝 Assessment completed: {assessmentId}, Score: {score:P0}, Passed: {passed}");
+            Debug.Log($"[Note] Assessment completed: {assessmentId}, Score: {score:P0}, Passed: {passed}");
             return System.Threading.Tasks.Task.FromResult(result);
         }
 
@@ -495,7 +495,7 @@ namespace Laboratory.Core.Education
 
             _experiments[playerId].Add(experiment);
 
-            Debug.Log($"🔬 Breeding experiment started: {hypothesis}");
+            Debug.Log($"[Science] Breeding experiment started: {hypothesis}");
             return experiment;
         }
 
@@ -519,7 +519,7 @@ namespace Laboratory.Core.Education
 
                     OnExperimentConcluded?.Invoke(experiment);
 
-                    Debug.Log($"🔬 Breeding experiment completed: {experiment.Hypothesis}");
+                    Debug.Log($"[Science] Breeding experiment completed: {experiment.Hypothesis}");
                     break;
                 }
             }
@@ -648,7 +648,7 @@ namespace Laboratory.Core.Education
             if (newLevel > learningProfile.CurrentLevel)
             {
                 learningProfile.CurrentLevel = newLevel;
-                Debug.Log($"🎓 Learning level increased to {newLevel}");
+                Debug.Log($"[Learn] Learning level increased to {newLevel}");
             }
         }
 

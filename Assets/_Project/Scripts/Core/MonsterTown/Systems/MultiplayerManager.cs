@@ -92,7 +92,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
             eventBus?.Publish(new FriendAddedEvent(playerId, friendId));
 
-            Debug.Log($"👫 {playerId} and {friendId} are now friends");
+            Debug.Log($"[Friends] {playerId} and {friendId} are now friends");
             return true;
         }
 
@@ -118,7 +118,7 @@ namespace Laboratory.Core.MonsterTown.Systems
             if (removed)
             {
                 eventBus?.Publish(new FriendRemovedEvent(playerId, friendId));
-                Debug.Log($"💔 {playerId} and {friendId} are no longer friends");
+                Debug.Log($"[Unfriend] {playerId} and {friendId} are no longer friends");
             }
 
             return removed;
@@ -167,7 +167,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
             eventBus?.Publish(new TradeOfferCreatedEvent(offer));
 
-            Debug.Log($"💱 Trade offer created from {fromPlayerId} to {toPlayerId}");
+            Debug.Log($"[Trade] Trade offer created from {fromPlayerId} to {toPlayerId}");
             return true;
         }
 
@@ -203,7 +203,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
                 eventBus?.Publish(new TradeCompletedEvent(offer));
 
-                Debug.Log($"✅ Trade completed between {offer.FromPlayerId} and {offer.ToPlayerId}");
+                Debug.Log($"[OK] Trade completed between {offer.FromPlayerId} and {offer.ToPlayerId}");
                 return true;
             }
 
@@ -223,7 +223,7 @@ namespace Laboratory.Core.MonsterTown.Systems
             offer.Status = TradeStatus.Rejected;
             eventBus?.Publish(new TradeRejectedEvent(offer));
 
-            Debug.Log($"❌ Trade offer rejected by {playerId}");
+            Debug.Log($"[Rejected] Trade offer rejected by {playerId}");
             return true;
         }
 
@@ -242,7 +242,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
             eventBus?.Publish(new PlayerTownVisitEvent(visitorId, hostId));
 
-            Debug.Log($"🏠 {visitorId} is visiting {hostId}'s town");
+            Debug.Log($"[Visit] {visitorId} is visiting {hostId}'s town");
             return true;
         }
 
@@ -302,7 +302,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
         private void InitializeMultiplayer()
         {
-            Debug.Log("🌐 Multiplayer system initialized");
+            Debug.Log("[Multiplayer] Multiplayer system initialized");
 
             // Subscribe to relevant events
             if (eventBus != null)
@@ -365,7 +365,7 @@ namespace Laboratory.Core.MonsterTown.Systems
                 IsOnline = true
             };
 
-            Debug.Log($"🟢 Player connected: {evt.PlayerId}");
+            Debug.Log($"[Connected] Player connected: {evt.PlayerId}");
         }
 
         private void OnPlayerDisconnected(PlayerDisconnectedEvent evt)
@@ -376,7 +376,7 @@ namespace Laboratory.Core.MonsterTown.Systems
                 playerInfo.LastSeen = DateTime.Now;
             }
 
-            Debug.Log($"🔴 Player disconnected: {evt.PlayerId}");
+            Debug.Log($"[Disconnected] Player disconnected: {evt.PlayerId}");
         }
 
         private void CleanupExpiredTrades()
@@ -408,7 +408,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
             if (expiredOffers.Count > 0)
             {
-                Debug.Log($"🕐 Cleaned up {expiredOffers.Count} expired trade offers");
+                Debug.Log($"[Cleanup] Cleaned up {expiredOffers.Count} expired trade offers");
             }
         }
 

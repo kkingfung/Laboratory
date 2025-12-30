@@ -128,7 +128,7 @@ namespace Laboratory.Infrastructure.Core
             {
                 SpeedOfLight = 299792458f * (1f + (universeId % 1000) / 1000f), // Varied c
                 PlanckConstant = 6.62607015e-34f * (1f + (universeId % 100) / 100f), // Varied h
-                FineStructureConstant = 0.0072973525693f * (1f + (universeId % 50) / 50f), // Varied α
+                FineStructureConstant = 0.0072973525693f * (1f + (universeId % 50) / 50f), // Varied alpha
                 GravitationalConstant = 6.67430e-11f * (1f + (universeId % 200) / 200f), // Varied G
                 ThermodynamicsLaws = GenerateThermodynamicsVariation(universeId),
                 QuantumMechanicsRules = GenerateQuantumVariation(universeId),
@@ -228,7 +228,7 @@ namespace Laboratory.Infrastructure.Core
                     Name = "Multiversal Genetic Algorithm",
                     Description = "Evolve solutions across infinite parallel universes simultaneously",
                     DimensionalRequirements = "Access to parallel evolution timelines",
-                    ComputationalComplexity = "O(∞) - infinite parallel processing",
+                    ComputationalComplexity = "O(infinity) - infinite parallel processing",
                     OptimizationCapability = float.PositiveInfinity,
                     ConsciousnessGuidance = true
                 },
@@ -246,7 +246,7 @@ namespace Laboratory.Infrastructure.Core
                     Name = "Higher-Dimensional Gradient Descent",
                     Description = "Optimize in infinite-dimensional solution spaces",
                     DimensionalRequirements = "Access to higher spatial dimensions",
-                    ComputationalComplexity = "O(2^∞) processed in O(1) through dimensional shortcuts",
+                    ComputationalComplexity = "O(2^infinity) processed in O(1) through dimensional shortcuts",
                     OptimizationCapability = float.PositiveInfinity,
                     ConsciousnessGuidance = true
                 },
@@ -281,7 +281,7 @@ namespace Laboratory.Infrastructure.Core
             Debug.Log($"[TransDimensionalEngine] Applying optimization to reality for system: {result.SystemName}");
             Debug.Log($"[TransDimensionalEngine] Universes utilized: {result.UniversesUtilized}");
             Debug.Log($"[TransDimensionalEngine] Total computational power: {result.TotalComputationalPower}");
-            Debug.Log($"[TransDimensionalEngine] Performance improvement: {result.OriginalPerformance} → {result.OptimizedPerformance}");
+            Debug.Log($"[TransDimensionalEngine] Performance improvement: {result.OriginalPerformance} -> {result.OptimizedPerformance}");
             Debug.Log($"[TransDimensionalEngine] Optimization factor: {result.OptimizationFactor}x");
             Debug.Log($"[TransDimensionalEngine] Dimensional optimization score: {result.DimensionalOptimizationScore}%");
             Debug.Log($"[TransDimensionalEngine] TRANS-DIMENSIONAL OPTIMIZATION SUCCESSFULLY APPLIED TO REALITY");

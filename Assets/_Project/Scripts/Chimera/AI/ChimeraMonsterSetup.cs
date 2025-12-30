@@ -67,7 +67,7 @@ namespace Laboratory.Chimera.AI
                 RegisterWithAIManager();
             }
 
-            UnityEngine.Debug.Log($"[MonsterSetup] ✅ AI setup complete for {gameObject.name}");
+            UnityEngine.Debug.Log($"[MonsterSetup] [OK] AI setup complete for {gameObject.name}");
         }
 
         private void SetupNavMeshAgent()
@@ -370,11 +370,11 @@ namespace Laboratory.Chimera.AI
 
             if (issues.Count == 0)
             {
-                UnityEngine.Debug.Log($"[MonsterSetup] ✅ {gameObject.name} setup is valid");
+                UnityEngine.Debug.Log($"[MonsterSetup] [OK] {gameObject.name} setup is valid");
             }
             else
             {
-                UnityEngine.Debug.LogWarning($"[MonsterSetup] ⚠️ {gameObject.name} has issues: {string.Join(", ", issues)}");
+                UnityEngine.Debug.LogWarning($"[MonsterSetup] [Warning] {gameObject.name} has issues: {string.Join(", ", issues)}");
             }
         }
 

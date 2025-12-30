@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -18,30 +18,30 @@ namespace Laboratory.Core.Memory
     [DefaultExecutionOrder(-200)]
     public class ChimeraMemoryPoolManager : MonoBehaviour
     {
-        [Header("🧠 Memory Pool Configuration")]
+        [Header("[Memory] Memory Pool Configuration")]
         [SerializeField] private bool enablePooling = true;
         [SerializeField] private int initialCreaturePoolSize = 500;
         [SerializeField] private int maxCreaturePoolSize = 2000;
         [SerializeField] private bool preWarmPools = true;
 
-        [Header("🎯 Pool Categories")]
+        [Header("[Target] Pool Categories")]
         [SerializeField] private int visualEffectPoolSize = GameConstants.DEFAULT_POOL_SIZE;
         [SerializeField] private int audioSourcePoolSize = 50;
         [SerializeField] private int particleSystemPoolSize = 75;
         [SerializeField] private int trailRendererPoolSize = 25;
 
-        [Header("📊 Memory Management")]
+        [Header("[Stats] Memory Management")]
         [SerializeField] private bool autoCleanupPools = true;
         [SerializeField] private float cleanupInterval = 30f;
         [SerializeField] private float maxIdleTime = 60f;
         [SerializeField] private bool trackMemoryUsage = true;
 
-        [Header("🔧 Performance Settings")]
+        [Header("[Tool] Performance Settings")]
         [SerializeField] private int maxOperationsPerFrame = 50;
         [SerializeField] private bool useMultithreading = true;
         [SerializeField] private bool enableDebugLogging = false;
 
-        [Header("📈 Runtime Statistics")]
+        [Header("[Progress] Runtime Statistics")]
         [SerializeField, ReadOnly] private int totalObjectsPooled = 0;
         [SerializeField, ReadOnly] private int activeObjects = 0;
         [SerializeField, ReadOnly] private int poolHits = 0;
@@ -350,7 +350,7 @@ namespace Laboratory.Core.Memory
             nativeArrayPools[typeof(float3)] = new NativeArrayPool(typeof(float3), 100, 50);
 
             if (enableDebugLogging)
-                Debug.Log($"🧠 Chimera Memory Pool Manager initialized with {gameObjectPools.Count} GameObject pools");
+                Debug.Log($"[Memory] Chimera Memory Pool Manager initialized with {gameObjectPools.Count} GameObject pools");
         }
 
         private void PreWarmAllPools()
@@ -400,7 +400,7 @@ namespace Laboratory.Core.Memory
                     UpdatePoolHitRate();
 
                     if (enableDebugLogging)
-                        Debug.Log($"🧠 Retrieved {poolName} from pool - Active: {activeObjects}");
+                        Debug.Log($"[Memory] Retrieved {poolName} from pool - Active: {activeObjects}");
 
                     return obj;
                 }
@@ -410,7 +410,7 @@ namespace Laboratory.Core.Memory
                     UpdatePoolHitRate();
 
                     if (enableDebugLogging)
-                        Debug.LogWarning($"🧠 Pool '{poolName}' not found");
+                        Debug.LogWarning($"[Memory] Pool '{poolName}' not found");
 
                     return null;
                 }
@@ -435,7 +435,7 @@ namespace Laboratory.Core.Memory
                         activeObjects = Mathf.Max(0, activeObjects - 1);
 
                         if (enableDebugLogging)
-                            Debug.Log($"🧠 Returned {poolName} to pool - Active: {activeObjects}");
+                            Debug.Log($"[Memory] Returned {poolName} to pool - Active: {activeObjects}");
                     }
                     return returned;
                 }
@@ -582,7 +582,7 @@ namespace Laboratory.Core.Memory
             }
 
             if (enableDebugLogging)
-                Debug.Log($"🧠 Batch spawned {operations} creatures with zero allocations");
+                Debug.Log($"[Memory] Batch spawned {operations} creatures with zero allocations");
         }
 
         private void CleanupPools()
@@ -602,7 +602,7 @@ namespace Laboratory.Core.Memory
 
             var cleanupTime = Time.realtimeSinceStartup - cleanupStartTime;
             if (enableDebugLogging)
-                Debug.Log($"🧠 Pool cleanup completed in {cleanupTime * 1000:F2}ms");
+                Debug.Log($"[Memory] Pool cleanup completed in {cleanupTime * 1000:F2}ms");
         }
 
         private void CleanupDeadEntities()
@@ -686,7 +686,7 @@ namespace Laboratory.Core.Memory
         {
             CleanupPools();
             System.GC.Collect();
-            Debug.Log("🧠 Forced memory pool cleanup completed");
+            Debug.Log("[Memory] Forced memory pool cleanup completed");
         }
 
         /// <summary>
@@ -706,7 +706,7 @@ namespace Laboratory.Core.Memory
             poolHits = 0;
             poolMisses = 0;
             poolHitRate = 0f;
-            Debug.Log("🧠 Memory pool statistics reset");
+            Debug.Log("[Memory] Memory pool statistics reset");
         }
 
         private void OnDestroy()

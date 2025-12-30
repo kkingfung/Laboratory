@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,17 +16,17 @@ namespace ProjectChimera.Core
     /// </summary>
     public class ChimeraManager : MonoBehaviour
     {
-        [Header("🐲 Project Chimera Core Settings")]
+        [Header("[Monster] Project Chimera Core Settings")]
         [SerializeField] private bool debugMode = true;
         [SerializeField] private bool autoInitialize = true;
         [SerializeField] private float systemCheckInterval = 5f;
         
-        [Header("🌍 World Settings")]
+        [Header("[World] World Settings")]
         [SerializeField] private string worldName = "Chimera Realm";
         [SerializeField] private int maxConcurrentPlayers = 100;
         [SerializeField] private Vector2 worldBounds = new Vector2(1000f, 1000f);
         
-        [Header("🧬 Monster Breeding Settings")]
+        [Header("[Genetics] Monster Breeding Settings")]
         [SerializeField] private int maxMonstersPerPlayer = 50;
         [SerializeField] private float breedingCooldown = 30f;
         [SerializeField] private int maxSpeciesVariants = 1000;
@@ -46,7 +46,7 @@ namespace ProjectChimera.Core
                         GameObject go = new GameObject("[ChimeraManager]");
                         _instance = go.AddComponent<ChimeraManager>();
                         DontDestroyOnLoad(go);
-                        Debug.Log("🐲 ChimeraManager auto-created");
+                        Debug.Log("[Monster] ChimeraManager auto-created");
                     }
                 }
                 return _instance;
@@ -71,7 +71,7 @@ namespace ProjectChimera.Core
             // Singleton enforcement
             if (_instance != null && _instance != this)
             {
-                Debug.LogWarning("⚠️ Multiple ChimeraManager instances detected! Destroying duplicate.");
+                Debug.LogWarning("[Warning] Multiple ChimeraManager instances detected! Destroying duplicate.");
                 Destroy(gameObject);
                 return;
             }
@@ -108,12 +108,12 @@ namespace ProjectChimera.Core
         {
             if (pauseStatus)
             {
-                Debug.Log("🐲 Chimera paused - saving state...");
+                Debug.Log("[Monster] Chimera paused - saving state...");
                 SaveCriticalGameState();
             }
             else
             {
-                Debug.Log("🐲 Chimera resumed - restoring state...");
+                Debug.Log("[Monster] Chimera resumed - restoring state...");
                 RestoreGameState();
             }
         }
@@ -122,7 +122,7 @@ namespace ProjectChimera.Core
         {
             if (!hasFocus && debugMode)
             {
-                Debug.Log("🐲 Chimera lost focus - reducing update frequency");
+                Debug.Log("[Monster] Chimera lost focus - reducing update frequency");
             }
         }
 
@@ -144,9 +144,9 @@ namespace ProjectChimera.Core
         {
             try
             {
-                Debug.Log($"🚀 Initializing Project Chimera Core Systems for '{worldName}'...");
-                Debug.Log($"🔧 Configuration: Max Players: {maxConcurrentPlayers}, Max Monsters per Player: {maxMonstersPerPlayer}");
-                Debug.Log($"🧬 Breeding Cooldown: {breedingCooldown}s, Max Species Variants: {maxSpeciesVariants}");
+                Debug.Log($"[Performance] Initializing Project Chimera Core Systems for '{worldName}'...");
+                Debug.Log($"[Tool] Configuration: Max Players: {maxConcurrentPlayers}, Max Monsters per Player: {maxMonstersPerPlayer}");
+                Debug.Log($"[Genetics] Breeding Cooldown: {breedingCooldown}s, Max Species Variants: {maxSpeciesVariants}");
 
                 // Initialize system status tracking
                 RegisterSystem("ChimeraCore", true);
@@ -164,7 +164,7 @@ namespace ProjectChimera.Core
                 }
                 systemCheckCoroutine = StartCoroutine(SystemCheckLoop());
                 
-                Debug.Log("✅ Chimera Core initialized successfully!");
+                Debug.Log("[OK] Chimera Core initialized successfully!");
             }
             catch (Exception e)
             {
@@ -174,7 +174,7 @@ namespace ProjectChimera.Core
 
         private IEnumerator InitializeAllSystems()
         {
-            Debug.Log("🌟 Starting full system initialization sequence...");
+            Debug.Log("[Shine] Starting full system initialization sequence...");
             
             yield return StartCoroutine(InitializeAudioSystem());
             yield return new WaitForSeconds(0.1f);
@@ -189,7 +189,7 @@ namespace ProjectChimera.Core
             yield return new WaitForSeconds(0.1f);
             
             OnChimeraInitialized?.Invoke();
-            Debug.Log("🎉 Project Chimera fully initialized and ready for monster breeding!");
+            Debug.Log("[Celebrate] Project Chimera fully initialized and ready for monster breeding!");
             
             if (debugMode)
             {
@@ -211,14 +211,14 @@ namespace ProjectChimera.Core
                 if (wasActive != isActive)
                 {
                     OnSystemStatusChanged?.Invoke(systemName, isActive);
-                    Debug.Log($"📊 System '{systemName}' status changed: {(isActive ? "ACTIVE" : "INACTIVE")}");
+                    Debug.Log($"[Stats] System '{systemName}' status changed: {(isActive ? "ACTIVE" : "INACTIVE")}");
                 }
             }
             else
             {
                 systemStatus.Add(systemName, isActive);
                 OnSystemStatusChanged?.Invoke(systemName, isActive);
-                Debug.Log($"📝 System '{systemName}' registered: {(isActive ? "ACTIVE" : "INACTIVE")}");
+                Debug.Log($"[Note] System '{systemName}' registered: {(isActive ? "ACTIVE" : "INACTIVE")}");
             }
         }
 
@@ -237,7 +237,7 @@ namespace ProjectChimera.Core
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"❌ System check failed: {e.Message}");
+                    Debug.LogError($"[X] System check failed: {e.Message}");
                 }
                 
                 yield return new WaitForSeconds(systemCheckInterval);
@@ -250,13 +250,13 @@ namespace ProjectChimera.Core
             long totalMemory = GC.GetTotalMemory(false);
             if (totalMemory > 500 * 1024 * 1024) // 500MB
             {
-                Debug.LogWarning($"⚠️ High memory usage detected: {totalMemory / (1024 * 1024)}MB");
+                Debug.LogWarning($"[Warning] High memory usage detected: {totalMemory / (1024 * 1024)}MB");
             }
             
             // Check frame rate
             if (Time.unscaledDeltaTime > 0.033f) // Below 30 FPS
             {
-                Debug.LogWarning($"⚠️ Low frame rate detected: {1f / Time.unscaledDeltaTime:F1} FPS");
+                Debug.LogWarning($"[Warning] Low frame rate detected: {1f / Time.unscaledDeltaTime:F1} FPS");
             }
             
             // Check for inactive systems
@@ -264,7 +264,7 @@ namespace ProjectChimera.Core
             {
                 if (!system.Value && IsSystemCritical(system.Key))
                 {
-                    Debug.LogWarning($"⚠️ Critical system '{system.Key}' is inactive!");
+                    Debug.LogWarning($"[Warning] Critical system '{system.Key}' is inactive!");
                 }
             }
         }
@@ -284,7 +284,7 @@ namespace ProjectChimera.Core
         {
             try
             {
-                Debug.Log("🎵 Initializing Audio System...");
+                Debug.Log("[Audio] Initializing Audio System...");
 
                 // Check for AudioListener
                 AudioListener listener = FindFirstObjectByType<AudioListener>();
@@ -294,11 +294,11 @@ namespace ProjectChimera.Core
                     if (mainCamera != null)
                     {
                         mainCamera.gameObject.AddComponent<AudioListener>();
-                        Debug.Log("🎵 Added AudioListener to main camera");
+                        Debug.Log("[Audio] Added AudioListener to main camera");
                     }
                     else
                     {
-                        Debug.LogWarning("⚠️ No main camera found for AudioListener");
+                        Debug.LogWarning("[Warning] No main camera found for AudioListener");
                     }
                 }
 
@@ -317,13 +317,13 @@ namespace ProjectChimera.Core
         {
             try
             {
-                Debug.Log("🌐 Initializing Network System...");
+                Debug.Log("[Network] Initializing Network System...");
 
                 // Initialize Unity Netcode for GameObjects
                 var networkManager = FindFirstObjectByType<Unity.Netcode.NetworkManager>();
                 if (networkManager == null)
                 {
-                    Debug.LogWarning("⚠️ NetworkManager not found in scene. Multiplayer features will be disabled.");
+                    Debug.LogWarning("[Warning] NetworkManager not found in scene. Multiplayer features will be disabled.");
                     RegisterSystem("NetworkSystem", false);
                     yield break;
                 }
@@ -338,11 +338,11 @@ namespace ProjectChimera.Core
                 if (transport != null)
                 {
                     transport.SetConnectionData("127.0.0.1", 7777);
-                    Debug.Log("🌐 Unity Transport configured for local testing");
+                    Debug.Log("[Network] Unity Transport configured for local testing");
                 }
 
                 // Initialize multiplayer foundation
-                Debug.Log($"🌐 Network system ready - Max Players: {maxConcurrentPlayers}");
+                Debug.Log($"[Network] Network system ready - Max Players: {maxConcurrentPlayers}");
                 RegisterSystem("NetworkSystem", true);
             }
             catch (Exception e)
@@ -358,7 +358,7 @@ namespace ProjectChimera.Core
         {
             try
             {
-                Debug.Log("🐲 Initializing Monster Management Systems...");
+                Debug.Log("[Monster] Initializing Monster Management Systems...");
             }
             catch (Exception e)
             {
@@ -372,14 +372,14 @@ namespace ProjectChimera.Core
             // Initialize breeding system
             yield return InitializeBreedingSystem();
 
-            Debug.Log("✅ Monster systems initialized!");
+            Debug.Log("[OK] Monster systems initialized!");
         }
 
         private IEnumerator InitializeMonsterManager()
         {
             try
             {
-                Debug.Log("🐉 Initializing Monster Manager...");
+                Debug.Log("[Dragon] Initializing Monster Manager...");
 
                 // Initialize monster data structures
                 var monsterDataCache = new Dictionary<string, object>();
@@ -387,24 +387,24 @@ namespace ProjectChimera.Core
 
                 // Load monster species definitions
                 var speciesDefinitions = Resources.LoadAll<ScriptableObject>("MonsterSpecies");
-                Debug.Log($"🐉 Loaded {speciesDefinitions.Length} monster species definitions");
+                Debug.Log($"[Dragon] Loaded {speciesDefinitions.Length} monster species definitions");
 
                 // Set up monster AI framework
                 var aiController = FindFirstObjectByType<MonoBehaviour>(); // Generic AI controller check
                 if (aiController == null)
                 {
-                    Debug.LogWarning("⚠️ No AI controller found in scene. Monster AI may be limited.");
+                    Debug.LogWarning("[Warning] No AI controller found in scene. Monster AI may be limited.");
                 }
 
                 // Initialize monster spawning pools
                 var monsterPools = new Dictionary<string, Queue<GameObject>>();
-                Debug.Log("🐉 Monster object pools initialized");
+                Debug.Log("[Dragon] Monster object pools initialized");
 
                 // Set up monster behavior state machine
-                Debug.Log("🐉 Monster AI behavior framework initialized");
+                Debug.Log("[Dragon] Monster AI behavior framework initialized");
 
                 RegisterSystem("MonsterManager", true);
-                Debug.Log($"✅ Monster Manager initialized - Max monsters per player: {maxMonstersPerPlayer}");
+                Debug.Log($"[OK] Monster Manager initialized - Max monsters per player: {maxMonstersPerPlayer}");
             }
             catch (Exception e)
             {
@@ -419,20 +419,20 @@ namespace ProjectChimera.Core
         {
             try
             {
-                Debug.Log("🧬 Initializing Breeding System...");
+                Debug.Log("[Genetics] Initializing Breeding System...");
 
                 // Initialize genetic algorithms
                 var geneticProcessor = new GeneticAlgorithmProcessor();
                 geneticProcessor.SetMutationRate(0.1f);
                 geneticProcessor.SetCrossoverRate(0.7f);
-                Debug.Log("🧬 Genetic algorithm processor initialized");
+                Debug.Log("[Genetics] Genetic algorithm processor initialized");
 
                 // Set up trait inheritance systems
                 var traitInheritance = new TraitInheritanceSystem();
                 traitInheritance.SetDominantTraitWeight(0.6f);
                 traitInheritance.SetRecessiveTraitWeight(0.4f);
                 traitInheritance.SetMutationChance(0.05f);
-                Debug.Log("🧬 Trait inheritance system configured");
+                Debug.Log("[Genetics] Trait inheritance system configured");
 
                 // Configure breeding constraints
                 var breedingConstraints = new BreedingConstraints
@@ -443,14 +443,14 @@ namespace ProjectChimera.Core
                     AllowInbreeding = false,
                     MinGeneticDiversity = 0.3f
                 };
-                Debug.Log($"🧬 Breeding constraints set - Cooldown: {breedingCooldown}s, Max variants: {maxSpeciesVariants}");
+                Debug.Log($"[Genetics] Breeding constraints set - Cooldown: {breedingCooldown}s, Max variants: {maxSpeciesVariants}");
 
                 // Initialize breeding history tracking
                 var breedingHistory = new List<BreedingRecord>();
-                Debug.Log("🧬 Breeding history tracking initialized");
+                Debug.Log("[Genetics] Breeding history tracking initialized");
 
                 RegisterSystem("BreedingSystem", true);
-                Debug.Log("✅ Breeding System fully operational!");
+                Debug.Log("[OK] Breeding System fully operational!");
             }
             catch (Exception e)
             {
@@ -465,14 +465,14 @@ namespace ProjectChimera.Core
         {
             try
             {
-                Debug.Log("🌍 Initializing World Generation...");
+                Debug.Log("[World] Initializing World Generation...");
 
                 // Initialize procedural terrain system
                 var terrainGenerator = new ProceduralTerrainSystem();
                 terrainGenerator.SetWorldBounds(worldBounds);
                 terrainGenerator.SetTerrainResolution(256);
                 terrainGenerator.SetHeightScale(50f);
-                Debug.Log($"🌍 Procedural terrain system initialized - World bounds: {worldBounds}");
+                Debug.Log($"[World] Procedural terrain system initialized - World bounds: {worldBounds}");
 
                 // Set up biome generation
                 var biomeGenerator = new BiomeGenerationSystem();
@@ -480,7 +480,7 @@ namespace ProjectChimera.Core
                 biomeGenerator.AddBiome("Desert", 0.2f, new Color(0.9f, 0.8f, 0.3f));
                 biomeGenerator.AddBiome("Mountain", 0.25f, new Color(0.6f, 0.6f, 0.6f));
                 biomeGenerator.AddBiome("Ocean", 0.25f, new Color(0.2f, 0.4f, 0.8f));
-                Debug.Log("🌍 Biome generation configured with 4 biome types");
+                Debug.Log("[World] Biome generation configured with 4 biome types");
 
                 // Configure monster habitat zones
                 var habitatManager = new MonsterHabitatZoneSystem();
@@ -491,16 +491,16 @@ namespace ProjectChimera.Core
                 habitatManager.LinkBiomeToSpecies("Desert", new[] { "SandWorm", "CactusElemental" });
                 habitatManager.LinkBiomeToSpecies("Mountain", new[] { "RockGolem", "SkyWhale" });
                 habitatManager.LinkBiomeToSpecies("Ocean", new[] { "SeaSerpent", "CrystalFish" });
-                Debug.Log("🌍 Monster habitat zones configured for all biomes");
+                Debug.Log("[World] Monster habitat zones configured for all biomes");
 
                 // Initialize world streaming system for large worlds
                 var worldStreamer = new WorldStreamingSystem();
                 worldStreamer.SetStreamingDistance(500f);
                 worldStreamer.SetChunkSize(100f);
-                Debug.Log("🌍 World streaming system initialized for large-scale worlds");
+                Debug.Log("[World] World streaming system initialized for large-scale worlds");
 
                 RegisterSystem("WorldGeneration", true);
-                Debug.Log("✅ World Generation system ready for monster habitats!");
+                Debug.Log("[OK] World Generation system ready for monster habitats!");
             }
             catch (Exception e)
             {
@@ -533,11 +533,11 @@ namespace ProjectChimera.Core
                 PlayerPrefs.SetString("ChimeraGameState", stateJson);
                 PlayerPrefs.Save();
 
-                Debug.Log("💾 Critical game state saved successfully");
+                Debug.Log("[Save] Critical game state saved successfully");
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Failed to save game state: {e.Message}");
+                Debug.LogError($"[X] Failed to save game state: {e.Message}");
             }
         }
 
@@ -561,18 +561,18 @@ namespace ProjectChimera.Core
                             }
                         }
 
-                        Debug.Log($"💾 Game state restored from {gameState.SavedAt}");
-                        Debug.Log($"💾 Previous session time: {gameState.SessionTime:F1}s");
+                        Debug.Log($"[Save] Game state restored from {gameState.SavedAt}");
+                        Debug.Log($"[Save] Previous session time: {gameState.SessionTime:F1}s");
                     }
                 }
                 else
                 {
-                    Debug.Log("💾 No saved game state found - starting fresh");
+                    Debug.Log("[Save] No saved game state found - starting fresh");
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Failed to restore game state: {e.Message}");
+                Debug.LogError($"[X] Failed to restore game state: {e.Message}");
             }
         }
 
@@ -583,7 +583,7 @@ namespace ProjectChimera.Core
         private void LogSystemError(string systemName, Exception exception)
         {
             string errorMessage = $"System '{systemName}' failed: {exception.Message}";
-            Debug.LogError($"❌ {errorMessage}");
+            Debug.LogError($"[X] {errorMessage}");
             
             OnSystemError?.Invoke(errorMessage);
             
@@ -596,7 +596,7 @@ namespace ProjectChimera.Core
         private void LogCriticalError(string message, Exception exception)
         {
             string fullMessage = $"CRITICAL ERROR: {message} - {exception.Message}";
-            Debug.LogError($"💥 {fullMessage}");
+            Debug.LogError($"[Crash] {fullMessage}");
             Debug.LogError($"Stack trace: {exception.StackTrace}");
             
             criticalErrors.Add(fullMessage);
@@ -605,22 +605,22 @@ namespace ProjectChimera.Core
 
         public void LogSystemDiagnostics()
         {
-            Debug.Log("📊 === PROJECT CHIMERA SYSTEM DIAGNOSTICS ===");
-            Debug.Log($"🕒 Session Time: {Time.realtimeSinceStartup:F2} seconds");
-            Debug.Log($"🎮 Frame Rate: {1f / Time.unscaledDeltaTime:F1} FPS");
-            Debug.Log($"💾 Memory Usage: {GC.GetTotalMemory(false) / (1024 * 1024)}MB");
-            Debug.Log($"🎯 Active Scene: {SceneManager.GetActiveScene().name}");
+            Debug.Log("[Stats] === PROJECT CHIMERA SYSTEM DIAGNOSTICS ===");
+            Debug.Log($"[Clock] Session Time: {Time.realtimeSinceStartup:F2} seconds");
+            Debug.Log($"[Game] Frame Rate: {1f / Time.unscaledDeltaTime:F1} FPS");
+            Debug.Log($"[Save] Memory Usage: {GC.GetTotalMemory(false) / (1024 * 1024)}MB");
+            Debug.Log($"[Target] Active Scene: {SceneManager.GetActiveScene().name}");
             
-            Debug.Log("📈 System Status:");
+            Debug.Log("[Progress] System Status:");
             foreach (var system in systemStatus)
             {
-                string status = system.Value ? "✅ ACTIVE" : "❌ INACTIVE";
+                string status = system.Value ? "[OK] ACTIVE" : "[X] INACTIVE";
                 Debug.Log($"   {system.Key}: {status}");
             }
             
             if (criticalErrors.Count > 0)
             {
-                Debug.Log($"💥 Critical Errors ({criticalErrors.Count}):");
+                Debug.Log($"[Crash] Critical Errors ({criticalErrors.Count}):");
                 foreach (string error in criticalErrors)
                 {
                     Debug.LogError($"   • {error}");
@@ -628,7 +628,7 @@ namespace ProjectChimera.Core
             }
             else
             {
-                Debug.Log("✅ No critical errors detected!");
+                Debug.Log("[OK] No critical errors detected!");
             }
             
             Debug.Log("=== END DIAGNOSTICS ===");
@@ -636,7 +636,7 @@ namespace ProjectChimera.Core
 
         public void RunEmergencyCleanup()
         {
-            Debug.Log("🧹 Running emergency cleanup...");
+            Debug.Log("[Clean] Running emergency cleanup...");
             
             try
             {
@@ -655,11 +655,11 @@ namespace ProjectChimera.Core
                 }
                 systemCheckCoroutine = StartCoroutine(SystemCheckLoop());
                 
-                Debug.Log("✅ Emergency cleanup completed");
+                Debug.Log("[OK] Emergency cleanup completed");
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Emergency cleanup failed: {e.Message}");
+                Debug.LogError($"[X] Emergency cleanup failed: {e.Message}");
             }
         }
 
@@ -678,7 +678,7 @@ namespace ProjectChimera.Core
             }
             else
             {
-                Debug.LogWarning("⚠️ Auto-initialize is enabled, manual initialization ignored");
+                Debug.LogWarning("[Warning] Auto-initialize is enabled, manual initialization ignored");
             }
         }
 
@@ -711,7 +711,7 @@ namespace ProjectChimera.Core
         /// </summary>
         public void RestartSystem(string systemName)
         {
-            Debug.Log($"🔄 Restarting system: {systemName}");
+            Debug.Log($"[Refresh] Restarting system: {systemName}");
             
             switch (systemName)
             {
@@ -731,7 +731,7 @@ namespace ProjectChimera.Core
                     StartCoroutine(InitializeWorldGeneration());
                     break;
                 default:
-                    Debug.LogWarning($"⚠️ Unknown system: {systemName}");
+                    Debug.LogWarning($"[Warning] Unknown system: {systemName}");
                     break;
             }
         }
@@ -744,7 +744,7 @@ namespace ProjectChimera.Core
         {
             try
             {
-                Debug.Log("🧹 Cleaning up Chimera systems...");
+                Debug.Log("[Clean] Cleaning up Chimera systems...");
                 
                 if (systemCheckCoroutine != null)
                 {
@@ -761,11 +761,11 @@ namespace ProjectChimera.Core
                 OnChimeraInitialized = null;
                 OnChimeraShutdown = null;
                 
-                Debug.Log("✅ Chimera cleanup completed");
+                Debug.Log("[OK] Chimera cleanup completed");
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Cleanup failed: {e.Message}");
+                Debug.LogError($"[X] Cleanup failed: {e.Message}");
             }
         }
 
@@ -774,7 +774,7 @@ namespace ProjectChimera.Core
         #region Editor Utilities
 
         #if UNITY_EDITOR
-        [MenuItem("🧪 Laboratory/Project Chimera/Force System Check")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Force System Check")]
         public static void ForceSystemCheck()
         {
             if (Instance != null)
@@ -783,11 +783,11 @@ namespace ProjectChimera.Core
             }
             else
             {
-                Debug.LogWarning("⚠️ ChimeraManager not found in scene");
+                Debug.LogWarning("[Warning] ChimeraManager not found in scene");
             }
         }
 
-        [MenuItem("🧪 Laboratory/Project Chimera/Emergency Cleanup")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Emergency Cleanup")]
         public static void ForceEmergencyCleanup()
         {
             if (Instance != null)
@@ -796,11 +796,11 @@ namespace ProjectChimera.Core
             }
             else
             {
-                Debug.LogWarning("⚠️ ChimeraManager not found in scene");
+                Debug.LogWarning("[Warning] ChimeraManager not found in scene");
             }
         }
 
-        [MenuItem("🧪 Laboratory/Project Chimera/Restart All Systems")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Restart All Systems")]
         public static void RestartAllSystems()
         {
             if (Instance != null)
@@ -809,7 +809,7 @@ namespace ProjectChimera.Core
             }
             else
             {
-                Debug.LogWarning("⚠️ ChimeraManager not found in scene");
+                Debug.LogWarning("[Warning] ChimeraManager not found in scene");
             }
         }
         #endif

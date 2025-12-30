@@ -224,7 +224,7 @@ namespace Laboratory.Chimera.UI
         
         private void OnCardClicked()
         {
-            UnityEngine.Debug.Log($"🎯 Clicked creature card: {creature.Name}");
+            UnityEngine.Debug.Log($"[Target] Clicked creature card: {creature.Name}");
         }
         
         private void OnQuickActionClicked()
@@ -277,7 +277,7 @@ namespace Laboratory.Chimera.UI
         
         private void ShowQuickActionMenu()
         {
-            UnityEngine.Debug.Log($"📋 Quick action menu for {creature.Name}");
+            UnityEngine.Debug.Log($"[Menu] Quick action menu for {creature.Name}");
             
             // Show available actions based on creature state
             if (creature.CanBreed)
@@ -302,7 +302,7 @@ namespace Laboratory.Chimera.UI
         
         private void QuickBreed()
         {
-            UnityEngine.Debug.Log($"🧬 Quick breed requested for {creature.Name}");
+            UnityEngine.Debug.Log($"[Genetics] Quick breed requested for {creature.Name}");
             
             // Find suitable partner and start breeding
             var breedingUI = FindFirstObjectByType<AdvancedBreedingUI>();
@@ -331,7 +331,7 @@ namespace Laboratory.Chimera.UI
             }
             
             UpdateHealthBars();
-            UnityEngine.Debug.Log($"💚 Healed {creature.Name}");
+            UnityEngine.Debug.Log($"[Health] Healed {creature.Name}");
         }
         
         private void QuickFeed()
@@ -348,7 +348,7 @@ namespace Laboratory.Chimera.UI
             }
             
             UpdateHealthBars();
-            UnityEngine.Debug.Log($"🍖 Fed {creature.Name}");
+            UnityEngine.Debug.Log($"[Food] Fed {creature.Name}");
         }
         
         private void ToggleFavorite()
@@ -356,7 +356,7 @@ namespace Laboratory.Chimera.UI
             creature.IsFavorite = !creature.IsFavorite;
             UpdateStatusIndicators();
             
-            UnityEngine.Debug.Log($"⭐ {creature.Name} favorite status: {creature.IsFavorite}");
+            UnityEngine.Debug.Log($"[Star] {creature.Name} favorite status: {creature.IsFavorite}");
         }
         
         #endregion

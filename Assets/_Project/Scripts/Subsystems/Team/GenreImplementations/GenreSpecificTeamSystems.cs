@@ -714,7 +714,7 @@ namespace Laboratory.Subsystems.Team.GenreImplementations
                     break;
             }
 
-            Debug.Log($"✅ Activated {genre} team components for team entity");
+            Debug.Log($"[OK] Activated {genre} team components for team entity");
         }
 
         private void RemoveAllGenreComponents(Entity teamEntity)

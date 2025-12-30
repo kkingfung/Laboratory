@@ -8,7 +8,7 @@ namespace ProjectChimera.AI.BehaviorTrees
     /// BEHAVIOR TREE AUTHORING - Unity Inspector integration for behavior tree creation
     /// PURPOSE: Enable designers to create and edit behavior trees directly in Unity Inspector
     /// FEATURES: Visual tree editing, parameter configuration, runtime modification support
-    /// WORKFLOW: Design in Inspector → Convert to ECS → Execute at runtime
+    /// WORKFLOW: Design in Inspector -> Convert to ECS -> Execute at runtime
     /// </summary>
     public class BehaviorTreeAuthoring : MonoBehaviour
     {

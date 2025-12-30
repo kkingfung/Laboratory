@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -419,7 +419,7 @@ namespace Laboratory.Subsystems.Team.Systems
                 ecb.RemoveComponent<MatchmakingQueueComponent>(playerEntity);
             }
 
-            Debug.Log($"✅ Created team with {match.PlayerIndices.Length} players " +
+            Debug.Log($"[OK] Created team with {match.PlayerIndices.Length} players " +
                      $"(Quality: {match.MatchQuality:F2}, Avg Skill: {averageSkill:F0})");
         }
 
@@ -497,7 +497,7 @@ namespace Laboratory.Subsystems.Team.Systems
 
             ecb.RemoveComponent<MatchmakingQueueComponent>(playerEntity);
 
-            Debug.Log($"✅ Created training team for player (Skill: {player.SkillLevel})");
+            Debug.Log($"[OK] Created training team for player (Skill: {player.SkillLevel})");
         }
 
         private void ProcessBackfillRequests(float currentTime, EntityCommandBuffer ecb)
@@ -525,7 +525,7 @@ namespace Laboratory.Subsystems.Team.Systems
                 {
                     // Remove from queue - player gave up waiting
                     ecb.RemoveComponent<MatchmakingQueueComponent>(entity);
-                    Debug.Log($"⏰ Player removed from queue after {waitTime:F1}s timeout");
+                    Debug.Log($"[Time] Player removed from queue after {waitTime:F1}s timeout");
                 }
             }
         }

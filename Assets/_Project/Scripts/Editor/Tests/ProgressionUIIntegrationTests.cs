@@ -28,60 +28,60 @@ namespace Laboratory.Editor.Tests
                 // Test 1: PlayerProgressionUI component structure
                 EditorUtility.DisplayProgressBar("Progression UI Tests", "Test 1/6: Component Structure", 1f/6f);
                 if (TestComponentStructure(out string result1))
-                    results.Add("✓ PlayerProgressionUI: All skill sliders present");
+                    results.Add("[OK] PlayerProgressionUI: All skill sliders present");
                 else
                 {
-                    results.Add("✗ Component Structure: " + result1);
+                    results.Add("[X] Component Structure: " + result1);
                     allPassed = false;
                 }
 
                 // Test 2: Genre mastery sliders
                 EditorUtility.DisplayProgressBar("Progression UI Tests", "Test 2/6: Genre Mastery", 2f/6f);
                 if (TestGenreMasterySliders(out string result2))
-                    results.Add("✓ Genre Mastery: All 7 genre sliders configured");
+                    results.Add("[OK] Genre Mastery: All 7 genre sliders configured");
                 else
                 {
-                    results.Add("✗ Genre Mastery: " + result2);
+                    results.Add("[X] Genre Mastery: " + result2);
                     allPassed = false;
                 }
 
                 // Test 3: Partnership quality sliders
                 EditorUtility.DisplayProgressBar("Progression UI Tests", "Test 3/6: Partnership Quality", 3f/6f);
                 if (TestPartnershipQualitySliders(out string result3))
-                    results.Add("✓ Partnership Quality: Cooperation/Trust/Understanding sliders configured");
+                    results.Add("[OK] Partnership Quality: Cooperation/Trust/Understanding sliders configured");
                 else
                 {
-                    results.Add("✗ Partnership Quality: " + result3);
+                    results.Add("[X] Partnership Quality: " + result3);
                     allPassed = false;
                 }
 
                 // Test 4: ECS integration
                 EditorUtility.DisplayProgressBar("Progression UI Tests", "Test 4/6: ECS Integration", 4f/6f);
                 if (TestECSIntegration(out string result4))
-                    results.Add("✓ ECS Integration: Component queries work correctly");
+                    results.Add("[OK] ECS Integration: Component queries work correctly");
                 else
                 {
-                    results.Add("✗ ECS Integration: " + result4);
+                    results.Add("[X] ECS Integration: " + result4);
                     allPassed = false;
                 }
 
                 // Test 5: Event subscriptions
                 EditorUtility.DisplayProgressBar("Progression UI Tests", "Test 5/6: Event System", 5f/6f);
                 if (TestEventSubscriptions(out string result5))
-                    results.Add("✓ Event System: Skill-based events configured");
+                    results.Add("[OK] Event System: Skill-based events configured");
                 else
                 {
-                    results.Add("✗ Event System: " + result5);
+                    results.Add("[X] Event System: " + result5);
                     allPassed = false;
                 }
 
                 // Test 6: Mastery tier conversion
                 EditorUtility.DisplayProgressBar("Progression UI Tests", "Test 6/6: Mastery Tiers", 6f/6f);
                 if (TestMasteryTierConversion(out string result6))
-                    results.Add("✓ Mastery Tiers: Conversion logic works correctly");
+                    results.Add("[OK] Mastery Tiers: Conversion logic works correctly");
                 else
                 {
-                    results.Add("✗ Mastery Tiers: " + result6);
+                    results.Add("[X] Mastery Tiers: " + result6);
                     allPassed = false;
                 }
             }
@@ -92,8 +92,8 @@ namespace Laboratory.Editor.Tests
 
             // Display results
             string summary = allPassed ?
-                "✅ All progression UI tests passed!" :
-                "⚠ Some tests failed - review results below";
+                "[OK] All progression UI tests passed!" :
+                "[Warning] Some tests failed - review results below";
 
             string fullReport = $"{summary}\n\n" + string.Join("\n", results);
 
@@ -317,7 +317,7 @@ namespace Laboratory.Editor.Tests
                     string tier = GetMasteryTierForValue(value);
                     if (tier != expectedTier)
                     {
-                        result = $"Tier mismatch: {value:F1} → {tier} (expected {expectedTier})";
+                        result = $"Tier mismatch: {value:F1} -> {tier} (expected {expectedTier})";
                         return false;
                     }
                 }
@@ -369,7 +369,7 @@ namespace Laboratory.Editor.Tests
             report.AppendLine($"## Skill-Based System");
             report.AppendLine($"- Genre Mastery: 7 skills (Action, Strategy, Puzzle, Racing, Rhythm, Exploration, Economics)");
             report.AppendLine($"- Partnership Quality: 3 metrics (Cooperation, Trust, Understanding)");
-            report.AppendLine($"- Mastery Tiers: 6 levels (Novice → Grandmaster)");
+            report.AppendLine($"- Mastery Tiers: 6 levels (Novice -> Grandmaster)");
             report.AppendLine();
 
             report.AppendLine($"## ECS Integration");

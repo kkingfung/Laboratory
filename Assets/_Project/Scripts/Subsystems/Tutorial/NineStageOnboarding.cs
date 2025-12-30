@@ -149,7 +149,7 @@ namespace Laboratory.Subsystems.Tutorial
             _hasCompletedOnboarding = true;
 
             OnOnboardingCompleted?.Invoke();
-            OnCelebration?.Invoke("🎓 Congratulations! You've completed the full training program!");
+            OnCelebration?.Invoke("[Graduation] Congratulations! You've completed the full training program!");
 
             Debug.Log("[NineStageOnboarding] Onboarding completed!");
         }
@@ -255,19 +255,19 @@ namespace Laboratory.Subsystems.Tutorial
         {
             if (performance.Score >= 0.9f && performance.MistakeCount == 0)
             {
-                return "⭐ Perfect! Outstanding performance!";
+                return "[Perfect] Outstanding performance!";
             }
             else if (performance.Score >= 0.7f)
             {
-                return "✅ Great job! You're getting the hang of it!";
+                return "[Great] You're getting the hang of it!";
             }
             else if (performance.Score >= 0.5f)
             {
-                return "👍 Good work! Keep practicing!";
+                return "[Good] Keep practicing!";
             }
             else
             {
-                return "💪 You completed it! Every step forward counts!";
+                return "[Complete] You completed it! Every step forward counts!";
             }
         }
 

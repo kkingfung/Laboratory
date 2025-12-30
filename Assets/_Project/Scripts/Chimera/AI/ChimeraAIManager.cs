@@ -34,7 +34,7 @@ namespace Laboratory.Chimera.AI
         private Vector3[] formationPositions = new Vector3[8];
         private int nextFormationSlot = 0;
 
-        // ⚡ OPTIMIZATION: Pre-allocated collections to eliminate LINQ allocations
+        // [Performance] OPTIMIZATION: Pre-allocated collections to eliminate LINQ allocations
         private List<ChimeraMonsterAI> nearbyMonstersCache = new List<ChimeraMonsterAI>();
         private List<ChimeraMonsterAI> combatMonstersCache = new List<ChimeraMonsterAI>();
         private List<ChimeraMonsterAI> tempMonsterList = new List<ChimeraMonsterAI>();
@@ -246,7 +246,7 @@ namespace Laboratory.Chimera.AI
             {
                 if (monster == null || monster.CurrentTarget == null) continue;
 
-                // ⚡ OPTIMIZED: Replace LINQ with for-loop to eliminate 2-10ms allocation spikes
+                // [Performance] OPTIMIZED: Replace LINQ with for-loop to eliminate 2-10ms allocation spikes
                 nearbyMonstersCache.Clear();
                 var monsterPos = monster.transform.position;
 
@@ -255,7 +255,7 @@ namespace Laboratory.Chimera.AI
                     var m = managedMonsters[i];
                     if (m != null && m != monster && m.CurrentState != AIBehaviorState.Combat)
                     {
-                        // ⚡ OPTIMIZED: Use sqrMagnitude for 30-50% faster distance checks
+                        // [Performance] OPTIMIZED: Use sqrMagnitude for 30-50% faster distance checks
                         var sqrDistance = (m.transform.position - monsterPos).sqrMagnitude;
                         var sqrRadius = packCohesionRadius * packCohesionRadius;
                         if (sqrDistance <= sqrRadius)
@@ -394,7 +394,7 @@ namespace Laboratory.Chimera.AI
         /// </summary>
         public List<ChimeraMonsterAI> GetMonstersInCombat()
         {
-            // ⚡ OPTIMIZED: Replace LINQ with for-loop to eliminate allocations
+            // [Performance] OPTIMIZED: Replace LINQ with for-loop to eliminate allocations
             combatMonstersCache.Clear();
             for (int i = 0; i < managedMonsters.Count; i++)
             {

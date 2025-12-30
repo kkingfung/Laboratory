@@ -44,11 +44,11 @@ namespace Laboratory.Systems.Analytics.Services
         {
             _emotionalHistory[EmotionalState.Neutral] = 0.5f;
             _emotionalHistory[EmotionalState.Excited] = 0f;
-            _emotionalHistory[EmotionalState.Angry] = 0f;      // Frustrated → Angry
-            _emotionalHistory[EmotionalState.Happy] = 0f;       // Satisfied → Happy
-            _emotionalHistory[EmotionalState.Confident] = 0f;   // Curious → Confident (exploring with confidence)
+            _emotionalHistory[EmotionalState.Angry] = 0f;      // Frustrated -> Angry
+            _emotionalHistory[EmotionalState.Happy] = 0f;       // Satisfied -> Happy
+            _emotionalHistory[EmotionalState.Confident] = 0f;   // Curious -> Confident (exploring with confidence)
             _emotionalHistory[EmotionalState.Anxious] = 0f;
-            _emotionalHistory[EmotionalState.Calm] = 0f;        // Bored → Calm
+            _emotionalHistory[EmotionalState.Calm] = 0f;        // Bored -> Calm
 
             _currentDominantEmotion = EmotionalState.Neutral;
         }
@@ -157,25 +157,25 @@ namespace Laboratory.Systems.Analytics.Services
 
                 case "Defeat":
                 case "Failure":
-                    inferredState = EmotionalState.Angry;  // Frustration → Anger
+                    inferredState = EmotionalState.Angry;  // Frustration -> Anger
                     inferredIntensity = 0.6f;
                     break;
 
                 case "Discovery":
                 case "Exploration":
-                    inferredState = EmotionalState.Excited;  // Curiosity → Excitement
+                    inferredState = EmotionalState.Excited;  // Curiosity -> Excitement
                     inferredIntensity = 0.5f;
                     break;
 
                 case "Completion":
                 case "Reward":
-                    inferredState = EmotionalState.Happy;  // Satisfaction → Happiness
+                    inferredState = EmotionalState.Happy;  // Satisfaction -> Happiness
                     inferredIntensity = 0.6f;
                     break;
 
                 case "Idle":
                 case "Wait":
-                    inferredState = EmotionalState.Calm;  // Boredom → Calm
+                    inferredState = EmotionalState.Calm;  // Boredom -> Calm
                     inferredIntensity = 0.4f;
                     break;
             }
@@ -227,14 +227,14 @@ namespace Laboratory.Systems.Analytics.Services
                 switch (kvp.Key)
                 {
                     case EmotionalState.Excited:
-                    case EmotionalState.Happy:       // Satisfied → Happy
-                    case EmotionalState.Confident:   // Curious → Confident
+                    case EmotionalState.Happy:       // Satisfied -> Happy
+                    case EmotionalState.Confident:   // Curious -> Confident
                         positive += kvp.Value;
                         break;
 
-                    case EmotionalState.Angry:       // Frustrated → Angry
+                    case EmotionalState.Angry:       // Frustrated -> Angry
                     case EmotionalState.Anxious:
-                    case EmotionalState.Calm:        // Bored → Calm
+                    case EmotionalState.Calm:        // Bored -> Calm
                         negative += kvp.Value;
                         break;
                 }

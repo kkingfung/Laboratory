@@ -611,13 +611,13 @@ namespace Laboratory.Chimera.AI
 
         public string GetComprehensiveAIStatus()
         {
-            var status = $"🤖 AI State: {currentState}\n";
-            status += $"🎯 Behavior: {behaviorType}\n";
+            var status = $"[AI] AI State: {currentState}\n";
+            status += $"[Target] Behavior: {behaviorType}\n";
 
             if (currentTarget != null)
-                status += $"🎯 Target: {currentTarget.name}\n";
+                status += $"[Target] Target: {currentTarget.name}\n";
 
-            status += $"⚡ Aggression Level: {geneticAggressionModifier:P0}\n";
+            status += $"[Power] Aggression Level: {geneticAggressionModifier:P0}\n";
 
             // Add genetic info if available
             status += this.GetGeneticBehaviorSummary();

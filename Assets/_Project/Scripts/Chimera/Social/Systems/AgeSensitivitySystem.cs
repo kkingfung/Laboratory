@@ -96,7 +96,7 @@ namespace Laboratory.Chimera.Social
                 sensitivity.ValueRW.agePercentage = agePercent;
 
                 // Calculate sensitivity modifiers based on life stage
-                // 5-STAGE EMOTIONAL JOURNEY: Baby → Child → Teen → Adult → Elderly
+                // 5-STAGE EMOTIONAL JOURNEY: Baby ??Child ??Teen ??Adult ??Elderly
                 switch (currentStage)
                 {
                     case LifeStage.Baby:
@@ -348,7 +348,7 @@ namespace Laboratory.Chimera.Social
                         memoriesNowPermanent = currentStage >= LifeStage.Teen // Teen and beyond have strong memory
                     });
 
-                    Debug.LogWarning($"AGE TRANSITION: {trackedStage} → {currentStage}. " +
+                    Debug.LogWarning($"AGE TRANSITION: {trackedStage} ??{currentStage}. " +
                                    $"Relationship now {(becameLessForgiving ? "MORE FRAGILE" : "unchanged")}!");
                 }
             }

@@ -422,7 +422,7 @@ namespace Laboratory.Subsystems.EnemyAI
             
             _eventBus?.Publish(new AIStateChangedEvent(oldState, newState, gameObject));
             
-            LogDebug($"AI state changed: {oldState} → {newState}");
+            LogDebug($"AI state changed: {oldState} -> {newState}");
         }
 
         private void OnStateExit(EnemyAIState state)

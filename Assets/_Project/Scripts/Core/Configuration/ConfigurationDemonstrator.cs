@@ -51,11 +51,11 @@ namespace Laboratory.Core.Configuration
         {
             var config = Config.Performance;
 
-            Debug.Log("📊 [Configuration System] Current Performance Settings:");
-            Debug.Log($"  🕐 Update Frequencies: Critical={config.criticalUpdateFrequency}Hz, High={config.highUpdateFrequency}Hz, Medium={config.mediumUpdateFrequency}Hz, Low={config.lowUpdateFrequency}Hz");
-            Debug.Log($"  🧠 AI Settings: MaxAgents={config.maxPathfindingAgentsPerFrame}, PathRequests={config.maxPathRequestsPerFrame}, CacheLifetime={config.pathCacheLifetime}s");
-            Debug.Log($"  💾 Memory: PoolSize={config.nativeArrayPoolSize}, ListCapacity={config.pathListInitialCapacity}, MaxLists={config.maxPooledLists}");
-            Debug.Log($"  🌐 Network: High={config.highPriorityNetworkRate}Hz, Medium={config.mediumPriorityNetworkRate}Hz, Low={config.lowPriorityNetworkRate}Hz");
+            Debug.Log("[Config] [Configuration System] Current Performance Settings:");
+            Debug.Log($"  [Time] Update Frequencies: Critical={config.criticalUpdateFrequency}Hz, High={config.highUpdateFrequency}Hz, Medium={config.mediumUpdateFrequency}Hz, Low={config.lowUpdateFrequency}Hz");
+            Debug.Log($"  [AI] AI Settings: MaxAgents={config.maxPathfindingAgentsPerFrame}, PathRequests={config.maxPathRequestsPerFrame}, CacheLifetime={config.pathCacheLifetime}s");
+            Debug.Log($"  [Memory] Memory: PoolSize={config.nativeArrayPoolSize}, ListCapacity={config.pathListInitialCapacity}, MaxLists={config.maxPooledLists}");
+            Debug.Log($"  [Network] Network: High={config.highPriorityNetworkRate}Hz, Medium={config.mediumPriorityNetworkRate}Hz, Low={config.lowPriorityNetworkRate}Hz");
         }
 
         private void MonitorConfigurationUsage()
@@ -81,7 +81,7 @@ namespace Laboratory.Core.Configuration
                                 var statsType = stats.GetType();
                                 var totalSystems = statsType.GetProperty("TotalRegisteredSystems")?.GetValue(stats);
                                 var systemsUpdated = statsType.GetProperty("SystemsUpdatedThisFrame")?.GetValue(stats);
-                                Debug.Log($"📈 [Config Monitor] Update Manager: {totalSystems} systems, {systemsUpdated} updated this frame");
+                                Debug.Log($"[Stats] [Config Monitor] Update Manager: {totalSystems} systems, {systemsUpdated} updated this frame");
                             }
                         }
                     }
@@ -96,7 +96,7 @@ namespace Laboratory.Core.Configuration
         {
             var config = Config.Performance;
 
-            Debug.Log($"⚙️ [Config Usage] Current intervals being used:");
+            Debug.Log($"[Settings] [Config Usage] Current intervals being used:");
             Debug.Log($"  High Frequency: {Config.UpdateInterval(UpdateFrequency.High):F3}s");
             Debug.Log($"  Medium Frequency: {Config.UpdateInterval(UpdateFrequency.Medium):F3}s");
             Debug.Log($"  Low Frequency: {Config.UpdateInterval(UpdateFrequency.Low):F3}s");
@@ -115,7 +115,7 @@ namespace Laboratory.Core.Configuration
                 return;
             }
 
-            Debug.Log("🔄 [Configuration Test] Overriding configuration temporarily...");
+            Debug.Log("[Test] [Configuration Test] Overriding configuration temporarily...");
 
             var originalConfig = Config.Performance;
             ConfigurationManager.Instance.SetPerformanceConfiguration(testConfiguration);
@@ -131,7 +131,7 @@ namespace Laboratory.Core.Configuration
         {
             // This would restore to the original configuration
             // In a real scenario, you'd keep a reference to the original
-            Debug.Log("🔄 [Configuration Test] Configuration override test completed");
+            Debug.Log("[Test] [Configuration Test] Configuration override test completed");
         }
 
         #endregion
@@ -141,28 +141,28 @@ namespace Laboratory.Core.Configuration
         [ContextMenu("Show Before/After Magic Numbers")]
         private void ShowMagicNumberComparison()
         {
-            Debug.Log("🎯 [Magic Number Elimination] Before vs After Comparison:");
+            Debug.Log("[Compare] [Magic Number Elimination] Before vs After Comparison:");
 
-            Debug.Log("❌ BEFORE (Magic Numbers):");
+            Debug.Log("[Before] BEFORE (Magic Numbers):");
             Debug.Log("  const float SPATIAL_CELL_SIZE = 25f;");
             Debug.Log("  const int MAX_FLOW_FIELDS = 100;");
             Debug.Log("  const int MAX_POOLED_LISTS = 20;");
             Debug.Log("  private float pathUpdateInterval = 0.2f;");
             Debug.Log("  new List<Vector3>(50);");
 
-            Debug.Log("✅ AFTER (Configuration-Driven):");
+            Debug.Log("[OK] AFTER (Configuration-Driven):");
             Debug.Log($"  Config.Performance.spatialCellSize = {Config.Performance.spatialCellSize}");
             Debug.Log($"  Config.Performance.maxFlowFields = {Config.Performance.maxFlowFields}");
             Debug.Log($"  Config.Performance.maxPooledLists = {Config.Performance.maxPooledLists}");
             Debug.Log($"  Config.Performance.pathUpdateInterval = {Config.Performance.pathUpdateInterval}");
             Debug.Log($"  Config.Performance.pathListInitialCapacity = {Config.Performance.pathListInitialCapacity}");
 
-            Debug.Log("🎉 Benefits:");
-            Debug.Log("  • Designer-friendly tuning in Inspector");
-            Debug.Log("  • Runtime configuration changes possible");
-            Debug.Log("  • Centralized performance settings");
-            Debug.Log("  • No more scattered magic numbers");
-            Debug.Log("  • ScriptableObject-based configuration assets");
+            Debug.Log("[Benefits] Benefits:");
+            Debug.Log("  - Designer-friendly tuning in Inspector");
+            Debug.Log("  - Runtime configuration changes possible");
+            Debug.Log("  - Centralized performance settings");
+            Debug.Log("  - No more scattered magic numbers");
+            Debug.Log("  - ScriptableObject-based configuration assets");
         }
 
         [ContextMenu("Simulate Performance Tuning")]
@@ -170,19 +170,19 @@ namespace Laboratory.Core.Configuration
         {
             var config = Config.Performance;
 
-            Debug.Log("🔧 [Performance Tuning Simulation]");
+            Debug.Log("[Performance] [Performance Tuning Simulation]");
             Debug.Log("Scenario: Game is running slowly with many AI agents...");
 
             Debug.Log("Current AI Settings:");
-            Debug.Log($"  • Max Pathfinding Agents per Frame: {config.maxPathfindingAgentsPerFrame}");
-            Debug.Log($"  • Max Path Requests per Frame: {config.maxPathRequestsPerFrame}");
-            Debug.Log($"  • Update Frequencies: {config.lowUpdateFrequency}Hz (low), {config.mediumUpdateFrequency}Hz (medium)");
+            Debug.Log($"  - Max Pathfinding Agents per Frame: {config.maxPathfindingAgentsPerFrame}");
+            Debug.Log($"  - Max Path Requests per Frame: {config.maxPathRequestsPerFrame}");
+            Debug.Log($"  - Update Frequencies: {config.lowUpdateFrequency}Hz (low), {config.mediumUpdateFrequency}Hz (medium)");
 
-            Debug.Log("🎛️ Suggested optimizations (just change values in PerformanceConfiguration):");
-            Debug.Log("  • Reduce maxPathfindingAgentsPerFrame from 10 → 5");
-            Debug.Log("  • Reduce lowUpdateFrequency from 5Hz → 2Hz");
-            Debug.Log("  • Increase pathCacheLifetime from 5s → 10s (cache longer)");
-            Debug.Log("  • No code changes required - just adjust ScriptableObject!");
+            Debug.Log("[Optimize] Suggested optimizations (just change values in PerformanceConfiguration):");
+            Debug.Log("  - Reduce maxPathfindingAgentsPerFrame from 10 -> 5");
+            Debug.Log("  - Reduce lowUpdateFrequency from 5Hz -> 2Hz");
+            Debug.Log("  - Increase pathCacheLifetime from 5s -> 10s (cache longer)");
+            Debug.Log("  - No code changes required - just adjust ScriptableObject!");
         }
 
         #endregion

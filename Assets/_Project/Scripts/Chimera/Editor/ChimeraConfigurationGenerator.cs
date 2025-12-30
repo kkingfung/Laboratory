@@ -20,13 +20,13 @@ namespace Laboratory.Chimera.Editor
         private bool _overwriteExisting = false;
         private string _configAssetName = "ChimeraUniverse";
 
-        [MenuItem("🧪 Laboratory/Project Chimera/Windows/Generate Configuration Assets")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Windows/Generate Configuration Assets")]
         public static void ShowWindow()
         {
             GetWindow<ChimeraConfigurationGenerator>("Chimera Config Generator");
         }
 
-        [MenuItem("🧪 Laboratory/Project Chimera/Assets/Default Universe Configuration")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Assets/Default Universe Configuration")]
         public static void CreateDefaultConfiguration()
         {
             CreateChimeraUniverseConfiguration("ChimeraUniverse", true);
@@ -165,7 +165,7 @@ namespace Laboratory.Chimera.Editor
             Selection.activeObject = config;
             EditorGUIUtility.PingObject(config);
 
-            Laboratory.Chimera.Diagnostics.DebugManager.Log($"✅ Created Chimera Universe Configuration at: {assetPath}");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log($"[OK] Created Chimera Universe Configuration at: {assetPath}");
         }
 
         private void CreateDemoSceneSetup()
@@ -197,7 +197,7 @@ namespace Laboratory.Chimera.Editor
             var prefab = PrefabUtility.SaveAsPrefabAsset(demoSetup, prefabPath);
             DestroyImmediate(demoSetup);
 
-            Laboratory.Chimera.Diagnostics.DebugManager.Log($"✅ Created Chimera World Demo prefab at: {prefabPath}");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log($"[OK] Created Chimera World Demo prefab at: {prefabPath}");
         }
 
         private void CreateExamplePrefabs()
@@ -224,10 +224,10 @@ namespace Laboratory.Chimera.Editor
             PrefabUtility.SaveAsPrefabAsset(creatureViz, creaturePrefabPath);
             DestroyImmediate(creatureViz);
 
-            Laboratory.Chimera.Diagnostics.DebugManager.Log($"✅ Created creature visualization prefab at: {creaturePrefabPath}");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log($"[OK] Created creature visualization prefab at: {creaturePrefabPath}");
         }
 
-        [MenuItem("🧪 Laboratory/Project Chimera/Assets/Testing Scene")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Assets/Testing Scene")]
         public static void CreateTestingScene()
         {
             // Create a new scene for testing
@@ -260,7 +260,7 @@ namespace Laboratory.Chimera.Editor
             groundMaterial.color = new Color(0.3f, 0.7f, 0.3f);
             ground.GetComponent<Renderer>().material = groundMaterial;
 
-            Laboratory.Chimera.Diagnostics.DebugManager.Log("✅ Created Chimera testing scene with world bootstrap!");
+            Laboratory.Chimera.Diagnostics.DebugManager.Log("[OK] Created Chimera testing scene with world bootstrap!");
         }
     }
 

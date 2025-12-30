@@ -245,7 +245,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 eventHistory[config.Type] = 0f;
             }
 
-            UnityEngine.Debug.Log($"💥 Initialized {eventConfigs.Count} catastrophe types");
+            UnityEngine.Debug.Log($"[Ecosystem] Initialized {eventConfigs.Count} catastrophe types");
         }
 
         private IEnumerator CatastropheMonitoringLoop()
@@ -350,7 +350,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             ApplyCatastropheEffects(catastrophe);
             OnCatastropheTriggered?.Invoke(catastrophe);
 
-            UnityEngine.Debug.Log($"💥 {type} triggered at {location} (intensity: {intensity:F2}, radius: {radius:F1})");
+            UnityEngine.Debug.Log($"[Ecosystem] {type} triggered at {location} (intensity: {intensity:F2}, radius: {radius:F1})");
         }
 
         private Vector2 SelectCatastropheLocation(EcoCatastropheType type)
@@ -560,7 +560,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             }
 
             OnCatastropheEnded?.Invoke(catastrophe);
-            UnityEngine.Debug.Log($"💥 {catastrophe.Type} ended at {catastrophe.EpicenterLocation}");
+            UnityEngine.Debug.Log($"[Ecosystem] {catastrophe.Type} ended at {catastrophe.EpicenterLocation}");
 
             // Start recovery process
             if (enableRecovery)
@@ -601,7 +601,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 yield return null;
             }
 
-            UnityEngine.Debug.Log($"🌱 Recovery from {catastrophe.Type} completed at {catastrophe.EpicenterLocation}");
+            UnityEngine.Debug.Log($"[Ecosystem] Recovery from {catastrophe.Type} completed at {catastrophe.EpicenterLocation}");
         }
 
         private void ApplyRecoveryEffects(CatastrophicEvent catastrophe, float progress)
@@ -673,7 +673,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             ApplyCatastropheEffects(catastrophe);
             OnCatastropheTriggered?.Invoke(catastrophe);
 
-            UnityEngine.Debug.Log($"💥 Manually triggered {type} at {location}");
+            UnityEngine.Debug.Log($"[Ecosystem] Manually triggered {type} at {location}");
         }
 
         public void SetCatastropheProbability(EcoCatastropheType type, float probability)

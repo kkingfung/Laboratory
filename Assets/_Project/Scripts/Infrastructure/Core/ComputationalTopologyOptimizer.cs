@@ -67,11 +67,11 @@ namespace Laboratory.Core.Infrastructure
             // Add edges for service dependencies
             serviceComplex.Edges.AddRange(new[]
             {
-                new Edge { Vertices = new[] { 0, 1 }, Weight = 0.8f }, // Genetic → Event
-                new Edge { Vertices = new[] { 0, 2 }, Weight = 0.9f }, // Genetic → Molecular
-                new Edge { Vertices = new[] { 1, 4 }, Weight = 0.7f }, // Event → InfoTheory
-                new Edge { Vertices = new[] { 2, 3 }, Weight = 0.6f }, // Molecular → Quantum
-                new Edge { Vertices = new[] { 3, 4 }, Weight = 0.5f }  // Quantum → InfoTheory
+                new Edge { Vertices = new[] { 0, 1 }, Weight = 0.8f }, // Genetic -> Event
+                new Edge { Vertices = new[] { 0, 2 }, Weight = 0.9f }, // Genetic -> Molecular
+                new Edge { Vertices = new[] { 1, 4 }, Weight = 0.7f }, // Event -> InfoTheory
+                new Edge { Vertices = new[] { 2, 3 }, Weight = 0.6f }, // Molecular -> Quantum
+                new Edge { Vertices = new[] { 3, 4 }, Weight = 0.5f }  // Quantum -> InfoTheory
             });
 
             // Add faces for triangular dependencies

@@ -94,9 +94,9 @@ namespace Laboratory.Chimera.Social.Core
         public static string GetRegistrationStatus()
         {
             return $"Social Service Locator Status:\n" +
-                   $"  Social Network: {(_networkSystem != null ? "✓" : "✗")}\n" +
-                   $"  Group Dynamics: {(_groupDynamicsSystem != null ? "✓" : "✗")}\n" +
-                   $"  Communication: {(_communicationSystem != null ? "✓" : "✗")}";
+                   $"  Social Network: {(_networkSystem != null ? "[OK]" : "[X]")}\n" +
+                   $"  Group Dynamics: {(_groupDynamicsSystem != null ? "[OK]" : "[X]")}\n" +
+                   $"  Communication: {(_communicationSystem != null ? "[OK]" : "[X]")}";
         }
     }
 }

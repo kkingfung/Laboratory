@@ -81,7 +81,7 @@ namespace Laboratory.Demo
             _isInitialized = true;
             OnBootstrapComplete?.Invoke();
 
-            Debug.Log("[DemoBootstrap] ✅ Demo initialization complete!");
+            Debug.Log("[DemoBootstrap] [OK] Demo initialization complete!");
         }
 
         /// <summary>

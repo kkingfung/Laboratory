@@ -43,7 +43,7 @@ namespace Laboratory.Core.MonsterTown
             OnResourcesChanged?.Invoke(_currentResources);
             _eventBus?.Publish(new ResourcesChangedEvent(TownResources.Zero, _currentResources));
 
-            Debug.Log($"💰 Resource Manager initialized with: {_currentResources}");
+            Debug.Log($"[Resources] Resource Manager initialized with: {_currentResources}");
         }
 
         public void UpdateResources(TownResources newResources)
@@ -88,7 +88,7 @@ namespace Laboratory.Core.MonsterTown
             OnResourcesChanged?.Invoke(_currentResources);
             _eventBus?.Publish(new ResourcesChangedEvent(oldResources, _currentResources));
 
-            Debug.Log($"💰 Added resources: {resources} -> Total: {_currentResources}");
+            Debug.Log($"[Resources] Added resources: {resources} -> Total: {_currentResources}");
         }
 
         public void DeductResources(TownResources cost)
@@ -114,7 +114,7 @@ namespace Laboratory.Core.MonsterTown
             OnResourcesChanged?.Invoke(_currentResources);
             _eventBus?.Publish(new ResourcesChangedEvent(oldResources, _currentResources));
 
-            Debug.Log($"💰 Deducted resources: {cost} -> Remaining: {_currentResources}");
+            Debug.Log($"[Resources] Deducted resources: {cost} -> Remaining: {_currentResources}");
         }
 
         public TownResources GetCurrentResources()
@@ -128,7 +128,7 @@ namespace Laboratory.Core.MonsterTown
             OnResourcesChanged = null;
             _transactionHistory.Clear();
 
-            Debug.Log("💰 Resource Manager disposed");
+            Debug.Log("[Resources] Resource Manager disposed");
         }
 
         #endregion
@@ -145,7 +145,7 @@ namespace Laboratory.Core.MonsterTown
             // Clamp current resources to new limits
             _currentResources = ValidateResourceLimits(_currentResources);
 
-            Debug.Log($"💰 Resource limits updated: {_resourceLimits}");
+            Debug.Log($"[Resources] Resource limits updated: {_resourceLimits}");
         }
 
         /// <summary>
@@ -197,7 +197,7 @@ namespace Laboratory.Core.MonsterTown
             LogTransaction(ResourceTransactionType.Exchange, oldResources, _currentResources,
                 $"Exchanged {amount} {fromType} for {toGain} {toType} (rate: {exchangeRate})");
 
-            Debug.Log($"💱 Exchanged {amount} {fromType} for {Mathf.RoundToInt(amount * exchangeRate)} {toType}");
+            Debug.Log($"[Exchange] Exchanged {amount} {fromType} for {Mathf.RoundToInt(amount * exchangeRate)} {toType}");
             return true;
         }
 

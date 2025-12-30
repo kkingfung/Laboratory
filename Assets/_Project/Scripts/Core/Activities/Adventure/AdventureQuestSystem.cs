@@ -12,7 +12,7 @@ using Laboratory.Core.Activities.Types;
 namespace Laboratory.Core.Activities.Adventure
 {
     /// <summary>
-    /// 🗺️ ADVENTURE QUEST SYSTEM - Complete adventure and exploration mini-game
+    /// [Adventure] ADVENTURE QUEST SYSTEM - Complete adventure and exploration mini-game
     /// FEATURES: Procedural quests, dungeon exploration, survival challenges, treasure hunting
     /// PERFORMANCE: Dynamic quest generation with efficient exploration mechanics
     /// GENETICS: Balanced stats + adventure gear = exploration success, cross-activity benefits
@@ -1414,7 +1414,7 @@ namespace Laboratory.Core.Activities.Adventure
                 IsActive = gameObject.activeInHierarchy
             });
 
-            Debug.Log($"✅ Created {guildType} with {supportedQuests.Length} quest types");
+            Debug.Log($"[OK] Created {guildType} with {supportedQuests.Length} quest types");
         }
 
         private void OnDrawGizmos()
@@ -1473,7 +1473,8 @@ namespace Laboratory.Core.Activities.Adventure
                 {
                     if (treasure != null)
                     {
-                        Gizmos.DrawIcon(treasure.position, "💰");
+                        // Draw treasure marker
+                        Gizmos.DrawCube(treasure.position, Vector3.one * 0.5f);
                     }
                 }
             }

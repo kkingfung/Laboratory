@@ -240,7 +240,7 @@ namespace Laboratory.Chimera.Social
                         achievementText = CapacityUnlockThresholds.GetUnlockAchievementText(newCapacity)
                     });
 
-                    Debug.LogWarning($"CAPACITY UNLOCKED! {previousCapacity} → {newCapacity} chimeras! " +
+                    Debug.LogWarning($"CAPACITY UNLOCKED! {previousCapacity} ??{newCapacity} chimeras! " +
                                    $"{CapacityUnlockThresholds.GetUnlockAchievementText(newCapacity)}");
                 }
             }
@@ -353,11 +353,11 @@ namespace Laboratory.Chimera.Social
                         newMaxCapacity = capacity.maxCapacity,
                         reason = ConvertReleaseReasonToReductionReason(request.ValueRO.reason),
                         timestamp = currentTime,
-                        warningText = $"CAPACITY PERMANENTLY REDUCED: {previousMaxCapacity} → {capacity.maxCapacity}. " +
+                        warningText = $"CAPACITY PERMANENTLY REDUCED: {previousMaxCapacity} ??{capacity.maxCapacity}. " +
                                      "You can never get this slot back."
                     });
 
-                    Debug.LogError($"PERMANENT CAPACITY REDUCTION! {previousMaxCapacity} → {capacity.maxCapacity} " +
+                    Debug.LogError($"PERMANENT CAPACITY REDUCTION! {previousMaxCapacity} ??{capacity.maxCapacity} " +
                                   $"(Reason: {request.ValueRO.reason})");
                 }
                 else

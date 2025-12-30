@@ -339,7 +339,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
                 #if UNITY_EDITOR
                 int intensityPercent = (int)(intensity * 100);
-                UnityEngine.Debug.Log($"🌍 Environmental Event: {eventType} (Intensity: {intensityPercent}%, Duration: {duration} days)");
+                UnityEngine.Debug.Log($"[Ecosystem] Environmental Event: {eventType} (Intensity: {intensityPercent}%, Duration: {duration} days)");
                 #endif
             }
         }

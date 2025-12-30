@@ -22,7 +22,7 @@ namespace Laboratory.Core.ECS.Systems
     /// UNIFIED BEHAVIOR SYSTEM - The brain of Project Chimera
     /// FEATURES: Job parallelization, genetics integration, emergent territory conflicts
     /// PERFORMANCE: Scales to 5000+ creatures with smooth 60fps
-    /// ✅ BURST-COMPILED: 10-100x performance improvement with unmanaged configuration data
+    /// BURST-COMPILED: 10-100x performance improvement with unmanaged configuration data
     /// </summary>
     [BurstCompile]
     [UpdateInGroup(typeof(SimulationSystemGroup))]
@@ -32,7 +32,7 @@ namespace Laboratory.Core.ECS.Systems
         // Profiler markers for performance tracking
         private static readonly ProfilerMarker s_OnUpdateMarker = new ProfilerMarker("ChimeraBehaviorSystem.OnUpdate");
 
-        // ✅ BURST-COMPATIBLE: Unmanaged configuration data
+        // BURST-COMPATIBLE: Unmanaged configuration data
         private BurstCompatibleConfigs.ChimeraConfigData _configData;
         private EntityQuery _creatureQuery;
         private EntityQuery _resourceQuery;
@@ -85,7 +85,7 @@ namespace Laboratory.Core.ECS.Systems
             if (_spatialHash.IsCreated) _spatialHash.Dispose();
             if (_behaviorDecisions.IsCreated) _behaviorDecisions.Dispose();
 
-            // ✅ Dispose unmanaged configuration data
+            // Dispose unmanaged configuration data
             _configData.Dispose();
         }
 
@@ -110,7 +110,7 @@ namespace Laboratory.Core.ECS.Systems
                 var buildSpatialHashJob = new BuildSpatialHashJob
                 {
                     spatialHash = _spatialHash.AsParallelWriter(),
-                    cellSize = _configData.performance.spatialHashCellSize,  // ✅ Unmanaged struct
+                    cellSize = _configData.performance.spatialHashCellSize,  // [OK] Unmanaged struct
                     entityTypeHandle = GetEntityTypeHandle(),
                     transformTypeHandle = GetComponentTypeHandle<LocalToWorld>(true),
                     identityTypeHandle = GetComponentTypeHandle<ChimeraCreatureIdentity>(true),
@@ -123,7 +123,7 @@ namespace Laboratory.Core.ECS.Systems
                 // Step 2: Make behavior decisions based on genetics + needs + environment
                 var behaviorDecisionJob = new BehaviorDecisionJob
                 {
-                    behaviorConfig = _configData.behavior,  // ✅ Unmanaged struct
+                    behaviorConfig = _configData.behavior,  // [OK] Unmanaged struct
                     spatialHash = _spatialHash,
                     behaviorDecisions = _behaviorDecisions,
                     deltaTime = deltaTime,
@@ -143,7 +143,7 @@ namespace Laboratory.Core.ECS.Systems
                 // Step 3: Execute behaviors based on decisions
                 var executeBehaviorJob = new ExecuteBehaviorJob
                 {
-                    behaviorConfig = _configData.behavior,  // ✅ Unmanaged struct
+                    behaviorConfig = _configData.behavior,  // [OK] Unmanaged struct
                     behaviorDecisions = _behaviorDecisions,
                     deltaTime = deltaTime,
                     currentTime = currentTime,
@@ -203,7 +203,7 @@ namespace Laboratory.Core.ECS.Systems
         [BurstCompile]
         struct BehaviorDecisionJob : IJobChunk
         {
-            // ✅ BURST-COMPATIBLE: Unmanaged configuration struct
+            // BURST-COMPATIBLE: Unmanaged configuration struct
             [ReadOnly] public BurstCompatibleConfigs.BehaviorConfigData behaviorConfig;
             [ReadOnly] public NativeParallelMultiHashMap<int, CreatureData> spatialHash;
             [WriteOnly] public NativeArray<BehaviorDecision> behaviorDecisions;
@@ -500,7 +500,7 @@ namespace Laboratory.Core.ECS.Systems
         [BurstCompile]
         struct ExecuteBehaviorJob : IJobChunk
         {
-            // ✅ BURST-COMPATIBLE: Unmanaged configuration struct
+            // BURST-COMPATIBLE: Unmanaged configuration struct
             [ReadOnly] public BurstCompatibleConfigs.BehaviorConfigData behaviorConfig;
             [ReadOnly] public NativeArray<BehaviorDecision> behaviorDecisions;
             [ReadOnly] public float deltaTime;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,7 +15,7 @@ namespace ProjectChimera.Components
     /// </summary>
     public class SafeComponentManager : MonoBehaviour
     {
-        [Header("🛡️ Component Safety Settings")]
+        [Header("[Shield] Component Safety Settings")]
         [SerializeField] private bool autoValidateOnStart = true;
         [SerializeField] private bool logMissingComponents = true;
         [SerializeField] private bool createMissingComponents = false;
@@ -67,16 +67,16 @@ namespace ProjectChimera.Components
         {
             try
             {
-                Debug.Log($"🛡️ Initializing Safe Component Manager for {gameObject.name}");
+                Debug.Log($"[Shield] Initializing Safe Component Manager for {gameObject.name}");
                 
                 // Pre-cache essential components
                 CacheEssentialComponents();
                 
-                Debug.Log("✅ Component Manager initialized");
+                Debug.Log("[OK] Component Manager initialized");
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Component Manager initialization failed: {e.Message}");
+                Debug.LogError($"[X] Component Manager initialization failed: {e.Message}");
             }
         }
 
@@ -99,12 +99,12 @@ namespace ProjectChimera.Components
                 if (component != null)
                 {
                     componentCache[typeof(T)] = component;
-                    Debug.Log($"✅ Cached {typeof(T).Name} component");
+                    Debug.Log($"[OK] Cached {typeof(T).Name} component");
                 }
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"⚠️ Failed to cache {typeof(T).Name}: {e.Message}");
+                Debug.LogWarning($"[Warning] Failed to cache {typeof(T).Name}: {e.Message}");
             }
         }
 
@@ -165,7 +165,7 @@ namespace ProjectChimera.Components
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ SafeGetComponent<{typeof(T).Name}> failed: {e.Message}");
+                Debug.LogError($"[X] SafeGetComponent<{typeof(T).Name}> failed: {e.Message}");
             }
 
             return null;
@@ -199,7 +199,7 @@ namespace ProjectChimera.Components
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ SafeGetComponentInChildren<{typeof(T).Name}> failed: {e.Message}");
+                Debug.LogError($"[X] SafeGetComponentInChildren<{typeof(T).Name}> failed: {e.Message}");
             }
 
             return null;
@@ -254,7 +254,7 @@ namespace ProjectChimera.Components
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ SafeFindChild({childName}) failed: {e.Message}");
+                Debug.LogError($"[X] SafeFindChild({childName}) failed: {e.Message}");
             }
 
             return null;
@@ -307,14 +307,14 @@ namespace ProjectChimera.Components
                 componentCache[typeof(T)] = component;
                 
                 string message = $"Created missing {typeof(T).Name} component on {gameObject.name}";
-                Debug.Log($"➕ {message}");
+                Debug.Log($"[+] {message}");
                 OnComponentAdded?.Invoke(message);
                 
                 return component;
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Failed to create {typeof(T).Name} component: {e.Message}");
+                Debug.LogError($"[X] Failed to create {typeof(T).Name} component: {e.Message}");
                 return null;
             }
         }
@@ -354,7 +354,7 @@ namespace ProjectChimera.Components
             }
             catch (Exception e)
             {
-                Debug.LogWarning($"⚠️ Failed to configure {typeof(T).Name}: {e.Message}");
+                Debug.LogWarning($"[Warning] Failed to configure {typeof(T).Name}: {e.Message}");
             }
         }
 
@@ -384,7 +384,7 @@ namespace ProjectChimera.Components
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"❌ Periodic validation failed: {e.Message}");
+                    Debug.LogError($"[X] Periodic validation failed: {e.Message}");
                 }
             }
         }
@@ -393,7 +393,7 @@ namespace ProjectChimera.Components
         {
             validationErrors.Clear();
             
-            Debug.Log($"🔍 Validating components on {gameObject.name}...");
+            Debug.Log($"[Search] Validating components on {gameObject.name}...");
             
             // Validate cached components
             ValidateCachedComponents();
@@ -404,11 +404,11 @@ namespace ProjectChimera.Components
             // Report results
             if (validationErrors.Count == 0)
             {
-                Debug.Log($"✅ Component validation passed for {gameObject.name}");
+                Debug.Log($"[OK] Component validation passed for {gameObject.name}");
             }
             else
             {
-                Debug.LogWarning($"⚠️ Component validation found {validationErrors.Count} issues:");
+                Debug.LogWarning($"[Warning] Component validation found {validationErrors.Count} issues:");
                 foreach (string error in validationErrors)
                 {
                     Debug.LogWarning($"  • {error}");
@@ -485,7 +485,7 @@ namespace ProjectChimera.Components
 
         private void LogComponentMissing(string message)
         {
-            Debug.LogWarning($"⚠️ {message}");
+            Debug.LogWarning($"[Warning] {message}");
             OnComponentMissing?.Invoke(message);
             
             if (!validationErrors.Contains(message))
@@ -506,7 +506,7 @@ namespace ProjectChimera.Components
             componentCache.Clear();
             gameObjectCache.Clear();
             CacheEssentialComponents();
-            Debug.Log($"🔄 Refreshed component cache for {gameObject.name}");
+            Debug.Log($"[Refresh] Refreshed component cache for {gameObject.name}");
         }
 
         /// <summary>
@@ -531,7 +531,7 @@ namespace ProjectChimera.Components
         /// </summary>
         public void AutoFixComponents()
         {
-            Debug.Log($"🔧 Auto-fixing components on {gameObject.name}");
+            Debug.Log($"[Tool] Auto-fixing components on {gameObject.name}");
             
             bool originalCreateMissing = createMissingComponents;
             createMissingComponents = true;
@@ -547,7 +547,7 @@ namespace ProjectChimera.Components
             
             createMissingComponents = originalCreateMissing;
             
-            Debug.Log($"✅ Auto-fix completed for {gameObject.name}");
+            Debug.Log($"[OK] Auto-fix completed for {gameObject.name}");
         }
 
         #endregion
@@ -568,11 +568,11 @@ namespace ProjectChimera.Components
                 gameObjectCache.Clear();
                 validationErrors.Clear();
                 
-                Debug.Log($"🧹 Component Manager cleaned up for {gameObject.name}");
+                Debug.Log($"[Clean] Component Manager cleaned up for {gameObject.name}");
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Component Manager cleanup failed: {e.Message}");
+                Debug.LogError($"[X] Component Manager cleanup failed: {e.Message}");
             }
         }
 
@@ -581,7 +581,7 @@ namespace ProjectChimera.Components
         #region Editor Utilities
 
         #if UNITY_EDITOR
-        [MenuItem("🧪 Laboratory/Project Chimera/Component Tools/Validate Selected")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Component Tools/Validate Selected")]
         public static void ValidateSelectedObjects()
         {
             foreach (GameObject obj in Selection.gameObjects)
@@ -593,12 +593,12 @@ namespace ProjectChimera.Components
                 }
                 else
                 {
-                    Debug.LogWarning($"⚠️ {obj.name} doesn't have SafeComponentManager");
+                    Debug.LogWarning($"[Warning] {obj.name} doesn't have SafeComponentManager");
                 }
             }
         }
 
-        [MenuItem("🧪 Laboratory/Project Chimera/Component Tools/Auto-Fix Selected")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Component Tools/Auto-Fix Selected")]
         public static void AutoFixSelectedObjects()
         {
             foreach (GameObject obj in Selection.gameObjects)
@@ -612,7 +612,7 @@ namespace ProjectChimera.Components
             }
         }
 
-        [MenuItem("🧪 Laboratory/Project Chimera/Component Tools/Add to Monsters")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Component Tools/Add to Monsters")]
         public static void AddToSelectedMonsters()
         {
             int count = 0;
@@ -629,7 +629,7 @@ namespace ProjectChimera.Components
                     }
                 }
             }
-            Debug.Log($"➕ Added SafeComponentManager to {count} monster objects");
+            Debug.Log($"[+] Added SafeComponentManager to {count} monster objects");
         }
         #endif
 
@@ -643,7 +643,7 @@ namespace ProjectChimera.Components
     /// </summary>
     public class MonsterTag : MonoBehaviour
     {
-        [Header("🐲 Monster Info")]
+        [Header("[Monster] Monster Info")]
         public string monsterName = "Unknown Monster";
         public string species = "Generic";
         public int level = 1;
@@ -659,7 +659,7 @@ namespace ProjectChimera.Components
                 }
                 catch (Exception e)
                 {
-                    Debug.LogWarning($"⚠️ Could not set Monster tag: {e.Message}");
+                    Debug.LogWarning($"[Warning] Could not set Monster tag: {e.Message}");
                 }
             }
         }

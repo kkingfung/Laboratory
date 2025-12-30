@@ -331,7 +331,7 @@ namespace Laboratory.Chimera.Social.UI
             {
                 int totalLikes = _allShares.Sum(s => s.LikeCount);
                 int totalComments = _allShares.Sum(s => s.CommentCount);
-                _communityStatsText.text = $"💖 {totalLikes:N0} | 💬 {totalComments:N0}";
+                _communityStatsText.text = $"Likes: {totalLikes:N0} | Comments: {totalComments:N0}";
             }
         }
 

@@ -536,7 +536,7 @@ namespace Laboratory.Subsystems.Research
                 var discovery = new DiscoveryData
                 {
                     discoveryType = DiscoveryType.BreedingSuccess,
-                    title = $"Successful breeding: {result.parent1Id} × {result.parent2Id}",
+                    title = $"Successful breeding: {result.parent1Id} * {result.parent2Id}",
                     description = GenerateBreedingDescription(result),
                     data = new Dictionary<string, object>
                     {

@@ -238,17 +238,17 @@ namespace Laboratory.Demo
         // Gameplay events
         private void HandleGameplaySessionStarted()
         {
-            Debug.Log("[Integration] 🎮 Gameplay session started");
+            Debug.Log("[Integration] [Gameplay] Gameplay session started");
         }
 
         private void HandleGameplaySessionEnded()
         {
-            Debug.Log("[Integration] 🎮 Gameplay session ended");
+            Debug.Log("[Integration] [Gameplay] Gameplay session ended");
         }
 
         private void HandleActivityStarted(ActivityGenreCategory genre)
         {
-            Debug.Log($"[Integration] 🎯 Activity started: {genre}");
+            Debug.Log($"[Integration] [Activity] Activity started: {genre}");
 
             // Example: Trigger camera shake when combat activity starts
             if (genre == ActivityGenreCategory.Action && _cameraSubsystem != null)
@@ -263,7 +263,7 @@ namespace Laboratory.Demo
 
         private void HandleActivityCompleted(ActivityGenreCategory genre, bool success)
         {
-            Debug.Log($"[Integration] ✅ Activity completed: {genre} - Success: {success}");
+            Debug.Log($"[Integration] Activity completed: {genre} - Success: {success}");
 
             // Example: Record tutorial progress
             if (_tutorialSubsystem != null && success)
@@ -278,7 +278,7 @@ namespace Laboratory.Demo
 
         private void HandleGenreActivated(ActivityGenreCategory genre)
         {
-            Debug.Log($"[Integration] 📂 Genre activated: {genre}");
+            Debug.Log($"[Integration] [Genre] Genre activated: {genre}");
 
             // Switch camera mode based on genre
             if (_cameraSubsystem != null)
@@ -294,60 +294,60 @@ namespace Laboratory.Demo
 
         private void HandleGenreChanged(ActivityGenreCategory oldGenre, ActivityGenreCategory newGenre)
         {
-            Debug.Log($"[Integration] 🔄 Genre changed: {oldGenre} → {newGenre}");
+            Debug.Log($"[Integration] Genre changed: {oldGenre} -> {newGenre}");
         }
 
         // Tutorial events
         private void HandleTutorialStageStarted(OnboardingStage stage)
         {
-            Debug.Log($"[Integration] 📚 Tutorial stage started: {stage}");
+            Debug.Log($"[Integration] [Tutorial] Tutorial stage started: {stage}");
         }
 
         private void HandleTutorialStageCompleted(OnboardingStage stage, StagePerformance performance)
         {
-            Debug.Log($"[Integration] ✨ Tutorial stage completed: {stage} (Score: {performance.Score:F2})");
+            Debug.Log($"[Integration] [Complete] Tutorial stage completed: {stage} (Score: {performance.Score:F2})");
         }
 
         private void HandleTutorialCompleted()
         {
-            Debug.Log("[Integration] 🎓 Tutorial completed!");
+            Debug.Log("[Integration] [Graduation] Tutorial completed!");
         }
 
         private void HandleTutorialHint(string hint)
         {
-            Debug.Log($"[Integration] 💡 Tutorial hint: {hint}");
+            Debug.Log($"[Integration] [Hint] Tutorial hint: {hint}");
         }
 
         private void HandleTutorialCelebration(string message)
         {
-            Debug.Log($"[Integration] 🎉 {message}");
+            Debug.Log($"[Integration] [Celebration] {message}");
         }
 
         // Settings events
         private void HandleGraphicsSettingsChanged()
         {
-            Debug.Log("[Integration] 🎨 Graphics settings changed");
+            Debug.Log("[Integration] [Graphics] Graphics settings changed");
         }
 
         private void HandleAudioSettingsChanged()
         {
-            Debug.Log("[Integration] 🔊 Audio settings changed");
+            Debug.Log("[Integration] [Audio] Audio settings changed");
         }
 
         private void HandleInputSettingsChanged()
         {
-            Debug.Log("[Integration] 🎮 Input settings changed");
+            Debug.Log("[Integration] [Input] Input settings changed");
         }
 
         // Camera events
         private void HandleCameraModeChanged(CameraMode mode)
         {
-            Debug.Log($"[Integration] 📷 Camera mode changed: {mode}");
+            Debug.Log($"[Integration] [Camera] Camera mode changed: {mode}");
         }
 
         private void HandleCameraTransitionStarted(CameraMode from, CameraMode to)
         {
-            Debug.Log($"[Integration] 🎬 Camera transition: {from} → {to}");
+            Debug.Log($"[Integration] Camera transition: {from} -> {to}");
         }
 
         /// <summary>

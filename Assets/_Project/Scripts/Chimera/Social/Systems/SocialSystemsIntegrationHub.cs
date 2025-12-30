@@ -66,7 +66,7 @@ namespace Laboratory.Chimera.Social
             _effectiveBondStrengthCache = new NativeHashMap<Entity, float>(256, Allocator.Persistent);
             _strongBondCountCache = new NativeHashMap<Entity, int>(64, Allocator.Persistent);
 
-            Debug.Log("🔗 Social Systems Integration Hub initialized - coordinating 9 social systems");
+            Debug.Log("?? Social Systems Integration Hub initialized - coordinating 9 social systems");
         }
 
         protected override void OnDestroy()
@@ -107,11 +107,11 @@ namespace Laboratory.Chimera.Social
             _populationSystemActive = World.GetExistingSystemManaged<PopulationManagementSystem>() != null;
 
             if (!_enhancedBondingSystemActive)
-                Debug.LogWarning("⚠️ EnhancedBondingSystem not active - social features may not work");
+                Debug.LogWarning("?��? EnhancedBondingSystem not active - social features may not work");
             if (!_ageSensitivitySystemActive)
-                Debug.LogWarning("⚠️ AgeSensitivitySystem not active - age-based bonding disabled");
+                Debug.LogWarning("?��? AgeSensitivitySystem not active - age-based bonding disabled");
             if (!_populationSystemActive)
-                Debug.LogWarning("⚠️ PopulationManagementSystem not active - capacity unlocks disabled");
+                Debug.LogWarning("?��? PopulationManagementSystem not active - capacity unlocks disabled");
         }
 
         /// <summary>
@@ -199,7 +199,7 @@ namespace Laboratory.Chimera.Social
                     // Update to new life stage
                     identity.ValueRW.CurrentLifeStage = calculatedStage;
 
-                    Debug.Log($"🎂 Age transition detected: {identity.ValueRO.CreatureName} {currentStage} → {calculatedStage}");
+                    Debug.Log($"?? Age transition detected: {identity.ValueRO.CreatureName} {currentStage} ??{calculatedStage}");
                 }
             }
         }
@@ -232,7 +232,7 @@ namespace Laboratory.Chimera.Social
                             capacity.ValueRO.capacityUnlocked + 1
                         );
 
-                        Debug.Log($"🔓 Population unlock available! Player can now unlock slot {capacity.ValueRO.capacityUnlocked + 1}");
+                        Debug.Log($"?? Population unlock available! Player can now unlock slot {capacity.ValueRO.capacityUnlocked + 1}");
                     }
                 }
             }
@@ -249,7 +249,7 @@ namespace Laboratory.Chimera.Social
             {
                 if (!EntityManager.HasComponent<CreatureIdentityComponent>(entity))
                 {
-                    Debug.LogWarning($"⚠️ Entity {entity.Index} has CreatureBondData but no CreatureIdentityComponent!");
+                    Debug.LogWarning($"?��? Entity {entity.Index} has CreatureBondData but no CreatureIdentityComponent!");
                 }
             }
 
@@ -259,7 +259,7 @@ namespace Laboratory.Chimera.Social
             {
                 if (capacity.ValueRO.currentAliveChimeras > capacity.ValueRO.maxCapacity)
                 {
-                    Debug.LogError($"❌ Player has {capacity.ValueRO.currentAliveChimeras} chimeras but capacity is {capacity.ValueRO.maxCapacity}!");
+                    Debug.LogError($"??Player has {capacity.ValueRO.currentAliveChimeras} chimeras but capacity is {capacity.ValueRO.maxCapacity}!");
                 }
             }
         }
@@ -328,9 +328,9 @@ namespace Laboratory.Chimera.Social
                 return "Hub not initialized";
 
             return $"Social Systems Status:\n" +
-                   $"- EnhancedBonding: {(hub._enhancedBondingSystemActive ? "✅" : "❌")}\n" +
-                   $"- AgeSensitivity: {(hub._ageSensitivitySystemActive ? "✅" : "❌")}\n" +
-                   $"- Population: {(hub._populationSystemActive ? "✅" : "❌")}\n" +
+                   $"- EnhancedBonding: {(hub._enhancedBondingSystemActive ? "?? : "??)}\n" +
+                   $"- AgeSensitivity: {(hub._ageSensitivitySystemActive ? "?? : "??)}\n" +
+                   $"- Population: {(hub._populationSystemActive ? "?? : "??)}\n" +
                    $"- Tracked bonds: {hub._effectiveBondStrengthCache.Count}\n" +
                    $"- Players tracked: {hub._strongBondCountCache.Count}";
         }

@@ -108,12 +108,12 @@ namespace Laboratory.Networking
                 return;
             }
 
-            Debug.Log("🧬 Initializing Project Chimera Multiplayer Systems...");
+            Debug.Log("[Genetics] Initializing Project Chimera Multiplayer Systems...");
 
             // Step 1: Validate all configurations
             if (validateConfigurationOnStart && !ValidateConfigurations())
             {
-                Debug.LogError("❌ Configuration validation failed! Check console for details.");
+                Debug.LogError("[X] Configuration validation failed! Check console for details.");
                 return;
             }
 
@@ -139,7 +139,7 @@ namespace Laboratory.Networking
             }
 
             _isInitialized = true;
-            Debug.Log("✅ Project Chimera Multiplayer Systems Initialized Successfully!");
+            Debug.Log("[OK] Project Chimera Multiplayer Systems Initialized Successfully!");
         }
 
         private bool ValidateConfigurations()
@@ -255,7 +255,7 @@ namespace Laboratory.Networking
                     // PlayerProgressionManager initializes automatically on Awake/Start
                 }
 
-                Debug.Log("✅ Player Progression System connected to network");
+                Debug.Log("[OK] Player Progression System connected to network");
             }
 
             // Initialize Marketplace System
@@ -268,21 +268,21 @@ namespace Laboratory.Networking
                     marketplaceManager = marketplaceGO.AddComponent<BreedingMarketplace>();
                 }
 
-                Debug.Log("✅ Marketplace System connected to network");
+                Debug.Log("[OK] Marketplace System connected to network");
             }
 
             // Initialize AI Coordination
             if (enableAICoordination)
             {
                 var coordinationSystem = _netcodeWorld.GetOrCreateSystemManaged<NetworkAICoordinationSystem>();
-                Debug.Log("✅ AI Coordination System enabled");
+                Debug.Log("[OK] AI Coordination System enabled");
             }
 
             // Initialize Breeding Synchronization
             if (enableBreedingSync)
             {
                 var breedingSystem = _netcodeWorld.GetOrCreateSystemManaged<NetworkBreedingSyncSystem>();
-                Debug.Log("✅ Breeding Synchronization System enabled");
+                Debug.Log("[OK] Breeding Synchronization System enabled");
             }
         }
 
@@ -294,14 +294,14 @@ namespace Laboratory.Networking
                 return;
             }
 
-            Debug.Log($"🧬 Spawning {testCreatureCount} test creatures...");
+            Debug.Log($"[Genetics] Spawning {testCreatureCount} test creatures...");
 
             for (int i = 0; i < testCreatureCount; i++)
             {
                 SpawnTestCreature(i);
             }
 
-            Debug.Log($"✅ Spawned {testCreatureCount} test creatures in {testSpawnBiome} biome");
+            Debug.Log($"[OK] Spawned {testCreatureCount} test creatures in {testSpawnBiome} biome");
         }
 
         private void SpawnTestCreature(int index)
@@ -405,17 +405,17 @@ namespace Laboratory.Networking
         {
             if (enableDedicatedServer)
             {
-                Debug.Log($"🌐 Starting dedicated server on port {serverPort}...");
+                Debug.Log($"[World] Starting dedicated server on port {serverPort}...");
                 // In real implementation, this would start the Netcode server
             }
             else
             {
-                Debug.Log($"🌐 Starting host server on port {serverPort}...");
+                Debug.Log($"[World] Starting host server on port {serverPort}...");
                 // In real implementation, this would start the Netcode host
             }
 
             // For now, just log the configuration
-            Debug.Log($"📊 Server Configuration:" +
+            Debug.Log($"[Stats] Server Configuration:" +
                      $"\n  Max Players: {(maxPlayers > 0 ? maxPlayers : netcodeConfig.maxPlayers)}" +
                      $"\n  Tick Rate: {netcodeConfig.serverTickRate} Hz" +
                      $"\n  Update Rate: {netcodeConfig.clientUpdateRate} Hz" +
@@ -458,7 +458,7 @@ namespace Laboratory.Networking
                 estimatedBandwidth = (syncedEntities * 64f * netcodeConfig.clientUpdateRate) / 1000f; // KB/s
             }
 
-            Debug.Log($"📊 Network Stats - Networked: {networkedEntities}, Synced: {syncedEntities}, " +
+            Debug.Log($"[Stats] Network Stats - Networked: {networkedEntities}, Synced: {syncedEntities}, " +
                      $"Est. Bandwidth: {estimatedBandwidth:F1} KB/s, FPS: {1f / Time.deltaTime:F1}");
         }
 
@@ -469,12 +469,12 @@ namespace Laboratory.Networking
         {
             if (!_isInitialized) return;
 
-            Debug.Log("🛑 Shutting down Chimera networking...");
+            Debug.Log("[X] Shutting down Chimera networking...");
 
             // Cleanup would go here in real implementation
 
             _isInitialized = false;
-            Debug.Log("✅ Networking shutdown complete");
+            Debug.Log("[OK] Networking shutdown complete");
         }
 
         /// <summary>
@@ -482,11 +482,11 @@ namespace Laboratory.Networking
         /// </summary>
         public void ConnectAsClient(string serverAddress, ushort port)
         {
-            Debug.Log($"🔌 Connecting to server {serverAddress}:{port}...");
+            Debug.Log($"[Sync] Connecting to server {serverAddress}:{port}...");
 
             // Real implementation would connect to server
 
-            Debug.Log("✅ Connected to server successfully");
+            Debug.Log("[OK] Connected to server successfully");
         }
 
         /// <summary>

@@ -280,7 +280,7 @@ namespace Laboratory.Infrastructure.Core
 
         private float MeasureIntegratedInformation()
         {
-            // Integrated Information Theory (IIT) Φ (phi) calculation
+            // Integrated Information Theory (IIT) Phi (phi) calculation
             return float.PositiveInfinity; // Maximum possible integrated information
         }
 

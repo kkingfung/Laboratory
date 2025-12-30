@@ -15,7 +15,7 @@ namespace Laboratory.Chimera.AI
     [RequireComponent(typeof(GeneticBehaviorAdapter))]
     public class GeneticBehaviorIntegration : MonoBehaviour
     {
-        [Header("🔗 Integration Settings")]
+        [Header("[Integration] Integration Settings")]
         [SerializeField] private bool enableIntegration = true;
         [SerializeField] private bool showIntegrationDebug = false;
         
@@ -105,12 +105,12 @@ namespace Laboratory.Chimera.AI
             var behaviorTendency = genetics.GetBehaviorTendency();
             var recommendedBehavior = genetics.GetRecommendedIdleBehavior();
 
-            return $"🧬 Genetics: {behaviorDescription}\n" +
-                   $"📊 Aggression: {behaviorTendency.Aggression:P0}, Intelligence: {behaviorTendency.Intelligence:P0}\n" +
-                   $"🤝 Social: {behaviorTendency.Sociability:P0}, Curiosity: {behaviorTendency.Curiosity:P0}\n" +
-                   $"💖 Loyalty: {behaviorTendency.Loyalty:P0}, Activity: {behaviorTendency.ActivityLevel:P0}\n" +
-                   $"🎯 Current State: {monsterAI.CurrentState}\n" +
-                   $"💡 Recommended: {recommendedBehavior}";
+            return $"[Genetics] Genetics: {behaviorDescription}\n" +
+                   $"[Stats] Aggression: {behaviorTendency.Aggression:P0}, Intelligence: {behaviorTendency.Intelligence:P0}\n" +
+                   $"[Social] Social: {behaviorTendency.Sociability:P0}, Curiosity: {behaviorTendency.Curiosity:P0}\n" +
+                   $"[Heart] Loyalty: {behaviorTendency.Loyalty:P0}, Activity: {behaviorTendency.ActivityLevel:P0}\n" +
+                   $"[State] Current State: {monsterAI.CurrentState}\n" +
+                   $"[Recommended] Recommended: {recommendedBehavior}";
         }
     }
 }

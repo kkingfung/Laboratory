@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -59,7 +59,7 @@ namespace Laboratory.Core.MonsterTown.Validation
         [ContextMenu("Run Complete Validation")]
         public async UniTask RunCompleteValidation()
         {
-            Debug.Log("🧬 Starting ChimeraOS Integration Validation...");
+            Debug.Log("[Genetics] Starting ChimeraOS Integration Validation...");
 
             _validationResults.Clear();
             _performanceResults.Clear();
@@ -95,7 +95,7 @@ namespace Laboratory.Core.MonsterTown.Validation
             }
             catch (Exception ex)
             {
-                Debug.LogError($"❌ Validation failed with exception: {ex}");
+                Debug.LogError($"[X] Validation failed with exception: {ex}");
                 AddValidationResult("Validation Framework", false, $"Exception: {ex.Message}");
             }
         }
@@ -106,7 +106,7 @@ namespace Laboratory.Core.MonsterTown.Validation
         [ContextMenu("Quick System Check")]
         public async UniTask RunQuickValidation()
         {
-            Debug.Log("⚡ Running Quick ChimeraOS Validation...");
+            Debug.Log("[ECS] Running Quick ChimeraOS Validation...");
 
             _validationResults.Clear();
 
@@ -120,11 +120,11 @@ namespace Laboratory.Core.MonsterTown.Validation
 
             if (passCount == totalCount)
             {
-                Debug.Log("✅ All quick checks passed! ChimeraOS systems are ready.");
+                Debug.Log("[OK] All quick checks passed! ChimeraOS systems are ready.");
             }
             else
             {
-                Debug.LogWarning($"⚠️ {totalCount - passCount} issues found. Check console for details.");
+                Debug.LogWarning($"[Warning] {totalCount - passCount} issues found. Check console for details.");
             }
         }
 
@@ -613,7 +613,7 @@ namespace Laboratory.Core.MonsterTown.Validation
         {
             LogValidationPhase("Stress Testing");
 
-            Debug.LogWarning("⚠️ Stress testing enabled - may impact performance temporarily");
+            Debug.LogWarning("[Warning] Stress testing enabled - may impact performance temporarily");
 
             await ValidateHighEntityCount();
             await ValidateResourceStress();
@@ -713,15 +713,15 @@ namespace Laboratory.Core.MonsterTown.Validation
             var passedPerformance = _performanceResults.Count(r => r.PassedBenchmark);
             var totalPerformance = _performanceResults.Count;
 
-            Debug.Log($"🧬 ChimeraOS Integration Validation Complete!");
-            Debug.Log($"📊 System Tests: {passedTests}/{totalTests} passed");
-            Debug.Log($"⚡ Performance Tests: {passedPerformance}/{totalPerformance} passed");
+            Debug.Log($"[Genetics] ChimeraOS Integration Validation Complete!");
+            Debug.Log($"[Stats] System Tests: {passedTests}/{totalTests} passed");
+            Debug.Log($"[ECS] Performance Tests: {passedPerformance}/{totalPerformance} passed");
 
             // Log failures
             var failures = _validationResults.Where(r => !r.Passed).ToList();
             if (failures.Any())
             {
-                Debug.LogWarning($"❌ {failures.Count} validation issues found:");
+                Debug.LogWarning($"[X] {failures.Count} validation issues found:");
                 foreach (var failure in failures)
                 {
                     Debug.LogWarning($"   • {failure.TestName}: {failure.Message}");
@@ -732,7 +732,7 @@ namespace Laboratory.Core.MonsterTown.Validation
             var performanceIssues = _performanceResults.Where(r => !r.PassedBenchmark).ToList();
             if (performanceIssues.Any())
             {
-                Debug.LogWarning($"⚠️ {performanceIssues.Count} performance issues found:");
+                Debug.LogWarning($"[Warning] {performanceIssues.Count} performance issues found:");
                 foreach (var issue in performanceIssues)
                 {
                     Debug.LogWarning($"   • {issue.TestName}: {issue.Value:F2} {issue.Unit}");
@@ -745,11 +745,11 @@ namespace Laboratory.Core.MonsterTown.Validation
 
             if (allSystemsPassed && performanceGood)
             {
-                Debug.Log("✅ ChimeraOS is ready for Monster Breeding Town Builder gameplay!");
+                Debug.Log("[OK] ChimeraOS is ready for Monster Breeding Town Builder gameplay!");
             }
             else
             {
-                Debug.LogWarning("⚠️ ChimeraOS has issues that should be addressed before release.");
+                Debug.LogWarning("[Warning] ChimeraOS has issues that should be addressed before release.");
             }
         }
 
@@ -761,7 +761,7 @@ namespace Laboratory.Core.MonsterTown.Validation
         {
             if (verboseLogging)
             {
-                Debug.Log($"🔍 {phaseName}...");
+                Debug.Log($"[Search] {phaseName}...");
             }
         }
 
@@ -779,7 +779,7 @@ namespace Laboratory.Core.MonsterTown.Validation
 
             if (verboseLogging)
             {
-                var icon = passed ? "✅" : "❌";
+                var icon = passed ? "[OK]" : "[X]";
                 Debug.Log($"   {icon} {testName}: {message}");
             }
         }
@@ -799,7 +799,7 @@ namespace Laboratory.Core.MonsterTown.Validation
 
             if (verboseLogging)
             {
-                var icon = passedBenchmark ? "⚡" : "⚠️";
+                var icon = passedBenchmark ? "[ECS]" : "[Warning]";
                 Debug.Log($"   {icon} {testName}: {value:F2} {unit}");
             }
         }

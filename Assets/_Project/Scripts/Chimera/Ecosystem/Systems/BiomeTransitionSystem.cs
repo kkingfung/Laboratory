@@ -126,7 +126,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 }
             };
 
-            UnityEngine.Debug.Log("🌿 Biome transition probabilities initialized");
+            UnityEngine.Debug.Log("[Ecosystem] Biome transition probabilities initialized");
         }
 
         private void InitializeBiomeMap()
@@ -143,7 +143,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 }
             }
 
-            UnityEngine.Debug.Log($"🗺️ Initialized biome map with {currentBiomes.Count} regions");
+            UnityEngine.Debug.Log($"[Ecosystem] Initialized biome map with {currentBiomes.Count} regions");
         }
 
         private BiomeType DetermineInitialBiome(Vector2 location)
@@ -400,7 +400,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             activeTransitions[location] = transition;
             OnBiomeTransitionStarted?.Invoke(location, fromBiome, toBiome);
 
-            UnityEngine.Debug.Log($"🌱 Biome transition started at {location}: {fromBiome} → {toBiome}");
+            UnityEngine.Debug.Log($"[Ecosystem] Biome transition started at {location}: {fromBiome} -> {toBiome}");
         }
 
         private List<string> GetTransitionRequirements(BiomeType from, BiomeType to)
@@ -444,7 +444,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             activeTransitions.Remove(location);
 
             OnBiomeTransitionCompleted?.Invoke(location, transition.ToBiome);
-            UnityEngine.Debug.Log($"🌿 Biome transition completed at {location}: {transition.FromBiome} → {transition.ToBiome}");
+            UnityEngine.Debug.Log($"[Ecosystem] Biome transition completed at {location}: {transition.FromBiome} -> {transition.ToBiome}");
         }
 
         public BiomeType GetBiomeAtLocation(Vector2 location)

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Entities;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -16,24 +16,24 @@ namespace Laboratory.Core.Network
     [DefaultExecutionOrder(-100)]
     public class NetworkSynchronizationDebugger : MonoBehaviour
     {
-        [Header("🌐 Network Debug Settings")]
+        [Header("[Network] Network Debug Settings")]
         [SerializeField] private bool enableNetworkDebugging = true;
         [SerializeField] private KeyCode debugToggleKey = KeyCode.F10;
         [SerializeField] private bool autoDetectDesyncs = true;
         [SerializeField] private float desyncCheckInterval = 1f;
 
-        [Header("🔍 Validation Settings")]
+        [Header("[Search] Validation Settings")]
         [SerializeField] private bool validateCreatureStates = true;
         [SerializeField] private bool validateGeneticData = true;
         [SerializeField] private bool validateBreedingOperations = true;
         [SerializeField] private bool validateAIBehaviors = false; // Too noisy by default
 
-        [Header("📊 Performance Monitoring")]
+        [Header("[Stats] Performance Monitoring")]
         [SerializeField] private bool trackNetworkPerformance = true;
         [SerializeField] private int maxValidatedEntities = 100;
         [SerializeField] private bool showDetailedLogs = false;
 
-        [Header("🚨 Alert Settings")]
+        [Header("[Alert] Alert Settings")]
         [SerializeField] private Color desyncAlertColor = Color.red;
         [SerializeField] private float alertDisplayDuration = 5f;
         [SerializeField] private bool pauseOnCriticalDesync = false;
@@ -136,7 +136,7 @@ namespace Laboratory.Core.Network
             performanceMetrics.lastResetTime = Time.time;
 
             if (showDetailedLogs)
-                Debug.Log($"🌐 Network Synchronization Debugger initialized - Server: {isServer}, Client: {isClient}");
+                Debug.Log($"[Network] Network Synchronization Debugger initialized - Server: {isServer}, Client: {isClient}");
         }
 
         private void Update()
@@ -193,7 +193,7 @@ namespace Laboratory.Core.Network
 
             if (showDetailedLogs && validatedCount > 0)
             {
-                Debug.Log($"🌐 Validated {validatedCount} network entities in {validationTime:F3}ms");
+                Debug.Log($"[Network] Validated {validatedCount} network entities in {validationTime:F3}ms");
             }
         }
 
@@ -299,7 +299,7 @@ namespace Laboratory.Core.Network
 
                 if (showDetailedLogs)
                 {
-                    Debug.LogWarning($"🌐 Network validation failed for Entity_{entity.Index}: {string.Join(", ", issues)}");
+                    Debug.LogWarning($"[Network] Network validation failed for Entity_{entity.Index}: {string.Join(", ", issues)}");
                 }
 
                 // Pause on critical desyncs if enabled
@@ -473,7 +473,7 @@ namespace Laboratory.Core.Network
             GUILayout.BeginArea(windowRect, boxStyle);
 
             // Header
-            GUILayout.Label("🌐 Network Synchronization Debugger", headerStyle);
+            GUILayout.Label("[Network] Network Synchronization Debugger", headerStyle);
             GUILayout.Space(10);
 
             // Network role info
@@ -557,7 +557,7 @@ namespace Laboratory.Core.Network
                 {
                     // Focus on entity in scene view
                     if (showDetailedLogs)
-                        Debug.Log($"🌐 Focused on {displayName} - Failures: {state.validationFailures}");
+                        Debug.Log($"[Network] Focused on {displayName} - Failures: {state.validationFailures}");
                 }
 
                 GUI.backgroundColor = originalColor;
@@ -623,7 +623,7 @@ namespace Laboratory.Core.Network
                 isServer = netcodeNetworkManager.IsServer;
                 isClient = netcodeNetworkManager.IsClient;
                 if (showDetailedLogs)
-                    Debug.Log($"🌐 Detected Unity Netcode - Server: {isServer}, Client: {isClient}");
+                    Debug.Log($"[Network] Detected Unity Netcode - Server: {isServer}, Client: {isClient}");
                 return;
             }
 
@@ -641,7 +641,7 @@ namespace Laboratory.Core.Network
                     isServer = (bool)isServerProperty.GetValue(mirrorNetworkManager);
                     isClient = (bool)isClientProperty.GetValue(mirrorNetworkManager);
                     if (showDetailedLogs)
-                        Debug.Log($"🌐 Detected Mirror Networking - Server: {isServer}, Client: {isClient}");
+                        Debug.Log($"[Network] Detected Mirror Networking - Server: {isServer}, Client: {isClient}");
                     return;
                 }
             }
@@ -679,7 +679,7 @@ namespace Laboratory.Core.Network
                     if (isServer || isClient)
                     {
                         if (showDetailedLogs)
-                            Debug.Log($"🌐 Detected custom networking ({typeName}) - Server: {isServer}, Client: {isClient}");
+                            Debug.Log($"[Network] Detected custom networking ({typeName}) - Server: {isServer}, Client: {isClient}");
                         return;
                     }
                 }
@@ -687,7 +687,7 @@ namespace Laboratory.Core.Network
 
             // Default to standalone mode
             if (showDetailedLogs)
-                Debug.Log("🌐 No networking solution detected - running in standalone mode");
+                Debug.Log("[Network] No networking solution detected - running in standalone mode");
         }
 
         /// <summary>
@@ -705,7 +705,7 @@ namespace Laboratory.Core.Network
         public void ForceValidation()
         {
             ValidateNetworkState();
-            Debug.Log("🌐 Network validation completed manually");
+            Debug.Log("[Network] Network validation completed manually");
         }
 
         /// <summary>
@@ -717,7 +717,7 @@ namespace Laboratory.Core.Network
             breedingOperations.Clear();
             activeAlerts.Clear();
 
-            Debug.Log("🌐 Network state tracking cleared");
+            Debug.Log("[Network] Network state tracking cleared");
         }
     }
 }

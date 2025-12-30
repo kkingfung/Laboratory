@@ -14,19 +14,19 @@ namespace Laboratory.Core.Equipment
     /// </summary>
     public class EquipmentUI : MonoBehaviour
     {
-        [Header("🎮 UI References")]
+        [Header("[UI] UI References")]
         [SerializeField] private GameObject equipmentPanel;
         [SerializeField] private Transform equipmentSlotsParent;
         [SerializeField] private Transform inventoryParent;
         [SerializeField] private GameObject equipmentSlotPrefab;
         [SerializeField] private GameObject inventoryItemPrefab;
 
-        [Header("📊 Monster Info Display")]
+        [Header("[Info] Monster Info Display")]
         [SerializeField] private Text monsterNameText;
         [SerializeField] private Text monsterLevelText;
         [SerializeField] private Slider[] statBars; // For displaying stat bonuses
 
-        [Header("🔧 Equipment Details")]
+        [Header("[Details] Equipment Details")]
         [SerializeField] private GameObject detailsPanel;
         [SerializeField] private Text itemNameText;
         [SerializeField] private Text itemDescriptionText;

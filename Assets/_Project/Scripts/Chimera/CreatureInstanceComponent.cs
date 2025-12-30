@@ -136,7 +136,7 @@ namespace Laboratory.Chimera
             
             isInitialized = true;
             
-            UnityEngine.Debug.Log($"✅ Initialized creature: {name} (ID: {creatureData.UniqueId})");
+            UnityEngine.Debug.Log($"[OK] Initialized creature: {name} (ID: {creatureData.UniqueId})");
         }
         
         /// <summary>
@@ -324,7 +324,7 @@ namespace Laboratory.Chimera
                 }
             }
             
-            UnityEngine.Debug.Log($"✨ {name} is SHINY!");
+            UnityEngine.Debug.Log($"[Shiny] {name} is SHINY!");
         }
         
         private void ApplyShinyEffect()
@@ -423,7 +423,7 @@ namespace Laboratory.Chimera
         {
             if (creatureData == null) return "Uninitialized Creature";
             
-            var info = $"🐉 {speciesConfig?.speciesName ?? "Unknown"}\n";
+            var info = $"[Creature] {speciesConfig?.speciesName ?? "Unknown"}\n";
             info += $"Age: {creatureData.AgeInDays:F1} days\n";
             info += $"Health: {creatureData.CurrentHealth}\n";
             info += $"Happiness: {creatureData.Happiness:P0}\n";

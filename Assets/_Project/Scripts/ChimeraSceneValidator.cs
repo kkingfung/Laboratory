@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,14 +17,14 @@ namespace ProjectChimera.Validation
     /// </summary>
     public class ChimeraSceneValidator : MonoBehaviour
     {
-        [Header("🔍 Validation Settings")]
+        [Header("[Search] Validation Settings")]
         [SerializeField] private bool validateOnStart = true;
         [SerializeField] private bool validatePeriodically = true;
         [SerializeField] private float validationInterval = 60f;
         [SerializeField] private bool autoFixIssues = false;
         [SerializeField] private bool showDetailedLogs = true;
 
-        [Header("🎯 Validation Rules")]
+        [Header("[Target] Validation Rules")]
         [SerializeField] private bool checkEssentialObjects = true;
         [SerializeField] private bool checkCameraSetup = true;
         [SerializeField] private bool checkAudioSetup = true;
@@ -72,11 +72,11 @@ namespace ProjectChimera.Validation
         {
             try
             {
-                Debug.Log("🔍 Starting Project Chimera scene validation...");
+                Debug.Log("[Search] Starting Project Chimera scene validation...");
                 issues.Clear();
 
                 Scene currentScene = SceneManager.GetActiveScene();
-                Debug.Log($"🎬 Validating scene: {currentScene.name}");
+                Debug.Log($"[Scene] Validating scene: {currentScene.name}");
 
                 // Run validation checks
                 if (checkEssentialObjects) ValidateEssentialObjects();
@@ -103,7 +103,7 @@ namespace ProjectChimera.Validation
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Scene validation failed: {e.Message}");
+                Debug.LogError($"[X] Scene validation failed: {e.Message}");
             }
         }
 
@@ -113,7 +113,7 @@ namespace ProjectChimera.Validation
 
         private void ValidateEssentialObjects()
         {
-            Debug.Log("🔍 Checking essential objects...");
+            Debug.Log("[Search] Checking essential objects...");
 
             // Check for EventSystem (required for UI)
             if (FindFirstObjectByType<UnityEngine.EventSystems.EventSystem>() == null)
@@ -139,7 +139,7 @@ namespace ProjectChimera.Validation
 
         private void ValidateCameraSetup()
         {
-            Debug.Log("🔍 Checking camera setup...");
+            Debug.Log("[Search] Checking camera setup...");
 
             Camera[] cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
             
@@ -192,7 +192,7 @@ namespace ProjectChimera.Validation
 
         private void ValidateAudioSetup()
         {
-            Debug.Log("🔍 Checking audio setup...");
+            Debug.Log("[Search] Checking audio setup...");
 
             AudioListener[] listeners = FindObjectsByType<AudioListener>(FindObjectsSortMode.None);
             
@@ -230,7 +230,7 @@ namespace ProjectChimera.Validation
 
         private void ValidateLightingSetup()
         {
-            Debug.Log("🔍 Checking lighting setup...");
+            Debug.Log("[Search] Checking lighting setup...");
 
             Light[] lights = FindObjectsByType<Light>(FindObjectsSortMode.None);
             
@@ -264,7 +264,7 @@ namespace ProjectChimera.Validation
 
         private void ValidateNetworkSetup()
         {
-            Debug.Log("🔍 Checking network setup...");
+            Debug.Log("[Search] Checking network setup...");
 
             // Check for NetworkManager
             var networkManagers = FindObjectsByType<ProjectChimera.Networking.ChimeraNetworkManager>(FindObjectsSortMode.None);
@@ -297,7 +297,7 @@ namespace ProjectChimera.Validation
 
         private void ValidateMonsterSetup()
         {
-            Debug.Log("🔍 Checking monster setup...");
+            Debug.Log("[Search] Checking monster setup...");
 
             // Check for ChimeraManager
             var chimeraManagers = UnityEngine.Object.FindObjectsByType<ProjectChimera.Core.ChimeraManager>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -363,7 +363,7 @@ namespace ProjectChimera.Validation
 
         private void ValidateSceneReferences()
         {
-            Debug.Log("🔍 Checking scene references...");
+            Debug.Log("[Search] Checking scene references...");
 
             // Find all MonoBehaviours and check for missing script references
             MonoBehaviour[] allMonoBehaviours = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None);
@@ -382,7 +382,7 @@ namespace ProjectChimera.Validation
 
         private void ValidatePerformanceSettings()
         {
-            Debug.Log("🔍 Checking performance settings...");
+            Debug.Log("[Search] Checking performance settings...");
 
             // Check for excessive GameObject count
             GameObject[] allObjects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
@@ -461,16 +461,16 @@ namespace ProjectChimera.Validation
         {
             switch (severity)
             {
-                case ValidationSeverity.Error: return "❌";
-                case ValidationSeverity.Warning: return "⚠️";
-                case ValidationSeverity.Info: return "ℹ️";
+                case ValidationSeverity.Error: return "[X]";
+                case ValidationSeverity.Warning: return "[Warning]";
+                case ValidationSeverity.Info: return "[Info]";
                 default: return "?";
             }
         }
 
         private void AutoFixIssues()
         {
-            Debug.Log("🔧 Auto-fixing issues...");
+            Debug.Log("[Tool] Auto-fixing issues...");
             
             int fixedCount = 0;
             foreach (var issue in issues.Where(i => i.canAutoFix).ToList())
@@ -483,7 +483,7 @@ namespace ProjectChimera.Validation
                 }
             }
             
-            Debug.Log($"✅ Auto-fixed {fixedCount} issues");
+            Debug.Log($"[OK] Auto-fixed {fixedCount} issues");
         }
 
         private bool TryAutoFix(ValidationIssue issue)
@@ -531,7 +531,7 @@ namespace ProjectChimera.Validation
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Failed to auto-fix {issue.category}: {e.Message}");
+                Debug.LogError($"[X] Failed to auto-fix {issue.category}: {e.Message}");
             }
             
             return false;
@@ -546,7 +546,7 @@ namespace ProjectChimera.Validation
             GameObject eventSystem = new GameObject("EventSystem");
             eventSystem.AddComponent<UnityEngine.EventSystems.EventSystem>();
             eventSystem.AddComponent<UnityEngine.EventSystems.StandaloneInputModule>();
-            Debug.Log("➕ Created EventSystem");
+            Debug.Log("[+] Created EventSystem");
         }
 
         private void CreateCanvas()
@@ -556,7 +556,7 @@ namespace ProjectChimera.Validation
             canvasComponent.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.AddComponent<UnityEngine.UI.CanvasScaler>();
             canvas.AddComponent<UnityEngine.UI.GraphicRaycaster>();
-            Debug.Log("➕ Created Canvas");
+            Debug.Log("[+] Created Canvas");
         }
 
         private void CreateMainCamera()
@@ -570,7 +570,7 @@ namespace ProjectChimera.Validation
             camera.transform.position = new Vector3(0, 1, -10);
             cam.clearFlags = CameraClearFlags.Skybox;
             
-            Debug.Log("➕ Created Main Camera with AudioListener");
+            Debug.Log("[+] Created Main Camera with AudioListener");
         }
 
         private void FixCameraTag()
@@ -579,7 +579,7 @@ namespace ProjectChimera.Validation
             if (camera != null)
             {
                 camera.tag = "MainCamera";
-                Debug.Log("🔧 Fixed camera tag");
+                Debug.Log("[Tool] Fixed camera tag");
             }
         }
 
@@ -589,13 +589,13 @@ namespace ProjectChimera.Validation
             if (camera != null)
             {
                 camera.gameObject.AddComponent<AudioListener>();
-                Debug.Log("➕ Added AudioListener to camera");
+                Debug.Log("[+] Added AudioListener to camera");
             }
             else
             {
                 GameObject audioListenerGO = new GameObject("AudioListener");
                 audioListenerGO.AddComponent<AudioListener>();
-                Debug.Log("➕ Created standalone AudioListener");
+                Debug.Log("[+] Created standalone AudioListener");
             }
         }
 
@@ -606,7 +606,7 @@ namespace ProjectChimera.Validation
             {
                 DestroyImmediate(listeners[i]);
             }
-            Debug.Log($"🔧 Removed {listeners.Length - 1} extra AudioListeners");
+            Debug.Log($"[Tool] Removed {listeners.Length - 1} extra AudioListeners");
         }
 
         private void CreateBasicLighting()
@@ -618,21 +618,21 @@ namespace ProjectChimera.Validation
             lightComponent.intensity = 1f;
             light.transform.rotation = Quaternion.Euler(50f, -30f, 0);
             
-            Debug.Log("➕ Created basic directional light");
+            Debug.Log("[+] Created basic directional light");
         }
 
         private void CreateNetworkManager()
         {
             GameObject networkManager = new GameObject("ChimeraNetworkManager");
             networkManager.AddComponent<ProjectChimera.Networking.ChimeraNetworkManager>();
-            Debug.Log("➕ Created ChimeraNetworkManager");
+            Debug.Log("[+] Created ChimeraNetworkManager");
         }
 
         private void CreateChimeraManager()
         {
             GameObject chimeraManager = new GameObject("ChimeraManager");
             chimeraManager.AddComponent<ProjectChimera.Core.ChimeraManager>();
-            Debug.Log("➕ Created ChimeraManager");
+            Debug.Log("[+] Created ChimeraManager");
         }
 
         #endregion
@@ -641,23 +641,23 @@ namespace ProjectChimera.Validation
 
         private void ReportValidationResults()
         {
-            Debug.Log("📊 === SCENE VALIDATION RESULTS ===");
+            Debug.Log("[Stats] === SCENE VALIDATION RESULTS ===");
             
             var errorCount = issues.Count(i => i.severity == ValidationSeverity.Error);
             var warningCount = issues.Count(i => i.severity == ValidationSeverity.Warning);
             var infoCount = issues.Count(i => i.severity == ValidationSeverity.Info);
             
-            Debug.Log($"❌ Errors: {errorCount}");
-            Debug.Log($"⚠️ Warnings: {warningCount}");  
-            Debug.Log($"ℹ️ Info: {infoCount}");
+            Debug.Log($"[X] Errors: {errorCount}");
+            Debug.Log($"[Warning] Warnings: {warningCount}");  
+            Debug.Log($"[Info] Info: {infoCount}");
             
             if (issues.Count == 0)
             {
-                Debug.Log("🎉 Scene validation passed! No issues found.");
+                Debug.Log("[Celebrate] Scene validation passed! No issues found.");
             }
             else
             {
-                Debug.Log($"📋 Found {issues.Count} total issues:");
+                Debug.Log($"[List] Found {issues.Count} total issues:");
                 foreach (var issue in issues)
                 {
                     Debug.Log($"  {GetSeverityIcon(issue.severity)} {issue.category}: {issue.description}");
@@ -666,7 +666,7 @@ namespace ProjectChimera.Validation
                 var fixableCount = issues.Count(i => i.canAutoFix);
                 if (fixableCount > 0)
                 {
-                    Debug.Log($"🔧 {fixableCount} issues can be auto-fixed");
+                    Debug.Log($"[Tool] {fixableCount} issues can be auto-fixed");
                 }
             }
             
@@ -688,7 +688,7 @@ namespace ProjectChimera.Validation
             {
                 yield return new WaitForSeconds(validationInterval);
                 
-                Debug.Log("🔄 Running periodic scene validation...");
+                Debug.Log("[Refresh] Running periodic scene validation...");
                 ValidateScene();
             }
         }
@@ -711,14 +711,14 @@ namespace ProjectChimera.Validation
             }
             else
             {
-                Debug.Log("⚠️ No auto-fixable issues found");
+                Debug.Log("[Warning] No auto-fixable issues found");
             }
         }
 
         public void ClearIssues()
         {
             issues.Clear();
-            Debug.Log("🧹 Cleared validation issues");
+            Debug.Log("[Clean] Cleared validation issues");
         }
 
         #endregion
@@ -726,7 +726,7 @@ namespace ProjectChimera.Validation
         #region Editor Integration
 
         #if UNITY_EDITOR
-        [MenuItem("🧪 Laboratory/Project Chimera/Scene Validation/Validate Current Scene")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Scene Validation/Validate Current Scene")]
         public static void ValidateCurrentScene()
         {
             ChimeraSceneValidator validator = FindFirstObjectByType<ChimeraSceneValidator>();
@@ -744,7 +744,7 @@ namespace ProjectChimera.Validation
             }
         }
 
-        [MenuItem("🧪 Laboratory/Project Chimera/Scene Validation/Auto-Fix Issues")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Scene Validation/Auto-Fix Issues")]
         public static void AutoFixCurrentScene()
         {
             ChimeraSceneValidator validator = FindFirstObjectByType<ChimeraSceneValidator>();
@@ -754,24 +754,24 @@ namespace ProjectChimera.Validation
             }
             else
             {
-                Debug.LogWarning("⚠️ No ChimeraSceneValidator found in scene");
+                Debug.LogWarning("[Warning] No ChimeraSceneValidator found in scene");
             }
         }
 
-        [MenuItem("🧪 Laboratory/Project Chimera/Scene Validation/Add Validator to Scene")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Scene Validation/Add Validator to Scene")]
         public static void AddValidatorToScene()
         {
             if (FindFirstObjectByType<ChimeraSceneValidator>() == null)
             {
                 GameObject validator = new GameObject("ChimeraSceneValidator");
                 validator.AddComponent<ChimeraSceneValidator>();
-                Debug.Log("➕ Added ChimeraSceneValidator to scene");
+                Debug.Log("[+] Added ChimeraSceneValidator to scene");
                 
                 EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
             }
             else
             {
-                Debug.Log("ℹ️ ChimeraSceneValidator already exists in scene");
+                Debug.Log("[Info] ChimeraSceneValidator already exists in scene");
             }
         }
         #endif

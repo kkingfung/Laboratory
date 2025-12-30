@@ -365,7 +365,7 @@ namespace Laboratory.Core.Activities
                 IsActive = gameObject.activeInHierarchy
             });
 
-            Debug.Log($"✅ Created {activityType} Activity Center with {maxParticipants} max participants");
+            Debug.Log($"[OK] Created {activityType} Activity Center with {maxParticipants} max participants");
         }
 
         private void OnDrawGizmos()

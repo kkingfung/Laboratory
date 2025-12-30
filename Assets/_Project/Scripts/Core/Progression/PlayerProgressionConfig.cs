@@ -13,32 +13,32 @@ namespace Laboratory.Core.Progression
     /// Defines experience curves, biome unlock requirements, research trees,
     /// territory expansion costs, and facility configurations in a designer-friendly format.
     /// </summary>
-    [CreateAssetMenu(fileName = "PlayerProgressionConfig", menuName = "🧬 Laboratory/Progression/Player Progression Config")]
+    [CreateAssetMenu(fileName = "PlayerProgressionConfig", menuName = "[Lab] Laboratory/Progression/Player Progression Config")]
     public class PlayerProgressionConfig : ScriptableObject
     {
-        [Header("🎯 Core Progression Settings")]
+        [Header("[Core] Core Progression Settings")]
         [SerializeField] private ProgressionCurveSettings progressionCurve = new ProgressionCurveSettings();
         [SerializeField] private CreatureSlotSettings creatureSlotSettings = new CreatureSlotSettings();
 
-        [Header("🌍 Biome Configuration")]
+        [Header("[World] Biome Configuration")]
         [SerializeField] private BiomeProgressionData[] biomeConfigurations = new BiomeProgressionData[0];
 
-        [Header("🔬 Research Tree Configuration")]
+        [Header("[Research] Research Tree Configuration")]
         [SerializeField] private ResearchConfiguration[] researchTree = new ResearchConfiguration[0];
 
-        [Header("🏗️ Territory Expansion Settings")]
+        [Header("[Build] Territory Expansion Settings")]
         [SerializeField] private TerritoryConfiguration[] territoryTiers = new TerritoryConfiguration[0];
 
-        [Header("🏭 Facility Configurations")]
+        [Header("[Facility] Facility Configurations")]
         [SerializeField] private FacilityConfiguration[] facilityTypes = new FacilityConfiguration[0];
 
-        [Header("💰 Experience Rewards")]
+        [Header("[Rewards] Experience Rewards")]
         [SerializeField] private ExperienceRewardSettings experienceRewards = new ExperienceRewardSettings();
 
-        [Header("🎨 UI and Visual Settings")]
+        [Header("[UI] UI and Visual Settings")]
         [SerializeField] private ProgressionUISettings uiSettings = new ProgressionUISettings();
 
-        [Header("🎮 Gameplay Balance")]
+        [Header("[Balance] Gameplay Balance")]
         [SerializeField] private ProgressionBalanceSettings balanceSettings = new ProgressionBalanceSettings();
 
         // Public accessors

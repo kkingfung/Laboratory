@@ -16,7 +16,7 @@ namespace Laboratory.Core.Economy
     /// </summary>
     public class EconomyUI : MonoBehaviour
     {
-        [Header("💰 Wallet Display")]
+        [Header("Wallet Display")]
         [SerializeField] private GameObject walletPanel;
         [SerializeField] private Text coinsText;
         [SerializeField] private Text gemsText;
@@ -25,7 +25,7 @@ namespace Laboratory.Core.Economy
         [SerializeField] private Text materialsText;
         [SerializeField] private Text energyText;
 
-        [Header("🏪 Marketplace")]
+        [Header("Marketplace")]
         [SerializeField] private GameObject marketplacePanel;
         [SerializeField] private Transform marketListingsParent;
         [SerializeField] private GameObject marketListingPrefab;
@@ -33,7 +33,7 @@ namespace Laboratory.Core.Economy
         [SerializeField] private Dropdown rarityFilter;
         [SerializeField] private Button refreshMarketButton;
 
-        [Header("💱 Currency Exchange")]
+        [Header("Currency Exchange")]
         [SerializeField] private GameObject exchangePanel;
         [SerializeField] private Dropdown fromCurrencyDropdown;
         [SerializeField] private Dropdown toCurrencyDropdown;
@@ -42,7 +42,7 @@ namespace Laboratory.Core.Economy
         [SerializeField] private Text exchangeResultText;
         [SerializeField] private Button exchangeButton;
 
-        [Header("📊 Market Stats")]
+        [Header("Market Stats")]
         [SerializeField] private GameObject statsPanel;
         [SerializeField] private Text totalPlayersText;
         [SerializeField] private Text globalValueText;
@@ -50,7 +50,7 @@ namespace Laboratory.Core.Economy
         [SerializeField] private Transform exchangeRatesParent;
         [SerializeField] private GameObject exchangeRateItemPrefab;
 
-        [Header("🛒 Item Listing")]
+        [Header("Item Listing")]
         [SerializeField] private GameObject listItemPanel;
         [SerializeField] private InputField itemNameInput;
         [SerializeField] private Dropdown itemCategoryDropdown;
@@ -90,7 +90,7 @@ namespace Laboratory.Core.Economy
             _economyManager.OnItemSold += OnItemSold;
             _economyManager.OnExchangeRateChanged += OnExchangeRateChanged;
 
-            Debug.Log("💰 Economy UI initialized");
+            Debug.Log("[Economy] Economy UI initialized");
         }
 
         private void SetupEventListeners()

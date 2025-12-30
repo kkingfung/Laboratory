@@ -51,7 +51,7 @@ namespace Laboratory.Chimera.Social
             ConfigureSystems();
 
             isInitialized = true;
-            UnityEngine.Debug.Log("🤝 Advanced Social System Controller initialized with modular architecture");
+            UnityEngine.Debug.Log("?? Advanced Social System Controller initialized with modular architecture");
         }
 
         private void FindOrCreateSocialSystems()
@@ -123,7 +123,7 @@ namespace Laboratory.Chimera.Social
             var commProfile = agent.CommunicationProfile ?? CreateDefaultCommunicationProfile();
             communicationSystem?.RegisterAgent(agent.AgentId, commProfile);
 
-            UnityEngine.Debug.Log($"🤝 Registered social agent: {agent.Name} (ID: {agent.AgentId})");
+            UnityEngine.Debug.Log($"?? Registered social agent: {agent.Name} (ID: {agent.AgentId})");
         }
 
         public void ProcessSocialInteraction(uint agent1Id, uint agent2Id, SocialTypes.InteractionType interactionType, SocialTypes.InteractionOutcome outcome, float intensity = 1.0f)
@@ -148,7 +148,7 @@ namespace Laboratory.Chimera.Social
                 emotionalSystem?.UpdateSocialEmotionalState(agent2Id, SocialTypes.EmotionalState.Sad, intensity * 0.3f);
             }
 
-            UnityEngine.Debug.Log($"🤝 Processed social interaction: {agent1Id} → {agent2Id} ({interactionType}, {outcome})");
+            UnityEngine.Debug.Log($"?? Processed social interaction: {agent1Id} ??{agent2Id} ({interactionType}, {outcome})");
         }
 
         public void SendCommunication(uint senderId, uint receiverId, string message, string context = "")

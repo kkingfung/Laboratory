@@ -118,7 +118,7 @@ namespace Laboratory.Core.Infrastructure
             {
                 SystemName = "ServiceDiscovery",
                 QuantumAlgorithm = "Grover's Search Algorithm",
-                PotentialSpeedup = 1.41f, // Theoretical √N speedup for unstructured search
+                PotentialSpeedup = 1.41f, // Theoretical sqrt(N) speedup for unstructured search
                 Description = "Service discovery could use Grover's algorithm for quadratic speedup in large service collections",
                 Feasibility = QuantumFeasibility.High,
                 ImplementationComplexity = QuantumComplexityLevel.Low
@@ -257,7 +257,7 @@ namespace Laboratory.Core.Infrastructure
                 PhysicalQubits = 2000, // ~40:1 ratio for surface code
                 ErrorThreshold = 1e-2f,
                 DecodingComplexity = "O(n²)",
-                QuantumVolume = 2000 * 100, // Depth × Width
+                QuantumVolume = 2000 * 100, // Depth * Width
                 ApplicationArea = "Genetic Population Evolution"
             };
 

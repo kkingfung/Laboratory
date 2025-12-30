@@ -277,7 +277,7 @@ namespace Laboratory.Advanced
 
             OnWeatherChanged?.Invoke(previousWeather, _targetWeather);
 
-            Debug.Log($"[DynamicWeatherSystem] Weather changing: {previousWeather} → {_targetWeather}");
+            Debug.Log($"[DynamicWeatherSystem] Weather changing: {previousWeather} -> {_targetWeather}");
         }
 
         /// <summary>

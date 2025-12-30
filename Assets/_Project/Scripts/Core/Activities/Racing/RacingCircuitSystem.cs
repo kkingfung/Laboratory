@@ -13,7 +13,7 @@ using Laboratory.Core.Activities.Types;
 namespace Laboratory.Core.Activities.Racing
 {
     /// <summary>
-    /// 🏎️ RACING CIRCUIT SYSTEM - Complete racing mini-game implementation
+    /// [Racing] RACING CIRCUIT SYSTEM - Complete racing mini-game implementation
     /// FEATURES: Track varieties, time trials, lap timing, checkpoints, leaderboards
     /// PERFORMANCE: High-speed physics simulation for racing gameplay
     /// GENETICS: Speed, Agility, Vitality directly affect racing performance
@@ -561,7 +561,7 @@ namespace Laboratory.Core.Activities.Racing
                 IsActive = gameObject.activeInHierarchy
             });
 
-            Debug.Log($"✅ Created {difficulty} {trackType} racing track with {lapCount} laps");
+            Debug.Log($"[OK] Created {difficulty} {trackType} racing track with {lapCount} laps");
         }
 
         private void OnDrawGizmos()

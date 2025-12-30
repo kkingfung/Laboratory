@@ -274,7 +274,7 @@ namespace Laboratory.Chimera.UI
             RefreshCreatureList();
             UpdateCollectionStatistics();
             
-            UnityEngine.Debug.Log("📋 Creature Management UI opened");
+            UnityEngine.Debug.Log("[UI] Creature Management UI opened");
         }
         
         /// <summary>
@@ -286,7 +286,7 @@ namespace Laboratory.Chimera.UI
                 managementPanel.SetActive(false);
             isUIVisible = false;
             
-            UnityEngine.Debug.Log("📋 Creature Management UI closed");
+            UnityEngine.Debug.Log("[UI] Creature Management UI closed");
         }
         
         /// <summary>
@@ -315,7 +315,7 @@ namespace Laboratory.Chimera.UI
                 UpdateCollectionStatistics();
             }
             
-            UnityEngine.Debug.Log($"➕ Added creature to management: {creature.name}");
+            UnityEngine.Debug.Log($"[Add] Added creature to management: {creature.name}");
         }
         
         /// <summary>
@@ -348,7 +348,7 @@ namespace Laboratory.Chimera.UI
                 UpdateCollectionStatistics();
             }
             
-            UnityEngine.Debug.Log($"➖ Removed creature from management: {creature.name}");
+            UnityEngine.Debug.Log($"[Remove] Removed creature from management: {creature.name}");
         }
         
         /// <summary>
@@ -359,7 +359,7 @@ namespace Laboratory.Chimera.UI
             currentlyViewedCreature = creature;
             DisplayCreatureDetails(creature);
             
-            UnityEngine.Debug.Log($"👁️ Viewing creature: {creature.name}");
+            UnityEngine.Debug.Log($"[View] Viewing creature: {creature.name}");
         }
         
         #endregion
@@ -574,7 +574,7 @@ namespace Laboratory.Chimera.UI
             UpdateSelectionDisplay();
             UpdateBatchOperationsUI();
             
-            UnityEngine.Debug.Log($"✅ Selected all {selectedCreatures.Count} creatures");
+            UnityEngine.Debug.Log($"[OK] Selected all {selectedCreatures.Count} creatures");
         }
         
         private void DeselectAllCreatures()
@@ -584,7 +584,7 @@ namespace Laboratory.Chimera.UI
             UpdateSelectionDisplay();
             UpdateBatchOperationsUI();
             
-            UnityEngine.Debug.Log("❌ Deselected all creatures");
+            UnityEngine.Debug.Log("[X] Deselected all creatures");
         }
         
         private void UpdateSelectionDisplay()
@@ -785,12 +785,12 @@ namespace Laboratory.Chimera.UI
                 }
             }
             
-            UnityEngine.Debug.Log($"🧬 Started batch breeding with {selectedCreatures.Count} creatures");
+            UnityEngine.Debug.Log($"[Genetics] Started batch breeding with {selectedCreatures.Count} creatures");
         }
         
         private void BatchReleaseSelected()
         {
-            UnityEngine.Debug.Log($"🚪 Releasing {selectedCreatures.Count} creatures...");
+            UnityEngine.Debug.Log($"[Release] Releasing {selectedCreatures.Count} creatures...");
             
             foreach (var creature in selectedCreatures.ToList())
             {
@@ -803,7 +803,7 @@ namespace Laboratory.Chimera.UI
         
         private void BatchDeleteSelected()
         {
-            UnityEngine.Debug.Log($"🗑️ Deleting {selectedCreatures.Count} creatures...");
+            UnityEngine.Debug.Log($"[Delete] Deleting {selectedCreatures.Count} creatures...");
             
             foreach (var creature in selectedCreatures.ToList())
             {
@@ -816,7 +816,7 @@ namespace Laboratory.Chimera.UI
         
         private void ExportSelectedCreatures()
         {
-            UnityEngine.Debug.Log($"📤 Exporting {selectedCreatures.Count} creatures...");
+            UnityEngine.Debug.Log($"[Export] Exporting {selectedCreatures.Count} creatures...");
             
             // Implement export functionality
             // This could save creature data to JSON, CSV, etc.
@@ -837,7 +837,7 @@ namespace Laboratory.Chimera.UI
             DisplayCreatureDetails(currentlyViewedCreature);
             RefreshCreatureList();
             
-            UnityEngine.Debug.Log($"📝 Renamed creature to: {newName}");
+            UnityEngine.Debug.Log($"[Rename] Renamed creature to: {newName}");
         }
         
         private void DeleteCurrentCreature()
@@ -866,7 +866,7 @@ namespace Laboratory.Chimera.UI
             {
                 RemoveCreature(creature);
                 Destroy(creature.gameObject);
-                UnityEngine.Debug.Log($"🗑️ Deleted creature: {creature.name}");
+                UnityEngine.Debug.Log($"[Delete] Deleted creature: {creature.name}");
             }
         }
         
@@ -877,7 +877,7 @@ namespace Laboratory.Chimera.UI
                 // Mark as released (could move to wild area, change AI, etc.)
                 creature.tag = "WildCreature";
                 RemoveCreature(creature);
-                UnityEngine.Debug.Log($"🚪 Released creature: {creature.name}");
+                UnityEngine.Debug.Log($"[Release] Released creature: {creature.name}");
             }
         }
         
@@ -918,7 +918,7 @@ namespace Laboratory.Chimera.UI
         
         private void ViewCollectionStatistics()
         {
-            UnityEngine.Debug.Log("📊 Opening detailed collection statistics...");
+            UnityEngine.Debug.Log("[Stats] Opening detailed collection statistics...");
             // This would open a detailed statistics panel
         }
         
@@ -926,7 +926,7 @@ namespace Laboratory.Chimera.UI
         {
             if (currentlyViewedCreature?.CreatureData?.GeneticProfile == null) return;
             
-            UnityEngine.Debug.Log("🧬 Opening full genetics viewer...");
+            UnityEngine.Debug.Log("[Genetics] Opening full genetics viewer...");
             // This would open a detailed genetics analysis panel
         }
         

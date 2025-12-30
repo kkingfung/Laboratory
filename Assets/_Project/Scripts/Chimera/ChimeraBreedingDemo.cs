@@ -46,7 +46,7 @@ namespace Laboratory.Chimera
                 await StartBreedingDemo();
             }
             
-            LogDemo(" Project Chimera Demo Ready!");
+            LogDemo("[READY] Project Chimera Demo Ready!");
             LogDemo("Use the context menu to start breeding demonstrations.");
         }
         
@@ -68,7 +68,7 @@ namespace Laboratory.Chimera
         [ContextMenu("Show Population Stats")]
         public void ShowPopulationStats()
         {
-            LogDemo($"\n POPULATION STATISTICS (Generation {_currentGeneration})");
+            LogDemo($"\n[STATS] POPULATION STATISTICS (Generation {_currentGeneration})");
             LogDemo($"Total Creatures: {_currentPopulation.Count}");
             
             if (_currentPopulation.Count > 0)
@@ -96,7 +96,7 @@ namespace Laboratory.Chimera
         
         private async UniTask StartBreedingDemo()
         {
-            LogDemo("\n🧬 STARTING BREEDING DEMO");
+            LogDemo("\n[GENETICS] STARTING BREEDING DEMO");
             
             for (int generation = _currentGeneration; generation <= maxGenerations; generation++)
             {
@@ -129,14 +129,14 @@ namespace Laboratory.Chimera
                 LogDemo($"Generation {generation} complete: {newOffspring.Count} new creatures born");
                 await UniTask.Delay((int)(demoInterval * 2000));
             }
-            
-            LogDemo("\n BREEDING DEMO COMPLETE!");
+
+            LogDemo("\n[COMPLETE] BREEDING DEMO COMPLETE!");
             ShowPopulationStats();
         }
         
         private async UniTask<BreedingResult> DemonstrateBreeding(CreatureInstance parent1, CreatureInstance parent2)
         {
-            LogDemo($"\n Breeding: {parent1.Definition.speciesName} × {parent2.Definition.speciesName}");
+            LogDemo($"\n[BREEDING] Breeding: {parent1.Definition.speciesName} x {parent2.Definition.speciesName}");
             
             var environment = new BreedingEnvironment
             {
@@ -151,9 +151,9 @@ namespace Laboratory.Chimera
             
             if (result.Success)
             {
-                LogDemo($"  Success! 1 offspring produced");
+                LogDemo($"  [SUCCESS] 1 offspring produced");
                 LogDemo($"  Compatibility: {result.CompatibilityScore:P1}");
-                
+
                 var offspring = result.Offspring;
                 {
                     AnalyzeOffspring(offspring);
@@ -161,7 +161,7 @@ namespace Laboratory.Chimera
             }
             else
             {
-                LogDemo($" Failed: {result.ErrorMessage}");
+                LogDemo($"[FAILED] {result.ErrorMessage}");
             }
             
             return result;
@@ -170,21 +170,21 @@ namespace Laboratory.Chimera
         private void AnalyzeOffspring(CreatureInstance offspring)
         {
             if (!enableDetailedLogging) return;
-            
+
             var genetics = offspring.GeneticProfile;
-            LogDemo($"     Offspring: Gen-{genetics.Generation}");
-            
+            LogDemo($"     [Offspring] Offspring: Gen-{genetics.Generation}");
+
             var traitSummary = genetics.GetTraitSummary(3);
             if (!string.IsNullOrEmpty(traitSummary))
             {
                 LogDemo($"     Strong Traits: {traitSummary}");
             }
-            
+
             if (genetics.Mutations.Count > 0)
             {
-                LogDemo($"     Mutations: {genetics.Mutations.Count} detected");
+                LogDemo($"     [MUTATION] Mutations: {genetics.Mutations.Count} detected");
             }
-            
+
             LogDemo($"     Genetic Purity: {genetics.GetGeneticPurity():P1}");
         }
         
@@ -220,12 +220,12 @@ namespace Laboratory.Chimera
         
         private async UniTask CreateInitialPopulation()
         {
-            LogDemo("\n Creating initial creature population...");
-            
+            LogDemo("\n[CREATE] Creating initial creature population...");
+
             _currentPopulation.Clear();
             await CreateDefaultCreatures();
-            
-            LogDemo($" Created {_currentPopulation.Count} creatures");
+
+            LogDemo($"[OK] Created {_currentPopulation.Count} creatures");
         }
         
         private async UniTask CreateDefaultCreatures()
@@ -352,12 +352,12 @@ namespace Laboratory.Chimera
         
         private void OnBreedingSuccess(BreedingSuccessfulEvent evt)
         {
-            LogDemo($" Breeding event: Success with {evt.Result.Offspring.Length} offspring");
+            LogDemo($"[SUCCESS] Breeding event: Success with {evt.Result.Offspring.Length} offspring");
         }
-        
+
         private void OnBreedingFailure(BreedingFailedEvent evt)
         {
-            LogDemo($" Breeding failed: {evt.Reason}");
+            LogDemo($"[FAILED] Breeding failed: {evt.Reason}");
         }
         
         #endregion

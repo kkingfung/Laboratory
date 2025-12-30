@@ -34,22 +34,22 @@ namespace ProjectChimera.AI.Utilities
             {
                 if (type != null)
                 {
-                    Debug.Log($"✓ Found: {type.FullName}");
+                    Debug.Log($"[AI] Found: {type.FullName}");
                 }
                 else
                 {
-                    Debug.LogError($"✗ Missing type!");
+                    Debug.LogError("[AI] Missing type!");
                     allTypesFound = false;
                 }
             }
             
             if (allTypesFound)
             {
-                Debug.Log("\n✅ All AI System components compiled successfully!");
+                Debug.Log("\n[AI] All AI System components compiled successfully!");
             }
             else
             {
-                Debug.LogError("\n❌ Some components failed to compile. Check the Console for errors.");
+                Debug.LogError("\n[AI] Some components failed to compile. Check the Console for errors.");
             }
         }
         

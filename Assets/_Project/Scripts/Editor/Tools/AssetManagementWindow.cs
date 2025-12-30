@@ -444,7 +444,7 @@ namespace Laboratory.Editor.Tools
         {
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField(label, GUILayout.Width(200));
-            EditorGUILayout.LabelField(status ? "✓ Enabled" : "✗ Disabled",
+            EditorGUILayout.LabelField(status ? "[OK] Enabled" : "[X] Disabled",
                 status ? EditorStyles.boldLabel : EditorStyles.label);
             EditorGUILayout.EndHorizontal();
         }

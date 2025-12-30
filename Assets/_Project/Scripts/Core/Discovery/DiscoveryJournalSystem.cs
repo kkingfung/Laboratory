@@ -20,17 +20,17 @@ namespace Laboratory.Core.Discovery
     /// </summary>
     public class DiscoveryJournalSystem : MonoBehaviour
     {
-        [Header("📔 Journal Configuration")]
+        [Header("[Journal] Journal Configuration")]
         [SerializeField] private JournalConfig journalConfig;
         [SerializeField] private bool enableAutoDocumentation = true;
         [SerializeField] private bool enablePlayerNotes = true;
         [SerializeField] private bool enableResearchProjects = true;
 
-        [Header("🏆 Achievement Settings")]
+        [Header("[Achievement] Achievement Settings")]
         [SerializeField] private AchievementDatabase achievementDatabase;
         [SerializeField] private bool enableAchievements = true;
 
-        [Header("🔬 Research Features")]
+        [Header("[Science] Research Features")]
         [SerializeField] private int maxActiveResearchProjects = 5;
         [SerializeField] private float researchProjectDuration = 604800f; // 7 days
 
@@ -71,7 +71,7 @@ namespace Laboratory.Core.Discovery
             InitializeAchievementSystem();
             InitializeResearchProjects();
 
-            Debug.Log("📔 Discovery Journal System initialized");
+            Debug.Log("[Journal] Discovery Journal System initialized");
         }
 
         private void InitializePlayerJournals()
@@ -183,7 +183,7 @@ namespace Laboratory.Core.Discovery
             // Check for achievements
             CheckJournalAchievements(playerId);
 
-            Debug.Log($"📝 Journal entry added: {title}");
+            Debug.Log($"[Note] Journal entry added: {title}");
             return entry;
         }
 
@@ -201,7 +201,7 @@ namespace Laboratory.Core.Discovery
             var content = GenerateBreedingEntryContent(parent1, parent2, offspring, analysis);
 
             var entry = AddJournalEntry(playerId, JournalEntryType.BreedingResult,
-                $"Breeding: {parent1.Name} × {parent2.Name}", content,
+                $"Breeding: {parent1.Name} * {parent2.Name}", content,
                 new BreedingData { Parent1 = parent1, Parent2 = parent2, Offspring = offspring });
 
             // Check for genetic discoveries
@@ -236,7 +236,7 @@ namespace Laboratory.Core.Discovery
 
             CheckDiscoveryAchievements(playerId);
 
-            Debug.Log($"🧬 Genetic discovery documented: {discovery.DiscoveryName}");
+            Debug.Log($"[Genetics] Genetic discovery documented: {discovery.DiscoveryName}");
         }
 
         /// <summary>
@@ -326,7 +326,7 @@ namespace Laboratory.Core.Discovery
             _unlockedAchievements[playerId].Add(unlockedAchievement);
             OnAchievementUnlocked?.Invoke(unlockedAchievement);
 
-            Debug.Log($"🏆 Achievement unlocked: {achievement.Title}");
+            Debug.Log($"[Achievement] Achievement unlocked: {achievement.Title}");
         }
 
         private void CheckDiscoveryAchievements(string playerId)
@@ -369,7 +369,7 @@ namespace Laboratory.Core.Discovery
             project.StartDate = DateTime.UtcNow;
             project.EndDate = DateTime.UtcNow.AddSeconds(researchProjectDuration);
 
-            Debug.Log($"🔬 Research project started: {project.Title}");
+            Debug.Log($"[Science] Research project started: {project.Title}");
             return true;
         }
 
@@ -443,7 +443,7 @@ namespace Laboratory.Core.Discovery
 
             OnResearchProjectCompleted?.Invoke(project);
 
-            Debug.Log($"🔬 Research project completed: {project.Title}");
+            Debug.Log($"[Science] Research project completed: {project.Title}");
         }
 
         /// <summary>
@@ -637,13 +637,13 @@ namespace Laboratory.Core.Discovery
 
         private string GenerateBreedingEntryContent(Monster parent1, Monster parent2, Monster offspring, BreedingAnalysis analysis)
         {
-            var content = $"Breeding Experiment: {parent1.Name} × {parent2.Name}\n\n";
+            var content = $"Breeding Experiment: {parent1.Name} * {parent2.Name}\n\n";
             content += $"Result: {offspring.Name}\n\n";
             content += "Trait Analysis:\n";
 
             foreach (var trait in analysis.TraitComparisons)
             {
-                content += $"• {trait.Key}: {trait.Value.Parent1Value:F1} + {trait.Value.Parent2Value:F1} → {trait.Value.OffspringValue:F1} ({trait.Value.InheritanceType})\n";
+                content += $"• {trait.Key}: {trait.Value.Parent1Value:F1} + {trait.Value.Parent2Value:F1} -> {trait.Value.OffspringValue:F1} ({trait.Value.InheritanceType})\n";
             }
 
             if (analysis.NotableObservations.Any())

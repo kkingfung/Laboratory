@@ -173,18 +173,18 @@ namespace Laboratory.Editor
             bool hasAudioSource = playerController.GetComponent<AudioSource>() != null;
 
             string message = "Player Setup Validation:\n\n";
-            message += $"✓ CharacterController: {(hasCharacterController ? "Present" : "MISSING")}\n";
-            message += $"✓ Animator: {(hasAnimator ? "Present" : "MISSING")}\n";
-            message += $"✓ AudioSource: {(hasAudioSource ? "Present" : "MISSING")}\n";
+            message += $"[OK] CharacterController: {(hasCharacterController ? "Present" : "MISSING")}\n";
+            message += $"[OK] Animator: {(hasAnimator ? "Present" : "MISSING")}\n";
+            message += $"[OK] AudioSource: {(hasAudioSource ? "Present" : "MISSING")}\n";
 
             if (hasCharacterController && hasAnimator && hasAudioSource)
             {
-                message += "\n✅ Player setup is complete!";
+                message += "\n[COMPLETE] Player setup is complete!";
                 EditorUtility.DisplayDialog("Validation Complete", message, "OK");
             }
             else
             {
-                message += "\n⚠️ Some components are missing!";
+                message += "\n[WARNING] Some components are missing!";
                 EditorUtility.DisplayDialog("Validation Issues", message, "OK");
             }
         }

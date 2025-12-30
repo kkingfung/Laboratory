@@ -112,7 +112,7 @@ namespace Laboratory.Core.Discovery.Services
             unlockedAchievements[playerId].Add(unlockedAchievement);
             discoverySystem.TriggerAchievementUnlocked(unlockedAchievement);
 
-            Debug.Log($"🏆 Achievement unlocked: {achievement.Title}");
+            Debug.Log($"[Achievement] Achievement unlocked: {achievement.Title}");
         }
 
         public List<Achievement> GetUnlockedAchievements(string playerId)

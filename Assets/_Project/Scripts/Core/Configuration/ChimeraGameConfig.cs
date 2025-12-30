@@ -10,36 +10,36 @@ namespace Laboratory.Core.Configuration
     [CreateAssetMenu(fileName = "Chimera Game Config", menuName = "Chimera/Master Game Configuration", order = 0)]
     public class ChimeraGameConfig : ScriptableObject
     {
-        [Header("🎮 Core Game Settings")]
+        [Header("Core Game Settings")]
         [SerializeField] public string gameVersion = "1.0.0";
         [SerializeField] public bool enableDebugMode = true;
         [SerializeField] public bool enablePerformanceMode = false;
         [SerializeField] [Range(30, 144)] public int targetFramerate = 60;
 
-        [Header("🧬 Species & Genetics")]
+        [Header("Species & Genetics")]
         [SerializeField] public ScriptableObject[] availableSpecies = new ScriptableObject[0];
         [SerializeField] public ScriptableObject[] availableBiomes = new ScriptableObject[0];
         [SerializeField] [Range(0.001f, 0.1f)] public float globalMutationRate = 0.02f;
         [SerializeField] [Range(1, 20)] public int maxGenerations = 10;
 
-        [Header("🤖 AI Configuration")]
+        [Header("AI Configuration")]
         [SerializeField] public ScriptableObject pathfindingConfig;
         [SerializeField] [Range(10, 1000)] public int maxSimultaneousCreatures = 500;
         [SerializeField] [Range(0.1f, 5f)] public float aiUpdateFrequency = 1f;
 
-        [Header("🌍 World & Environment")]
+        [Header("World & Environment")]
         [SerializeField] [Range(100, 10000)] public float worldSize = 1000f;
         [SerializeField] [Range(1, 10)] public int biomeCount = 3;
         [SerializeField] public bool enableDynamicWeather = true;
         [SerializeField] public bool enableSeasonalChanges = true;
 
-        [Header("⚡ Performance Settings")]
+        [Header("Performance Settings")]
         [SerializeField] [Range(1, 100)] public int ecsJobBatchSize = 32;
         [SerializeField] public bool enableObjectPooling = true;
         [SerializeField] public bool enableLODSystem = true;
         [SerializeField] [Range(10f, 500f)] public float cullingDistance = 200f;
 
-        [Header("🌐 Networking")]
+        [Header("Networking")]
         [SerializeField] public bool enableMultiplayer = false;
         [SerializeField] [Range(2, 100)] public int maxPlayersPerServer = 20;
         [SerializeField] [Range(10, 120)] public int networkTickRate = 30;

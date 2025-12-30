@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Laboratory.Core.Discovery.Data;
@@ -13,17 +13,17 @@ namespace Laboratory.Core.Discovery.Systems
     /// </summary>
     public class DiscoveryJournalSystem : MonoBehaviour
     {
-        [Header("📔 Journal Configuration")]
+        [Header("[Journal] Journal Configuration")]
         [SerializeField] private JournalConfig journalConfig;
         [SerializeField] private bool enableAutoDocumentation = true;
         [SerializeField] private bool enablePlayerNotes = true;
         [SerializeField] private bool enableResearchProjects = true;
 
-        [Header("🏆 Achievement Settings")]
+        [Header("[Achievement] Achievement Settings")]
         [SerializeField] private AchievementDatabase achievementDatabase;
         [SerializeField] private bool enableAchievements = true;
 
-        [Header("🔬 Research Features")]
+        [Header("[Science] Research Features")]
         [SerializeField] private int maxActiveResearchProjects = 5;
         [SerializeField] private float researchProjectDuration = 604800f; // 7 days
 
@@ -70,7 +70,7 @@ namespace Laboratory.Core.Discovery.Systems
             achievementService.Initialize(achievements);
             researchProjectService.Initialize();
 
-            Debug.Log("📔 Discovery Journal System initialized");
+            Debug.Log("[Journal] Discovery Journal System initialized");
         }
 
         public JournalEntry AddJournalEntry(string playerId, JournalEntryType entryType, string title, string content, object associatedData = null)

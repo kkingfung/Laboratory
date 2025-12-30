@@ -252,7 +252,7 @@ namespace Laboratory.Editor.Tools
             }
             else
             {
-                EditorGUILayout.LabelField("✓ Optimized", _goodStyle);
+                EditorGUILayout.LabelField("[OK] Optimized", _goodStyle);
             }
 
             EditorGUILayout.EndVertical();

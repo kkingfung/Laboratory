@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -53,7 +53,7 @@ namespace Laboratory.Core.MonsterTown
                 {
                     existingStack.Quantity += quantity;
                     UpdateInventoryStats();
-                    Debug.Log($"🎒 Stacked {quantity}x {equipment.Name}. Total: {existingStack.Quantity}");
+                    Debug.Log($"[Inventory] Stacked {quantity}x {equipment.Name}. Total: {existingStack.Quantity}");
                     return true;
                 }
             }
@@ -79,11 +79,11 @@ namespace Laboratory.Core.MonsterTown
             {
                 int sellValue = CalculateSellValue(equipment) * quantity;
                 RemoveEquipment(stackKey, quantity);
-                Debug.Log($"💰 Auto-sold {quantity}x {equipment.Name} for {sellValue} coins");
+                Debug.Log($"[Sell] Auto-sold {quantity}x {equipment.Name} for {sellValue} coins");
                 return true;
             }
 
-            Debug.Log($"🎒 Added {quantity}x {equipment.Name} to inventory");
+            Debug.Log($"[Inventory] Added {quantity}x {equipment.Name} to inventory");
             return true;
         }
 
@@ -120,7 +120,7 @@ namespace Laboratory.Core.MonsterTown
 
             UpdateInventoryStats();
 
-            Debug.Log($"🎒 Removed {quantity}x {stack.Equipment.Name} from inventory");
+            Debug.Log($"[Inventory] Removed {quantity}x {stack.Equipment.Name} from inventory");
             return true;
         }
 
@@ -254,7 +254,7 @@ namespace Laboratory.Core.MonsterTown
             // Rebuild groupings
             RebuildGroupings();
 
-            Debug.Log("🗂️ Inventory organized");
+            Debug.Log("[Organize] Inventory organized");
         }
 
         /// <summary>
@@ -301,7 +301,7 @@ namespace Laboratory.Core.MonsterTown
             {
                 RebuildGroupings();
                 UpdateInventoryStats();
-                Debug.Log($"💰 Sold {junkItems.Count} junk items for {coinsSold} coins");
+                Debug.Log($"[Sell] Sold {junkItems.Count} junk items for {coinsSold} coins");
             }
 
             return coinsSold;

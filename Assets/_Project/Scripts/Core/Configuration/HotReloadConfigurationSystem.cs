@@ -14,17 +14,17 @@ namespace Laboratory.Core.Configuration
     [DefaultExecutionOrder(-500)]
     public class HotReloadConfigurationSystem : MonoBehaviour
     {
-        [Header("🔥 Hot Reload Settings")]
+        [Header("Hot Reload Settings")]
         [SerializeField] private bool enableHotReload = true;
         [SerializeField] private float checkInterval = 0.5f;
         [SerializeField] private bool showDebugLogs = false;
 
-        [Header("📂 Watched Configurations")]
+        [Header("Watched Configurations")]
         [SerializeField] private ChimeraGameConfig gameConfig;
         [SerializeField] private List<ScriptableObject> watchedSpecies = new List<ScriptableObject>();
         [SerializeField] private List<ScriptableObject> watchedBiomes = new List<ScriptableObject>();
 
-        [Header("📊 Runtime Status")]
+        [Header("Runtime Status")]
         [SerializeField] private int totalReloads = 0;
         [SerializeField] private float lastReloadTime = 0f;
         [SerializeField] private string lastModifiedAsset = "";
@@ -81,7 +81,7 @@ namespace Laboratory.Core.Configuration
             systemInitialized = true;
 
             if (showDebugLogs)
-                Debug.Log($"🔥 Hot Reload System initialized, watching {fileTimestamps.Count} configuration files");
+                Debug.Log($"[Hot Reload] Hot Reload System initialized, watching {fileTimestamps.Count} configuration files");
         }
 
         private void RegisterForWatching(ScriptableObject asset)
@@ -147,7 +147,7 @@ namespace Laboratory.Core.Configuration
         private void ApplyConfigurationChanges(List<ScriptableObject> changedAssets)
         {
             if (showDebugLogs)
-                Debug.Log($"🔥 Hot Reload: Applying changes to {changedAssets.Count} assets");
+                Debug.Log($"[Hot Reload] Hot Reload: Applying changes to {changedAssets.Count} assets");
 
             foreach (var asset in changedAssets)
             {
@@ -174,7 +174,7 @@ namespace Laboratory.Core.Configuration
         private void ApplyGameConfigChanges(ChimeraGameConfig config)
         {
             if (showDebugLogs)
-                Debug.Log($"🔥 Hot Reload: Game config '{config.name}' changed");
+                Debug.Log($"[Hot Reload] Hot Reload: Game config '{config.name}' changed");
 
             // Update ECS performance settings
             ApplyPerformanceSettings(config);
@@ -189,7 +189,7 @@ namespace Laboratory.Core.Configuration
         private void ApplySpeciesConfigChanges(ScriptableObject speciesConfig)
         {
             if (showDebugLogs)
-                Debug.Log($"🔥 Hot Reload: Species config '{speciesConfig.name}' changed");
+                Debug.Log($"[Hot Reload] Hot Reload: Species config '{speciesConfig.name}' changed");
 
             // Find all entities of this species and update their data
             var speciesID = speciesConfig.name.GetHashCode();
@@ -197,13 +197,13 @@ namespace Laboratory.Core.Configuration
             // Use reflection to avoid assembly dependency
             // This would need proper implementation with available types
             if (showDebugLogs)
-                Debug.Log($"🔥 Hot Reload: Species config '{speciesConfig.name}' changed - using reflection to update entities");
+                Debug.Log($"[Hot Reload] Hot Reload: Species config '{speciesConfig.name}' changed - using reflection to update entities");
         }
 
         private void ApplyBiomeConfigChanges(ScriptableObject biomeConfig)
         {
             if (showDebugLogs)
-                Debug.Log($"🔥 Hot Reload: Biome config '{biomeConfig.name}' changed");
+                Debug.Log($"[Hot Reload] Hot Reload: Biome config '{biomeConfig.name}' changed");
 
             // Update environmental systems with new biome settings
             // This would integrate with your environmental systems
@@ -227,7 +227,7 @@ namespace Laboratory.Core.Configuration
             // Update global genetic parameters
             // This would integrate with your genetics systems
             if (showDebugLogs)
-                Debug.Log($"🔥 Hot Reload: Updated mutation rate to {config.globalMutationRate}");
+                Debug.Log($"[Hot Reload] Hot Reload: Updated mutation rate to {config.globalMutationRate}");
         }
 
         private void ApplyNetworkingSettings(ChimeraGameConfig config)
@@ -292,7 +292,7 @@ namespace Laboratory.Core.Configuration
             ApplyConfigurationChanges(allAssets);
             totalReloads++;
 
-            Debug.Log($"🔥 Force reloaded {allAssets.Count} configurations");
+            Debug.Log($"[Hot Reload] Force reloaded {allAssets.Count} configurations");
         }
 
         /// <summary>

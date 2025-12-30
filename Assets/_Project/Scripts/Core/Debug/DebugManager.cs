@@ -65,7 +65,7 @@ namespace Laboratory.Core.Diagnostics
 
         private void InitializeDebugSystems()
         {
-            UnityEngine.Debug.Log("🔧 Initializing Debug Systems...");
+            UnityEngine.Debug.Log("[Debug] Initializing Debug Systems...");
 
             // Initialize system references
             InitializeSystemReferences();
@@ -518,7 +518,7 @@ namespace Laboratory.Core.Diagnostics
         }
 
         // Menu item for quick access
-        [UnityEditor.MenuItem("🧪 Laboratory/Debug/Toggle Debug Console")]
+        [UnityEditor.MenuItem("[Laboratory] Laboratory/Debug/Toggle Debug Console")]
         private static void ToggleDebugConsole()
         {
             if (Application.isPlaying && Instance?.debugConsole != null)
@@ -531,7 +531,7 @@ namespace Laboratory.Core.Diagnostics
             }
         }
 
-        [UnityEditor.MenuItem("🧪 Laboratory/Debug/Create Debug Manager")]
+        [UnityEditor.MenuItem("[Laboratory] Laboratory/Debug/Create Debug Manager")]
         private static void CreateDebugManager()
         {
             GameObject debugManagerGO = new GameObject("Debug Manager");

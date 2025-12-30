@@ -19,25 +19,25 @@ namespace Laboratory.Chimera.Diagnostics
     /// </summary>
     public class GeneticEvolutionVisualizer : MonoBehaviour
     {
-        [Header("🧬 Visualization Settings")]
+        [Header("[Genetics] Visualization Settings")]
         [SerializeField] private bool enableVisualization = true;
         [SerializeField] private KeyCode toggleKey = KeyCode.F10;
         [SerializeField] private float updateInterval = 1f;
         [SerializeField] private int maxDataPoints = 100;
 
-        [Header("📊 Display Options")]
+        [Header("[Chart] Display Options")]
         [SerializeField] private bool showTraitDistribution = true;
         [SerializeField] private bool showEvolutionTrends = true;
         [SerializeField] private bool showSpeciesDiversity = true;
         [SerializeField] private bool showMutationAnalysis = false;
 
-        [Header("🎨 Visual Style")]
+        [Header("[Visual] Visual Style")]
         [SerializeField] private Color primaryColor = Color.cyan;
         [SerializeField] private Color secondaryColor = Color.yellow;
         [SerializeField] private Color backgroundAlpha = new Color(0, 0, 0, 0.7f);
         [SerializeField] private int fontSize = 12;
 
-        [Header("🎯 Tracked Traits")]
+        [Header("[Target] Tracked Traits")]
         [SerializeField] private string[] trackedTraits = new string[]
         {
             "Strength", "Vitality", "Agility", "Intelligence", "Resilience"
@@ -126,7 +126,7 @@ namespace Laboratory.Chimera.Diagnostics
                 traitHistory[trait] = new List<float>();
             }
 
-            UnityEngine.Debug.Log("✅ Genetic Evolution Visualizer initialized");
+            UnityEngine.Debug.Log("[OK] Genetic Evolution Visualizer initialized");
         }
 
         private void Update()
@@ -278,7 +278,7 @@ namespace Laboratory.Chimera.Diagnostics
             if (!enableVisualization || !visualizerVisible) return;
 
             InitializeGUIStyles();
-            windowRect = GUILayout.Window(12345, windowRect, DrawVisualizerWindow, "🧬 Genetic Evolution Visualizer", windowStyle);
+            windowRect = GUILayout.Window(12345, windowRect, DrawVisualizerWindow, "[Genetics] Genetic Evolution Visualizer", windowStyle);
         }
 
         private void InitializeGUIStyles()
@@ -352,7 +352,7 @@ namespace Laboratory.Chimera.Diagnostics
 
         private void DrawSummaryStatistics()
         {
-            GUILayout.Label("📊 Population Summary", headerStyle);
+            GUILayout.Label("[Chart] Population Summary", headerStyle);
 
             GUILayout.BeginHorizontal();
             GUILayout.BeginVertical();
@@ -371,7 +371,7 @@ namespace Laboratory.Chimera.Diagnostics
 
         private void DrawTraitDistribution()
         {
-            GUILayout.Label("📈 Trait Distribution", headerStyle);
+            GUILayout.Label("[Chart] Trait Distribution", headerStyle);
 
             foreach (string trait in trackedTraits)
             {
@@ -385,7 +385,7 @@ namespace Laboratory.Chimera.Diagnostics
 
         private void DrawEvolutionTrends()
         {
-            GUILayout.Label("📉 Evolution Trends", headerStyle);
+            GUILayout.Label("[Chart] Evolution Trends", headerStyle);
 
             if (generationHistory.Count > 1)
             {
@@ -407,7 +407,7 @@ namespace Laboratory.Chimera.Diagnostics
 
         private void DrawSpeciesDiversity()
         {
-            GUILayout.Label("🌈 Species Diversity", headerStyle);
+            GUILayout.Label("[Diversity] Species Diversity", headerStyle);
 
             foreach (var species in speciesData.Values.OrderByDescending(s => s.population))
             {
@@ -440,7 +440,7 @@ namespace Laboratory.Chimera.Diagnostics
 
         private void DrawMutationAnalysis()
         {
-            GUILayout.Label("🧪 Mutation Analysis", headerStyle);
+            GUILayout.Label("[Lab] Mutation Analysis", headerStyle);
 
             // This would analyze mutation patterns
             GUILayout.Label("Mutation frequency analysis would go here");
@@ -669,7 +669,7 @@ namespace Laboratory.Chimera.Diagnostics
         public void ExportGeneticData()
         {
             // This would export current genetic data to a CSV file
-            UnityEngine.Debug.Log("🧬 Genetic data export would be implemented here");
+            UnityEngine.Debug.Log("[Genetics] Genetic data export would be implemented here");
         }
     }
 }

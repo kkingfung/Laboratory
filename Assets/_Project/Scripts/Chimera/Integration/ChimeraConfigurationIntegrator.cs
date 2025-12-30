@@ -21,21 +21,21 @@ namespace Laboratory.Chimera.Integration
     [CreateAssetMenu(fileName = "ChimeraConfigIntegrator", menuName = "Project Chimera/Configuration Integrator")]
     public class ChimeraConfigurationIntegrator : ScriptableObject
     {
-        [Header("🔗 CONFIGURATION SOURCES")]
+        [Header("[Config] CONFIGURATION SOURCES")]
         [SerializeField] private ChimeraUniverseConfiguration unifiedConfig;
         [SerializeField] private GeneticTraitLibrary traitLibrary;
         [SerializeField] private ChimeraBiomeConfig biomeConfig;
         [SerializeField] private ChimeraSpeciesConfig speciesConfig;
         [SerializeField] private CreatureSpeciesConfig creatureSpeciesConfig;
 
-        [Header("⚙️ INTEGRATION SETTINGS")]
+        [Header("[Config] INTEGRATION SETTINGS")]
         [SerializeField] private bool prioritizeUnifiedConfig = true;
         [SerializeField] private bool enableTraitLibraryIntegration = true;
         [SerializeField] private bool enableBiomeConfigIntegration = true;
         [SerializeField] private bool enableSpeciesConfigIntegration = true;
         [SerializeField] private bool logIntegrationDetails = false;
 
-        [Header("🧬 TRAIT MAPPING")]
+        [Header("[Genetics] TRAIT MAPPING")]
         [SerializeField] private List<TraitMapping> traitMappings = new List<TraitMapping>
         {
             new TraitMapping { unifiedTraitName = "Aggression", libraryTraitName = "Territorial Aggression", weight = 1.0f },
@@ -236,7 +236,7 @@ namespace Laboratory.Chimera.Integration
             _integrationCacheValid = true;
 
             if (logIntegrationDetails)
-                UnityEngine.Debug.Log($"🔗 Configuration integration cache rebuilt with optimized trait arrays and biome data");
+                UnityEngine.Debug.Log($"[Config] Configuration integration cache rebuilt with optimized trait arrays and biome data");
         }
 
         private void RebuildIntegrationCache()

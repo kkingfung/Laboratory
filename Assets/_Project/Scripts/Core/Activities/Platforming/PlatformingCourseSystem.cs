@@ -12,7 +12,7 @@ using Laboratory.Core.Activities.Types;
 namespace Laboratory.Core.Activities.Platforming
 {
     /// <summary>
-    /// 🏃 PLATFORMING COURSE SYSTEM - Complete platforming and obstacle mini-game
+    /// [Platforming] PLATFORMING COURSE SYSTEM - Complete platforming and obstacle mini-game
     /// FEATURES: Jump challenges, obstacle courses, precision platforming, speedruns
     /// PERFORMANCE: Physics-based movement with genetic agility factors
     /// GENETICS: Agility, Speed, Intelligence affect platforming performance
@@ -271,7 +271,7 @@ namespace Laboratory.Core.Activities.Platforming
                 QualityRating = 1.0f
             });
 
-            Debug.Log($"✅ Created {difficulty} {courseType} platforming course");
+            Debug.Log($"[OK] Created {difficulty} {courseType} platforming course");
         }
     }
 }

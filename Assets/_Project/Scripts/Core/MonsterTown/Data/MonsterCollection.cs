@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -81,7 +81,7 @@ namespace Laboratory.Core.MonsterTown
             // Update statistics
             UpdateCollectionStats();
 
-            Debug.Log($"📚 Added {monster.Name} to collection. Total: {monsters.Count}/{maxCapacity}");
+            Debug.Log($"[Education] Added {monster.Name} to collection. Total: {monsters.Count}/{maxCapacity}");
             return true;
         }
 
@@ -117,7 +117,7 @@ namespace Laboratory.Core.MonsterTown
             // Update statistics
             UpdateCollectionStats();
 
-            Debug.Log($"📚 Removed {monster.Name} from collection. Total: {monsters.Count}/{maxCapacity}");
+            Debug.Log($"[Education] Removed {monster.Name} from collection. Total: {monsters.Count}/{maxCapacity}");
             return true;
         }
 

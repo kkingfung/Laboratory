@@ -28,10 +28,10 @@ namespace ProjectChimera.ECS
                 {
                     #if UNITY_ENTITIES
                     _ecsAvailable = true;
-                    Debug.Log("✅ Unity ECS is available");
+                    Debug.Log("[OK] Unity ECS is available");
                     #else
                     _ecsAvailable = false;
-                    Debug.LogWarning("⚠️ Unity ECS not available - install Entities package for full ECS support");
+                    Debug.LogWarning("[Warning] Unity ECS not available - install Entities package for full ECS support");
                     #endif
                     _checkedECS = true;
                 }
@@ -54,22 +54,22 @@ namespace ProjectChimera.ECS
             {
                 if (entityManager == null || !entityManager.IsCreated)
                 {
-                    Debug.LogError($"❌ EntityManager is null or destroyed for {debugName}");
+                    Debug.LogError($"[X] EntityManager is null or destroyed for {debugName}");
                     return false;
                 }
 
                 entity = entityManager.CreateEntity();
-                
+
                 #if UNITY_EDITOR
                 entityManager.SetName(entity, debugName);
                 #endif
-                
-                Debug.Log($"✅ Created entity: {debugName} ({entity.Index})");
+
+                Debug.Log($"[OK] Created entity: {debugName} ({entity.Index})");
                 return true;
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"❌ Failed to create entity '{debugName}': {e.Message}");
+                Debug.LogError($"[X] Failed to create entity '{debugName}': {e.Message}");
                 return false;
             }
         }
@@ -83,29 +83,29 @@ namespace ProjectChimera.ECS
             {
                 if (entityManager == null || !entityManager.IsCreated)
                 {
-                    Debug.LogError($"❌ EntityManager is null or destroyed when trying to destroy {debugName}");
+                    Debug.LogError($"[X] EntityManager is null or destroyed when trying to destroy {debugName}");
                     return false;
                 }
 
                 if (entity == Entity.Null)
                 {
-                    Debug.LogWarning($"⚠️ Trying to destroy null entity: {debugName}");
+                    Debug.LogWarning("[Warning] Trying to destroy null entity: {debugName}");
                     return false;
                 }
 
                 if (!entityManager.Exists(entity))
                 {
-                    Debug.LogWarning($"⚠️ Entity doesn't exist when trying to destroy: {debugName}");
+                    Debug.LogWarning("[Warning] Entity doesn't exist when trying to destroy: {debugName}");
                     return false;
                 }
 
                 entityManager.DestroyEntity(entity);
-                Debug.Log($"🗑️ Destroyed entity: {debugName} ({entity.Index})");
+                Debug.Log($"[Delete] Destroyed entity: {debugName} ({entity.Index})");
                 return true;
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"❌ Failed to destroy entity '{debugName}': {e.Message}");
+                Debug.LogError($"[X] Failed to destroy entity '{debugName}': {e.Message}");
                 return false;
             }
         }
@@ -135,24 +135,24 @@ namespace ProjectChimera.ECS
             {
                 if (!IsEntityValid(entityManager, entity))
                 {
-                    Debug.LogError($"❌ Invalid entity when adding {typeof(T).Name} to {debugName}");
+                    Debug.LogError($"[X] Invalid entity when adding {typeof(T).Name} to {debugName}");
                     return false;
                 }
 
                 if (entityManager.HasComponent<T>(entity))
                 {
-                    Debug.LogWarning($"⚠️ Entity {debugName} already has component {typeof(T).Name}");
+                    Debug.LogWarning($"[Warning] Entity {debugName} already has component {typeof(T).Name}");
                     entityManager.SetComponentData(entity, component);
                     return true;
                 }
 
                 entityManager.AddComponentData(entity, component);
-                Debug.Log($"➕ Added {typeof(T).Name} to {debugName}");
+                Debug.Log($"[Add] Added {typeof(T).Name} to {debugName}");
                 return true;
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"❌ Failed to add {typeof(T).Name} to {debugName}: {e.Message}");
+                Debug.LogError($"[X] Failed to add {typeof(T).Name} to {debugName}: {e.Message}");
                 return false;
             }
         }
@@ -169,7 +169,7 @@ namespace ProjectChimera.ECS
             {
                 if (!IsEntityValid(entityManager, entity))
                 {
-                    Debug.LogError($"❌ Invalid entity when getting {typeof(T).Name} from {debugName}");
+                    Debug.LogError($"[X] Invalid entity when getting {typeof(T).Name} from {debugName}");
                     return false;
                 }
 
@@ -183,7 +183,7 @@ namespace ProjectChimera.ECS
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"❌ Failed to get {typeof(T).Name} from {debugName}: {e.Message}");
+                Debug.LogError($"[X] Failed to get {typeof(T).Name} from {debugName}: {e.Message}");
                 return false;
             }
         }
@@ -233,12 +233,12 @@ namespace ProjectChimera.ECS
                     speed = 5f
                 }, monsterName);
 
-                Debug.Log($"🐲 Created monster entity: {monsterName} at position {position}");
+                Debug.Log($"[Creature] Created monster entity: {monsterName} at position {position}");
                 return monster;
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"❌ Failed to setup monster entity {monsterName}: {e.Message}");
+                Debug.LogError($"[X] Failed to setup monster entity {monsterName}: {e.Message}");
                 TryDestroyEntity(entityManager, monster, monsterName);
                 return Entity.Null;
             }
@@ -258,12 +258,12 @@ namespace ProjectChimera.ECS
                 if (array.IsCreated)
                 {
                     array.Dispose();
-                    Debug.Log($"🗑️ Disposed {arrayName}");
+                    Debug.Log($"[Delete] Disposed {arrayName}");
                 }
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"❌ Failed to dispose {arrayName}: {e.Message}");
+                Debug.LogError($"[X] Failed to dispose {arrayName}: {e.Message}");
             }
         }
 
@@ -277,13 +277,13 @@ namespace ProjectChimera.ECS
         public static bool TryCreateEntity(object entityManager, out object entity, string debugName = "Unknown")
         {
             entity = null;
-            Debug.LogWarning($"⚠️ ECS not available - cannot create entity: {debugName}");
+            Debug.LogWarning($"[Warning] ECS not available - cannot create entity: {debugName}");
             return false;
         }
 
         public static object CreateMonsterEntity(object entityManager, Vector3 position, Quaternion rotation, string monsterName = "Unknown Monster")
         {
-            Debug.LogWarning($"⚠️ ECS not available - cannot create monster entity: {monsterName}");
+            Debug.LogWarning($"[Warning] ECS not available - cannot create monster entity: {monsterName}");
             return null;
         }
 
@@ -391,7 +391,7 @@ namespace ProjectChimera.ECS
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"❌ MonsterHealthSystem update failed: {e.Message}");
+                Debug.LogError($"[X] MonsterHealthSystem update failed: {e.Message}");
                 Enabled = false; // Disable system to prevent spam
             }
         }
@@ -426,10 +426,10 @@ namespace ProjectChimera.ECS
     /// </summary>
     public class MonsterComponent : MonoBehaviour
     {
-        [Header("🐲 Monster Data")]
+        [Header("[Creature] Monster Data")]
         public MonsterDataMono monsterData = new MonsterDataMono();
-        
-        [Header("📊 Monster Stats")]
+
+        [Header("[Chart] Monster Stats")]
         public int strength = 5;
         public int intelligence = 5;
         public int agility = 5;
@@ -448,8 +448,8 @@ namespace ProjectChimera.ECS
             elementalAffinity = UnityEngine.Random.Range(0, 4);
             
             monsterData.speciesID = (uint)UnityEngine.Random.Range(1, 1000);
-            
-            Debug.Log($"🐲 Traditional monster initialized: {gameObject.name}");
+
+            Debug.Log($"[Creature] Traditional monster initialized: {gameObject.name}");
         }
 
         void Update()
@@ -478,7 +478,7 @@ namespace ProjectChimera.ECS
             monsterData.health = Mathf.Max(0, monsterData.health - damage);
             if (monsterData.health <= 0)
             {
-                Debug.Log($"💀 Monster {gameObject.name} has died");
+                Debug.Log($"[Death] Monster {gameObject.name} has died");
                 // Handle death
             }
         }

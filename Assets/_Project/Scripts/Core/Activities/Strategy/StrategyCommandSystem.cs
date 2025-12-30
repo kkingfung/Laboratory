@@ -11,7 +11,7 @@ using Laboratory.Core.Activities.Types;
 namespace Laboratory.Core.Activities.Strategy
 {
     /// <summary>
-    /// 🏰 STRATEGY COMMAND SYSTEM - Complete turn-based strategy mini-game
+    /// [Strategy] STRATEGY COMMAND SYSTEM - Complete turn-based strategy mini-game
     /// FEATURES: Battle simulations, resource management, diplomatic missions, tactical leadership
     /// PERFORMANCE: Turn-based processing with efficient AI decision trees
     /// GENETICS: Intelligence, Social, Dominance affect strategic performance
@@ -879,7 +879,7 @@ namespace Laboratory.Core.Activities.Strategy
                 IsActive = gameObject.activeInHierarchy
             });
 
-            Debug.Log($"✅ Created {strategyType} command center with {maxCommanders} max commanders");
+            Debug.Log($"[OK] Created {strategyType} command center with {maxCommanders} max commanders");
         }
 
         private void OnDrawGizmos()

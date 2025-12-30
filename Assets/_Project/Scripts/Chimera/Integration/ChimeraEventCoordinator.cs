@@ -16,7 +16,7 @@ namespace Laboratory.Chimera.Integration
     /// Responsibilities:
     /// - Emit events that affect multiple systems
     /// - Coordinate responses across different systems
-    /// - Handle cascading effects (e.g., activity success → emotional response → bond change)
+    /// - Handle cascading effects (e.g., activity success -> emotional response -> bond change)
     /// - Ensure proper event ordering and dependencies
     ///
     /// Design Philosophy:
@@ -274,11 +274,11 @@ namespace Laboratory.Chimera.Integration
                     }
                 }
 
-                // Special handling for baby → child (first major transition)
+                // Special handling for baby -> child (first major transition)
                 if (transitionEvent.ValueRO.previousStage == LifeStage.Baby &&
                     transitionEvent.ValueRO.newStage == LifeStage.Child)
                 {
-                    Debug.Log("Chimera growing up! Baby → Child transition");
+                    Debug.Log("Chimera growing up! Baby -> Child transition");
 
                     // Slight independence boost as they grow
                     if (EntityManager.HasComponent<CreaturePersonality>(chimeraEntity))
@@ -356,7 +356,7 @@ namespace Laboratory.Chimera.Integration
                     {
                         currentIcon = EmotionalIcon.Neutral,
                         previousIcon = EmotionalIcon.Neutral,
-                        currentEmoji = "😐",
+                        currentEmoji = "[Neutral]",
                         emotionDescription = "Curious newborn",
                         emotionalIntensity = 0.5f,
                         timeSinceLastChange = 0f,

@@ -101,7 +101,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 ["PopulationVariability"] = 0f
             };
 
-            UnityEngine.Debug.Log("🌿 Ecosystem health monitoring system initialized");
+            UnityEngine.Debug.Log("[Ecosystem] Health monitoring system initialized");
         }
 
         private IEnumerator HealthAssessmentLoop()
@@ -130,7 +130,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 currentHealth = health;
                 OnHealthAssessmentComplete?.Invoke(health);
 
-                UnityEngine.Debug.Log($"🌿 Ecosystem health assessment: {health.OverallHealthScore:F2} " +
+                UnityEngine.Debug.Log($"[Ecosystem] Health assessment: {health.OverallHealthScore:F2} " +
                          $"(Biodiversity: {health.BiodiversityIndex:F2}, Stability: {health.PopulationStability:F2})");
             }
         }

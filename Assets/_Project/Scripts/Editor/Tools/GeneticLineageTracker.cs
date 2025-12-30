@@ -94,7 +94,7 @@ namespace Laboratory.Editor.Tools
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
 
             // Title
-            GUILayout.Label("🧬 Genetic Lineage Tracker", EditorStyles.boldLabel);
+            GUILayout.Label("[GENETICS] Genetic Lineage Tracker", EditorStyles.boldLabel);
 
             GUILayout.FlexibleSpace();
 
@@ -557,7 +557,7 @@ namespace Laboratory.Editor.Tools
             var offspring = _allCreatures.Where(c => c.parent1Id == creature.creatureId || c.parent2Id == creature.creatureId).ToList();
             foreach (var child in offspring.Take(5))
             {
-                if (GUILayout.Button($"→ {child.name}", EditorStyles.miniButton))
+                if (GUILayout.Button($"-> {child.name}", EditorStyles.miniButton))
                 {
                     _selectedCreatureId = child.creatureId;
                 }

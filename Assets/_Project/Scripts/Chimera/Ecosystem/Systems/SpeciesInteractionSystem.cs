@@ -115,7 +115,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 };
             }
 
-            UnityEngine.Debug.Log($"🦎 Initialized {speciesDatabase.Count} species in interaction system");
+            UnityEngine.Debug.Log($"[Ecosystem] Initialized {speciesDatabase.Count} species in interaction system");
         }
 
         private IEnumerator InteractionUpdateLoop()
@@ -284,7 +284,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
 
             OnInteractionOccurred?.Invoke(species1Id, species2Id, type, strength);
 
-            UnityEngine.Debug.Log($"🦎 {type} interaction between species {species1Id} and {species2Id} (strength: {strength:F2})");
+            UnityEngine.Debug.Log($"[Ecosystem] {type} interaction between species {species1Id} and {species2Id} (strength: {strength:F2})");
         }
 
         private (float Species1Effect, float Species2Effect) CalculateInteractionEffects(
@@ -508,7 +508,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 if (populationRatio <= extinctionThreshold)
                 {
                     OnSpeciesExtinction?.Invoke(speciesId);
-                    UnityEngine.Debug.LogWarning($"💀 Species {speciesId} is facing extinction (population: {stats.CurrentPopulation})");
+                    UnityEngine.Debug.LogWarning($"[Ecosystem] Species {speciesId} is facing extinction (population: {stats.CurrentPopulation})");
                 }
             }
         }
@@ -567,7 +567,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
             var destinationLocation = FindSuitableMigrationDestination(speciesId);
 
             OnMigrationTriggered?.Invoke(speciesId, sourceLocation, destinationLocation);
-            UnityEngine.Debug.Log($"🦋 Migration triggered for species {speciesId} due to population pressure: {pressure:F2}");
+            UnityEngine.Debug.Log($"[Ecosystem] Migration triggered for species {speciesId} due to population pressure: {pressure:F2}");
         }
 
         private Vector2 FindSuitableMigrationDestination(uint speciesId)
@@ -603,7 +603,7 @@ namespace Laboratory.Chimera.Ecosystem.Systems
                 LastUpdate = System.DateTime.Now
             };
 
-            UnityEngine.Debug.Log($"🦎 Registered new species: {species.Name} (ID: {species.SpeciesId})");
+            UnityEngine.Debug.Log($"[Ecosystem] Registered new species: {species.Name} (ID: {species.SpeciesId})");
         }
 
         private void OnDestroy()

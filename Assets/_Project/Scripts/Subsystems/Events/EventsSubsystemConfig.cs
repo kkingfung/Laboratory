@@ -243,7 +243,7 @@ namespace Laboratory.Subsystems.Events
                 {
                     celebrationType = CelebrationType.WorldFirst,
                     templateName = "World First",
-                    titleFormat = "🌟 WORLD FIRST: {discoveryName}",
+                    titleFormat = "[WorldFirst] WORLD FIRST: {discoveryName}",
                     descriptionFormat = "You made the first discovery of {discoveryName} in the world!",
                     baseDurationMinutes = 10f,
                     enableWorldFirstVariant = false

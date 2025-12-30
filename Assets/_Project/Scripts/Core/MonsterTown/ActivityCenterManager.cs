@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -37,7 +37,7 @@ namespace Laboratory.Core.MonsterTown
 
         public async Task InitializeActivities(ActivityType[] activityTypes)
         {
-            Debug.Log("🎮 Initializing Activity Centers...");
+            Debug.Log("[Game] Initializing Activity Centers...");
 
             foreach (var activityType in activityTypes)
             {
@@ -47,7 +47,7 @@ namespace Laboratory.Core.MonsterTown
             // Start activity processing
             InvokeRepeating(nameof(ProcessActivityQueue), 1f, activityUpdateFrequency);
 
-            Debug.Log($"✅ {_activitySystems.Count} Activity Centers ready!");
+            Debug.Log($"[OK] {_activitySystems.Count} Activity Centers ready!");
         }
 
         private async Task InitializeActivityType(ActivityType activityType)
@@ -70,12 +70,12 @@ namespace Laboratory.Core.MonsterTown
             await activitySystem.InitializeAsync();
             _activitySystems[activityType] = activitySystem;
 
-            Debug.Log($"📍 {activityType} Activity Center initialized");
+            Debug.Log($"[Activity] {activityType} Activity Center initialized");
         }
 
         private IActivityMiniGame CreateFallbackActivity(ActivityType activityType)
         {
-            Debug.LogWarning($"⚠️ Activity type {activityType} not fully implemented, using fallback adventure activity");
+            Debug.LogWarning($"[Warning] Activity type {activityType} not fully implemented, using fallback adventure activity");
             return new AdventureActivity();
         }
 
@@ -113,7 +113,7 @@ namespace Laboratory.Core.MonsterTown
                 };
             }
 
-            Debug.Log($"🎯 {monster.Name} starting {activityType} activity...");
+            Debug.Log($"[Target] {monster.Name} starting {activityType} activity...");
 
             // Create activity session
             var session = new ActivitySession
@@ -139,7 +139,7 @@ namespace Laboratory.Core.MonsterTown
                 result.EducationalContent = GenerateEducationalContent(activityType, result);
             }
 
-            Debug.Log($"🏆 {monster.Name} completed {activityType}: {result.PerformanceRating:F2} score, {result.ExperienceGained} XP");
+            Debug.Log($"[Result] {monster.Name} completed {activityType}: {result.PerformanceRating:F2} score, {result.ExperienceGained} XP");
 
             return result;
         }
@@ -208,7 +208,7 @@ namespace Laboratory.Core.MonsterTown
             if (_activeParticipations.TryGetValue(activityId, out var participation))
             {
                 _activeParticipations.Remove(activityId);
-                Debug.Log($"⏰ Activity {participation.ActivityType} completed for {participation.Monster.Name}");
+                Debug.Log($"[Time] Activity {participation.ActivityType} completed for {participation.Monster.Name}");
             }
         }
 
@@ -231,7 +231,7 @@ namespace Laboratory.Core.MonsterTown
 
             if (crossBenefits.Count > 0)
             {
-                Debug.Log($"🔄 {monster.Name} gained cross-activity benefits from {result.ActivityType}");
+                Debug.Log($"[Refresh] {monster.Name} gained cross-activity benefits from {result.ActivityType}");
             }
         }
 
@@ -303,17 +303,17 @@ namespace Laboratory.Core.MonsterTown
         {
             if (result.PerformanceRating > 0.8f)
             {
-                return "🏃‍♂️ Excellent speed! Your monster's high Agility genetics gave it superior acceleration and cornering ability. " +
+                return "[Speed] Excellent speed! Your monster's high Agility genetics gave it superior acceleration and cornering ability. " +
                        "In real life, athletes with fast-twitch muscle fibers (genetic trait) excel at sprinting and quick movements.";
             }
             else if (result.PerformanceRating > 0.5f)
             {
-                return "🏃 Good endurance! Your monster's Vitality genetics helped it maintain speed throughout the race. " +
+                return "[Endurance] Good endurance! Your monster's Vitality genetics helped it maintain speed throughout the race. " +
                        "This mirrors how some people have genetic advantages for endurance activities like marathon running.";
             }
             else
             {
-                return "🐌 Room for improvement! Try breeding for higher Agility and Vitality stats. " +
+                return "[Training] Room for improvement! Try breeding for higher Agility and Vitality stats. " +
                        "Genetic training can improve performance, just like how athletes can enhance their natural abilities through practice.";
             }
         }
@@ -321,42 +321,42 @@ namespace Laboratory.Core.MonsterTown
         private string GenerateCombatEducation(ActivityResult result)
         {
             return result.PerformanceRating > 0.7f
-                ? "⚔️ Strong performance! Your monster's Strength genetics provided powerful attacks, while good Vitality gave defensive resilience. " +
+                ? "[Combat] Strong performance! Your monster's Strength genetics provided powerful attacks, while good Vitality gave defensive resilience. " +
                   "This reflects how genetic factors influence muscle mass, bone density, and recovery rates in real combat sports."
-                : "🛡️ Practice needed! Combat success depends on balanced Strength, Vitality, and Agility genetics. " +
+                : "[Shield] Practice needed! Combat success depends on balanced Strength, Vitality, and Agility genetics. " +
                   "Professional fighters often have genetic advantages in reaction time, muscle composition, and injury recovery.";
         }
 
         private string GeneratePuzzleEducation(ActivityResult result)
         {
             return result.PerformanceRating > 0.75f
-                ? "🧠 Brilliant thinking! Your monster's high Intelligence genetics enabled fast problem-solving and pattern recognition. " +
+                ? "[Intelligence] Brilliant thinking! Your monster's high Intelligence genetics enabled fast problem-solving and pattern recognition. " +
                   "Intelligence has both genetic and environmental components - nature provides the foundation, nurture develops the skills."
-                : "🤔 Keep training that brain! Puzzle-solving improves with practice, building on genetic intelligence potential. " +
+                : "[Training] Keep training that brain! Puzzle-solving improves with practice, building on genetic intelligence potential. " +
                   "Like humans, your monster's cognitive abilities can be enhanced through mental exercise and learning.";
         }
 
         private string GenerateStrategyEducation(ActivityResult result)
         {
             return result.PerformanceRating > 0.7f
-                ? "🎯 Strategic mastery! Your monster's combination of Intelligence and Social genetics enabled excellent leadership and tactical planning. " +
+                ? "[Target] Strategic mastery! Your monster's combination of Intelligence and Social genetics enabled excellent leadership and tactical planning. " +
                   "Great leaders often have genetic predispositions for analytical thinking and social awareness."
-                : "📚 Strategy takes time to develop! Good strategic thinking builds on Intelligence genetics but requires experience. " +
+                : "[Education] Strategy takes time to develop! Good strategic thinking builds on Intelligence genetics but requires experience. " +
                   "Military and business leaders develop their genetic potential through training and practice.";
         }
 
         private string GenerateMusicEducation(ActivityResult result)
         {
             return result.PerformanceRating > 0.7f
-                ? "🎵 Perfect rhythm! Your monster's Agility and Intelligence genetics created excellent timing and coordination. " +
+                ? "[Music] Perfect rhythm! Your monster's Agility and Intelligence genetics created excellent timing and coordination. " +
                   "Musical ability often runs in families, suggesting genetic components for rhythm, pitch recognition, and motor coordination."
-                : "🎼 Music is learnable! While some genetic advantages exist for musical ability, practice and training can develop these skills. " +
+                : "[Music] Music is learnable! While some genetic advantages exist for musical ability, practice and training can develop these skills. " +
                   "Your monster can improve its musical genetics through continued participation in rhythm activities.";
         }
 
         private string GenerateGenericEducation(ActivityType activityType, ActivityResult result)
         {
-            return $"🧬 Activity completed! Your monster's genetic traits influenced its performance in {activityType}. " +
+            return $"[Genetics] Activity completed! Your monster's genetic traits influenced its performance in {activityType}. " +
                    "Different genetics provide advantages in different activities - breed strategically to optimize for your favorite activities!";
         }
 

@@ -389,12 +389,12 @@ namespace Laboratory.Chimera.Integration
         {
             if (condition)
             {
-                Debug.Log($"✓ PASS: {testName}");
+                Debug.Log($"[OK] PASS: {testName}");
                 _passedTests++;
             }
             else
             {
-                Debug.LogError($"✗ FAIL: {testName}");
+                Debug.LogError($"[X] FAIL: {testName}");
                 _failedTests++;
             }
         }

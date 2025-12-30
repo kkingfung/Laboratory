@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 using ProjectChimera.AI.Pathfinding;
 using ProjectChimera.AI.Agents;
@@ -22,7 +22,7 @@ namespace ProjectChimera.AI.Editor
         private string testAgentCount = "10";
         private string testDuration = "30";
 
-        [MenuItem("🧪 Laboratory/AI/Pathfinding Manager")]
+        [MenuItem("Laboratory/AI/Pathfinding Manager")]
         public static void ShowWindow()
         {
             PathfindingManagerWindow window = GetWindow<PathfindingManagerWindow>();
@@ -324,45 +324,45 @@ namespace ProjectChimera.AI.Editor
             var system = FindFirstObjectByType<EnhancedPathfindingSystem>();
             if (system == null)
             {
-                Debug.LogWarning("❌ Enhanced Pathfinding System not found!");
+                Debug.LogWarning("[AI] Enhanced Pathfinding System not found!");
             }
             else
             {
-                Debug.Log("✅ Enhanced Pathfinding System found");
+                Debug.Log("[AI] Enhanced Pathfinding System found");
             }
             
             // Check NavMesh
             var navMeshData = UnityEngine.AI.NavMesh.CalculateTriangulation();
             if (navMeshData.vertices.Length == 0)
             {
-                Debug.LogWarning("❌ No NavMesh found! Please bake NavMesh (Window → AI → Navigation)");
+                Debug.LogWarning("[AI] No NavMesh found! Please bake NavMesh (Window �� AI �� Navigation)");
             }
             else
             {
-                Debug.Log($"✅ NavMesh found with {navMeshData.vertices.Length} vertices");
+                Debug.Log($"[AI] NavMesh found with {navMeshData.vertices.Length} vertices");
             }
             
             // Check AI Agents
             var enhancedAgents = FindObjectsByType<EnhancedAIAgent>(FindObjectsSortMode.None);
             var navAgents = FindObjectsByType<UnityEngine.AI.NavMeshAgent>(FindObjectsSortMode.None);
             
-            Debug.Log($"📊 Found {enhancedAgents.Length} Enhanced AI Agents");
-            Debug.Log($"📊 Found {navAgents.Length} NavMesh Agents");
+            Debug.Log($"[AI] Found {enhancedAgents.Length} Enhanced AI Agents");
+            Debug.Log($"[AI] Found {navAgents.Length} NavMesh Agents");
             
             if (navAgents.Length > enhancedAgents.Length)
             {
-                Debug.LogWarning($"⚠️ {navAgents.Length - enhancedAgents.Length} NavMesh Agents can be upgraded");
+                Debug.LogWarning($"[AI] {navAgents.Length - enhancedAgents.Length} NavMesh Agents can be upgraded");
             }
             
             // Check for player
             var player = GameObject.FindGameObjectWithTag("Player");
             if (player == null)
             {
-                Debug.LogWarning("❌ No GameObject with 'Player' tag found!");
+                Debug.LogWarning("[AI] No GameObject with 'Player' tag found!");
             }
             else
             {
-                Debug.Log("✅ Player found");
+                Debug.Log("[AI] Player found");
             }
             
             Debug.Log("=== Validation Complete ===");

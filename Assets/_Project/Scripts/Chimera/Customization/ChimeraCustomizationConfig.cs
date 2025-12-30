@@ -11,24 +11,24 @@ namespace Laboratory.Chimera.Customization
     [CreateAssetMenu(fileName = "ChimeraCustomizationConfig", menuName = "Chimera/Customization Config")]
     public class ChimeraCustomizationConfig : ScriptableObject
     {
-        [Header("🎭 General Settings")]
+        [Header("[General] General Settings")]
         [SerializeField] private bool enableDebugLogging = false;
         [SerializeField] private bool autoSaveCustomizations = true;
         [SerializeField] private float visualUpdateInterval = 0.5f;
 
-        [Header("🧬 Genetic Appearance")]
+        [Header("[Genetics] Genetic Appearance")]
         [SerializeField] private GeneticVisualsConfig geneticConfig;
 
-        [Header("🎒 Equipment Visuals")]
+        [Header("[Equipment] Equipment Visuals")]
         [SerializeField] private EquipmentVisualsConfig equipmentConfig;
 
-        [Header("👗 Custom Outfits")]
+        [Header("[Outfit] Custom Outfits")]
         [SerializeField] private CustomOutfitConfig outfitConfig;
 
-        [Header("🌈 Color Customization")]
+        [Header("[Color] Color Customization")]
         [SerializeField] private ColorCustomizationConfig colorConfig;
 
-        [Header("⚡ Performance")]
+        [Header("[Performance] Performance")]
         [SerializeField] private PerformanceConfig performanceConfig;
 
         #region Properties

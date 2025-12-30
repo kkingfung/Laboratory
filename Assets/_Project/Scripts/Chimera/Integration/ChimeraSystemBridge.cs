@@ -21,22 +21,22 @@ namespace Laboratory.Chimera.Integration
     /// </summary>
     public class ChimeraSystemBridge : MonoBehaviour
     {
-        [Header("🔗 SYSTEM INTEGRATION")]
+        [Header("[Link] SYSTEM INTEGRATION")]
         [SerializeField] private bool enableECSIntegration = true;
         [SerializeField] private bool enableMonoBehaviourIntegration = true;
         [SerializeField] private bool enableBidirectionalSync = true;
 
-        [Header("📊 CONFIGURATION REFERENCES")]
+        [Header("[Chart] CONFIGURATION REFERENCES")]
         [SerializeField] private ChimeraUniverseConfiguration unifiedConfig;
         [SerializeField] private GeneticTraitLibrary traitLibrary;
         [SerializeField] private ChimeraBiomeConfig biomeConfig;
         [SerializeField] private ChimeraSpeciesConfig speciesConfig;
 
-        [Header("🧠 AI SYSTEM REFERENCES")]
+        [Header("[Brain] AI SYSTEM REFERENCES")]
         [SerializeField] private ChimeraAIManager aiManager;
         [SerializeField] private List<ChimeraMonsterAI> monsterAIs = new List<ChimeraMonsterAI>();
 
-        [Header("🔧 INTEGRATION SETTINGS")]
+        [Header("[Config] INTEGRATION SETTINGS")]
         [SerializeField] private float syncInterval = 0.5f;
         [SerializeField] private int maxEntitiesPerFrame = 100;
         [SerializeField] private bool logIntegrationEvents = false;
@@ -89,7 +89,7 @@ namespace Laboratory.Chimera.Integration
             CreateInitialBridges();
 
             if (logIntegrationEvents)
-                UnityEngine.Debug.Log("🔗 ChimeraSystemBridge initialized - connecting ECS and MonoBehaviour systems");
+                UnityEngine.Debug.Log("[Link] ChimeraSystemBridge initialized - connecting ECS and MonoBehaviour systems");
         }
 
         private void CreateInitialBridges()
@@ -138,7 +138,7 @@ namespace Laboratory.Chimera.Integration
             });
 
             if (logIntegrationEvents)
-                UnityEngine.Debug.Log($"🔗 Created ECS bridge for MonoBehaviour creature: {monoBehaviourCreature.name}");
+                UnityEngine.Debug.Log($"[Link] Created ECS bridge for MonoBehaviour creature: {monoBehaviourCreature.name}");
 
             return entity;
         }
@@ -176,7 +176,7 @@ namespace Laboratory.Chimera.Integration
             }
 
             if (logIntegrationEvents)
-                UnityEngine.Debug.Log($"🔗 Created MonoBehaviour bridge for ECS entity: {identity.CreatureName}");
+                UnityEngine.Debug.Log($"[Link] Created MonoBehaviour bridge for ECS entity: {identity.CreatureName}");
 
             return monsterAI;
         }
@@ -270,7 +270,7 @@ namespace Laboratory.Chimera.Integration
 
                 if (logIntegrationEvents && (needs.Hunger > 0.9f || needs.Energy < 0.1f))
                 {
-                    UnityEngine.Debug.Log($"🔗 Critical needs detected for {monoBehaviour.name}: Hunger={needs.Hunger:F2}, Energy={needs.Energy:F2}");
+                    UnityEngine.Debug.Log($"[Link] Critical needs detected for {monoBehaviour.name}: Hunger={needs.Hunger:F2}, Energy={needs.Energy:F2}");
                 }
             }
         }
@@ -466,7 +466,7 @@ namespace Laboratory.Chimera.Integration
 
             if (logIntegrationEvents)
             {
-                UnityEngine.Debug.Log($"🔗 Configured {identity.Species} (Gen {identity.Generation}, Age {identity.Age:F1}) with {identity.CurrentLifeStage} traits");
+                UnityEngine.Debug.Log($"[Link] Configured {identity.Species} (Gen {identity.Generation}, Age {identity.Age:F1}) with {identity.CurrentLifeStage} traits");
             }
         }
 

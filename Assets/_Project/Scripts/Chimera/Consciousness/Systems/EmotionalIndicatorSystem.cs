@@ -85,7 +85,7 @@ namespace Laboratory.Chimera.Consciousness.Core
                 ecb.AddComponent(entity, new EmotionalIndicatorComponent
                 {
                     currentIcon = EmotionalIcon.Neutral,
-                    currentEmoji = "😐",
+                    currentEmoji = "[Neutral]",
                     emotionDescription = "Calm and observing",
                     emotionalIntensity = 0.5f,
                     timeSinceLastChange = 0f,
@@ -244,7 +244,7 @@ namespace Laboratory.Chimera.Consciousness.Core
                         reason = DetermineTransitionReason(hasRecentPositive, hasRecentNegative, bondStrength)
                     });
 
-                    Debug.Log($"Emotional transition: {previousIcon} → {newIcon} " +
+                    Debug.Log($"Emotional transition: {previousIcon} -> {newIcon} " +
                              $"({identity.ValueRO.CurrentLifeStage}) - {indicator.ValueRO.emotionDescription}");
                 }
             }

@@ -19,29 +19,29 @@ namespace Laboratory.Chimera.Testing
     /// </summary>
     public class EnhancedGeneticCreatureSpawner : MonoBehaviour
     {
-        [Header("🧬 Enhanced Spawn Settings")]
+        [Header("[Genetics] Enhanced Spawn Settings")]
         [SerializeField] private GameObject creaturePrefab;
         [SerializeField] private GeneticTraitLibrary traitLibrary;
         [SerializeField] private int spawnCount = 1;
         [SerializeField] private float spawnRadius = 5f;
         [SerializeField] private CreatureArchetype selectedArchetype = CreatureArchetype.Predator;
         [SerializeField] private BiomeType currentBiome = BiomeType.Temperate;
-        
-        [Header("🎨 Visual Enhancement Settings")]
+
+        [Header("[Visual] Visual Enhancement Settings")]
         [SerializeField] private bool useAdvancedVisuals = true;
         [SerializeField] private bool enableMutations = true;
         [SerializeField] private bool showVisualDebug = true;
         [SerializeField] private Material[] customMaterials;
-        
-        [Header("🎮 Enhanced Controls")]
+
+        [Header("[Game] Enhanced Controls")]
         [SerializeField] private KeyCode spawnArchetypeKey = KeyCode.F1;
         [SerializeField] private KeyCode spawnRandomKey = KeyCode.F2;
         [SerializeField] private KeyCode spawnBreedingPairKey = KeyCode.F3;
         [SerializeField] private KeyCode clearAllKey = KeyCode.F4;
         [SerializeField] private KeyCode cycleBiomeKey = KeyCode.B;
         [SerializeField] private KeyCode cycleArchetypeKey = KeyCode.N;
-        
-        [Header("📊 Debug & Performance")]
+
+        [Header("[Chart] Debug & Performance")]
         [SerializeField] private bool showSpawnInfo = true;
         [SerializeField] private bool enableBehaviorDebug = true;
         [SerializeField] private bool showPerformanceMetrics = false;
@@ -91,7 +91,7 @@ namespace Laboratory.Chimera.Testing
         {
             GUILayout.BeginArea(new Rect(10, Screen.height - 250, 400, 240));
             
-            GUILayout.Label("🧬 ENHANCED GENETIC SPAWNER", new GUIStyle(GUI.skin.label) { fontSize = 16, fontStyle = FontStyle.Bold });
+            GUILayout.Label("[Genetics] ENHANCED GENETIC SPAWNER", new GUIStyle(GUI.skin.label) { fontSize = 16, fontStyle = FontStyle.Bold });
             GUILayout.Space(5);
             
             GUILayout.Label($"F1: Spawn {selectedArchetype}");
@@ -182,7 +182,7 @@ namespace Laboratory.Chimera.Testing
         [ContextMenu("Spawn Breeding Pair")]
         public void SpawnBreedingPair()
         {
-            UnityEngine.Debug.Log("🧬 Spawning breeding pair for genetic diversity testing...");
+            UnityEngine.Debug.Log("[Genetics] Spawning breeding pair for genetic diversity testing...");
             
             // Create two different archetypes
             var archetype1 = CreatureArchetype.Predator;
@@ -204,7 +204,7 @@ namespace Laboratory.Chimera.Testing
             Vector3 offspringPos = basePos + Vector3.forward * 3f;
             var offspring = SpawnCreatureWithGenetics(offspringGenetics, "Offspring_Hybrid", offspringPos);
             
-            UnityEngine.Debug.Log($"✅ Spawned breeding family - compare the visual differences!");
+            UnityEngine.Debug.Log($"[OK] Spawned breeding family - compare the visual differences!");
             LogBreedingInfo(parent1, parent2, offspring);
         }
 
@@ -401,7 +401,7 @@ namespace Laboratory.Chimera.Testing
                 var visualIntegration = creature.GetComponent<GeneticVisualIntegration>();
                 if (visualIntegration != null)
                 {
-                    UnityEngine.Debug.Log($"🎨 {visualIntegration.GetVisualDebugInfo()}");
+                    UnityEngine.Debug.Log($"[Visual] {visualIntegration.GetVisualDebugInfo()}");
                 }
             }
         }
@@ -649,7 +649,7 @@ namespace Laboratory.Chimera.Testing
             int nextIndex = (currentIndex + 1) % biomes.Length;
             currentBiome = (BiomeType)biomes.GetValue(nextIndex);
             
-            UnityEngine.Debug.Log($"🌍 Switched to biome: {currentBiome}");
+            UnityEngine.Debug.Log($"[World] Switched to biome: {currentBiome}");
         }
 
         private void CycleArchetype()
@@ -659,7 +659,7 @@ namespace Laboratory.Chimera.Testing
             int nextIndex = (currentIndex + 1) % archetypes.Length;
             selectedArchetype = (CreatureArchetype)archetypes.GetValue(nextIndex);
             
-            UnityEngine.Debug.Log($"🧬 Switched to archetype: {selectedArchetype}");
+            UnityEngine.Debug.Log($"[Genetics] Switched to archetype: {selectedArchetype}");
         }
 
         [ContextMenu("Clear All Spawned Creatures")]
@@ -672,7 +672,7 @@ namespace Laboratory.Chimera.Testing
             }
             
             totalSpawnedCreatures = 0;
-            UnityEngine.Debug.Log($"🧹 Cleared {spawnedCreatures.Length} spawned creatures");
+            UnityEngine.Debug.Log($"[Clean] Cleared {spawnedCreatures.Length} spawned creatures");
         }
 
         #endregion
@@ -686,17 +686,17 @@ namespace Laboratory.Chimera.Testing
             var creatureInstance = creature.GetComponent<CreatureInstanceComponent>();
             if (creatureInstance != null)
             {
-                UnityEngine.Debug.Log($"✅ Spawned {type}: {creature.name}");
-                UnityEngine.Debug.Log($"📊 {creatureInstance.GetInfoText()}");
+                UnityEngine.Debug.Log($"[OK] Spawned {type}: {creature.name}");
+                UnityEngine.Debug.Log($"[Chart] {creatureInstance.GetInfoText()}");
                 
                 if (showVisualDebug)
                 {
                     var genetics = creatureInstance.CreatureData?.GeneticProfile;
                     if (genetics != null)
                     {
-                        UnityEngine.Debug.Log($"🎨 Visual traits: {genetics.GetTraitSummary(5)}");
-                        UnityEngine.Debug.Log($"🧬 Genetic purity: {genetics.GetGeneticPurity():P1}");
-                        UnityEngine.Debug.Log($"🔀 Mutations: {genetics.Mutations.Count}");
+                        UnityEngine.Debug.Log($"[Visual] Visual traits: {genetics.GetTraitSummary(5)}");
+                        UnityEngine.Debug.Log($"[Genetics] Genetic purity: {genetics.GetGeneticPurity():P1}");
+                        UnityEngine.Debug.Log($"[Mix] Mutations: {genetics.Mutations.Count}");
                     }
                 }
             }
@@ -704,7 +704,7 @@ namespace Laboratory.Chimera.Testing
 
         private void LogBreedingInfo(GameObject parent1, GameObject parent2, GameObject offspring)
         {
-            UnityEngine.Debug.Log("👨‍👩‍👧‍👦 === BREEDING RESULTS ===");
+            UnityEngine.Debug.Log("[Family] === BREEDING RESULTS ===");
             LogCreatureGenetics(parent1, "Parent 1");
             LogCreatureGenetics(parent2, "Parent 2");
             LogCreatureGenetics(offspring, "Offspring");

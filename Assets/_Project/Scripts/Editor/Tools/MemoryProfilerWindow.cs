@@ -220,7 +220,7 @@ namespace Laboratory.Editor.Tools
 
             if (_cachedStats.detectedLeaksCount > 0)
             {
-                EditorGUILayout.LabelField($"⚠ Leaks: {_cachedStats.detectedLeaksCount}", _errorStyle, GUILayout.Width(100));
+                EditorGUILayout.LabelField($"[Warning] Leaks: {_cachedStats.detectedLeaksCount}", _errorStyle, GUILayout.Width(120));
             }
 
             EditorGUILayout.EndHorizontal();
@@ -402,7 +402,7 @@ namespace Laboratory.Editor.Tools
             }
             else
             {
-                EditorGUILayout.HelpBox("No memory leaks detected. This is good! ✓", MessageType.Info);
+                EditorGUILayout.HelpBox("No memory leaks detected. This is good!", MessageType.Info);
             }
 
             EditorGUILayout.EndScrollView();
@@ -576,7 +576,7 @@ namespace Laboratory.Editor.Tools
         {
             EditorGUILayout.BeginVertical(_boxStyle);
 
-            EditorGUILayout.LabelField($"⚠ {leak.category}", _errorStyle);
+            EditorGUILayout.LabelField($"[Warning] {leak.category}", _errorStyle);
 
             EditorGUILayout.BeginHorizontal();
             EditorGUILayout.LabelField("Detected:", GUILayout.Width(100));

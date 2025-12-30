@@ -11,7 +11,7 @@ using Laboratory.Core.Activities.Types;
 namespace Laboratory.Core.Activities.Puzzle
 {
     /// <summary>
-    /// 🧩 PUZZLE ACADEMY SYSTEM - Complete puzzle mini-game implementation
+    /// [Puzzle] PUZZLE ACADEMY SYSTEM - Complete puzzle mini-game implementation
     /// FEATURES: Match-3, logic puzzles, pattern recognition, memory games, adaptive difficulty
     /// PERFORMANCE: Efficient puzzle generation and solving algorithms
     /// GENETICS: Intelligence, Curiosity, Memory directly affect puzzle performance
@@ -1333,7 +1333,7 @@ namespace Laboratory.Core.Activities.Puzzle
                 IsActive = gameObject.activeInHierarchy
             });
 
-            Debug.Log($"✅ Created Puzzle Academy with {availablePuzzles.Length} puzzle types and difficulty {baseDifficulty}");
+            Debug.Log($"[OK] Created Puzzle Academy with {availablePuzzles.Length} puzzle types and difficulty {baseDifficulty}");
         }
 
         private void OnDrawGizmos()

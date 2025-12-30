@@ -12,7 +12,7 @@ namespace Laboratory.Core.Equipment
     [CreateAssetMenu(fileName = "Equipment Database", menuName = "Chimera/Equipment Database", order = 10)]
     public class EquipmentDatabase : ScriptableObject
     {
-        [Header("🎒 Equipment Collections")]
+        [Header("[Backpack] Equipment Collections")]
         [SerializeField] private EquipmentConfig[] weapons = new EquipmentConfig[0];
         [SerializeField] private EquipmentConfig[] armor = new EquipmentConfig[0];
         [SerializeField] private EquipmentConfig[] accessories = new EquipmentConfig[0];
@@ -22,7 +22,7 @@ namespace Laboratory.Core.Equipment
         [SerializeField] private EquipmentConfig[] gadgets = new EquipmentConfig[0];
         [SerializeField] private EquipmentConfig[] boosts = new EquipmentConfig[0];
 
-        [Header("📊 Database Statistics")]
+        [Header("[Stats] Database Statistics")]
         [SerializeField, ReadOnly] private int totalEquipmentCount = 0;
         [SerializeField, ReadOnly] private int commonCount = 0;
         [SerializeField, ReadOnly] private int uncommonCount = 0;

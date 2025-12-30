@@ -246,7 +246,7 @@ namespace Laboratory.Gameplay.Scoring
             _eventBus?.Publish(scoreEvent);
             
             if (enableDebugLogs)
-                Debug.Log($"[ScoreManager] Score changed: {previousScore} -> {newScore} (Δ{delta:+#;-#;0})");
+                Debug.Log($"[ScoreManager] Score changed: {previousScore} -> {newScore} (delta{delta:+#;-#;0})");
         }
 
         #endregion

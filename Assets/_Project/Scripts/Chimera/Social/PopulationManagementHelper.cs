@@ -10,10 +10,10 @@ namespace Laboratory.Chimera.Social
     /// Makes it easy for other systems to check capacity, acquire chimeras, etc.
     ///
     /// Usage Examples:
-    /// - Can player acquire chimera? → CanAcquireChimera(em, playerEntity)
-    /// - Acquire chimera → RequestChimeraAcquisition(em, playerEntity, chimeraEntity, method)
-    /// - Release chimera → RequestChimeraRelease(em, playerEntity, chimeraEntity, reason)
-    /// - Check capacity → GetCurrentCapacity(em, playerEntity)
+    /// - Can player acquire chimera? ??CanAcquireChimera(em, playerEntity)
+    /// - Acquire chimera ??RequestChimeraAcquisition(em, playerEntity, chimeraEntity, method)
+    /// - Release chimera ??RequestChimeraRelease(em, playerEntity, chimeraEntity, reason)
+    /// - Check capacity ??GetCurrentCapacity(em, playerEntity)
     /// </summary>
     public static class PopulationManagementHelper
     {

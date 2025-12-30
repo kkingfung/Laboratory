@@ -66,7 +66,7 @@ namespace Laboratory.Core.Infrastructure
             // Morphisms are interactions between systems
             var morphisms = new List<Morphism>();
 
-            // Event publishing morphism: EventBus → GeneticAlgorithm
+            // Event publishing morphism: EventBus -> GeneticAlgorithm
             morphisms.Add(new Morphism
             {
                 Source = "EventBus",
@@ -76,7 +76,7 @@ namespace Laboratory.Core.Infrastructure
                 Properties = new List<string> { "Preserves causality", "Maintains ordering" }
             });
 
-            // Service resolution morphism: ServiceDiscovery → All Systems
+            // Service resolution morphism: ServiceDiscovery -> All Systems
             foreach (var obj in objects.Where(o => o.Name != "ServiceDiscovery"))
             {
                 morphisms.Add(new Morphism
@@ -89,7 +89,7 @@ namespace Laboratory.Core.Infrastructure
                 });
             }
 
-            // Genetic evolution morphism: GeneticAlgorithm → MolecularSimulation
+            // Genetic evolution morphism: GeneticAlgorithm -> MolecularSimulation
             morphisms.Add(new Morphism
             {
                 Source = "GeneticAlgorithm",
@@ -114,8 +114,8 @@ namespace Laboratory.Core.Infrastructure
                 Name = "GeneticEvolutionFunctor",
                 SourceCategory = "PopulationStates",
                 TargetCategory = "FitnessLandscapes",
-                ObjectMapping = "Individual → Fitness Value",
-                MorphismMapping = "Selection → Fitness Gradient",
+                ObjectMapping = "Individual -> Fitness Value",
+                MorphismMapping = "Selection -> Fitness Gradient",
                 PreservesComposition = true,
                 PreservesIdentity = true,
                 FunctorType = FunctorType.Endofunctor
@@ -127,8 +127,8 @@ namespace Laboratory.Core.Infrastructure
                 Name = "ServiceResolutionFunctor",
                 SourceCategory = "ServiceRequests",
                 TargetCategory = "ServiceInstances",
-                ObjectMapping = "Interface Type → Implementation Instance",
-                MorphismMapping = "Dependency → Service Binding",
+                ObjectMapping = "Interface Type -> Implementation Instance",
+                MorphismMapping = "Dependency -> Service Binding",
                 PreservesComposition = true,
                 PreservesIdentity = true,
                 FunctorType = FunctorType.Contravariant
@@ -140,8 +140,8 @@ namespace Laboratory.Core.Infrastructure
                 Name = "EventPropagationFunctor",
                 SourceCategory = "EventSources",
                 TargetCategory = "EventHandlers",
-                ObjectMapping = "Event Type → Handler Collection",
-                MorphismMapping = "Event Flow → Handler Invocation",
+                ObjectMapping = "Event Type -> Handler Collection",
+                MorphismMapping = "Event Flow -> Handler Invocation",
                 PreservesComposition = true,
                 PreservesIdentity = true,
                 FunctorType = FunctorType.Covariant
@@ -153,8 +153,8 @@ namespace Laboratory.Core.Infrastructure
                 Name = "MolecularInteractionFunctor",
                 SourceCategory = "GeneticExpressions",
                 TargetCategory = "MolecularProperties",
-                ObjectMapping = "Gene Expression → Protein Structure",
-                MorphismMapping = "Genetic Variation → Structural Change",
+                ObjectMapping = "Gene Expression -> Protein Structure",
+                MorphismMapping = "Genetic Variation -> Structural Change",
                 PreservesComposition = true,
                 PreservesIdentity = true,
                 FunctorType = FunctorType.Endofunctor
@@ -209,9 +209,9 @@ namespace Laboratory.Core.Infrastructure
                 Join = "Service dependency flattening",
                 MonadLaws = new List<string>
                 {
-                    "Left identity: unit(a) >>= f ≡ f(a)",
-                    "Right identity: m >>= unit ≡ m",
-                    "Associativity: (m >>= f) >>= g ≡ m >>= (λx → f(x) >>= g)"
+                    "Left identity: unit(a) >>= f = f(a)",
+                    "Right identity: m >>= unit = m",
+                    "Associativity: (m >>= f) >>= g = m >>= (\\x -> f(x) >>= g)"
                 },
                 Applications = new List<string>
                 {
@@ -230,9 +230,9 @@ namespace Laboratory.Core.Infrastructure
                 Join = "Event sequence flattening",
                 MonadLaws = new List<string>
                 {
-                    "Left identity: return(a) >>= f ≡ f(a)",
-                    "Right identity: m >>= return ≡ m",
-                    "Associativity: (m >>= f) >>= g ≡ m >>= (\\x -> f(x) >>= g)"
+                    "Left identity: return(a) >>= f = f(a)",
+                    "Right identity: m >>= return = m",
+                    "Associativity: (m >>= f) >>= g = m >>= (\\x -> f(x) >>= g)"
                 },
                 Applications = new List<string>
                 {
@@ -251,9 +251,9 @@ namespace Laboratory.Core.Infrastructure
                 Join = "Population state merging",
                 MonadLaws = new List<string>
                 {
-                    "Left identity: return(a) >>= f ≡ f(a)",
-                    "Right identity: m >>= return ≡ m",
-                    "Associativity: (m >>= f) >>= g ≡ m >>= (\\x -> f(x) >>= g)"
+                    "Left identity: return(a) >>= f = f(a)",
+                    "Right identity: m >>= return = m",
+                    "Associativity: (m >>= f) >>= g = m >>= (\\x -> f(x) >>= g)"
                 },
                 Applications = new List<string>
                 {
@@ -335,12 +335,12 @@ namespace Laboratory.Core.Infrastructure
         private static void VerifyCategoryAxioms(Category category)
         {
             // Verify composition associativity
-            // For morphisms f: A → B, g: B → C, h: C → D
-            // (h ∘ g) ∘ f = h ∘ (g ∘ f)
+            // For morphisms f: A -> B, g: B -> C, h: C -> D
+            // (h o g) o f = h o (g o f)
 
             // Verify identity morphisms
-            // For each object A, there exists id_A: A → A
-            // such that for any f: A → B, f ∘ id_A = f and id_B ∘ f = f
+            // For each object A, there exists id_A: A -> A
+            // such that for any f: A -> B, f o id_A = f and id_B o f = f
 
             Debug.Log("[CategoryTheory] Category axioms verified for system category");
         }
@@ -396,7 +396,7 @@ namespace Laboratory.Core.Infrastructure
                 Type = LimitType.Limit,
                 Diagram = "Performance constraint cone",
                 UniversalProperty = "Optimal system performance under resource constraints",
-                MathematicalDescription = "lim_{n→∞} Performance(n) = TheoreticalMaximum"
+                MathematicalDescription = "lim_{n->infinity} Performance(n) = TheoreticalMaximum"
             });
 
             // Calculate colimits for system integration

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEditor;
 
 namespace Laboratory.Editor.Diagnostics
@@ -18,7 +18,7 @@ namespace Laboratory.Editor.Diagnostics
         private float refreshRate = 1f;
         private double lastRefreshTime;
 
-        [MenuItem("🧪 Laboratory/Debug/Console Window")]
+        [MenuItem("[Debug] Laboratory/Debug/Console Window")]
         public static void ShowWindow()
         {
             var window = GetWindow<DebugConsoleEditorWindow>("Debug Console");
@@ -71,15 +71,15 @@ namespace Laboratory.Editor.Diagnostics
             EditorGUILayout.Space();
 
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("📊 Performance Report"))
+            if (GUILayout.Button("[Stats] Performance Report"))
             {
                 GeneratePerformanceReport();
             }
-            if (GUILayout.Button("🧬 Genetics Report"))
+            if (GUILayout.Button("[Genetics] Genetics Report"))
             {
                 GenerateGeneticsReport();
             }
-            if (GUILayout.Button("🔧 System Health"))
+            if (GUILayout.Button("[System] System Health"))
             {
                 GenerateSystemHealthReport();
             }
@@ -118,28 +118,28 @@ namespace Laboratory.Editor.Diagnostics
         private void DrawRuntimeSections()
         {
             // Performance Section
-            showPerformanceSection = EditorGUILayout.Foldout(showPerformanceSection, "🚀 Performance Metrics", true);
+            showPerformanceSection = EditorGUILayout.Foldout(showPerformanceSection, "[Performance] Performance Metrics", true);
             if (showPerformanceSection)
             {
                 DrawPerformanceSection();
             }
 
             // Genetics Section
-            showGeneticsSection = EditorGUILayout.Foldout(showGeneticsSection, "🧬 Genetic System Data", true);
+            showGeneticsSection = EditorGUILayout.Foldout(showGeneticsSection, "[Genetics] Genetic System Data", true);
             if (showGeneticsSection)
             {
                 DrawGeneticsSection();
             }
 
             // ECS Section
-            showECSSection = EditorGUILayout.Foldout(showECSSection, "⚡ ECS Statistics", true);
+            showECSSection = EditorGUILayout.Foldout(showECSSection, "[ECS] ECS Statistics", true);
             if (showECSSection)
             {
                 DrawECSSection();
             }
 
             // System Health Section
-            showSystemHealthSection = EditorGUILayout.Foldout(showSystemHealthSection, "❤️ System Health", true);
+            showSystemHealthSection = EditorGUILayout.Foldout(showSystemHealthSection, "[Health] System Health", true);
             if (showSystemHealthSection)
             {
                 DrawSystemHealthSection();
@@ -264,7 +264,7 @@ namespace Laboratory.Editor.Diagnostics
 
             Color originalColor = GUI.color;
             GUI.color = isOnline ? Color.green : Color.red;
-            EditorGUILayout.LabelField(isOnline ? "●" : "○", GUILayout.Width(20));
+            EditorGUILayout.LabelField(isOnline ? "O" : "o", GUILayout.Width(20));
             GUI.color = originalColor;
 
             EditorGUILayout.LabelField(isOnline ? "Online" : "Offline");

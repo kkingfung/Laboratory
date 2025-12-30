@@ -363,7 +363,7 @@ namespace Laboratory.UI.Progression
             if (improvementTrendText != null)
             {
                 float trend = skillData.Value.improvementTrend;
-                string trendSymbol = trend > 0 ? "↑" : (trend < 0 ? "↓" : "→");
+                string trendSymbol = trend > 0 ? "^" : (trend < 0 ? "v" : "->");
                 improvementTrendText.text = $"Trend: {trendSymbol} {Mathf.Abs(trend):P1}";
             }
 

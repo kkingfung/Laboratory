@@ -120,7 +120,7 @@ namespace Laboratory.Core.MonsterTown
                 return;
             }
 
-            Debug.Log("🏘️ Initializing Monster Town...");
+            Debug.Log("[Town] Initializing Monster Town...");
 
             try
             {
@@ -152,7 +152,7 @@ namespace Laboratory.Core.MonsterTown
                 await BuildInitialTownAsync();
 
                 isInitialized = true;
-                Debug.Log("🏘️ Monster Town initialization complete!");
+                Debug.Log("[Town] Monster Town initialization complete!");
 
                 // Fire initialization event
                 eventBus?.Publish(new TownInitializedEvent(townConfig, currentResources));
@@ -179,7 +179,7 @@ namespace Laboratory.Core.MonsterTown
             OnMonsterAddedToTown?.Invoke(monster);
             eventBus?.Publish(new MonsterAddedToTownEvent(monster));
 
-            Debug.Log($"🧬 Monster {monster.Name} added to town population");
+            Debug.Log($"[Monster] Monster {monster.Name} added to town population");
             return true;
         }
 
@@ -259,7 +259,7 @@ namespace Laboratory.Core.MonsterTown
                 OnBuildingConstructed?.Invoke(constructedEvent);
                 eventBus?.Publish(constructedEvent);
 
-                Debug.Log($"🏗️ Built {buildingType} at {position}");
+                Debug.Log($"[Build] Built {buildingType} at {position}");
                 return true;
             }
 
@@ -361,7 +361,7 @@ namespace Laboratory.Core.MonsterTown
 
             // Start upgrade process
             facility.Level++;
-            Debug.Log($"🔧 Upgraded {facility.Type} to level {facility.Level}");
+            Debug.Log($"[Upgrade] Upgraded {facility.Type} to level {facility.Level}");
 
             // Could add upgrade time/cost here if needed
             await UniTask.Delay(100); // Simulate upgrade time
@@ -385,7 +385,7 @@ namespace Laboratory.Core.MonsterTown
             facility.ConstructionStartTime = DateTime.UtcNow;
             facility.IsConstructed = false;
 
-            Debug.Log($"🏗️ Started construction of {facility.Type} (will complete in {facility.ConstructionTime.TotalMinutes:F1} minutes)");
+            Debug.Log($"[Build] Started construction of {facility.Type} (will complete in {facility.ConstructionTime.TotalMinutes:F1} minutes)");
 
             // Fire construction started event
             eventBus?.Publish(new FacilityConstructionStartedEvent(facility));
@@ -396,7 +396,7 @@ namespace Laboratory.Core.MonsterTown
             // Mark as completed
             facility.IsConstructed = true;
 
-            Debug.Log($"✅ Construction completed: {facility.Type}");
+            Debug.Log($"[OK] Construction completed: {facility.Type}");
             eventBus?.Publish(new FacilityConstructionCompletedEvent(facility));
         }
 
@@ -481,7 +481,7 @@ namespace Laboratory.Core.MonsterTown
             resourceManager.InitializeResources(currentResources);
             OnResourcesChanged?.Invoke(currentResources);
 
-            Debug.Log($"💰 Town resources initialized: {currentResources}");
+            Debug.Log($"[Resources] Town resources initialized: {currentResources}");
         }
 
         private void UpdateResourceGeneration()
@@ -550,7 +550,7 @@ namespace Laboratory.Core.MonsterTown
 
         private async UniTask InitializeActivityCentersAsync()
         {
-            Debug.Log("🎮 Initializing Activity Centers...");
+            Debug.Log("[Activity] Initializing Activity Centers...");
 
             // Initialize each activity type
             var activityTypes = Enum.GetValues(typeof(ActivityType));
@@ -613,13 +613,13 @@ namespace Laboratory.Core.MonsterTown
                 // Update happiness
                 monster.AdjustHappiness(result.HappinessChange);
 
-                Debug.Log($"🎉 {monster.Name} succeeded at {result.ActivityType}! Earned {result.ResourcesEarned}");
+                Debug.Log($"[Success] {monster.Name} succeeded at {result.ActivityType}! Earned {result.ResourcesEarned}");
             }
             else
             {
                 // Small happiness penalty for failure
                 monster.AdjustHappiness(-0.1f);
-                Debug.Log($"😞 {monster.Name} failed at {result.ActivityType}");
+                Debug.Log($"[Failed] {monster.Name} failed at {result.ActivityType}");
             }
 
             await UniTask.Yield();
@@ -632,12 +632,12 @@ namespace Laboratory.Core.MonsterTown
         private void InitializeBuildingSystem()
         {
             buildingSystem.Initialize(townBounds, gridSize, useGridBasedPlacement);
-            Debug.Log("🏗️ Building system initialized");
+            Debug.Log("[Build] Building system initialized");
         }
 
         private async UniTask BuildInitialTownAsync()
         {
-            Debug.Log("🏘️ Building initial town structures...");
+            Debug.Log("[Town] Building initial town structures...");
 
             if (townConfig.initialBuildings != null)
             {
@@ -733,7 +733,7 @@ namespace Laboratory.Core.MonsterTown
                 if (constructionElapsed >= facility.ConstructionTime)
                 {
                     facility.IsConstructed = true;
-                    Debug.Log($"🏗️ Construction completed: {facility.Type} Level {facility.Level}");
+                    Debug.Log($"[Build] Construction completed: {facility.Type} Level {facility.Level}");
 
                     // Fire completion event
                     eventBus?.Publish(new FacilityConstructionCompletedEvent(facility));
@@ -794,7 +794,7 @@ namespace Laboratory.Core.MonsterTown
             if (canLevelUp && playerTown.Level < 10) // Max level 10
             {
                 playerTown.Level++;
-                Debug.Log($"🎉 Town leveled up to Level {playerTown.Level}!");
+                Debug.Log($"[LevelUp] Town leveled up to Level {playerTown.Level}!");
 
                 // Fire level up event
                 eventBus?.Publish(new TownLevelUpEvent(playerTown.Level));
@@ -820,7 +820,7 @@ namespace Laboratory.Core.MonsterTown
             eventBus.Subscribe<CreatureSpawnedEvent>(OnChimeraCreatureSpawned);
             eventBus.Subscribe<BreedingSuccessfulEvent>(OnChimeraBreedingSuccess);
 
-            Debug.Log("🔗 Integrated with existing Chimera system");
+            Debug.Log("[Integration] Integrated with existing Chimera system");
         }
 
         private void OnChimeraCreatureSpawned(CreatureSpawnedEvent evt)

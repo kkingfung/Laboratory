@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Laboratory.Core.Events;
@@ -427,7 +427,7 @@ namespace Laboratory.Core.Progression
             OnLevelUp?.Invoke(oldLevel, newLevel);
 
             if (enableDebugLogging)
-                DebugManager.LogInfo($"Level up! {oldLevel} → {newLevel} (Creature slots: {newSlots})");
+                DebugManager.LogInfo($"Level up! {oldLevel} -> {newLevel} (Creature slots: {newSlots})");
 
             if (showProgressionNotifications)
             {
@@ -443,7 +443,7 @@ namespace Laboratory.Core.Progression
             OnBiomeSpecializationUp?.Invoke(biome, newLevel);
 
             if (enableDebugLogging)
-                DebugManager.LogInfo($"{biome} specialization level up! {oldLevel} → {newLevel}");
+                DebugManager.LogInfo($"{biome} specialization level up! {oldLevel} -> {newLevel}");
 
             if (showProgressionNotifications)
             {
@@ -897,7 +897,7 @@ namespace Laboratory.Core.Progression
         #endregion
 
         // Editor menu items for testing
-        [UnityEditor.MenuItem("🧪 Laboratory/Progression/Award Test Experience", false, 600)]
+        [UnityEditor.MenuItem("[Lab] Laboratory/Progression/Award Test Experience", false, 600)]
         private static void MenuAwardTestExperience()
         {
             if (Application.isPlaying && Instance != null)
@@ -907,7 +907,7 @@ namespace Laboratory.Core.Progression
             }
         }
 
-        [UnityEditor.MenuItem("🧪 Laboratory/Progression/Show Progression Stats", false, 601)]
+        [UnityEditor.MenuItem("[Lab] Laboratory/Progression/Show Progression Stats", false, 601)]
         private static void MenuShowProgressionStats()
         {
             if (Application.isPlaying && Instance != null)
@@ -922,7 +922,7 @@ namespace Laboratory.Core.Progression
             }
         }
 
-        [UnityEditor.MenuItem("🧪 Laboratory/Progression/Reset Progression", false, 602)]
+        [UnityEditor.MenuItem("[Lab] Laboratory/Progression/Reset Progression", false, 602)]
         private static void MenuResetProgression()
         {
             if (Application.isPlaying && Instance != null)

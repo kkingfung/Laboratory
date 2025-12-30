@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using Laboratory.Chimera;
 using Laboratory.Chimera.Creatures;
@@ -387,7 +387,7 @@ namespace ProjectChimera.AI.Personality
         }
 
         // Editor menu items for testing
-        [UnityEditor.MenuItem("🧪 Laboratory/AI/Apply Random Environmental Stimulus", false, 100)]
+        [UnityEditor.MenuItem("Laboratory/AI/Apply Random Environmental Stimulus", false, 100)]
         private static void ApplyRandomStimulus()
         {
             var selectedCreature = UnityEditor.Selection.activeGameObject?.GetComponent<PersonalityDrivenAI>();
@@ -401,7 +401,7 @@ namespace ProjectChimera.AI.Personality
             }
         }
 
-        [UnityEditor.MenuItem("🧪 Laboratory/AI/Analyze Selected Creature Personality", false, 101)]
+        [UnityEditor.MenuItem("Laboratory/AI/Analyze Selected Creature Personality", false, 101)]
         private static void AnalyzePersonality()
         {
             var selectedCreature = UnityEditor.Selection.activeGameObject?.GetComponent<PersonalityDrivenAI>();

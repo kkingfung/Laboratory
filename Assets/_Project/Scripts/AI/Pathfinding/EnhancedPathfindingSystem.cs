@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
@@ -381,7 +381,7 @@ namespace ProjectChimera.AI.Pathfinding
         private int CountNearbyAgents(Vector3 position, float radius)
         {
             int count = 0;
-            // ⚡ OPTIMIZED: Use sqrMagnitude for faster distance checks
+            // OPTIMIZED: Use sqrMagnitude for faster distance checks
             var sqrRadius = radius * radius;
             foreach (var agent in registeredAgents)
             {

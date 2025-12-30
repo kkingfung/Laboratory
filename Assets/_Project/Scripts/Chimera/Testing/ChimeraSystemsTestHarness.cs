@@ -307,11 +307,11 @@ namespace Laboratory.Chimera.Testing
 
             // Systems
             GUILayout.Label("<b>Systems Active</b>");
-            GUILayout.Label($"✓ Activity System ({loadedActivityConfigs.Length} types)");
-            GUILayout.Label($"✓ Equipment System ({loadedEquipmentConfigs.Length} items)");
-            GUILayout.Label($"✓ Progression System");
-            GUILayout.Label($"✓ Burst Compilation");
-            GUILayout.Label($"✓ Job System Parallelization");
+            GUILayout.Label($"[OK] Activity System ({loadedActivityConfigs.Length} types)");
+            GUILayout.Label($"[OK] Equipment System ({loadedEquipmentConfigs.Length} items)");
+            GUILayout.Label($"[OK] Progression System");
+            GUILayout.Label($"[OK] Burst Compilation");
+            GUILayout.Label($"[OK] Job System Parallelization");
             GUILayout.Space(10);
 
             // Actions

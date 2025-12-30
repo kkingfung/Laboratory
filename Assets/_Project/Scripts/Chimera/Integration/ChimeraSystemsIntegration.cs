@@ -1,4 +1,4 @@
-using Unity.Entities;
+﻿using Unity.Entities;
 using UnityEngine;
 using Laboratory.Chimera.Consciousness.Core;
 using Laboratory.Chimera.Progression;

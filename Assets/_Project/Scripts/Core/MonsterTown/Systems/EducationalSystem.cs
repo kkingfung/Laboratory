@@ -105,7 +105,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
             eventBus?.Publish(new LessonStartedEvent(playerId, subjectId, lessonId));
 
-            Debug.Log($"📚 Started lesson: {lesson.title} for player {playerId}");
+            Debug.Log($"[Education] Started lesson: {lesson.title} for player {playerId}");
             return true;
         }
 
@@ -170,7 +170,7 @@ namespace Laboratory.Core.MonsterTown.Systems
 
             eventBus?.Publish(new LessonCompletedEvent(playerId, completedLesson, progressGain));
 
-            Debug.Log($"✅ Completed lesson: {lesson.title} - Score: {completionScore:F1}%");
+            Debug.Log($"[OK] Completed lesson: {lesson.title} - Score: {completionScore:F1}%");
             return true;
         }
 
@@ -268,7 +268,7 @@ namespace Laboratory.Core.MonsterTown.Systems
             };
 
             // Log educational content for display
-            Debug.Log($"🧬 Breeding Education: {educationalContent.ExplanationText}");
+            Debug.Log($"[Genetics] Breeding Education: {educationalContent.ExplanationText}");
 
             // Publish event for UI systems to display
             eventBus?.Publish(new EducationalContentEvent("breeding", educationalContent));
@@ -291,7 +291,7 @@ namespace Laboratory.Core.MonsterTown.Systems
                 Timestamp = DateTime.Now
             };
 
-            Debug.Log($"📚 Activity Education: {educationalContent.EducationalTip}");
+            Debug.Log($"[Education] Activity Education: {educationalContent.EducationalTip}");
 
             // Publish event for UI systems
             eventBus?.Publish(new EducationalContentEvent("activity", educationalContent));
@@ -462,7 +462,7 @@ namespace Laboratory.Core.MonsterTown.Systems
                 progress.masteredSubjects.Add(subjectId);
                 eventBus?.Publish(new SubjectMasteredEvent(playerId, subjectId, subject.name));
 
-                Debug.Log($"🎓 Subject mastered: {subject.name}");
+                Debug.Log($"[Mastered] Subject mastered: {subject.name}");
             }
         }
 

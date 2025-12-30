@@ -265,14 +265,14 @@ namespace Laboratory.Demo.UI
         private void OnOnboardingCompleted()
         {
             UpdateOverlayVisibility();
-            ShowCelebration("🎓 Tutorial Complete! You're ready to play!");
+            ShowCelebration("[Graduation] Tutorial Complete! You're ready to play!");
         }
 
         private void OnHintRequested(string hint)
         {
             if (hintText != null)
             {
-                hintText.text = $"💡 Hint: {hint}";
+                hintText.text = $"[Hint] {hint}";
                 hintText.gameObject.SetActive(true);
             }
         }

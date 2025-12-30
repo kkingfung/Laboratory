@@ -439,7 +439,7 @@ namespace Laboratory.Core.Progression
                         AchievementScore = 0f
                     });
 
-                    UnityEngine.Debug.Log($"✅ Added progression components to creature (Level {startingLevel})");
+                    UnityEngine.Debug.Log($"[OK] Added progression components to creature (Level {startingLevel})");
                     break;
                 }
             }

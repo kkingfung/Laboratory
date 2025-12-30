@@ -44,7 +44,7 @@ namespace Laboratory.Editor
             public List<string> warnings = new List<string>();
         }
 
-        [MenuItem("🧪 Laboratory/Performance/Performance Profiler")]
+        [MenuItem("Laboratory/Performance/Performance Profiler")]
         public static void ShowWindow()
         {
             PerformanceProfilerWindow window = GetWindow<PerformanceProfilerWindow>("Performance Profiler");
@@ -189,18 +189,18 @@ namespace Laboratory.Editor
             // Warnings
             if (lastReport.warnings.Count > 0)
             {
-                EditorGUILayout.LabelField("⚠️ Warnings:", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("[Warning] Warnings:", EditorStyles.boldLabel);
                 foreach (string warning in lastReport.warnings)
                 {
                     EditorGUILayout.HelpBox(warning, MessageType.Warning);
                 }
                 EditorGUILayout.Space();
             }
-            
+
             // Recommendations
             if (lastReport.recommendations.Count > 0)
             {
-                EditorGUILayout.LabelField("💡 Recommendations:", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField("[Tip] Recommendations:", EditorStyles.boldLabel);
                 foreach (string recommendation in lastReport.recommendations)
                 {
                     EditorGUILayout.HelpBox(recommendation, MessageType.Info);

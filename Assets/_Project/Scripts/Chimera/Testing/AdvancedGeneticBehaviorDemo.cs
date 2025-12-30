@@ -14,20 +14,20 @@ namespace Laboratory.Chimera.Testing
     /// </summary>
     public class AdvancedGeneticBehaviorDemo : MonoBehaviour
     {
-        [Header("🧪 Demo Configuration")]
+        [Header("[DEMO] Demo Configuration")]
         [SerializeField] private int numberOfCreatures = 10;
         [SerializeField] private float spawnRadius = 20f;
         [SerializeField] private bool enableRealTimeDemo = true;
         [SerializeField] private bool showBehaviorDebug = true;
 
-        [Header("🧬 Genetic Presets")]
+        [Header("[GENETICS] Genetic Presets")]
         [SerializeField] private GeneticPreset[] geneticPresets;
 
-        [Header("🎯 Demo Scenarios")]
+        [Header("[SCENARIO] Demo Scenarios")]
         [SerializeField] private DemoScenario currentScenario = DemoScenario.NaturalBehavior;
         [SerializeField] private float scenarioTimer = 60f; // Switch scenarios every minute
 
-        [Header("📊 Real-time Monitoring")]
+        [Header("[MONITOR] Real-time Monitoring")]
         [SerializeField] private bool enableBehaviorAnalytics = true;
         [SerializeField] private BehaviorAnalytics analytics;
 
@@ -90,34 +90,34 @@ namespace Laboratory.Chimera.Testing
         {
             geneticPresets = new GeneticPreset[]
             {
-                CreatePreset("🐺 Alpha Wolf", 
+                CreatePreset("[WOLF] Alpha Wolf", 
                     aggression: 0.9f, dominance: 0.9f, packInstinct: 0.8f, territoriality: 0.7f),
                 
-                CreatePreset("🐱 Curious Cat", 
+                CreatePreset("[CAT] Curious Cat", 
                     curiosity: 0.9f, playfulness: 0.8f, intelligence: 0.7f, independence: 0.8f),
                 
-                CreatePreset("🐕 Loyal Dog", 
+                CreatePreset("[DOG] Loyal Dog", 
                     loyalty: 0.9f, social: 0.8f, aggression: 0.3f, packInstinct: 0.7f),
                 
-                CreatePreset("🦅 Night Hunter", 
+                CreatePreset("[EAGLE] Night Hunter", 
                     huntingDrive: 0.9f, nightVision: 0.9f, courage: 0.8f, territoriality: 0.6f),
                 
-                CreatePreset("🐰 Peaceful Herbivore", 
+                CreatePreset("[RABBIT] Peaceful Herbivore", 
                     aggression: 0.1f, social: 0.7f, playfulness: 0.6f, adaptability: 0.8f),
                 
-                CreatePreset("🐻 Territorial Guardian", 
+                CreatePreset("[BEAR] Territorial Guardian", 
                     territoriality: 0.9f, parentalCare: 0.8f, courage: 0.9f, size: 0.8f),
                 
-                CreatePreset("🦊 Smart Trickster", 
+                CreatePreset("[FOX] Smart Trickster", 
                     intelligence: 0.9f, curiosity: 0.8f, adaptability: 0.9f, playfulness: 0.7f),
                 
-                CreatePreset("🐎 Social Herd Animal", 
+                CreatePreset("[HORSE] Social Herd Animal", 
                     social: 0.9f, packInstinct: 0.8f, loyalty: 0.6f, emotionalStability: 0.7f),
                 
-                CreatePreset("🦉 Wise Elder", 
+                CreatePreset("[OWL] Wise Elder", 
                     intelligence: 0.9f, emotionalStability: 0.9f, territoriality: 0.5f, nightVision: 0.8f),
                 
-                CreatePreset("🐅 Apex Predator", 
+                CreatePreset("[TIGER] Apex Predator", 
                     huntingDrive: 0.9f, aggression: 0.8f, courage: 0.9f, size: 0.9f, independence: 0.8f)
             };
         }
@@ -510,15 +510,15 @@ namespace Laboratory.Chimera.Testing
         {
             GUILayout.BeginArea(new Rect(10, 10, 400, 600));
             
-            GUILayout.Label("🧬 ADVANCED GENETIC BEHAVIOR ANALYTICS", new GUIStyle(GUI.skin.label) { fontSize = 16, fontStyle = FontStyle.Bold });
+            GUILayout.Label("[GENETICS] ADVANCED GENETIC BEHAVIOR ANALYTICS", new GUIStyle(GUI.skin.label) { fontSize = 16, fontStyle = FontStyle.Bold });
             GUILayout.Space(10);
             
-            GUILayout.Label($"📊 Current Scenario: {currentScenario}");
-            GUILayout.Label($"🧪 Active Creatures: {spawnedCreatures.Count}");
+            GUILayout.Label($"[SCENARIO] Current Scenario: {currentScenario}");
+            GUILayout.Label($"[COUNT] Active Creatures: {spawnedCreatures.Count}");
             GUILayout.Space(10);
             
             // Behavior state distribution
-            GUILayout.Label("🎭 Behavior States:", new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold });
+            GUILayout.Label("[BEHAVIOR] Behavior States:", new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold });
             foreach (var statePair in analytics.GetBehaviorStateDistribution())
             {
                 GUILayout.Label($"  {statePair.Key}: {statePair.Value}");
@@ -526,7 +526,7 @@ namespace Laboratory.Chimera.Testing
             GUILayout.Space(10);
             
             // Personality distribution
-            GUILayout.Label("🧠 Personality Types:", new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold });
+            GUILayout.Label("[PERSONALITY] Personality Types:", new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold });
             foreach (var personalityPair in analytics.GetPersonalityDistribution())
             {
                 GUILayout.Label($"  {personalityPair.Key}: {personalityPair.Value}");
@@ -534,24 +534,24 @@ namespace Laboratory.Chimera.Testing
             GUILayout.Space(10);
             
             // Pack formation stats
-            GUILayout.Label("🐺 Pack Statistics:", new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold });
+            GUILayout.Label("[PACK] Pack Statistics:", new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold });
             GUILayout.Label($"  Average Pack Size: {analytics.GetAveragePackSize():F1}");
             GUILayout.Label($"  Creatures in Packs: {analytics.GetCreaturesInPacks()}");
             GUILayout.Space(10);
             
             // Demo controls
-            if (GUILayout.Button("🔄 Switch Scenario"))
+            if (GUILayout.Button("[SWITCH] Switch Scenario"))
             {
                 currentScenario = (DemoScenario)(((int)currentScenario + 1) % System.Enum.GetValues(typeof(DemoScenario)).Length);
                 ApplyDemoScenario();
             }
             
-            if (GUILayout.Button("🧬 Mutate Random Creature"))
+            if (GUILayout.Button("[MUTATE] Mutate Random Creature"))
             {
                 MutateRandomCreature();
             }
             
-            if (GUILayout.Button("🌍 Reset Demo"))
+            if (GUILayout.Button("[RESET] Reset Demo"))
             {
                 ResetDemo();
             }

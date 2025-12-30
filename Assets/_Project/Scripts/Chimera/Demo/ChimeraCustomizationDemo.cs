@@ -14,16 +14,16 @@ namespace Laboratory.Chimera.Demo
     {
         #region Serialized Fields
 
-        [Header("🎭 Demo Configuration")]
+        [Header("[Demo] Demo Configuration")]
         [SerializeField] private bool autoStartDemo = true;
         [SerializeField] private float demoStepDelay = 2f;
         [SerializeField] private bool enableDemoUI = true;
 
-        [Header("🧬 Demo Chimera")]
+        [Header("[Genetics] Demo Chimera")]
         [SerializeField] private GameObject chimeraPrefab;
         [SerializeField] private Transform spawnPoint;
 
-        [Header("🎒 Demo Equipment")]
+        [Header("[Equipment] Demo Equipment")]
         [SerializeField] private string[] demoEquipmentIds = {
             "demo_armor_basic",
             "demo_weapon_sword",
@@ -31,14 +31,14 @@ namespace Laboratory.Chimera.Demo
             "demo_riding_gear_saddle"
         };
 
-        [Header("👗 Demo Outfits")]
+        [Header("[Outfit] Demo Outfits")]
         [SerializeField] private string[] demoOutfitIds = {
             "royal_outfit",
             "battle_outfit",
             "casual_outfit"
         };
 
-        [Header("🌈 Demo Colors")]
+        [Header("[Color] Demo Colors")]
         [SerializeField] private Color[] demoColors = {
             Color.red, Color.blue, Color.green, Color.yellow, Color.purple
         };
@@ -82,7 +82,7 @@ namespace Laboratory.Chimera.Demo
 
             yield return new WaitForSeconds(1f);
 
-            UnityEngine.Debug.Log("🎭 Starting Chimera Customization Demo!");
+            UnityEngine.Debug.Log("[Demo] Starting Chimera Customization Demo!");
 
             // Step 1: Spawn demo chimera
             yield return StartCoroutine(DemoStep_SpawnChimera());
@@ -108,14 +108,14 @@ namespace Laboratory.Chimera.Demo
             yield return StartCoroutine(DemoStep_SaveLoad());
             yield return new WaitForSeconds(demoStepDelay);
 
-            UnityEngine.Debug.Log("🎉 Chimera Customization Demo Complete!");
+            UnityEngine.Debug.Log("[OK] Chimera Customization Demo Complete!");
             demoRunning = false;
         }
 
         private IEnumerator DemoStep_SpawnChimera()
         {
             currentDemoStep = 1;
-            UnityEngine.Debug.Log("📍 Demo Step 1: Spawning Chimera");
+            UnityEngine.Debug.Log("[Demo] Demo Step 1: Spawning Chimera");
 
             if (chimeraPrefab != null && spawnPoint != null)
             {
@@ -131,11 +131,11 @@ namespace Laboratory.Chimera.Demo
                     yield return new WaitForSeconds(0.5f); // Allow initialization
                 }
 
-                UnityEngine.Debug.Log("✅ Demo chimera spawned and initialized");
+                UnityEngine.Debug.Log("[OK] Demo chimera spawned and initialized");
             }
             else
             {
-                UnityEngine.Debug.LogWarning("⚠️ Chimera prefab or spawn point not assigned");
+                UnityEngine.Debug.LogWarning("[Warning] Chimera prefab or spawn point not assigned");
             }
 
             yield return null;
@@ -144,7 +144,7 @@ namespace Laboratory.Chimera.Demo
         private IEnumerator DemoStep_GeneticAppearance()
         {
             currentDemoStep = 2;
-            UnityEngine.Debug.Log("🧬 Demo Step 2: Genetic Appearance Demonstration");
+            UnityEngine.Debug.Log("[Genetics] Demo Step 2: Genetic Appearance Demonstration");
 
             if (customizationManager != null)
             {
@@ -161,7 +161,7 @@ namespace Laboratory.Chimera.Demo
                     yield return new WaitForSeconds(1.5f);
                 }
 
-                UnityEngine.Debug.Log("✅ Genetic appearance demonstration complete");
+                UnityEngine.Debug.Log("[OK] Genetic appearance demonstration complete");
             }
 
             yield return null;
@@ -170,7 +170,7 @@ namespace Laboratory.Chimera.Demo
         private IEnumerator DemoStep_EquipmentSystem()
         {
             currentDemoStep = 3;
-            UnityEngine.Debug.Log("🎒 Demo Step 3: Equipment System Demonstration");
+            UnityEngine.Debug.Log("[Equipment] Demo Step 3: Equipment System Demonstration");
 
             if (customizationManager != null && equipmentManager != null)
             {
@@ -200,7 +200,7 @@ namespace Laboratory.Chimera.Demo
                     yield return new WaitForSeconds(0.5f);
                 }
 
-                UnityEngine.Debug.Log("✅ Equipment system demonstration complete");
+                UnityEngine.Debug.Log("[OK] Equipment system demonstration complete");
             }
 
             yield return null;
@@ -209,7 +209,7 @@ namespace Laboratory.Chimera.Demo
         private IEnumerator DemoStep_ColorCustomization()
         {
             currentDemoStep = 4;
-            UnityEngine.Debug.Log("🌈 Demo Step 4: Color Customization Demonstration");
+            UnityEngine.Debug.Log("[Color] Demo Step 4: Color Customization Demonstration");
 
             if (customizationManager != null)
             {
@@ -229,7 +229,7 @@ namespace Laboratory.Chimera.Demo
                     yield return new WaitForSeconds(0.8f);
                 }
 
-                UnityEngine.Debug.Log("✅ Color customization demonstration complete");
+                UnityEngine.Debug.Log("[OK] Color customization demonstration complete");
             }
 
             yield return null;
@@ -238,7 +238,7 @@ namespace Laboratory.Chimera.Demo
         private IEnumerator DemoStep_CustomOutfits()
         {
             currentDemoStep = 5;
-            UnityEngine.Debug.Log("👗 Demo Step 5: Custom Outfits Demonstration");
+            UnityEngine.Debug.Log("[Outfit] Demo Step 5: Custom Outfits Demonstration");
 
             if (customizationManager != null)
             {
@@ -260,7 +260,7 @@ namespace Laboratory.Chimera.Demo
                 customizationManager.RemoveAllCustomOutfits();
                 yield return new WaitForSeconds(1f);
 
-                UnityEngine.Debug.Log("✅ Custom outfits demonstration complete");
+                UnityEngine.Debug.Log("[OK] Custom outfits demonstration complete");
             }
 
             yield return null;
@@ -269,7 +269,7 @@ namespace Laboratory.Chimera.Demo
         private IEnumerator DemoStep_SaveLoad()
         {
             currentDemoStep = 6;
-            UnityEngine.Debug.Log("💾 Demo Step 6: Save/Load Demonstration");
+            UnityEngine.Debug.Log("[Save] Demo Step 6: Save/Load Demonstration");
 
             if (customizationManager != null)
             {
@@ -299,15 +299,15 @@ namespace Laboratory.Chimera.Demo
                 bool loaded = customizationManager.LoadCustomization();
                 if (loaded)
                 {
-                    UnityEngine.Debug.Log("✅ Save/Load successful!");
+                    UnityEngine.Debug.Log("[OK] Save/Load successful!");
                 }
                 else
                 {
-                    UnityEngine.Debug.LogWarning("⚠️ Save/Load failed");
+                    UnityEngine.Debug.LogWarning("[Warning] Save/Load failed");
                 }
 
                 yield return new WaitForSeconds(1f);
-                UnityEngine.Debug.Log("✅ Save/Load demonstration complete");
+                UnityEngine.Debug.Log("[OK] Save/Load demonstration complete");
             }
 
             yield return null;
@@ -513,12 +513,12 @@ namespace Laboratory.Chimera.Demo
             GUILayout.BeginArea(new Rect(10, 10, 300, 400));
             GUILayout.BeginVertical("box");
 
-            GUILayout.Label("🎭 Chimera Customization Demo");
+            GUILayout.Label("[Demo] Chimera Customization Demo");
             GUILayout.Space(10);
 
             if (demoRunning)
             {
-                GUILayout.Label($"🔄 Running Demo Step {currentDemoStep}/6");
+            GUILayout.Label($"[Progress] Running Demo Step {currentDemoStep}/6");
                 GUILayout.Space(5);
 
                 if (GUILayout.Button("Stop Demo"))
@@ -529,7 +529,7 @@ namespace Laboratory.Chimera.Demo
             }
             else
             {
-                if (GUILayout.Button("▶️ Start Full Demo (Space)"))
+                if (GUILayout.Button("[Play] Start Full Demo (Space)"))
                 {
                     StartCoroutine(StartDemoSequence());
                 }
@@ -558,12 +558,12 @@ namespace Laboratory.Chimera.Demo
 
             GUILayout.Space(10);
 
-            if (GUILayout.Button("🔄 Restart (R)"))
+            if (GUILayout.Button("[Restart] Restart (R)"))
             {
                 RestartDemo();
             }
 
-            if (GUILayout.Button("🗑️ Clear (C)"))
+            if (GUILayout.Button("[Clear] Clear (C)"))
             {
                 ClearDemo();
             }

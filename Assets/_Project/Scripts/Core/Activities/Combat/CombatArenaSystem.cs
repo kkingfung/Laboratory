@@ -12,7 +12,7 @@ using Laboratory.Core.Activities.Types;
 namespace Laboratory.Core.Activities.Combat
 {
     /// <summary>
-    /// ⚔️ COMBAT ARENA SYSTEM - Complete tactical combat mini-game
+    /// [Combat] COMBAT ARENA SYSTEM - Complete tactical combat mini-game
     /// FEATURES: Tournament brackets, fighting styles, tactical elements, team battles
     /// PERFORMANCE: Real-time combat simulation with genetic combat preferences
     /// GENETICS: Aggression, Size, Intelligence affect combat performance and style
@@ -837,7 +837,7 @@ namespace Laboratory.Core.Activities.Combat
                 IsActive = gameObject.activeInHierarchy
             });
 
-            Debug.Log($"✅ Created {arenaType} combat arena with {tournamentFormat} format");
+            Debug.Log($"[OK] Created {arenaType} combat arena with {tournamentFormat} format");
         }
 
         private void OnDrawGizmos()

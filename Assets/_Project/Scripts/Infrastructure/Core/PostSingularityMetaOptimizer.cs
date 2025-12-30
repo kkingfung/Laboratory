@@ -387,7 +387,7 @@ namespace Laboratory.Infrastructure.Core
         {
             Debug.Log($"[PostSingularityMetaOptimizer] APPLYING POST-PERFECTION ENHANCEMENT");
             Debug.Log($"[PostSingularityMetaOptimizer] System: {enhancement.SystemName}");
-            Debug.Log($"[PostSingularityMetaOptimizer] Current perfection: ∞ (Already perfect)");
+            Debug.Log($"[PostSingularityMetaOptimizer] Current perfection: Infinity (Already perfect)");
             Debug.Log($"[PostSingularityMetaOptimizer] Enhancement type: Beyond-perfection evolution");
             Debug.Log($"[PostSingularityMetaOptimizer] Beyond-perfection score: {enhancement.BeyondPerfectionScore}");
             Debug.Log($"[PostSingularityMetaOptimizer] Perfection evolution level: {enhancement.PerfectionEvolutionLevel}");

@@ -59,7 +59,7 @@ namespace Laboratory.Editor.Tools
 
         private void DrawHeader()
         {
-            EditorGUILayout.LabelField("⚡ Build Optimization Tool", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("[Build] Build Optimization Tool", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox("Optimize build size and loading times", MessageType.Info);
             EditorGUILayout.Space(5);
         }

@@ -505,13 +505,13 @@ namespace Laboratory.Chimera.Social.UI
             var markerList = new System.Collections.Generic.List<string>();
 
             if (markers.HasFlag(GeneticMarkerFlags.Bioluminescent))
-                markerList.Add("🌟");
+                markerList.Add("[*]");
             if (markers.HasFlag(GeneticMarkerFlags.CamouflageGene))
-                markerList.Add("👁️");
+                markerList.Add("[!]");
             if (markers.HasFlag(GeneticMarkerFlags.PackLeader))
-                markerList.Add("👑");
+                markerList.Add("[*]");
             if (markers.HasFlag(GeneticMarkerFlags.ElementalAffinity))
-                markerList.Add("🔥");
+                markerList.Add("[!]");
 
             return string.Join(" ", markerList);
         }

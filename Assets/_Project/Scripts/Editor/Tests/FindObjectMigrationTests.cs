@@ -8,7 +8,7 @@ using Laboratory.Tools;
 namespace Laboratory.Editor.Tests
 {
     /// <summary>
-    /// Validation tests for FindObjectOfType → FindFirstObjectByType migration
+    /// Validation tests for FindObjectOfType -> FindFirstObjectByType migration
     /// Ensures all migrated code works correctly with Unity 2023+ APIs
     /// </summary>
     public static class FindObjectMigrationTests
@@ -26,70 +26,70 @@ namespace Laboratory.Editor.Tests
                 // Test 1: PerformanceSubsystemManager - FindObjectsByType for counts
                 EditorUtility.DisplayProgressBar("Migration Validation", "Test 1/7: Performance System", 1f/7f);
                 if (TestPerformanceSystem(out string result1))
-                    results.Add("✓ PerformanceSubsystemManager: FindObjectsByType works correctly");
+                    results.Add("[OK] PerformanceSubsystemManager: FindObjectsByType works correctly");
                 else
                 {
-                    results.Add("✗ PerformanceSubsystemManager: " + result1);
+                    results.Add("[X] PerformanceSubsystemManager: " + result1);
                     allPassed = false;
                 }
 
                 // Test 2: ChimeraECSSystems - FindObjectsByType with Include
                 EditorUtility.DisplayProgressBar("Migration Validation", "Test 2/7: ECS Systems", 2f/7f);
                 if (TestECSSystem(out string result2))
-                    results.Add("✓ ChimeraECSSystems: FindObjectsByType(Include) works correctly");
+                    results.Add("[OK] ChimeraECSSystems: FindObjectsByType(Include) works correctly");
                 else
                 {
-                    results.Add("✗ ChimeraECSSystems: " + result2);
+                    results.Add("[X] ChimeraECSSystems: " + result2);
                     allPassed = false;
                 }
 
                 // Test 3: AdvancedShaderManager - FindObjectsByType with Include
                 EditorUtility.DisplayProgressBar("Migration Validation", "Test 3/7: Shader Manager", 3f/7f);
                 if (TestShaderManager(out string result3))
-                    results.Add("✓ AdvancedShaderManager: Shader lookup works correctly");
+                    results.Add("[OK] AdvancedShaderManager: Shader lookup works correctly");
                 else
                 {
-                    results.Add("✗ AdvancedShaderManager: " + result3);
+                    results.Add("[X] AdvancedShaderManager: " + result3);
                     allPassed = false;
                 }
 
                 // Test 4: DynamicWeatherSystem - FindFirstObjectByType for Light
                 EditorUtility.DisplayProgressBar("Migration Validation", "Test 4/7: Weather System", 4f/7f);
                 if (TestWeatherSystem(out string result4))
-                    results.Add("✓ DynamicWeatherSystem: FindFirstObjectByType works correctly");
+                    results.Add("[OK] DynamicWeatherSystem: FindFirstObjectByType works correctly");
                 else
                 {
-                    results.Add("✗ DynamicWeatherSystem: " + result4);
+                    results.Add("[X] DynamicWeatherSystem: " + result4);
                     allPassed = false;
                 }
 
                 // Test 5: NetworkSynchronizationDebugger - FindFirstObjectByType
                 EditorUtility.DisplayProgressBar("Migration Validation", "Test 5/7: Network Debugger", 5f/7f);
                 if (TestNetworkDebugger(out string result5))
-                    results.Add("✓ NetworkSynchronizationDebugger: Manager detection works");
+                    results.Add("[OK] NetworkSynchronizationDebugger: Manager detection works");
                 else
                 {
-                    results.Add("✗ NetworkSynchronizationDebugger: " + result5);
+                    results.Add("[X] NetworkSynchronizationDebugger: " + result5);
                     allPassed = false;
                 }
 
                 // Test 6: MemoryProfiler - FindObjectsByType for counts
                 EditorUtility.DisplayProgressBar("Migration Validation", "Test 6/7: Memory Profiler", 6f/7f);
                 if (TestMemoryProfiler(out string result6))
-                    results.Add("✓ MemoryProfiler: Object counting works correctly");
+                    results.Add("[OK] MemoryProfiler: Object counting works correctly");
                 else
                 {
-                    results.Add("✗ MemoryProfiler: " + result6);
+                    results.Add("[X] MemoryProfiler: " + result6);
                     allPassed = false;
                 }
 
                 // Test 7: UnityCompatibility - Conditional compilation
                 EditorUtility.DisplayProgressBar("Migration Validation", "Test 7/7: Compatibility Layer", 7f/7f);
                 if (TestCompatibilityLayer(out string result7))
-                    results.Add("✓ UnityCompatibility: Conditional compilation correct");
+                    results.Add("[OK] UnityCompatibility: Conditional compilation correct");
                 else
                 {
-                    results.Add("✗ UnityCompatibility: " + result7);
+                    results.Add("[X] UnityCompatibility: " + result7);
                     allPassed = false;
                 }
             }
@@ -100,8 +100,8 @@ namespace Laboratory.Editor.Tests
 
             // Display results
             string summary = allPassed ?
-                "✅ All migration tests passed!" :
-                "⚠ Some tests failed - review results below";
+                "[OK] All migration tests passed!" :
+                "[Warning] Some tests failed - review results below";
 
             string fullReport = $"{summary}\n\n" + string.Join("\n", results);
 
@@ -256,16 +256,16 @@ namespace Laboratory.Editor.Tests
                 var _ = Object.FindFirstObjectByType<Camera>();
                 var __ = Object.FindObjectsByType<Light>(FindObjectsSortMode.None);
 
-                Debug.Log("✓ Quick compile check passed - Unity 2023+ APIs accessible");
+                Debug.Log("[OK] Quick compile check passed - Unity 2023+ APIs accessible");
                 EditorUtility.DisplayDialog(
                     "Compile Check",
-                    "✓ Unity 2023+ FindObject APIs are working correctly",
+                    "[OK] Unity 2023+ FindObject APIs are working correctly",
                     "OK"
                 );
             }
             catch (System.Exception e)
             {
-                Debug.LogError($"✗ Compile check failed: {e.Message}");
+                Debug.LogError($"[X] Compile check failed: {e.Message}");
                 EditorUtility.DisplayDialog(
                     "Compile Check Failed",
                     $"Error: {e.Message}",

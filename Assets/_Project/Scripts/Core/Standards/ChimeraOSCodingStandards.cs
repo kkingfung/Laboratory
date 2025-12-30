@@ -13,28 +13,28 @@ namespace Laboratory.Core.Standards
     /// </summary>
     public class ChimeraOSCodingStandards : MonoBehaviour
     {
-        [Header("📋 Coding Standards Documentation")]
+        [Header("[DOC] Coding Standards Documentation")]
         [TextArea(20, 50)]
         [SerializeField] private string codingStandardsGuide = @"
-# 🧬 ChimeraOS Coding Standards Guide
+# [GENETICS] ChimeraOS Coding Standards Guide
 
-## 📜 OVERVIEW
+## [DOC] OVERVIEW
 This guide ensures all ChimeraOS systems follow consistent patterns for maintainability,
 performance, and seamless integration with existing Chimera architecture.
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-## 🎯 1. NAMING CONVENTIONS
+## [TARGET] 1. NAMING CONVENTIONS
 
 ### Classes and Interfaces
 ```csharp
-// ✅ CORRECT: PascalCase with descriptive names
+// [CHECK] CORRECT: PascalCase with descriptive names
 public class EquipmentManager : MonoBehaviour
 public class SocialFeaturesManager : MonoBehaviour
 public interface IResourceManager : IDisposable
 public interface ITownManager
 
-// ❌ INCORRECT: Unclear names, wrong casing
+// [FAIL] INCORRECT: Unclear names, wrong casing
 public class equipmentmgr : MonoBehaviour
 public class SocialMgr : MonoBehaviour
 public interface resourceManager
@@ -42,13 +42,13 @@ public interface resourceManager
 
 ### Methods and Properties
 ```csharp
-// ✅ CORRECT: PascalCase, descriptive verb-noun patterns
+// [CHECK] CORRECT: PascalCase, descriptive verb-noun patterns
 public void InitializeEquipmentSystem(EquipmentDatabase database)
 public bool CanAffordBuilding(BuildingConfig config)
 public TownResources GetCurrentResources()
 public List<Monster> GetTownMonsters()
 
-// ❌ INCORRECT: camelCase, unclear names
+// [FAIL] INCORRECT: camelCase, unclear names
 public void initEquipment(EquipmentDatabase db)
 public bool canAfford(BuildingConfig cfg)
 public TownResources resources()
@@ -56,14 +56,14 @@ public TownResources resources()
 
 ### Fields and Variables
 ```csharp
-// ✅ CORRECT: camelCase private, PascalCase public, underscore prefix for private
+// [CHECK] CORRECT: camelCase private, PascalCase public, underscore prefix for private
 [SerializeField] private EquipmentDatabase equipmentDatabase;
 [SerializeField] private bool enableAutoDocumentation = true;
 private Dictionary<string, PlayerWallet> _playerWallets = new();
 private List<BreedingExperiment> _experiments = new();
 public float Happiness { get; set; }
 
-// ❌ INCORRECT: Inconsistent naming
+// [FAIL] INCORRECT: Inconsistent naming
 private EquipmentDatabase equipment_database;
 private bool EnableAutoDocumentation = true;
 private Dictionary<string, PlayerWallet> playerWallets = new();
@@ -71,7 +71,7 @@ private Dictionary<string, PlayerWallet> playerWallets = new();
 
 ### Constants and Enums
 ```csharp
-// ✅ CORRECT: UPPER_CASE constants, PascalCase enums
+// [CHECK] CORRECT: UPPER_CASE constants, PascalCase enums
 public const float MAX_HAPPINESS = 1.0f;
 public const int DEFAULT_POPULATION_LIMIT = 100;
 
@@ -79,18 +79,18 @@ public enum ActivityType { Racing, Combat, Puzzle, Strategy, Music }
 public enum BuildingType { BreedingCenter, TrainingGrounds, ResearchLab }
 public enum EquipmentRarity { Common, Uncommon, Rare, Epic, Legendary }
 
-// ❌ INCORRECT: Wrong casing patterns
+// [FAIL] INCORRECT: Wrong casing patterns
 public const float maxHappiness = 1.0f;
 public enum activityType { racing, combat, puzzle }
 ```
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-## 🏗️ 2. NAMESPACE ORGANIZATION
+## [BUILD] 2. NAMESPACE ORGANIZATION
 
 ### ChimeraOS Namespace Hierarchy
 ```csharp
-// ✅ CORRECT: Hierarchical organization
+// [CHECK] CORRECT: Hierarchical organization
 namespace Laboratory.Core.MonsterTown          // Core town functionality
 namespace Laboratory.Core.Equipment           // Equipment systems
 namespace Laboratory.Core.Economy            // Economic systems
@@ -100,7 +100,7 @@ namespace Laboratory.Core.Discovery          // Discovery & achievements
 namespace Laboratory.Core.Integration        // System integration
 namespace Laboratory.Core.Bootstrap          // System initialization
 
-// ❌ INCORRECT: Flat or inconsistent organization
+// [FAIL] INCORRECT: Flat or inconsistent organization
 namespace MonsterTown
 namespace Equipment
 namespace Economy
@@ -108,7 +108,7 @@ namespace Economy
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-## 📖 3. DOCUMENTATION STANDARDS
+## [DOC] 3. DOCUMENTATION STANDARDS
 
 ### Class Documentation
 ```csharp
@@ -151,7 +151,7 @@ var crossActivityBonus = CalculateCrossActivityBonus(monster, activityType);
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-## 🏛️ 4. CLASS STRUCTURE ORGANIZATION
+## [STRUCT] 4. CLASS STRUCTURE ORGANIZATION
 
 ### Standard Class Layout
 ```csharp
@@ -202,11 +202,11 @@ public class ExampleSystemManager : MonoBehaviour
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-## ⚡ 5. PERFORMANCE STANDARDS
+## [PERF] 5. PERFORMANCE STANDARDS
 
 ### ECS Integration Requirements
 ```csharp
-// ✅ CORRECT: ECS-compatible data structures
+// [CHECK] CORRECT: ECS-compatible data structures
 [Serializable]
 public struct MonsterPerformance : IComponentData
 {
@@ -216,7 +216,7 @@ public struct MonsterPerformance : IComponentData
     public float experienceBonus;
 }
 
-// ✅ CORRECT: Burst-compatible methods
+// [CHECK] CORRECT: Burst-compatible methods
 
 public static float CalculatePerformance(MonsterPerformance performance)
 {
@@ -227,11 +227,11 @@ public static float CalculatePerformance(MonsterPerformance performance)
 
 ### Memory Management
 ```csharp
-// ✅ CORRECT: Object pooling for frequently created objects
+// [CHECK] CORRECT: Object pooling for frequently created objects
 private ObjectPool<Monster> _monsterPool;
 private Dictionary<string, Monster> _activeMonsters = new();
 
-// ✅ CORRECT: Dispose pattern implementation
+// [CHECK] CORRECT: Dispose pattern implementation
 public void Dispose()
 {
     _activeMonsters?.Clear();
@@ -239,7 +239,7 @@ public void Dispose()
     OnSystemUpdated = null;
 }
 
-// ✅ CORRECT: Cache frequently accessed data
+// [CHECK] CORRECT: Cache frequently accessed data
 private readonly Dictionary<string, float> _performanceCache = new();
 ```
 
@@ -254,19 +254,19 @@ private readonly Dictionary<string, float> _performanceCache = new();
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-## 🎨 6. UNITY-SPECIFIC STANDARDS
+## [UNITY] 6. UNITY-SPECIFIC STANDARDS
 
 ### Inspector Configuration
 ```csharp
-[Header(""🎮 Core Configuration"")]
+[Header(""[GAME] Core Configuration"")]
 [SerializeField] private GameConfig gameConfig;
 [SerializeField] private bool enableDebugMode = false;
 
-[Header(""⚡ Performance Settings"")]
+[Header(""[PERF] Performance Settings"")]
 [SerializeField] [Range(1, 1000)] private int maxCreatures = 100;
 [SerializeField] private float updateFrequency = 0.1f;
 
-[Header(""📊 Runtime Status"")]
+[Header(""[RUNTIME] Runtime Status"")]
 [SerializeField, ReadOnly] private int activeCreatures = 0;
 [SerializeField, ReadOnly] private float lastUpdateTime = 0f;
 ```
@@ -276,7 +276,7 @@ private readonly Dictionary<string, float> _performanceCache = new();
 [CreateAssetMenu(fileName = ""Equipment Database"", menuName = ""Chimera/Equipment Database"", order = 10)]
 public class EquipmentDatabase : ScriptableObject
 {
-    [Header(""🎒 Equipment Collections"")]
+    [Header(""[EQUIP] Equipment Collections"")]
     [SerializeField] private EquipmentConfig[] weapons = new EquipmentConfig[0];
     [SerializeField] private EquipmentConfig[] armor = new EquipmentConfig[0];
 }
@@ -296,11 +296,11 @@ public void ResetToDefaults() { }
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-## 🔧 7. ERROR HANDLING STANDARDS
+## [ERROR] 7. ERROR HANDLING STANDARDS
 
 ### Exception Handling
 ```csharp
-// ✅ CORRECT: Specific exception handling with fallbacks
+// [CHECK] CORRECT: Specific exception handling with fallbacks
 public bool ProcessMonsterData(Monster monster)
 {
     try
@@ -328,21 +328,21 @@ public bool ProcessMonsterData(Monster monster)
 
 ### Logging Standards
 ```csharp
-// ✅ CORRECT: Consistent logging with context and emojis
-Debug.Log(""🧬 Genetic system initialized successfully"");
-Debug.LogWarning(""⚠️ Monster happiness below optimal threshold"");
-Debug.LogError(""❌ Critical failure in breeding system"");
+// [CHECK] CORRECT: Consistent logging with context and emojis
+Debug.Log(""[GENETICS] Genetic system initialized successfully"");
+Debug.LogWarning(""[WARNING] Monster happiness below optimal threshold"");
+Debug.LogError(""[ERROR] Critical failure in breeding system"");
 
-// ✅ CORRECT: Conditional debug logging
+// [CHECK] CORRECT: Conditional debug logging
 if (enableDebugLogging)
 {
-    Debug.Log($""🔬 Breeding result: {parent1.Name} × {parent2.Name} → {offspring.Name}"");
+    Debug.Log($""[Breeding] Breeding result: {parent1.Name} * {parent2.Name} -> {offspring.Name}"");
 }
 ```
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-## 🧪 8. TESTING STANDARDS
+## [TEST] 8. TESTING STANDARDS
 
 ### Unit Test Naming
 ```csharp
@@ -369,12 +369,12 @@ private async UniTask RunTest(string testName, Func<UniTask<bool>> testAction)
     try
     {
         var result = await testAction();
-        LogTest(result ? $""✅ {testName}"" : $""❌ {testName} - FAILED"");
+        LogTest(result ? $""[OK] {testName}"" : $""[FAIL] {testName} - FAILED"");
         return result;
     }
     catch (Exception ex)
     {
-        LogTest($""❌ {testName} - EXCEPTION: {ex.Message}"");
+        LogTest($""[FAIL] {testName} - EXCEPTION: {ex.Message}"");
         return false;
     }
 }
@@ -382,7 +382,7 @@ private async UniTask RunTest(string testName, Func<UniTask<bool>> testAction)
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-## 📦 9. DATA STRUCTURE STANDARDS
+## [DATA] 9. DATA STRUCTURE STANDARDS
 
 ### Serializable Data Classes
 ```csharp
@@ -406,18 +406,18 @@ public class PlayerProfile
 [CreateAssetMenu(fileName = ""Monster Town Config"", menuName = ""Chimera/Monster Town Config"")]
 public class MonsterTownConfig : ScriptableObject
 {
-    [Header(""🏘️ Town Settings"")]
+    [Header(""[TOWN] Town Settings"")]
     public string townName = ""New Monster Town"";
     public int maxPopulation = 100;
 
-    [Header(""💰 Starting Resources"")]
+    [Header(""[RESOURCE] Starting Resources"")]
     public TownResources startingResources = TownResources.GetDefault();
 }
 ```
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-## 🚀 10. INTEGRATION REQUIREMENTS
+## [INTEGRATE] 10. INTEGRATION REQUIREMENTS
 
 ### ChimeraOS Integration Checklist
 - [ ] Namespace follows Laboratory.Core.* pattern
@@ -433,13 +433,13 @@ public class MonsterTownConfig : ScriptableObject
 
 ### Event System Integration
 ```csharp
-// ✅ CORRECT: Event publishing
+// [CHECK] CORRECT: Event publishing
 eventBus?.Publish(new BuildingConstructedEvent(buildingType, entity, position));
 
-// ✅ CORRECT: Event subscription
+// [CHECK] CORRECT: Event subscription
 eventBus?.Subscribe<CreatureSpawnedEvent>(OnCreatureSpawned);
 
-// ✅ CORRECT: Event cleanup
+// [CHECK] CORRECT: Event cleanup
 private void OnDestroy()
 {
     eventBus?.Unsubscribe<CreatureSpawnedEvent>(OnCreatureSpawned);
@@ -448,7 +448,7 @@ private void OnDestroy()
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-## 📋 COMPLIANCE CHECKLIST
+## [CHECKLIST] COMPLIANCE CHECKLIST
 
 For each new class/system, verify:
 - [ ] Naming follows PascalCase conventions
@@ -467,7 +467,7 @@ For each new class/system, verify:
 
 ═══════════════════════════════════════════════════════════════════════════════════════
 
-## 🎯 ENFORCEMENT
+## [ENFORCE] ENFORCEMENT
 
 This standards document should be:
 1. **Referenced** during all code reviews
@@ -475,10 +475,10 @@ This standards document should be:
 3. **Updated** as the project evolves
 4. **Followed** by all contributors to ChimeraOS systems
 
-**Remember: Consistency is key to maintainable, professional code! 🧬✨**
+**Remember: Consistency is key to maintainable, professional code!**
 ";
 
-        [Header("📝 Style Guide Examples")]
+        [Header("[STYLE] Style Guide Examples")]
         [SerializeField] private StyleGuideExamples examples;
 
         #region Runtime Validation
@@ -490,7 +490,7 @@ This standards document should be:
         public void ValidateCodingStandards()
         {
 #if UNITY_EDITOR
-            Debug.Log("🔍 Running ChimeraOS Coding Standards Validation...");
+            Debug.Log("[CHECK] Running ChimeraOS Coding Standards Validation...");
 
             var violations = new List<string>();
 
@@ -499,11 +499,11 @@ This standards document should be:
 
             if (violations.Count == 0)
             {
-                Debug.Log("✅ All coding standards checks passed!");
+                Debug.Log("[OK] All coding standards checks passed!");
             }
             else
             {
-                Debug.LogWarning($"⚠️ Found {violations.Count} coding standards violations:");
+                Debug.LogWarning($"[WARNING] Found {violations.Count} coding standards violations:");
                 foreach (var violation in violations)
                 {
                     Debug.LogWarning($"  • {violation}");
@@ -519,33 +519,33 @@ This standards document should be:
         public void ShowCodingStandardsSummary()
         {
             Debug.Log(@"
-📋 ChimeraOS Coding Standards Summary:
+[SUMMARY] ChimeraOS Coding Standards Summary:
 
-🎯 KEY PRINCIPLES:
+[KEY] KEY PRINCIPLES:
 • Consistency across all ChimeraOS systems
 • Integration with existing Chimera patterns
 • Performance-optimized for 1000+ creatures
 • Designer-friendly ScriptableObject configuration
 • Comprehensive documentation and testing
 
-🏗️ NAMING CONVENTIONS:
+[NAMING] NAMING CONVENTIONS:
 • Classes: PascalCase + appropriate suffix (Manager, System, etc.)
 • Methods: PascalCase starting with action verb
 • Fields: camelCase (private with _ prefix, public PascalCase)
 • Namespaces: Laboratory.Core.* hierarchy
 
-📚 DOCUMENTATION:
+[DOC] DOCUMENTATION:
 • XML docs for all public APIs
 • Inline comments for complex logic
 • Integration examples and usage guides
 
-⚡ PERFORMANCE:
+[PERF] PERFORMANCE:
 • ECS-compatible data structures
 • Burst compilation support
 • Memory-efficient object pooling
 • Target: 1000+ monsters at 60 FPS
 
-🧪 TESTING:
+[TEST] TESTING:
 • Unit tests with descriptive names
 • Integration tests in ComprehensiveSystemTest
 • Performance benchmarking

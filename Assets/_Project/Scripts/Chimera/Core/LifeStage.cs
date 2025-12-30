@@ -10,7 +10,7 @@ namespace Laboratory.Chimera.Core
     /// - Adult (60-85%): Fully formed personality, deeply affected by treatment
     /// - Elderly (85-100%): Deepest bonds, ultimate partnership achievement
     ///
-    /// Visual Growth: "Watch your partner mature from baby → child → teen → adult → elderly companion"
+    /// Visual Growth: "Watch your partner mature from baby -> child -> teen -> adult -> elderly companion"
     /// </summary>
     public enum LifeStage
     {

@@ -83,10 +83,10 @@ namespace Laboratory.Chimera.Social.Core
         {
             string rarityPrefix = discovery.Rarity switch
             {
-                DiscoveryRarity.Mythical => "🌟 MYTHICAL",
-                DiscoveryRarity.Legendary => "⭐ LEGENDARY",
-                DiscoveryRarity.Epic => "💫 EPIC",
-                DiscoveryRarity.Rare => "✨ RARE",
+                DiscoveryRarity.Mythical => "[MYTHICAL]",
+                DiscoveryRarity.Legendary => "[LEGENDARY]",
+                DiscoveryRarity.Epic => "[EPIC]",
+                DiscoveryRarity.Rare => "[RARE]",
                 _ => ""
             };
 
@@ -100,7 +100,7 @@ namespace Laboratory.Chimera.Social.Core
                 _ => "Genetic Breakthrough!"
             };
 
-            return discovery.IsWorldFirst ? $"🏆 WORLD FIRST {typeText}" : $"{rarityPrefix} {typeText}";
+            return discovery.IsWorldFirst ? $"[WORLD FIRST] {typeText}" : $"{rarityPrefix} {typeText}";
         }
 
         private static string GenerateShareDescription(DiscoveryEvent discovery)

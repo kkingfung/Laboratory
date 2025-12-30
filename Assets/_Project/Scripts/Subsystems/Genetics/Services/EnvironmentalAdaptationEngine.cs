@@ -336,7 +336,7 @@ namespace Laboratory.Subsystems.Genetics.Services
         // Molecular-level simulation methods
         private float CalculateMolecularBindingAffinity(float expression, string traitName)
         {
-            // Lennard-Jones potential: V(r) = 4ε[(σ/r)¹² - (σ/r)⁶]
+            // Lennard-Jones potential: V(r) = 4*epsilon*[(sigma/r)^12 - (sigma/r)^6]
             var sigma = GetMolecularSize(traitName); // Molecular size parameter
             var epsilon = GetBindingStrength(traitName); // Binding energy parameter
             var distance = 1f - expression; // Inverse relationship with expression
@@ -366,9 +366,9 @@ namespace Laboratory.Subsystems.Genetics.Services
 
         private float CalculateThermodynamicStability(float expression, float temperature)
         {
-            // Gibbs free energy: ΔG = ΔH - TΔS
+            // Gibbs free energy: deltaG = deltaH - T*deltaS
             var enthalpyChange = -50000f * expression; // J/mol, favorable binding
-            var entropyChange = -100f; // J/(mol·K), loss of conformational freedom
+            var entropyChange = -100f; // J/(mol*K), loss of conformational freedom
             var gibbsEnergy = enthalpyChange - temperature * entropyChange;
 
             // Thermodynamic stability factor
@@ -401,7 +401,7 @@ namespace Laboratory.Subsystems.Genetics.Services
 
         private float GetMolecularSize(string traitName)
         {
-            // Molecular size parameters (Ångströms) based on trait type
+            // Molecular size parameters (Angstroms) based on trait type
             return traitName.ToLower() switch
             {
                 var t when t.Contains("enzyme") => 3.5f,

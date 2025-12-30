@@ -253,31 +253,31 @@ namespace Laboratory.Chimera.Consciousness.UI
 
             // Food preferences
             if (_currentPersonality.FoodLikes.PrefersMeat)
-                preferences.Add(("🥩 Loves meat", true));
+                preferences.Add(("[Meat] Loves meat", true));
             if (_currentPersonality.FoodLikes.PrefersVegetation)
-                preferences.Add(("🌿 Enjoys plants", true));
+                preferences.Add(("[Plant] Enjoys plants", true));
             if (_currentPersonality.FoodLikes.PrefersSweets)
-                preferences.Add(("🍯 Has sweet tooth", true));
+                preferences.Add(("[Sweet] Has sweet tooth", true));
 
             // Activity preferences
             if (_currentPersonality.PreferredActivities.LikesExploring)
-                preferences.Add(("🗺️ Loves exploring", true));
+                preferences.Add(("[Explore] Loves exploring", true));
             if (_currentPersonality.PreferredActivities.LikesSwimming)
-                preferences.Add(("🏊 Enjoys swimming", true));
+                preferences.Add(("[Swim] Enjoys swimming", true));
             if (_currentPersonality.PreferredActivities.LikesClimbing)
-                preferences.Add(("🧗 Likes climbing", true));
+                preferences.Add(("[Climb] Likes climbing", true));
 
             // Social preferences
             if (_currentPersonality.SocialBehavior.PrefersGroups)
-                preferences.Add(("👥 Enjoys company", true));
+                preferences.Add(("[Social] Enjoys company", true));
             else
-                preferences.Add(("🧘 Prefers solitude", true));
+                preferences.Add(("[Solo] Prefers solitude", true));
 
             // Environmental preferences
             if (_currentPersonality.HabitatLikes.PrefersWarmth)
-                preferences.Add(("☀️ Likes warmth", true));
+                preferences.Add(("[Warm] Likes warmth", true));
             if (_currentPersonality.HabitatLikes.LikesWater)
-                preferences.Add(("💧 Loves water", true));
+                preferences.Add(("[Water] Loves water", true));
 
             return preferences;
         }
@@ -313,17 +313,17 @@ namespace Laboratory.Chimera.Consciousness.UI
         {
             return mood switch
             {
-                Laboratory.Chimera.Consciousness.Core.EmotionalState.Depressed => "😢 Depressed",
-                Laboratory.Chimera.Consciousness.Core.EmotionalState.Sad => "😟 Sad",
-                Laboratory.Chimera.Consciousness.Core.EmotionalState.Neutral => "😐 Neutral",
-                Laboratory.Chimera.Consciousness.Core.EmotionalState.Content => "🙂 Content",
-                Laboratory.Chimera.Consciousness.Core.EmotionalState.Happy => "😊 Happy",
-                Laboratory.Chimera.Consciousness.Core.EmotionalState.Excited => "🤩 Excited",
-                Laboratory.Chimera.Consciousness.Core.EmotionalState.Angry => "😡 Angry",
-                Laboratory.Chimera.Consciousness.Core.EmotionalState.Fearful => "😨 Fearful",
-                Laboratory.Chimera.Consciousness.Core.EmotionalState.Playful => "😄 Playful",
-                Laboratory.Chimera.Consciousness.Core.EmotionalState.Loving => "🥰 Loving",
-                _ => "😐 Unknown"
+                Laboratory.Chimera.Consciousness.Core.EmotionalState.Depressed => "[Sad] Depressed",
+                Laboratory.Chimera.Consciousness.Core.EmotionalState.Sad => "[Sad] Sad",
+                Laboratory.Chimera.Consciousness.Core.EmotionalState.Neutral => "[Neutral] Neutral",
+                Laboratory.Chimera.Consciousness.Core.EmotionalState.Content => "[Content] Content",
+                Laboratory.Chimera.Consciousness.Core.EmotionalState.Happy => "[Happy] Happy",
+                Laboratory.Chimera.Consciousness.Core.EmotionalState.Excited => "[Excited] Excited",
+                Laboratory.Chimera.Consciousness.Core.EmotionalState.Angry => "[Angry] Angry",
+                Laboratory.Chimera.Consciousness.Core.EmotionalState.Fearful => "[Fear] Fearful",
+                Laboratory.Chimera.Consciousness.Core.EmotionalState.Playful => "[Play] Playful",
+                Laboratory.Chimera.Consciousness.Core.EmotionalState.Loving => "[Love] Loving",
+                _ => "[Unknown] Unknown"
             };
         }
 

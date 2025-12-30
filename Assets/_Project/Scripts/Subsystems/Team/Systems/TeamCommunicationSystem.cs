@@ -162,7 +162,7 @@ namespace Laboratory.Subsystems.Team.Systems
         {
             // High urgency - alert all team members
 #if UNITY_EDITOR
-            Debug.Log($"⚠️ DANGER ping from team {team.TeamName} at {ping.WorldPosition}");
+            Debug.Log($"[Warning] DANGER ping from team {team.TeamName} at {ping.WorldPosition}");
 #endif
             // Would trigger visual/audio alerts for team members
             // Could integrate with AI to make them more cautious in that area
@@ -172,7 +172,7 @@ namespace Laboratory.Subsystems.Team.Systems
         {
             // Medium urgency - request assistance
 #if UNITY_EDITOR
-            Debug.Log($"🆘 HELP ping from team {team.TeamName} at {ping.WorldPosition}");
+            Debug.Log($"[SOS] HELP ping from team {team.TeamName} at {ping.WorldPosition}");
 #endif
             // Would notify nearest teammates
             // Could integrate with AI to send support
@@ -182,7 +182,7 @@ namespace Laboratory.Subsystems.Team.Systems
         {
             // Tactical - mark objective
 #if UNITY_EDITOR
-            Debug.Log($"🎯 OBJECTIVE ping from team {team.TeamName} at {ping.WorldPosition}");
+            Debug.Log($"[Target] OBJECTIVE ping from team {team.TeamName} at {ping.WorldPosition}");
 #endif
             // Would mark objective on team's shared map/UI
         }
@@ -191,7 +191,7 @@ namespace Laboratory.Subsystems.Team.Systems
         {
             // Tactical command - change formation
 #if UNITY_EDITOR
-            Debug.Log($"📐 FORMATION command for team {team.TeamName}");
+            Debug.Log($"[Formation] FORMATION command for team {team.TeamName}");
 #endif
             // Would trigger formation change for team members
         }
@@ -347,7 +347,7 @@ namespace Laboratory.Subsystems.Team.Systems
             });
 
 #if UNITY_EDITOR
-            Debug.Log($"📍 Ping sent: {pingType} at {worldPosition}");
+            Debug.Log($"[Ping] Ping sent: {pingType} at {worldPosition}");
 #endif
             return true;
         }
@@ -384,7 +384,7 @@ namespace Laboratory.Subsystems.Team.Systems
             });
 
 #if UNITY_EDITOR
-            Debug.Log($"💬 Quick chat: {chatType}");
+            Debug.Log($"[Chat] Quick chat: {chatType}");
 #endif
             return true;
         }
@@ -433,7 +433,7 @@ namespace Laboratory.Subsystems.Team.Systems
             });
 
 #if UNITY_EDITOR
-            Debug.Log($"⚔️ Tactical command: {commandType}");
+            Debug.Log($"[Tactic] Tactical command: {commandType}");
 #endif
             return true;
         }
@@ -442,14 +442,14 @@ namespace Laboratory.Subsystems.Team.Systems
         {
             return type switch
             {
-                CommunicationType.Ping_Danger => new FixedString64Bytes("⚠️ Danger!"),
-                CommunicationType.Ping_Help => new FixedString64Bytes("🆘 Need help!"),
-                CommunicationType.Ping_Objective => new FixedString64Bytes("🎯 Objective here!"),
-                CommunicationType.Ping_Enemy => new FixedString64Bytes("👹 Enemy spotted!"),
-                CommunicationType.Ping_Attack => new FixedString64Bytes("⚔️ Attack here!"),
-                CommunicationType.Ping_Defend => new FixedString64Bytes("🛡️ Defend this!"),
-                CommunicationType.Ping_Retreat => new FixedString64Bytes("🏃 Retreat!"),
-                _ => new FixedString64Bytes("📍 Ping")
+                CommunicationType.Ping_Danger => new FixedString64Bytes("[!] Danger!"),
+                CommunicationType.Ping_Help => new FixedString64Bytes("[SOS] Need help!"),
+                CommunicationType.Ping_Objective => new FixedString64Bytes("[Target] Objective here!"),
+                CommunicationType.Ping_Enemy => new FixedString64Bytes("[Enemy] Enemy spotted!"),
+                CommunicationType.Ping_Attack => new FixedString64Bytes("[Attack] Attack here!"),
+                CommunicationType.Ping_Defend => new FixedString64Bytes("[Defend] Defend this!"),
+                CommunicationType.Ping_Retreat => new FixedString64Bytes("[Retreat] Retreat!"),
+                _ => new FixedString64Bytes("[Ping] Ping")
             };
         }
 
@@ -457,13 +457,13 @@ namespace Laboratory.Subsystems.Team.Systems
         {
             return type switch
             {
-                CommunicationType.Chat_Yes => new FixedString64Bytes("✓ Yes"),
-                CommunicationType.Chat_No => new FixedString64Bytes("✗ No"),
-                CommunicationType.Chat_Thanks => new FixedString64Bytes("🙏 Thanks!"),
-                CommunicationType.Chat_Sorry => new FixedString64Bytes("😅 Sorry!"),
-                CommunicationType.Chat_Good_Job => new FixedString64Bytes("👍 Good job!"),
-                CommunicationType.Chat_Need_Help => new FixedString64Bytes("🆘 Need help!"),
-                _ => new FixedString64Bytes("💬 ...")
+                CommunicationType.Chat_Yes => new FixedString64Bytes("[OK] Yes"),
+                CommunicationType.Chat_No => new FixedString64Bytes("[X] No"),
+                CommunicationType.Chat_Thanks => new FixedString64Bytes("[Thanks] Thanks!"),
+                CommunicationType.Chat_Sorry => new FixedString64Bytes("[Sorry] Sorry!"),
+                CommunicationType.Chat_Good_Job => new FixedString64Bytes("[Good] Good job!"),
+                CommunicationType.Chat_Need_Help => new FixedString64Bytes("[SOS] Need help!"),
+                _ => new FixedString64Bytes("[Chat] ...")
             };
         }
 
@@ -471,12 +471,12 @@ namespace Laboratory.Subsystems.Team.Systems
         {
             return type switch
             {
-                CommunicationType.Command_Follow => new FixedString64Bytes("➡️ Follow me!"),
-                CommunicationType.Command_Hold => new FixedString64Bytes("✋ Hold position!"),
-                CommunicationType.Command_Advance => new FixedString64Bytes("⬆️ Advance!"),
-                CommunicationType.Command_Regroup => new FixedString64Bytes("🔄 Regroup!"),
-                CommunicationType.Command_Formation => new FixedString64Bytes("📐 Formation!"),
-                _ => new FixedString64Bytes("📣 Command")
+                CommunicationType.Command_Follow => new FixedString64Bytes("[Follow] Follow me!"),
+                CommunicationType.Command_Hold => new FixedString64Bytes("[Hold] Hold position!"),
+                CommunicationType.Command_Advance => new FixedString64Bytes("[Advance] Advance!"),
+                CommunicationType.Command_Regroup => new FixedString64Bytes("[Regroup] Regroup!"),
+                CommunicationType.Command_Formation => new FixedString64Bytes("[Formation] Formation!"),
+                _ => new FixedString64Bytes("[Command] Command")
             };
         }
 

@@ -17,13 +17,13 @@ namespace ProjectChimera.ErrorHandling
     /// </summary>
     public class ChimeraErrorMonitor : MonoBehaviour
     {
-        [Header("🛡️ Error Monitoring Settings")]
+        [Header("[Shield] Error Monitoring Settings")]
         [SerializeField] private bool enableErrorCapture = true;
         [SerializeField] private bool logToFile = true;
         [SerializeField] private bool showErrorNotifications = true;
         [SerializeField] private int maxStoredErrors = 100;
-        
-        [Header("📊 Performance Monitoring")]
+
+        [Header("[Chart] Performance Monitoring")]
         [SerializeField] private bool monitorFrameRate = true;
         [SerializeField] private float fpsWarningThreshold = 30f;
         [SerializeField] private bool monitorMemory = true;
@@ -110,8 +110,8 @@ namespace ProjectChimera.ErrorHandling
         {
             try
             {
-                Debug.Log("🛡️ Initializing Chimera Error Monitor...");
-                
+                Debug.Log("[Shield] Initializing Chimera Error Monitor...");
+
                 // Set up log file
                 if (logToFile)
                 {
@@ -120,25 +120,25 @@ namespace ProjectChimera.ErrorHandling
                     {
                         Directory.CreateDirectory(logDirectory);
                     }
-                    
+
                     string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
                     logFilePath = Path.Combine(logDirectory, $"chimera_errors_{timestamp}.log");
-                    
+
                     WriteToLogFile($"=== Project Chimera Error Log Started at {DateTime.Now} ===");
                 }
-                
+
                 // Enable error capture
                 if (enableErrorCapture)
                 {
                     EnableErrorCapture();
                 }
-                
-                Debug.Log("✅ Error Monitor initialized successfully!");
-                Debug.Log($"📁 Log file: {logFilePath}");
+
+                Debug.Log("[OK] Error Monitor initialized successfully!");
+                Debug.Log($"[File] Log file: {logFilePath}");
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Failed to initialize error monitor: {e.Message}");
+                Debug.LogError($"[X] Failed to initialize error monitor: {e.Message}");
             }
         }
 
@@ -147,11 +147,11 @@ namespace ProjectChimera.ErrorHandling
             try
             {
                 Application.logMessageReceived += HandleLog;
-                Debug.Log("🎯 Error capture enabled");
+                Debug.Log("[Target] Error capture enabled");
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Failed to enable error capture: {e.Message}");
+                Debug.LogError($"[X] Failed to enable error capture: {e.Message}");
             }
         }
 
@@ -165,12 +165,12 @@ namespace ProjectChimera.ErrorHandling
                 {
                     WriteToLogFile($"=== Error Log Ended at {DateTime.Now} ===");
                 }
-                
-                Debug.Log("🛑 Error capture disabled");
+
+                Debug.Log("[Stop] Error capture disabled");
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Failed to disable error capture: {e.Message}");
+                Debug.LogError($"[X] Failed to disable error capture: {e.Message}");
             }
         }
 
@@ -241,8 +241,8 @@ namespace ProjectChimera.ErrorHandling
             // Track warnings for patterns that might indicate upcoming errors
             if (IsWarningCritical(message))
             {
-                Debug.Log($"⚠️ Critical warning detected: {message}");
-                
+                Debug.Log($"[Warning] Critical warning detected: {message}");
+
                 if (logToFile)
                 {
                     WriteToLogFile($"[WARNING] {DateTime.Now:HH:mm:ss} - {message}");
@@ -298,7 +298,7 @@ namespace ProjectChimera.ErrorHandling
             // Warning for frequent errors
             if (errorFrequency[simplifiedMessage] > 5)
             {
-                Debug.LogWarning($"🚨 Frequent error detected ({errorFrequency[simplifiedMessage]} times): {simplifiedMessage}");
+                Debug.LogWarning($"[Alert] Frequent error detected ({errorFrequency[simplifiedMessage]} times): {simplifiedMessage}");
             }
         }
 
@@ -339,13 +339,13 @@ namespace ProjectChimera.ErrorHandling
 
         private void HandleCriticalError(ErrorReport error)
         {
-            Debug.LogError($"💥 CRITICAL ERROR DETECTED: {error.message}");
-            
+            Debug.LogError($"[Critical] CRITICAL ERROR DETECTED: {error.message}");
+
             // Try to provide helpful suggestions
             string suggestion = GetErrorSuggestion(error.message);
             if (!string.IsNullOrEmpty(suggestion))
             {
-                Debug.Log($"💡 Suggestion: {suggestion}");
+                Debug.Log($"[Tip] Suggestion: {suggestion}");
             }
             
             if (logToFile)
@@ -414,8 +414,8 @@ namespace ProjectChimera.ErrorHandling
             {
                 string warning = $"High memory usage: {memoryUsage}MB (threshold: {memoryWarningThresholdMB}MB)";
                 OnPerformanceWarning?.Invoke(warning);
-                
-                Debug.LogWarning($"🐏 {warning}");
+
+                Debug.LogWarning($"[Memory] {warning}");
                 
                 if (logToFile)
                 {
@@ -423,7 +423,7 @@ namespace ProjectChimera.ErrorHandling
                 }
                 
                 // Suggest garbage collection
-                Debug.Log("💡 Consider calling GC.Collect() or reviewing object lifecycle");
+                Debug.Log("[Tip] Consider calling GC.Collect() or reviewing object lifecycle");
             }
         }
 
@@ -479,7 +479,7 @@ namespace ProjectChimera.ErrorHandling
         {
             // In a real implementation, this could show a UI notification
             // For now, we'll use a distinctive console message
-            Debug.Log($"🔔 ERROR NOTIFICATION: {error.message.Substring(0, Mathf.Min(100, error.message.Length))}...");
+            Debug.Log($"[Notification] ERROR NOTIFICATION: {error.message.Substring(0, Mathf.Min(100, error.message.Length))}...");
         }
 
         #endregion
@@ -500,7 +500,7 @@ namespace ProjectChimera.ErrorHandling
         {
             storedErrors.Clear();
             errorFrequency.Clear();
-            Debug.Log("🧹 Cleared error history");
+            Debug.Log("[Clean] Cleared error history");
         }
 
         public void ExportErrorReport()
@@ -530,7 +530,7 @@ namespace ProjectChimera.ErrorHandling
                 }
                 
                 File.WriteAllText(reportPath, report.ToString());
-                Debug.Log($"📊 Error report exported to: {reportPath}");
+                Debug.Log($"[Chart] Error report exported to: {reportPath}");
                 
                 #if UNITY_EDITOR
                 EditorUtility.RevealInFinder(reportPath);
@@ -538,7 +538,7 @@ namespace ProjectChimera.ErrorHandling
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Failed to export error report: {e.Message}");
+                Debug.LogError($"[X] Failed to export error report: {e.Message}");
             }
         }
 
@@ -547,13 +547,13 @@ namespace ProjectChimera.ErrorHandling
         #region Editor Menu Items
 
         #if UNITY_EDITOR
-        [MenuItem("🧪 Laboratory/Project Chimera/Error Monitor/Show Recent Errors")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Error Monitor/Show Recent Errors")]
         public static void ShowRecentErrors()
         {
             if (Instance != null)
             {
                 var errors = Instance.GetStoredErrors();
-                Debug.Log($"📋 Recent errors ({errors.Count}):");
+                Debug.Log($"[List] Recent errors ({errors.Count}):");
                 
                 foreach (var error in errors.TakeLast(10))
                 {
@@ -562,7 +562,7 @@ namespace ProjectChimera.ErrorHandling
             }
         }
 
-        [MenuItem("🧪 Laboratory/Project Chimera/Error Monitor/Export Error Report")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Error Monitor/Export Error Report")]
         public static void ExportErrorReportMenu()
         {
             if (Instance != null)
@@ -571,7 +571,7 @@ namespace ProjectChimera.ErrorHandling
             }
         }
 
-        [MenuItem("🧪 Laboratory/Project Chimera/Error Monitor/Clear Error History")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Error Monitor/Clear Error History")]
         public static void ClearErrorHistoryMenu()
         {
             if (Instance != null)
@@ -580,7 +580,7 @@ namespace ProjectChimera.ErrorHandling
             }
         }
 
-        [MenuItem("🧪 Laboratory/Project Chimera/Error Monitor/Open Log Folder")]
+        [MenuItem("[Lab] Laboratory/Project Chimera/Error Monitor/Open Log Folder")]
         public static void OpenLogFolder()
         {
             string logPath = Path.Combine(Application.persistentDataPath, "ChimeraLogs");
@@ -590,7 +590,7 @@ namespace ProjectChimera.ErrorHandling
             }
             else
             {
-                Debug.LogWarning("⚠️ Log folder doesn't exist yet");
+                Debug.LogWarning("[Warning] Log folder doesn't exist yet");
             }
         }
         #endif

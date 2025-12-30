@@ -17,34 +17,34 @@ namespace Laboratory.Chimera.Spawning
     /// </summary>
     public class CreatureSpawnerAuthoring : MonoBehaviour
     {
-        [Header("🎯 Spawning Configuration")]
+        [Header("[CONFIG] Spawning Configuration")]
         [SerializeField] public Laboratory.Core.Configuration.ChimeraGameConfig gameConfig;
         [SerializeField] public SpawnMode spawnMode = SpawnMode.OnStart;
 
-        [Header("📊 Population Settings")]
+        [Header("[POPULATION] Population Settings")]
         [SerializeField] [Range(1, 1000)] public int targetPopulation = 50;
         [SerializeField] [Range(0f, 100f)] public float spawnRadius = 50f;
         [SerializeField] public LayerMask groundLayer = 1;
 
-        [Header("🧬 Species Distribution")]
+        [Header("[SPECIES] Species Distribution")]
         [SerializeField] public SpeciesSpawnWeight[] speciesWeights = new SpeciesSpawnWeight[0];
 
-        [Header("⚡ Performance")]
+        [Header("[PERF] Performance")]
         [SerializeField] [Range(1, 100)] public int spawnBatchSize = 10;
         [SerializeField] [Range(0.1f, 5f)] public float spawnInterval = 0.1f;
         [SerializeField] public bool enableContinuousSpawning = false;
         [SerializeField] [Range(10f, 300f)] public float respawnCheckInterval = 30f;
 
-        [Header("🎨 Randomization")]
+        [Header("[RANDOM] Randomization")]
         [SerializeField] public bool randomizeGenetics = true;
         [SerializeField] public bool randomizeAI = true;
         [SerializeField] [Range(0.1f, 2f)] public float scaleVariation = 0.2f;
 
-        [Header("📍 Spawn Areas")]
+        [Header("[AREA] Spawn Areas")]
         [SerializeField] public Transform[] spawnPoints = new Transform[0];
         [SerializeField] public bool useSpawnPointsOnly = false;
 
-        [Header("📊 Runtime Status")]
+        [Header("[STATUS] Runtime Status")]
         [SerializeField] private int currentPopulation = 0;
         [SerializeField] private int totalSpawned = 0;
         [SerializeField] private bool spawningInProgress = false;
@@ -111,7 +111,7 @@ namespace Laboratory.Chimera.Spawning
                 isActive = true
             });
 
-            UnityEngine.Debug.Log($"✅ CreatureSpawner '{name}' initialized with {speciesWeights.Length} species types");
+            UnityEngine.Debug.Log($"[OK] CreatureSpawner '{name}' initialized with {speciesWeights.Length} species types");
         }
 
         private void AutoConfigureSpeciesWeights()
@@ -140,7 +140,7 @@ namespace Laboratory.Chimera.Spawning
         private IEnumerator SpawnInitialPopulation()
         {
             spawningInProgress = true;
-            UnityEngine.Debug.Log($"🐾 Starting initial population spawn: {targetPopulation} creatures");
+            UnityEngine.Debug.Log($"[SPAWN] Starting initial population spawn: {targetPopulation} creatures");
 
             int spawned = 0;
             while (spawned < targetPopulation)
@@ -170,7 +170,7 @@ namespace Laboratory.Chimera.Spawning
             }
 
             spawningInProgress = false;
-            UnityEngine.Debug.Log($"✅ Initial population spawning complete: {spawned} creatures spawned");
+            UnityEngine.Debug.Log($"[OK] Initial population spawning complete: {spawned} creatures spawned");
         }
 
         private IEnumerator ContinuousSpawningLoop()

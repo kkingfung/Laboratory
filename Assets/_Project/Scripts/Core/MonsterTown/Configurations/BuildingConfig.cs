@@ -438,11 +438,11 @@ namespace Laboratory.Core.MonsterTown
             OnValidate();
             if (IsValid())
             {
-                Debug.Log($"✅ {buildingName} building configuration is valid!");
+                Debug.Log($"[OK] {buildingName} building configuration is valid!");
             }
             else
             {
-                Debug.LogError($"❌ {buildingName} building configuration has errors!");
+                Debug.LogError($"[X] {buildingName} building configuration has errors!");
             }
         }
 
@@ -460,7 +460,7 @@ namespace Laboratory.Core.MonsterTown
 
             OnValidate();
             UnityEditor.EditorUtility.SetDirty(this);
-            Debug.Log($"🔄 {buildingName} reset to default values");
+            Debug.Log($"[Reset] {buildingName} reset to default values");
         }
 
         [ContextMenu("Auto-Configure Activity Center")]
@@ -475,7 +475,7 @@ namespace Laboratory.Core.MonsterTown
 
                 OnValidate();
                 UnityEditor.EditorUtility.SetDirty(this);
-                Debug.Log($"🎮 {buildingName} configured as activity center");
+                Debug.Log($"[Config] {buildingName} configured as activity center");
             }
             else
             {

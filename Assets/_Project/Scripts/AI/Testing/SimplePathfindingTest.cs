@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using ProjectChimera.AI.Pathfinding;
 using ProjectChimera.AI.Agents;
 
@@ -31,25 +31,25 @@ namespace ProjectChimera.AI.Testing
             // Test 1: Check if Enhanced Pathfinding System exists
             if (EnhancedPathfindingSystem.Instance != null)
             {
-                Debug.Log("✅ Enhanced Pathfinding System found!");
+                Debug.Log("[AI] Enhanced Pathfinding System found!");
                 var system = EnhancedPathfindingSystem.Instance;
-                Debug.Log($"📊 System Status - Agents: {system.RegisteredAgentCount}, Cached: {system.CachedPathCount}");
+                Debug.Log($"[AI] System Status - Agents: {system.RegisteredAgentCount}, Cached: {system.CachedPathCount}");
             }
             else
             {
-                Debug.LogError("❌ Enhanced Pathfinding System NOT found!");
-                Debug.Log("💡 Create an empty GameObject and add the PathfindingSystemSetup component, then click 'Setup Pathfinding System'");
+                Debug.LogError("[AI] Enhanced Pathfinding System NOT found!");
+                Debug.Log("[AI] Create an empty GameObject and add the PathfindingSystemSetup component, then click 'Setup Pathfinding System'");
                 return;
             }
 
             // Test 2: Check NavMesh
             if (UnityEngine.AI.NavMesh.SamplePosition(transform.position, out var hit, 10f, UnityEngine.AI.NavMesh.AllAreas))
             {
-                Debug.Log("✅ NavMesh found and accessible!");
+                Debug.Log("[AI] NavMesh found and accessible!");
             }
             else
             {
-                Debug.LogError("❌ NavMesh not found! Please bake NavMesh: Window → AI → Navigation → Bake");
+                Debug.LogError("[AI] NavMesh not found! Please bake NavMesh: Window �� AI �� Navigation �� Bake");
                 return;
             }
 
@@ -59,12 +59,12 @@ namespace ProjectChimera.AI.Testing
                 CreateAndTestAgent();
             }
 
-            Debug.Log("🎉 Basic test completed!");
+            Debug.Log("[AI] Basic test completed!");
         }
 
         private void CreateAndTestAgent()
         {
-            Debug.Log("🤖 Creating test agent...");
+            Debug.Log("[AI] Creating test agent...");
 
             // Create test agent GameObject
             GameObject testAgent = GameObject.CreatePrimitive(PrimitiveType.Capsule);
@@ -87,7 +87,7 @@ namespace ProjectChimera.AI.Testing
             {
                 destination = hit.position;
                 enhancedAgent.SetDestination(destination);
-                Debug.Log($"✅ Test agent created and moving to: {destination}");
+                Debug.Log($"[AI] Test agent created and moving to: {destination}");
                 
                 // Add a colored material for visibility
                 var renderer = testAgent.GetComponent<Renderer>();
@@ -98,7 +98,7 @@ namespace ProjectChimera.AI.Testing
             }
             else
             {
-                Debug.LogWarning("⚠️ Could not find valid destination for test agent");
+                Debug.LogWarning("[AI] Could not find valid destination for test agent");
                 DestroyImmediate(testAgent);
             }
         }
@@ -118,7 +118,7 @@ namespace ProjectChimera.AI.Testing
                 }
             }
 
-            Debug.Log($"🧹 Cleaned up {cleaned} test agents");
+            Debug.Log($"[AI] Cleaned up {cleaned} test agents");
         }
 
         [ContextMenu("Show Pathfinding System Status")]
@@ -126,20 +126,20 @@ namespace ProjectChimera.AI.Testing
         {
             if (EnhancedPathfindingSystem.Instance == null)
             {
-                Debug.LogError("❌ Enhanced Pathfinding System not found!");
+                Debug.LogError("[AI] Enhanced Pathfinding System not found!");
                 return;
             }
 
             var system = EnhancedPathfindingSystem.Instance;
             Debug.Log("=== Enhanced Pathfinding System Status ===");
-            Debug.Log($"📊 Registered Agents: {system.RegisteredAgentCount}");
-            Debug.Log($"⏳ Pending Requests: {system.PendingRequestCount}");
-            Debug.Log($"💾 Cached Paths: {system.CachedPathCount}");
-            Debug.Log($"📈 Total Paths Calculated: {system.TotalPathsCalculated}");
+            Debug.Log($"[AI] Registered Agents: {system.RegisteredAgentCount}");
+            Debug.Log($"[AI] Pending Requests: {system.PendingRequestCount}");
+            Debug.Log($"[AI] Cached Paths: {system.CachedPathCount}");
+            Debug.Log($"[AI] Total Paths Calculated: {system.TotalPathsCalculated}");
 
             // List all enhanced agents
             var agents = FindObjectsByType<EnhancedAIAgent>(FindObjectsSortMode.None);
-            Debug.Log($"🤖 Enhanced AI Agents in scene: {agents.Length}");
+            Debug.Log($"[AI] Enhanced AI Agents in scene: {agents.Length}");
             
             foreach (var agent in agents)
             {
@@ -161,14 +161,14 @@ namespace ProjectChimera.AI.Testing
             if (EnhancedPathfindingSystem.Instance != null)
             {
                 var system = EnhancedPathfindingSystem.Instance;
-                GUILayout.Label($"✅ System: Active");
+                GUILayout.Label($"System: Active");
                 GUILayout.Label($"Agents: {system.RegisteredAgentCount}");
                 GUILayout.Label($"Pending: {system.PendingRequestCount}");
                 GUILayout.Label($"Cached: {system.CachedPathCount}");
             }
             else
             {
-                GUILayout.Label("❌ System: Not Found");
+                GUILayout.Label("System: Not Found");
             }
 
             if (GUILayout.Button("Run Test"))

@@ -61,7 +61,7 @@ namespace Laboratory.Core.Discovery.Services
             };
 
             playerProjects.Add(project);
-            Debug.Log($"🔬 Started research project: {project.Title}");
+            Debug.Log($"[Research] Started research project: {project.Title}");
             return true;
         }
 
@@ -136,7 +136,7 @@ namespace Laboratory.Core.Discovery.Services
                 $"Research Complete: {project.Title}", content, project);
 
             discoverySystem.TriggerResearchProjectCompleted(playerId, project.ProjectId);
-            Debug.Log($"✅ Research project completed: {project.Title}");
+            Debug.Log($"[Complete] Research project completed: {project.Title}");
         }
 
         private List<string> GenerateResearchFindings(ResearchProject project)
@@ -238,7 +238,7 @@ namespace Laboratory.Core.Discovery.Services
         private void CreateDefaultResearchProjects()
         {
             // Initialize with some default research projects
-            Debug.Log("🔬 Research project service initialized with default projects");
+            Debug.Log("[Research] Research project service initialized with default projects");
         }
     }
 }

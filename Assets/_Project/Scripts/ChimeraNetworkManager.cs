@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -16,19 +16,19 @@ namespace ProjectChimera.Networking
     /// </summary>
     public class ChimeraNetworkManager : MonoBehaviour
     {
-        [Header("🌐 Network Settings")]
+        [Header("[Network] Network Settings")]
         [SerializeField] private bool autoStartNetwork = false;
         [SerializeField] private int maxPlayers = 50;
         [SerializeField] private string serverIP = "127.0.0.1";
         [SerializeField] private ushort serverPort = 7777;
         [SerializeField] private bool enableRelayService = false;
         
-        [Header("🐲 Monster Network Settings")]
+        [Header("[Monster] Monster Network Settings")]
         [SerializeField] private int maxMonstersPerPlayer = 20;
         [SerializeField] private float monsterSyncRate = 20f; // Updates per second
         [SerializeField] private bool enableMonsterPrediction = true;
         
-        [Header("🛡️ Safety Settings")]
+        [Header("[Shield] Safety Settings")]
         [SerializeField] private bool logNetworkEvents = true;
         [SerializeField] private float connectionTimeout = 30f;
         [SerializeField] private int maxReconnectAttempts = 3;
@@ -101,7 +101,7 @@ namespace ProjectChimera.Networking
         /// </summary>
         private void ValidateConfigurationFields()
         {
-            Debug.Log($"🔧 ChimeraNetworkManager Configuration:\n" +
+            Debug.Log($"[Tool] ChimeraNetworkManager Configuration:\n" +
                      $"   Monster Sync Rate: {monsterSyncRate}Hz\n" +
                      $"   Max Monsters Per Player: {maxMonstersPerPlayer}\n" +
                      $"   Enable Relay Service: {enableRelayService}\n" +
@@ -140,17 +140,17 @@ namespace ProjectChimera.Networking
         {
             try
             {
-                Debug.Log("🌐 Initializing Chimera Network Manager...");
+                Debug.Log("[Network] Initializing Chimera Network Manager...");
                 
                 #if UNITY_NETCODE_GAMEOBJECTS
                 SetupNetcodeCallbacks();
                 #else
-                Debug.LogWarning("⚠️ Unity Netcode for GameObjects not installed. Multiplayer disabled.");
+                Debug.LogWarning("[Warning] Unity Netcode for GameObjects not installed. Multiplayer disabled.");
                 LogNetworkError("Netcode package missing - install from Package Manager");
                 #endif
                 
                 isNetworkInitialized = true;
-                Debug.Log("✅ Network Manager initialized");
+                Debug.Log("[OK] Network Manager initialized");
             }
             catch (Exception e)
             {
@@ -166,7 +166,7 @@ namespace ProjectChimera.Networking
                 NetworkManager netManager = NetworkManager.Singleton;
                 if (netManager == null)
                 {
-                    Debug.LogWarning("⚠️ No NetworkManager found in scene. Adding one...");
+                    Debug.LogWarning("[Warning] No NetworkManager found in scene. Adding one...");
                     GameObject netGO = new GameObject("NetworkManager");
                     netManager = netGO.AddComponent<NetworkManager>();
                     
@@ -180,7 +180,7 @@ namespace ProjectChimera.Networking
                 netManager.OnServerStarted += OnServerStarted;
                 netManager.OnClientStarted += OnClientStarted;
                 
-                Debug.Log("✅ Netcode callbacks configured");
+                Debug.Log("[OK] Netcode callbacks configured");
             }
             catch (Exception e)
             {
@@ -217,20 +217,20 @@ namespace ProjectChimera.Networking
                 {
                     if (logNetworkEvents)
                     {
-                        Debug.Log($"🌐 Relay service enabled - Max players: {maxPlayers}, Server: {serverIP}:{serverPort}");
+                        Debug.Log($"[Network] Relay service enabled - Max players: {maxPlayers}, Server: {serverIP}:{serverPort}");
                     }
-                    Debug.Log("🌐 Relay service enabled - Initializing Unity Relay...");
+                    Debug.Log("[Network] Relay service enabled - Initializing Unity Relay...");
                     StartCoroutine(InitializeUnityRelay());
                 }
                 else
                 {
                     if (logNetworkEvents)
                     {
-                        Debug.Log($"🌐 Relay service disabled - Direct connection to {serverIP}:{serverPort}");
+                        Debug.Log($"[Network] Relay service disabled - Direct connection to {serverIP}:{serverPort}");
                     }
                 }
 
-                Debug.Log($"🔧 NetworkManager configured - Server: {serverIP}:{serverPort}, MonsterSync: {monsterSyncRate}Hz, Prediction: {enableMonsterPrediction}, Relay: {enableRelayService}");
+                Debug.Log($"[Tool] NetworkManager configured - Server: {serverIP}:{serverPort}, MonsterSync: {monsterSyncRate}Hz, Prediction: {enableMonsterPrediction}, Relay: {enableRelayService}");
             }
             catch (Exception e)
             {
@@ -244,7 +244,7 @@ namespace ProjectChimera.Networking
             GameObject prefab = Resources.Load<GameObject>("ChimeraPlayer");
             if (prefab == null)
             {
-                Debug.LogWarning("⚠️ No ChimeraPlayer prefab found. Creating basic prefab...");
+                Debug.LogWarning("[Warning] No ChimeraPlayer prefab found. Creating basic prefab...");
                 return CreateBasicPlayerPrefab();
             }
             return prefab;
@@ -295,11 +295,11 @@ namespace ProjectChimera.Networking
 
                 if (netManager.IsServer || netManager.IsClient)
                 {
-                    Debug.LogWarning("⚠️ Network already running");
+                    Debug.LogWarning("[Warning] Network already running");
                     return;
                 }
 
-                Debug.Log("🎯 Starting as Host...");
+                Debug.Log("[Target] Starting as Host...");
                 isConnecting = true;
                 
                 bool success = netManager.StartHost();
@@ -337,7 +337,7 @@ namespace ProjectChimera.Networking
                     return;
                 }
 
-                Debug.Log("🖥️ Starting dedicated server...");
+                Debug.Log("[Server] Starting dedicated server...");
                 isConnecting = true;
                 
                 bool success = netManager.StartServer();
@@ -375,7 +375,7 @@ namespace ProjectChimera.Networking
                     return;
                 }
 
-                Debug.Log($"🔌 Connecting to server {serverIP}:{serverPort}...");
+                Debug.Log($"[Connect] Connecting to server {serverIP}:{serverPort}...");
                 isConnecting = true;
                 lastConnectionAttempt = Time.time;
                 
@@ -404,7 +404,7 @@ namespace ProjectChimera.Networking
                 NetworkManager netManager = NetworkManager.Singleton;
                 if (netManager != null)
                 {
-                    Debug.Log("🛑 Stopping network...");
+                    Debug.Log("[Stop] Stopping network...");
                     netManager.Shutdown();
                     
                     OnNetworkStatusChanged?.Invoke(false);
@@ -430,7 +430,7 @@ namespace ProjectChimera.Networking
         {
             try
             {
-                Debug.Log("🎉 Server started successfully!");
+                Debug.Log("[Celebrate] Server started successfully!");
                 isConnecting = false;
                 OnNetworkStatusChanged?.Invoke(true);
             }
@@ -444,7 +444,7 @@ namespace ProjectChimera.Networking
         {
             try
             {
-                Debug.Log("🎉 Client connected successfully!");
+                Debug.Log("[Celebrate] Client connected successfully!");
                 isConnecting = false;
                 reconnectAttempts = 0;
                 OnNetworkStatusChanged?.Invoke(true);
@@ -459,7 +459,7 @@ namespace ProjectChimera.Networking
         {
             try
             {
-                Debug.Log($"👤 Player {clientId} joined the monster realm!");
+                Debug.Log($"[Player] Player {clientId} joined the monster realm!");
                 
                 // Add player data
                 connectedPlayers[clientId] = new ChimeraPlayerData
@@ -476,7 +476,7 @@ namespace ProjectChimera.Networking
                 
                 if (logNetworkEvents)
                 {
-                    Debug.Log($"📊 Total players: {connectedPlayers.Count}/{maxPlayers}");
+                    Debug.Log($"[Stats] Total players: {connectedPlayers.Count}/{maxPlayers}");
                 }
             }
             catch (Exception e)
@@ -489,7 +489,7 @@ namespace ProjectChimera.Networking
         {
             try
             {
-                Debug.Log($"👋 Player {clientId} left the monster realm");
+                Debug.Log($"[Leave] Player {clientId} left the monster realm");
                 
                 // Clean up player data
                 if (connectedPlayers.ContainsKey(clientId))
@@ -508,7 +508,7 @@ namespace ProjectChimera.Networking
                 
                 if (logNetworkEvents)
                 {
-                    Debug.Log($"📊 Remaining players: {connectedPlayers.Count}");
+                    Debug.Log($"[Stats] Remaining players: {connectedPlayers.Count}");
                 }
             }
             catch (Exception e)
@@ -543,11 +543,11 @@ namespace ProjectChimera.Networking
                 
                 if (approve)
                 {
-                    Debug.Log($"✅ Connection approved for {request.ClientNetworkId}");
+                    Debug.Log($"[OK] Connection approved for {request.ClientNetworkId}");
                 }
                 else
                 {
-                    Debug.Log($"❌ Connection denied for {request.ClientNetworkId}: {reason}");
+                    Debug.Log($"[X] Connection denied for {request.ClientNetworkId}: {reason}");
                 }
             }
             catch (Exception e)
@@ -577,7 +577,7 @@ namespace ProjectChimera.Networking
 
                 if (reconnectAttempts < maxReconnectAttempts)
                 {
-                    Debug.Log($"🔄 Will retry connection ({reconnectAttempts + 1}/{maxReconnectAttempts})");
+                    Debug.Log($"[Refresh] Will retry connection ({reconnectAttempts + 1}/{maxReconnectAttempts})");
                 }
             }
             #endif
@@ -616,7 +616,7 @@ namespace ProjectChimera.Networking
         {
             if (logNetworkEvents)
             {
-                Debug.Log($"🖥️ Server running on {serverIP}:{serverPort} with {connectedPlayers.Count}/{maxPlayers} players");
+                Debug.Log($"[Server] Server running on {serverIP}:{serverPort} with {connectedPlayers.Count}/{maxPlayers} players");
             }
         }
 
@@ -635,7 +635,7 @@ namespace ProjectChimera.Networking
                 {
                     if (logNetworkEvents)
                     {
-                        Debug.Log($"🐲 Updating monster sync rate to {targetTickRate}Hz (prediction: {enableMonsterPrediction})");
+                        Debug.Log($"[Monster] Updating monster sync rate to {targetTickRate}Hz (prediction: {enableMonsterPrediction})");
                     }
                 }
             }
@@ -652,7 +652,7 @@ namespace ProjectChimera.Networking
                 if (netManager != null && !netManager.IsConnectedClient && !netManager.IsServer)
                 {
                     reconnectAttempts++;
-                    Debug.Log($"🔄 Reconnection attempt {reconnectAttempts}/{maxReconnectAttempts}");
+                    Debug.Log($"[Refresh] Reconnection attempt {reconnectAttempts}/{maxReconnectAttempts}");
                     StartAsClient();
                 }
                 #endif
@@ -665,13 +665,13 @@ namespace ProjectChimera.Networking
 
         private IEnumerator InitializeUnityRelay()
         {
-            Debug.Log("🌐 Initializing Unity Relay service...");
+            Debug.Log("[Network] Initializing Unity Relay service...");
 
             // Check if Unity Relay is available
             var relayType = System.Type.GetType("Unity.Services.Relay.RelayService, Unity.Services.Relay");
             if (relayType == null)
             {
-                Debug.LogWarning("⚠️ Unity Relay package not installed. Install from Package Manager for cloud multiplayer.");
+                Debug.LogWarning("[Warning] Unity Relay package not installed. Install from Package Manager for cloud multiplayer.");
                 yield break;
             }
 
@@ -683,7 +683,7 @@ namespace ProjectChimera.Networking
 
             try
             {
-                Debug.Log("✅ Unity Relay initialization completed");
+                Debug.Log("[OK] Unity Relay initialization completed");
             }
             catch (Exception e)
             {
@@ -693,7 +693,7 @@ namespace ProjectChimera.Networking
 
         private IEnumerator InitializeUnityServices()
         {
-            Debug.Log("🔧 Initializing Unity Gaming Services...");
+            Debug.Log("[Tool] Initializing Unity Gaming Services...");
 
             // This would initialize Unity Gaming Services if available
             // var options = new InitializationOptions();
@@ -703,7 +703,7 @@ namespace ProjectChimera.Networking
 
             try
             {
-                Debug.Log("✅ Unity Gaming Services initialized");
+                Debug.Log("[OK] Unity Gaming Services initialized");
             }
             catch (Exception e)
             {
@@ -713,7 +713,7 @@ namespace ProjectChimera.Networking
 
         private IEnumerator CreateRelayAllocation()
         {
-            Debug.Log("🎯 Creating relay allocation...");
+            Debug.Log("[Target] Creating relay allocation...");
 
             // This would create a relay allocation if Unity Relay is available
             // var allocation = await RelayService.Instance.CreateAllocationAsync(maxPlayers);
@@ -724,7 +724,7 @@ namespace ProjectChimera.Networking
             try
             {
                 string mockJoinCode = "MOCK123";
-                Debug.Log($"🎉 Relay allocation created! Join code: {mockJoinCode}");
+                Debug.Log($"[Celebrate] Relay allocation created! Join code: {mockJoinCode}");
 
                 // Update transport with relay server data
                 UpdateTransportWithRelayData("relay.mock.server", 7777);
@@ -747,7 +747,7 @@ namespace ProjectChimera.Networking
                     if (transport != null)
                     {
                         transport.SetConnectionData(serverIP, port);
-                        Debug.Log($"🔗 Transport updated with relay server: {serverIP}:{port}");
+                        Debug.Log($"[Link] Transport updated with relay server: {serverIP}:{port}");
                     }
                 }
             }
@@ -770,7 +770,7 @@ namespace ProjectChimera.Networking
                 // Basic validation checks
                 if (request.Payload == null || request.Payload.Length == 0)
                 {
-                    Debug.LogWarning($"⚠️ Player {request.ClientNetworkId} sent empty authentication payload");
+                    Debug.LogWarning($"[Warning] Player {request.ClientNetworkId} sent empty authentication payload");
                     return false;
                 }
 
@@ -780,14 +780,14 @@ namespace ProjectChimera.Networking
 
                 if (playerAuth == null)
                 {
-                    Debug.LogWarning($"⚠️ Invalid authentication data from player {request.ClientNetworkId}");
+                    Debug.LogWarning($"[Warning] Invalid authentication data from player {request.ClientNetworkId}");
                     return false;
                 }
 
                 // Validate player name
                 if (string.IsNullOrEmpty(playerAuth.playerName) || playerAuth.playerName.Length < 3)
                 {
-                    Debug.LogWarning($"⚠️ Invalid player name from {request.ClientNetworkId}: '{playerAuth.playerName}'");
+                    Debug.LogWarning($"[Warning] Invalid player name from {request.ClientNetworkId}: '{playerAuth.playerName}'");
                     return false;
                 }
 
@@ -796,7 +796,7 @@ namespace ProjectChimera.Networking
                 {
                     if (player.playerName.Equals(playerAuth.playerName, StringComparison.OrdinalIgnoreCase))
                     {
-                        Debug.LogWarning($"⚠️ Duplicate player name: {playerAuth.playerName}");
+                        Debug.LogWarning($"[Warning] Duplicate player name: {playerAuth.playerName}");
                         return false;
                     }
                 }
@@ -804,11 +804,11 @@ namespace ProjectChimera.Networking
                 // Additional security checks
                 if (!ValidatePlayerVersion(playerAuth.gameVersion))
                 {
-                    Debug.LogWarning($"⚠️ Incompatible game version from {request.ClientNetworkId}: {playerAuth.gameVersion}");
+                    Debug.LogWarning($"[Warning] Incompatible game version from {request.ClientNetworkId}: {playerAuth.gameVersion}");
                     return false;
                 }
 
-                Debug.Log($"✅ Authentication successful for {playerAuth.playerName}");
+                Debug.Log($"[OK] Authentication successful for {playerAuth.playerName}");
                 return true;
             }
             catch (Exception e)
@@ -856,14 +856,14 @@ namespace ProjectChimera.Networking
                     return;
 
                 var orphanedMonsters = playerMonsters[disconnectedPlayerId];
-                Debug.Log($"🐲 Handling {orphanedMonsters.Count} orphaned monsters from player {disconnectedPlayerId}");
+                Debug.Log($"[Monster] Handling {orphanedMonsters.Count} orphaned monsters from player {disconnectedPlayerId}");
 
                 foreach (uint monsterId in orphanedMonsters)
                 {
                     ProcessOrphanedMonster(monsterId, disconnectedPlayerId);
                 }
 
-                Debug.Log($"✅ Processed all orphaned monsters from player {disconnectedPlayerId}");
+                Debug.Log($"[OK] Processed all orphaned monsters from player {disconnectedPlayerId}");
             }
             catch (Exception e)
             {
@@ -879,7 +879,7 @@ namespace ProjectChimera.Networking
                 var monsterObject = FindMonsterNetworkObject(monsterId);
                 if (monsterObject == null)
                 {
-                    Debug.LogWarning($"⚠️ Could not find network object for orphaned monster {monsterId}");
+                    Debug.LogWarning($"[Warning] Could not find network object for orphaned monster {monsterId}");
                     return;
                 }
 
@@ -890,7 +890,7 @@ namespace ProjectChimera.Networking
                 // DespawnOrphanedMonster(monsterObject, monsterId);
                 // TransferMonsterToAnotherPlayer(monsterObject, monsterId);
 
-                Debug.Log($"🔄 Orphaned monster {monsterId} transferred to server control");
+                Debug.Log($"[Refresh] Orphaned monster {monsterId} transferred to server control");
             }
             catch (Exception e)
             {
@@ -902,7 +902,7 @@ namespace ProjectChimera.Networking
         {
             // In a real implementation, maintain a dictionary of monster ID -> NetworkObject
             // For now, return null as a placeholder
-            Debug.Log($"🔍 Searching for monster network object with ID: {monsterId}");
+            Debug.Log($"[Search] Searching for monster network object with ID: {monsterId}");
             return null;
         }
 
@@ -924,7 +924,7 @@ namespace ProjectChimera.Networking
                     }
                     playerMonsters[NetworkManager.Singleton.ServerClientId].Add(monsterId);
 
-                    Debug.Log($"🖥️ Monster {monsterId} now under server control");
+                    Debug.Log($"[Server] Monster {monsterId} now under server control");
                 }
             }
             catch (Exception e)
@@ -959,14 +959,14 @@ namespace ProjectChimera.Networking
                 {
                     if (logNetworkEvents)
                     {
-                        Debug.Log($"🐲 Player {playerId} monster count: {playerMonsters[playerId].Count}/{maxMonstersPerPlayer}");
+                        Debug.Log($"[Monster] Player {playerId} monster count: {playerMonsters[playerId].Count}/{maxMonstersPerPlayer}");
                     }
                     LogNetworkError($"Cannot spawn monster - player {playerId} at monster limit");
                     return false;
                 }
 
                 // Implement actual monster spawning with NetworkObject
-                Debug.Log($"🐲 Spawning {monsterType} for player {playerId} at {position}");
+                Debug.Log($"[Monster] Spawning {monsterType} for player {playerId} at {position}");
 
                 // Generate unique monster ID
                 uint monsterId = GenerateMonsterID();
@@ -979,7 +979,7 @@ namespace ProjectChimera.Networking
 
                 return false;
                 #else
-                Debug.LogWarning("⚠️ Monster spawning requires Netcode for GameObjects");
+                Debug.LogWarning("[Warning] Monster spawning requires Netcode for GameObjects");
                 return false;
                 #endif
             }
@@ -1030,7 +1030,7 @@ namespace ProjectChimera.Networking
 
                 networkObject.SpawnWithOwnership(playerId);
 
-                Debug.Log($"🐲 Network monster {monsterType} (ID: {monsterId}) spawned for player {playerId}");
+                Debug.Log($"[Monster] Network monster {monsterType} (ID: {monsterId}) spawned for player {playerId}");
                 return true;
                 #else
                 LogNetworkError("Network monster spawning requires Netcode for GameObjects");
@@ -1053,7 +1053,7 @@ namespace ProjectChimera.Networking
                 if (prefab == null)
                 {
                     // Fallback: create basic monster prefab
-                    Debug.LogWarning($"⚠️ Monster prefab '{monsterType}' not found, creating basic prefab");
+                    Debug.LogWarning($"[Warning] Monster prefab '{monsterType}' not found, creating basic prefab");
                     return CreateBasicMonsterPrefab(monsterType);
                 }
                 return prefab;
@@ -1176,7 +1176,7 @@ namespace ProjectChimera.Networking
 
         private void LogNetworkError(string message)
         {
-            Debug.LogError($"🌐❌ Network Error: {message}");
+            Debug.LogError($"[Network][X] Network Error: {message}");
             OnNetworkError?.Invoke(message);
         }
 
@@ -1202,11 +1202,11 @@ namespace ProjectChimera.Networking
                 }
                 #endif
                 
-                Debug.Log("🧹 Network Manager shut down");
+                Debug.Log("[Clean] Network Manager shut down");
             }
             catch (Exception e)
             {
-                Debug.LogError($"❌ Network shutdown error: {e.Message}");
+                Debug.LogError($"[X] Network shutdown error: {e.Message}");
             }
         }
 
@@ -1227,17 +1227,17 @@ namespace ProjectChimera.Networking
         {
             OnNetworkStatusChanged += (isConnected) =>
             {
-                Debug.Log($"🌐 Network status changed: {(isConnected ? "Connected" : "Disconnected")}");
+                Debug.Log($"[Network] Network status changed: {(isConnected ? "Connected" : "Disconnected")}");
             };
 
             OnPlayerJoined += (playerId) =>
             {
-                Debug.Log($"🎮 Player {playerId} joined the game!");
+                Debug.Log($"[Game] Player {playerId} joined the game!");
             };
 
             OnPlayerLeft += (playerId) =>
             {
-                Debug.Log($"👋 Player {playerId} left the game");
+                Debug.Log($"[Leave] Player {playerId} left the game");
             };
         }
 
@@ -1294,17 +1294,17 @@ namespace ProjectChimera.Networking
         {
             if (IsOwner)
             {
-                Debug.Log($"🎮 Local player spawned: {playerName}");
+                Debug.Log($"[Game] Local player spawned: {playerName}");
             }
             else
             {
-                Debug.Log($"👤 Remote player spawned: {playerName}");
+                Debug.Log($"[Remote] Remote player spawned: {playerName}");
             }
         }
 
         public override void OnNetworkDespawn()
         {
-            Debug.Log($"👋 Player despawned: {playerName}");
+            Debug.Log($"[Leave] Player despawned: {playerName}");
         }
     }
     #else
@@ -1317,7 +1317,7 @@ namespace ProjectChimera.Networking
 
         void Start()
         {
-            Debug.Log($"🎮 Local player created: {playerName}");
+            Debug.Log($"[Game] Local player created: {playerName}");
         }
     }
     #endif
@@ -1328,14 +1328,14 @@ namespace ProjectChimera.Networking
     #if UNITY_NETCODE_GAMEOBJECTS
     public class ChimeraNetworkMonster : NetworkBehaviour
     {
-        [Header("🐲 Monster Network Info")]
+        [Header("[Monster] Monster Network Info")]
         [SerializeField] private uint monsterId;
         [SerializeField] private ulong ownerId;
         [SerializeField] private string monsterType;
         [SerializeField] private float health = 100f;
         [SerializeField] private Vector3 targetPosition;
 
-        [Header("🎯 Network Settings")]
+        [Header("[Target] Network Settings")]
         [SerializeField] private float networkTickRate = 20f;
         [SerializeField] private bool enablePrediction = true;
 
@@ -1351,18 +1351,18 @@ namespace ProjectChimera.Networking
             ownerId = owner;
             monsterType = type;
 
-            Debug.Log($"🐲 Network monster {type} (ID: {id}) initialized for player {owner}");
+            Debug.Log($"[Monster] Network monster {type} (ID: {id}) initialized for player {owner}");
         }
 
         public override void OnNetworkSpawn()
         {
             if (IsOwner)
             {
-                Debug.Log($"🎮 Local monster spawned: {monsterType} (ID: {monsterId})");
+                Debug.Log($"[Game] Local monster spawned: {monsterType} (ID: {monsterId})");
             }
             else
             {
-                Debug.Log($"👤 Remote monster spawned: {monsterType} (ID: {monsterId})");
+                Debug.Log($"[Remote] Remote monster spawned: {monsterType} (ID: {monsterId})");
             }
 
             // Start network updates
@@ -1374,7 +1374,7 @@ namespace ProjectChimera.Networking
 
         public override void OnNetworkDespawn()
         {
-            Debug.Log($"🐲 Network monster despawned: {monsterType} (ID: {monsterId})");
+            Debug.Log($"[Monster] Network monster despawned: {monsterType} (ID: {monsterId})");
             CancelInvoke();
         }
 
@@ -1436,7 +1436,7 @@ namespace ProjectChimera.Networking
             if (IsServer)
             {
                 health = Mathf.Max(0f, health - damage);
-                Debug.Log($"🐲 Monster {monsterId} took {damage} damage, health: {health}");
+                Debug.Log($"[Monster] Monster {monsterId} took {damage} damage, health: {health}");
 
                 if (health <= 0f)
                 {
@@ -1449,7 +1449,7 @@ namespace ProjectChimera.Networking
         {
             if (IsServer)
             {
-                Debug.Log($"💀 Monster {monsterId} defeated");
+                Debug.Log($"[Death] Monster {monsterId} defeated");
                 NetworkObject.Despawn();
             }
         }
@@ -1457,7 +1457,7 @@ namespace ProjectChimera.Networking
     #else
     public class ChimeraNetworkMonster : MonoBehaviour
     {
-        [Header("🐲 Monster Info (No Network)")]
+        [Header("[Monster] Monster Info (No Network)")]
         [SerializeField] private uint monsterId;
         [SerializeField] private string monsterType;
         [SerializeField] private float health = 100f;
@@ -1469,12 +1469,12 @@ namespace ProjectChimera.Networking
         {
             monsterId = id;
             monsterType = type;
-            Debug.Log($"🐲 Local monster {type} (ID: {id}) initialized");
+            Debug.Log($"[Monster] Local monster {type} (ID: {id}) initialized");
         }
 
         void Start()
         {
-            Debug.Log($"🐲 Local monster created: {monsterType} (ID: {monsterId}) - Health: {health}");
+            Debug.Log($"[Monster] Local monster created: {monsterType} (ID: {monsterId}) - Health: {health}");
         }
 
         /// <summary>
@@ -1491,11 +1491,11 @@ namespace ProjectChimera.Networking
         public void TakeDamage(float damage)
         {
             health = Mathf.Max(0f, health - damage);
-            Debug.Log($"🐲 Monster {monsterId} took {damage} damage, health: {health}");
+            Debug.Log($"[Monster] Monster {monsterId} took {damage} damage, health: {health}");
 
             if (health <= 0f)
             {
-                Debug.Log($"💀 Monster {monsterId} defeated");
+                Debug.Log($"[Death] Monster {monsterId} defeated");
                 Destroy(gameObject);
             }
         }

@@ -161,7 +161,7 @@ namespace Laboratory.Chimera.Visuals
                 return;
             }
 
-            UnityEngine.Debug.Log($"🎨 Generating procedural appearance for {name} (Gen {genetics.Generation})");
+            UnityEngine.Debug.Log($"[Visual] Generating procedural appearance for {name} (Gen {genetics.Generation})");
 
             try
             {
@@ -207,7 +207,7 @@ namespace Laboratory.Chimera.Visuals
                 currentVisualHash = newHash;
                 isInitialized = true;
 
-                UnityEngine.Debug.Log($"✅ Procedural appearance generated for {name}");
+                UnityEngine.Debug.Log($"[OK] Procedural appearance generated for {name}");
             }
             catch (System.Exception e)
             {

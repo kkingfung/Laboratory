@@ -24,17 +24,17 @@ namespace Laboratory.Chimera.Integration
     /// </summary>
     public class ChimeraWorldBootstrap : MonoBehaviour
     {
-        [Header("🚀 INSTANT SETUP")]
+        [Header("[Rocket] INSTANT SETUP")]
         [SerializeField] private bool initializeOnStart = true;
         [SerializeField] private bool spawnCreaturesOnStart = true;
         [SerializeField] private bool createBiomesOnStart = true;
 
-        [Header("🌍 WORLD CONFIGURATION")]
+        [Header("[World] WORLD CONFIGURATION")]
         [SerializeField] private ChimeraUniverseConfiguration universeConfig;
         [SerializeField] private Transform worldCenter;
         [SerializeField] private float worldScale = 1f;
 
-        [Header("🧬 CREATURE SPAWNING")]
+        [Header("[Genetics] CREATURE SPAWNING")]
         [Range(10, 1000)]
         [SerializeField] private int initialCreatureCount = 100;
         [SerializeField] private CreatureSpawnProfile[] spawnProfiles = new CreatureSpawnProfile[]
@@ -44,7 +44,7 @@ namespace Laboratory.Chimera.Integration
             new CreatureSpawnProfile { species = "DesertChimera", spawnWeight = 0.1f, preferredBiome = BiomeType.Desert }
         };
 
-        [Header("🗺️ BIOME SETUP")]
+        [Header("[Map] BIOME SETUP")]
         [SerializeField] private BiomeSpawnData[] biomeSpawns = new BiomeSpawnData[]
         {
             new BiomeSpawnData { biome = BiomeType.Grassland, count = 3, radius = 80f, centerOffset = new Vector3(0, 0, 0) },
@@ -52,13 +52,13 @@ namespace Laboratory.Chimera.Integration
             new BiomeSpawnData { biome = BiomeType.Desert, count = 1, radius = 50f, centerOffset = new Vector3(-80, 0, -80) }
         };
 
-        [Header("🔧 DEBUG & TESTING")]
+        [Header("[Config] DEBUG & TESTING")]
         [SerializeField] private bool enableDebugVisualization = true;
         [SerializeField] private bool enablePerformanceMonitoring = true;
         [SerializeField] private bool logBootstrapProcess = true;
 
-        [Header("🔗 HYBRID SYSTEM INTEGRATION")]
-        [SerializeField] private bool enableHybridSystemIntegration = true; // MonoBehaviour ↔ ECS integration using loose coupling
+        [Header("[Link] HYBRID SYSTEM INTEGRATION")]
+        [SerializeField] private bool enableHybridSystemIntegration = true; // MonoBehaviour <-> ECS integration using loose coupling
         [SerializeField] private MonoBehaviour existingAIManager;
         [SerializeField] private GeneticTraitLibrary traitLibrary;
         [SerializeField] private ChimeraBiomeConfig biomeConfig;
@@ -99,7 +99,7 @@ namespace Laboratory.Chimera.Integration
 
             if (_defaultWorld == null)
             {
-                UnityEngine.Debug.LogError("🚨 Default ECS World is null! Cannot initialize Chimera systems");
+                UnityEngine.Debug.LogError("[Alert] Default ECS World is null! Cannot initialize Chimera systems");
                 return;
             }
 
@@ -134,7 +134,7 @@ namespace Laboratory.Chimera.Integration
             }
 
             if (logBootstrapProcess)
-                UnityEngine.Debug.Log("🚀 Starting Chimera World Bootstrap...");
+                UnityEngine.Debug.Log("[Rocket] Starting Chimera World Bootstrap...");
 
             var startTime = Time.realtimeSinceStartup;
 
@@ -160,7 +160,7 @@ namespace Laboratory.Chimera.Integration
 
             if (logBootstrapProcess)
             {
-                UnityEngine.Debug.Log($"✅ Chimera World Bootstrap Complete! " +
+                UnityEngine.Debug.Log($"[OK] Chimera World Bootstrap Complete! " +
                          $"Created {_createdCreatures} creatures, {_createdBiomes} biomes, {_createdResources} resources in {(endTime - startTime):F2}s");
             }
 
@@ -191,7 +191,7 @@ namespace Laboratory.Chimera.Integration
                 StartPerformanceMonitoring();
 
             if (logBootstrapProcess)
-                UnityEngine.Debug.Log($"✅ Chimera World Bootstrap Complete! Created {_createdCreatures} creatures, {_createdBiomes} biomes, {_createdResources} resources");
+                UnityEngine.Debug.Log($"[OK] Chimera World Bootstrap Complete! Created {_createdCreatures} creatures, {_createdBiomes} biomes, {_createdResources} resources");
         }
 
         private void CreateWorldEntity()
@@ -208,7 +208,7 @@ namespace Laboratory.Chimera.Integration
             });
 
             if (logBootstrapProcess)
-                UnityEngine.Debug.Log("🌍 World entity created with global settings");
+                UnityEngine.Debug.Log("[World] World entity created with global settings");
         }
 
         private void CreateBiomes()
@@ -223,7 +223,7 @@ namespace Laboratory.Chimera.Integration
             }
 
             if (logBootstrapProcess)
-                UnityEngine.Debug.Log($"🗺️ Created {_createdBiomes} biomes with {_createdResources} resource nodes");
+                UnityEngine.Debug.Log($"[Map] Created {_createdBiomes} biomes with {_createdResources} resource nodes");
         }
 
         private void CreateBiome(BiomeType biomeType, float radius, Vector3 offset, int index)
@@ -308,7 +308,7 @@ namespace Laboratory.Chimera.Integration
             }
 
             if (logBootstrapProcess)
-                UnityEngine.Debug.Log($"🧬 Spawned {_createdCreatures} initial creatures");
+                UnityEngine.Debug.Log($"[Genetics] Spawned {_createdCreatures} initial creatures");
         }
 
         private CreatureSpawnProfile SelectSpawnProfile(float totalWeight)
@@ -480,7 +480,7 @@ namespace Laboratory.Chimera.Integration
         {
             _behaviorSystem = _defaultWorld?.GetOrCreateSystemManaged<ChimeraBehaviorSystem>();
             if (_behaviorSystem != null && logBootstrapProcess)
-                UnityEngine.Debug.Log("🧠 Behavior system initialized and running");
+                UnityEngine.Debug.Log("[Brain] Behavior system initialized and running");
         }
 
         private void StartPerformanceMonitoring()
@@ -493,7 +493,7 @@ namespace Laboratory.Chimera.Integration
             var entityCount = _entityManager.GetAllEntities().Length;
             var frameRate = 1f / Time.unscaledDeltaTime;
 
-            UnityEngine.Debug.Log($"📊 Performance: {entityCount} entities, {frameRate:F1} FPS, {_createdCreatures} creatures active");
+            UnityEngine.Debug.Log($"[Chart] Performance: {entityCount} entities, {frameRate:F1} FPS, {_createdCreatures} creatures active");
         }
 
         private void CreateBiomeVisualization(Vector3 center, float radius, BiomeType biomeType)
@@ -603,7 +603,7 @@ namespace Laboratory.Chimera.Integration
                     {
                         applyConfigMethod.Invoke(existingAIManager, new object[] { universeConfig });
                         if (logBootstrapProcess)
-                            UnityEngine.Debug.Log("🔗 Integrated existing ChimeraAIManager with unified configuration");
+                            UnityEngine.Debug.Log("[LINK] Integrated existing ChimeraAIManager with unified configuration");
                     }
                     else
                     {
@@ -619,12 +619,12 @@ namespace Laboratory.Chimera.Integration
                 SetupEnhancedConfiguration();
 
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.Log("🔗 System integration complete - using loose coupling for cross-assembly communication");
+                    UnityEngine.Debug.Log("[LINK] System integration complete - using loose coupling for cross-assembly communication");
             }
             catch (System.Exception ex)
             {
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.LogWarning($"🔗 System integration encountered issues (non-critical): {ex.Message}");
+                    UnityEngine.Debug.LogWarning($"[LINK] System integration encountered issues (non-critical): {ex.Message}");
             }
         }
 
@@ -646,12 +646,12 @@ namespace Laboratory.Chimera.Integration
                 }
 
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.Log("🔗 Applied basic configuration to AI manager via reflection");
+                    UnityEngine.Debug.Log("[LINK] Applied basic configuration to AI manager via reflection");
             }
             catch (System.Exception ex)
             {
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.LogWarning($"🔗 Could not apply basic AI configuration: {ex.Message}");
+                    UnityEngine.Debug.LogWarning($"[LINK] Could not apply basic AI configuration: {ex.Message}");
             }
         }
 
@@ -664,7 +664,7 @@ namespace Laboratory.Chimera.Integration
                 if (chimeraMonsterAIType == null)
                 {
                     if (logBootstrapProcess)
-                        UnityEngine.Debug.Log("🔗 No ChimeraMonsterAI type found - skipping creature bridging");
+                        UnityEngine.Debug.Log("[LINK] No ChimeraMonsterAI type found - skipping creature bridging");
                     return;
                 }
 
@@ -681,24 +681,24 @@ namespace Laboratory.Chimera.Integration
                         {
                             bridgedCount++;
                             if (logBootstrapProcess)
-                                UnityEngine.Debug.Log($"🔗 Created ECS bridge for existing creature: {monoBehaviour.name}");
+                                UnityEngine.Debug.Log($"[LINK] Created ECS bridge for existing creature: {monoBehaviour.name}");
                         }
                     }
                 }
 
                 if (bridgedCount > 0 && logBootstrapProcess)
                 {
-                    UnityEngine.Debug.Log($"🔗 Successfully bridged {bridgedCount} existing MonoBehaviour creatures with ECS");
+                    UnityEngine.Debug.Log($"[LINK] Successfully bridged {bridgedCount} existing MonoBehaviour creatures with ECS");
                 }
                 else if (existingCreatures.Length == 0 && logBootstrapProcess)
                 {
-                    UnityEngine.Debug.Log("🔗 No existing MonoBehaviour creatures found to bridge");
+                    UnityEngine.Debug.Log("[LINK] No existing MonoBehaviour creatures found to bridge");
                 }
             }
             catch (System.Exception ex)
             {
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.LogWarning($"🔗 Creature bridging encountered issues (non-critical): {ex.Message}");
+                    UnityEngine.Debug.LogWarning($"[LINK] Creature bridging encountered issues (non-critical): {ex.Message}");
             }
         }
 
@@ -747,7 +747,7 @@ namespace Laboratory.Chimera.Integration
             catch (System.Exception ex)
             {
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.LogWarning($"🔗 Failed to create bridge entity for {creatureMonoBehaviour.name}: {ex.Message}");
+                    UnityEngine.Debug.LogWarning($"[LINK] Failed to create bridge entity for {creatureMonoBehaviour.name}: {ex.Message}");
                 return Entity.Null;
             }
         }
@@ -803,7 +803,7 @@ namespace Laboratory.Chimera.Integration
                 {
                     BroadcastConfigurationEvent("GeneticTraitLibraryReady", traitLibrary);
                     if (logBootstrapProcess)
-                        UnityEngine.Debug.Log("🔗 Broadcasted genetic trait library configuration");
+                        UnityEngine.Debug.Log("[LINK] Broadcasted genetic trait library configuration");
                 }
 
                 // Try to integrate biome configuration if available
@@ -811,7 +811,7 @@ namespace Laboratory.Chimera.Integration
                 {
                     BroadcastConfigurationEvent("BiomeConfigReady", biomeConfig);
                     if (logBootstrapProcess)
-                        UnityEngine.Debug.Log("🔗 Broadcasted biome configuration");
+                        UnityEngine.Debug.Log("[LINK] Broadcasted biome configuration");
                 }
 
                 // Try to integrate species configuration if available
@@ -819,16 +819,16 @@ namespace Laboratory.Chimera.Integration
                 {
                     BroadcastConfigurationEvent("SpeciesConfigReady", speciesConfig);
                     if (logBootstrapProcess)
-                        UnityEngine.Debug.Log("🔗 Broadcasted species configuration");
+                        UnityEngine.Debug.Log("[LINK] Broadcasted species configuration");
                 }
 
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.Log("🔗 Enhanced configuration setup complete using event-driven approach");
+                    UnityEngine.Debug.Log("[LINK] Enhanced configuration setup complete using event-driven approach");
             }
             catch (System.Exception ex)
             {
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.LogWarning($"🔗 Enhanced configuration encountered issues (non-critical): {ex.Message}");
+                    UnityEngine.Debug.LogWarning($"[LINK] Enhanced configuration encountered issues (non-critical): {ex.Message}");
             }
         }
 
@@ -853,7 +853,7 @@ namespace Laboratory.Chimera.Integration
             {
                 // Non-critical failure, just log it
                 if (logBootstrapProcess)
-                    UnityEngine.Debug.LogWarning($"🔗 Could not broadcast {eventName}: {ex.Message}");
+                    UnityEngine.Debug.LogWarning($"[LINK] Could not broadcast {eventName}: {ex.Message}");
             }
         }
 
@@ -873,7 +873,7 @@ namespace Laboratory.Chimera.Integration
                 var spawnPosition = GetSpawnPositionForBiome(selectedProfile.preferredBiome);
                 CreateCreature(selectedProfile, spawnPosition);
             }
-            UnityEngine.Debug.Log($"🧬 Spawned 50 additional creatures. Total: {_createdCreatures}");
+            UnityEngine.Debug.Log($"[GENETICS] Spawned 50 additional creatures. Total: {_createdCreatures}");
         }
 
         private void OnDrawGizmos()

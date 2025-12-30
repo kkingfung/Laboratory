@@ -177,7 +177,7 @@ namespace Laboratory.Chimera.UI
             RefreshHistoryDisplay();
             UpdateAnalytics();
             
-            UnityEngine.Debug.Log("📚 Breeding history UI opened");
+            UnityEngine.Debug.Log("[History] Breeding history UI opened");
         }
         
         /// <summary>
@@ -189,7 +189,7 @@ namespace Laboratory.Chimera.UI
                 historyPanel.SetActive(false);
             isHistoryVisible = false;
             
-            UnityEngine.Debug.Log("📚 Breeding history UI closed");
+            UnityEngine.Debug.Log("[History] Breeding history UI closed");
         }
         
         /// <summary>
@@ -243,7 +243,7 @@ namespace Laboratory.Chimera.UI
             
             AddHistoryEntry(entry);
             
-            UnityEngine.Debug.Log($"📝 Recorded successful breeding: {parent1.name} + {parent2.name} = {offspring.name}");
+            UnityEngine.Debug.Log($"[Record] Recorded successful breeding: {parent1.name} + {parent2.name} = {offspring.name}");
         }
         
         /// <summary>
@@ -271,7 +271,7 @@ namespace Laboratory.Chimera.UI
             
             AddHistoryEntry(entry);
             
-            UnityEngine.Debug.Log($"❌ Recorded failed breeding: {parent1.name} + {parent2.name} - {failureReason}");
+            UnityEngine.Debug.Log($"[X] Recorded failed breeding: {parent1.name} + {parent2.name} - {failureReason}");
         }
         
         /// <summary>
@@ -458,7 +458,7 @@ namespace Laboratory.Chimera.UI
             var text = entryObject.GetComponentInChildren<TextMeshProUGUI>();
             if (text != null)
             {
-                string status = entry.WasSuccessful ? "✅" : "❌";
+                string status = entry.WasSuccessful ? "[OK]" : "[X]";
                 string result = entry.WasSuccessful ? entry.OffspringName : entry.FailureReason;
                 
                 text.text = $"{status} {entry.Date:MM/dd HH:mm} - {entry.Parent1Name} + {entry.Parent2Name} = {result}";
@@ -604,7 +604,7 @@ namespace Laboratory.Chimera.UI
                 
             GenerateLineageTree(selectedEntry);
             
-            UnityEngine.Debug.Log($"🌳 Showing lineage tree for {selectedEntry.OffspringName}");
+            UnityEngine.Debug.Log($"[Tree] Showing lineage tree for {selectedEntry.OffspringName}");
         }
         
         private void GenerateLineageTree(BreedingHistoryEntry rootEntry)
@@ -663,7 +663,7 @@ namespace Laboratory.Chimera.UI
         private void LoadBreedingHistory()
         {
             // Load breeding history from persistent data
-            UnityEngine.Debug.Log("📂 Loading breeding history...");
+            UnityEngine.Debug.Log("[Load] Loading breeding history...");
             
             // For now, just create some sample data
             CreateSampleHistoryData();
@@ -673,7 +673,7 @@ namespace Laboratory.Chimera.UI
         {
             if (!autoSaveHistory) return;
             
-            UnityEngine.Debug.Log("💾 Saving breeding history...");
+            UnityEngine.Debug.Log("[Save] Saving breeding history...");
             
             // Save history data to persistent storage
             // Implementation would depend on your save system
@@ -729,7 +729,7 @@ namespace Laboratory.Chimera.UI
         private void UpdateHistoryStats()
         {
             // Update the filtered history count display
-            UnityEngine.Debug.Log($"📊 Showing {filteredHistory.Count} of {breedingHistory.Count} breeding records");
+            UnityEngine.Debug.Log($"[Chart] Showing {filteredHistory.Count} of {breedingHistory.Count} breeding records");
         }
         
         private BiomeType GetCurrentBiome()
@@ -746,7 +746,7 @@ namespace Laboratory.Chimera.UI
             selectedEntry = entry;
             
             // Update UI to show selection
-            UnityEngine.Debug.Log($"📋 Selected history entry: {entry.OffspringName}");
+            UnityEngine.Debug.Log($"[Menu] Selected history entry: {entry.OffspringName}");
         }
         
         /// <summary>
@@ -761,7 +761,7 @@ namespace Laboratory.Chimera.UI
                 RefreshHistoryDisplay();
             }
             
-            UnityEngine.Debug.Log($"⭐ History entry {entry.OffspringName} favorite: {entry.IsFavorite}");
+            UnityEngine.Debug.Log($"[Star] History entry {entry.OffspringName} favorite: {entry.IsFavorite}");
         }
 
         // Missing methods that are referenced

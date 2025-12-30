@@ -18,19 +18,19 @@ namespace Laboratory.Chimera.Integration
     {
         #region Serialized Fields
 
-        [Header("🔗 System References")]
+        [Header("[Integration] System References")]
         [SerializeField] private ChimeraCustomizationManager customizationManager;
         [SerializeField] private EquipmentManager equipmentManager;
         [SerializeField] private ProceduralVisualSystem visualSystem;
         [SerializeField] private CreatureInstanceComponent creatureInstance;
 
-        [Header("⚙️ Integration Settings")]
+        [Header("[Config] Integration Settings")]
         [SerializeField] private bool autoIntegrateOnStart = true;
         [SerializeField] private bool enableRealTimeSync = true;
         [SerializeField] private float syncInterval = 1.0f;
         [SerializeField] private bool enableDebugMode = false;
 
-        [Header("🎭 Customization Priorities")]
+        [Header("[Visual] Customization Priorities")]
         [SerializeField] private CustomizationPriority defaultPriority = CustomizationPriority.Genetic;
         [SerializeField] private bool equipmentOverridesGenetics = true;
         [SerializeField] private bool outfitsOverrideEquipment = false;

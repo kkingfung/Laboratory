@@ -104,7 +104,7 @@ namespace Laboratory.Subsystems.Team
 
                 if (debugLogging)
                 {
-                    Debug.Log($"✅ {SubsystemName} initialized successfully!");
+                    Debug.Log($"[OK] {SubsystemName} initialized successfully!");
                     LogSystemStatus();
                 }
             }
@@ -122,7 +122,7 @@ namespace Laboratory.Subsystems.Team
             {
                 _matchmakingSystem = _ecsWorld.GetOrCreateSystemManaged<MatchmakingSystem>();
                 if (debugLogging)
-                    Debug.Log("✓ Matchmaking System initialized");
+                    Debug.Log("[OK] Matchmaking System initialized");
             }
 
             InitializationProgress = 0.4f;
@@ -132,7 +132,7 @@ namespace Laboratory.Subsystems.Team
             {
                 _tutorialSystem = _ecsWorld.GetOrCreateSystemManaged<TutorialOnboardingSystem>();
                 if (debugLogging)
-                    Debug.Log("✓ Tutorial & Onboarding System initialized");
+                    Debug.Log("[OK] Tutorial & Onboarding System initialized");
             }
 
             InitializationProgress = 0.6f;
@@ -143,7 +143,7 @@ namespace Laboratory.Subsystems.Team
                 _communicationSystem = _ecsWorld.GetOrCreateSystemManaged<TeamCommunicationSystem>();
                 _ecsWorld.GetOrCreateSystemManaged<SmartPingAssistSystem>();
                 if (debugLogging)
-                    Debug.Log("✓ Communication System initialized");
+                    Debug.Log("[OK] Communication System initialized");
             }
 
             InitializationProgress = 0.8f;
@@ -170,7 +170,7 @@ namespace Laboratory.Subsystems.Team
             _ecsWorld.GetOrCreateSystemManaged<EconomicsGenreTeamSystem>();
 
             if (debugLogging)
-                Debug.Log("✓ Genre-Specific Team Systems initialized (all 47 genres supported)");
+                Debug.Log("[OK] Genre-Specific Team Systems initialized (all 47 genres supported)");
         }
 
         #endregion
@@ -192,7 +192,7 @@ namespace Laboratory.Subsystems.Team
             }
 
             if (debugLogging)
-                Debug.Log($"🎮 Activating team systems for genre: {genre}");
+                Debug.Log($"[Mode] Activating team systems for genre: {genre}");
 
             // Get genre-specific settings
             var genreSettings = teamConfig.GetGenreSettings(genre);
@@ -200,7 +200,7 @@ namespace Laboratory.Subsystems.Team
             if (!genreSettings.enableTeams)
             {
                 if (debugLogging)
-                    Debug.Log($"⏸️ Teams disabled for genre: {genre}");
+                    Debug.Log($"[Pause] Teams disabled for genre: {genre}");
                 return;
             }
 
@@ -292,7 +292,7 @@ namespace Laboratory.Subsystems.Team
             }
 
             if (debugLogging)
-                Debug.Log($"✅ Created team '{teamName}' (Type: {teamType}, Genre: {genre})");
+                Debug.Log($"[OK] Created team '{teamName}' (Type: {teamType}, Genre: {genre})");
 
             return teamEntity;
         }
@@ -350,7 +350,7 @@ namespace Laboratory.Subsystems.Team
             }
 
             if (debugLogging)
-                Debug.Log($"📋 Player queued for matchmaking (Role: {desiredRole}, Skill: {skillRating:F0})");
+                Debug.Log($"[Queue] Player queued for matchmaking (Role: {desiredRole}, Skill: {skillRating:F0})");
         }
 
         /// <summary>

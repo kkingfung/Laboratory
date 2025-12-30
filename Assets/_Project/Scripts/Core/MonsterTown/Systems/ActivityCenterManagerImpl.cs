@@ -57,7 +57,7 @@ namespace Laboratory.Core.MonsterTown
                 // Fire initialization event
                 _eventBus?.Publish(new ActivityCenterInitializedEvent(activityType, centerInfo));
 
-                Debug.Log($"🎮 Activity Center {activityType} initialized");
+                Debug.Log($"[Activity Center] Activity Center {activityType} initialized");
             }
             catch (Exception ex)
             {
@@ -85,7 +85,7 @@ namespace Laboratory.Core.MonsterTown
 
             try
             {
-                Debug.Log($"🎯 Starting {activityType} for {monster.Name}");
+                Debug.Log($"[Start] Starting {activityType} for {monster.Name}");
 
                 // Create activity session
                 var session = new ActivitySession
@@ -121,7 +121,7 @@ namespace Laboratory.Core.MonsterTown
                 // Fire completion event
                 _eventBus?.Publish(new ActivityCompletedEvent(monster, activityType, townResult));
 
-                Debug.Log($"🏆 {monster.Name} completed {activityType}: Success={townResult.IsSuccess}, Performance={townResult.PerformanceRating:F2}");
+                Debug.Log($"[Complete] {monster.Name} completed {activityType}: Success={townResult.IsSuccess}, Performance={townResult.PerformanceRating:F2}");
 
                 return townResult;
             }
@@ -185,7 +185,7 @@ namespace Laboratory.Core.MonsterTown
             _monsterStats.Clear();
 
             _isInitialized = false;
-            Debug.Log("🎮 Activity Center Manager disposed");
+            Debug.Log("[Dispose] Activity Center Manager disposed");
         }
 
         #endregion
@@ -206,7 +206,7 @@ namespace Laboratory.Core.MonsterTown
             };
 
             _activityQueue.Enqueue(request);
-            Debug.Log($"🎮 Queued {activityType} activity for {monster.Name}");
+            Debug.Log($"[Queue] Queued {activityType} activity for {monster.Name}");
         }
 
         /// <summary>
@@ -248,7 +248,7 @@ namespace Laboratory.Core.MonsterTown
                     _activityCenters[activityType] = centerInfo;
 
                     _eventBus?.Publish(new ActivityCenterUnlockedEvent(activityType));
-                    Debug.Log($"🔓 Activity Center {activityType} unlocked!");
+                    Debug.Log($"[Unlock] Activity Center {activityType} unlocked!");
                     return true;
                 }
             }

@@ -73,45 +73,45 @@ namespace Laboratory.Chimera.Consciousness.Core
     public enum EmotionalIcon : byte
     {
         // Universal emotions (all ages)
-        Neutral = 0,           // 😐 Calm, observing
-        Happy = 1,             // 😊 Content, pleased
-        VeryHappy = 2,         // 😄 Excited, joyful
-        Loving = 3,            // 🥰 Affectionate, bonded
+        Neutral = 0,           // [Neutral] Calm, observing
+        Happy = 1,             // [Happy] Content, pleased
+        VeryHappy = 2,         // [VeryHappy] Excited, joyful
+        Loving = 3,            // [Loving] Affectionate, bonded
 
         // Negative emotions (all ages)
-        Sad = 10,              // 😢 Unhappy, disappointed
-        Scared = 11,           // 😨 Fearful, anxious
-        Angry = 12,            // 😠 Frustrated, upset
-        Hurt = 13,             // 💔 Emotionally wounded
+        Sad = 10,              // [Sad] Unhappy, disappointed
+        Scared = 11,           // [Scared] Fearful, anxious
+        Angry = 12,            // [Angry] Frustrated, upset
+        Hurt = 13,             // [Hurt] Emotionally wounded
 
         // Baby/Child specific (simple)
-        Playful = 20,          // 😆 Want to play!
-        Curious = 21,          // 🤔 Exploring, interested
-        Sleepy = 22,           // 😴 Tired, low energy
-        Hungry = 23,           // 🤤 Want food
+        Playful = 20,          // [Playful] Want to play!
+        Curious = 21,          // [Curious] Exploring, interested
+        Sleepy = 22,           // [Sleepy] Tired, low energy
+        Hungry = 23,           // [Hungry] Want food
 
         // Teen/Adult specific (complex)
-        Frustrated = 30,       // 😤 Things not going well
-        Anxious = 31,          // 😰 Stressed, worried
-        Excited = 32,          // 🤩 Enthusiastic!
-        Melancholic = 33,      // 😔 Thoughtfully sad
-        Devoted = 34,          // 💙 Deep loyalty showing
-        Proud = 35,            // 😌 Accomplished feeling
-        Content = 36,          // 😊 Satisfied, at peace
+        Frustrated = 30,       // [Frustrated] Things not going well
+        Anxious = 31,          // [Anxious] Stressed, worried
+        Excited = 32,          // [Excited] Enthusiastic!
+        Melancholic = 33,      // [Melancholic] Thoughtfully sad
+        Devoted = 34,          // [Devoted] Deep loyalty showing
+        Proud = 35,            // [Proud] Accomplished feeling
+        Content = 36,          // [Content] Satisfied, at peace
 
         // Elderly specific (profound)
-        Wise = 40,             // 🧘 Peaceful wisdom
-        Nostalgic = 41,        // 🥲 Remembering good times
-        Protective = 42,       // 🛡️ Guarding partner
-        Fulfilled = 43,        // ✨ Life well lived
-        Serene = 44,           // 🕊️ Deep peace
-        Bittersweet = 45,      // 😌💭 Complex elderly emotion
+        Wise = 40,             // [Wise] Peaceful wisdom
+        Nostalgic = 41,        // [Nostalgic] Remembering good times
+        Protective = 42,       // [Protected] Guarding partner
+        Fulfilled = 43,        // [Fulfilled] Life well lived
+        Serene = 44,           // [Serene] Deep peace
+        Bittersweet = 45,      // [Bittersweet] Complex elderly emotion
 
         // Warning states (any age)
-        Traumatized = 50,      // 😱 Severe emotional damage
-        Depressed = 51,        // 😞 Long-term sadness
-        Betrayed = 52,         // 💔😡 Trust broken
-        Abandoned = 53         // 😢🚪 Feeling left behind
+        Traumatized = 50,      // [Traumatized] Severe emotional damage
+        Depressed = 51,        // [Depressed] Long-term sadness
+        Betrayed = 52,         // [Betrayed] Trust broken
+        Abandoned = 53         // [Abandoned] Feeling left behind
     }
 
     /// <summary>
@@ -185,47 +185,47 @@ namespace Laboratory.Chimera.Consciousness.Core
             return icon switch
             {
                 // Universal
-                EmotionalIcon.Neutral => "😐",
-                EmotionalIcon.Happy => "😊",
-                EmotionalIcon.VeryHappy => "😄",
-                EmotionalIcon.Loving => "🥰",
+                EmotionalIcon.Neutral => "[Neutral]",
+                EmotionalIcon.Happy => "[Happy]",
+                EmotionalIcon.VeryHappy => "[VeryHappy]",
+                EmotionalIcon.Loving => "[Loving]",
 
                 // Negative
-                EmotionalIcon.Sad => "😢",
-                EmotionalIcon.Scared => "😨",
-                EmotionalIcon.Angry => "😠",
-                EmotionalIcon.Hurt => "💔",
+                EmotionalIcon.Sad => "[Sad]",
+                EmotionalIcon.Scared => "[Scared]",
+                EmotionalIcon.Angry => "[Angry]",
+                EmotionalIcon.Hurt => "[Hurt]",
 
                 // Baby/Child
-                EmotionalIcon.Playful => "😆",
-                EmotionalIcon.Curious => "🤔",
-                EmotionalIcon.Sleepy => "😴",
-                EmotionalIcon.Hungry => "🤤",
+                EmotionalIcon.Playful => "[Playful]",
+                EmotionalIcon.Curious => "[Curious]",
+                EmotionalIcon.Sleepy => "[Sleepy]",
+                EmotionalIcon.Hungry => "[Hungry]",
 
                 // Teen/Adult
-                EmotionalIcon.Frustrated => "😤",
-                EmotionalIcon.Anxious => "😰",
-                EmotionalIcon.Excited => "🤩",
-                EmotionalIcon.Melancholic => "😔",
-                EmotionalIcon.Devoted => "💙",
-                EmotionalIcon.Proud => "😌",
-                EmotionalIcon.Content => "😊",
+                EmotionalIcon.Frustrated => "[Frustrated]",
+                EmotionalIcon.Anxious => "[Anxious]",
+                EmotionalIcon.Excited => "[Excited]",
+                EmotionalIcon.Melancholic => "[Melancholic]",
+                EmotionalIcon.Devoted => "[Devoted]",
+                EmotionalIcon.Proud => "[Proud]",
+                EmotionalIcon.Content => "[Content]",
 
                 // Elderly
-                EmotionalIcon.Wise => "🧘",
-                EmotionalIcon.Nostalgic => "🥲",
-                EmotionalIcon.Protective => "🛡️",
-                EmotionalIcon.Fulfilled => "✨",
-                EmotionalIcon.Serene => "🕊️",
-                EmotionalIcon.Bittersweet => "😌",
+                EmotionalIcon.Wise => "[Wise]",
+                EmotionalIcon.Nostalgic => "[Nostalgic]",
+                EmotionalIcon.Protective => "[Protected]",
+                EmotionalIcon.Fulfilled => "[Fulfilled]",
+                EmotionalIcon.Serene => "[Serene]",
+                EmotionalIcon.Bittersweet => "[Bittersweet]",
 
                 // Warning
-                EmotionalIcon.Traumatized => "😱",
-                EmotionalIcon.Depressed => "😞",
-                EmotionalIcon.Betrayed => "💢",
-                EmotionalIcon.Abandoned => "😭",
+                EmotionalIcon.Traumatized => "[Traumatized]",
+                EmotionalIcon.Depressed => "[Depressed]",
+                EmotionalIcon.Betrayed => "[Betrayed]",
+                EmotionalIcon.Abandoned => "[Abandoned]",
 
-                _ => "😐"
+                _ => "[Neutral]"
             };
         }
 

@@ -391,7 +391,7 @@ namespace Laboratory.Subsystems.Combat
             
             _eventBus?.Publish(new CombatStateChangedEvent(oldState, newState, gameObject));
             
-            LogDebug($"Combat state changed: {oldState} → {newState}");
+            LogDebug($"Combat state changed: {oldState} -> {newState}");
         }
 
         private void OnStateEnter(CombatSubsystemState newState, CombatSubsystemState oldState)
@@ -579,8 +579,8 @@ namespace Laboratory.Subsystems.Combat
             {
                 var oldTarget = _currentTarget;
                 _currentTarget = target;
-                
-                LogDebug($"Combat target changed: {oldTarget?.name} → {target?.name}");
+
+                LogDebug($"Combat target changed: {oldTarget?.name} -> {target?.name}");
             }
         }
 

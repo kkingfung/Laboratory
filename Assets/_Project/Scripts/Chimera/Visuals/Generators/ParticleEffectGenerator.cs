@@ -32,7 +32,7 @@ namespace Laboratory.Chimera.Visuals.Generators
 
         public IEnumerator GenerateEffects(VisualGeneticTraits traits, ParticleSystem[] existingSystems)
         {
-            UnityEngine.Debug.Log("✨ Generating genetic particle effects");
+            UnityEngine.Debug.Log("[Visual] Generating genetic particle effects");
 
             ClearExistingEffects();
 
@@ -59,7 +59,7 @@ namespace Laboratory.Chimera.Visuals.Generators
 
             ApplyComplexityScaling();
 
-            UnityEngine.Debug.Log($"✨ Generated {activeEffects.Count} particle effects");
+            UnityEngine.Debug.Log($"[Visual] Generated {activeEffects.Count} particle effects");
         }
 
         private void InitializeEffectTemplates()

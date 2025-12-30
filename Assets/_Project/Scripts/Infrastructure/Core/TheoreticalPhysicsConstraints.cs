@@ -60,7 +60,7 @@ namespace Laboratory.Core.Infrastructure
             PhysicsValidationResult result)
         {
             // Calculate entropy change due to genetic variation
-            // ΔS = k_B * ln(Ω), where Ω is the number of microstates
+            // DeltaS = k_B * ln(Omega), where Omega is the number of microstates
             var geneticMicrostates = Mathf.Pow(2f, mutationRate * populationSize * 100f); // Simplified
             var entropyChange = BOLTZMANN_CONSTANT * Mathf.Log(geneticMicrostates);
 

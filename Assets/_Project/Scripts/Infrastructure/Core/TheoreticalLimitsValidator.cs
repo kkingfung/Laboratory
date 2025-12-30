@@ -114,8 +114,8 @@ namespace Laboratory.Core.Infrastructure
             {
                 BoundType = BoundType.InformationTheory,
                 LimitName = "Shannon Entropy Maximum",
-                TheoreticalLimit = "log₂(n) bits", // Maximum entropy for n symbols
-                CurrentImplementation = "≤ log₂(n) bits",
+                TheoreticalLimit = "log2(n) bits", // Maximum entropy for n symbols
+                CurrentImplementation = "<= log2(n) bits",
                 WithinBounds = true,
                 Explanation = "Information entropy respects Shannon's theoretical maximum"
             };
@@ -126,8 +126,8 @@ namespace Laboratory.Core.Infrastructure
             {
                 BoundType = BoundType.InformationTheory,
                 LimitName = "Kolmogorov Complexity",
-                TheoreticalLimit = "K(x) ≤ |x| + O(log|x|)", // String length upper bound
-                CurrentImplementation = "Estimated K(x) ≤ 0.8|x|",
+                TheoreticalLimit = "K(x) <= |x| + O(log|x|)", // String length upper bound
+                CurrentImplementation = "Estimated K(x) <= 0.8|x|",
                 WithinBounds = true,
                 Explanation = "Genetic sequences show good compressibility, indicating structure"
             };
@@ -138,8 +138,8 @@ namespace Laboratory.Core.Infrastructure
             {
                 BoundType = BoundType.InformationTheory,
                 LimitName = "Channel Capacity",
-                TheoreticalLimit = "C = B * log₂(1 + S/N)", // Shannon-Hartley theorem
-                CurrentImplementation = "≤ 0.9 * C", // 90% efficiency
+                TheoreticalLimit = "C = B * log2(1 + S/N)", // Shannon-Hartley theorem
+                CurrentImplementation = "<= 0.9 * C", // 90% efficiency
                 WithinBounds = true,
                 Explanation = "Network communication approaches Shannon limit with error correction"
             };
@@ -166,8 +166,8 @@ namespace Laboratory.Core.Infrastructure
             {
                 BoundType = BoundType.PhysicalLimits,
                 LimitName = "Landauer Limit",
-                TheoreticalLimit = "kT ln(2) per bit erasure ≈ 2.9×10⁻²¹ J",
-                CurrentImplementation = "~10⁻¹⁸ J per operation",
+                TheoreticalLimit = "kT ln(2) per bit erasure ~= 2.9*10^-21 J",
+                CurrentImplementation = "~10^-18 J per operation",
                 WithinBounds = false,
                 Explanation = "Current implementation exceeds theoretical minimum by ~1000x (acceptable for classical computing)"
             };
@@ -178,8 +178,8 @@ namespace Laboratory.Core.Infrastructure
             {
                 BoundType = BoundType.PhysicalLimits,
                 LimitName = "Thermodynamic Efficiency",
-                TheoreticalLimit = "η ≤ 1 - T_cold/T_hot (Carnot limit)",
-                CurrentImplementation = "η ≈ 0.3 (CPU efficiency)",
+                TheoreticalLimit = "eta <= 1 - T_cold/T_hot (Carnot limit)",
+                CurrentImplementation = "eta ~= 0.3 (CPU efficiency)",
                 WithinBounds = true,
                 Explanation = "CPU thermal efficiency within thermodynamic bounds"
             };
@@ -190,7 +190,7 @@ namespace Laboratory.Core.Infrastructure
             {
                 BoundType = BoundType.PhysicalLimits,
                 LimitName = "Speed of Light",
-                TheoreticalLimit = "c = 2.998×10⁸ m/s",
+                TheoreticalLimit = "c = 2.998*10^8 m/s",
                 CurrentImplementation = "Network latency consistent with c",
                 WithinBounds = true,
                 Explanation = "Network communication respects relativistic speed limits"
@@ -242,7 +242,7 @@ namespace Laboratory.Core.Infrastructure
             {
                 BoundType = BoundType.QuantumLimits,
                 LimitName = "Error Correction Threshold",
-                TheoreticalLimit = "~10⁻⁴ error rate for surface codes",
+                TheoreticalLimit = "~10^-4 error rate for surface codes",
                 CurrentImplementation = "Error correction protocols designed",
                 WithinBounds = true,
                 Explanation = "Quantum error correction framework prepared for fault-tolerant implementation"
@@ -254,7 +254,7 @@ namespace Laboratory.Core.Infrastructure
             {
                 BoundType = BoundType.QuantumLimits,
                 LimitName = "Quantum Coherence Time",
-                TheoreticalLimit = "T₂ > 100μs for practical computation",
+                TheoreticalLimit = "T2 > 100us for practical computation",
                 CurrentImplementation = "Algorithms designed for realistic coherence times",
                 WithinBounds = true,
                 Explanation = "Quantum algorithms optimized for current decoherence limitations"
@@ -396,7 +396,7 @@ namespace Laboratory.Core.Infrastructure
                 PredictedMetrics = new Dictionary<string, float>
                 {
                     {"GeneticAlgorithmSpeedup", 10.0f},
-                    {"ServiceDiscoverySpeedup", 1.41f}, // √n improvement
+                    {"ServiceDiscoverySpeedup", 1.41f}, // sqrt(n) improvement
                     {"EventCorrelationSpeedup", 4.0f}
                 },
                 Confidence = 0.65f,

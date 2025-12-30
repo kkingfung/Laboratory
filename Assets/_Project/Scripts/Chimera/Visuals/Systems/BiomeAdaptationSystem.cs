@@ -54,7 +54,7 @@ namespace Laboratory.Chimera.Visuals.Systems
             }
 
             adaptationCoroutine = StartCoroutine(PerformBiomeAdaptation(traits));
-            UnityEngine.Debug.Log($"🌍 Starting adaptation to {biome} biome");
+            UnityEngine.Debug.Log($"[World] Starting adaptation to {biome} biome");
         }
 
         private void InitializeBiomeAdaptations()
@@ -207,7 +207,7 @@ namespace Laboratory.Chimera.Visuals.Systems
             currentBiome = targetBiome;
             adaptationProgress = 1.0f;
 
-            UnityEngine.Debug.Log($"🌍 Adaptation to {targetBiome} complete");
+            UnityEngine.Debug.Log($"[World] Adaptation to {targetBiome} complete");
             adaptationCoroutine = null;
         }
 

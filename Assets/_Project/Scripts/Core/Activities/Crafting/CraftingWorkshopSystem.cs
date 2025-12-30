@@ -11,7 +11,7 @@ using Laboratory.Core.Activities.Types;
 namespace Laboratory.Core.Activities.Crafting
 {
     /// <summary>
-    /// 🔨 CRAFTING WORKSHOP SYSTEM - Complete item creation and resource processing
+    /// [Crafting] CRAFTING WORKSHOP SYSTEM - Complete item creation and resource processing
     /// FEATURES: Recipe crafting, resource processing, quality control, innovation
     /// PERFORMANCE: Batch processing for multiple simultaneous crafting operations
     /// GENETICS: Intelligence, Adaptability affect crafting success and innovation
@@ -1198,7 +1198,7 @@ namespace Laboratory.Core.Activities.Crafting
                 QualityRating = qualityLevel / 10f
             });
 
-            Debug.Log($"✅ Created {workshopType} with quality level {qualityLevel}");
+            Debug.Log($"[OK] Created {workshopType} with quality level {qualityLevel}");
         }
     }
 }

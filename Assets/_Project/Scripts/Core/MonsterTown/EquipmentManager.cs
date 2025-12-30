@@ -25,12 +25,12 @@ namespace Laboratory.Core.Equipment
     /// </summary>
     public class EquipmentManager : MonoBehaviour
     {
-        [Header("🎒 Equipment Configuration")]
+        [Header("[Config] Equipment Configuration")]
         [SerializeField] private EquipmentDatabase equipmentDatabase;
         [SerializeField] private bool enableSetBonuses = true;
         [SerializeField] private bool allowMultipleOfSameType = false;
 
-        [Header("⚡ Performance Settings")]
+        [Header("[Performance] Performance Settings")]
         [SerializeField] private bool cacheEquipmentCalculations = true;
         [SerializeField] private float cacheUpdateFrequency = 5f;
 
@@ -51,7 +51,7 @@ namespace Laboratory.Core.Equipment
                 InvokeRepeating(nameof(UpdatePerformanceCache), cacheUpdateFrequency, cacheUpdateFrequency);
             }
 
-            Debug.Log($"⚔️ Equipment System initialized with {_globalEquipment.Count} items");
+            Debug.Log($"[Equipment] Equipment System initialized with {_globalEquipment.Count} items");
         }
 
         private void LoadEquipmentDatabase()
@@ -138,7 +138,7 @@ namespace Laboratory.Core.Equipment
             // Invalidate performance cache
             InvalidatePerformanceCache(monster.UniqueId);
 
-            Debug.Log($"🎒 {monster.Name} equipped {equipment.Name}");
+            Debug.Log($"[Equip] {monster.Name} equipped {equipment.Name}");
             return true;
         }
 
@@ -163,7 +163,7 @@ namespace Laboratory.Core.Equipment
             // Invalidate performance cache
             InvalidatePerformanceCache(monster.UniqueId);
 
-            Debug.Log($"🎒 {monster.Name} unequipped {equipment.Name}");
+            Debug.Log($"[Unequip] {monster.Name} unequipped {equipment.Name}");
             return true;
         }
 
@@ -402,7 +402,7 @@ namespace Laboratory.Core.Equipment
 
             InvalidatePerformanceCache(monster.UniqueId);
 
-            Debug.Log($"⬆️ {item.Name} upgraded to level {item.Level}");
+            Debug.Log($"[Upgrade] {item.Name} upgraded to level {item.Level}");
             return true;
         }
 

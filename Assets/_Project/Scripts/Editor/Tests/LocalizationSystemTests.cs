@@ -24,80 +24,80 @@ namespace Laboratory.Editor.Tests
                 // Test 1: LocalizationManager singleton
                 EditorUtility.DisplayProgressBar("Localization Tests", "Test 1/8: Singleton", 1f/8f);
                 if (TestManagerSingleton(out string result1))
-                    results.Add("✓ LocalizationManager: Singleton pattern works");
+                    results.Add("[OK] LocalizationManager: Singleton pattern works");
                 else
                 {
-                    results.Add("✗ LocalizationManager Singleton: " + result1);
+                    results.Add("[X] LocalizationManager Singleton: " + result1);
                     allPassed = false;
                 }
 
                 // Test 2: Database loading
                 EditorUtility.DisplayProgressBar("Localization Tests", "Test 2/8: Database Loading", 2f/8f);
                 if (TestDatabaseLoading(out string result2))
-                    results.Add("✓ LocalizationDatabase: All language databases found");
+                    results.Add("[OK] LocalizationDatabase: All language databases found");
                 else
                 {
-                    results.Add("✗ Database Loading: " + result2);
+                    results.Add("[X] Database Loading: " + result2);
                     allPassed = false;
                 }
 
                 // Test 3: Language switching
                 EditorUtility.DisplayProgressBar("Localization Tests", "Test 3/8: Language Switching", 3f/8f);
                 if (TestLanguageSwitching(out string result3))
-                    results.Add("✓ Language Switching: SetLanguage() works correctly");
+                    results.Add("[OK] Language Switching: SetLanguage() works correctly");
                 else
                 {
-                    results.Add("✗ Language Switching: " + result3);
+                    results.Add("[X] Language Switching: " + result3);
                     allPassed = false;
                 }
 
                 // Test 4: Text retrieval
                 EditorUtility.DisplayProgressBar("Localization Tests", "Test 4/8: Text Retrieval", 4f/8f);
                 if (TestTextRetrieval(out string result4))
-                    results.Add("✓ Text Retrieval: GetText() works correctly");
+                    results.Add("[OK] Text Retrieval: GetText() works correctly");
                 else
                 {
-                    results.Add("✗ Text Retrieval: " + result4);
+                    results.Add("[X] Text Retrieval: " + result4);
                     allPassed = false;
                 }
 
                 // Test 5: Format strings
                 EditorUtility.DisplayProgressBar("Localization Tests", "Test 5/8: Format Strings", 5f/8f);
                 if (TestFormatStrings(out string result5))
-                    results.Add("✓ Format Strings: String.Format integration works");
+                    results.Add("[OK] Format Strings: String.Format integration works");
                 else
                 {
-                    results.Add("✗ Format Strings: " + result5);
+                    results.Add("[X] Format Strings: " + result5);
                     allPassed = false;
                 }
 
                 // Test 6: Missing key handling
                 EditorUtility.DisplayProgressBar("Localization Tests", "Test 6/8: Missing Keys", 6f/8f);
                 if (TestMissingKeys(out string result6))
-                    results.Add("✓ Missing Keys: Fallback behavior works");
+                    results.Add("[OK] Missing Keys: Fallback behavior works");
                 else
                 {
-                    results.Add("✗ Missing Keys: " + result6);
+                    results.Add("[X] Missing Keys: " + result6);
                     allPassed = false;
                 }
 
                 // Test 7: Translation completeness
                 EditorUtility.DisplayProgressBar("Localization Tests", "Test 7/8: Translation Completeness", 7f/8f);
                 if (TestTranslationCompleteness(out string result7))
-                    results.Add("✓ Translation Completeness: All languages have same keys");
+                    results.Add("[OK] Translation Completeness: All languages have same keys");
                 else
                 {
-                    results.Add("✗ Translation Completeness: " + result7);
+                    results.Add("[X] Translation Completeness: " + result7);
                     allPassed = false;
                 }
 
                 // Test 8: Event system
                 EditorUtility.DisplayProgressBar("Localization Tests", "Test 8/8: Event System", 8f/8f);
                 if (TestEventSystem(out string result8))
-                    results.Add("✓ Event System: OnLanguageChanged fires correctly");
+                    results.Add("[OK] Event System: OnLanguageChanged fires correctly");
                 else
                 {
-                    results.Add("✗ Event System: " + result8);
+                    results.Add("[X] Event System: " + result8);
                     allPassed = false;
                 }
             }
@@ -108,8 +108,8 @@ namespace Laboratory.Editor.Tests
 
             // Display results
             string summary = allPassed ?
-                "✅ All localization tests passed!" :
-                "⚠ Some tests failed - review results below";
+                "[OK] All localization tests passed!" :
+                "[Warning] Some tests failed - review results below";
 
             string fullReport = $"{summary}\n\n" + string.Join("\n", results);
 

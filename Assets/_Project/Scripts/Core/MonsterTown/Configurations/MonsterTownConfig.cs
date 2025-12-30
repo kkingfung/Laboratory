@@ -215,11 +215,11 @@ namespace Laboratory.Core.MonsterTown
             OnValidate();
             if (IsValid())
             {
-                Debug.Log($"✅ {name} configuration is valid!");
+                Debug.Log($"[OK] {name} configuration is valid!");
             }
             else
             {
-                Debug.LogError($"❌ {name} configuration has errors!");
+                Debug.LogError($"[X] {name} configuration has errors!");
             }
         }
 
@@ -252,7 +252,7 @@ namespace Laboratory.Core.MonsterTown
 
             OnValidate();
             UnityEditor.EditorUtility.SetDirty(this);
-            Debug.Log($"🔄 {name} reset to default values");
+            Debug.Log($"[Reset] {name} reset to default values");
         }
 #endif
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -57,7 +57,7 @@ namespace Laboratory.Core.MonsterTown.Integration
         {
             try
             {
-                Debug.Log("🔗 Initializing Chimera integration bridge...");
+                Debug.Log("[Integration] Initializing Chimera integration bridge...");
 
                 // Check if Chimera components are available
                 isChimeraAvailable = CheckChimeraAvailability();
@@ -67,19 +67,19 @@ namespace Laboratory.Core.MonsterTown.Integration
                     await SetupChimeraEventHandlers();
                     await InitializeChimeraScene();
                     isIntegrationActive = true;
-                    Debug.Log("✅ Chimera integration bridge initialized successfully");
+                    Debug.Log("[OK] Chimera integration bridge initialized successfully");
                     return true;
                 }
                 else
                 {
-                    Debug.LogWarning("⚠️ Chimera system not available - running in standalone mode");
+                    Debug.LogWarning("[Warning] Chimera system not available - running in standalone mode");
                     await InitializeStandaloneMode();
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"❌ Failed to initialize Chimera integration: {ex.Message}");
+                Debug.LogError($"[X] Failed to initialize Chimera integration: {ex.Message}");
                 await InitializeStandaloneMode();
                 return false;
             }
@@ -151,7 +151,7 @@ namespace Laboratory.Core.MonsterTown.Integration
             };
             eventBus?.Publish(breedingEvent);
 
-            Debug.Log($"🧬 Simulated Chimera breeding success: {offspring.Name}");
+            Debug.Log($"[Genetics] Simulated Chimera breeding success: {offspring.Name}");
         }
 
         /// <summary>
@@ -184,7 +184,7 @@ namespace Laboratory.Core.MonsterTown.Integration
 
             if (chimeraObjects.Any())
             {
-                Debug.Log($"🔍 Found {chimeraObjects.Count()} potential Chimera objects");
+                Debug.Log($"[Search] Found {chimeraObjects.Count()} potential Chimera objects");
                 return true;
             }
 
@@ -196,7 +196,7 @@ namespace Laboratory.Core.MonsterTown.Integration
 
                 if (systemNames.Any(name => name.Contains("Chimera")))
                 {
-                    Debug.Log("🔍 Found Chimera ECS systems");
+                    Debug.Log("[Search] Found Chimera ECS systems");
                     return true;
                 }
             }
@@ -209,7 +209,7 @@ namespace Laboratory.Core.MonsterTown.Integration
             if (eventBus == null) return;
 
             // Set up event handlers for Chimera integration
-            Debug.Log("🔗 Setting up Chimera event handlers");
+            Debug.Log("[Integration] Setting up Chimera event handlers");
 
             // Simulate some setup time
             await Task.Delay(100);
@@ -217,7 +217,7 @@ namespace Laboratory.Core.MonsterTown.Integration
 
         private async Task InitializeChimeraScene()
         {
-            Debug.Log("🌍 Initializing Chimera scene integration");
+            Debug.Log("[Scene] Initializing Chimera scene integration");
 
             // Simulate Chimera scene initialization
             await Task.Delay(200);
@@ -231,7 +231,7 @@ namespace Laboratory.Core.MonsterTown.Integration
 
         private async Task InitializeStandaloneMode()
         {
-            Debug.Log("🔧 Initializing standalone mode (no Chimera integration)");
+            Debug.Log("[Tool] Initializing standalone mode (no Chimera integration)");
 
             // Set up Monster Town to work without Chimera
             isIntegrationActive = false;
@@ -241,7 +241,7 @@ namespace Laboratory.Core.MonsterTown.Integration
 
         private async Task CreateInitialTestCreatures()
         {
-            Debug.Log("🧪 Creating initial test creatures for Chimera integration");
+            Debug.Log("[Lab] Creating initial test creatures for Chimera integration");
 
             // Create a few test monsters to demonstrate integration
             for (int i = 0; i < 3; i++)
@@ -269,12 +269,12 @@ namespace Laboratory.Core.MonsterTown.Integration
 
                 if (isChimeraAvailable && !isIntegrationActive)
                 {
-                    Debug.Log("🔄 Chimera system detected - attempting integration");
+                    Debug.Log("[Refresh] Chimera system detected - attempting integration");
                     _ = InitializeIntegrationAsync();
                 }
                 else if (!isChimeraAvailable && isIntegrationActive)
                 {
-                    Debug.Log("🔄 Chimera system lost - switching to standalone mode");
+                    Debug.Log("[Refresh] Chimera system lost - switching to standalone mode");
                     isIntegrationActive = false;
                 }
             }

@@ -168,7 +168,7 @@ namespace Laboratory.UI.Performance
                 }
             }
 
-            Debug.Log($"🎨 Initialized {_objectPools.Count} UI object pools");
+            Debug.Log($"[Visual] Initialized {_objectPools.Count} UI object pools");
         }
 
         private void InitializeNativeCollections()

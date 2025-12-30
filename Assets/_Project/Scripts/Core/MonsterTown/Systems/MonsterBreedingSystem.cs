@@ -182,7 +182,7 @@ namespace Laboratory.Core.MonsterTown.Systems
                 LastActivityTime = DateTime.UtcNow
             };
 
-            Debug.Log($"🧬 Created random monster: {monster.Name}");
+            Debug.Log($"[Monster] Created random monster: {monster.Name}");
             return monster;
         }
 
@@ -219,7 +219,7 @@ namespace Laboratory.Core.MonsterTown.Systems
                 LastActivityTime = DateTime.UtcNow
             };
 
-            Debug.Log($"🧬 Breeding successful: {offspring.Name} born from {parent1.Name} and {parent2.Name}");
+            Debug.Log($"[Breeding] Breeding successful: {offspring.Name} born from {parent1.Name} and {parent2.Name}");
             return offspring;
         }
 

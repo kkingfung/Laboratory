@@ -14,7 +14,7 @@ namespace Laboratory.Core.Infrastructure
     public static class InformationTheoryOptimizer
     {
         // Information theory constants
-        private const float LOG2_E = 1.44269504088896f; // log₂(e) for natural log conversion
+        private const float LOG2_E = 1.44269504088896f; // log2(e) for natural log conversion
         private const float THEORETICAL_MINIMUM_ENTROPY = 0.0001f; // Theoretical lower bound
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Laboratory.Core.Infrastructure
 
             if (totalCount == 0) return 0f;
 
-            // Calculate Shannon entropy: H(X) = -Σ p(x) * log₂(p(x))
+            // Calculate Shannon entropy: H(X) = -sum p(x) * log2(p(x))
             var entropy = 0f;
             foreach (var frequency in frequencies.Values)
             {
@@ -59,7 +59,7 @@ namespace Laboratory.Core.Infrastructure
             var originalBytes = Encoding.UTF8.GetBytes(data);
             var compressedSize = EstimateCompressionSize(originalBytes);
 
-            // K(x) ≈ compressed_size / original_size * original_size
+            // K(x) ~= compressed_size / original_size * original_size
             var complexityRatio = (float)compressedSize / originalBytes.Length;
             return complexityRatio * originalBytes.Length;
         }
@@ -92,7 +92,7 @@ namespace Laboratory.Core.Infrastructure
             var totalSymbols = geneticSequences.SelectMany(s => s).Count();
             var uniqueSymbols = frequencyMap.Keys.Count;
 
-            // Theoretical minimum: log₂(uniqueSymbols)
+            // Theoretical minimum: log2(uniqueSymbols)
             optimization.OptimalEntropy = Mathf.Log(uniqueSymbols, 2f);
 
             // Calculate compression ratio using optimal encoding
@@ -205,7 +205,7 @@ namespace Laboratory.Core.Infrastructure
             optimization.OriginalRedundancy = maxEntropy - actualEntropy;
 
             // Calculate optimal redundancy using Kraft inequality
-            // For target reliability R, we need log₂(1/(1-R)) redundancy bits
+            // For target reliability R, we need log2(1/(1-R)) redundancy bits
             var requiredRedundancyBits = Mathf.Log(1f / (1f - targetReliability), 2f);
             optimization.OptimalRedundancy = requiredRedundancyBits;
 
@@ -339,7 +339,7 @@ namespace Laboratory.Core.Infrastructure
 
         private static float CalculateHammingBound(int dataLength, float targetReliability)
         {
-            // Hamming bound for error correction: 2^r ≥ m + r + 1
+            // Hamming bound for error correction: 2^r >= m + r + 1
             // where r is redundancy bits, m is data bits
             var errorProbability = 1f - targetReliability;
             var requiredCorrection = Mathf.Log(1f / errorProbability, 2f);

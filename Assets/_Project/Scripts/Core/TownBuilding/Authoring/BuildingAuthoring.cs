@@ -111,7 +111,7 @@ namespace Laboratory.Core.TownBuilding.Authoring
                 IsActive = gameObject.activeInHierarchy
             });
 
-            Debug.Log($"✅ Created {buildingTier} {buildingType} building entity");
+            Debug.Log($"[OK] Created {buildingTier} {buildingType} building entity");
         }
 
         private bool IsCreatureBuilding(BuildingType type)

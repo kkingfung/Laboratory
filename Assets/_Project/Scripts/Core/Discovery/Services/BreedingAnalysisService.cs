@@ -31,7 +31,7 @@ namespace Laboratory.Core.Discovery.Services
             var content = GenerateBreedingEntryContent(parent1, parent2, offspring, analysis);
 
             var entry = discoverySystem.AddJournalEntry(playerId, JournalEntryType.BreedingResult,
-                $"Breeding: {parent1.Name} × {parent2.Name}", content,
+                $"Breeding: {parent1.Name} * {parent2.Name}", content,
                 new BreedingData { Parent1 = parent1, Parent2 = parent2, Offspring = offspring });
 
             // Check for genetic discoveries
@@ -211,13 +211,13 @@ namespace Laboratory.Core.Discovery.Services
 
         private string GenerateBreedingEntryContent(Monster parent1, Monster parent2, Monster offspring, BreedingAnalysis analysis)
         {
-            var content = $"Breeding Experiment: {parent1.Name} × {parent2.Name}\n\n";
+            var content = $"Breeding Experiment: {parent1.Name} * {parent2.Name}\n\n";
             content += $"Result: {offspring.Name}\n\n";
             content += "Trait Analysis:\n";
 
             foreach (var trait in analysis.TraitComparisons)
             {
-                content += $"• {trait.Key}: {trait.Value.Parent1Value:F1} + {trait.Value.Parent2Value:F1} → {trait.Value.OffspringValue:F1} ({trait.Value.InheritanceType})\n";
+                content += $"• {trait.Key}: {trait.Value.Parent1Value:F1} + {trait.Value.Parent2Value:F1} -> {trait.Value.OffspringValue:F1} ({trait.Value.InheritanceType})\n";
             }
 
             if (analysis.NotableObservations.Any())

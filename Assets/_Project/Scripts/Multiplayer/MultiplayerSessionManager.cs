@@ -679,7 +679,7 @@ namespace Laboratory.Multiplayer
 
             OnStateChanged?.Invoke(newState);
 
-            Log($"State: {oldState} → {newState}");
+            Log($"State: {oldState} -> {newState}");
         }
 
         #endregion

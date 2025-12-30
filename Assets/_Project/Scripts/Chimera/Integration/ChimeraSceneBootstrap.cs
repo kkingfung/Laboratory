@@ -302,7 +302,7 @@ namespace Laboratory.Chimera.Integration
         
         private void ValidateConfiguration()
         {
-            Log("🔍 Validating configuration...");
+            Log("[Check] Validating configuration...");
             
             if (biomeConfig == null)
             {
@@ -373,7 +373,7 @@ namespace Laboratory.Chimera.Integration
         
         private async UniTask SpawnInitialCreatures()
         {
-            Log($"🧬 Spawning {initialCreatureCount} initial creatures...");
+            Log($"[Genetics] Spawning {initialCreatureCount} initial creatures...");
             
             int spawnedCount = 0;
             int companionCount = 0;

@@ -1,3 +1,4 @@
+using System;
 using Unity.Entities;
 
 namespace Laboratory.Core.ECS
@@ -8,11 +9,12 @@ namespace Laboratory.Core.ECS
     /// to be accessible by both Core (for debugging) and Chimera (for creature system)
     /// without creating circular dependencies.
     ///
-    /// Note: Many component definitions have been moved to Laboratory.Chimera.ECS
-    /// to avoid namespace conflicts and provide richer functionality.
+    /// MIGRATION NOTE: Many component definitions have been moved to Laboratory.Chimera.ECS
+    /// Use the Chimera versions for new code. This file contains simplified versions
+    /// for backward compatibility with core debugging systems.
     /// </summary>
 
-    // Core creature data - basic identification
+    // Core creature data - basic identification (unique to Core)
     public struct CreatureData : IComponentData
     {
         public int speciesID;
@@ -22,7 +24,7 @@ namespace Laboratory.Core.ECS
         public bool isAlive;
     }
 
-    // Basic creature statistics - simple version for core systems
+    // Basic creature statistics - simple version for core systems (unique to Core)
     public struct CreatureStats : IComponentData
     {
         public float health;
@@ -34,7 +36,7 @@ namespace Laboratory.Core.ECS
         public float charisma;
     }
 
-    // Genetic traits buffer - for core genetic calculations
+    // Genetic traits buffer - for core genetic calculations (unique to Core)
     public struct CreatureGeneticTrait : IBufferElementData
     {
         public int traitName; // Hashed string for performance
@@ -42,7 +44,7 @@ namespace Laboratory.Core.ECS
         public float dominance;
     }
 
-    // Visual appearance data - for rendering systems
+    // Visual appearance data - for rendering systems (unique to Core)
     public struct CreatureVisualData : IComponentData
     {
         public float baseScale;
@@ -50,28 +52,41 @@ namespace Laboratory.Core.ECS
         public int speciesVisualID;
     }
 
-    // Simulation tag for filtering
+    // Simulation tag for filtering (unique to Core)
     public struct CreatureSimulationTag : IComponentData { }
 
-    // Core lifecycle component - simplified version
+    /// <summary>
+    /// DEPRECATED: Use Laboratory.Chimera.ECS.CreatureLifecycleComponent instead.
+    /// This simplified version is kept for backward compatibility only.
+    /// </summary>
+    [Obsolete("Use Laboratory.Chimera.ECS.CreatureLifecycleComponent for new code. This simplified version may be removed in future versions.")]
     public struct CreatureLifecycleComponent : IComponentData
     {
         public int currentStage; // Using int to avoid enum conflicts
         public float stageProgress;
     }
 
-    // GameObject linking - for bridging ECS and GameObject systems
+    /// <summary>
+    /// DEPRECATED: Use Laboratory.Chimera.ECS.GameObjectLinkComponent instead.
+    /// This simplified version is kept for backward compatibility only.
+    /// </summary>
+    [Obsolete("Use Laboratory.Chimera.ECS.GameObjectLinkComponent for new code. This simplified version may be removed in future versions.")]
     public struct GameObjectLinkComponent : IComponentData
     {
         public int instanceID;
     }
 
-    // Tags
+    /// <summary>
+    /// DEPRECATED: Use Laboratory.Chimera.ECS.DeadTag instead.
+    /// </summary>
+    [Obsolete("Use Laboratory.Chimera.ECS.DeadTag for new code.")]
     public struct DeadTag : IComponentData { }
 
-    // AI behavior types - core subset for basic systems
-    // Note: Full AIBehaviorType enum is defined in Laboratory.Chimera.AI.AIBehaviorType
-    // This is a minimal subset for ECS components 
+    /// <summary>
+    /// DEPRECATED: Use Laboratory.Chimera.AI.AIBehaviorType instead.
+    /// This is a minimal subset kept for backward compatibility.
+    /// </summary>
+    [Obsolete("Use Laboratory.Chimera.AI.AIBehaviorType for new code. This enum may be removed in future versions.")]
     public enum AIBehaviorType : byte
     {
         None = 0,
@@ -85,9 +100,11 @@ namespace Laboratory.Core.ECS
         Herbivore = 27
     }
 
-    // AI states - core subset for basic systems
-    // Note: Full AIBehaviorState enum is defined in Laboratory.Chimera.AI.AIBehaviorState
-    // This is a minimal subset for ECS components 
+    /// <summary>
+    /// DEPRECATED: Use Laboratory.Chimera.ECS.AIState instead.
+    /// WARNING: This enum has different values than the canonical version!
+    /// </summary>
+    [Obsolete("Use Laboratory.Chimera.ECS.AIState for new code. WARNING: Enum values differ between versions!")]
     public enum AIState : byte
     {
         Idle = 0,
@@ -99,5 +116,4 @@ namespace Laboratory.Core.ECS
         Feeding = 7,
         Resting = 8
     }
-
 }

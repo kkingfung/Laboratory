@@ -59,7 +59,7 @@ namespace Laboratory.Chimera.Ecosystem
             InitializeGlobalState();
 
             isInitialized = true;
-            UnityEngine.Debug.Log("🌍 Ecosystem Orchestrator initialized with modular architecture");
+            UnityEngine.Debug.Log("[Ecosystem] Orchestrator initialized with modular architecture");
         }
 
         private void FindOrCreateEcosystemSystems()
@@ -253,104 +253,104 @@ namespace Laboratory.Chimera.Ecosystem
         private void OnClimateChanged(ClimateData climate)
         {
             if (enableDebugLogging)
-                UnityEngine.Debug.Log($"🌡️ Climate changed: {climate.GlobalTemperature:F1}°C, Stability: {climate.ClimateStability:F2}");
+                UnityEngine.Debug.Log($"[Ecosystem] Climate changed: {climate.GlobalTemperature:F1}C, Stability: {climate.ClimateStability:F2}");
         }
 
         private void OnSeasonChanged(SeasonType season)
         {
             if (enableDebugLogging)
-                UnityEngine.Debug.Log($"🍂 Season changed to {season}");
+                UnityEngine.Debug.Log($"[Ecosystem] Season changed to {season}");
         }
 
         private void OnWeatherSystemFormed(WeatherPattern weather)
         {
             if (enableDebugLogging)
-                UnityEngine.Debug.Log($"🌦️ Weather system formed: {weather.Type} at {weather.Location}");
+                UnityEngine.Debug.Log($"[Ecosystem] Weather system formed: {weather.Type} at {weather.Location}");
         }
 
         private void OnBiomeTransitionStarted(Vector2 location, BiomeType from, BiomeType to)
         {
             if (enableDebugLogging)
-                UnityEngine.Debug.Log($"🌿 Biome transition started at {location}: {from} → {to}");
+                UnityEngine.Debug.Log($"[Ecosystem] Biome transition started at {location}: {from} -> {to}");
         }
 
         private void OnBiomeTransitionCompleted(Vector2 location, BiomeType newBiome)
         {
             if (enableDebugLogging)
-                UnityEngine.Debug.Log($"🌿 Biome transition completed at {location}: now {newBiome}");
+                UnityEngine.Debug.Log($"[Ecosystem] Biome transition completed at {location}: now {newBiome}");
         }
 
         private void OnResourceLevelChanged(Vector2 location, ResourceType resource, float level)
         {
             if (enableDebugLogging && level < 50f)
-                UnityEngine.Debug.Log($"💧 Low resource at {location}: {resource} = {level:F1}");
+                UnityEngine.Debug.Log($"[Ecosystem] Low resource at {location}: {resource} = {level:F1}");
         }
 
         private void OnResourceDepleted(Vector2 location, ResourceType resource)
         {
-            UnityEngine.Debug.LogWarning($"⚠️ Resource depleted at {location}: {resource}");
+            UnityEngine.Debug.LogWarning($"[Ecosystem] Resource depleted at {location}: {resource}");
         }
 
         private void OnGlobalResourceChanged(ResourceType resource, float level)
         {
             if (enableDebugLogging)
-                UnityEngine.Debug.Log($"🌍 Global {resource}: {level:F1}");
+                UnityEngine.Debug.Log($"[Ecosystem] Global {resource}: {level:F1}");
         }
 
         private void OnSpeciesInteraction(uint species1, uint species2, InteractionType type, float strength)
         {
             if (enableDebugLogging)
-                UnityEngine.Debug.Log($"🦎 Species interaction: {species1} ↔ {species2} ({type}, {strength:F2})");
+                UnityEngine.Debug.Log($"[Ecosystem] Species interaction: {species1} <-> {species2} ({type}, {strength:F2})");
         }
 
         private void OnPopulationChanged(uint speciesId, float population)
         {
             if (enableDebugLogging && population < 10f)
-                UnityEngine.Debug.LogWarning($"⚠️ Low population for species {speciesId}: {population:F1}");
+                UnityEngine.Debug.LogWarning($"[Ecosystem] Low population for species {speciesId}: {population:F1}");
         }
 
         private void OnSpeciesExtinction(uint speciesId)
         {
-            UnityEngine.Debug.LogError($"💀 Species extinction: {speciesId}");
+            UnityEngine.Debug.LogError($"[Ecosystem] Species extinction: {speciesId}");
         }
 
         private void OnMigrationTriggered(uint speciesId, Vector2 from, Vector2 to)
         {
             if (enableDebugLogging)
-                UnityEngine.Debug.Log($"🦋 Migration: Species {speciesId} from {from} to {to}");
+                UnityEngine.Debug.Log($"[Ecosystem] Migration: Species {speciesId} from {from} to {to}");
         }
 
         private void OnHealthAssessmentComplete(EcosystemHealth health)
         {
             if (enableDebugLogging)
-                UnityEngine.Debug.Log($"🌿 Ecosystem health: {health.OverallHealthScore:F2}");
+                UnityEngine.Debug.Log($"[Ecosystem] Health: {health.OverallHealthScore:F2}");
         }
 
         private void OnHealthWarning(string warning)
         {
-            UnityEngine.Debug.LogWarning($"⚠️ Ecosystem warning: {warning}");
+            UnityEngine.Debug.LogWarning($"[Ecosystem] Warning: {warning}");
         }
 
         private void OnHealthCritical(string critical)
         {
-            UnityEngine.Debug.LogError($"🚨 Ecosystem critical: {critical}");
+            UnityEngine.Debug.LogError($"[Ecosystem] CRITICAL: {critical}");
         }
 
         private void OnCatastropheTriggered(CatastrophicEvent catastrophe)
         {
-            UnityEngine.Debug.LogWarning($"💥 Catastrophe: {catastrophe.Type} at {catastrophe.EpicenterLocation}");
+            UnityEngine.Debug.LogWarning($"[Ecosystem] Catastrophe: {catastrophe.Type} at {catastrophe.EpicenterLocation}");
         }
 
         private void OnCatastropheEnded(CatastrophicEvent catastrophe)
         {
             if (enableDebugLogging)
-                UnityEngine.Debug.Log($"✅ Catastrophe ended: {catastrophe.Type}");
+                UnityEngine.Debug.Log($"[Ecosystem] Catastrophe ended: {catastrophe.Type}");
         }
 
         private void OnRecoveryProgress(Vector2 location, EcoCatastropheType type, float progress)
         {
             if (enableDebugLogging && progress >= 1f)
-                UnityEngine.Debug.Log($"🌱 Recovery complete: {type} at {location}");
+                UnityEngine.Debug.Log($"[Ecosystem] Recovery complete: {type} at {location}");
         }
 
         #endregion

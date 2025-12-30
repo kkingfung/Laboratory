@@ -55,11 +55,11 @@ namespace Laboratory.Core.MonsterTown
                 _gridHeight = Mathf.CeilToInt(_townBounds.y / _gridSize);
                 _gridOccupancy = new bool[_gridWidth, _gridHeight];
 
-                Debug.Log($"🏗️ Building system initialized with {_gridWidth}x{_gridHeight} grid");
+                Debug.Log($"[Build] Building system initialized with {_gridWidth}x{_gridHeight} grid");
             }
             else
             {
-                Debug.Log("🏗️ Building system initialized with free placement");
+                Debug.Log("[Build] Building system initialized with free placement");
             }
 
             LoadBuildingPrefabs();
@@ -105,7 +105,7 @@ namespace Laboratory.Core.MonsterTown
                 // Fire events
                 _eventBus?.Publish(new BuildingConstructedEvent(config.buildingType, buildingEntity, position));
 
-                Debug.Log($"🏗️ Successfully constructed {config.buildingType} at {position}");
+                Debug.Log($"[Build] Successfully constructed {config.buildingType} at {position}");
                 return buildingEntity;
             }
             catch (Exception ex)
@@ -161,7 +161,7 @@ namespace Laboratory.Core.MonsterTown
                 // Fire events
                 _eventBus?.Publish(new BuildingDestroyedEvent(buildingType, position));
 
-                Debug.Log($"🏗️ Destroyed building {buildingType} at {position}");
+                Debug.Log($"[Build] Destroyed building {buildingType} at {position}");
             }
             catch (Exception ex)
             {
@@ -189,7 +189,7 @@ namespace Laboratory.Core.MonsterTown
             _buildingsByType.Clear();
             _buildingPrefabs.Clear();
 
-            Debug.Log("🏗️ Building system disposed");
+            Debug.Log("[Build] Building system disposed");
         }
 
         #endregion
@@ -333,7 +333,7 @@ namespace Laboratory.Core.MonsterTown
         {
             // In a real implementation, this would load prefabs from Resources or Addressables
             // For now, we'll use procedural generation
-            Debug.Log("🏗️ Building prefabs loaded (procedural generation)");
+            Debug.Log("[Build] Building prefabs loaded (procedural generation)");
         }
 
         private void TrackBuilding(BuildingType buildingType, Entity building)

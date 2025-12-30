@@ -252,7 +252,7 @@ namespace Laboratory.Core.Health
                     _healthEvents.Add(healthEvent);
                     OnHealthEventTriggered?.Invoke(healthEvent);
 
-                    Debug.LogWarning($"[SystemHealthMonitor] {systemName} status changed: {previousStatus} → {healthData.status} (Score: {healthScore:F1})");
+                    Debug.LogWarning($"[SystemHealthMonitor] {systemName} status changed: {previousStatus} -> {healthData.status} (Score: {healthScore:F1})");
                 }
 
                 return healthData;

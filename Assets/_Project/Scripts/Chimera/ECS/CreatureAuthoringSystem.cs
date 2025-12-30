@@ -17,24 +17,24 @@ namespace Laboratory.Chimera.ECS
     /// </summary>
     public class CreatureAuthoringSystem : MonoBehaviour
     {
-        [Header("🧬 Species Configuration")]
+        [Header("Species Configuration")]
         [SerializeField] public ChimeraSpeciesConfig speciesConfig;
 
-        [Header("🎯 Instance Settings")]
+        [Header("Instance Settings")]
         [SerializeField] public bool randomizeGenetics = true;
         [SerializeField] public int generation = 1;
         [SerializeField] public uint geneticSeed = 0; // 0 = auto-generate
 
-        [Header("🎨 Visual Overrides")]
+        [Header("Visual Overrides")]
         [SerializeField] public bool overrideScale = false;
         [SerializeField] [Range(0.5f, 2.0f)] public float scaleMultiplier = 1f;
 
-        [Header("🤖 AI Behavior")]
+        [Header("AI Behavior")]
         [SerializeField] public Laboratory.Chimera.AI.AIBehaviorType behaviorType = Laboratory.Chimera.AI.AIBehaviorType.Wild;
         [SerializeField] public bool enablePathfinding = true;
         [SerializeField] [Range(0.1f, 10f)] public float movementSpeed = 3f;
 
-        [Header("📊 Debug")]
+        [Header("Debug")]
         [SerializeField] private bool showDebugInfo = false;
         [SerializeField] private string generatedGeneticID = "";
 
@@ -115,7 +115,7 @@ namespace Laboratory.Chimera.ECS
 
             if (showDebugInfo)
             {
-                UnityEngine.Debug.Log($"✅ Created ECS entity for {name} with genetic seed: {seed:X8}");
+                UnityEngine.Debug.Log($"[ECS] Created ECS entity for {name} with genetic seed: {seed:X8}");
             }
         }
 

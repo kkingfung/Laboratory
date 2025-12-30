@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using ProjectChimera.AI.Pathfinding;
@@ -11,13 +11,13 @@ namespace ProjectChimera.AI.Utilities
     /// </summary>
     public class PathfindingProfiler : MonoBehaviour
     {
-        [Header("🔍 Pathfinding Performance Monitor")]
+        [Header("Pathfinding Performance Monitor")]
         [SerializeField] private bool enableProfiling = true;
         [SerializeField] private bool showDebugGUI = true;
         [SerializeField] private int maxRecordedFrames = 300;
         [SerializeField] private float updateInterval = 1f;
         
-        [Header("📊 Statistics")]
+        [Header("Statistics")]
         [SerializeField] private bool trackPathRequests = true;
         [SerializeField] private bool trackPathCalculations = true;
         [SerializeField] private bool trackMemoryUsage = true;
@@ -43,7 +43,7 @@ namespace ProjectChimera.AI.Utilities
             {
                 lastUpdateTime = Time.time; // Initialize timing
                 InvokeRepeating(nameof(UpdateStatistics), 0f, updateInterval);
-                Debug.Log("✅ PathfindingProfiler started monitoring performance");
+                Debug.Log("[AI] PathfindingProfiler started monitoring performance");
             }
         }
         
@@ -122,7 +122,7 @@ namespace ProjectChimera.AI.Utilities
 
                 if (requestsPerSecond > 0 || calculationsPerSecond > 0)
                 {
-                    Debug.Log($"📊 Pathfinding Performance - Requests/sec: {requestsPerSecond:F1}, Calculations/sec: {calculationsPerSecond:F1}, Avg Time: {averagePathTime:F2}ms");
+                    Debug.Log($"Pathfinding Performance - Requests/sec: {requestsPerSecond:F1}, Calculations/sec: {calculationsPerSecond:F1}, Avg Time: {averagePathTime:F2}ms");
                 }
             }
 
@@ -159,7 +159,7 @@ namespace ProjectChimera.AI.Utilities
             GUILayout.BeginVertical("box");
             
             GUIStyle boldStyle = new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold };
-            GUILayout.Label("🔍 Pathfinding Performance", boldStyle);
+            GUILayout.Label("Pathfinding Performance", boldStyle);
             GUILayout.Space(5);
             
             GUILayout.Label($"Active Agents: {totalActiveAgents}");
@@ -188,7 +188,7 @@ namespace ProjectChimera.AI.Utilities
             pathCalculationTimes.Clear();
             activeAgentCounts.Clear();
             memoryUsageHistory.Clear();
-            Debug.Log("🧹 PathfindingProfiler statistics cleared");
+            Debug.Log("[AI] PathfindingProfiler statistics cleared");
         }
         
         // Get performance data for external systems
@@ -211,12 +211,12 @@ namespace ProjectChimera.AI.Utilities
         }
         
         #if UNITY_EDITOR
-        [UnityEditor.MenuItem("🧪 Laboratory/AI/Create PathfindingProfiler")]
+        [UnityEditor.MenuItem("Laboratory/AI/Create PathfindingProfiler")]
         public static void CreatePathfindingProfiler()
         {
             GameObject profilerGO = new GameObject("PathfindingProfiler");
             profilerGO.AddComponent<PathfindingProfiler>();
-            Debug.Log("✅ Created PathfindingProfiler GameObject");
+            Debug.Log("[AI] Created PathfindingProfiler GameObject");
         }
         #endif
     }

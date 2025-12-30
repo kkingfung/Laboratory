@@ -39,7 +39,7 @@ namespace Laboratory.Chimera.Testing
 
         private async UniTask RunQuickTests()
         {
-            Log("🧬 STARTING CHIMERA QUICK TESTS");
+            Log("[Genetics] STARTING CHIMERA QUICK TESTS");
             
             // Initialize systems
             InitializeSystems();
@@ -62,7 +62,7 @@ namespace Laboratory.Chimera.Testing
             // Test 6: Test event system
             TestEventSystem();
             
-            Log("✅ ALL CHIMERA TESTS COMPLETED SUCCESSFULLY!");
+            Log("[OK] ALL CHIMERA TESTS COMPLETED SUCCESSFULLY!");
         }
 
         private void InitializeSystems()
@@ -76,7 +76,7 @@ namespace Laboratory.Chimera.Testing
             eventBus.Subscribe<BreedingSuccessfulEvent>(OnBreedingSuccess);
             eventBus.Subscribe<BreedingFailedEvent>(OnBreedingFailure);
             
-            Log("✅ Systems initialized");
+            Log("[OK] Systems initialized");
         }
 
         private void TestSystemInitialization()
@@ -86,7 +86,7 @@ namespace Laboratory.Chimera.Testing
             Assert(eventBus != null, "EventBus should be initialized");
             Assert(breedingSystem != null, "BreedingSystem should be initialized");
             
-            Log("✅ System initialization test passed");
+            Log("[OK] System initialization test passed");
         }
 
         private CreatureInstance[] CreateTestCreatures()
@@ -104,7 +104,7 @@ namespace Laboratory.Chimera.Testing
             Assert(dragon.IsAdult, "Dragon should be adult");
             Assert(drake.IsAdult, "Drake should be adult");
             
-            Log($"✅ Created {dragon.Definition.speciesName} and {drake.Definition.speciesName}");
+            Log($"[OK] Created {dragon.Definition.speciesName} and {drake.Definition.speciesName}");
             
             return new[] { dragon, drake };
         }
@@ -116,7 +116,7 @@ namespace Laboratory.Chimera.Testing
             bool compatible = creature1.Definition.CanBreedWith(creature2.Definition);
             Assert(compatible, "Test creatures should be compatible for breeding");
             
-            Log("✅ Breeding compatibility test passed");
+            Log("[OK] Breeding compatibility test passed");
         }
 
         private async UniTask TestBreeding(CreatureInstance parent1, CreatureInstance parent2)
@@ -140,7 +140,7 @@ namespace Laboratory.Chimera.Testing
             
             if (result.Success)
             {
-                Log($"✅ Breeding successful! Offspring produced");
+                Log($"[OK] Breeding successful! Offspring produced");
                 Assert(result.Offspring != null, "Successful breeding should produce offspring");
 
                 var offspring = result.Offspring;
@@ -150,11 +150,11 @@ namespace Laboratory.Chimera.Testing
             }
             else
             {
-                Log($"ℹ️ Breeding failed: {result.ErrorMessage}");
+                Log($"[Info] Breeding failed: {result.ErrorMessage}");
                 Assert(!string.IsNullOrEmpty(result.ErrorMessage), "Failed breeding should have reason");
             }
             
-            Log("✅ Breeding system test completed");
+            Log("[OK] Breeding system test completed");
         }
 
         private void TestGeneticSystem()
@@ -190,7 +190,7 @@ namespace Laboratory.Chimera.Testing
             var modifiedStats = geneticProfile.ApplyModifiers(baseStats);
             Assert(modifiedStats.health >= baseStats.health, "Health should be maintained or improved");
             
-            Log("✅ Genetic system test passed");
+            Log("[OK] Genetic system test passed");
         }
 
         private void TestEventSystem()
@@ -212,7 +212,7 @@ namespace Laboratory.Chimera.Testing
             
             Assert(eventReceived, "Event should be received by subscriber");
             
-            Log("✅ Event system test passed");
+            Log("[OK] Event system test passed");
         }
 
         private CreatureDefinition CreateTestCreatureDefinition(string name, int compatibilityGroup)
@@ -260,19 +260,19 @@ namespace Laboratory.Chimera.Testing
 
         private void OnBreedingSuccess(BreedingSuccessfulEvent evt)
         {
-            Log($"🎉 Breeding Success Event: {evt.Offspring.Length} offspring born!");
+            Log($"[Success] Breeding Success Event: {evt.Offspring.Length} offspring born!");
         }
 
         private void OnBreedingFailure(BreedingFailedEvent evt)
         {
-            Log($"💔 Breeding Failure Event: {evt.Reason}");
+            Log($"[Failed] Breeding Failure Event: {evt.Reason}");
         }
 
         private void Assert(bool condition, string message)
         {
             if (!condition)
             {
-                UnityEngine.Debug.LogError($"❌ ASSERTION FAILED: {message}");
+                UnityEngine.Debug.LogError($"[X] ASSERTION FAILED: {message}");
                 throw new System.Exception($"Test assertion failed: {message}");
             }
         }

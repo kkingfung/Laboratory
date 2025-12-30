@@ -14,7 +14,7 @@ namespace Laboratory.Editor
     /// </summary>
     public static class LaboratoryValidationTools
     {
-        private const string MenuRoot = "🧪 Laboratory/Validation/";
+        private const string MenuRoot = "[Lab] Laboratory/Validation/";
 
         #region Validation Menu Items
 
@@ -64,7 +64,7 @@ namespace Laboratory.Editor
             bool healthy = true;
             
             // ServiceContainer (Not Available) validation not available
-            Debug.Log("⚠️ ServiceContainer (Not Available) validation not available in this build");
+            Debug.Log("[Warning] ServiceContainer (Not Available) validation not available in this build");
 
             // Check for deprecated components in current scene
             var deprecatedFound = UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None)
@@ -72,24 +72,24 @@ namespace Laboratory.Editor
 
             if (deprecatedFound > 0)
             {
-                Debug.LogWarning($"⚠️ Found {deprecatedFound} deprecated components");
+                Debug.LogWarning($"[Warning] Found {deprecatedFound} deprecated components");
                 healthy = false;
             }
             else
             {
-                Debug.Log("✅ No deprecated components in current scene");
+                Debug.Log("[OK] No deprecated components in current scene");
             }
 
             // EventBus validation not available
-            Debug.Log("⚠️ EventBus validation not available in this build");
+            Debug.Log("[Warning] EventBus validation not available in this build");
 
             if (healthy)
             {
-                Debug.Log("🎉 QUICK HEALTH CHECK PASSED!");
+                Debug.Log("[Success] QUICK HEALTH CHECK PASSED!");
             }
             else
             {
-                Debug.LogWarning("⚠️ Issues found - run complete validation for details");
+                Debug.LogWarning("[Warning] Issues found - run complete validation for details");
             }
         }
 
@@ -176,12 +176,12 @@ namespace Laboratory.Editor
 
             if (deprecatedFound == 0)
             {
-                Debug.Log("✅ No deprecated components found in scene");
+                Debug.Log("[OK] No deprecated components found in scene");
                 return true;
             }
             else
             {
-                Debug.LogWarning($"⚠️ Found {deprecatedFound} deprecated components");
+                Debug.LogWarning($"[Warning] Found {deprecatedFound} deprecated components");
                 return false;
             }
         }
@@ -197,7 +197,7 @@ namespace Laboratory.Editor
                 return false;
             }
 
-            Debug.Log($"✅ TimerService is active with {timerService.GetActiveTimerCount()} active timers");
+            Debug.Log($"[OK] TimerService is active with {timerService.GetActiveTimerCount()} active timers");
             return true;
         }
 
@@ -207,25 +207,25 @@ namespace Laboratory.Editor
             
             if (allPassed)
             {
-                Debug.Log("🎉 ALL VALIDATION CHECKS PASSED!");
+                Debug.Log("[Success] ALL VALIDATION CHECKS PASSED!");
                 Debug.Log("Your Laboratory architecture is healthy and properly configured.");
-                
-                EditorUtility.DisplayDialog("System Validation", 
-                    "✅ All validation checks passed!\n\nYour Laboratory architecture is healthy and properly configured.", 
+
+                EditorUtility.DisplayDialog("System Validation",
+                    "[OK] All validation checks passed!\n\nYour Laboratory architecture is healthy and properly configured.",
                     "Excellent!");
             }
             else
             {
-                Debug.LogWarning($"⚠️ VALIDATION FOUND {issues.Count} ISSUES:");
-                
+                Debug.LogWarning($"[Warning] VALIDATION FOUND {issues.Count} ISSUES:");
+
                 foreach (var issue in issues)
                 {
-                    Debug.LogWarning($"• {issue}");
+                    Debug.LogWarning($"- {issue}");
                 }
-                
-                var issueText = string.Join("\n• ", issues);
-                EditorUtility.DisplayDialog("System Validation Issues", 
-                    $"❌ Found {issues.Count} issues:\n\n• {issueText}\n\nSee Console for details. Fix these issues for optimal system health.", 
+
+                var issueText = string.Join("\n- ", issues);
+                EditorUtility.DisplayDialog("System Validation Issues",
+                    $"[X] Found {issues.Count} issues:\n\n- {issueText}\n\nSee Console for details. Fix these issues for optimal system health.",
                     "Fix Issues");
             }
         }
@@ -282,12 +282,12 @@ namespace Laboratory.Editor
             Debug.Log($"=== TODO SCAN RESULTS ({todoItems.Count} items found) ===");
             foreach (var todo in todoItems)
             {
-                Debug.Log($"📝 {todo}");
+                Debug.Log($"[Note] {todo}");
             }
 
             if (todoItems.Count == 0)
             {
-                Debug.Log("🎉 No TODO items found in project scripts!");
+                Debug.Log("[Success] No TODO items found in project scripts!");
             }
         }
 

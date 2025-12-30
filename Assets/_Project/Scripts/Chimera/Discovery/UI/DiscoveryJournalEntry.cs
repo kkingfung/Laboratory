@@ -331,21 +331,21 @@ namespace Laboratory.Chimera.Discovery.UI
             var markerList = new System.Collections.Generic.List<string>();
 
             if (markers.HasFlag(GeneticMarkerFlags.Bioluminescent))
-                markerList.Add("🌟 Bioluminescent");
+                markerList.Add("[Glow] Bioluminescent");
             if (markers.HasFlag(GeneticMarkerFlags.CamouflageGene))
-                markerList.Add("👁️ Camouflage");
+                markerList.Add("[Stealth] Camouflage");
             if (markers.HasFlag(GeneticMarkerFlags.PackLeader))
-                markerList.Add("👑 Pack Leader");
+                markerList.Add("[Alpha] Pack Leader");
             if (markers.HasFlag(GeneticMarkerFlags.SeasonalAdaptation))
-                markerList.Add("🍂 Seasonal");
+                markerList.Add("[Season] Seasonal");
             if (markers.HasFlag(GeneticMarkerFlags.HybridVigor))
-                markerList.Add("⚡ Hybrid Vigor");
+                markerList.Add("[Power] Hybrid Vigor");
             if (markers.HasFlag(GeneticMarkerFlags.RareLineage))
-                markerList.Add("💎 Rare Lineage");
+                markerList.Add("[Rare] Rare Lineage");
             if (markers.HasFlag(GeneticMarkerFlags.MutationCarrier))
-                markerList.Add("🧬 Mutation");
+                markerList.Add("[Genetics] Mutation");
             if (markers.HasFlag(GeneticMarkerFlags.ElementalAffinity))
-                markerList.Add("🔥 Elemental");
+                markerList.Add("[Element] Elemental");
 
             return string.Join(" | ", markerList);
         }

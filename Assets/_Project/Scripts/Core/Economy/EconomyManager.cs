@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -22,19 +22,19 @@ namespace Laboratory.Core.Economy
     /// </summary>
     public class EconomyManager : MonoBehaviour
     {
-        [Header("💰 Currency Configuration")]
+        [Header("[Currency] Currency Configuration")]
         [SerializeField] private EconomyConfig economyConfig;
         [SerializeField] private CurrencyExchangeRates exchangeRates;
         [SerializeField] private bool enableDynamicPricing = true;
         [SerializeField] private float priceUpdateFrequency = 30f;
 
-        [Header("🏪 Marketplace Settings")]
+        [Header("[Market] Marketplace Settings")]
         [SerializeField] private int maxMarketplaceListings = 100;
         [SerializeField] private float listingFeePercentage = 0.05f;
         [SerializeField] private float marketplaceTaxRate = 0.02f;
         [SerializeField] private bool enablePlayerTrading = true;
 
-        [Header("📈 Economy Simulation")]
+        [Header("[Progress] Economy Simulation")]
         [SerializeField] private bool enableSupplyDemandSimulation = true;
         [SerializeField] private float marketVolatility = 0.1f;
         [SerializeField] private int simulatedTraders = 50;
@@ -80,7 +80,7 @@ namespace Laboratory.Core.Economy
                 InvokeRepeating(nameof(SimulateMarketActivity), 5f, 10f);
             }
 
-            Debug.Log($"💰 Economy Manager initialized with {_globalEconomy.GetTotalValue()} total value");
+            Debug.Log($"[Economy] Economy Manager initialized with {_globalEconomy.GetTotalValue()} total value");
         }
 
         private void InitializeExchangeRates()
@@ -153,7 +153,7 @@ namespace Laboratory.Core.Economy
             _playerWallets[playerId] = wallet;
             OnWalletUpdated?.Invoke(wallet);
 
-            Debug.Log($"💳 Created wallet for player {playerId} with {wallet.Currency.GetTotalValue()} total value");
+            Debug.Log($"[Wallet] Created wallet for player {playerId} with {wallet.Currency.GetTotalValue()} total value");
             return wallet;
         }
 
@@ -192,7 +192,7 @@ namespace Laboratory.Core.Economy
             RecordTransaction(transaction);
             OnWalletUpdated?.Invoke(wallet);
 
-            Debug.Log($"💰 Added {amount} to {playerId}'s wallet. Reason: {reason}");
+            Debug.Log($"[Wallet] Added {amount} to {playerId}'s wallet. Reason: {reason}");
             return true;
         }
 
@@ -226,7 +226,7 @@ namespace Laboratory.Core.Economy
             RecordTransaction(transaction);
             OnWalletUpdated?.Invoke(wallet);
 
-            Debug.Log($"💸 Deducted {amount} from {playerId}'s wallet. Reason: {reason}");
+            Debug.Log($"[Wallet] Deducted {amount} from {playerId}'s wallet. Reason: {reason}");
             return true;
         }
 
@@ -259,7 +259,7 @@ namespace Laboratory.Core.Economy
             DeductCurrencyFromWallet(playerId, CreateCurrencyAmount(fromCurrency, amount), $"Currency exchange: {fromCurrency} to {toCurrency}");
             AddCurrencyToWallet(playerId, CreateCurrencyAmount(toCurrency, receivedAmount), $"Currency exchange: {fromCurrency} to {toCurrency}");
 
-            Debug.Log($"💱 {playerId} exchanged {amount} {fromCurrency} for {receivedAmount} {toCurrency} (rate: {exchangeRate:F4})");
+            Debug.Log($"[Exchange] {playerId} exchanged {amount} {fromCurrency} for {receivedAmount} {toCurrency} (rate: {exchangeRate:F4})");
             return true;
         }
 
@@ -327,7 +327,7 @@ namespace Laboratory.Core.Economy
             _activeListings[listing.Id] = listing;
             OnItemListed?.Invoke(listing);
 
-            Debug.Log($"🏪 {sellerId} listed {item.Name} for {price}");
+            Debug.Log($"[Market] {sellerId} listed {item.Name} for {price}");
             return true;
         }
 
@@ -383,7 +383,7 @@ namespace Laboratory.Core.Economy
 
             OnItemSold?.Invoke(listing);
 
-            Debug.Log($"🛒 {buyerId} purchased {quantity}x {listing.Item.Name} from {listing.SellerId} for {totalPrice}");
+            Debug.Log($"[Market] {buyerId} purchased {quantity}x {listing.Item.Name} from {listing.SellerId} for {totalPrice}");
             return true;
         }
 
@@ -533,7 +533,7 @@ namespace Laboratory.Core.Economy
         private void ProcessMarketEvent(MarketEvent marketEvent)
         {
             // Process special market events like economic booms, crashes, etc.
-            Debug.Log($"📈 Processing market event: {marketEvent.Type}");
+            Debug.Log($"[Progress] Processing market event: {marketEvent.Type}");
         }
 
         #endregion

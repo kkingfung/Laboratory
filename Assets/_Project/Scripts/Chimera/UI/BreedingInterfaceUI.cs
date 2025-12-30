@@ -22,28 +22,28 @@ namespace Laboratory.Chimera.UI
     /// </summary>
     public class BreedingInterfaceUI : MonoBehaviour
     {
-        [Header("🧬 Creature Selection")]
+        [Header("[Genetics] Creature Selection")]
         [SerializeField] private Button parent1Button;
         [SerializeField] private Button parent2Button;
         [SerializeField] private TextMeshProUGUI parent1NameText;
         [SerializeField] private TextMeshProUGUI parent2NameText;
         [SerializeField] private Image parent1Portrait;
         [SerializeField] private Image parent2Portrait;
-        
-        [Header("💕 Compatibility Display")]
+
+        [Header("[Love] Compatibility Display")]
         [SerializeField] private Slider compatibilitySlider;
         [SerializeField] private TextMeshProUGUI compatibilityText;
         [SerializeField] private TextMeshProUGUI compatibilityReasonText;
         [SerializeField] private Image compatibilityIcon;
-        
-        [Header("🎯 Breeding Controls")]
+
+        [Header("[Target] Breeding Controls")]
         [SerializeField] private Button breedButton;
         [SerializeField] private Button clearSelectionButton;
         [SerializeField] private Slider breedingProgressSlider;
         [SerializeField] private TextMeshProUGUI breedingStatusText;
         [SerializeField] private Transform availableCreaturesList;
-        
-        [Header("👶 Offspring Prediction")]
+
+        [Header("[Baby] Offspring Prediction")]
         [SerializeField] private GameObject offspringPredictionPanel;
         [SerializeField] private TextMeshProUGUI offspringCountText;
         [SerializeField] private TextMeshProUGUI predictedTraitsText;
@@ -51,20 +51,20 @@ namespace Laboratory.Chimera.UI
         [SerializeField] private Slider vitalityPredictionSlider;
         [SerializeField] private Slider agilityPredictionSlider;
         [SerializeField] private Slider intelligencePredictionSlider;
-        
-        [Header("🌍 Environmental Settings")]
+
+        [Header("[World] Environmental Settings")]
         [SerializeField] private TMP_Dropdown biomeDropdown;
         [SerializeField] private Slider temperatureSlider;
         [SerializeField] private Slider foodAvailabilitySlider;
         [SerializeField] private TextMeshProUGUI environmentalModifierText;
-        
-        [Header("📊 Results Display")]
+
+        [Header("[Chart] Results Display")]
         [SerializeField] private GameObject resultsPanel;
         [SerializeField] private TextMeshProUGUI resultsText;
         [SerializeField] private Transform offspringContainer;
         [SerializeField] private GameObject offspringCardPrefab;
         
-        [Header("🔧 Configuration")]
+        [Header("[Config] Configuration")]
         [SerializeField] private bool autoSelectNearbyCreatures = true;
         [SerializeField] private float maxSelectionDistance = 15f;
         [SerializeField] private bool showAdvancedPredictions = true;
@@ -499,13 +499,13 @@ namespace Laboratory.Chimera.UI
             {
                 if (result.Success)
                 {
-                    resultsText.text = $"🎉 Breeding successful! {result.Offspring.Length} offspring born.\n" +
+                    resultsText.text = $"[Success] Breeding successful! {result.Offspring.Length} offspring born.\n" +
                                      $"Breeding chance was {result.BreedingChance:P0}";
                     resultsText.color = compatibleColor;
                 }
                 else
                 {
-                    resultsText.text = $"💔 Breeding failed: {result.FailureReason}\n" +
+                    resultsText.text = $"[Failed] Breeding failed: {result.FailureReason}\n" +
                                      $"Breeding chance was {result.BreedingChance:P0}";
                     resultsText.color = incompatibleColor;
                 }

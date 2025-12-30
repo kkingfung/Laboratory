@@ -166,7 +166,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
                 int survivors = population.PopulationSize;
                 totalSurvivors += survivors;
 
-                Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Species {speciesName}: {initialSize} â†’ {survivors} survivors");
+                Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Species {speciesName}: {initialSize} ??{survivors} survivors");
             }
 
             analytics.totalEvolutionCycles++;
@@ -305,7 +305,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
 
         private void HandleBreedingComplete(CreatureGenome parentA, CreatureGenome parentB, CreatureGenome offspring)
         {
-            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Breeding complete: Parents (Gen {parentA.generation}, {parentB.generation}) â†’ Offspring (Gen {offspring.generation}, Fitness {offspring.fitness:F3})");
+            Laboratory.Core.Diagnostics.DebugManager.LogDebug($"Breeding complete: Parents (Gen {parentA.generation}, {parentB.generation}) ??Offspring (Gen {offspring.generation}, Fitness {offspring.fitness:F3})");
 
             // Track successful breedings
             analytics.successfulBreedings++;
@@ -381,7 +381,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
         }
 
         // Menu items for easy access
-        [UnityEditor.MenuItem("ðŸ§ª Laboratory/Genetics/Run Evolution Cycle")]
+        [UnityEditor.MenuItem("?§ª Laboratory/Genetics/Run Evolution Cycle")]
         private static void MenuRunEvolution()
         {
             if (Application.isPlaying && Instance != null)
@@ -394,7 +394,7 @@ namespace Laboratory.Chimera.Genetics.Advanced
             }
         }
 
-        [UnityEditor.MenuItem("ðŸ§ª Laboratory/Genetics/Generate Population Report")]
+        [UnityEditor.MenuItem("?§ª Laboratory/Genetics/Generate Population Report")]
         private static void MenuGenerateReport()
         {
             if (Application.isPlaying && Instance != null)

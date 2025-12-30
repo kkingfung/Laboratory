@@ -77,7 +77,7 @@ namespace Laboratory.Core.Discovery.Services
             journal.TotalEntries++;
             journal.LastEntryDate = DateTime.UtcNow;
 
-            Debug.Log($"📝 Journal entry added: {title}");
+            Debug.Log($"[Journal] Journal entry added: {title}");
             return entry;
         }
 
@@ -92,7 +92,7 @@ namespace Laboratory.Core.Discovery.Services
             stats.TotalDiscoveries++;
             stats.LastDiscoveryDate = DateTime.UtcNow;
 
-            Debug.Log($"🧬 Genetic discovery documented: {discovery.DiscoveryName}");
+            Debug.Log($"[Discovery] Genetic discovery documented: {discovery.DiscoveryName}");
         }
 
         public JournalEntry AddPlayerObservation(string playerId, string observation, string hypothesis = "")

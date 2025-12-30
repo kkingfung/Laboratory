@@ -181,7 +181,7 @@ namespace Laboratory.Chimera.Visuals.Systems
 
         private IEnumerator GenerateVisualsPipeline(VisualGeneticTraits traits)
         {
-            UnityEngine.Debug.Log("🎨 Starting procedural visual generation pipeline");
+            UnityEngine.Debug.Log("[Visual] Starting procedural visual generation pipeline");
 
             // Phase 1: Basic scaling and structure
             ApplyBasicScaling(traits);
@@ -217,7 +217,7 @@ namespace Laboratory.Chimera.Visuals.Systems
             isInitialized = true;
 
             OnVisualGenerated?.Invoke(traits);
-            UnityEngine.Debug.Log("✨ Procedural visual generation complete");
+            UnityEngine.Debug.Log("[OK] Procedural visual generation complete");
         }
 
         private VisualGeneticTraits ExtractVisualTraits(GeneticProfile geneticProfile)

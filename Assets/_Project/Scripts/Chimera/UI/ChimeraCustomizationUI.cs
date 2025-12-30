@@ -19,28 +19,28 @@ namespace Laboratory.Chimera.UI
     {
         #region Serialized Fields
 
-        [Header("🎭 Main UI Panels")]
+        [Header("[Visual] Main UI Panels")]
         [SerializeField] private GameObject mainPanel;
         [SerializeField] private GameObject equipmentPanel;
         [SerializeField] private GameObject outfitPanel;
         [SerializeField] private GameObject colorPanel;
         [SerializeField] private GameObject geneticPanel;
 
-        [Header("🎮 Navigation")]
+        [Header("[Input] Navigation")]
         [SerializeField] private Button equipmentTabButton;
         [SerializeField] private Button outfitTabButton;
         [SerializeField] private Button colorTabButton;
         [SerializeField] private Button geneticTabButton;
         [SerializeField] private Button closeButton;
 
-        [Header("🎒 Equipment UI")]
+        [Header("[Equipment] Equipment UI")]
         [SerializeField] private Transform equipmentSlotContainer;
         [SerializeField] private GameObject equipmentSlotPrefab;
         [SerializeField] private Transform availableEquipmentContainer;
         [SerializeField] private GameObject equipmentItemPrefab;
         [SerializeField] private TextMeshProUGUI equipmentInfoText;
 
-        [Header("👗 Outfit UI")]
+        [Header("[Outfit] Outfit UI")]
         [SerializeField] private Transform outfitCategoriesContainer;
         [SerializeField] private GameObject outfitCategoryPrefab;
         [SerializeField] private Transform outfitPiecesContainer;
@@ -48,7 +48,7 @@ namespace Laboratory.Chimera.UI
         [SerializeField] private Button saveOutfitButton;
         [SerializeField] private Button loadOutfitButton;
 
-        [Header("🌈 Color UI")]
+        [Header("[Color] Color UI")]
         [SerializeField] private Transform colorPresetsContainer;
         [SerializeField] private GameObject colorPresetPrefab;
         [SerializeField] private Button primaryColorButton;
@@ -56,7 +56,7 @@ namespace Laboratory.Chimera.UI
         [SerializeField] private Button accentColorButton;
         [SerializeField] private ColorPickerUI colorPicker;
 
-        [Header("🧬 Genetic UI")]
+        [Header("[Genetics] Genetic UI")]
         [SerializeField] private Button regenerateAppearanceButton;
         [SerializeField] private Slider bodyScaleSlider;
         [SerializeField] private Slider patternIntensitySlider;
@@ -64,13 +64,13 @@ namespace Laboratory.Chimera.UI
         [SerializeField] private Transform patternContainer;
         [SerializeField] private GameObject patternTogglePrefab;
 
-        [Header("💾 Save/Load")]
+        [Header("[Save] Save/Load")]
         [SerializeField] private Button saveCustomizationButton;
         [SerializeField] private Button loadCustomizationButton;
         [SerializeField] private Button resetToDefaultButton;
         [SerializeField] private TextMeshProUGUI statusText;
 
-        [Header("🎯 Preview")]
+        [Header("[Preview] Preview")]
         [SerializeField] private Transform previewContainer;
         [SerializeField] private Camera previewCamera;
         [SerializeField] private Button rotateLeftButton;

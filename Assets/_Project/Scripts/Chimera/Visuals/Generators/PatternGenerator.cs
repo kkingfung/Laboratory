@@ -27,7 +27,7 @@ namespace Laboratory.Chimera.Visuals.Generators
 
         public IEnumerator GeneratePatterns(VisualGeneticTraits traits, Renderer[] renderers)
         {
-            UnityEngine.Debug.Log("🎨 Generating procedural patterns");
+            UnityEngine.Debug.Log("[Visual] Generating procedural patterns");
 
             foreach (var renderer in renderers)
             {
@@ -36,7 +36,7 @@ namespace Laboratory.Chimera.Visuals.Generators
                 yield return StartCoroutine(ApplyPatternsToRenderer(traits, renderer));
             }
 
-            UnityEngine.Debug.Log("✨ Pattern generation complete");
+            UnityEngine.Debug.Log("[OK] Pattern generation complete");
         }
 
         private IEnumerator ApplyPatternsToRenderer(VisualGeneticTraits traits, Renderer renderer)

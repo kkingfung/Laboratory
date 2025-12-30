@@ -155,12 +155,12 @@ namespace Laboratory.Chimera.Ecosystem.Core
         public static string GetRegistrationStatus()
         {
             return $"Ecosystem Service Locator Status:\n" +
-                   $"  Climate: {(_climateSystem != null ? "✓" : "✗")}\n" +
-                   $"  Biome: {(_biomeSystem != null ? "✓" : "✗")}\n" +
-                   $"  Resource: {(_resourceSystem != null ? "✓" : "✗")}\n" +
-                   $"  Species: {(_speciesSystem != null ? "✓" : "✗")}\n" +
-                   $"  Health Monitor: {(_healthMonitor != null ? "✓" : "✗")}\n" +
-                   $"  Catastrophe: {(_catastropheSystem != null ? "✓" : "✗")}";
+                   $"  Climate: {(_climateSystem != null ? "[OK]" : "[X]")}\n" +
+                   $"  Biome: {(_biomeSystem != null ? "[OK]" : "[X]")}\n" +
+                   $"  Resource: {(_resourceSystem != null ? "[OK]" : "[X]")}\n" +
+                   $"  Species: {(_speciesSystem != null ? "[OK]" : "[X]")}\n" +
+                   $"  Health Monitor: {(_healthMonitor != null ? "[OK]" : "[X]")}\n" +
+                   $"  Catastrophe: {(_catastropheSystem != null ? "[OK]" : "[X]")}";
         }
     }
 }

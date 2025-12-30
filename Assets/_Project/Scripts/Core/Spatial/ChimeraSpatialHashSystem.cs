@@ -266,23 +266,23 @@ namespace Laboratory.Core.Spatial
     [DefaultExecutionOrder(-150)]
     public class ChimeraSpatialManager : MonoBehaviour
     {
-        [Header("🗺️ Spatial Hash Configuration")]
+        [Header("[SPATIAL] Spatial Hash Configuration")]
         [SerializeField] private bool enableSpatialOptimization = true;
         [SerializeField] private float cellSize = 10f;
         [SerializeField] private int maxEntitiesPerCell = 32;
         [SerializeField] private bool enableDebugVisualization = false;
 
-        [Header("🎯 Query Optimization")]
+        [Header("[OPTIMIZE] Query Optimization")]
         [SerializeField] private bool enableNeighborCaching = true;
         [SerializeField] private float neighborCacheDuration = 0.5f;
         [SerializeField] private int maxCachedQueries = 100;
 
-        [Header("📊 Performance Monitoring")]
+        [Header("[PERF] Performance Monitoring")]
         [SerializeField] private bool trackPerformance = true;
         [SerializeField] private bool showDebugInfo = false;
         [SerializeField] private KeyCode debugToggleKey = KeyCode.F9;
 
-        [Header("📈 Runtime Statistics")]
+        [Header("[RUNTIME] Runtime Statistics")]
         [SerializeField, ReadOnly] private int totalEntitiesTracked = 0;
         [SerializeField, ReadOnly] private int activeCells = 0;
         [SerializeField, ReadOnly] private float averageQueryTime = 0f;
@@ -340,7 +340,7 @@ namespace Laboratory.Core.Spatial
             }
 
             if (showDebugInfo)
-                Debug.Log($"🗺️ Chimera Spatial Manager initialized with cell size: {cellSize}");
+                Debug.Log($"[SPATIAL] Chimera Spatial Manager initialized with cell size: {cellSize}");
         }
 
         private void Update()
@@ -592,7 +592,7 @@ namespace Laboratory.Core.Spatial
                     cached.results.Dispose();
             }
             queryCache.Clear();
-            Debug.Log("🗺️ Spatial query cache cleared");
+            Debug.Log("[SPATIAL] Spatial query cache cleared");
         }
 
         private void OnGUI()

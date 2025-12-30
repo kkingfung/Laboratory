@@ -279,7 +279,7 @@ namespace Laboratory.Gameplay
 
                 if (logDifficultyChanges)
                 {
-                    Debug.Log($"[DifficultyScalingSystem] Difficulty changed: {oldLevel} ({oldMultiplier:F2}x) → {_currentDifficultyLevel} ({_currentDifficultyMultiplier:F2}x)");
+                    Debug.Log($"[DifficultyScalingSystem] Difficulty changed: {oldLevel} ({oldMultiplier:F2}x) -> {_currentDifficultyLevel} ({_currentDifficultyMultiplier:F2}x)");
                 }
             }
         }

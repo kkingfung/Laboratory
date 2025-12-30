@@ -413,7 +413,7 @@ namespace Laboratory.Chimera.Breeding.UI
 
             // Setup results text
             if (_resultsTitle != null)
-                _resultsTitle.text = results.Success ? "ðŸŽ‰ Breeding Success!" : "ðŸ˜” Better Luck Next Time";
+                _resultsTitle.text = results.Success ? "?? Breeding Success!" : "?? Better Luck Next Time";
 
             if (_finalScore != null)
                 _finalScore.text = $"Final Score: {results.FinalScore:F0}";
@@ -421,10 +421,10 @@ namespace Laboratory.Chimera.Breeding.UI
             if (_bonusesEarned != null)
             {
                 var bonuses = new List<string>();
-                if (results.TimeBonus > 1.2f) bonuses.Add("âš¡ Speed Bonus");
-                if (results.PerfectionBonus > 1.0f) bonuses.Add("ðŸ’¯ Perfect Game");
-                if (results.BonusTraitsEarned) bonuses.Add("âœ¨ Bonus Traits");
-                if (results.PerfectBreeding) bonuses.Add("ðŸ† Perfect Breeding");
+                if (results.TimeBonus > 1.2f) bonuses.Add("??Speed Bonus");
+                if (results.PerfectionBonus > 1.0f) bonuses.Add("?’¯ Perfect Game");
+                if (results.BonusTraitsEarned) bonuses.Add("??Bonus Traits");
+                if (results.PerfectBreeding) bonuses.Add("?? Perfect Breeding");
 
                 _bonusesEarned.text = bonuses.Count > 0 ? string.Join("\n", bonuses) : "No special bonuses";
             }
@@ -581,10 +581,10 @@ namespace Laboratory.Chimera.Breeding.UI
         {
             return gameType switch
             {
-                BreedingGameType.GeneMatching => "ðŸ§¬ Gene Matching",
-                BreedingGameType.DNASequencing => "ðŸ”¬ DNA Sequencing",
-                BreedingGameType.TraitBalancing => "âš–ï¸ Trait Balancing",
-                BreedingGameType.Incubation => "ðŸ¥š Incubation Control",
+                BreedingGameType.GeneMatching => "?§¬ Gene Matching",
+                BreedingGameType.DNASequencing => "?”¬ DNA Sequencing",
+                BreedingGameType.TraitBalancing => "?–ï? Trait Balancing",
+                BreedingGameType.Incubation => "?? Incubation Control",
                 _ => "Breeding Mini-Game"
             };
         }

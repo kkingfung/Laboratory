@@ -15,8 +15,8 @@ namespace Laboratory.Core.Infrastructure
         // Fundamental constants from physics
         private const float PLANCK_CONSTANT = 6.62607015e-34f; // J·s
         private const float BOLTZMANN_CONSTANT = 1.38064852e-23f; // J/K
-        private const float HBAR = 1.054571817e-34f; // ℏ = h/2π
-        private const float FINE_STRUCTURE_CONSTANT = 7.2973525693e-3f; // α ≈ 1/137
+        private const float HBAR = 1.054571817e-34f; // hbar = h/2*pi
+        private const float FINE_STRUCTURE_CONSTANT = 7.2973525693e-3f; // alpha ~= 1/137
 
         /// <summary>
         /// Applies statistical mechanics to population dynamics using partition functions
@@ -115,7 +115,7 @@ namespace Laboratory.Core.Infrastructure
                     kineticEnergy = 0.5f * gradient * gradient;
                 }
 
-                // Potential energy: V(φ) = ½m²φ² + λφ⁴/4!
+                // Potential energy: V(phi) = (1/2)*m^2*phi^2 + lambda*phi^4/4!
                 var potentialEnergy = 0.5f * massParameter * massParameter * fieldValue * fieldValue +
                                     fieldCoupling * fieldValue * fieldValue * fieldValue * fieldValue / 24f;
 
@@ -132,7 +132,7 @@ namespace Laboratory.Core.Infrastructure
             {
                 var classicalValue = geneticField[i];
 
-                // Quantum correction: δφ = ℏλ/(16π²m²) ln(Λ²/m²)
+                // Quantum correction: delta_phi = hbar*lambda/(16*pi^2*m^2) * ln(Lambda^2/m^2)
                 var quantumCorrection = HBAR * fieldCoupling / (16f * Mathf.PI * Mathf.PI * massParameter * massParameter) *
                                       Mathf.Log(100f / (massParameter * massParameter)); // Λ = 10 (cutoff)
 

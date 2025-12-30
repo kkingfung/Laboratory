@@ -10,9 +10,9 @@ namespace Laboratory.Chimera.Consciousness.Core
     /// Makes it easy to trigger emotional responses
     ///
     /// Usage Example:
-    /// - Player feeds chimera → AddContext(entity, EmotionalTrigger.FedFavoriteFood, 0.8f)
-    /// - Win activity together → AddContext(entity, EmotionalTrigger.WonActivity, 1.0f)
-    /// - Ignore for too long → AddContext(entity, EmotionalTrigger.Ignored, 0.6f)
+    /// - Player feeds chimera -> AddContext(entity, EmotionalTrigger.FedFavoriteFood, 0.8f)
+    /// - Win activity together -> AddContext(entity, EmotionalTrigger.WonActivity, 1.0f)
+    /// - Ignore for too long -> AddContext(entity, EmotionalTrigger.Ignored, 0.6f)
     ///
     /// Integration:
     /// - Call from activity systems, bonding systems, etc.

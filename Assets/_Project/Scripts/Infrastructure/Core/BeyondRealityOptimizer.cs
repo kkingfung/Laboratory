@@ -180,12 +180,12 @@ namespace Laboratory.Infrastructure.Core
             {
                 InfinityTypes = new Dictionary<string, string>
                 {
-                    ["Countable Infinity"] = "ℵ₀ - Natural numbers, basic infinite computation",
-                    ["Uncountable Infinity"] = "ℵ₁ - Real numbers, continuous optimization spaces",
-                    ["Power Set Infinities"] = "2^ℵ₀, 2^ℵ₁, etc. - Exponential optimization possibilities",
+                    ["Countable Infinity"] = "aleph0 - Natural numbers, basic infinite computation",
+                    ["Uncountable Infinity"] = "aleph1 - Real numbers, continuous optimization spaces",
+                    ["Power Set Infinities"] = "2^aleph0, 2^aleph1, etc. - Exponential optimization possibilities",
                     ["Large Cardinal Infinities"] = "Inaccessible, Mahlo, Measurable cardinals",
                     ["Berkeley Cardinals"] = "Beyond ZFC set theory limitations",
-                    ["Absolute Infinity"] = "Ω - The infinity of all infinities, beyond mathematical description",
+                    ["Absolute Infinity"] = "Omega - The infinity of all infinities, beyond mathematical description",
                     ["Post-Absolute Infinity"] = "What lies beyond absolute infinity - transcendent optimization substrate"
                 },
                 ManipulationTechniques = new List<string>

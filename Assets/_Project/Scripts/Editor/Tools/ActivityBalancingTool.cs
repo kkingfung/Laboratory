@@ -206,7 +206,7 @@ namespace Laboratory.Editor.Tools
 
             if (recommendations.Count == 0)
             {
-                EditorGUILayout.HelpBox("✅ Activity appears well-balanced!", MessageType.Info);
+                EditorGUILayout.HelpBox("[OK] Activity appears well-balanced!", MessageType.Info);
             }
             else
             {
@@ -275,7 +275,7 @@ namespace Laboratory.Editor.Tools
 
             GUIStyle statusStyle = new GUIStyle(EditorStyles.label);
             statusStyle.normal.textColor = color;
-            string status = variance < 0.1f ? "✓ On Target" : variance < 0.3f ? "⚠ Close" : "✗ Off Target";
+            string status = variance < 0.1f ? "[OK] On Target" : variance < 0.3f ? "[Warning] Close" : "[X] Off Target";
             EditorGUILayout.LabelField(status, statusStyle);
 
             EditorGUILayout.EndHorizontal();
@@ -292,27 +292,27 @@ namespace Laboratory.Editor.Tools
             if (timeVariance > 0.3f)
             {
                 if (estimatedCompletionTime > targetCompletionTime * 1.3f)
-                    recommendations.Add("⚠ Activity takes too long. Consider reducing difficulty or increasing player power.");
+                    recommendations.Add("[Warning] Activity takes too long. Consider reducing difficulty or increasing player power.");
                 else
-                    recommendations.Add("⚠ Activity completes too quickly. Consider increasing difficulty.");
+                    recommendations.Add("[Warning] Activity completes too quickly. Consider increasing difficulty.");
             }
 
             // Check engagement
             if (engagementScore < 5.0f)
             {
-                recommendations.Add("⚠ Low engagement score. Review difficulty curve and reward ratios.");
+                recommendations.Add("[Warning] Low engagement score. Review difficulty curve and reward ratios.");
             }
 
             // Check reward balance
             float xpPerMinute = estimatedXP / (estimatedCompletionTime / 60f);
             if (xpPerMinute < 50f)
-                recommendations.Add("⚠ XP rewards may be too low for time investment.");
+                recommendations.Add("[Warning] XP rewards may be too low for time investment.");
             if (xpPerMinute > 200f)
-                recommendations.Add("⚠ XP rewards may be too high. Risk of exploitation.");
+                recommendations.Add("[Warning] XP rewards may be too high. Risk of exploitation.");
 
             // Check difficulty scaling
             if (difficultyLevel > 5 && difficulty < 1.5f)
-                recommendations.Add("⚠ Difficulty scaling seems too gentle for high levels.");
+                recommendations.Add("[Warning] Difficulty scaling seems too gentle for high levels.");
 
             return recommendations;
         }

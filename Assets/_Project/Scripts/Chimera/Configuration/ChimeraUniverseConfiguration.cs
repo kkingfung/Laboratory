@@ -13,28 +13,28 @@ namespace Laboratory.Chimera.Configuration
     [CreateAssetMenu(fileName = "ChimeraUniverse", menuName = "Project Chimera/Universe Configuration", order = 0)]
     public class ChimeraUniverseConfiguration : ScriptableObject
     {
-        [Header("🌍 WORLD SETTINGS")]
+        [Header("WORLD SETTINGS")]
         [SerializeField] private WorldSettings worldSettings = new WorldSettings();
 
-        [Header("🧬 GENETIC EVOLUTION")]
+        [Header("GENETIC EVOLUTION")]
         [SerializeField] private GeneticEvolutionSettings geneticSettings = new GeneticEvolutionSettings();
 
-        [Header("🧠 BEHAVIOR & AI")]
+        [Header("BEHAVIOR & AI")]
         [SerializeField] private BehaviorSettings behaviorSettings = new BehaviorSettings();
 
-        [Header("💕 BREEDING & REPRODUCTION")]
+        [Header("BREEDING & REPRODUCTION")]
         [SerializeField] private BreedingSettings breedingSettings = new BreedingSettings();
 
-        [Header("🏰 TERRITORY & SOCIAL")]
+        [Header("TERRITORY & SOCIAL")]
         [SerializeField] private SocialTerritorySettings socialSettings = new SocialTerritorySettings();
 
-        [Header("🌱 ECOSYSTEM & ENVIRONMENT")]
+        [Header("ECOSYSTEM & ENVIRONMENT")]
         [SerializeField] private EcosystemSettings ecosystemSettings = new EcosystemSettings();
 
-        [Header("⚡ PERFORMANCE OPTIMIZATION")]
+        [Header("PERFORMANCE OPTIMIZATION")]
         [SerializeField] private PerformanceSettings performanceSettings = new PerformanceSettings();
 
-        [Header("🎮 PLAYER INTERACTION")]
+        [Header("PLAYER INTERACTION")]
         [SerializeField] private PlayerInteractionSettings playerSettings = new PlayerInteractionSettings();
 
         // Public accessors with validation
@@ -76,19 +76,19 @@ namespace Laboratory.Chimera.Configuration
     [System.Serializable]
     public class WorldSettings
     {
-        [Header("🗺️ World Scale")]
+        [Header("World Scale")]
         public float worldRadius = 500f;
         public int maxCreatures = 5000;
         public int targetCreatureDensity = 10; // creatures per 100 square units
         public float simulationSpeed = 1f;
 
-        [Header("⏰ Time & Seasons")]
+        [Header("Time & Seasons")]
         public float dayLength = 300f; // seconds
         public float seasonLength = 30f; // days
         public bool enableSeasons = true;
         public AnimationCurve seasonalBreedingModifier = AnimationCurve.Constant(0, 1, 1);
 
-        [Header("🌡️ Climate")]
+        [Header("Climate")]
         public float baseTemperature = 20f;
         public float temperatureVariation = 10f;
         public float climateChangeRate = 0.001f;
@@ -118,25 +118,25 @@ namespace Laboratory.Chimera.Configuration
     [System.Serializable]
     public class GeneticEvolutionSettings
     {
-        [Header("🔬 Mutation & Evolution")]
+        [Header("Mutation & Evolution")]
         [Range(0.001f, 0.1f)] public float baseMutationRate = 0.02f;
         [Range(0f, 1f)] public float beneficialMutationChance = 0.3f;
         [Range(0f, 1f)] public float environmentalPressureStrength = 0.5f;
         public bool enableNaturalSelection = true;
         public bool enableGeneticDrift = true;
 
-        [Header("🧬 Inheritance")]
+        [Header("Inheritance")]
         [Range(0f, 0.5f)] public float traitVariationRange = 0.1f;
         public AnimationCurve dominanceExpression = AnimationCurve.EaseInOut(0, 0, 1, 1);
         public float epigeneticInfluence = 0.2f;
 
-        [Header("🏆 Fitness Calculation")]
+        [Header("Fitness Calculation")]
         [Range(0f, 1f)] public float survivalWeight = 0.3f;
         [Range(0f, 1f)] public float reproductionWeight = 0.4f;
         [Range(0f, 1f)] public float resourceEfficiencyWeight = 0.2f;
         [Range(0f, 1f)] public float adaptabilityWeight = 0.1f;
 
-        [Header("🎯 Selection Pressure")]
+        [Header("Selection Pressure")]
         public EnvironmentalPressure[] environmentalPressures = new EnvironmentalPressure[]
         {
             new EnvironmentalPressure { biome = BiomeType.Desert, favoredTrait = "HeatTolerance", intensity = 0.8f },
@@ -166,30 +166,30 @@ namespace Laboratory.Chimera.Configuration
     [System.Serializable]
     public class BehaviorSettings
     {
-        [Header("🧠 Decision Making")]
+        [Header("Decision Making")]
         public float decisionUpdateInterval = 2f;
         [Range(0f, 1f)] public float personalityStability = 0.8f; // How consistent personality is
         public float stressInfluenceOnDecisions = 0.3f;
         public AnimationCurve confidenceVsRisk = AnimationCurve.EaseInOut(0, 1, 1, 0);
 
-        [Header("🎯 Behavior Weights")]
+        [Header("Behavior Weights")]
         public BehaviorWeightSet defaultWeights = new BehaviorWeightSet();
         public BehaviorWeightSet juvenileModifiers = new BehaviorWeightSet();
         public BehaviorWeightSet elderModifiers = new BehaviorWeightSet();
 
-        [Header("😊 Emotional System")]
+        [Header("Emotional System")]
         public float emotionalDecayRate = 0.01f;
         public float stressAccumulationRate = 0.05f;
         public AnimationCurve satisfactionCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         public float emotionalContagionRadius = 10f;
 
-        [Header("📚 Learning & Memory")]
+        [Header("Learning & Memory")]
         public bool enableLearning = true;
         public float memoryCapacity = 50f; // how many experiences they remember
         public float learningRate = 0.1f;
         public float memoryDecayRate = 0.001f;
 
-        [Header("🎲 Randomness")]
+        [Header("Randomness")]
         [Range(0f, 0.5f)] public float behaviorRandomness = 0.1f; // prevents predictability
         public float curiosityRandomness = 0.2f;
 
@@ -243,32 +243,32 @@ namespace Laboratory.Chimera.Configuration
     [System.Serializable]
     public class BreedingSettings
     {
-        [Header("💕 Mating System")]
+        [Header("Mating System")]
         public float breedingSeasonLength = 0.3f; // fraction of year
         public float courtshipDuration = 60f; // seconds
         public float gestationTime = 180f; // seconds
         public float breedingCooldown = 600f; // seconds between breeding attempts
 
-        [Header("👶 Offspring")]
+        [Header("Offspring")]
         public Vector2Int offspringRange = new Vector2Int(1, 4);
         public float multipleOffspringChance = 0.3f;
         public AnimationCurve offspringByAge = AnimationCurve.Linear(0.2f, 0.5f, 0.8f, 3f);
         public float juvenileMaturationTime = 120f;
 
-        [Header("🎯 Mate Selection")]
+        [Header("Mate Selection")]
         public float maxBreedingDistance = 25f;
         [Range(0f, 1f)] public float geneticDiversityPreference = 0.6f;
         [Range(0f, 1f)] public float fitnessPreference = 0.7f;
         [Range(0f, 1f)] public float territoryRequirement = 0.8f; // % territory needed to breed
         public float selectivenessIncrease = 0.1f; // gets pickier with age
 
-        [Header("🧬 Genetic Compatibility")]
+        [Header("Genetic Compatibility")]
         public float hybridViabilityThreshold = 0.3f;
         public float inbreedingDepressionRate = 0.2f;
         public int maxInbreedingGenerations = 3;
         public float outbreedingBonus = 0.2f;
 
-        [Header("👪 Parental Care")]
+        [Header("Parental Care")]
         public float parentalCareRadius = 15f;
         public float parentalCareDuration = 300f;
         public float protectiveAggressionBonus = 2f;
@@ -290,19 +290,19 @@ namespace Laboratory.Chimera.Configuration
     [System.Serializable]
     public class SocialTerritorySettings
     {
-        [Header("🏠 Territory System")]
+        [Header("Territory System")]
         public float baseTerritoryRadius = 12f;
         public AnimationCurve territorySizeByAggression = AnimationCurve.Linear(0.1f, 5f, 1f, 25f);
         public float territoryEstablishmentTime = 120f;
         public float territoryMaintenanceEnergy = 0.01f; // energy cost per second
 
-        [Header("⚔️ Territorial Conflicts")]
+        [Header("Territorial Conflicts")]
         public float conflictDetectionRadius = 2f; // how close before conflict
         public float conflictEscalationTime = 30f;
         public float retreatDistance = 20f;
         public AnimationCurve fightVsFlight = AnimationCurve.EaseInOut(0, 0, 1, 1); // based on size difference
 
-        [Header("👥 Social Groups")]
+        [Header("Social Groups")]
         public int maxPackSize = 12;
         public float packFormationRadius = 20f;
         public float socialBondDecayRate = 0.002f;
@@ -310,14 +310,14 @@ namespace Laboratory.Chimera.Configuration
         public bool enablePackHunting = true;
         public bool enablePackBreeding = true;
 
-        [Header("🤝 Relationship Dynamics")]
+        [Header("Relationship Dynamics")]
         public float relationshipFormationRate = 0.1f;
         public float maxRelationshipStrength = 1f;
         public float friendshipThreshold = 0.6f;
         public float rivalryThreshold = -0.4f;
         public int maxRememberedRelationships = 20;
 
-        [Header("📞 Communication")]
+        [Header("Communication")]
         public float communicationRadius = 30f;
         public bool enableScent = true;
         public float scentDecayTime = 300f;
@@ -336,7 +336,7 @@ namespace Laboratory.Chimera.Configuration
     [System.Serializable]
     public class EcosystemSettings
     {
-        [Header("🌍 Biome Configuration")]
+        [Header("Biome Configuration")]
         public BiomeData[] biomes = new BiomeData[]
         {
             new BiomeData { type = BiomeType.Grassland, resourceAbundance = 0.8f, carryingCapacity = 20, debugColor = Color.green },
@@ -346,13 +346,13 @@ namespace Laboratory.Chimera.Configuration
             new BiomeData { type = BiomeType.Ocean, resourceAbundance = 0.7f, carryingCapacity = 30, debugColor = Color.blue }
         };
 
-        [Header("🌿 Resource Management")]
+        [Header("Resource Management")]
         public float baseResourceRegeneration = 0.1f; // per day
         public float resourceDepletionRate = 0.05f;
         public float resourceVariability = 0.3f; // seasonal variation
         public int maxResourceNodesPerBiome = 50;
 
-        [Header("🦋 Ecosystem Dynamics")]
+        [Header("Ecosystem Dynamics")]
         public bool enablePredatorPrey = true;
         public bool enableCompetition = true;
         public bool enableSymbiosis = false; // future feature
@@ -360,7 +360,7 @@ namespace Laboratory.Chimera.Configuration
         public float populationCrashThreshold = 0.1f;
         public float populationBoomThreshold = 2f;
 
-        [Header("🌡️ Environmental Events")]
+        [Header("Environmental Events")]
         public bool enableRandomEvents = true;
         public float naturalDisasterChance = 0.01f; // per day
         public float seasonalMigrationTrigger = 0.4f; // resource depletion level
@@ -375,26 +375,26 @@ namespace Laboratory.Chimera.Configuration
     [System.Serializable]
     public class PerformanceSettings
     {
-        [Header("⚡ Job Batching")]
+        [Header("Job Batching")]
         public int maxBehaviorUpdatesPerFrame = 1000;
         public int maxGeneticCalculationsPerFrame = 100;
         public int maxBreedingChecksPerFrame = 200;
         public int maxSocialUpdatesPerFrame = 500;
 
-        [Header("📍 Spatial Optimization")]
+        [Header("Spatial Optimization")]
         public float spatialHashCellSize = 20f;
         public int maxEntitiesPerSpatialCell = 30;
         public bool enableSpatialCulling = true;
         public float maxInteractionDistance = 50f;
 
-        [Header("🎯 Level of Detail")]
+        [Header("Level of Detail")]
         public float highDetailDistance = 30f;
         public float mediumDetailDistance = 100f;
         public float lowDetailDistance = 300f;
         public bool enableBehaviorLOD = true;
         public bool enableGeneticLOD = true;
 
-        [Header("💾 Memory Management")]
+        [Header("Memory Management")]
         public int initialEntityCapacity = 5000;
         public int entityCapacityGrowthStep = 1000;
         public bool enableMemoryPooling = true;
@@ -416,24 +416,24 @@ namespace Laboratory.Chimera.Configuration
     [System.Serializable]
     public class PlayerInteractionSettings
     {
-        [Header("🎮 Interaction Methods")]
+        [Header("Interaction Methods")]
         public bool enableCreatureSelection = true;
         public bool enableCreatureInspection = true;
         public bool enableBreedingPrograms = true;
         public bool enableTerritoryManagement = false; // future feature
 
-        [Header("🔬 Research & Discovery")]
+        [Header("Research & Discovery")]
         public bool enableGeneticResearch = true;
         public bool enableBehaviorStudy = true;
         public bool enableEcosystemMonitoring = true;
         public float discoveryRewardMultiplier = 1f;
 
-        [Header("🎯 Conservation Actions")]
+        [Header("Conservation Actions")]
         public bool enableSpeciesProtection = true;
         public bool enableHabitatRestoration = true;
         public bool enableAntiPoaching = false; // future feature
 
-        [Header("⚖️ Game Balance")]
+        [Header("Game Balance")]
         public float playerInfluenceRadius = 100f;
         public float interventionCost = 1f;
         public bool limitPlayerActions = true;

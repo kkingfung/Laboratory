@@ -196,7 +196,7 @@ namespace Laboratory.Core.Localization
             UpdateText();
 
             string currentText = GetCurrentText();
-            Debug.Log($"[LocalizedText] Key: '{localizationKey}' → Text: '{currentText}'", this);
+            Debug.Log($"[LocalizedText] Key: '{localizationKey}' -> Text: '{currentText}'", this);
         }
 
         /// <summary>

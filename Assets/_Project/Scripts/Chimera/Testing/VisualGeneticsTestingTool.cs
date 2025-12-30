@@ -71,7 +71,7 @@ namespace Laboratory.Chimera.Testing
         {
             ClearPreviousSpawns();
             
-            UnityEngine.Debug.Log($"🧬 Spawning {numberOfCreatures} genetically diverse creatures...");
+            UnityEngine.Debug.Log($"[Genetics] Spawning {numberOfCreatures} genetically diverse creatures...");
             
             spawnedCreatures = new GameObject[numberOfCreatures];
             Vector3 basePosition = transform.position;
@@ -85,11 +85,11 @@ namespace Laboratory.Chimera.Testing
                 if (showDebugInfo)
                 {
                     var creatureComponent = creature.GetComponent<CreatureInstanceComponent>();
-                    UnityEngine.Debug.Log($"✅ Spawned creature {i + 1}: {creatureComponent.GetInfoText()}");
+                    UnityEngine.Debug.Log($"[OK] Spawned creature {i + 1}: {creatureComponent.GetInfoText()}");
                 }
             }
             
-            UnityEngine.Debug.Log($"🎉 Spawned {numberOfCreatures} creatures successfully!");
+            UnityEngine.Debug.Log($"[Success] Spawned {numberOfCreatures} creatures successfully!");
         }
         
         /// <summary>
@@ -100,7 +100,7 @@ namespace Laboratory.Chimera.Testing
         {
             ClearPreviousSpawns();
             
-            UnityEngine.Debug.Log("🎨 Testing specific genetic trait visuals...");
+            UnityEngine.Debug.Log("[Visual] Testing specific genetic trait visuals...");
             
             var testCases = new[]
             {
@@ -121,7 +121,7 @@ namespace Laboratory.Chimera.Testing
                 spawnedCreatures[i] = creature;
             }
             
-            UnityEngine.Debug.Log($"✅ Spawned {testCases.Length} test case creatures!");
+            UnityEngine.Debug.Log($"[OK] Spawned {testCases.Length} test case creatures!");
         }
         
         /// <summary>
@@ -132,7 +132,7 @@ namespace Laboratory.Chimera.Testing
         {
             ClearPreviousSpawns();
             
-            UnityEngine.Debug.Log("👨‍👩‍👧‍👦 Testing breeding combinations...");
+            UnityEngine.Debug.Log("[Family] Testing breeding combinations...");
             
             // Create two diverse parent genetics
             var parent1Genetics = traitLibrary.CreateRichGeneticProfile(BiomeType.Desert, 1);
@@ -159,7 +159,7 @@ namespace Laboratory.Chimera.Testing
                 spawnedCreatures[i] = creature;
             }
             
-            UnityEngine.Debug.Log("🧬 Breeding test complete - compare parent vs offspring visuals!");
+            UnityEngine.Debug.Log("[Genetics] Breeding test complete - compare parent vs offspring visuals!");
         }
         
         /// <summary>
@@ -176,7 +176,7 @@ namespace Laboratory.Chimera.Testing
             
             ClearPreviousSpawns();
             
-            UnityEngine.Debug.Log($"⚡ Starting performance test - spawning {massSpawnCount} creatures...");
+            UnityEngine.Debug.Log($"[Power] Starting performance test - spawning {massSpawnCount} creatures...");
             
             float startTime = Time.realtimeSinceStartup;
             
@@ -200,9 +200,9 @@ namespace Laboratory.Chimera.Testing
             float endTime = Time.realtimeSinceStartup;
             float totalTime = endTime - startTime;
             
-            UnityEngine.Debug.Log($"⚡ Performance test complete!");
-            UnityEngine.Debug.Log($"📊 Spawned {massSpawnCount} creatures in {totalTime:F2} seconds");
-            UnityEngine.Debug.Log($"📊 Average time per creature: {(totalTime / massSpawnCount) * 1000:F2}ms");
+            UnityEngine.Debug.Log($"[Power] Performance test complete!");
+            UnityEngine.Debug.Log($"[Chart] Spawned {massSpawnCount} creatures in {totalTime:F2} seconds");
+            UnityEngine.Debug.Log($"[Chart] Average time per creature: {(totalTime / massSpawnCount) * 1000:F2}ms");
         }
         
         /// <summary>
@@ -213,7 +213,7 @@ namespace Laboratory.Chimera.Testing
         {
             ClearPreviousSpawns();
             
-            UnityEngine.Debug.Log("📈 Testing generation progression visuals...");
+            UnityEngine.Debug.Log("[Chart] Testing generation progression visuals...");
             
             // Create base genetics
             var baseGenetics = traitLibrary.CreateRichGeneticProfile(testBiome, 1);
@@ -238,7 +238,7 @@ namespace Laboratory.Chimera.Testing
                 spawnedCreatures[i] = creature;
             }
             
-            UnityEngine.Debug.Log("📈 Generation progression test complete!");
+            UnityEngine.Debug.Log("[Chart] Generation progression test complete!");
         }
         
         #endregion
@@ -544,7 +544,7 @@ namespace Laboratory.Chimera.Testing
         {
             if (spawnedCreatures == null) return "No creatures spawned";
             
-            var info = $"🔍 Performance Metrics:\n";
+            var info = $"[Inspect] Performance Metrics:\n";
             info += $"Creatures Spawned: {spawnedCreatures.Length}\n";
             info += $"Last Spawn Time: {Time.time - lastSpawnTime:F2}s ago\n";
             

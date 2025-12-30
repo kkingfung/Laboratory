@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -82,7 +82,7 @@ namespace Laboratory.Core.MonsterTown
 
         private async Task InitializeGameAsync()
         {
-            Debug.Log("🏘️ Initializing ChimeraOS: Monster Breeding Town Builder");
+            Debug.Log("[Init] Initializing ChimeraOS: Monster Breeding Town Builder");
 
             // Load or create player town
             await LoadPlayerTown();
@@ -99,7 +99,7 @@ namespace Laboratory.Core.MonsterTown
             // Start town simulation
             StartTownSimulation();
 
-            Debug.Log("🎮 ChimeraOS Ready - Welcome to your Monster Town!");
+            Debug.Log("[Game] ChimeraOS Ready - Welcome to your Monster Town!");
         }
 
         #endregion
@@ -230,7 +230,7 @@ namespace Laboratory.Core.MonsterTown
             // Save progress
             await SavePlayerData();
 
-            Debug.Log($"🧬 New monster born: {offspring.Name} with {offspring.GeneticProfile.Traits.Count} unique traits!");
+            Debug.Log($"[Genetics] New monster born: {offspring.Name} with {offspring.GeneticProfile.Traits.Count} unique traits!");
             return offspring;
         }
 
@@ -361,7 +361,7 @@ namespace Laboratory.Core.MonsterTown
             _rewardSystem.SpendCurrency(cost);
             await _townSystem.StartConstruction(facility);
 
-            Debug.Log($"🏗️ Building {facilityType} at {position}");
+            Debug.Log($"[Building] Building {facilityType} at {position}");
             return true;
         }
 
@@ -383,7 +383,7 @@ namespace Laboratory.Core.MonsterTown
             _rewardSystem.SpendCurrency(upgradeCost);
             await _townSystem.UpgradeFacility(facility);
 
-            Debug.Log($"⬆️ Upgraded {facility.Type} to level {facility.Level}");
+            Debug.Log($"[Upgrade] Upgraded {facility.Type} to level {facility.Level}");
             return true;
         }
 

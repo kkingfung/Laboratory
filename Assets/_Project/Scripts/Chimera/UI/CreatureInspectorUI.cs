@@ -17,12 +17,12 @@ namespace Laboratory.Chimera.UI
     /// </summary>
     public class CreatureInspectorUI : MonoBehaviour
     {
-        [Header("🎯 Target Configuration")]
+        [Header("[Target] Target Configuration")]
         [SerializeField] private GameObject targetCreature;
         [SerializeField] private bool autoFindNearestCreature = true;
         [SerializeField] private float autoFindRadius = 10f;
         
-        [Header("📊 UI References")]
+        [Header("[Chart] UI References")]
         [SerializeField] private TextMeshProUGUI creatureNameText;
         [SerializeField] private TextMeshProUGUI speciesText;
         [SerializeField] private TextMeshProUGUI ageText;
@@ -30,7 +30,7 @@ namespace Laboratory.Chimera.UI
         [SerializeField] private TextMeshProUGUI healthText;
         [SerializeField] private TextMeshProUGUI behaviorStateText;
         
-        [Header("🧬 Genetics Display")]
+        [Header("[Genetics] Genetics Display")]
         [SerializeField] private Slider strengthSlider;
         [SerializeField] private Slider vitalitySlider;
         [SerializeField] private Slider agilitySlider;
@@ -40,7 +40,7 @@ namespace Laboratory.Chimera.UI
         [SerializeField] private TextMeshProUGUI geneticSummaryText;
         [SerializeField] private TextMeshProUGUI lineageText;
         
-        [Header("🎭 Personality Display")]
+        [Header("[Personality] Personality Display")]
         [SerializeField] private Slider braverySlider;
         [SerializeField] private Slider loyaltySlider;
         [SerializeField] private Slider curiositySlider;
@@ -48,7 +48,7 @@ namespace Laboratory.Chimera.UI
         [SerializeField] private Slider playfulnessSlider;
         [SerializeField] private TextMeshProUGUI personalityDescText;
         
-        [Header("💭 Needs Display")]
+        [Header("[Needs] Needs Display")]
         [SerializeField] private Slider hungerSlider;
         [SerializeField] private Slider thirstSlider;
         [SerializeField] private Slider restSlider;
@@ -58,19 +58,19 @@ namespace Laboratory.Chimera.UI
         [SerializeField] private Slider happinessSlider;
         [SerializeField] private Slider stressSlider;
         
-        [Header("🤝 Bonding Display")]
+        [Header("[Bond] Bonding Display")]
         [SerializeField] private Slider bondStrengthSlider;
         [SerializeField] private Slider trustSlider;
         [SerializeField] private Slider obedienceSlider;
         [SerializeField] private TextMeshProUGUI bondingStatusText;
         
-        [Header("🌍 Environmental Display")]
+        [Header("[World] Environmental Display")]
         [SerializeField] private TextMeshProUGUI currentBiomeText;
         [SerializeField] private Slider biomeComfortSlider;
         [SerializeField] private Slider adaptationSlider;
         [SerializeField] private TextMeshProUGUI environmentalStressText;
         
-        [Header("🔧 Update Settings")]
+        [Header("[Config] Update Settings")]
         [SerializeField] private float updateInterval = 0.5f;
         [SerializeField] private bool enableDebugInfo = false;
         [SerializeField] private bool autoHideWhenNoTarget = true;

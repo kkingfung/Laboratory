@@ -86,7 +86,7 @@ namespace Laboratory.Chimera.Visuals
                 lastKnownGenetics = genetics;
                 
                 if (enableDebugLogs)
-                    UnityEngine.Debug.Log($"✅ Applied genetic visuals to {name} - Gen {genetics.Generation}, Purity: {genetics.GetGeneticPurity():P1}");
+                    UnityEngine.Debug.Log($"[OK] Applied genetic visuals to {name} - Gen {genetics.Generation}, Purity: {genetics.GetGeneticPurity():P1}");
             }
         }
         
@@ -124,7 +124,7 @@ namespace Laboratory.Chimera.Visuals
                 return "No genetic data available";
             
             var genetics = creatureInstance.CreatureData.GeneticProfile;
-            var info = $"🎨 Genetic Visual Debug Info:\n";
+            var info = $"[Visual] Genetic Visual Debug Info:\n";
             info += $"Generation: {genetics.Generation}\n";
             info += $"Genetic Purity: {genetics.GetGeneticPurity():P1}\n";
             info += $"Active Genes: {genetics.Genes.Count(g => g.isActive)}\n";

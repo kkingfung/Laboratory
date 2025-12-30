@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -63,7 +63,7 @@ namespace Laboratory.Core.Platform
 
         private async Task InitializePlatformAsync()
         {
-            Debug.Log("🧬 Initializing ChimeraOS - Universal Genetic Gaming Platform");
+            Debug.Log("[Genetics] Initializing ChimeraOS - Universal Genetic Gaming Platform");
 
             // Initialize core genetic framework
             await InitializeGeneticFramework();
@@ -74,7 +74,7 @@ namespace Laboratory.Core.Platform
             // Enable cross-genre features
             await EnablePlatformFeatures();
 
-            Debug.Log("🎮 ChimeraOS Platform Ready - All gaming genres now genetically enhanced!");
+            Debug.Log("[Game] ChimeraOS Platform Ready - All gaming genres now genetically enhanced!");
         }
 
         #endregion
@@ -149,7 +149,7 @@ namespace Laboratory.Core.Platform
             await RegisterGenre<UniversalGenreAdapter>(GameGenre.RhythmGame);
             await RegisterGenre<UniversalGenreAdapter>(GameGenre.MusicCreation);
 
-            Debug.Log($"🎯 All {_genreManagers.Count} gaming genres now support genetic enhancement!");
+            Debug.Log($"[Target] All {_genreManagers.Count} gaming genres now support genetic enhancement!");
         }
 
         /// <summary>
@@ -172,11 +172,11 @@ namespace Laboratory.Core.Platform
                 // Wait for initialization
                 await Task.Delay(10); // Allow component to initialize
 
-                Debug.Log($"✅ {genre} genetic integration registered");
+                Debug.Log($"[OK] {genre} genetic integration registered");
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"⚠️ Could not register {genre}: {ex.Message}");
+                Debug.LogWarning($"[Warning] Could not register {genre}: {ex.Message}");
             }
         }
 
@@ -218,12 +218,12 @@ namespace Laboratory.Core.Platform
                 // Record cross-genre evolution event
                 RecordCrossGenreTransfer(elementId, fromGenre, toGenre, transferEfficiency);
 
-                Debug.Log($"🔄 Successfully transferred genetics from {fromGenre} to {toGenre}");
+                Debug.Log($"[Refresh] Successfully transferred genetics from {fromGenre} to {toGenre}");
                 return true;
             }
             catch (Exception ex)
             {
-                Debug.LogError($"❌ Cross-genre transfer failed: {ex.Message}");
+                Debug.LogError($"[X] Cross-genre transfer failed: {ex.Message}");
                 return false;
             }
         }
@@ -234,7 +234,7 @@ namespace Laboratory.Core.Platform
         /// </summary>
         public async Task EnableUniversalGeneticSharing()
         {
-            Debug.Log("🌐 Enabling Universal Genetic Sharing across all genres...");
+            Debug.Log("[Network] Enabling Universal Genetic Sharing across all genres...");
 
             // Create cross-compatibility matrix
             var compatibilityMatrix = GenerateGenreCompatibilityMatrix();
@@ -277,7 +277,7 @@ namespace Laboratory.Core.Platform
 
             await ApplyEducationalFeatures(genre, educationalFeatures);
 
-            Debug.Log($"📚 Educational mode enabled for {genre} - now teaching real genetics!");
+            Debug.Log($"[Education] Educational mode enabled for {genre} - now teaching real genetics!");
         }
 
         /// <summary>
@@ -316,7 +316,7 @@ namespace Laboratory.Core.Platform
         /// </summary>
         public async Task ProcessCommunityDiscovery(CommunityGeneticDiscovery discovery)
         {
-            Debug.Log($"🔬 Community discovered: {discovery.DiscoveryName}");
+            Debug.Log($"[Science] Community discovered: {discovery.DiscoveryName}");
 
             // Apply discovery benefits across relevant genres
             foreach (var affectedGenre in discovery.AffectedGenres)
@@ -366,7 +366,7 @@ namespace Laboratory.Core.Platform
                     await RestoreCompatibleGenetics(targetGenre);
                 }
 
-                Debug.Log($"🎮 Switched to {targetGenre} mode with genetic continuity maintained");
+                Debug.Log($"[Game] Switched to {targetGenre} mode with genetic continuity maintained");
                 return true;
             }
             catch (Exception ex)
@@ -593,7 +593,7 @@ namespace Laboratory.Core.Platform
             }
 
             GenreModeChanged?.Invoke(genre, true);
-            Debug.Log($"🧬 Universal Genetic Adapter activated for {genre}");
+            Debug.Log($"[Genetics] Universal Genetic Adapter activated for {genre}");
 
             await Task.CompletedTask;
         }
@@ -604,7 +604,7 @@ namespace Laboratory.Core.Platform
             CurrentActiveGenre = GameGenre.Exploration;
             GenreModeChanged?.Invoke(previousGenre, false);
 
-            Debug.Log($"🧬 Universal Genetic Adapter deactivated for {previousGenre}");
+            Debug.Log($"[Genetics] Universal Genetic Adapter deactivated for {previousGenre}");
             await Task.CompletedTask;
         }
 
@@ -637,7 +637,7 @@ namespace Laboratory.Core.Platform
                     // For genres without specific implementations, enable cross-genre genetics
                     if (_geneticFramework != null && _geneticFramework.EnableCrossGenreGenetics)
                     {
-                        Debug.Log($"🧬 Enabling universal genetics for {genre}");
+                        Debug.Log($"[Genetics] Enabling universal genetics for {genre}");
                     }
                     break;
             }

@@ -340,8 +340,8 @@ namespace Laboratory.Chimera.Consciousness.Core
                     }
                     else if (becameLessMalleable)
                     {
-                        Debug.Log($"Personality becoming more stable: {trackedStage} → {currentStage}. " +
-                                 $"Malleability: {previousMalleability:F0}% → {newMalleability:F0}%");
+                        Debug.Log($"Personality becoming more stable: {trackedStage} -> {currentStage}. " +
+                                 $"Malleability: {previousMalleability:F0}% -> {newMalleability:F0}%");
                     }
                 }
             }

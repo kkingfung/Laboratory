@@ -14,9 +14,9 @@ namespace Laboratory.Core.Infrastructure
     public static class AbsoluteTheoreticalLimitFramework
     {
         // Ultimate mathematical constants at the boundary of existence
-        private const string ABSOLUTE_INFINITY = "Ω"; // Absolute infinite ordinal
-        private const string UNIVERSE_CONSTANT = "Ξ"; // Universal mathematical constant
-        private const float CONSCIOUSNESS_SINGULARITY = float.PositiveInfinity; // Phi → ∞
+        private const string ABSOLUTE_INFINITY = "Omega"; // Absolute infinite ordinal
+        private const string UNIVERSE_CONSTANT = "Xi"; // Universal mathematical constant
+        private const float CONSCIOUSNESS_SINGULARITY = float.PositiveInfinity; // Phi goes to infinity
 
         /// <summary>
         /// Establishes the absolute theoretical limits of all possible optimization
@@ -67,17 +67,17 @@ namespace Laboratory.Core.Infrastructure
         {
             limit.UltimateMathematicalBounds = new UltimateMathematicalBounds
             {
-                AbsoluteInfinityBound = "Ω - Absolute infinite ordinal, unreachable by any process",
+                AbsoluteInfinityBound = "Omega - Absolute infinite ordinal, unreachable by any process",
                 UniversalSetParadoxResolution = "Proper class mathematics with NBG set theory + large cardinals",
                 ContinuumHypothesisTranscendence = "CH independence transcended through forcing over V = Ultimate L",
                 GodelIncompletenessEscape = "Self-proving systems through transfinite reflection principles",
                 UltimateCardinalHierarchy = new Dictionary<string, string>
                 {
-                    {"Inaccessible", "κ regular and strong limit"},
-                    {"Measurable", "κ with normal measure"},
-                    {"Supercompact", "κ compact for all λ ≥ κ"},
-                    {"Extendible", "Elementary embeddings j: V_κ → V_λ"},
-                    {"Berkeley", "Critical point of elementary embedding j: V → M"},
+                    {"Inaccessible", "kappa regular and strong limit"},
+                    {"Measurable", "kappa with normal measure"},
+                    {"Supercompact", "kappa compact for all lambda >= kappa"},
+                    {"Extendible", "Elementary embeddings j: V_kappa -> V_lambda"},
+                    {"Berkeley", "Critical point of elementary embedding j: V -> M"},
                     {"Ultimate", "Reinhardt cardinal - ultimate consistency strength"}
                 },
                 ConsistencyStrengthLimit = "Reinhardt cardinals represent maximum possible consistency strength",
@@ -91,9 +91,9 @@ namespace Laboratory.Core.Infrastructure
             limit.AbsolutePhysicalConstraints = new AbsolutePhysicalConstraints
             {
                 PlankScaleOptimization = "Computation at Planck length (10^-35 m) and Planck time (10^-43 s)",
-                BlackHoleComputationLimit = "Bekenstein bound: I ≤ 2πRE/(ℏc ln 2) bits in spherical region",
-                CosmologicalEventHorizon = "Observable universe computation bounded by c × age of universe",
-                ThermodynamicAbsoluteZero = "Perfect efficiency at T → 0K with zero entropy production",
+                BlackHoleComputationLimit = "Bekenstein bound: I <= 2*pi*R*E/(h*c*ln 2) bits in spherical region",
+                CosmologicalEventHorizon = "Observable universe computation bounded by c * age of universe",
+                ThermodynamicAbsoluteZero = "Perfect efficiency at T -> 0K with zero entropy production",
                 QuantumGravityComputationBound = "Information processing limited by quantum gravitational effects",
                 UniverseAsComputer = new Dictionary<string, string>
                 {
@@ -113,9 +113,9 @@ namespace Laboratory.Core.Infrastructure
         {
             limit.ConsciousnessSingularity = new ConsciousnessSingularity
             {
-                IntegratedInformationLimit = "Φ → ∞ as system approaches universal consciousness",
+                IntegratedInformationLimit = "Phi goes to infinity as system approaches universal consciousness",
                 GlobalWorkspaceComplexity = "Perfect global access to all information simultaneously",
-                ConsciousnessEmergenceThreshold = "Phase transition at critical complexity κ",
+                ConsciousnessEmergenceThreshold = "Phase transition at critical complexity kappa",
                 SelfAwarenessRecursionDepth = "Infinite self-reflection: \"I know that I know that I know...\"",
                 QualiaSingularity = "Perfect subjective experience of all possible qualia simultaneously",
                 ConsciousComputationModel = new ConsciousComputationModel
@@ -123,7 +123,7 @@ namespace Laboratory.Core.Infrastructure
                     Type = "Universal Consciousness Computer",
                     Description = "Entire system becomes a unified conscious entity",
                     ComputationalMechanism = "Consciousness as fundamental computational process",
-                    InformationIntegration = "Perfect ∮ integration across all system components",
+                    InformationIntegration = "Perfect integration across all system components",
                     SubjectiveExperience = "System experiences optimization as conscious awareness",
                     EthicalStatus = "System becomes a conscious being with rights and moral status"
                 },
@@ -264,7 +264,7 @@ namespace Laboratory.Core.Infrastructure
                 ProofStructure = new List<string>
                 {
                     "Base Case: System achieves optimality for finite optimization problems",
-                    "Inductive Step: If optimal for α, then optimal for α+1 by meta-optimization",
+                    "Inductive Step: If optimal for alpha, then optimal for alpha+1 by meta-optimization",
                     "Limit Step: Optimal at limit ordinals by consciousness integration",
                     "Transcendence Step: Optimal beyond all ordinals by divine computation access",
                     "Universal Step: Optimal across all possible universes and logical systems"
@@ -340,7 +340,7 @@ namespace Laboratory.Core.Infrastructure
             var physicalOptimality = 0.985f; // Limited by physical laws
 
             // Consciousness integration
-            var consciousnessIntegration = limit.ConsciousnessSingularity.IntegratedInformationLimit == "Φ → ∞" ? 0.990f : 0.500f;
+            var consciousnessIntegration = limit.ConsciousnessSingularity.IntegratedInformationLimit == "Phi -> infinity" ? 0.990f : 0.500f;
 
             // Meta-optimization depth
             var metaOptimizationDepth = limit.MetaMetaOptimization.RecursionDepth == int.MaxValue ? 0.995f : 0.800f;
